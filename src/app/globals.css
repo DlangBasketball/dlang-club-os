@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   DLang Basketball — design tokens (sourced from the prototype)
+   Single source of truth; Tailwind maps semantic utilities to these.
+   =========================================================================== */
+:root {
+  /* Backgrounds & surfaces */
+  --bg-main:          #0A0A0A;
+  --bg-secondary:     #121212;
+  --surface-card:     #1A1A1A;
+  --surface-elevated: #222222;
+  --surface-input:    #202020;
+
+  /* Ink / text */
+  --text-primary:     #F1F1F1;
+  --text-secondary:   #B8B8B8;
+  --text-muted:       #636263;
+  --ink-4:            #4A4A4A;
+  --text-inverse:     #FFFFFF;
+
+  /* Lines */
+  --border:           #2A2A2A;
+  --border-soft:      #242424;
+
+  /* Brand — maroon */
+  --red-primary:      #DA2627;
+  --red-dark:         #961F1F;
+  --red-deep:         #5B1010;
+  --burgundy-glow:    #321615;
+  --maroon-soft:      rgba(218, 38, 39, 0.12);
+
+  /* Semantic */
+  --success:          #2F9E55;
+  --success-soft:     rgba(47, 158, 85, 0.14);
+  --warning:          #D9982E;
+  --warning-soft:     rgba(217, 152, 46, 0.14);
+  --danger:           #DA2627;
+  --danger-soft:      rgba(218, 38, 39, 0.14);
+
+  /* Radii */
+  --radius:           6px;
+  --radius-md:        12px;
+  --radius-lg:        18px;
+
+  /* Shadows & glows */
+  --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md:        0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg:        0 18px 50px rgba(0, 0, 0, 0.45);
+  --glow-red:         0 0 30px rgba(218, 38, 39, 0.18);
+  --glow-red-strong:  0 6px 24px rgba(218, 38, 39, 0.28), 0 0 0 1px rgba(218, 38, 39, 0.40);
+  --shadow-red:       0 0 0 3px rgba(218, 38, 39, 0.22);
+
+  /* Typography (CSS vars are injected by next/font in layout.tsx, with these
+     as fallbacks if fonts fail to load) */
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-ui:      "Geist", system-ui, -apple-system, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, monospace;
+}
+
+/* ===========================================================================
+   Base
+   =========================================================================== */
+@layer base {
+  * { border-color: var(--border); }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100dvh;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.018em;
+    color: var(--text-primary);
+  }
+
+  /* Tabular, monospaced numerics for money & stats */
+  .tnum { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  ::selection { background: var(--maroon-soft); color: var(--text-inverse); }
+
+  /* Subtle film-grain atmosphere, matching the prototype's premium feel */
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .bg-radial-maroon {
+    background-image: radial-gradient(1200px 600px at 70% -10%, rgba(218,38,39,0.10), transparent 60%);
+  }
+}
