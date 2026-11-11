@@ -1,0 +1,1099 @@
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+
+
+TECHNICAL PARTNERSHIP PROPOSAL                                          ·   AUGUST 2026
+
+
+BUILD IT
+WITH ME
+
+An equity partnership for the person who will lead the technology of DLANG Sports OS —
+and a permanent, growing stream of paid delivery work alongside it.
+
+
+▬ Four structures, priced, with the recommendation and the reasoning
+▬ What you would earn: equity, retainer and a share of every club onboarded
+▬ The guardrails that protect both sides, written before either of us needs them
+▬ A five-week paid trial before anyone signs anything
+
+
+
+
+From: Derrick Lang, Founder & CEO, DLANG Sports OS
+Companion documents: Business Plan (46pp), 90-Day Operational Rollout, Financial Model — all available on request
+Every figure here is live from the financial model, CTO_Package sheet
+Confidential.
+
+
+
+
+Confidential · Derrick Lang        Page 1 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+00 THE OFFER, ON ONE PAGE
+If you read nothing else, read this. The detail behind every line is in the sections that follow.
+
+
+
+                               The recommended structure
+
+                               CTO and technical co-founder. You lead the company’s technical function and hold primary
+                               authority over technical implementation. I lead product strategy, pricing and commercial
+ Role                          execution. Material decisions affecting budget, regulatory exposure, customer commitments,
+                               intellectual-property ownership or company strategy require joint approval. All technology and
+                               intellectual property remain exclusively owned by the company.
+
+                               20% of the company, granted before the investment round closes. After the round and a 10%
+ Equity
+                               option pool that settles at 16.2%.
+
+                               Four years, twelve-month cliff, monthly thereafter. I reverse-vest my own holding on the
+ Vesting
+                               identical schedule from the same date.
+
+                               CHF 1,200 per month retainer, plus 25% of every onboarding fee the company collects. About
+ Cash — Year 1
+                               CHF 16,400 in the first year.
+
+ Cash — Year 2                 CHF 4,000 per month, plus a 20% onboarding share, plus project delivery. About CHF 65,600.
+
+ Cash — Year 3                 CHF 7,000 per month, plus a 15% onboarding share, plus project delivery. About CHF 120,100.
+
+                               About CHF 202,100, including roughly CHF 55,700 of onboarding and project-delivery income
+ Three-year cash total
+                               that grows with the company while stepping down as salary increases.
+
+                               On the base case — 118 clubs and CHF 648,000 of ARR at the end of Year 3, at a 4× ARR trade
+ Equity value                  sale — your 16.2% is worth about CHF 420,000. On the bear case, about CHF 232,000. On the
+                               bull case, about CHF 533,000.
+
+ Commitment                    Four to five days a week. This is not a side project and I will not pretend it can be.
+
+                               A five-week paid engagement at CHF 9,000–11,000 fixed, building the payment reconciliation
+ Before anything is
+                               chain. If either of us does not want to continue afterwards, we shake hands and you keep the
+ signed
+                               fee.
+
+                               Promise you a salary I cannot fund, tell you the bull case is the plan, or ask you to work for
+ What I will not do
+                               equity alone. The cash above is modest but it is real and it is already budgeted.
+
+
+
+
+   THE HONEST HEADLINE
+   DLANG Sports OS has a working prototype, a production application build, a live 145-athlete academy to
+   deploy into, a full set of sales assets, and a EUR 50,000 round in progress. It has zero paying external clubs
+   and no measured customer outcomes. Both halves of that sentence are true and you should weigh both.
+   What I am offering is not a job. It is a partnership in a company that is early enough to be genuinely risky
+   and far enough along that the risk is about execution rather than about whether the thing exists.
+
+
+
+01 WHY THIS CONVERSATION, AND WHY NOW
+
+1.1 What the company is
+DLANG Sports OS is an operating system for the organisations that run youth and club sport — academies, camps,
+clubs, and the schools and federations behind them. It replaces the six disconnected tools a typical organisation
+runs on today with a single system handling registration, payment, scheduling, attendance, communication and
+reporting, in four languages, on Swiss payment rails.
+
+
+Confidential · Derrick Lang        Page 2 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+The beachhead is Romandie, then German-speaking Switzerland, then DACH. The wedge is camps and
+programme-revenue operators rather than volunteer associations, because those are the organisations that
+collect real money and feel real administrative pain.
+
+1.2 What exists today
+ Asset                    State                                              Honest assessment
+
+                                                                             Excellent as a sales instrument and as a specification.
+ Clickable                51 views, 6 personas, complete design system,
+                                                                             About 12–15% of a sellable product as software. Roughly
+ prototype                offline-capable demo
+                                                                             a third of its controls do nothing.
+
+                          Next.js 15, React 19, Supabase with row-level      This is the real asset, and it is the thing you would be
+ Production
+                          security, Stripe, Resend, migrations, a security   taking over. It has not been through an independent
+ application
+                          hardening pass and a deployment runbook            audit and it has never carried a real club's money.
+
+ Reference                Swiss Prep Sports Academy / DLang Basketball,      Yours to break things in. Real athletes, real payments,
+ customer                 145+ athletes                                      real consequences.
+
+                          Feature priority matrix, five-role permissions
+                                                                             Months of product thinking already done. You would not
+                          model, six documented user journeys with
+ Domain work                                                                 be starting from a blank page or from my guesses about
+                          friction points and explicit scope cuts, AI
+                                                                             what clubs need.
+                          module specification
+
+                          Business plan, financial model, 90-day rollout,
+                                                                             All reconciled to one set of numbers. You can audit every
+ Commercial               investor deck, pricing architecture, beta
+                                                                             figure.
+                          programme
+
+ Paying external                                                             The entire plan is about changing this number, and
+                          Zero
+ clubs                                                                       nothing else matters until it changes.
+
+
+1.3 Why I need a technical partner rather than a contractor
+I have modelled this carefully and the answer is not sentimental. Engineering is CHF 54,000 of a CHF 112,800
+Year-1 operating cost — 48% of everything the company spends. Purchased at contractor rates, that line alone is
+the difference between the company reaching Month 12 and not.
+
+
+
+                                          Contractor model                              Partnership model
+
+ Year-1 engineering cash                  CHF 54,000                                    CHF 16,425
+
+ Cash at end of Year 1                    minus CHF 7,434                               plus CHF 49,581
+
+ Months of Year-2 cost funded             None                                          Nearly two and a half
+
+                                          Nobody — decisions get made by                One person, accountable, with the standing
+ Who owns the architecture
+                                          whoever is available                          to say no
+
+                                          Support and customisation swamp a             A partner who has already productised it,
+ What happens at 25 clubs
+                                          contractor with no stake                      because their equity depends on the margin
+That is the commercial case. The other half is simpler: a company that processes children's data and families' money
+needs someone who loses sleep over tenant isolation and payment reconciliation. That person cannot be billing by the
+hour.
+
+1.4 What you would actually be building
+This is not a CRUD app with a sports skin. The genuinely interesting problems, in the order they arrive:
+  • Multi-tenant isolation that has to be provably correct. Every table carries a club identifier and row-level
+    security is forced at the database. Children's data, medical notes and consent records. A leak is not a bug, it is
+    the end of the company and a personal liability under the revised Federal Act on Data Protection.
+
+Confidential · Derrick Lang        Page 3 of 15
+DLANG SPORTS OS          CTO Partnership Proposal
+
+  • Payment reconciliation on Swiss rails. TWINT, card and QR-bill, generated to Implementation Guidelines v2.4,
+    with webhook handling, duplicate protection, refunds, and a reconciliation state that never leaves a parent
+    believing their money has vanished. This is the hardest and most important thing in the product.
+  • Offline-first attendance capture. A coach in a sports hall with no signal, wearing gloves, taking attendance in
+    under ninety seconds. Local queue, background sync, conflict resolution, visible state. If a coach keeps a paper
+    backup we have failed.
+  • Four-language everything, including outbound message translation, with tone preserved. Not a config flag —
+    a first-pixel architectural decision.
+  • A role-scoped AI layer, from Cycle 3. Per-club retrieval over payments, schedules and communications, with
+    anonymisation before anything leaves the platform, human approval on every outbound message, and
+    immediate escalation on anything touching health or child welfare.
+
+
+If none of that sounds interesting, the rest of this document does not matter and we should both save the time.
+
+
+02 THE ROLE
+
+2.1 Decision authority and joint accountability
+ Decision                                         Owner                    Note
+                                                                           Primary implementation authority. Founder consultation is required for
+ Architecture, stack, tooling, code standards     CTO leads                material business, budget, customer or strategic consequences. All resulting
+                                                                           IP belongs to the company.
+
+                                                  CTO leads · Joint        The CTO designs the controls. Material regulatory exposure, children’s data,
+ Security posture and data protection design
+                                                  approval                 financial data and accepted-risk decisions require joint approval.
+
+                                                  CTO recommends · Joint   The CTO selects and manages candidates. Appointments and contractor
+ Engineering hiring and contractor selection
+                                                  approval                 commitments require joint approval within the agreed budget.
+
+                                                                           The Founder sets product and commercial priorities; the CTO controls
+ Sequencing of the technical roadmap              Joint                    feasibility, dependencies and implementation order. Neither commits the
+                                                                           company unilaterally.
+
+                                                  Founder leads · CTO      The Founder sets product priorities. The CTO advises on feasibility, security,
+ What gets built, and what does not
+                                                  consulted                technical debt and delivery consequences before commitments are made.
+
+                                                                           The Founder leads commercial terms. Technical scope, timing and security
+ Pricing, packaging, which clubs we take          Founder
+                                                                           commitments require CTO review before being promised externally.
+
+                                                  Founder leads · CTO      The Founder leads. The CTO reviews technical representations and
+ Fundraising, investor relations, the cap table
+                                                  consulted                transactions materially affecting the CTO’s role or holding.
+
+                                                                           The CTO approves technical and security readiness; the Founder approves
+ Release gates                                    Joint
+                                                                           customer, operational and commercial readiness.
+
+                                                                           Either may stop a release involving children’s data, safeguarding, privacy or
+ Anything touching minors' data or a
+                                                  Joint veto               material regulatory risk. An agreed independent review is required to
+ safeguarding concern
+                                                                           proceed.
+
+                                                                           Founder casting vote in Years 1–2 on ordinary commercial matters only. It
+ Deadlock                                         Founder casting vote     cannot override the CTO’s security veto, company IP ownership or reserved
+                                                                           joint decisions. Revisited at seed.
+
+
+
+2.2 What the first ninety days look like
+These are not aspirations. They are the gates in the operational rollout, and the whole company is scheduled
+around them.
+
+ When                            What has to be true                                                                           Whose gate
+
+ By 20 September                 Ten workflow audits done with real clubs and the price tested against real
+                                                                                                                               Mine
+ 2026                            buyers
+
+                                 A real parent registers a real child through a public link and pays by
+ By 18 October 2026                                                                                                            Yours
+                                 TWINT, and the invoice reconciles automatically with no manual step
+
+
+
+Confidential · Derrick Lang            Page 4 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+ When                          What has to be true                                                            Whose gate
+
+                               FIT Digital grant application filed; first founding club signed and
+ By 10 November 2026                                                                                          Mine
+                               onboarding started
+
+                               Club #1 genuinely operating on the platform — logging in weekly, one full
+ By 22 November 2026                                                                                          Joint
+                               registration-to-attendance cycle on real data
+
+ By 31 January 2027            Five founding clubs signed, each running a full cycle                          Joint
+
+
+
+The 18 October gate is the one that matters. Everything downstream of a broken payment chain is theatre. If it is
+not working by 31 December we stop Cycle 2 entirely, run the founding clubs manually, and fix it. That decision is
+already written into the plan so that neither of us has to make it under pressure.
+
+
+03 FOUR STRUCTURES
+There is no single right answer here — it depends on how much of your working life you want to put into this. All
+four are real offers. All four are priced from the same model.
+
+
+
+                                                                                                             D — Milestone earn-
+                                 A — Co-founder CTO        B — Fractional CTO       C — Build partner
+                                                                                                             in
+
+                                                                                    An agency team,
+ Commitment                      4–5 days a week           2–3 days a week                                   3–4 days a week
+                                                                                    project-based
+
+ Equity granted                  20%                       10%                      6%                       15%, milestone-gated
+
+ After round and pool            16.2%                     8.1%                     4.9%                     12.2%
+
+                                                           4 years, 12-month                                 Against delivery
+ Vesting                         4 years, 12-month cliff                            3 years, 6-month cliff
+                                                           cliff                                             milestones
+
+ Retainer Y1 / Y2 / Y3 per
+                                 1,200 / 4,000 / 7,000     2,500 / 5,000 / 7,000    None — rate card only    1,000 / 3,000 / 6,000
+ month
+
+ Onboarding share Y1 / Y2
+                                 25% / 20% / 15%           30%                      55%                      40%
+ / Y3
+
+ Year-1 cash cost to
+                                 CHF 16,425                CHF 32,430               CHF 49,455               CHF 15,240
+ DLANG
+
+ Three-year cash                 CHF 202,055               CHF 237,910              CHF 350,835              CHF 195,880
+
+ Equity value at Year 3,
+                                 CHF 420,072               CHF 210,036              CHF 126,021              CHF 315,054
+ base case
+
+ Total three-year value to
+                                 CHF 622,127               CHF 447,946              CHF 476,856              CHF 510,934
+ you
+
+                                                           No — needs the full      No — needs the full
+ Fits the funded Year 1?         YES                                                                         YES
+                                                           plan                     plan
+Equity values assume a 4× ARR trade sale on the base case: 118 clubs, CHF 648,259 of ARR at the end of Year 3. Small vertical SaaS trades at
+roughly 3× to 6×. Full working in the CTO_Package sheet of the financial model.
+
+
+
+
+Confidential · Derrick Lang        Page 5 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+3.1 What each one is actually for
+ Structure             It suits you if                         It does not suit you if               What it costs DLANG
+
+                       You want to run the technology of a     You need income now, or you
+                                                                                                     Least cash of any option in Year 1,
+                       company rather than deliver work for    cannot give this four days a week.
+                                                                                                     and the largest equity. It is the only
+ A — Co-founder        one, you can live on CHF 1,200 a        Taking A and delivering B is worse
+                                                                                                     structure that fits the year the
+                       month for a year, and you want the      for both of us than taking B
+                                                                                                     round actually funds.
+                       equity that goes with that risk.        honestly.
+
+                       You have other income, you want
+                                                               You want to be the technical          Nearly twice the Year-1 cash of A
+                       meaningful ownership without betting
+                                                               decision-maker long term. At 2–3      for half the equity. Honest, but it
+ B — Fractional        your year on it, and you are
+                                                               days a week you will be overtaken     means the capital-light Year 1 is off
+                       comfortable that someone else may
+                                                               by whoever comes next.                the table.
+                       eventually be hired above you.
+
+                       You are an agency or a small studio,                                          Most expensive, and the structure
+                       you want a long-term client with a      You want to own the product           most likely to drift toward
+ C — Build
+                       stake attached, and you can carry a     direction. You would be a supplier    customisation revenue. The
+ partner
+                       discounted rate in exchange for         with an interest, not a partner.      guardrails in section 7 exist mainly
+                       equity.                                                                       because of this option.
+
+                                                               You dislike having your equity
+                       You want to earn ownership by                                                 Cheapest in cash and lowest risk to
+                                                               depend on things partly outside
+ D — Milestone         delivery rather than by time, and you                                         DLANG. Hardest to sell to a strong
+                                                               your control — a gate can slip for
+ earn-in               would rather be measured on                                                   candidate, which is exactly why it is
+                                                               commercial reasons as well as
+                       outcomes than on days.                                                        offered rather than imposed.
+                                                               technical ones.
+
+
+
+
+   MY RECOMMENDATION, AND WHY
+   Structure A. Not because it is cheapest — though in Year 1 it is — but because it is the only one where our
+   incentives are the same on every decision. In B and C you earn more when there is more work; in A you
+   earn more when there are more clubs. That difference decides whether this becomes a software company
+   or a consultancy with a subscription attached, and it decides it in the first six months.
+   If A is not right for your circumstances, say so and take D. I would rather have you honestly at three days a
+   week than nominally at five.
+
+
+
+04 THE RECOMMENDED TERM SHEET
+This is Structure A in full. It is a term sheet, not a contract — a Swiss lawyer drafts from it, and both of us take our
+own advice before signing anything.
+
+4.1 Equity
+ Term                         Detail
+
+                              20% of the company, issued at nominal value at incorporation or immediately after, and in any case
+ Grant
+                              BEFORE the EUR 50,000 round closes.
+
+                              If the grant comes after the round, the investor will require anti-dilution protection on their 10% and I
+ Why before                   absorb the entire dilution alone. Doing it in the right order costs neither of us anything and is worth
+                              several points of my holding.
+
+                              Founder 64.8% · CTO 16.2% · Investor 9% · Option pool 10%. After a CHF 300,000 seed at CHF 2.5m
+ Resulting cap table
+                              pre-money: Founder 57.9% · CTO 14.5%.
+
+                              Four years from the start date. Twelve-month cliff — nothing vests before then. Monthly thereafter,
+ Vesting
+                              1/48th per month.
+
+                              I reverse-vest my own holding on the identical schedule from the same date. An investor will require it
+ Founder reverse-
+                              at the seed round in any case; offering it now rather than being asked for it later is the clearest signal
+ vesting
+                              of good faith I can give you.
+
+
+
+Confidential · Derrick Lang          Page 6 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+ Term                         Detail
+
+                              Double trigger. On a change of control combined with your involuntary termination or a material
+ Acceleration
+                              diminution of your role within twelve months, 50% of unvested equity accelerates.
+
+                              The company holds a call option over unvested equity at nominal value, exercisable on departure for
+ Unvested equity
+                              any reason.
+
+                              You keep everything vested. Death, incapacity, mutual agreement, or termination by the company
+ Good leaver
+                              without cause.
+
+                              The company may buy back all equity, vested and unvested, at nominal value (or the lowest price
+                              permitted by applicable law). Bad leaver means fraud, gross misconduct, wilful misconduct causing
+                              material harm, material breach of the IP or confidentiality terms, or breach of the agreed non-compete
+ Bad leaver
+                              or non-solicit obligations. It does not mean leaving because the relationship stopped working or
+                              disagreeing in good faith. The shareholders’ agreement will define the process, evidence threshold and
+                              exercise period.
+
+                              Right of first refusal to the company, then to me. Tag-along and drag-along on a sale. No transfer to a
+ Transfer
+                              competitor at any time.
+
+ Anti-dilution                None. Neither of us gets it. Founders take dilution alongside each other.
+
+
+4.2 Cash
+                                              Year 1                  Year 2               Year 3               Three-year total
+
+ Monthly retainer                             CHF 1,200               CHF 4,000            CHF 7,000            —
+
+ Retainer, annual                             CHF 14,400              CHF 48,000           CHF 84,000           CHF 146,400
+
+                                                                                           CHF 11,070
+ Share of onboarding fees                     CHF 2,025 (25%)         CHF 7,560 (20%)                           CHF 20,655
+                                                                                           (15%)
+
+ Project delivery income                      —                       CHF 10,000           CHF 25,000           CHF 35,000
+
+ Total cash                                   CHF 16,425              CHF 65,560           CHF 120,070          CHF 202,055
+
+                                              CHF 18,000
+ Engineering budget in the plan                                       CHF 102,000          CHF 192,000          CHF 312,000
+                                              (capital-light)
+
+ Headroom for other engineering               CHF 1,575               CHF 36,440           CHF 71,930           —
+
+
+
+Read the last two rows carefully, because they are the point. This proposal does not add a franc to the plan.
+The engineering budget is already there. What changes is who it goes to and what they get in return — and in
+Year 3 there is still CHF 71,930 inside that budget to hire a second engineer, which would be your decision to
+make.
+
+
+
+ Review trigger                        What happens
+
+ At 15 paying clubs                    Retainer review. The Year-2 rate is a floor, not a ceiling.
+
+                                       Move to a market salary for the role, benchmarked against Swiss senior engineering, and
+ At CHF 20,000 MRR
+                                       review whether the remaining onboarding share should reduce further or end.
+
+                                       Full compensation review for both of us, with the investor in the room. Neither of us
+ At a seed round
+                                       should be on a founder's draw once the company is properly funded.
+
+ If a milestone slips for
+                                       Your retainer is not affected. You are not paid on my ability to sell.
+ commercial reasons
+
+
+
+
+Confidential · Derrick Lang        Page 7 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+4.3 Intellectual property, and the things that are not negotiable
+  • All source code, object code, documentation, architecture, database schemas, configurations, designs,
+    inventions, improvements and other work product created specifically for DLANG belong exclusively to the
+    company from creation. This applies during the five-week paid trial as well as after appointment. The trial
+    agreement and the definitive agreements will include a present assignment of all relevant intellectual-
+    property rights, delivery of all code and credentials into company-controlled repositories, and any waivers
+    or further-assurance obligations permitted by law. Pre-existing tools must be identified in writing and
+    licensed perpetually to the company, or replaced.
+  • You warrant that nothing you contribute is encumbered by another employer, a client agreement, or a
+    copyleft licence that would contaminate a commercial product. This is the first thing a diligence lawyer tests
+    and it is cheap to get right now.
+  • No direct billing of DLANG clubs, ever. The company invoices the club and pays you. This protects you as
+    much as me: it means you are never in a commercial negotiation with a customer whose product you also
+    have to maintain.
+  • On exit, a narrowly tailored non-compete will apply for 12 months, limited to directly competing club-
+    sports operating platforms in the territories and customer segments where DLANG is actively operating at
+    departure, to the extent enforceable under Swiss law. A 24-month non-solicit will prohibit solicitation of
+    DLANG clubs, prospects, employees and contractors. The shareholders’ agreement will define reasonable
+    carve-outs for passive investment, general employment not directed at a competing product, and
+    relationships independently established without use of DLANG confidential information.
+  • These restrictions, together with confidentiality and IP ownership, survive departure. The Swiss lawyer
+    preparing the definitive agreements must calibrate duration, geography, scope and any required
+    compensation so the protections are enforceable and proportionate.
+
+
+05 WHAT YOU WOULD EARN
+Three components, on three scenarios. All of it computed from the same model the investors see.
+
+5.1 Equity value at the end of Year 3
+                                                                              Enterprise value at 4×
+ Scenario                                   Clubs        Year-3 ARR                                       Your 16.2%
+                                                                              ARR
+
+ Bear — free alternatives hold,
+                                            65           CHF 357,638          CHF 1,430,553               CHF 231,750
+ beta stalls
+
+ Base — founder-led selling, no
+                                            118          CHF 648,259          CHF 2,593,035               CHF 420,072
+ channel
+
+ Bull — a federation or school
+                                            150          CHF 822,787          CHF 3,291,150               CHF 533,166
+ network refers
+
+
+
+Weigh the base row, not the bull row. The bull case is the number in the investor deck and it requires a
+distribution channel that does not exist today. I am not going to recruit you on it. If you want to sanity-check the
+whole thing, the model has a scenario switch and you are welcome to move any assumption in it.
+
+5.2 The three-year picture
+                                          Bear                         Base                        Bull
+
+ Cash over three years                    CHF ~190,500                 CHF ~202,100                CHF ~213,300
+
+ Equity value at Year 3                   CHF 231,750                  CHF 420,072                 CHF 533,166
+
+
+Confidential · Derrick Lang        Page 8 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+                                          Bear                           Base                            Bull
+
+ Total                                    CHF ~422,250                   CHF ~622,200                    CHF ~746,500
+
+ Equivalent annual value                  CHF ~141,000                   CHF ~207,000                    CHF ~249,000
+Cash varies by scenario because the services share moves with the number of clubs onboarded. Equity value assumes a 4× ARR trade sale and
+is unrealised — it is worth nothing until there is a liquidity event, and there may never be one.
+
+
+
+
+   THE COMPARISON YOU ARE ACTUALLY MAKING
+   A senior full-stack engineer in Switzerland earns roughly CHF 130,000–170,000 a year, paid monthly, with no risk.
+   The base case here is worth about CHF 207,000 a year — but most of it is unrealised equity, the cash in Year 1 is CHF
+   16,425, and the whole thing can go to zero.
+   You should take this only if you would find the work interesting at half the number, and only if you can afford the
+   first year. Anyone who takes it on the strength of the total is going to be unhappy by March.
+
+
+
+
+06 THE DELIVERY STREAM: CONSTANT WORK THAT GROWS
+Equity is a bet on an event that may not happen. What makes this liveable in the meantime is that there is real,
+paid, recurring delivery work built into the business model — and it grows automatically with every club we sign.
+This section matters more than the equity section for most people, so it is set out in full.
+
+6.1 The six streams
+                                                                                                                     Your Year-3
+ Stream                             What the club pays         How often                Your share   Year-3 volume
+                                                                                                                     income
+
+                                                                                        25% Y1 ·
+ Technical onboarding and           Inside the CHF 750–2,900   Every single new
+                                                                                        20% Y2 ·     82 new clubs    CHF 11,070
+ data migration                     setup fee                  club
+                                                                                        15% Y3
+
+ Multi-site and federation          CHF 3,000–8,000 per        Per federation or
+                                                                                        40%          2 deals         CHF 8,000
+ configuration                      project                    academy-group deal
+
+ White-label branded parent         CHF 2,500 setup + CHF
+                                                               Per club that takes it   30%          4–5 clubs       CHF 4,000
+ app                                200/month
+
+ Accounting and federation
+                                    CHF 2,000–6,000 each       Per integration built    40%          5–6 builds      CHF 13,000
+ integrations
+
+ AI module build-out, Cycles 3      Funds the CHF              Continuous from          Covered by
+                                                                                                     —               —
+ –4                                 90–199/month modules       Month 13                 retainer
+
+ Managed hosting,
+                                                                                        Covered by
+ monitoring, incident               Internal                   Monthly                               —               —
+                                                                                        retainer
+ response
+
+ TOTAL                                                                                                               CHF 36,070
+
+
+
+Note what the biggest line is. It is not bespoke development — it is onboarding, and it recurs with every club.
+The onboarding share starts at CHF 2,025 in Year 1 at 25%, moves to 20% in Year 2, and reaches CHF 11,070 in
+Year 3 at 15%. The percentage falls as the retainer rises, while the absolute opportunity still grows as more
+clubs join. You do not have to sell, negotiate, or source this work; it arrives because the company grows.
+
+6.2 Why the share is on revenue and not on hours
+This is the single most important design decision in the whole proposal, and it is worth being explicit about why.
+Confidential · Derrick Lang        Page 9 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+
+
+ If you were paid by the hour                                         You are paid a share of revenue instead
+
+ You earn more when onboarding a club takes longer.                   You earn more when we onboard more clubs.
+
+                                                                      Automating the CSV import lets you take on more clubs at
+ Automating the CSV import costs you income.
+                                                                      the same fee.
+
+ A club that needs three days of custom work is a good                A club that needs three days of custom work eats your
+ month.                                                               margin, so you productise it.
+
+ Support load is billable, so nobody fixes the confusing              Support load is dead time, so the confusing screen gets
+ screen.                                                              fixed.
+
+ Our interests diverge the moment the product gets good.              Our interests are identical at every point.
+
+
+
+The uncomfortable version, said out loud: a technical partner holding equity and billing hourly for customisation
+has a quiet incentive to build a product that needs customising. That is how vertical SaaS companies turn into
+agencies, and it is why their valuation multiple collapses from four times revenue to about one. I am not accusing
+anyone of anything — it is simply what the incentive does over three years if nobody names it. So we name it
+now, and we structure around it.
+
+6.3 The rate card
+One published card. No bespoke pricing per deal, because a rate card is what turns services from a negotiation
+into a product line.
+
+ Item                                     Price to the club             Notes
+
+ Standard club technical                                                Import, mapping review, payment connection, invoice
+                                          Inside the tier setup fee
+ onboarding                                                             template, branding. Target under four hours by Month 12.
+
+                                                                        More than two seasons of history, or a non-standard source
+ Complex migration                        CHF 1,200 supplement
+                                                                        system.
+
+ Multi-site or federation
+                                          CHF 3,000–8,000 by scope      Scoped and quoted before work starts. Never open-ended.
+ configuration
+
+ Integration build                        CHF 2,000–6,000               Accounting export, federation reporting, calendar sync.
+
+                                                                        Plus CHF 200/month recurring, of which you take 15% for
+ White-label parent app setup             CHF 2,500
+                                                                        the first 24 months.
+
+ Senior engineering day rate,                                           Against a Swiss market rate of CHF 1,100–1,400. The
+                                          CHF 900
+ partner rate                                                           discount is what the equity pays for.
+
+                                                                        Capped at four days per quarter. Beyond that we have an
+ Out-of-hours incident response           CHF 1,400 per day
+                                                                        architecture problem, not a billing opportunity.
+
+                                                                        And it must clear a 50% gross margin to DLANG, or we
+ Anything not on this card                Quoted
+                                                                        decline the work.
+
+
+6.4 Where the work goes after Year 3
+A fair question from anyone considering this: does the delivery income dry up once onboarding is automated? It
+changes shape rather than disappearing.
+  • Years 1–2 — build and onboard. The platform itself, plus per-club migration. Highest hands-on volume.
+  • Years 2–3 — productise and integrate. Onboarding becomes self-serve, and the work moves to integrations,
+    federation configurations and the AI modules. Fewer, larger, more interesting pieces.
+
+
+
+Confidential · Derrick Lang        Page 10 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+  • Year 3 onwards — platform and scale. Multi-site architecture, the export track for EUR-market clubs,
+    performance at several hundred tenants, and leading a small engineering team. By this point the retainer has
+    been replaced by a market salary and the services share has been reduced deliberately, because by then the
+    equity should be doing the work.
+
+
+
+   THE TRAJECTORY, STATED HONESTLY
+   The services share is a bridge, not a destination. It exists because I cannot pay you properly in Year 1 and I
+   am not going to pretend otherwise. It should shrink as the salary grows, and if it has not shrunk by Year 3
+   then something has gone wrong with the product — and the equity we both hold will be worth less
+   because of it.
+
+
+
+07 THE GUARDRAILS
+Written now, while we agree with each other. Every one of these protects both sides.
+
+7.1 Protecting the business from the services trap
+ Guardrail                    The rule                                  Why it exists
+
+                              Anything customised for a second club
+                                                                        This is the clause that protects the valuation multiple. Without
+ The productisation           becomes a core configuration option,
+                                                                        it, the tenth club pays for work the second club already
+ clause                       owned by DLANG, chargeable to
+                                                                        funded, and the product never converges.
+                              nobody.
+
+                                                                        Above 20% we are a consultancy with a subscription attached,
+                              Services must stay below 20% of total
+ The services ceiling                                                   and we would be valued like one — roughly a quarter of the
+                              revenue. Year-3 model figure is 13.6%.
+                                                                        multiple.
+
+                              DLANG keeps at least 50% gross
+                              margin on every services engagement.
+                              The onboarding share steps down           No exceptions for a strategically important club. A loss-making
+ The margin floor
+                              from 25% to 20% to 15%, leaving           service line is not strategic, it is just loss-making.
+                              increasing room for support,
+                              automation and reinvestment.
+
+                                                                        Protects the customer relationship, protects you from being a
+                              DLANG invoices the club. Always. You
+ The billing rule                                                       supplier to your own product's customers, and keeps the
+                              are paid by DLANG.
+                                                                        revenue recognisable to an investor.
+
+                              One rate card, published, reviewed
+ Rate discipline                                                        Bespoke pricing per deal is how services margins die quietly.
+                              annually.
+
+                              Every project scoped and quoted
+ Scope discipline             before work starts. No open-ended         An open-ended engagement is a dispute with a start date.
+                              engagements.
+
+
+7.2 Protecting you
+ Guardrail                                The rule
+
+                                          Issued shares with vesting, not options, not phantom units, not a promise in an email.
+ Your equity is real equity
+                                          Registered, and visible to you.
+
+                                          Identical schedule, same start date. If I walk away in month eight, my unvested holding is
+ I vest too
+                                          subject to the same call option as yours.
+
+ Your retainer is not contingent          If a milestone slips because I could not close a club, you are still paid. You are not
+ on my sales                              underwriting my go-to-market.
+
+
+
+
+Confidential · Derrick Lang         Page 11 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+ Guardrail                                The rule
+
+ Technical authority is                   The decision-rights table in section 2.1 goes into the shareholders' agreement, not just into
+ contractual                              a conversation.
+
+                                          Fraud, gross or wilful misconduct causing material harm, material IP or confidentiality
+                                          breach, or breach of the agreed non-compete or non-solicit. The company may repurchase
+ Bad-leaver is narrowly defined
+                                          vested and unvested equity at nominal value or the lowest price permitted by law.
+                                          Ordinary resignation or good-faith disagreement is not a bad-leaver event.
+
+                                          Monthly management accounts, the cap table, the pipeline, the bank balance. You are a
+ Full visibility
+                                          shareholder; you should never have to ask.
+
+                                          You can stop any release on child-data or safeguarding grounds, unilaterally, and I cannot
+ A written safeguarding veto
+                                          overrule it. That protects you personally as well as the company.
+
+
+7.3 The tripwires we agree to watch
+ Metric                                   Threshold                   What we do if it breaks
+
+                                                                      Stop taking custom work and productise the backlog until it
+ Services as a share of revenue           Below 20%
+                                                                      falls.
+
+                                                                      Freeze new club acquisition and fix the import and setup
+ Onboarding hours per club                Below 5 by Month 12
+                                                                      flow.
+
+                                                                      Support cost per club is the usual culprit. Build in-product
+ Gross margin                             Above 75%
+                                                                      help before adding clubs.
+
+ Support tickets per club per                                         The product is confusing somewhere specific. Find it from the
+                                          Below 4
+ month                                                                support log.
+
+                                          Never zero for two          Something is blocked and neither of us has said so. Escalate
+ Weekly shipped change
+                                          consecutive weeks           immediately.
+
+
+
+08 SWISS MECHANICS
+Three things that need a Swiss lawyer and a Swiss tax adviser before anything is signed. I am setting out the
+intended structure so both of us brief them from the same page — this is not legal advice and neither of us should
+treat it as such.
+
+8.1 Entity and how the equity is actually held
+ Question                        Intended answer                             Why
+
+                                                                             Vaud because the FIT Digital grant — CHF 20,000, non-
+                                 GmbH in Canton de Vaud,
+                                                                             repayable — requires it. GmbH because CHF 20,000 of
+ Which entity                    incorporated before the first club
+                                                                             capital is achievable now where an AG's CHF 100,000
+                                 payment
+                                                                             nominal is not.
+
+                                 Quotas issued at nominal value in the       A GmbH quota transfer requires a notarial deed every
+ How is the CTO equity
+                                 founding deed, or in a single capital       time. Issuing once at the start avoids notarising each
+ issued
+                                 increase immediately after                  vesting tranche, which would otherwise be absurd.
+
+                                 The quotas are issued in full at the
+ How does vesting work
+                                 start; the shareholders' agreement          This is the standard Swiss workaround. Economically
+ without repeated
+                                 gives the company a call option over        identical to vesting, legally far cheaper.
+ transfers
+                                 the unvested portion at nominal value
+
+                                                                             An AG gives transferable registered shares without
+ When do we convert to           At the seed round, or when the option       notarisation and keeps the shareholder register private.
+ an AG                           pool is first granted to employees          Conversion costs a few thousand francs and is worth it
+                                                                             then, not now.
+
+
+
+Confidential · Derrick Lang        Page 12 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+ Question                         Intended answer                       Why
+
+                                                                        Both of us should nonetheless take independent advice
+ Who pays for the legal
+                                  The company                           on our own position, and I would think less of you if you
+ work
+                                                                        did not.
+
+
+8.2 Tax — the point most founders get wrong
+
+
+     GRANT EARLY, AT NOMINAL VALUE, OR IT COSTS YOU REAL MONEY
+     In Switzerland, receiving equity for services is generally a taxable benefit measured as the difference
+     between what you pay for it and what it is worth at the moment of grant. Today the company is worth
+     close to nothing, so a grant at nominal value creates close to no taxable benefit.
+     Grant the same 20% eighteen months from now, with paying clubs and a closed round, and the same
+     equity carries a taxable value — payable in cash, by you, in a year when your cash income from this is CHF
+     48,000.
+     The action: grant at incorporation, and consider asking the cantonal tax administration for an advance
+     ruling to fix the valuation. That ruling is, after the conversion-price clause in the investor loan, the second
+     most valuable piece of professional advice available to this company.
+
+
+
+Two related points. First, if you would be working through your own company rather than as an individual, the
+analysis changes and needs checking — including whether the arrangement risks being treated as disguised
+employment, which is a live issue in Switzerland. Second, the services income is ordinary income and should be
+invoiced properly, with VAT once either of us crosses the CHF 100,000 threshold.
+
+8.3 Sequencing — the order actually matters
+         Step                                         Why it is in this position
+
+                                                      Nothing else happens until we have worked together on something
+ 1       Paid trial, five weeks                       real. The paid trial agreement includes confidentiality and immediate
+                                                      assignment to the company of all trial code and work product.
+
+ 2       Terms agreed in principle, in writing        A one-page summary both of us have signed. Not a contract yet.
+
+         Tax advice and, if sensible, an advance      Before incorporation, because the valuation at grant is what gets ruled
+ 3
+         ruling                                       on.
+
+         Incorporate the GmbH in Vaud, with
+ 4                                                    One notarisation covering both of us.
+         your quotas in the founding deed
+
+         Shareholders' agreement signed —
+ 5                                                    Before any code is written under the new arrangement.
+         vesting, IP, decision rights, leaver terms
+
+                                                      After the grant, never before. This is the step whose order is worth
+ 6       Close the EUR 50,000 round
+                                                      several percentage points of my holding.
+
+                                                      Deadline 10 November 2026. A two-to-five person team with at least
+ 7       FIT Digital application filed                one member domiciled in Vaud is an eligibility requirement — your
+                                                      involvement may help satisfy it.
+
+
+
+09 THE TRIAL, BEFORE ANYTHING IS SIGNED
+Neither of us should commit four years on the strength of a few conversations. So we do a scoped, paid piece of
+work first, and both of us keep the right to walk away at the end of it with no hard feelings and no obligation.
+
+
+Confidential · Derrick Lang        Page 13 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+9.1 The engagement
+                               Detail
+
+ Duration                      Five weeks, starting as soon as you can.
+
+                               CHF 9,000–11,000 fixed, agreed before we start. Paid whatever the outcome, including if I
+ Fee
+                               decide not to proceed.
+
+                               The payment reconciliation chain, working end to end on real money. All code, documentation
+ The deliverable               and related work product created during the trial are assigned exclusively to DLANG from
+                               creation and committed to company-controlled repositories.
+
+                               A parent registers a child through a public link. They pay by TWINT. The webhook fires. The
+ What that means               invoice marks itself paid. The admin dashboard updates. Nobody touches anything. Plus: failure
+ specifically                  states, timeouts, duplicate protection, refunds, and a visible reconciliation status so nobody
+                               ever thinks the system has lost their money.
+
+                               It is the hardest and most important thing in the product, it is Gate 2 of the operational rollout,
+ Why this piece                and it is due on 18 October. If you build it, the company has cleared its most dangerous gate. If
+                               it does not work, we have both learned something worth far more than the fee.
+
+                               Full access to the codebase, the architecture documents, the six user journeys, the permissions
+ What you get                  model, the business plan and the financial model. No black boxes, no NDA theatre beyond a
+                               standard mutual confidentiality agreement.
+
+                               Five weeks of watching how you work, which is worth more than any interview process I could
+ What I get
+                               design.
+
+
+9.2 What I will be assessing, stated in advance
+ I am watching for                          Because
+
+ Whether you ship something every           The company's operating rhythm depends on it. A week with no shipped change is a
+ week                                       week the founding clubs stop believing the roadmap.
+
+                                            Row-level security forced at the database, tested, with a regression suite. This is the
+ How you handle tenant isolation
+                                            control that stands between us and a company-ending incident.
+
+                                            Whether you say so within a day or disappear for a week. This matters more than raw
+ What you do when you are blocked
+                                            speed.
+
+                                            There are six documented user journeys with the friction points already identified.
+ Whether you read the domain
+                                            Someone who builds from them is worth twice someone who builds from my verbal
+ material
+                                            description.
+
+                                            We need a payment chain that works for twelve clubs, built so it will not have to be
+ Whether you over-engineer
+                                            thrown away at two hundred. Not a platform for two hundred built for twelve.
+
+                                            You will be right about technical things and I will push back anyway. I need to know how
+ How you disagree with me
+                                            that conversation goes before we are four years into it.
+
+
+9.3 What you should be assessing
+This runs both ways, and you should use the five weeks properly. Things worth testing about me:
+  • Whether I actually sell anything during those five weeks, or whether I only talk about selling. Ten workflow
+    audits are scheduled in the same window — ask to see the written summaries.
+  • Whether the founding clubs are real people with names and phone numbers, or a pipeline in a spreadsheet.
+  • Whether I give you the bank balance when you ask for it, without hesitating.
+  • Whether I change the roadmap every week. Ask what changed since the plan was written and why.
+  • Whether the claims in the sales material are ones I can source. I have audited them once already and
+    removed several that I could not. Ask me which ones and why.
+
+Confidential · Derrick Lang        Page 14 of 15
+DLANG SPORTS OS         CTO Partnership Proposal
+
+
+
+
+One thing you will find if you look, so I will save you the time: the investor deck and the financial model told
+slightly different stories until recently. Year 3 showed 150 clubs in the deck and 118 in the model. I have
+reconciled them — the deck's number is now the model's upside case, calibrated to land on 150 exactly, and
+there is a written bridge between the two. I am telling you this rather than letting you find it, because how a
+founder handles that kind of discrepancy is a fair thing to judge them on.
+
+
+10 IF IT DOES NOT WORK
+Most of these partnerships end. It is worth agreeing how, while both of us are relaxed about the possibility.
+
+ Situation                                What happens
+
+                                          The fee is paid. All trial code and work product belong exclusively to the company under
+ Either of us walks after the trial       the signed trial IP assignment; no equity is granted, and we part on good terms. This is a
+                                          normal outcome, not a failure.
+
+ You leave before the twelve-             No equity vests. Cash earned to date is paid. The company keeps the IP. You keep the
+ month cliff                              reference and I will give you a good one.
+
+ You leave after the cliff, on good       You keep everything vested. The company exercises its call option on the unvested portion
+ terms                                    at nominal value. You remain a shareholder with full information rights.
+
+                                          Good-leaver treatment, plus three months' retainer, plus twelve months of accelerated
+ I remove you without cause
+                                          vesting. I should carry a cost for changing my mind.
+
+                                          Bad-leaver treatment applies as defined in section 4.1: for fraud, gross or wilful misconduct
+                                          causing material harm, material IP or confidentiality breach, or breach of the agreed exit
+ You are removed for cause
+                                          restrictions, the company may repurchase vested and unvested equity at nominal value or
+                                          the lowest price permitted by law.
+
+ I leave or become unable to              My unvested equity is subject to the identical call option. The shareholders' agreement
+ continue                                 gives you the right to appoint a replacement chief executive with investor consent.
+
+                                          There is nothing to divide. The IP stays with the company and is dealt with in the
+ The company fails
+                                          liquidation. Neither of us has a claim on the other.
+
+                                          I hold the casting vote in Years 1–2. If it comes to that, the honest answer is that one of us
+ We disagree irreconcilably
+                                          should leave, and the leaver provisions above are how that happens without lawyers.
+
+
+
+
+   WHY YOU MIGHT SAY NO, AND WHY I WOULD UNDERSTAND
+   The cash in Year 1 is CHF 16,425. That is not a living wage in Switzerland and I am not going to dress it up as one.
+   There are no paying customers. The willingness to pay CHF 490 a month has not been proven against a market
+   where the leader gives the software away free. If the first ten workflow audits come back badly, the commercial
+   model changes and your equity is worth a fraction of the base case.
+   The founder is the product manager, the salesperson, the support desk and the operator of the reference customer.
+   That is a concentration risk you would be underwriting alongside the technical risk.
+   If any of those is disqualifying, say so now rather than at the cliff. I would rather find the right person in three
+   months than the wrong one in three weeks.
+
+
+
+
+Confidential · Derrick Lang        Page 15 of 15
+
