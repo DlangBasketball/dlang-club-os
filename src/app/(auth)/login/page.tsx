@@ -8,6 +8,7 @@ import { BrandMark } from "@/components/layout/brand-mark";
 import { Button, Input, Label } from "@/components/ui";
 import { SITE_URL } from "@/lib/constants";
 import { MailCheck } from "lucide-react";
+import { useTenant } from "@/lib/tenant/context";
 
 export default function LoginPage() {
   // useSearchParams must be inside a Suspense boundary in Next 15.
@@ -19,6 +20,7 @@ export default function LoginPage() {
 }
 
 function LoginInner() {
+  const tenant = useTenant();
   const params = useSearchParams();
   const redirect = params.get("redirect");
   const [email, setEmail] = React.useState("");
@@ -100,7 +102,7 @@ function LoginInner() {
         </div>
 
         <p className="mt-6 text-center text-xs text-ink-3">
-          DLang Basketball · Geneva · Protected by row-level security
+          {tenant.name} · Protected by row-level security
         </p>
       </div>
     </div>

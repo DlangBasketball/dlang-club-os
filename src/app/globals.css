@@ -52,6 +52,12 @@
   --glow-red:         0 0 30px rgba(218, 38, 39, 0.18);
   --glow-red-strong:  0 6px 24px rgba(218, 38, 39, 0.28), 0 0 0 1px rgba(218, 38, 39, 0.40);
   --shadow-red:       0 0 0 3px rgba(218, 38, 39, 0.22);
+  --brand-tint:       rgba(218, 38, 39, 0.10);
+
+  /* Accent (gold) — overridden per tenant at runtime (src/lib/tenant/theme.ts) */
+  --accent:           #C19A45;
+  --accent-soft:      rgba(193, 154, 69, 0.14);
+  --text-on-accent:   #111111;
 
   /* Typography (CSS vars are injected by next/font in layout.tsx, with these
      as fallbacks if fonts fail to load) */
@@ -105,6 +111,6 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .bg-radial-maroon {
-    background-image: radial-gradient(1200px 600px at 70% -10%, rgba(218,38,39,0.10), transparent 60%);
+    background-image: radial-gradient(1200px 600px at 70% -10%, var(--brand-tint, rgba(218,38,39,0.10)), transparent 60%);
   }
 }

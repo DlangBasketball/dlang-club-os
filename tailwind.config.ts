@@ -36,6 +36,10 @@ const config: Config = {
         "maroon-deep": "var(--red-deep)",
         "maroon-soft": "var(--maroon-soft)",
         "maroon-ink": "var(--burgundy-glow)",
+        // Tenant accent (white-label)
+        accent: "var(--accent)",
+        "accent-soft": "var(--accent-soft)",
+        "on-accent": "var(--text-on-accent)",
         // Semantic
         success: "var(--success)",
         "success-soft": "var(--success-soft)",

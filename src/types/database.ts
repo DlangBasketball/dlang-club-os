@@ -453,7 +453,13 @@ export type Database = {
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       organizations: {
-        Row: { id: string; name: string; slug: string; country: string | null; currency: string | null; created_at: string; updated_at: string };
+        Row: {
+          id: string; name: string; slug: string; country: string | null; currency: string | null; created_at: string; updated_at: string;
+          // white-label tenancy (20250420091600)
+          custom_domain: string | null; branding: Json; terminology: Json; sport: string | null;
+          default_locale: string; supported_locales: string[]; timezone: string;
+          plan: string; status: string; data_region: string;
+        };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       deletion_requests: {
@@ -498,6 +504,14 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      get_public_tenant: {
+        Args: { p_host?: string | null; p_slug?: string | null };
+        Returns: {
+          id: string; slug: string; name: string; custom_domain: string | null; branding: Json; terminology: Json;
+          sport: string | null; country: string | null; default_locale: string | null; supported_locales: string[] | null;
+          currency: string | null; timezone: string | null; status: string | null;
+        }[];
+      };
       anonymise_family: { Args: { p_family: string }; Returns: Json };
       withdraw_consent: { Args: { p_id: string }; Returns: Json };
       next_invoice_number: { Args: { p_org: string }; Returns: string };

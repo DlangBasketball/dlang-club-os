@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { applyTenantHeaders } from "@/lib/tenant/middleware";
 
 /** Paths reachable without a session. */
 const PUBLIC_PREFIXES = ["/login", "/auth", "/register"];
@@ -12,6 +13,10 @@ function isPublic(pathname: string) {
 }
 
 export async function middleware(request: NextRequest) {
+  // 0) Tenant: forward the host-derived tenant hint (strips spoofed headers).
+  //    Must run before updateSession(), which snapshots request headers.
+  applyTenantHeaders(request);
+
   // 1) Always refresh the Supabase session (rotates cookies).
   const { response, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
