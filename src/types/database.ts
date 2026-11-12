@@ -481,6 +481,48 @@ export type Database = {
         Row: { id: string; org_id: string; family_id: string; requested_by: string | null; reason: string | null; status: string; reviewed_by: string | null; reviewed_at: string | null; completed_at: string | null; created_at: string };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
+      // --- compliance (migration 20250420091900) ---------------------------
+      compliance_settings: {
+        Row: {
+          org_id: string; data_region: "CH" | "EU" | "UK" | "US" | "OTHER"; jurisdiction_subdivision: string | null; org_type: string;
+          hosting_region: string; legal_entity_name: string | null; registered_address: string | null; company_register_id: string | null;
+          vat_id: string | null; privacy_contact_email: string | null; dpo_name: string | null; dpo_email: string | null;
+          eu_representative: string | null; ch_representative: string | null; supervisory_authority: string | null;
+          coppa_applies: boolean; coppa_direct_notice_version: number; ferpa_applies: boolean; ferpa_school_official_designated: boolean;
+          ferpa_designation_date: string | null; ferpa_annual_notice_url: string | null; us_state_laws: string[];
+          honor_global_privacy_control: boolean; cookie_banner_enabled: boolean; legal_overrides: Json; last_reviewed_at: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      data_retention_policies: {
+        Row: { id: string; org_id: string; data_category: string; retention_months: number; retention_trigger: string; expiry_action: string; legal_basis: string | null; statutory_reference: string | null; is_default: boolean; notes: string | null; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      processing_activities: {
+        Row: { id: string; org_id: string; name: string; purpose: string; role: string; legal_basis: string; special_category_basis: string | null; data_subject_categories: string[]; data_categories: string[]; involves_special_category: boolean; involves_minors: boolean; recipients: string[]; subprocessor_names: string[]; international_transfers: string | null; transfer_safeguards: string | null; retention_category: string | null; security_measures: string | null; dpia_required: boolean; dpia_completed_at: string | null; owner_name: string | null; next_review_at: string | null; is_active: boolean; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      subprocessors: {
+        Row: { id: string; org_id: string | null; name: string; service: string; purpose: string; data_categories: string[]; processing_location: string; transfer_mechanism: string | null; dpa_url: string | null; website: string | null; is_active: boolean; added_on: string; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      parental_consents: {
+        Row: { id: string; org_id: string; athlete_id: string; guardian_profile_id: string | null; guardian_name: string; guardian_email: string | null; method: string; status: "pending" | "verified" | "rejected" | "revoked" | "expired"; scope: string[]; third_party_disclosure_consented: boolean; direct_notice_version: number; evidence_reference: string | null; requested_at: string; verified_at: string | null; verified_by: string | null; revoked_at: string | null; expires_at: string | null; notes: string | null; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      education_record_disclosures: {
+        Row: { id: string; org_id: string; athlete_id: string | null; disclosed_to: string; legitimate_interest: string; records_described: string; exception_basis: string; disclosed_by: string | null; disclosed_at: string; created_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      breach_incidents: {
+        Row: { id: string; org_id: string; title: string; description: string | null; status: "open" | "investigating" | "contained" | "notified" | "closed"; severity: "low" | "medium" | "high" | "critical"; risk_assessment: string; occurred_at: string | null; detected_at: string; contained_at: string | null; data_categories: string[]; subjects_affected_estimate: number | null; involves_minors: boolean; involves_special_category: boolean; jurisdictions: string[]; authority_notify_by: string | null; authority_notification_required: boolean | null; authority_notified_at: string | null; authority_reference: string | null; subjects_notified_at: string | null; controller_notified_at: string | null; root_cause: string | null; remediation: string | null; reported_by: string | null; closed_at: string | null; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      dsar_requests: {
+        Row: { id: string; org_id: string; family_id: string | null; athlete_id: string | null; requester_profile_id: string | null; requester_name: string; requester_email: string | null; relationship: string; request_type: string; jurisdiction: "CH" | "EU" | "UK" | "US" | "OTHER"; channel: string; received_at: string; due_at: string | null; extended_due_at: string | null; extension_reason: string | null; identity_verified_at: string | null; status: "received" | "verifying" | "in_progress" | "extended" | "completed" | "rejected" | "withdrawn"; rejection_reason: string | null; completed_at: string | null; response_summary: string | null; deletion_request_id: string | null; handled_by: string | null; notes: string | null; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
       ai_queries: {
         Row: { id: string; org_id: string; actor_id: string | null; role: string | null; question: string; answer_preview: string | null; grounded: boolean; escalated: boolean; created_at: string };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];

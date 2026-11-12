@@ -9,6 +9,7 @@ import { brandingToCssVars, googleFontsHref, isDarkPalette } from "@/lib/tenant/
 import { getLocaleContext } from "@/lib/i18n/server";
 import { getMessages } from "@/lib/i18n/messages";
 import { I18nProvider } from "@/lib/i18n/client";
+import { CookieConsentBanner } from "@/components/compliance/cookie-consent-banner";
 
 // Design-system fonts (docs/design/DESIGN_SYSTEM.md). Each exposes a CSS
 // variable consumed by --font-display / --font-ui / --font-mono in globals.css.
@@ -84,6 +85,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <TenantProvider tenant={tenant}>
           <I18nProvider ctx={i18n} messages={getMessages(i18n.locale)}>
             <TenantGate tenant={tenant}>{children}</TenantGate>
+            <CookieConsentBanner policyHref={`/legal/${tenant.slug}/cookies`} />
           </I18nProvider>
         </TenantProvider>
       </body>

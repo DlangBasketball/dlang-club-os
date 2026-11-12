@@ -7,6 +7,8 @@ const PUBLIC_PREFIXES = [
   "/login",
   "/auth",
   "/register",
+  // Public legal pages (privacy, terms, imprint, cookies) per tenant.
+  "/legal",
   // SaaS layer: club self-signup + machine-to-machine endpoints that verify
   // their own credentials (Stripe signature / cron bearer secret).
   "/signup",
