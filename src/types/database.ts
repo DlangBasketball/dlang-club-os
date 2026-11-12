@@ -210,10 +210,25 @@ export type Database = {
           profile_id: string | null;
           display_name: string;
           role_title: string | null;
+          serves: string[];
+          bio: string | null;
           is_active: boolean;
+          photo_path: string | null;
+          photo_updated_at: string | null;
+          created_at: string;
+          updated_at: string;
         };
         Insert: Record<string, unknown>;
-        Update: Partial<{ profile_id: string | null; display_name: string; is_active: boolean }>;
+        Update: Partial<{
+          profile_id: string | null;
+          display_name: string;
+          role_title: string | null;
+          serves: string[];
+          bio: string | null;
+          is_active: boolean;
+          photo_path: string | null;
+          photo_updated_at: string | null;
+        }>;
         Relationships: [];
       };
       consent_forms: {
@@ -671,6 +686,9 @@ export type Database = {
       org_ai_assistant_entitled: { Args: { p_org: string }; Returns: boolean };
       org_ai_assistant_enabled: { Args: { p_org: string }; Returns: boolean };
       anonymise_family: { Args: { p_family: string }; Returns: Json };
+      set_coach_photo: { Args: { p_coach: string; p_path: string | null }; Returns: string | null };
+      coach_usage: { Args: { p_coach: string }; Returns: Json };
+      delete_coach_if_unused: { Args: { p_coach: string }; Returns: Json };
       withdraw_consent: { Args: { p_id: string }; Returns: Json };
       withdraw_consent_with_reason: { Args: { p_id: string; p_reason: string }; Returns: Json };
       next_invoice_number: { Args: { p_org: string }; Returns: string };
