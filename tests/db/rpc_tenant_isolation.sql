@@ -96,7 +96,7 @@ begin
        and p.prorettype <> 'trigger'::regtype
        and has_function_privilege('anon', p.oid, 'execute')
        and p.proname not in (
-         'get_public_tenant', 'is_slug_available', 'register_public',
+         'get_public_tenant', 'is_slug_available', 'register_public', 'training_public_catalog',
          'current_org_id', 'current_user_email', 'current_coach_id', 'has_role',
          'is_admin', 'is_finance', 'is_any_guardian', 'is_platform_admin', 'is_org_admin',
          'is_guardian_of_athlete', 'is_guardian_of_family', 'coach_can_access_athlete',
