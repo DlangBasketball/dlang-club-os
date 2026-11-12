@@ -9,3 +9,8 @@ next-env.d.ts
 
 # Agent worktrees (temporary)
 .claude/worktrees/
+
+# Test artifacts
+/test-results/
+/playwright-report/
+/coverage/
