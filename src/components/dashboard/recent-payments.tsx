@@ -2,9 +2,11 @@ import Link from "next/link";
 import { CreditCard } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState, ErrorState, SkeletonCard } from "@/components/ui";
 import { getRecentPayments } from "@/lib/data/dashboard";
-import { formatCHF, timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export async function RecentPayments() {
+  const f = await getFormatter();
   const { data, error } = await getRecentPayments(5);
   if (error) return <ErrorState title="Couldn't load payments" message={error} />;
   const payments = data!;
@@ -28,7 +30,7 @@ export async function RecentPayments() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="tnum text-sm font-medium text-ink">{formatCHF(p.amount)}</span>
+                  <span className="tnum text-sm font-medium text-ink">{f.money(p.amount)}</span>
                   <Badge tone={statusTone(p.status)}>{p.status}</Badge>
                 </div>
               </li>

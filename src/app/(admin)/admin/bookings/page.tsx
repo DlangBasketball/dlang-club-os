@@ -2,9 +2,11 @@ import Link from "next/link";
 import { ClipboardList } from "lucide-react";
 import { PageHeader, DataTable, Badge, statusTone, EmptyState, ErrorState, type Column } from "@/components/ui";
 import { listAllBookings, type AdminBooking } from "@/lib/data/training-admin";
-import { formatCHF, formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTime } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function AdminBookingsPage() {
+  const f = await getFormatter();
   const { data, error } = await listAllBookings();
   if (error) return (<div className="animate-fade-up"><PageHeader title="Bookings" /><ErrorState title="Couldn't load" message={error} /></div>);
   const columns: Column<AdminBooking>[] = [
@@ -12,7 +14,7 @@ export default async function AdminBookingsPage() {
     { key: "serviceName", header: "Service" },
     { key: "coachName", header: "Coach" },
     { key: "start", header: "When", render: (b) => `${formatDate(b.start)} ${formatTime(b.start)}` },
-    { key: "price", header: "Paid", render: (b) => b.creditsUsed > 0 ? `${b.creditsUsed} credits` : b.price !== null ? formatCHF(b.price) : "—" },
+    { key: "price", header: "Paid", render: (b) => b.creditsUsed > 0 ? `${b.creditsUsed} credits` : b.price !== null ? f.money(b.price) : "—" },
     { key: "status", header: "Status", render: (b) => <Badge tone={statusTone(b.status)}>{b.status}</Badge> },
   ];
   return (

@@ -4,7 +4,8 @@ import * as React from "react";
 import { Plus, Trash2, Check, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
 import { Card, CardBody, Button, Input, Label, Badge } from "@/components/ui";
 import { submitRegistration, type SubmitResult } from "@/lib/actions/registration";
-import { formatCHF } from "@/lib/utils";
+import { useFormat, useT } from "@/lib/i18n/client";
+import type { Translator } from "@/lib/i18n/translator";
 import type { PublicConsent } from "@/lib/data/public-registration";
 
 type Parent = { name: string; email: string; phone: string; address: string; emergencyName: string; emergencyPhone: string };
@@ -12,16 +13,11 @@ type Child = { firstName: string; lastName: string; dob: string; gender: string;
 
 const emptyChild = (): Child => ({ firstName: "", lastName: "", dob: "", gender: "", allergies: "", conditions: "", medicalNotes: "" });
 
-const CONSENT_COPY: Record<string, string> = {
-  liability: "I accept the liability waiver and assumption-of-risk terms.",
-  terms: "I accept the club terms & conditions.",
-  privacy: "I have read the privacy policy and consent to data processing (Swiss FADP / GDPR).",
-  media: "I consent to photos/video of my child being used in club media.",
-  health: "I authorize the club to arrange emergency medical care if needed.",
-  transport: "I consent to club-organized transport to and from activities.",
-};
+/** Consent copy lives in the catalog under registration.consents.<key>. */
+const consentCopy = (t: Translator, key: string) =>
+  t.dynamic(`registration.consents.${key}`, undefined, t("registration.consents.default"));
 
-const STEPS = ["Your details", "Children", "Agreements", "Review"];
+const STEP_KEYS = ["details", "children", "agreements", "review"] as const;
 
 export function RegisterStepper({
   programSlug, programName, priceChf, siblingDiscountPct, consents,
@@ -32,6 +28,9 @@ export function RegisterStepper({
   siblingDiscountPct: number;
   consents: PublicConsent[];
 }) {
+  const t = useT();
+  const f = useFormat();
+  const STEPS = STEP_KEYS.map((k) => t(`registration.steps.${k}`));
   const [step, setStep] = React.useState(0);
   const [parent, setParent] = React.useState<Parent>({ name: "", email: "", phone: "", address: "", emergencyName: "", emergencyPhone: "" });
   const [children, setChildren] = React.useState<Child[]>([emptyChild()]);
@@ -55,22 +54,24 @@ export function RegisterStepper({
   function validateStep(s: number): boolean {
     const e: Record<string, string> = {};
     if (s === 0) {
-      if (!parent.name.trim()) e["parent.name"] = "Required";
-      if (!/.+@.+\..+/.test(parent.email)) e["parent.email"] = "Enter a valid email";
-      if (parent.phone.trim().length < 3) e["parent.phone"] = "Required";
-      if (!parent.emergencyName.trim()) e["parent.emergencyName"] = "Required";
-      if (parent.emergencyPhone.trim().length < 3) e["parent.emergencyPhone"] = "Required";
+      const req = t("registration.errors.required");
+      if (!parent.name.trim()) e["parent.name"] = req;
+      if (!/.+@.+\..+/.test(parent.email)) e["parent.email"] = t("registration.errors.email");
+      if (parent.phone.trim().length < 3) e["parent.phone"] = req;
+      if (!parent.emergencyName.trim()) e["parent.emergencyName"] = req;
+      if (parent.emergencyPhone.trim().length < 3) e["parent.emergencyPhone"] = req;
     }
     if (s === 1) {
       children.forEach((c, i) => {
-        if (!c.firstName.trim()) e[`children.${i}.firstName`] = "Required";
-        if (!c.lastName.trim()) e[`children.${i}.lastName`] = "Required";
-        if (!c.dob.trim()) e[`children.${i}.dob`] = "Required";
+        const req = t("registration.errors.required");
+        if (!c.firstName.trim()) e[`children.${i}.firstName`] = req;
+        if (!c.lastName.trim()) e[`children.${i}.lastName`] = req;
+        if (!c.dob.trim()) e[`children.${i}.dob`] = req;
       });
     }
     if (s === 2) {
       const missing = requiredKeys.filter((k) => !accepted.has(k));
-      if (missing.length) e["consents"] = "Please accept all required agreements.";
+      if (missing.length) e["consents"] = t("registration.consents.missing");
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -126,18 +127,18 @@ export function RegisterStepper({
       {/* STEP 1 — Parent */}
       {step === 0 && (
         <Card><CardBody className="space-y-4">
-          <h2 className="text-lg font-semibold">Your details</h2>
+          <h2 className="text-lg font-semibold">{t("registration.parent.title")}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Full name" error={err("parent.name")}><Input value={parent.name} onChange={(e) => setP("name")(e.target.value)} /></Field>
-            <Field label="Email" error={err("parent.email")}><Input type="email" value={parent.email} onChange={(e) => setP("email")(e.target.value)} /></Field>
-            <Field label="Phone" error={err("parent.phone")}><Input value={parent.phone} onChange={(e) => setP("phone")(e.target.value)} /></Field>
-            <Field label="Address (optional)"><Input value={parent.address} onChange={(e) => setP("address")(e.target.value)} /></Field>
+            <Field label={t("registration.parent.fullName")} error={err("parent.name")}><Input value={parent.name} onChange={(e) => setP("name")(e.target.value)} /></Field>
+            <Field label={t("registration.parent.email")} error={err("parent.email")}><Input type="email" value={parent.email} onChange={(e) => setP("email")(e.target.value)} /></Field>
+            <Field label={t("registration.parent.phone")} error={err("parent.phone")}><Input value={parent.phone} onChange={(e) => setP("phone")(e.target.value)} /></Field>
+            <Field label={t("registration.parent.address")}><Input value={parent.address} onChange={(e) => setP("address")(e.target.value)} /></Field>
           </div>
           <div className="rounded-md border border-line bg-surface-elevated/50 p-4">
-            <div className="mb-3 text-sm font-medium text-ink">Emergency contact</div>
+            <div className="mb-3 text-sm font-medium text-ink">{t("registration.parent.emergencyContact")}</div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Contact name" error={err("parent.emergencyName")}><Input value={parent.emergencyName} onChange={(e) => setP("emergencyName")(e.target.value)} /></Field>
-              <Field label="Contact phone" error={err("parent.emergencyPhone")}><Input value={parent.emergencyPhone} onChange={(e) => setP("emergencyPhone")(e.target.value)} /></Field>
+              <Field label={t("registration.parent.emergencyName")} error={err("parent.emergencyName")}><Input value={parent.emergencyName} onChange={(e) => setP("emergencyName")(e.target.value)} /></Field>
+              <Field label={t("registration.parent.emergencyPhone")} error={err("parent.emergencyPhone")}><Input value={parent.emergencyPhone} onChange={(e) => setP("emergencyPhone")(e.target.value)} /></Field>
             </div>
           </div>
         </CardBody></Card>
@@ -149,33 +150,33 @@ export function RegisterStepper({
           {children.map((c, i) => (
             <Card key={i}><CardBody className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-ink">Child {i + 1}</h3>
+                <h3 className="text-sm font-semibold text-ink">{t("registration.child.title", { index: i + 1 })}</h3>
                 {children.length > 1 && (
                   <button onClick={() => setChildren((arr) => arr.filter((_, idx) => idx !== i))} className="flex items-center gap-1 text-xs text-ink-3 hover:text-danger">
-                    <Trash2 className="h-3.5 w-3.5" /> Remove
+                    <Trash2 className="h-3.5 w-3.5" /> {t("common.remove")}
                   </button>
                 )}
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="First name" error={err(`children.${i}.firstName`)}><Input value={c.firstName} onChange={(e) => setC(i, "firstName")(e.target.value)} /></Field>
-                <Field label="Last name" error={err(`children.${i}.lastName`)}><Input value={c.lastName} onChange={(e) => setC(i, "lastName")(e.target.value)} /></Field>
-                <Field label="Date of birth" error={err(`children.${i}.dob`)}><Input type="date" value={c.dob} onChange={(e) => setC(i, "dob")(e.target.value)} /></Field>
-                <Field label="Gender (optional)">
+                <Field label={t("registration.child.firstName")} error={err(`children.${i}.firstName`)}><Input value={c.firstName} onChange={(e) => setC(i, "firstName")(e.target.value)} /></Field>
+                <Field label={t("registration.child.lastName")} error={err(`children.${i}.lastName`)}><Input value={c.lastName} onChange={(e) => setC(i, "lastName")(e.target.value)} /></Field>
+                <Field label={t("registration.child.dob")} error={err(`children.${i}.dob`)}><Input type="date" value={c.dob} onChange={(e) => setC(i, "dob")(e.target.value)} /></Field>
+                <Field label={t("registration.child.gender")}>
                   <select value={c.gender} onChange={(e) => setC(i, "gender")(e.target.value)} className="h-10 w-full rounded border border-line bg-surface-input px-3 text-sm text-ink">
-                    <option value="">Select…</option><option>Male</option><option>Female</option><option>Other</option>
+                    <option value="">{t("common.select")}</option><option value="Male">{t("registration.child.genderMale")}</option><option value="Female">{t("registration.child.genderFemale")}</option><option value="Other">{t("registration.child.genderOther")}</option>
                   </select>
                 </Field>
               </div>
-              <Field label="Allergies (optional)"><Input value={c.allergies} onChange={(e) => setC(i, "allergies")(e.target.value)} placeholder="e.g. Peanuts · EpiPen in bag" /></Field>
-              <Field label="Medical conditions (optional)"><Input value={c.conditions} onChange={(e) => setC(i, "conditions")(e.target.value)} placeholder="e.g. Asthma · inhaler" /></Field>
-              <Field label="Other notes (optional)"><Input value={c.medicalNotes} onChange={(e) => setC(i, "medicalNotes")(e.target.value)} /></Field>
+              <Field label={t("registration.child.allergies")}><Input value={c.allergies} onChange={(e) => setC(i, "allergies")(e.target.value)} placeholder={t("registration.child.allergiesPlaceholder")} /></Field>
+              <Field label={t("registration.child.conditions")}><Input value={c.conditions} onChange={(e) => setC(i, "conditions")(e.target.value)} placeholder={t("registration.child.conditionsPlaceholder")} /></Field>
+              <Field label={t("registration.child.otherNotes")}><Input value={c.medicalNotes} onChange={(e) => setC(i, "medicalNotes")(e.target.value)} /></Field>
             </CardBody></Card>
           ))}
           <Button variant="secondary" onClick={() => setChildren((arr) => [...arr, emptyChild()])}>
-            <Plus className="h-4 w-4" /> Add another child
+            <Plus className="h-4 w-4" /> {t("registration.child.add")}
           </Button>
           {n > 1 && siblingDiscountPct > 0 && (
-            <p className="text-xs text-success">A {siblingDiscountPct}% sibling discount will be applied to each additional child.</p>
+            <p className="text-xs text-success">{t("registration.child.siblingHint", { pct: siblingDiscountPct })}</p>
           )}
         </div>
       )}
@@ -183,7 +184,7 @@ export function RegisterStepper({
       {/* STEP 3 — Consents */}
       {step === 2 && (
         <Card><CardBody className="space-y-3">
-          <h2 className="text-lg font-semibold">Agreements &amp; consent</h2>
+          <h2 className="text-lg font-semibold">{t("registration.consents.title")}</h2>
           {err("consents") && <p className="text-sm text-danger">{err("consents")}</p>}
           {consents.map((c) => (
             <label key={c.key} className="flex cursor-pointer items-start gap-3 rounded-md border border-line bg-surface-elevated/40 px-4 py-3 hover:border-maroon/40">
@@ -191,9 +192,9 @@ export function RegisterStepper({
               <span className="min-w-0">
                 <span className="flex items-center gap-2 text-sm font-medium text-ink">
                   {c.title}
-                  {c.required ? <Badge tone="danger">required</Badge> : <Badge tone="neutral">optional</Badge>}
+                  {c.required ? <Badge tone="danger">{t("registration.consents.required")}</Badge> : <Badge tone="neutral">{t("registration.consents.optional")}</Badge>}
                 </span>
-                <span className="mt-0.5 block text-xs text-ink-3">{CONSENT_COPY[c.key] ?? "I accept this agreement."}</span>
+                <span className="mt-0.5 block text-xs text-ink-3">{consentCopy(t, c.key)}</span>
               </span>
             </label>
           ))}
@@ -203,44 +204,44 @@ export function RegisterStepper({
       {/* STEP 4 — Review */}
       {step === 3 && (
         <Card><CardBody className="space-y-5">
-          <h2 className="text-lg font-semibold">Review &amp; confirm</h2>
+          <h2 className="text-lg font-semibold">{t("registration.review.title")}</h2>
 
-          <Section title="Program"><Row label={programName} value={`${formatCHF(priceChf)} / participant`} /></Section>
+          <Section title={t("registration.review.program")}><Row label={programName} value={t("common.perParticipant", { price: f.money(priceChf) })} /></Section>
 
-          <Section title="Parent / guardian">
-            <Row label="Name" value={parent.name} />
-            <Row label="Email" value={parent.email} />
-            <Row label="Phone" value={parent.phone} />
-            <Row label="Emergency" value={`${parent.emergencyName} · ${parent.emergencyPhone}`} />
+          <Section title={t("registration.review.guardian")}>
+            <Row label={t("common.name")} value={parent.name} />
+            <Row label={t("common.email")} value={parent.email} />
+            <Row label={t("common.phone")} value={parent.phone} />
+            <Row label={t("registration.review.emergency")} value={`${parent.emergencyName} · ${parent.emergencyPhone}`} />
           </Section>
 
-          <Section title={`Children (${n})`}>
+          <Section title={t("registration.review.children", { count: n })}>
             {children.map((c, i) => (
-              <Row key={i} label={`${c.firstName} ${c.lastName}`} value={c.dob} />
+              <Row key={i} label={`${c.firstName} ${c.lastName}`} value={f.date(c.dob)} />
             ))}
           </Section>
 
-          <Section title="Cost">
-            <Row label={`${n} × ${formatCHF(priceChf)}`} value={formatCHF(priceChf * n)} />
-            {discountTotal > 0 && <Row label={`Sibling discount (${siblingDiscountPct}%)`} value={`– ${formatCHF(discountTotal)}`} />}
+          <Section title={t("registration.review.cost")}>
+            <Row label={t("registration.review.lineItem", { count: n, price: f.money(priceChf) })} value={f.money(priceChf * n)} />
+            {discountTotal > 0 && <Row label={t("registration.review.siblingDiscount", { pct: siblingDiscountPct })} value={`– ${f.money(discountTotal)}`} />}
             <div className="mt-2 flex items-center justify-between border-t border-line pt-2 text-base font-semibold">
-              <span>Total</span><span className="tnum">{formatCHF(total)}</span>
+              <span>{t("common.total")}</span><span className="tnum">{f.money(total)}</span>
             </div>
           </Section>
 
           <p className="flex items-center gap-2 text-xs text-ink-3">
-            <ShieldCheck className="h-4 w-4 text-success" /> You accepted {accepted.size} agreement{accepted.size === 1 ? "" : "s"}. An invoice will be issued; payment instructions follow by email.
+            <ShieldCheck className="h-4 w-4 shrink-0 text-success" /> {t("registration.review.accepted", { count: accepted.size })}
           </p>
         </CardBody></Card>
       )}
 
       {/* Nav */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={back} disabled={step === 0 || submitting}><ChevronLeft className="h-4 w-4" /> Back</Button>
+        <Button variant="ghost" onClick={back} disabled={step === 0 || submitting}><ChevronLeft className="h-4 w-4" /> {t("common.back")}</Button>
         {step < STEPS.length - 1 ? (
-          <Button onClick={next}>Next <ChevronRight className="h-4 w-4" /></Button>
+          <Button onClick={next}>{t("common.next")} <ChevronRight className="h-4 w-4" /></Button>
         ) : (
-          <Button onClick={onSubmit} disabled={submitting}>{submitting ? "Submitting…" : "Submit registration"}</Button>
+          <Button onClick={onSubmit} disabled={submitting}>{submitting ? t("registration.submitting") : t("registration.submit")}</Button>
         )}
       </div>
     </div>

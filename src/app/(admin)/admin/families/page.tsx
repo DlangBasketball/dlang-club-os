@@ -2,9 +2,10 @@ import Link from "next/link";
 import { Users, Plus } from "lucide-react";
 import { PageHeader, Button, DataTable, EmptyState, ErrorState, type Column } from "@/components/ui";
 import { listFamilies, type FamilyListItem } from "@/lib/data/families";
-import { formatCHF } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function FamiliesPage() {
+  const f = await getFormatter();
   const { data, error } = await listFamilies();
   if (error) return (
     <div className="animate-fade-up">
@@ -18,7 +19,7 @@ export default async function FamiliesPage() {
     { key: "athleteCount", header: "Athletes" },
     { key: "phone", header: "Phone", render: (r) => r.phone ?? "—" },
     { key: "openInvoices", header: "Open" },
-    { key: "balance", header: "Balance", align: "right", render: (r) => <span className="tnum">{formatCHF(r.balance)}</span> },
+    { key: "balance", header: "Balance", align: "right", render: (r) => <span className="tnum">{f.money(r.balance)}</span> },
   ];
   return (
     <div className="animate-fade-up">

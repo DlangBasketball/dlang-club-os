@@ -3,9 +3,11 @@ import { Dumbbell, CalendarClock, Plus, ChevronRight } from "lucide-react";
 import { PageHeader, Card, CardBody, Badge, statusTone, Button, EmptyState, ErrorState } from "@/components/ui";
 import { listBookings } from "@/lib/data/parent";
 import { getBookingSettings } from "@/lib/data/training-admin";
-import { formatCHF, formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTime } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function ParentBookingsPage() {
+  const f = await getFormatter();
   const [{ data: bookings, error }, settings] = await Promise.all([listBookings(), getBookingSettings()]);
   if (error) return (<div className="animate-fade-up"><PageHeader title="Bookings" /><ErrorState title="Couldn't load bookings" message={error} /></div>);
   const upcoming = (bookings ?? []).filter((b) => b.status === "booked" && new Date(b.start) >= new Date());
@@ -15,7 +17,7 @@ export default async function ParentBookingsPage() {
     <Link href={`/parent/bookings/${b.id}`}>
       <Card className="transition active:scale-[0.99] hover:border-maroon/40"><CardBody className="flex items-center justify-between py-3">
         <div><div className="text-sm font-medium text-ink">{b.serviceName}</div><div className="text-xs text-ink-3">{formatDate(b.start)} · {formatTime(b.start)} · {b.coachName}</div></div>
-        <div className="flex items-center gap-2">{b.price !== null && b.price > 0 && <span className="tnum text-xs text-ink-3">{formatCHF(b.price)}</span>}<Badge tone={statusTone(b.status)}>{b.status}</Badge><ChevronRight className="h-4 w-4 text-ink-4" /></div>
+        <div className="flex items-center gap-2">{b.price !== null && b.price > 0 && <span className="tnum text-xs text-ink-3">{f.money(b.price)}</span>}<Badge tone={statusTone(b.status)}>{b.status}</Badge><ChevronRight className="h-4 w-4 text-ink-4" /></div>
       </CardBody></Card>
     </Link>
   );

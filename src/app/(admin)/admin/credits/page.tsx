@@ -2,9 +2,10 @@ import { Coins } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, DataTable, Badge, EmptyState, ErrorState, type Column } from "@/components/ui";
 import { listCreditPackages, listAthleteCredits, type PackageRow, type AthleteCredit } from "@/lib/data/training-admin";
 import { PackageForm, GrantCreditsForm } from "@/components/admin/credit-admin";
-import { formatCHF } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function AdminCreditsPage() {
+  const f = await getFormatter();
   const [{ data: packages, error: pErr }, { data: athletes, error: aErr }] = await Promise.all([listCreditPackages(), listAthleteCredits()]);
   if (pErr || aErr) return (<div className="animate-fade-up"><PageHeader title="Credits" /><ErrorState title="Couldn't load" message={pErr ?? aErr ?? ""} /></div>);
 
@@ -12,7 +13,7 @@ export default async function AdminCreditsPage() {
     { key: "name", header: "Package" },
     { key: "creditCategory", header: "Category" },
     { key: "credits", header: "Credits" },
-    { key: "priceChf", header: "Price", align: "right", render: (p) => formatCHF(p.priceChf) },
+    { key: "priceChf", header: "Price", align: "right", render: (p) => f.money(p.priceChf) },
     { key: "isActive", header: "Status", render: (p) => <Badge tone={p.isActive ? "success" : "neutral"}>{p.isActive ? "active" : "inactive"}</Badge> },
   ];
   const credCols: Column<AthleteCredit>[] = [

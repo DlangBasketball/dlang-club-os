@@ -6,6 +6,9 @@ import { getTenant } from "@/lib/tenant/server";
 import { TenantProvider } from "@/lib/tenant/context";
 import { TenantGate } from "@/components/layout/tenant-gate";
 import { brandingToCssVars, googleFontsHref, isDarkPalette } from "@/lib/tenant/theme";
+import { getLocaleContext } from "@/lib/i18n/server";
+import { getMessages } from "@/lib/i18n/messages";
+import { I18nProvider } from "@/lib/i18n/client";
 
 // Design-system fonts (docs/design/DESIGN_SYSTEM.md). Each exposes a CSS
 // variable consumed by --font-display / --font-ui / --font-mono in globals.css.
@@ -53,6 +56,7 @@ export async function generateViewport(): Promise<Viewport> {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const tenant = await getTenant();
+  const i18n = await getLocaleContext(tenant.id);
   // Tenant theme -> design-system CSS variables on <html>: the inline style
   // beats the :root defaults (and the light-theme block) in globals.css, so
   // the whole UI rebrands with no component changes.
@@ -61,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const dark = isDarkPalette(tenant.branding);
   return (
     <html
-      lang={tenant.defaultLocale}
+      lang={i18n.locale}
       className={`${fontDisplay.variable} ${fontUi.variable} ${fontMono.variable}${dark ? " dark" : ""}`}
       style={{ ...cssVars, colorScheme: dark ? "dark" : "light" }}
       data-theme={dark ? "dark" : "light"}
@@ -78,7 +82,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <TenantProvider tenant={tenant}>
-          <TenantGate tenant={tenant}>{children}</TenantGate>
+          <I18nProvider ctx={i18n} messages={getMessages(i18n.locale)}>
+            <TenantGate tenant={tenant}>{children}</TenantGate>
+          </I18nProvider>
         </TenantProvider>
       </body>
     </html>

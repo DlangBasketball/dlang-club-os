@@ -8,6 +8,7 @@ import {
   updatePaymentInstructions, updateInvoiceSettings, updateTax, updatePrivacy, updateRetention,
 } from "@/lib/actions/settings";
 import type { ClubSettings, Venue } from "@/lib/data/settings";
+import { CURRENCIES, LOCALES, LOCALE_NAMES } from "@/lib/i18n/config";
 
 type Res = { ok: boolean; error?: string };
 function useSaver() {
@@ -108,7 +109,7 @@ export function VenuesEditor({ s }: { s: ClubSettings }) {
   );
 }
 
-const ALL_LANGS = [{ k: "en", l: "English" }, { k: "fr", l: "Français" }, { k: "de", l: "Deutsch" }, { k: "it", l: "Italiano" }];
+const ALL_LANGS = LOCALES.map((k) => ({ k, l: LOCALE_NAMES[k] }));
 export function LocalizationForm({ s }: { s: ClubSettings }) {
   const { busy, msg, run } = useSaver();
   const [currency, setCurrency] = React.useState(s.localization.currency);
@@ -121,7 +122,7 @@ export function LocalizationForm({ s }: { s: ClubSettings }) {
       <CardBody>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); run(() => updateLocalization({ currency, defaultLocale: locale, languages: langs })); }}>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label>Currency</Label><Input value={currency} onChange={(e) => setCurrency(e.target.value)} /></div>
+            <div><Label>Currency</Label><select className={sel} value={currency} onChange={(e) => setCurrency(e.target.value)}>{(CURRENCIES as readonly string[]).concat((CURRENCIES as readonly string[]).includes(currency) ? [] : [currency]).map((c) => <option key={c} value={c}>{c}</option>)}</select></div>
             <div><Label>Default language</Label><select className={sel} value={locale} onChange={(e) => setLocale(e.target.value)}>{ALL_LANGS.map((l) => <option key={l.k} value={l.k}>{l.l}</option>)}</select></div>
           </div>
           <div>

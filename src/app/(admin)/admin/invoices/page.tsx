@@ -2,11 +2,13 @@ import Link from "next/link";
 import { Receipt, Plus, Download, Landmark } from "lucide-react";
 import { PageHeader, Button, DataTable, EmptyState, Badge, statusTone, ErrorState, type Column } from "@/components/ui";
 import { listInvoices, type InvoiceListItem } from "@/lib/data/invoices";
-import { formatCHF, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 const FILTERS = ["all", "draft", "sent", "partially_paid", "paid", "overdue", "cancelled"];
 
 export default async function InvoicesPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const f = await getFormatter();
   const { status = "all" } = await searchParams;
   const { data, error } = await listInvoices(status);
   if (error) return (<div className="animate-fade-up"><PageHeader title="Invoices" /><ErrorState title="Couldn't load invoices" message={error} /></div>);
@@ -15,8 +17,8 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const columns: Column<InvoiceListItem>[] = [
     { key: "number", header: "Invoice", render: (r) => <Link href={`/admin/invoices/${r.id}`} className="tnum font-medium text-ink hover:text-maroon">{r.number}</Link> },
     { key: "familyName", header: "Family" },
-    { key: "total", header: "Total", align: "right", render: (r) => <span className="tnum">{formatCHF(r.total)}</span> },
-    { key: "balance", header: "Balance", align: "right", render: (r) => <span className="tnum">{formatCHF(r.balance)}</span> },
+    { key: "total", header: "Total", align: "right", render: (r) => <span className="tnum">{f.money(r.total)}</span> },
+    { key: "balance", header: "Balance", align: "right", render: (r) => <span className="tnum">{f.money(r.balance)}</span> },
     { key: "dueDate", header: "Due", render: (r) => formatDate(r.dueDate) },
     { key: "status", header: "Status", render: (r) => <Badge tone={statusTone(r.status)}>{r.status.replace("_", " ")}</Badge> },
   ];

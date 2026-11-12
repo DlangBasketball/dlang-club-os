@@ -3,9 +3,11 @@ import { Landmark } from "lucide-react";
 import { PageHeader, Card, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { listAwaitingPayment } from "@/lib/data/reconciliation";
 import { MarkPaidButton } from "@/components/invoice/mark-paid-button";
-import { formatCHF, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function ReconcilePage() {
+  const f = await getFormatter();
   const { data, error } = await listAwaitingPayment();
   if (error) return (<div className="animate-fade-up"><PageHeader title="Reconciliation" /><ErrorState title="Couldn't load" message={error} /></div>);
   const rows = data!;
@@ -30,8 +32,8 @@ export default async function ReconcilePage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="tnum text-sm font-medium text-ink">{formatCHF(r.balance)}</div>
-                    {r.paid > 0 && <div className="text-xs text-ink-3">of {formatCHF(r.total)}</div>}
+                    <div className="tnum text-sm font-medium text-ink">{f.money(r.balance)}</div>
+                    {r.paid > 0 && <div className="text-xs text-ink-3">of {f.money(r.total)}</div>}
                   </div>
                   <MarkPaidButton invoiceId={r.id} />
                 </div>

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardBody, ErrorState, SkeletonCard } from "@/components/ui";
 import { getInvoiceSummary } from "@/lib/data/dashboard";
-import { formatCHF } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export async function InvoiceSummary() {
+  const f = await getFormatter();
   const { data, error } = await getInvoiceSummary();
   if (error) return <ErrorState title="Couldn't load invoices" message={error} />;
   const s = data!;
@@ -24,7 +25,7 @@ export async function InvoiceSummary() {
               <div className={`text-sm font-medium ${r.tone}`}>{r.label}</div>
               <div className="text-xs text-ink-3">{r.count} invoice{r.count === 1 ? "" : "s"}</div>
             </div>
-            <div className="tnum text-lg font-semibold">{formatCHF(r.total)}</div>
+            <div className="tnum text-lg font-semibold">{f.money(r.total)}</div>
           </div>
         ))}
         <div className="flex items-center justify-between px-1 pt-1 text-xs text-ink-3">

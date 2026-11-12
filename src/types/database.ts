@@ -24,6 +24,8 @@ export type Database = {
           email: string;
           phone: string | null;
           locale: string;
+          /** Set when the user explicitly picked a language (i18n migration). */
+          locale_set_at?: string | null;
           is_active: boolean;
           onboarding_completed_at: string | null;
           created_at: string;
@@ -477,6 +479,10 @@ export type Database = {
           invoice_counter: number;
           currency: string;
           default_locale: string;
+          /** IANA time zone (i18n migration). */
+          timezone?: string;
+          /** Languages offered in the switcher (i18n migration). */
+          enabled_locales?: string[];
           payment_methods: string[];
           settings: Json;
           updated_at: string;

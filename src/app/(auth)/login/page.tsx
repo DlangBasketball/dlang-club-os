@@ -9,6 +9,8 @@ import { Button, Input, Label } from "@/components/ui";
 import { SITE_URL } from "@/lib/constants";
 import { MailCheck } from "lucide-react";
 import { useTenant } from "@/lib/tenant/context";
+import { useT } from "@/lib/i18n/client";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 
 export default function LoginPage() {
   // useSearchParams must be inside a Suspense boundary in Next 15.
@@ -22,6 +24,7 @@ export default function LoginPage() {
 function LoginInner() {
   const tenant = useTenant();
   const params = useSearchParams();
+  const t = useT();
   const redirect = params.get("redirect");
   const [email, setEmail] = React.useState("");
   const [status, setStatus] = React.useState<"idle" | "loading" | "sent" | "error">(
@@ -42,15 +45,26 @@ function LoginInner() {
       options: { emailRedirectTo },
     });
     if (error) {
-      setError(error.message);
+      setError(error.message || t("auth.errorGeneric"));
       setStatus("error");
     } else {
       setStatus("sent");
     }
   }
 
+  const [heroPre, heroPost] = t("auth.heroLine2", { em: "\u0001" }).split("\u0001");
+  let country = tenant.country;
+  try {
+    country = new Intl.DisplayNames([tenant.defaultLocale], { type: "region" }).of(tenant.country) ?? tenant.country;
+  } catch {
+    /* unknown region code: show it as-is */
+  }
+
   return (
     <div className="grain relative grid min-h-dvh bg-bg lg:grid-cols-[1.05fr_1fr]">
+      <div className="absolute right-4 top-4 z-10">
+        <LanguageSwitcher />
+      </div>
       {/* Brand panel (prototype .login-left) — desktop only */}
       <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-border px-14 py-10 lg:flex bg-brand-banner">
         <div
@@ -60,30 +74,24 @@ function LoginInner() {
         <BrandMark className="relative" />
         <div className="relative">
           <p className="max-w-[480px] font-display text-[38px] font-normal leading-[1.15] tracking-[-0.025em] text-text">
-            Run the club.
+            {t("auth.heroLine1")}
             <br />
-            Develop the <em className="not-italic text-brand-primary">players</em>.
+            {heroPre}
+            <em className="not-italic text-brand-primary">{t("auth.heroLine2Em")}</em>
+            {heroPost}
             <br />
-            Grow the business.
+            {t("auth.heroLine3")}
           </p>
           <p className="mt-6 max-w-[420px] text-[13px] leading-relaxed tracking-[0.02em] text-text-muted">
-            One operating system for registrations, payments, training, coach
-            workflow and parent communication.
+            {t("auth.heroBody")}
           </p>
         </div>
         <div className="relative flex gap-8 border-t border-border pt-5 text-[11px] uppercase tracking-[0.14em] text-text-muted">
           <span>
-            <strong className="font-medium text-text-secondary">{tenant.name}</strong>
-            {(() => {
-              try {
-                return ` · ${new Intl.DisplayNames([tenant.defaultLocale], { type: "region" }).of(tenant.country) ?? tenant.country}`;
-              } catch {
-                return ` · ${tenant.country}`;
-              }
-            })()}
+            <strong className="font-medium text-text-secondary">{tenant.name}</strong> · {country}
           </span>
           <span>
-            Status: <strong className="font-medium text-text-secondary">Operational</strong>
+            {t("auth.statusLabel")}: <strong className="font-medium text-text-secondary">{t("auth.statusOperational")}</strong>
           </span>
         </div>
       </aside>
@@ -101,28 +109,29 @@ function LoginInner() {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-success/30 bg-success-soft text-success">
                   <MailCheck className="h-6 w-6" aria-hidden />
                 </div>
-                <h1 className="font-display text-2xl font-medium">Check your inbox</h1>
-                <p className="mt-2 text-sm text-text-muted">
-                  We sent a secure sign-in link to{" "}
-                  <span className="text-text">{email}</span>. Open it on this
-                  device to continue.
-                </p>
+                <h1 className="font-display text-2xl font-medium">{t("auth.checkInbox")}</h1>
+                <p className="mt-2 text-sm text-text-muted">{t("auth.linkSent", { email })}</p>
+                <button
+                  type="button"
+                  onClick={() => setStatus("idle")}
+                  className="mt-4 text-xs text-text-muted underline-offset-4 hover:text-text hover:underline"
+                >
+                  {t("auth.useDifferentEmail")}
+                </button>
               </div>
             ) : (
               <>
-                <h1 className="font-display text-[32px] font-medium leading-tight tracking-[-0.02em]">Sign in</h1>
-                <p className="mt-1.5 text-sm text-text-muted">
-                  Use your email to receive a one-time secure link.
-                </p>
+                <h1 className="font-display text-[32px] font-medium leading-tight tracking-[-0.02em]">{t("auth.signInTitle")}</h1>
+                <p className="mt-1.5 text-sm text-text-muted">{t("auth.signInSubtitle")}</p>
                 <form onSubmit={onSubmit} className="mt-8 space-y-4">
                   <div>
-                    <Label htmlFor="email">Email address</Label>
+                    <Label htmlFor="email">{t("auth.emailLabel")}</Label>
                     <Input
                       id="email"
                       type="email"
                       autoComplete="email"
                       required
-                      placeholder="you@example.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       aria-invalid={status === "error" || undefined}
@@ -134,13 +143,8 @@ function LoginInner() {
                       {error}
                     </p>
                   )}
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full"
-                    loading={status === "loading"}
-                  >
-                    {status === "loading" ? "Sending link…" : "Send magic link"}
+                  <Button type="submit" size="lg" className="w-full" loading={status === "loading"}>
+                    {status === "loading" ? t("auth.sending") : t("auth.sendLink")}
                   </Button>
                 </form>
               </>
@@ -148,7 +152,7 @@ function LoginInner() {
           </div>
 
           <p className="mt-6 text-center text-xs text-text-muted">
-            {tenant.name} · Protected by row-level security
+            {tenant.name} · {t("auth.footer")}
           </p>
         </div>
       </main>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Card, CardBody, Button } from "@/components/ui";
 import { getPublicProgram } from "@/lib/data/public-registration";
+import { getTranslations } from "@/lib/i18n/server";
 
 export default async function RegistrationSuccessPage({
   params, searchParams,
@@ -12,7 +13,8 @@ export default async function RegistrationSuccessPage({
   const { programSlug } = await params;
   const { ref } = await searchParams;
   const data = await getPublicProgram(programSlug);
-  const programName = data?.program.name ?? "the program";
+  const t = await getTranslations(data?.program.orgId);
+  const programName = data?.program.name ?? t("registration.success.theProgram");
 
   return (
     <div className="animate-fade-up py-6">
@@ -22,21 +24,22 @@ export default async function RegistrationSuccessPage({
             <CheckCircle2 className="h-7 w-7" />
           </span>
           <div>
-            <h1 className="font-display text-2xl font-semibold">Registration received</h1>
+            <h1 className="font-display text-2xl font-semibold">{t("registration.success.title")}</h1>
             <p className="mt-2 text-sm text-ink-2">
-              Thanks for registering for <span className="text-ink">{programName}</span>. We&apos;ve emailed you a confirmation
-              {ref ? <> with invoice <span className="tnum text-ink">{ref}</span></> : null}.
+              {ref
+                ? t("registration.success.thanksWithInvoice", { program: programName, invoice: ref })
+                : t("registration.success.thanks", { program: programName })}
             </p>
           </div>
           <div className="w-full rounded-md border border-line bg-surface-elevated/50 p-4 text-left text-sm text-ink-2">
-            <p className="font-medium text-ink">What happens next</p>
+            <p className="font-medium text-ink">{t("registration.success.nextTitle")}</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
-              <li>A club admin reviews and confirms your spot.</li>
-              <li>You&apos;ll get an email to set up your parent account.</li>
-              <li>Pay the invoice from your account (card, TWINT or bank transfer).</li>
+              <li>{t("registration.success.next1")}</li>
+              <li>{t("registration.success.next2")}</li>
+              <li>{t("registration.success.next3")}</li>
             </ol>
           </div>
-          <Link href="/login"><Button>Set up your account</Button></Link>
+          <Link href="/login"><Button>{t("registration.success.setupAccount")}</Button></Link>
         </CardBody>
       </Card>
     </div>
