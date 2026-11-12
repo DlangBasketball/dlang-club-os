@@ -8,6 +8,7 @@ import { BrandMark } from "@/components/layout/brand-mark";
 import { Button, Input, Label } from "@/components/ui";
 import { SITE_URL } from "@/lib/constants";
 import { MailCheck } from "lucide-react";
+import { useTenant } from "@/lib/tenant/context";
 
 export default function LoginPage() {
   // useSearchParams must be inside a Suspense boundary in Next 15.
@@ -19,6 +20,7 @@ export default function LoginPage() {
 }
 
 function LoginInner() {
+  const tenant = useTenant();
   const params = useSearchParams();
   const redirect = params.get("redirect");
   const [email, setEmail] = React.useState("");
@@ -71,7 +73,14 @@ function LoginInner() {
         </div>
         <div className="relative flex gap-8 border-t border-border pt-5 text-[11px] uppercase tracking-[0.14em] text-text-muted">
           <span>
-            <strong className="font-medium text-text-secondary">Lausanne</strong> · Switzerland
+            <strong className="font-medium text-text-secondary">{tenant.name}</strong>
+            {(() => {
+              try {
+                return ` · ${new Intl.DisplayNames([tenant.defaultLocale], { type: "region" }).of(tenant.country) ?? tenant.country}`;
+              } catch {
+                return ` · ${tenant.country}`;
+              }
+            })()}
           </span>
           <span>
             Status: <strong className="font-medium text-text-secondary">Operational</strong>
@@ -139,7 +148,7 @@ function LoginInner() {
           </div>
 
           <p className="mt-6 text-center text-xs text-text-muted">
-            Protected by row-level security
+            {tenant.name} · Protected by row-level security
           </p>
         </div>
       </main>

@@ -80,6 +80,8 @@ const config: Config = {
         "maroon-ink": token("brand-primary-deep"),
         gold: token("brand-accent"),
         "gold-soft": token("brand-accent-soft"),
+        accent: token("brand-accent"),
+        "accent-soft": token("brand-accent-soft"),
       },
       // Brand / status colours used AS TEXT switch to their AA-contrast
       // "-text" variants (a pure #DA2627 on #0A0A0A is only ~4:1).

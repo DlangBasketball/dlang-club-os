@@ -108,6 +108,12 @@
   --glow-red:         var(--shadow-glow);
   --glow-red-strong:  var(--shadow-glow-strong);
   --shadow-red:       var(--focus-ring);
+  /* Tenancy-track aliases (src/lib/tenant/theme.ts writes the canonical
+     --brand-* / --bg / --surface / --text tokens; these follow them). */
+  --brand-tint:       color-mix(in srgb, var(--brand-primary) 10%, transparent);
+  --accent:           var(--brand-accent);
+  --accent-soft:      var(--brand-accent-soft);
+  --text-on-accent:   var(--brand-accent-contrast);
 }
 
 /* ===========================================================================

@@ -5,6 +5,7 @@ import { Sparkles, Send, LifeBuoy, ShieldCheck } from "lucide-react";
 import { Card, CardBody, Button } from "@/components/ui";
 import { askAssistant, logEscalation, type Scope } from "@/lib/actions/ai";
 import { cn } from "@/lib/utils";
+import { useTenant } from "@/lib/tenant/context";
 
 type Msg = { who: "you" | "ai"; text: string; escalate?: boolean };
 
@@ -15,6 +16,7 @@ const SUGGESTIONS: Record<Scope, string[]> = {
 };
 
 export function AssistantChat({ scope, supportHref }: { scope: Scope; supportHref: string }) {
+  const tenant = useTenant();
   const [msgs, setMsgs] = React.useState<Msg[]>([]);
   const [input, setInput] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -35,7 +37,7 @@ export function AssistantChat({ scope, supportHref }: { scope: Scope; supportHre
     <Card className="flex h-[70vh] flex-col">
       <div className="flex items-center gap-2 border-b border-line-soft px-4 py-3">
         <Sparkles className="h-4 w-4 text-maroon" />
-        <span className="text-sm font-semibold text-ink">DLang Assistant</span>
+        <span className="text-sm font-semibold text-ink">{tenant.name} Assistant</span>
         <span className="ml-auto flex items-center gap-1 text-xs text-ink-4"><ShieldCheck className="h-3.5 w-3.5" /> grounded in your records</span>
       </div>
 
@@ -55,7 +57,7 @@ export function AssistantChat({ scope, supportHref }: { scope: Scope; supportHre
               {m.escalate && (
                 <div className="mt-2 border-t border-line-soft pt-2">
                   <Link href={supportHref as never} onClick={() => logEscalation(msgs[i - 1]?.text ?? "")}>
-                    <Button size="sm" variant="secondary"><LifeBuoy className="h-4 w-4" /> Contact DLang Basketball</Button>
+                    <Button size="sm" variant="secondary"><LifeBuoy className="h-4 w-4" /> Contact {tenant.name}</Button>
                   </Link>
                 </div>
               )}

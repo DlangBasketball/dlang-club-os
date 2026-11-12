@@ -1,10 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
+import { APP_TAGLINE } from "@/lib/constants";
+import { getTenant } from "@/lib/tenant/server";
+import { TenantProvider } from "@/lib/tenant/context";
+import { TenantGate } from "@/components/layout/tenant-gate";
+import { brandingToCssVars, googleFontsHref, isDarkPalette } from "@/lib/tenant/theme";
 
 // Design-system fonts (docs/design/DESIGN_SYSTEM.md). Each exposes a CSS
 // variable consumed by --font-display / --font-ui / --font-mono in globals.css.
+// A tenant with custom fonts overrides those tokens (src/lib/tenant/theme.ts).
 const fontDisplay = Fraunces({
   subsets: ["latin", "latin-ext"],
   variable: "--font-fraunces",
@@ -26,13 +31,56 @@ const fontMono = Geist_Mono({
   fallback: ["ui-monospace", "Menlo", "monospace"],
 });
 
-export const metadata: Metadata = { title: `${APP_NAME} — ${APP_TAGLINE}`, description: "DLang Basketball club OS." };
-export const viewport: Viewport = { themeColor: "#0A0A0A", colorScheme: "dark light" };
+/** Per-tenant <title>, description and favicon. */
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getTenant();
+  const icon = tenant.branding.faviconUrl ?? tenant.branding.logoUrl;
+  return {
+    title: { default: `${tenant.name} — ${APP_TAGLINE}`, template: `%s · ${tenant.name}` },
+    description: `${tenant.name} — ${APP_TAGLINE}.`,
+    applicationName: tenant.name,
+    ...(icon ? { icons: { icon, apple: icon } } : {}),
+  };
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export async function generateViewport(): Promise<Viewport> {
+  const tenant = await getTenant();
+  return {
+    themeColor: tenant.branding.colors.background,
+    colorScheme: isDarkPalette(tenant.branding) ? "dark" : "light",
+  };
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const tenant = await getTenant();
+  // Tenant theme -> design-system CSS variables on <html>: the inline style
+  // beats the :root defaults (and the light-theme block) in globals.css, so
+  // the whole UI rebrands with no component changes.
+  const cssVars = brandingToCssVars(tenant.branding) as React.CSSProperties;
+  const fontsHref = googleFontsHref(tenant.branding);
+  const dark = isDarkPalette(tenant.branding);
   return (
-    <html lang="en" className={`${fontDisplay.variable} ${fontUi.variable} ${fontMono.variable}`}>
-      <body>{children}</body>
+    <html
+      lang={tenant.defaultLocale}
+      className={`${fontDisplay.variable} ${fontUi.variable} ${fontMono.variable}${dark ? " dark" : ""}`}
+      style={{ ...cssVars, colorScheme: dark ? "dark" : "light" }}
+      data-theme={dark ? "dark" : "light"}
+      data-tenant={tenant.slug}
+    >
+      <head>
+        {fontsHref && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+            <link rel="stylesheet" href={fontsHref} />
+          </>
+        )}
+      </head>
+      <body>
+        <TenantProvider tenant={tenant}>
+          <TenantGate tenant={tenant}>{children}</TenantGate>
+        </TenantProvider>
+      </body>
     </html>
   );
 }

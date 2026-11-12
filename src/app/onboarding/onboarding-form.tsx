@@ -4,6 +4,7 @@ import * as React from "react";
 import { completeOnboarding } from "@/lib/auth/onboarding";
 import { Card, CardBody, Button, Input, Label } from "@/components/ui";
 import { CheckCircle2 } from "lucide-react";
+import { useTenant } from "@/lib/tenant/context";
 
 export function OnboardingForm({
   defaultName,
@@ -12,6 +13,7 @@ export function OnboardingForm({
   defaultName: string;
   email: string;
 }) {
+  const tenant = useTenant();
   const [fullName, setFullName] = React.useState(defaultName);
   const [phone, setPhone] = React.useState("");
   const [accept, setAccept] = React.useState(false);
@@ -29,7 +31,7 @@ export function OnboardingForm({
     <Card>
       <CardBody className="space-y-5">
         <div>
-          <h1 className="text-2xl font-semibold">Welcome to DLang Basketball</h1>
+          <h1 className="text-2xl font-semibold">Welcome to {tenant.name}</h1>
           <p className="mt-1 text-sm text-ink-2">
             You&apos;ve been invited as a parent. Confirm your details to finish
             setting up your account.
