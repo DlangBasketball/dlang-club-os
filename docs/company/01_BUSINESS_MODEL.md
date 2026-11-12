@@ -104,7 +104,7 @@ The founder's tier names are kept. "Academy" is the Pro tier and "Multi-site / F
 |---|---|---|---|
 | Subscriptions | Tiered monthly or annual | ~84% | The business. Everything else is secondary |
 | Onboarding and services | One-off fee per tier, plus hourly | ~11% | Filters out unserious clubs and offsets CAC. Not margin |
-| AI assistant | Included in the Club tier (12 Nov 2026) | 0% as a separate line | The founder's 25% attach at CHF 90 is withdrawn; the workbook still books 15% from Year 3 until its defaults are updated (about CHF 5.7k in Year 3) |
+| AI assistant | Included in the Club tier (12 Nov 2026) | 0% as a separate line | The founder's 25% attach at CHF 90 is withdrawn; workbook v2.1 sets the attach rate to 0% (`Assumptions!B26`), which removes about CHF 5.7k of Year-3 revenue; v2 still books 15% from Year 3 |
 | Payment application fee | Stripe Connect direct charges + application fee | ~2% | Near-zero margin on Stripe (§5.3) |
 | Federation group deals | Per-club rate about 20% below list, group onboarding fee, federation dashboard free | 0% in model | Upside. Pilot H2 2028 at the earliest |
 
@@ -256,7 +256,7 @@ The Swiss wedge is real, but it is Swiss. Going abroad early would spread one fo
 
 ### 10.1 Figures of record: the v2 workbook (founder decision 14, 12 Nov 2026)
 
-Source: `updated/DLANG_Sports_OS_Financial_Model_v2.xlsx`. Model years run December to November (Year 1 = Dec 2026 – Nov 2027). Three cases are shown; the second and third are the same workbook recalculated on copies with the founder's 12 Nov facts (see `11_FOUNDER_DECISIONS_2026-11-12.md` §2).
+Source: `updated/DLANG_Sports_OS_Financial_Model_v2.xlsx`. Model years run December to November (Year 1 = Dec 2026 – Nov 2027). Three cases are shown; the second and third are the same workbook recalculated on copies with the founder's 12 Nov facts (see `11_FOUNDER_DECISIONS_2026-11-12.md` §2). Since 12 Nov the plan of record is saved as `updated/DLANG_Sports_OS_Financial_Model_v2.1.xlsx`: with its EU/US pilot row (CHF 22.5k in 2027 [Est.]) the shortfalls are about 105k / 236k / 353k; with that row at 0 it reproduces the third case exactly (`10_FINANCIAL_MODEL_V2_NOTES.md` §0).
 
 | CHF | Workbook base (as published) | 12 Nov founder-facts case (FIT 0%, EUR 50k cash Mar 2027) | Plan of record (founder-facts + lean cost + AI in Club tier) | Downside (Bear) |
 |---|---|---|---|---|
@@ -325,7 +325,7 @@ The sketch below was built by hand before the v2 workbook was finished. Its date
 - EBITDA: about –89k / –109k / –99k. Cumulative about **–297k** by end-2029, with no break-even before 2031.
 - **Strategy review trigger (replaces the stop rule, 12 Nov 2026):** the founder has committed to keep going, so there is no stop decision. If fewer than 10 clubs pay by 31 Mar 2028 (the downside date; and as a hard checkpoint, fewer than 8), run a two-week structured review of pricing, segment, channel and offer and choose corrective plays: (a) a services-plus-licence model for academies, (b) a federation or strategic partner, (c) the schools segment, (d) resale through the DLang network, (e) holding costs at the lean line and resizing the funding plan. See `00_EXECUTIVE_PLAN.md` §4.7.
 
-**Validation required:** a fiduciary should review the salary, social-charge and VAT treatment. The v2 workbook (`updated/DLANG_Sports_OS_Financial_Model_v2.xlsx`) is the source of record; its defaults should be switched to the plan of record (FIT 0%, round in Mar 2027, lean cost, AI in the Club tier) at the 3 Jan 2027 refresh.
+**Validation required:** a fiduciary should review the salary, social-charge and VAT treatment. The workbook is the source of record: `updated/DLANG_Sports_OS_Financial_Model_v2.1.xlsx` opens on the plan of record (FIT 0%, round in Mar 2027, lean cost, AI in the Club tier, EU/US pilot costs) since 12 Nov 2026; refresh it with actuals on 3 Jan 2027. v2 keeps the 11 Nov defaults.
 
 ---
 

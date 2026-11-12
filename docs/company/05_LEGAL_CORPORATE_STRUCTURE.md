@@ -246,7 +246,7 @@ Set the MSA liability cap (12 months' fees) at or below insured limits. Use a br
 
 ## 10. Launch legal checklist (re-baselined from 11 Nov 2026)
 
-Owners: **F** = founder, **L** = Swiss lawyer, **FT** = fiduciary/tax adviser, **E** = engineering (CTO partner or contractor plus reviewer), **B** = insurance broker. Dates are **base / downside**.
+Owners: **F** = founder, **L** = Swiss lawyer, **FT** = fiduciary/tax adviser, **E** = engineering (fractional CTO leading the AI agent team; the paid reviewer until the CTO starts), **B** = insurance broker. Dates are **base / downside**.
 
 ### Phase 0: Switzerland foundations (now → Feb 2027)
 

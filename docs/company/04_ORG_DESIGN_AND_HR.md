@@ -308,7 +308,7 @@ Club counts and ARR come from the v2 workbook (`01_BUSINESS_MODEL.md` §10.1). *
 
 **Roles:**
 - **F** = Founder/CEO
-- **C** = CTO partner (or senior reviewer in the fallback)
+- **C** = fractional CTO (the paid senior reviewer until the CTO starts)
 - **E** = contract engineers + AI agents (agents are never A)
 - **D** = DLang staff (customer zero)
 - **Fi** = fiduciary
@@ -358,7 +358,7 @@ R = responsible, A = accountable, C = consulted, I = informed.
 |---|---|---|---|
 | Hiring principle | Founder hands roles over in order (engineering → onboarding → support → sales) | **Kept.** Made explicit as stage gates tied to club counts | The sequencing is right; only the dates were optimistic |
 | CTO partner | Structure A; co-founder by end of Month 4 (Dec 2026), else contractor model | **12 Nov:** named human fractional CTO + AI agent team; signed 15 Dec 2026 (latest 31 Jan 2027); CTO sets structure by 8 Jan; reviewer covers until then | An AI agent cannot be accountable; the EUR 50k is released only once a CTO is in place |
-| Engineering cost | CHF 4,500/month for ~24 h/week (Y1); 1 FTE at CHF 8.5k/month (Y2); 2 FTE (Y3) | Partner + reviewer + agents through 2028; first engineer employee **Q2 2029** at CHF 125–155k + ~17% charges | CHF 43/h is far below Swiss contractor rates (CHF 110–150/h); CHF 8.5k/month is EU-remote pricing; employer charges not modelled |
+| Engineering cost | CHF 4,500/month for ~24 h/week (Y1); 1 FTE at CHF 8.5k/month (Y2); 2 FTE (Y3) | Fractional CTO + reviewer + AI agents through 2028 (12 Nov 2026); first engineer employee **Q2 2029** at CHF 125–155k + ~17% charges | CHF 43/h is far below Swiss contractor rates (CHF 110–150/h); CHF 8.5k/month is EU-remote pricing; employer charges not modelled |
 | Customer success | Part-time at club 10, about Month 12 (Sep 2027) | CS Lead at 50% from **Jan 2028** (downside Jun 2028); onboarding productised before club #3 | Clubs arrive later (10 clubs Oct 2027 base); onboarding breaks the founder at about 5 concurrent clubs, not 25 |
 | First-line support | Club 15, same person | Same person, plus **seasonal** support Jun–Oct from 2029 | Registration peaks Jun–Sep concentrate parent tickets |
 | Sales | Part-time SDR at club 25, Year 2 | SDR at club 25 → **Q4 2028** base; first AE CH not before 2029/2030 | Club 25 re-baselined to Oct 2028; the founder remains the closer [Founder] |

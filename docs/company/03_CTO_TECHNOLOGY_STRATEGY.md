@@ -1,9 +1,9 @@
 # DLANG Sports OS: CTO Technology Strategy
 
-**Status:** working document, re-baselined 11 November 2026
-**Owner:** CTO office. Until a CTO partner is in place this is the founder, with a paid senior reviewer (see §12).
+**Status:** working document, re-baselined 11 November 2026; **updated 12 November 2026** with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`)
+**Owner:** CTO office. The plan of record is a **named human fractional CTO leading the AI agent team** (`12_CTO_SOLUTION_AI_PLUS_HUMAN.md`), target signed **15 Dec 2026** (latest 31 Jan 2027). Until then this is the founder, with a paid senior reviewer (pre-contracted 16 Dec 2026; see §12).
 **Builds on:** the founder's August 2026 Business Plan (§6.1 beta scope, §6.2 architecture, §6.3 compliance), the CTO Partnership Proposal, the Financial Model, the strategy review `09_FOUNDER_PLAN_REVIEW.md`, and the repository as it stands on `claude/ultracode-kfui6x`.
-**Companion documents:** `01_BUSINESS_MODEL.md`, `02_GO_TO_MARKET.md`.
+**Companion documents:** `01_BUSINESS_MODEL.md`, `02_GO_TO_MARKET.md`, `11_FOUNDER_DECISIONS_2026-11-12.md`, `12_CTO_SOLUTION_AI_PLUS_HUMAN.md`.
 
 **How to read the labels**
 - **[Founder]**: a decision or figure from the founder's August 2026 materials, kept unchanged.
@@ -18,9 +18,9 @@
 1. **No rewrite. One codebase, one shared database, one region.** Next.js 15 + Supabase Postgres with `org_id` on every tenant table and forced RLS stays the platform [Founder §6.2]. Region sharding (EU/US) and dedicated Enterprise instances are *designed for now* and *built only when a gate is met*. The US region is not before 2029.
 2. **Engineering capacity goes to the payment rail first.** Until TWINT reconciles automatically on DLang's own camps (base 18 Dec 2026, downside 31 Jan 2027), nothing else ships unless it is a security fix. The payment architecture is Stripe with **per-club Connect accounts** (direct charges plus an application fee), so DLANG never holds club money. Payrexx stays the documented fallback. A written legal view on fund-holding is required [Verify].
 3. **PWA through 2027, native later.** The four missing beta items (CSV import, translations, offline attendance, per-club payment accounts) are finished by 28 Feb 2027. White-label native apps (Expo / React Native, per-tenant builds) are a 2028 decision, triggered by measured push-notification or retention problems or by a paying multi-site customer that requires a branded store app.
-4. **AI stays behind a flag and outside the sales pitch.** The assistant that exists in the repo is kept, switched off by default per tenant, and not sold until a data-protection impact assessment covering AI processing of minors' data is signed off. The first AI that ships to customers is the *non-generative* reminder engine. The CHF 90/month AI module [Founder] is not modelled before 2028.
+4. **AI is opt-in per club and outside the sales pitch** (founder decision 12 Nov 2026). The assistant is implemented [Repo]: a club admin switches it on in **Settings → App & assistant**; it is **off by default** and only works when the platform is configured, the club's plan includes it and the user is admin or finance staff (`src/lib/ai/access.ts`). **DLang beta first, Q1 2027** (switched on Feb 2027 / downside Mar 2027), then founding clubs once written acceptance criteria are met (base Q2 2027). No club switches it on before the DPIA addendum and the DPA sub-processor entry are signed off (15 Jan 2027). Pricing: **included in the Club tier and above for now [Confirm by 15 Dec 2026]**; the CHF 90 add-on [Founder] is withdrawn from the plan until a price decision. The first automation every club gets is still the *non-generative* reminder engine.
 5. **Security is earned in steps, not bought as a badge.** External penetration test by 31 Jan 2027, then a lightweight ISO 27001-aligned control set during 2027, then a SOC 2 Type II or ISO 27001 certification only when a contract (US school district, federation, EU enterprise) requires it and pays for it. Earliest realistic certificate: 2029.
-6. **A small human team plus AI coding agents, with humans owning every merge to production.** Agents write and review code; a human approves every migration, every RLS change and every payment change. This is how a founder-led company with no full-time engineer can keep a children's-data product safe.
+6. **A named human fractional CTO plus the AI agent team, with humans owning every merge to production** (founder decision 12 Nov 2026; `12_CTO_SOLUTION_AI_PLUS_HUMAN.md`). Agents write and review code; a human approves every migration, every RLS change and every payment change, with a second approver on payments, RLS, auth, migrations and AI. An AI agent cannot be the CTO: the investor releases the EUR 50k only once a CTO is in place, and that has to be an accountable person. Target signed **15 Dec 2026** (latest 31 Jan 2027); the CTO proposes structure, decision rights and any equity by 8 Jan 2027.
 
 ---
 
@@ -33,11 +33,11 @@
 | Identity | Supabase magic link. `profiles.org_id` is **one org per user**. Roles in `staff_roles` (admin, finance, coach); `parent` derived from `family_members`. | Works for DLang. Blocks a parent with children in two clubs, or a coach working for two clubs. Must change before club #2 (see tech-debt register). |
 | Payments | One Stripe account, card checkout, webhook. Swiss QR-bill with structured addresses (pdf-lib + qrcode). TWINT exists only as a **label for manually recorded payments**. No Stripe Connect. | Gate 2 is not met. This is the top engineering priority. |
 | Email | Resend for transactional mail. | Bounce/complaint handling and per-tenant sender domains still to do. |
-| AI | `src/lib/ai/*` calls an external LLM API, server-only, temperature 0, falls back to "contact a human" if unconfigured. `ai_queries` table with RLS. | Out of beta scope [Founder §6.1]. Keep, flag off. |
-| Theming / white-label | Design tokens in `globals.css`. Runtime per-tenant theming, plans, subscriptions, self-signup and an operator console exist on the **unmerged** `wf/tenancy` and `wf/platform` branches. | Useful foundations for DLANG's own billing of clubs. Merge selectively, after the payment work. |
+| AI | `src/lib/ai/*` calls an external LLM API, server-only, temperature 0, falls back to "contact a human" if unconfigured. `ai_queries` table with RLS. **12 Nov 2026:** per-club opt-in implemented (`src/lib/ai/access.ts`, admin switch in Settings → App & assistant, off by default; access needs platform configuration + plan entitlement + club opt-in + admin/finance role). | Opt-in per club; DLang beta Q1 2027 after the DPIA addendum. |
+| Theming / white-label | Design tokens in `globals.css`. Runtime per-tenant theming, plans, subscriptions, self-signup and an operator console exist on the **unmerged** `wf/tenancy` and `wf/platform` branches. **12 Nov 2026:** per-club app name implemented (e.g. "DLang OS", stored in the club's branding, set in Settings → App & assistant, falls back to the organisation name; `src/lib/tenant/app-name.ts`); the platform name comes from `NEXT_PUBLIC_PLATFORM_NAME` (master brand undecided until 15 Feb 2027). | Useful foundations for DLANG's own billing of clubs. Merge selectively, after the payment work. |
 | Missing beta items | CSV import (export only), translation layer, offline attendance (no service worker), per-club payment accounts. | Due 28 Feb 2027. |
 | Testing and CI | `testing/rls_test_suite.sql` validated against Postgres. No CI workflow in the repo, no unit, integration or end-to-end test suite. | Biggest process gap. Fixed in Q4 2026 / Q1 2027. |
-| Agent configuration | No `.claude/agents` definitions are committed on this branch (only workflow worktrees). | The agent roster in §12 has to be written and committed. |
+| Agent configuration | 17 agent definitions committed in `.claude/agents/` (status 12 Nov 2026; see `08_AI_AGENT_TEAM.md`). | Done. The fractional CTO leads this team and owns the human approvals. |
 
 ---
 
@@ -151,10 +151,10 @@ The founder's plan is right: an AI chat assistant is not a moat (Paak and others
 | Stage | Capability | Uses an LLM? | Gate | Timing [Est.] |
 |---|---|---|---|---|
 | A0 | **Automated reminders and dunning** (7/14-day invoice reminders, missing-consent nudges, session reminders) | No. Rules engine. | Beta | Running on DLang's spring invoicing, Jan 2027 |
-| A1 | **Admin assistant** (existing code): answers staff questions over the club's own data, grounded, refuses otherwise, escalates to a human | Yes | DPIA covering AI signed off; data-processing terms with the model provider checked for no-training and data location [Verify]; tenant opt-in | Internal use at DLang Q2 2027; customer opt-in Q4 2027 |
+| A1 | **Admin assistant** (existing code, per-club opt-in implemented): answers staff questions over the club's own data, grounded, refuses otherwise, escalates to a human | Yes | DPIA addendum covering AI signed off and the AI provider listed as a sub-processor in the DPA (15 Jan 2027); provider terms checked for no-training and data location [Verify]; club admin opts in; written acceptance criteria ("fully functional") | **DLang beta Q1 2027** (on Feb 2027 / downside Mar 2027); founding clubs base Q2 2027; other clubs once criteria hold |
 | A2 | **Drafting help**: parent messages, camp descriptions, translations FR/DE/EN | Yes | As A1; human sends every message | 2028 |
 | A3 | **Scheduling optimisation**: hall/pitch allocation, coach availability, camp group building | Constraint solver first; LLM only for explanation | Proven demand from ≥3 multi-team clubs | 2028 H2 |
-| A4 | Priced AI module (CHF 90/month [Founder]) | — | A1–A2 in use by ≥25% of clubs with measured time saved | Not modelled before 2028 |
+| A4 | Separately priced AI module (CHF 90/month [Founder]) | — | Founder price decision; A1–A2 in use by ≥25% of clubs with measured time saved | Withdrawn from the plan (12 Nov 2026): AI included in the Club tier and above [Confirm]; no AI revenue in workbook v2.1 |
 
 **Guardrails (non-negotiable, because the data subjects are children):**
 1. **Never send** medical data, consent documents, dates of birth, or free-text coach notes about a minor to a model. The context builder uses an allow-list of fields, not a deny-list.
@@ -162,7 +162,7 @@ The founder's plan is right: an AI chat assistant is not a moat (Paak and others
 3. **RLS-scoped context.** The assistant reads through the caller's RLS session, never the service role, so it cannot see what the user cannot see.
 4. **No training on customer data**, contractually confirmed with the provider; prompts and answers retained only as the existing `ai_queries` preview, with a retention limit.
 5. **Data location** stated in the data-processing agreement; if the provider processes outside CH/EU, the transfer basis is documented [Verify — data-protection adviser].
-6. **Per-tenant kill switch, rate limit and monthly cost cap.**
+6. **Per-tenant on/off switch (default off, admin opt-in), platform-wide switch (no key or model configured = off), rate limit and monthly cost cap.** Inference cost is a cost line with no matching revenue while AI is included in the tier (about CHF 6 per club per month in the workbook [Est.]).
 7. **Human in the loop** for anything that sends, charges, or changes a record.
 8. **Evaluation set** of club questions (including attempts to extract other families' data) run in CI before any prompt or provider change.
 
@@ -192,7 +192,7 @@ The product holds minors' data and health data (medical notes, allergies). Under
 | Branching | Trunk-based. `main` is always deployable. Short-lived branches (<3 days). Long-running branches like `wf/tenancy` and `wf/platform` are merged in slices or closed by 31 Mar 2027. |
 | Reviews | Every PR reviewed. Agent-authored PRs need a human approval. PRs touching `supabase/migrations`, RLS helpers, payments, auth or `src/lib/ai` need the CTO or the senior reviewer (two-key rule). |
 | CI gates (required) | `tsc --noEmit`, `next lint`, `next build`, migrations applied to a fresh Postgres, RLS and cross-tenant test suites, unit tests for money and QR-bill logic, secret scan, dependency audit. End-to-end smoke tests (login, register, pay, mark attendance) by Q2 2027. |
-| Feature flags | Per-tenant flags in the database (`org_features`), read server-side. New features ship dark, are enabled for DLang first, then for named clubs. Kill switch for every integration and every AI feature. |
+| Feature flags | Per-tenant flags in the database (`org_features`), read server-side. New features ship dark, are enabled for DLang first, then for named clubs. Per-tenant and platform-wide off switch for every integration and every AI feature. |
 | Migrations policy | Forward-only, timestamped files, never edited after merge. Expand → migrate → contract for any breaking change, across at least two releases. Every new table: `org_id not null`, RLS enabled and forced, policies, index on `org_id`, audit trigger if it holds money, consent or health data. A migration review checklist is part of the PR template. |
 | Environments | Local → preview (per PR, test Stripe, seeded fake data, never real children's data) → staging → production. |
 | Release train | Weekly release to production on a fixed weekday. **Freeze windows:** 21 Dec – 4 Jan; the week of each DLang holiday camp; the second half of August (season start). Hotfixes allowed in freezes for security and payments only. |
@@ -213,14 +213,14 @@ The product holds minors' data and health data (medical notes, allergies). Under
 
 ## 10. 12-month technical roadmap (Q4 2026 – Q3 2027)
 
-Calendar realism: the 21 Dec – 3 Jan weeks are maintenance only; Feb ski week and DLang camps get no releases; capacity assumes the founder plus contractors and agents until a CTO decision on 8 Jan 2027.
+Calendar realism: the 21 Dec – 3 Jan weeks are maintenance only; Feb ski week and DLang camps get no releases; capacity assumes the founder plus the paid reviewer and agents until the fractional CTO starts (signed 15 Dec 2026, latest 31 Jan 2027; structure proposal 8 Jan 2027).
 
 | Quarter | Must deliver | Exit criteria | Downside |
 |---|---|---|---|
 | **Q4 2026** (from 16 Nov) | Payment-rail decision memo + legal view (27 Nov). Stripe Connect + TWINT on DLang test, then live. QR-bill v2.4 check. CI pipeline with type, build, migration and RLS gates. Pen test booked (4 Dec). | TWINT payment by a real parent reconciles automatically on DLang (**18 Dec**) | 31 Jan 2027; manual-beta fallback |
-| **Q1 2027** | Pen test done, critical/high fixed (31 Jan). Many-to-many memberships. CSV import, FR/EN translation layer, offline attendance (28 Feb). Merge theming slice from `wf/tenancy`. DLang spring invoicing on the platform. Backups + restore test. | DLang live, one full cycle (**Gate 3, 14 Feb**); club #1 onboarded on its own Connect account | Gate 3 by 31 Mar |
-| **Q2 2027** | DE translation. Terminology dictionary. Per-tenant flags table. DLANG's own subscription billing (from `wf/platform`). iCal feeds. Accounting CSV export. End-to-end smoke tests. Load test plan for August. | 3 paying clubs live (May), onboarding a club in ≤1 day without engineering | 3 clubs by Aug |
-| **Q3 2027** | Custom domains and sender domains. Bexio (if ≥3 clubs ask). J+S export. Load test and freeze before season start. Pen re-test. AI assistant internal pilot at DLang (flag on for DLang only). | Season start (Aug–Sep) with zero P1 incidents; 5 founding clubs live | 5 clubs by Sep |
+| **Q1 2027** | Fractional CTO in post (releases the EUR 50k). Pen test done, critical/high fixed (31 Jan). DPIA addendum + DPA sub-processor entry for AI (15 Jan); AI assistant beta switched on for DLang (Feb). Many-to-many memberships. CSV import, FR/EN translation layer, offline attendance (28 Feb). Merge theming slice from `wf/tenancy`. DLang spring invoicing on the platform. Backups + restore test. | DLang live, one full cycle (**Gate 3, 14 Feb**); club #1 onboarded on its own Connect account | Gate 3 by 31 Mar |
+| **Q2 2027** | AI assistant offered to founding clubs (opt-in) once acceptance criteria are met. DE translation. Terminology dictionary. Per-tenant flags table. DLANG's own subscription billing (from `wf/platform`). iCal feeds. Accounting CSV export. End-to-end smoke tests. Load test plan for August. | 3 paying clubs live (May), onboarding a club in ≤1 day without engineering | 3 clubs by Aug |
+| **Q3 2027** | Custom domains and sender domains. Bexio (if ≥3 clubs ask). J+S export. Load test and freeze before season start. Pen re-test. EU and US free design-partner pilots prepared (EUR/SEPA, GDPR Art. 27 representative, US English, COPPA verifiable parental consent; go/no-go 30 Jun, live Sep–Oct 2027 / downside Jan and Mar 2028). | Season start (Aug–Sep) with zero P1 incidents; 5 founding clubs live | 5 clubs by Sep |
 
 Beyond Q3 2027 (indicative): Entra/Google SSO (Q4 2027), public API (2028), EUR track with SEPA and DATEV (2028), native-app decision (Q1 2028), federation pilot (H2 2028), US cell and Clever/ClassLink only after the US gate (not before H2 2029).
 
@@ -250,9 +250,9 @@ Beyond Q3 2027 (indicative): Entra/Google SSO (Q4 2027), public API (2028), EUR 
 
 ## 12. AI-augmented engineering operating model
 
-**Team shape, base case:** founder (product owner, acceptance tests on DLang) + CTO partner from Mar 2027 *or*, if no partner by 8 Jan 2027, a paid senior reviewer for 4–8 hours a week from Feb 2027 + part-time contractors + AI coding agents. Hiring a Swiss employee takes 1–3 months of notice period on top of search time, so the first engineer employee is planned for Q1 2029, after a seed.
+**Team shape, plan of record (12 Nov 2026):** founder (product owner, acceptance tests on DLang) + a **named human fractional CTO** (shortlist 30 Nov, signed 15 Dec 2026, latest 31 Jan 2027; accountable for architecture, security sign-off, payment and RLS approvals, investor and customer due diligence) leading the **AI agent team** in `.claude/agents/` + a paid senior reviewer for 4–8 hours a week (pre-contracted 16 Dec 2026) as the bridge until the CTO starts + part-time contractors. Structure A (CTO partner with 20% before the round) is no longer the default; see `12_CTO_SOLUTION_AI_PLUS_HUMAN.md`. Hiring a Swiss employee takes 1–3 months of notice period on top of search time, so the first engineer employee is planned for Q1 2029, after a seed.
 
-**Agent roster to commit under `.claude/agents/`** (not present on this branch today):
+**Agent roster** (as first proposed; superseded by the 17 agents now committed in `.claude/agents/`, see `08_AI_AGENT_TEAM.md`):
 
 | Agent | Does | May not |
 |---|---|---|
@@ -289,7 +289,7 @@ Estimated effect [Est.]: agents raise one experienced engineer's throughput mean
 | 8 | Dashboard and some list pages still use sample data (README "stubbed") | Demo ≠ product | Wire to Supabase queries | 31 Jan 2027 |
 | 9 | DLang-specific values (e.g. `RESEND_FROM_EMAIL` with the club's domain, basketball wording) in config/UI | White-label leaks | Move to per-tenant settings | Q2 2027 |
 | 10 | Hand-written `src/types/database.ts` | Type drift from schema | Generate types in CI and fail on diff | Q1 2027 |
-| 11 | AI assistant present, out of beta scope | Privacy exposure, distraction | Flag off by default; DPIA before enabling | Now |
+| 11 | AI assistant present; per-club opt-in now implemented (off by default) | Privacy exposure if a club switches it on before the paperwork | DPIA addendum + DPA sub-processor entry before any club enables it; allow-list context builder; acceptance criteria written | 15 Jan 2027 |
 | 12 | Email bounce/complaint handling absent | Reminders land in spam; ROI story fails | Resend webhooks + suppression list | Q1 2027 |
 | 13 | QR-bill v2.4 conformance unverified | Rejected bills at banks | Conformance test against SIX validation | 30 Nov 2026 |
 | 14 | No error tracking or uptime monitoring | Silent failures | Add both | 15 Dec 2026 |
@@ -303,10 +303,12 @@ Estimated effect [Est.]: agents raise one experienced engineer's throughput mean
 |---|---|---|
 | Payment rail slips past 31 Jan 2027 | Medium | Single engineering priority; Payrexx fallback; manual beta |
 | Cross-tenant data leak | Low, catastrophic | Forced RLS, CI isolation suite, pen test, two-key reviews |
-| Founder capacity (sales + product + engineering) | High | CTO decision 8 Jan; reviewer model; strict scope |
+| Founder capacity (sales + product + engineering) | High | Fractional CTO signed 15 Dec 2026 (latest 31 Jan 2027); reviewer as bridge; strict scope |
+| Fractional CTO not signed in time (EUR 50k not released) | Medium | Shortlist 30 Nov; reviewer pre-contracted 16 Dec; Jan–Mar bridge of ~CHF 45k agreed 15 Dec (`11` §2) |
+| EU/US free pilots compete with the Swiss season peak (Sep–Oct 2027) | Medium | Entry conditions (DLang live + ≥3 paying CH clubs, i18n/currency, privacy pack); go/no-go 30 Jun 2027; written pilot scope |
 | Agent-generated code with subtle security flaws | Medium | Human merge, security-reviewer agent + human, tests as spec |
 | Vendor dependency (Supabase, Stripe) | Medium | Standard Postgres, adapters, nightly logical dumps to CH/EU storage |
-| AI feature causes a privacy incident with minors' data | Low if gated | Guardrails §7; flag off by default |
+| AI feature causes a privacy incident with minors' data | Low if gated | Guardrails §7; off by default, club admin opt-in; DPIA addendum first |
 
 ---
 
@@ -326,8 +328,13 @@ Estimated effect [Est.]: agents raise one experienced engineer's throughput mean
 | Security | Compliance pack before club #1 | Kept; plus pen test by 31 Jan 2027, CI isolation suite, ISO 27001-aligned controls in 2027, certification only when a contract pays (2029 earliest) | Certification without a buyer is cost without revenue |
 | QR-bill | Build to v2.4 (14 Nov 2026) | Kept; conformance test by 30 Nov 2026; camt.054 auto-matching added | Free rail needs automatic reconciliation to deliver the ROI story |
 | Engineering cost | CHF 4,500/month (~24 h/week) Y1 | Only workable with AI agents plus a Swiss-rate senior reviewer (CHF 110–150/h); first employee Q1 2029 | CHF ~43/h is far below Swiss contractor rates |
-| CTO | Equity + CHF 1,200/month retainer, 5-week paid trial on TWINT reconciliation | Decision by 8 Jan 2027; fallback is founder + agents + paid reviewer from Feb 2027 | Low Year-1 pay makes the search slow; the cutoff is now |
+| CTO | Equity + CHF 1,200/month retainer, 5-week paid trial on TWINT reconciliation | Decision by 8 Jan 2027; fallback is founder + agents + paid reviewer from Feb 2027 (*superseded 12 Nov 2026: see the CTO row below*) | Low Year-1 pay makes the search slow; the cutoff is now |
 | SDLC | Not specified | Trunk-based, CI gates, two-key rule, per-tenant flags, forward-only migrations, weekly train with seasonal freezes | A children's-data product needs a repeatable, auditable process |
 | Integrations | Not sequenced | CSV and camt.054 first; Bexio and J+S in 2027; SSO when a school is in the pipeline; DATEV with EUR; US systems after the US gate | Ordered by what Swiss academies pay for |
+| AI (12 Nov 2026) | Out of beta; CHF 90 module | **Opt-in per club** (admin switch in Settings → App & assistant, default off; implemented in `src/lib/ai/access.ts`); DLang beta Q1 2027, founding clubs base Q2 2027; included in the Club tier and above [Confirm]; CHF 90 add-on withdrawn | Founder wants it available once fully functional; guardrails and DPIA addendum first |
+| Naming (12 Nov 2026) | "DLANG Sports OS" | Per-club app name (e.g. "DLang OS") implemented as tenant branding; platform name via `NEXT_PUBLIC_PLATFORM_NAME`; master brand decision 15 Feb 2027 | Clubs run the product under their own name |
+| CTO (12 Nov 2026) | Structure A partner; decision 8 Jan 2027 | **Named human fractional CTO + AI agent team**, signed 15 Dec 2026 (latest 31 Jan 2027); reviewer as bridge; CTO proposes structure by 8 Jan 2027 | An AI agent cannot be accountable; the EUR 50k is released only once a CTO is in place |
+| Markets (12 Nov 2026) | US/EU behind gates | Plus one free EU pilot (live Sep 2027 / Jan 2028) and one free US pilot (Sep–Oct 2027 / Mar 2028); paid EU/US gates unchanged | Founder wants EU and US presence in 2027 |
+| Gates (12 Nov 2026) | Kill criterion at 31 Mar 2028 | No kill switch: a missed gate triggers a two-week strategy review (`00` §4.7) | Founder decision 15 |
 
 *Items marked [Verify] (fund-holding under Swiss AML rules, Stripe Connect and TWINT terms, QR-bill v2.4 conformance, J+S data formats, AI provider data terms and transfers, certification costs) must be confirmed with counsel, a data-protection adviser, the vendors or an auditor before external use.*

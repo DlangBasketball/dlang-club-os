@@ -77,7 +77,7 @@ The five rules of the August rollout are kept, with one addition:
 |---|---|---|---|---|
 | **Phase 0: Truth and rail** | W1–W2 | 16–29 Nov | Confirm what the founder's 12 Nov answers left open. Stripe Connect for DLang. Submit >>venture>>. Start the CTO search and the bridge. | Status sheet; Connect application (27 Nov); CTO shortlist (30 Nov); >>venture>> filed (30 Nov) |
 | **Phase 1: Prove the money moves** | W3–W5 | 30 Nov – 20 Dec | Build TWINT + reconciliation; run it live on a DLang winter camp. Fix every claim. Book audits for January. **Sign the fractional CTO and agree the Jan–Mar bridge (15 Dec).** | **GATE 2 (18 Dec)**: a real TWINT payment reconciles automatically on DLang |
-| **Phase 2: Holiday** | W6–W7 | 21 Dec – 3 Jan | Clubs closed. Maintenance only. Model refresh, IP paperwork, planning. | Workbook defaults set to the plan of record (3 Jan); IP assigned to SPSA (31 Dec) |
+| **Phase 2: Holiday** | W6–W7 | 21 Dec – 3 Jan | Clubs closed. Maintenance only. Model refresh, IP paperwork, planning. | Workbook v2.1 (plan of record since 12 Nov) refreshed with actuals (3 Jan); IP assigned to SPSA (31 Dec) |
 | **Phase 3: Sell and secure** | W8–W11 | 4–31 Jan | Audits, proposals, CTO structure proposal, compliance pack, security review, trademark check, round. DLang spring invoicing on the platform. | **GATE 1 (31 Jan)**; first founding club signed; convertible signed |
 | **Phase 4: Operate** | W12–W13 | 1–14 Feb | Productise onboarding. Club #1 kicks off. DLang completes one full cycle. | **GATE 3 (14 Feb)**: DLang runs one full cycle on the platform |
 
@@ -186,7 +186,7 @@ Swiss clubs are closed. No selling, no releases except fixes.
 | Workstream | Actions | Owner | Done when |
 |---|---|---|---|
 | **Capital & legal** | **IP present assignment to SPSA signed (31 Dec)**: founder, SIDIS and every contractor (and the fractional CTO). | F + LAW + FID | Signed assignments |
-| **Finance** | **Model refresh (3 Jan):** actual cash at 30 Nov, December actuals; set the workbook defaults to the plan of record (FIT 0%, EUR 50k in Mar 2027, lean cost, AI in the Club tier). Size the pre-seed (CHF 250–300k incl. the EUR 50k). **One working cap table (3 Jan)** including any CTO equity. | F (+ ADV) | Updated model; one cap table |
+| **Finance** | **Model refresh (3 Jan):** actual cash at 30 Nov, December actuals; refresh workbook v2.1 (already on the plan of record since 12 Nov: FIT 0%, EUR 50k in Mar 2027, lean cost, AI in the Club tier, EU/US pilot costs) with actuals. Size the pre-seed (CHF 250–300k incl. the EUR 50k). **One working cap table (3 Jan)** including any CTO equity. | F (+ ADV) | Updated model; one cap table |
 | **Build** | Maintenance only. Plan W8–W13 build: FR string catalogue, CSV import, offline attendance, per-club Connect onboarding flow. | F + ENG | Board ready |
 
 **Ships:** maintenance only. **Sold:** nothing. **Filed:** IP assignments.

@@ -140,7 +140,7 @@ The founder wants an EU and a US presence in 2027. The plan meets that with **ex
 
 **Entry conditions (all, per pilot):** DLang live in Switzerland and **≥3 paying Swiss clubs live** (base May 2027 / downside Aug 2027); i18n and currency complete for that market; the jurisdiction's privacy pack signed off; support hours named and covered (time zone included). **Go/no-go 30 Jun 2027.** Pilot terms: written agreement, 6 months, no custom development, data terms, case-study consent, and the post-pilot price stated up front.
 
-**Honest cost and capacity view.** Both pilots go live in the same weeks as the Swiss registration peak, DLang running the whole club and the push to 10 paying clubs. Not in the workbook: about CHF 15–30k cash in 2027 (representative, counsel memos, consent flow, travel, translation) and about 150–250 founder and CTO hours [Est.]. In the founder-facts case cash is negative from January 2027, so the pilots only start if the pre-seed has landed. If Swiss KPIs turn red (fewer than 3 paying clubs by 31 Aug, churn above 2.5%, or a P1 backlog), the pilots wait for the downside dates.
+**Honest cost and capacity view.** Both pilots go live in the same weeks as the Swiss registration peak, DLang running the whole club and the push to 10 paying clubs. About CHF 15–30k cash in 2027 (representative, counsel memos, consent flow, travel, translation; carried in workbook v2.1 at CHF 22.5k, May–Oct 2027, which lifts the Nov-27 shortfall from about 82k to about 105k) and about 150–250 founder and CTO hours [Est.]. In the founder-facts case cash is negative from January 2027, so the pilots only start if the pre-seed has landed. If Swiss KPIs turn red (fewer than 3 paying clubs by 31 Aug, churn above 2.5%, or a P1 backlog), the pilots wait for the downside dates.
 
 ### 4.7 Strategy review triggers (replace the old stop rule, 12 Nov 2026)
 
@@ -166,7 +166,7 @@ The founder has committed to keep going, so there is no "lifestyle-or-stop" swit
 | **O1. Money moves end to end on DLang** | KR1 Gate 2 passed (≥10 real TWINT payments auto-reconciled) by 18 Dec, no later than 31 Jan · KR2 DLang spring-term invoices 100% issued from the platform · KR3 zero manual reconciliation steps in January |
 | **O2. Prove willingness to pay** | KR1 10 audits completed, ≥6 at ≥3× value · KR2 ≥3 clubs accept the price in writing · KR3 first founding club signed (addendum + DPA) |
 | **O3. Make the company real and safe** | KR1 SPSA GmbH register details on file (20 Nov) and IP assigned to SPSA (31 Dec) · KR2 compliance pack signed off (15 Jan) · KR3 security review done, 0 open critical/high (31 Jan) · KR4 insurance bound |
-| **O4. Fund the next 12 months** | KR1 >>venture>> submitted (30 Nov) · KR2 fractional CTO signed (15 Dec) so the EUR 50k is released; convertible signed (31 Jan) · KR3 Jan–Mar bridge (~CHF 45k) agreed (15 Dec) and pre-seed term sheet (CHF 250–300k incl. EUR 50k) agreed (31 Jan) · KR4 workbook defaults updated (FIT 0%, lean, AI included) and showing ≥6 months runway on the downside case after the bridge |
+| **O4. Fund the next 12 months** | KR1 >>venture>> submitted (30 Nov) · KR2 fractional CTO signed (15 Dec) so the EUR 50k is released; convertible signed (31 Jan) · KR3 Jan–Mar bridge (~CHF 45k) agreed (15 Dec) and pre-seed term sheet (CHF 250–300k incl. EUR 50k) agreed (31 Jan) · KR4 workbook defaults updated (FIT 0%, lean, AI included; done 12 Nov 2026 in v2.1, refreshed with actuals 3 Jan) and showing ≥6 months runway on the downside case after the bridge |
 
 ### Q1 2027 extension (1 Feb – 31 Mar 2027)
 
@@ -278,7 +278,7 @@ Owners: **F** = founder; **ENG** = CTO trial candidate or contractor + AI agents
 - Swiss VAT registration timing and treatment of application fees; EU non-Union OSS at the EUR gate [Verify, FID/tax adviser].
 - DPIA for minors' data and any AI processing; DPA template; cross-border transfers to sub-processors [Verify, data-protection lawyer].
 - Employer social charges and CH contractor/false-self-employment risk for long-running contractors [Verify, FID].
-- Workbook defaults updated to the plan of record (FIT 0%, lean cost, AI included in the Club tier) and pilot costs added [Verify, ADV].
+- Workbook defaults updated to the plan of record (FIT 0%, lean cost, AI included in the Club tier) and pilot costs added: done in `updated/DLANG_Sports_OS_Financial_Model_v2.1.xlsx` (12 Nov 2026); advisor review of the inputs still needed [Verify, ADV].
 
 ---
 
