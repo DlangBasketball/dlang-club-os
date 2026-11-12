@@ -57,7 +57,10 @@ export async function generateViewport(): Promise<Viewport> {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const tenant = await getTenant();
-  const i18n = await getLocaleContext(tenant.id);
+  // No orgId: the signed-in user's org wins (then the host tenant), the same
+  // context server pages get from getFormatter()/getTranslations(), so the
+  // client I18nProvider and server-rendered numbers/dates agree.
+  const i18n = await getLocaleContext();
   // Tenant theme -> design-system CSS variables on <html>: the inline style
   // beats the :root defaults (and the light-theme block) in globals.css, so
   // the whole UI rebrands with no component changes.

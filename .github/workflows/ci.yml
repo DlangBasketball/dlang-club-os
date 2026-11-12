@@ -31,7 +31,7 @@ env:
 
 jobs:
   checks:
-    name: lint · typecheck · unit
+    name: lint · typecheck · unit · payments · i18n
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -47,6 +47,10 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm run test:unit
+      - name: Payments tests
+        run: npm run test:payments
+      - name: Translation check
+        run: npm run i18n:check -- --strict
 
   db:
     name: DB integration (migrations · RLS · tenant isolation · money logic)

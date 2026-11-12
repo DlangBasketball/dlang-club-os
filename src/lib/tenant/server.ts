@@ -3,6 +3,7 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { fallbackTenant } from "./defaults";
 import {
   TENANT_DOMAIN_HEADER,
@@ -104,6 +105,35 @@ export async function resolveTenant(hint: TenantHint): Promise<Tenant> {
   return fallbackTenant(def ?? "default");
 }
 
+/**
+ * Slug of the signed-in user's own org, or null (signed out, no org, error).
+ * RLS (org_select) lets a member read exactly their own organizations row.
+ */
+async function signedInOrgSlug(): Promise<string | null> {
+  try {
+    const sb = await createServerClient();
+    const {
+      data: { user },
+    } = await sb.auth.getUser();
+    if (!user) return null;
+    const { data: profile } = await sb.from("profiles").select("org_id").eq("id", user.id).maybeSingle();
+    if (!profile?.org_id) return null;
+    const { data: org } = await sb.from("organizations").select("slug").eq("id", profile.org_id).maybeSingle();
+    const slug = org?.slug?.toLowerCase() ?? null;
+    return slug && isValidSlug(slug) ? slug : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * True when the host names no tenant (apex, www, app.<root>, preview/infra
+ * hosts): the page is on the platform, not on a specific club's site.
+ */
+export function isPlatformHint(hint: TenantHint): boolean {
+  return !hint.slug && !hint.customDomain;
+}
+
 /** The current request's tenant. Cached per request. Never throws. */
 export const getTenant = cache(async (): Promise<Tenant> => {
   // readHint() calls headers(): this deliberately opts every page into
@@ -111,6 +141,16 @@ export const getTenant = cache(async (): Promise<Tenant> => {
   // propagate, so it stays outside the try/catch.
   const hint = await readHint();
   try {
+    // On a platform host (apex/app/preview) a signed-in member works in their
+    // OWN club: resolve its branding/locale instead of DEFAULT_ORG_SLUG's, so a
+    // self-signed-up club never sees (or is blocked by) the founding club.
+    if (isPlatformHint(hint)) {
+      const own = await signedInOrgSlug();
+      if (own) {
+        const row = await lookup({ slug: own });
+        if (row && row !== "error") return rowToTenant(row, "default");
+      }
+    }
     return await resolveTenant(hint);
   } catch {
     return fallbackTenant(defaultOrgSlug() ?? "default");
@@ -125,6 +165,16 @@ export const getTenant = cache(async (): Promise<Tenant> => {
  */
 export async function tenantMatchesOrg(orgId: string | null | undefined): Promise<boolean> {
   const t = await getTenant();
+  return orgMatchesTenant(orgId, t);
+}
+
+/**
+ * Pure rule behind tenantMatchesOrg. Only a host that NAMES a club
+ * (subdomain / custom domain) can mismatch; platform hosts (source "default"
+ * or "fallback") don't belong to any one club, so the user's own org wins.
+ */
+export function orgMatchesTenant(orgId: string | null | undefined, t: Pick<Tenant, "id" | "source">): boolean {
   if (!t.id) return true;
+  if (t.source === "default" || t.source === "fallback") return Boolean(orgId);
   return Boolean(orgId) && orgId === t.id;
 }

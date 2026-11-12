@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type PublicProgram = {
@@ -26,7 +27,9 @@ export type PublicRegistrationData = {
  * client (server-only) and only ever returns a program that is public + active,
  * so RLS doesn't need to be widened for anonymous visitors.
  */
-export async function getPublicProgram(slug: string): Promise<PublicRegistrationData | null> {
+export const getPublicProgram = cache(loadPublicProgram);
+
+async function loadPublicProgram(slug: string): Promise<PublicRegistrationData | null> {
   const supabase = createAdminClient();
 
   const { data: program } = await supabase

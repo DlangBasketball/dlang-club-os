@@ -1,9 +1,20 @@
 import { BrandMark } from "@/components/layout/brand-mark";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { getTranslations } from "@/lib/i18n/server";
+import { getPublicProgram } from "@/lib/data/public-registration";
 
-export default async function RegisterLayout({ children }: { children: React.ReactNode }) {
-  const t = await getTranslations();
+export default async function RegisterLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ programSlug: string }>;
+}) {
+  // Localise the chrome with the PROGRAM's club (language), not the host
+  // tenant's — a platform-host link must not show another club's language.
+  const { programSlug } = await params;
+  const data = await getPublicProgram(programSlug);
+  const t = await getTranslations(data?.program.orgId);
   return (
     <div className="grain min-h-screen bg-bg text-ink">
       <header className="border-b border-line">
