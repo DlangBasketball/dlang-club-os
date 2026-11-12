@@ -546,6 +546,26 @@ export type Database = {
         Update: Record<string, unknown>;
         Relationships: [];
       };
+      /** AI assistant add-on entitlement (migration 20250420095600). Platform-written only. */
+      ai_assistant_addons: {
+        Row: {
+          id: string;
+          org_id: string;
+          scope: "org" | "family";
+          family_id: string | null;
+          source: "paid_addon" | "complimentary";
+          status: "active" | "paused" | "canceled";
+          starts_at: string;
+          ends_at: string | null;
+          note: string | null;
+          granted_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Record<string, unknown>;
+        Update: Record<string, unknown>;
+        Relationships: [];
+      };
       audit_logs: {
         Row: {
           id: number;

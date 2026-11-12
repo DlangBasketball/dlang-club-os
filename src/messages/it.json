@@ -519,7 +519,13 @@
       "enabled": "Assistente IA attivato.",
       "disabled": "Assistente IA disattivato.",
       "unconfigured": "L'assistente IA non è ancora disponibile su questa piattaforma.",
-      "notInPlan": "Il vostro abbonamento non include l'assistente IA.",
+      "addon": {
+        "badge": "Opzione a pagamento",
+        "notIncluded": "L'assistente IA è un'opzione a pagamento e non è incluso nel vostro abbonamento.",
+        "onRequest": "Disponibile su richiesta: contattate il team della piattaforma per aggiungerlo al vostro club. In seguito un amministratore potrà attivarlo qui.",
+        "complimentary": "Il vostro club dispone gratuitamente dell'opzione assistente IA.",
+        "paid": "Il vostro club dispone dell'assistente IA come opzione a pagamento."
+      },
       "processingNotice": "Quando è attivo, le domande e un riepilogo minimo dei dati del club sono trattati da un sub-responsabile IA per conto del club. I vostri dati non sono usati per addestrare modelli di IA. Le note mediche e i dati delle carte di pagamento non vengono mai inviati.",
       "whoCanUse": "Disponibile per gli amministratori e il team finanziario del club.",
       "auditNote": "Ogni modifica viene registrata nel registro di audit."
@@ -527,7 +533,7 @@
     "errors": {
       "forbidden": "Solo gli amministratori del club possono modificare questa impostazione.",
       "wrongOrg": "Avete effettuato l'accesso a un'organizzazione diversa da questo sito.",
-      "notInPlan": "Il vostro abbonamento non include l'assistente IA.",
+      "notEntitled": "Il vostro club non dispone dell'opzione assistente IA. È disponibile su richiesta come opzione a pagamento.",
       "generic": "Impossibile salvare. Riprovate."
     }
   },
@@ -551,7 +557,7 @@
     "unavailableTitle": "Assistente IA non disponibile",
     "unavailable": {
       "unconfigured": "L'assistente IA non è ancora disponibile su questa piattaforma.",
-      "notInPlan": "L'abbonamento del vostro club non include l'assistente IA.",
+      "notEntitled": "L'assistente IA è un'opzione a pagamento che il vostro club non ha ancora. È disponibile su richiesta; un amministratore trova i dettagli nelle impostazioni.",
       "disabled": "L'assistente IA è disattivato per questo club. Un amministratore può attivarlo nelle impostazioni.",
       "role": "L'assistente IA è riservato agli amministratori e al team finanziario del club."
     },

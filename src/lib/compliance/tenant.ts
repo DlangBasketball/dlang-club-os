@@ -3,7 +3,7 @@ import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getComplianceProfile } from "./profile";
 import { getEntitlements } from "@/lib/platform/features";
-import { assistantActiveForClub, clubOptedIn, isAssistantConfigured, planEntitlesAssistant } from "@/lib/ai/access";
+import { addonEntitlesAssistant, assistantActiveForClub, clubOptedIn, isAssistantConfigured, type AddonRow } from "@/lib/ai/access";
 import type { LegalSubprocessor, LegalTenant } from "./legal-templates";
 
 type S = Record<string, unknown>;
@@ -26,7 +26,7 @@ export const getLegalTenant = cache(async (slug: string): Promise<LegalTenant | 
   const { data: org } = await admin.from("organizations").select("id,name,slug,country,plan,updated_at").eq("slug", slug).maybeSingle();
   if (!org) return null;
 
-  const [{ data: settings }, { data: cs }, { data: subs }, ent] = await Promise.all([
+  const [{ data: settings }, { data: cs }, { data: subs }, ent, { data: addons }] = await Promise.all([
     admin.from("app_settings").select("settings,updated_at").eq("org_id", org.id).maybeSingle(),
     admin.from("compliance_settings").select("*").eq("org_id", org.id).maybeSingle(),
     admin
@@ -36,15 +36,16 @@ export const getLegalTenant = cache(async (slug: string): Promise<LegalTenant | 
       .eq("is_active", true)
       .order("name"),
     getEntitlements(org.id),
+    admin.from("ai_assistant_addons").select("scope,source,status,starts_at,ends_at").eq("org_id", org.id).eq("scope", "org"),
   ]);
 
   const s = obj(settings?.settings);
   const profileSettings = obj(s.profile);
   // Opt-in per club: unset means OFF. Listed only when the platform is
-  // configured, the plan includes it and a club admin switched it on.
+  // configured, the club holds the add-on and a club admin switched it on.
   const aiEnabled = assistantActiveForClub({
     configured: isAssistantConfigured(process.env.ANTHROPIC_API_KEY, process.env.ANTHROPIC_MODEL),
-    entitled: planEntitlesAssistant(ent, (org as { plan?: string | null }).plan ?? null),
+    entitled: addonEntitlesAssistant((addons ?? []) as AddonRow[], { live: ent.live, suspended: ent.suspended }),
     enabled: clubOptedIn(s),
   });
 

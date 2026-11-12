@@ -519,7 +519,13 @@
       "enabled": "KI-Assistent eingeschaltet.",
       "disabled": "KI-Assistent ausgeschaltet.",
       "unconfigured": "Der KI-Assistent ist auf dieser Plattform noch nicht verfügbar.",
-      "notInPlan": "Ihr Abo enthält den KI-Assistenten nicht.",
+      "addon": {
+        "badge": "Kostenpflichtiges Zusatzmodul",
+        "notIncluded": "Der KI-Assistent ist ein kostenpflichtiges Zusatzmodul und nicht in Ihrem Abo enthalten.",
+        "onRequest": "Auf Anfrage erhältlich: Kontaktieren Sie das Plattform-Team, um ihn für Ihren Verein freizuschalten. Danach kann ein Administrator ihn hier einschalten.",
+        "complimentary": "Ihr Verein erhält das Zusatzmodul KI-Assistent kostenlos.",
+        "paid": "Ihr Verein nutzt den KI-Assistenten als kostenpflichtiges Zusatzmodul."
+      },
       "processingNotice": "Wenn er eingeschaltet ist, werden Fragen und eine minimale Zusammenfassung der Vereinsdaten im Auftrag des Vereins von einem KI-Unterauftragsverarbeiter verarbeitet. Ihre Daten werden nicht zum Training von KI-Modellen verwendet. Medizinische Notizen und Zahlungskartendaten werden nie übermittelt.",
       "whoCanUse": "Verfügbar für Administratoren und das Finanzteam des Vereins.",
       "auditNote": "Jede Änderung wird im Audit-Protokoll festgehalten."
@@ -527,7 +533,7 @@
     "errors": {
       "forbidden": "Nur Vereinsadministratoren können diese Einstellung ändern.",
       "wrongOrg": "Sie sind bei einer anderen Organisation angemeldet als dieser Website.",
-      "notInPlan": "Ihr Abo enthält den KI-Assistenten nicht.",
+      "notEntitled": "Ihr Verein hat das Zusatzmodul KI-Assistent nicht. Es ist auf Anfrage als kostenpflichtiges Zusatzmodul erhältlich.",
       "generic": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut."
     }
   },
@@ -551,7 +557,7 @@
     "unavailableTitle": "KI-Assistent nicht verfügbar",
     "unavailable": {
       "unconfigured": "Der KI-Assistent ist auf dieser Plattform noch nicht verfügbar.",
-      "notInPlan": "Das Abo Ihres Vereins enthält den KI-Assistenten nicht.",
+      "notEntitled": "Der KI-Assistent ist ein kostenpflichtiges Zusatzmodul, das Ihr Verein noch nicht hat. Es ist auf Anfrage erhältlich; ein Administrator findet die Details in den Einstellungen.",
       "disabled": "Der KI-Assistent ist für diesen Verein ausgeschaltet. Ein Administrator kann ihn in den Einstellungen einschalten.",
       "role": "Der KI-Assistent steht nur Vereinsadministratoren und dem Finanzteam zur Verfügung."
     },

@@ -519,7 +519,13 @@
       "enabled": "Asistente de IA activado.",
       "disabled": "Asistente de IA desactivado.",
       "unconfigured": "El asistente de IA aún no está disponible en esta plataforma.",
-      "notInPlan": "Su plan no incluye el asistente de IA.",
+      "addon": {
+        "badge": "Complemento de pago",
+        "notIncluded": "El asistente de IA es un complemento de pago y no está incluido en su plan.",
+        "onRequest": "Disponible bajo petición: contacte con el equipo de la plataforma para añadirlo a su club. Después, un administrador podrá activarlo aquí.",
+        "complimentary": "Su club dispone del complemento de asistente de IA sin coste.",
+        "paid": "Su club dispone del asistente de IA como complemento de pago."
+      },
       "processingNotice": "Cuando está activado, las preguntas y un resumen mínimo de los datos del club los trata un subencargado de IA en nombre del club. Sus datos no se usan para entrenar modelos de IA. Las notas médicas y los datos de tarjetas de pago nunca se envían.",
       "whoCanUse": "Disponible para los administradores y el equipo de finanzas del club.",
       "auditNote": "Cada cambio queda registrado en el registro de auditoría."
@@ -527,7 +533,7 @@
     "errors": {
       "forbidden": "Solo los administradores del club pueden cambiar este ajuste.",
       "wrongOrg": "Ha iniciado sesión en una organización distinta a la de este sitio.",
-      "notInPlan": "Su plan no incluye el asistente de IA.",
+      "notEntitled": "Su club no dispone del complemento de asistente de IA. Está disponible bajo petición como complemento de pago.",
       "generic": "No se pudo guardar. Inténtelo de nuevo."
     }
   },
@@ -551,7 +557,7 @@
     "unavailableTitle": "Asistente de IA no disponible",
     "unavailable": {
       "unconfigured": "El asistente de IA aún no está disponible en esta plataforma.",
-      "notInPlan": "El plan de su club no incluye el asistente de IA.",
+      "notEntitled": "El asistente de IA es un complemento de pago que su club aún no tiene. Está disponible bajo petición; un administrador encontrará los detalles en Ajustes.",
       "disabled": "El asistente de IA está desactivado para este club. Un administrador puede activarlo en Ajustes.",
       "role": "El asistente de IA solo está disponible para los administradores y el equipo de finanzas del club."
     },

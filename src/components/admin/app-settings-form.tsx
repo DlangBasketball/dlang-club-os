@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Info, ShieldCheck } from "lucide-react";
+import { Info, ShieldCheck, Sparkles } from "lucide-react";
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label } from "@/components/ui";
 import { useT } from "@/lib/i18n/client";
 import { APP_NAME_MAX, appNameError, sanitizeAppName } from "@/lib/tenant/app-name";
@@ -109,9 +109,12 @@ export function AppSettingsForm({
       <Card>
         <CardHeader>
           <CardTitle>{t("appSettings.ai.title")}</CardTitle>
-          <Badge tone={on ? "success" : "neutral"} dot>
-            {on ? t("appSettings.ai.statusOn") : t("appSettings.ai.statusOff")}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="accent">{t("appSettings.ai.addon.badge")}</Badge>
+            <Badge tone={on ? "success" : "neutral"} dot>
+              {on ? t("appSettings.ai.statusOn") : t("appSettings.ai.statusOff")}
+            </Badge>
+          </div>
         </CardHeader>
         <CardBody className="space-y-4">
           <p className="text-sm text-ink-3">{t("appSettings.ai.description")}</p>
@@ -127,9 +130,20 @@ export function AppSettingsForm({
               <Info className="h-4 w-4" aria-hidden /> {t("appSettings.ai.unconfigured")}
             </p>
           )}
-          {assistant.configured && !assistant.entitled && (
+          {/* Paid add-on, not part of any plan: discoverable here even when not entitled. */}
+          {!assistant.entitled && (
+            <div className="flex items-start gap-2 rounded-md border border-line bg-surface-elevated p-3 text-sm text-ink-3" role="note">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              <div className="space-y-1">
+                <p className="font-medium text-ink">{t("appSettings.ai.addon.notIncluded")}</p>
+                <p>{t("appSettings.ai.addon.onRequest")}</p>
+              </div>
+            </div>
+          )}
+          {assistant.entitled && assistant.addonSource && (
             <p className="flex items-center gap-2 text-sm text-ink-3">
-              <Info className="h-4 w-4" aria-hidden /> {t("appSettings.ai.notInPlan")}
+              <Info className="h-4 w-4" aria-hidden />{" "}
+              {assistant.addonSource === "complimentary" ? t("appSettings.ai.addon.complimentary") : t("appSettings.ai.addon.paid")}
             </p>
           )}
 

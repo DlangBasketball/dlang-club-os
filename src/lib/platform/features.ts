@@ -15,7 +15,7 @@ import { asPlatform, type PlanRow, type SubscriptionRow } from "./types";
 /**
  * Feature gating & plan limits for a tenant (server-side).
  *
- *   if (!(await hasFeature(me.orgId, "ai_assistant"))) return upsell();
+ *   if (!(await hasFeature(me.orgId, "bookings"))) return upsell();
  *   const lim = await checkLimit(me.orgId, "athletes");
  *   if (!lim.allowed) return { error: `Plan limit reached (${lim.limit})` };
  *

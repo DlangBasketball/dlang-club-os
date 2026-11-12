@@ -11,11 +11,11 @@ export default async function AdminGroupLayout({
 }) {
   const user = await requireRole(["admin", "finance"]);
   const [notifs, assistant] = await Promise.all([getNavNotifications(), getAssistantAccess(user)]);
-  // The assistant entry shows for admins whenever the club could use it (so
-  // they can find the switch), and for everyone once it is actually on.
+  // The assistant entry shows for admins even without the paid add-on (so
+  // they can discover it and find the switch), and for everyone once it is on.
   const showAssistant =
     assistant.allowed ||
-    (user.roles.includes("admin") && (assistant.reason === "disabled" || assistant.reason === "not_in_plan"));
+    (user.roles.includes("admin") && (assistant.reason === "disabled" || assistant.reason === "not_entitled"));
   return (
     <AppShell
       navKey="admin"

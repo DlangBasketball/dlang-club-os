@@ -9,11 +9,11 @@ import { getTranslations } from "@/lib/i18n/server";
 export default async function AdminAssistantPage() {
   const t = await getTranslations();
   const me = await getSessionUser();
-  // Opt-in per club: platform configured + plan feature + admin switch + staff role.
+  // Opt-in per club: platform configured + add-on entitlement + admin switch + staff role.
   const access = await getAssistantAccess(me);
   const header = <PageHeader title={t("aiAssistant.pageTitle")} description={t("aiAssistant.pageDescription")} />;
   if (!access.allowed) {
-    const canConfigure = Boolean(me?.roles.includes("admin")) && (access.reason === "disabled" || access.reason === "not_in_plan");
+    const canConfigure = Boolean(me?.roles.includes("admin")) && (access.reason === "disabled" || access.reason === "not_entitled");
     return (
       <div className="animate-fade-up">
         {header}

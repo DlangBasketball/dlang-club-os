@@ -67,7 +67,7 @@ export async function saveAppDisplayName(input: string): Promise<AppSettingsResu
 /**
  * Switch the AI assistant on/off for the admin's own club. Goes through the
  * RLS-scoped session client and the admin-only RPC, so the database checks
- * the role and plan again and the audit trigger records the acting user.
+ * the role and add-on entitlement again and the audit trigger records the acting user.
  */
 export async function setAiAssistantEnabled(enabled: boolean): Promise<AppSettingsResult> {
   const t = await getTranslations();
@@ -78,13 +78,13 @@ export async function setAiAssistantEnabled(enabled: boolean): Promise<AppSettin
   if (enabled) {
     const state = await getAssistantState(me.orgId);
     if (!state.configured) return { ok: false, error: t("appSettings.ai.unconfigured") };
-    if (!state.entitled) return { ok: false, error: t("appSettings.errors.notInPlan") };
+    if (!state.entitled) return { ok: false, error: t("appSettings.errors.notEntitled") };
   }
 
   const sb = await createClient();
   const { error } = await sb.rpc("set_org_ai_assistant", { p_enabled: enabled });
   if (error) {
-    if (/AI_ASSISTANT_NOT_IN_PLAN/.test(error.message)) return { ok: false, error: t("appSettings.errors.notInPlan") };
+    if (/AI_ASSISTANT_NOT_(ENTITLED|IN_PLAN)/.test(error.message)) return { ok: false, error: t("appSettings.errors.notEntitled") };
     if (/FORBIDDEN/.test(error.message)) return { ok: false, error: t("appSettings.errors.forbidden") };
     return { ok: false, error: t("appSettings.errors.generic") };
   }

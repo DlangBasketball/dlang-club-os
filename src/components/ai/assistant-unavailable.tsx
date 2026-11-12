@@ -6,7 +6,7 @@ import type { AssistantDenyReason } from "@/lib/ai/access";
 
 const REASON_KEY = {
   unconfigured: "aiAssistant.unavailable.unconfigured",
-  not_in_plan: "aiAssistant.unavailable.notInPlan",
+  not_entitled: "aiAssistant.unavailable.notEntitled",
   disabled: "aiAssistant.unavailable.disabled",
   role: "aiAssistant.unavailable.role",
 } as const satisfies Record<AssistantDenyReason, string>;

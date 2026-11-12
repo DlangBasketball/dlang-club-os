@@ -519,7 +519,13 @@
       "enabled": "AI assistant turned on.",
       "disabled": "AI assistant turned off.",
       "unconfigured": "The AI assistant is not available on this platform yet.",
-      "notInPlan": "Your plan does not include the AI assistant.",
+      "addon": {
+        "badge": "Paid add-on",
+        "notIncluded": "The AI assistant is a paid add-on and is not included in your plan.",
+        "onRequest": "Available on request: contact the platform team to add it to your club. Once it is added, an admin can turn it on here.",
+        "complimentary": "Your club has the AI assistant add-on free of charge.",
+        "paid": "Your club has the AI assistant as a paid add-on."
+      },
       "processingNotice": "When it is on, questions and a minimal summary of your club's records are processed by an AI sub-processor on the club's behalf. Your data is not used to train AI models. Medical notes and payment-card details are never sent.",
       "whoCanUse": "Available to club admins and finance staff.",
       "auditNote": "Every change is recorded in the audit log."
@@ -527,7 +533,7 @@
     "errors": {
       "forbidden": "Only club admins can change this setting.",
       "wrongOrg": "You are signed in to a different organization than this site.",
-      "notInPlan": "Your plan does not include the AI assistant.",
+      "notEntitled": "Your club does not have the AI assistant add-on. It is available on request as a paid add-on.",
       "generic": "Could not save. Please try again."
     }
   },
@@ -551,7 +557,7 @@
     "unavailableTitle": "AI assistant unavailable",
     "unavailable": {
       "unconfigured": "The AI assistant is not available on this platform yet.",
-      "notInPlan": "Your club's plan does not include the AI assistant.",
+      "notEntitled": "The AI assistant is a paid add-on that your club does not have yet. It is available on request; an admin can find the details in Settings.",
       "disabled": "The AI assistant is turned off for this club. An admin can turn it on in Settings.",
       "role": "The AI assistant is available to club admins and finance staff only."
     },

@@ -74,7 +74,11 @@ export function defaultsForCountry(code: string): { currency: Currency; locale: 
   return { currency: c?.currency ?? "USD", locale: c?.locale ?? "en" };
 }
 
-/** Feature keys a plan can grant. Keep in sync with plans.features in SQL. */
+/**
+ * Feature keys a plan can grant. Keep in sync with plans.features in SQL.
+ * The AI assistant is NOT a plan feature: it is a separate add-on
+ * (public.ai_assistant_addons, see src/lib/ai/access.ts).
+ */
 export const FEATURES = {
   registration: "Online registration",
   invoicing: "Invoicing",
@@ -84,7 +88,6 @@ export const FEATURES = {
   messaging: "Messaging & notifications",
   documents_consent: "Documents & consents",
   bookings: "Player-development bookings",
-  ai_assistant: "AI assistant",
   custom_branding: "Custom branding",
   custom_domain: "Custom domain",
   white_label: "Full white-label",

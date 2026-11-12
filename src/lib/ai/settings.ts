@@ -5,10 +5,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getEntitlements } from "@/lib/platform/features";
 import type { SessionUser } from "@/lib/auth/get-user";
 import {
+  addonEntitlement,
   clubOptedIn,
   evaluateAssistantAccess,
   isAssistantConfigured,
-  planEntitlesAssistant,
+  type AddonRow,
+  type AddonSource,
   type AssistantAccess,
   type AssistantState,
 } from "./access";
@@ -19,6 +21,25 @@ export function assistantConfigured(): boolean {
 }
 
 /**
+ * The club's AI assistant add-on entitlement (complimentary or paid), or null.
+ * Service-role read filtered by the given org id, which callers resolve
+ * server-side (session user's org, or the org that owns a public slug).
+ * Memoised per request.
+ */
+export const getAssistantAddonSource = cache(async (orgId: string): Promise<AddonSource | null> => {
+  const admin = createAdminClient();
+  const [ent, { data: rows }] = await Promise.all([
+    getEntitlements(orgId),
+    admin
+      .from("ai_assistant_addons")
+      .select("scope,source,status,starts_at,ends_at")
+      .eq("org_id", orgId)
+      .eq("scope", "org"),
+  ]);
+  return addonEntitlement((rows ?? []) as AddonRow[], { live: ent.live, suspended: ent.suspended });
+});
+
+/**
  * The club's assistant state, resolved server-side for ONE org (the caller's
  * own org id, never a client-supplied one). Service-role reads, filtered by
  * org_id. Memoised per request.
@@ -26,15 +47,15 @@ export function assistantConfigured(): boolean {
 export const getAssistantState = cache(async (orgId: string): Promise<AssistantState> => {
   const configured = assistantConfigured();
   const admin = createAdminClient();
-  const [ent, { data: org }, { data: settings }] = await Promise.all([
-    getEntitlements(orgId),
-    admin.from("organizations").select("plan").eq("id", orgId).maybeSingle(),
+  const [addonSource, { data: settings }] = await Promise.all([
+    getAssistantAddonSource(orgId),
     admin.from("app_settings").select("settings").eq("org_id", orgId).maybeSingle(),
   ]);
   return {
     configured,
-    entitled: planEntitlesAssistant(ent, (org as { plan?: string | null } | null)?.plan ?? null),
+    entitled: addonSource !== null,
     enabled: clubOptedIn(settings?.settings),
+    addonSource,
   };
 });
 

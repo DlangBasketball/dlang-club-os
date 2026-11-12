@@ -1,17 +1,20 @@
 -- ============================================================================
--- AI assistant opt-in + per-club app name (migration 20250420095500)
+-- AI assistant opt-in + per-club app name (migrations 20250420095500 and
+-- 20250420095600: the assistant is a paid add-on, not a plan feature)
 --
 -- Proves:
 --   * the per-club switch defaults to OFF and only the club's own ADMIN can
 --     change it (finance / parent / anon / another club's admin cannot);
---   * a club that is not entitled by its plan cannot switch it on;
+--   * a club without the AI assistant add-on cannot switch it on, even on the
+--     Club plan; with a paid add-on (or a complimentary one) it can;
 --   * every change is audit-logged with the acting user;
 --   * cross-tenant denial: org B's admin can neither read nor change org A's
 --     switch, entitlement, audit trail or app name;
 --   * branding.app_name is validated and exposed by get_public_tenant;
---   * the Club plan includes ai_assistant, prices unchanged.
+--   * no plan includes ai_assistant any more, prices unchanged.
 --
--- Fixtures (seed): org A …0001 DLang (plan 'founding', no subscription; admin
+-- Fixtures (seed): org A …0001 DLang (complimentary add-on row granted by the
+-- 20250420095600 migration, no subscription; admin
 -- …f1, finance …f2, parent …f4); org B 10000000-…0002 Riverside (plan
 -- 'starter'), whose admin is created here. Every assertion prints PASS/FAIL.
 -- ============================================================================
@@ -65,15 +68,17 @@ declare
   n int;
 begin
   -- ---- plans ---------------------------------------------------------------
-  perform ai.ok((select (features->>'ai_assistant')::boolean from public.plans where code = 'club'), 'Club plan includes ai_assistant');
+  perform ai.ok(not coalesce((select (features->>'ai_assistant')::boolean from public.plans where code = 'club'), false), 'Club plan does not include ai_assistant (paid add-on)');
   perform ai.ok(not coalesce((select (features->>'ai_assistant')::boolean from public.plans where code = 'starter'), false), 'Starter plan does not include ai_assistant');
+  perform ai.ok(not exists (select 1 from public.plans where features ? 'ai_assistant'), 'no plan lists ai_assistant as a feature');
+  perform ai.ok((select description from public.plans where code = 'club') not like '%AI assistant%', 'Club plan copy no longer advertises the assistant');
   perform ai.ok((select amount from public.plan_prices where plan_code = 'club' and currency = 'CHF' and billing_interval = 'month') = 490, 'Club price unchanged (CHF 490/month)');
 
   -- ---- defaults ------------------------------------------------------------
   v := ai.run_as(a_admin, $q$select public.org_ai_assistant_enabled('00000000-0000-0000-0000-000000000001')::text$q$);
   perform ai.ok(v = 'OK:false', 'default: assistant OFF for org A (' || v || ')');
   v := ai.run_as(a_admin, $q$select public.org_ai_assistant_entitled('00000000-0000-0000-0000-000000000001')::text$q$);
-  perform ai.ok(v = 'OK:true', 'founding club without subscription is entitled (' || v || ')');
+  perform ai.ok(v = 'OK:true', 'founding club is entitled through its complimentary add-on (' || v || ')');
   v := ai.run_as(b_admin, $q$select public.org_ai_assistant_entitled('10000000-0000-0000-0000-000000000002')::text$q$);
   perform ai.ok(v = 'OK:false', 'org B (starter, no subscription) is not entitled (' || v || ')');
 
@@ -99,7 +104,7 @@ begin
 
   -- ---- not entitled --------------------------------------------------------
   v := ai.run_as(b_admin, $q$select public.set_org_ai_assistant(true)::text$q$);
-  perform ai.ok(v like 'ERR:%AI_ASSISTANT_NOT_IN_PLAN%', 'org B admin cannot enable without the plan feature (' || v || ')');
+  perform ai.ok(v like 'ERR:%AI_ASSISTANT_NOT_ENTITLED%', 'org B admin cannot enable without the add-on (' || v || ')');
   perform ai.ok(not coalesce((select (settings->>'ai_assistant_enabled')::boolean from public.app_settings where org_id = b), false), 'org B still OFF');
 
   -- ---- cross-tenant denial -------------------------------------------------
@@ -115,11 +120,15 @@ begin
   v := ai.run_as(b_admin, $q$select count(*)::text from public.audit_logs where org_id = '00000000-0000-0000-0000-000000000001'$q$);
   perform ai.ok(v = 'OK:0', 'org B admin cannot read org A audit trail');
 
-  -- ---- entitled via plan ---------------------------------------------------
+  -- ---- Club plan alone is not enough; the paid add-on is ---------------------
   insert into public.subscriptions (org_id, plan_code, status, currency, billing_interval)
   values (b, 'club', 'active', 'USD', 'month');
   v := ai.run_as(b_admin, $q$select public.set_org_ai_assistant(true)::text$q$);
-  perform ai.ok(v = 'OK:true', 'org B admin on the Club plan can enable (' || v || ')');
+  perform ai.ok(v like 'ERR:%AI_ASSISTANT_NOT_ENTITLED%', 'org B admin on the Club plan WITHOUT the add-on cannot enable (' || v || ')');
+  -- Platform (service caller) sells org B the add-on.
+  insert into public.ai_assistant_addons (org_id, scope, source, status) values (b, 'org', 'paid_addon', 'active');
+  v := ai.run_as(b_admin, $q$select public.set_org_ai_assistant(true)::text$q$);
+  perform ai.ok(v = 'OK:true', 'org B admin with the paid add-on can enable (' || v || ')');
   perform ai.ok((select (settings->>'ai_assistant_enabled')::boolean from public.app_settings where org_id = b), 'org B switch ON');
   select count(*) into n from public.audit_logs where org_id = b and action = 'settings.ai_assistant.enabled' and actor_id = b_admin;
   perform ai.ok(n = 1, 'org B enable audit row is stamped with org B');
