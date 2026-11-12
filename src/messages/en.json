@@ -1489,5 +1489,42 @@
       "hint": "The coach record is linked to this account when the invitation is accepted."
     },
     "you": "You"
+  },
+  "pwa": {
+    "manifest": {
+      "description": "Camps, personal training and club life at {club}."
+    },
+    "install": {
+      "title": "Install the {app} app",
+      "body": "Add it to your home screen for one-tap access to camps, training bookings and club news.",
+      "button": "Install app",
+      "dismiss": "Not now",
+      "close": "Close",
+      "iosTitle": "On iPhone or iPad:",
+      "iosStep1": "Tap the Share button in the browser toolbar.",
+      "iosStep2": "Choose “Add to Home Screen”.",
+      "iosStep3": "Tap “Add”. The app now opens from your home screen."
+    },
+    "offline": {
+      "title": "You are offline",
+      "body": "Check your internet connection and try again. Nothing personal is stored on this device.",
+      "retry": "Try again"
+    },
+    "hub": {
+      "metaTitle": "Camps and training",
+      "eyebrow": "Welcome",
+      "intro": "Book camps and personal training sessions directly, no membership needed.",
+      "signIn": "Sign in",
+      "openApp": "Open the app",
+      "campsTitle": "Camps",
+      "campsIntro": "Camps currently open for registration.",
+      "campsEmpty": "No camps are open for registration right now. Check back soon.",
+      "campRegister": "Register",
+      "trainingTitle": "Personal training",
+      "trainingIntro": "One-to-one and small-group sessions with our coaches. Pick a time that suits you.",
+      "trainingCta": "Book a session",
+      "membersTitle": "Already a member?",
+      "signInHint": "Sign in to see your children, invoices, bookings and documents."
+    }
   }
 }

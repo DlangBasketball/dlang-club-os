@@ -9,6 +9,8 @@ import { getLocaleContext } from "@/lib/i18n/server";
 import { getMessages } from "@/lib/i18n/messages";
 import { I18nProvider } from "@/lib/i18n/client";
 import { CookieConsentBanner } from "@/components/compliance/cookie-consent-banner";
+import { PwaRegister } from "@/components/pwa/pwa-register";
+import { MANIFEST_PATH, iconUrl, iconVersion } from "@/lib/pwa/manifest";
 
 // Design-system fonts (docs/design/DESIGN_SYSTEM.md). Each exposes a CSS
 // variable consumed by --font-display / --font-ui / --font-mono in globals.css.
@@ -44,8 +46,15 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: app, template: `%s · ${app}` },
     description: app === tenant.name ? app : `${app} · ${tenant.name}`,
     applicationName: app,
-    appleWebApp: { title: app },
-    ...(icon ? { icons: { icon, apple: icon } } : {}),
+    // Installable club app (PWA): per-tenant manifest + generated icons.
+    manifest: MANIFEST_PATH,
+    appleWebApp: { capable: true, title: app, statusBarStyle: isDarkPalette(tenant.branding) ? "black" : "default" },
+    icons: {
+      ...(icon ? { icon } : {}),
+      apple: [{ url: iconUrl("apple-touch", iconVersion(tenant)), sizes: "180x180", type: "image/png" }],
+    },
+    // Next emits only mobile-web-app-capable; older iOS still reads the apple- prefixed tag.
+    other: { "apple-mobile-web-app-capable": "yes" },
   };
 }
 
@@ -91,6 +100,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <I18nProvider ctx={i18n} messages={getMessages(i18n.locale)}>
             <TenantGate tenant={tenant}>{children}</TenantGate>
             <CookieConsentBanner policyHref={`/legal/${tenant.slug}/cookies`} />
+            <PwaRegister />
           </I18nProvider>
         </TenantProvider>
       </body>

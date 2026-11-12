@@ -1489,5 +1489,42 @@
       "hint": "La ficha de entrenador se vincula a esta cuenta cuando se acepta la invitación."
     },
     "you": "Usted"
+  },
+  "pwa": {
+    "manifest": {
+      "description": "Campamentos, entrenamiento personal y vida del club en {club}."
+    },
+    "install": {
+      "title": "Instala la app de {app}",
+      "body": "Añádela a tu pantalla de inicio para acceder con un toque a campamentos, reservas de entrenamiento y noticias del club.",
+      "button": "Instalar app",
+      "dismiss": "Ahora no",
+      "close": "Cerrar",
+      "iosTitle": "En iPhone o iPad:",
+      "iosStep1": "Toca el botón Compartir en la barra del navegador.",
+      "iosStep2": "Elige «Añadir a pantalla de inicio».",
+      "iosStep3": "Toca «Añadir». La app se abre ahora desde tu pantalla de inicio."
+    },
+    "offline": {
+      "title": "Estás sin conexión",
+      "body": "Comprueba tu conexión a Internet y vuelve a intentarlo. En este dispositivo no se guardan datos personales.",
+      "retry": "Reintentar"
+    },
+    "hub": {
+      "metaTitle": "Campamentos y entrenamiento",
+      "eyebrow": "Bienvenido",
+      "intro": "Reserva campamentos y sesiones de entrenamiento personal directamente, sin ser socio.",
+      "signIn": "Iniciar sesión",
+      "openApp": "Abrir la app",
+      "campsTitle": "Campamentos",
+      "campsIntro": "Campamentos con inscripción abierta.",
+      "campsEmpty": "Ahora mismo no hay campamentos con inscripción abierta. Vuelve pronto.",
+      "campRegister": "Inscribirse",
+      "trainingTitle": "Entrenamiento personal",
+      "trainingIntro": "Sesiones individuales y en grupos pequeños con nuestros entrenadores. Elige el horario que te convenga.",
+      "trainingCta": "Reservar una sesión",
+      "membersTitle": "¿Ya eres socio?",
+      "signInHint": "Inicia sesión para ver a tus hijos, facturas, reservas y documentos."
+    }
   }
 }

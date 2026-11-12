@@ -9,6 +9,14 @@ const PUBLIC_PREFIXES = [
   "/register",
   // Public legal pages (privacy, terms, imprint, cookies) per tenant.
   "/legal",
+  // Installable club app (PWA): public club hub, personal-training booking,
+  // manifest, generated icons, service worker and its offline page.
+  "/club",
+  "/book",
+  "/manifest.webmanifest",
+  "/pwa",
+  "/sw.js",
+  "/offline",
   // SaaS layer: club self-signup + machine-to-machine endpoints that verify
   // their own credentials (Stripe signature / cron bearer secret).
   "/signup",

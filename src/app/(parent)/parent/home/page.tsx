@@ -4,6 +4,7 @@ import { PageHeader, Card, CardBody, Badge, EmptyState, ErrorState } from "@/com
 import { getParentDashboard } from "@/lib/data/parent";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
+import { InstallAppPrompt } from "@/components/pwa/install-app-prompt";
 
 export default async function ParentHomePage() {
   const [user, { data, error }, { t, f }] = await Promise.all([getSessionUser(), getParentDashboard(), getI18n()]);
@@ -14,6 +15,8 @@ export default async function ParentHomePage() {
   return (
     <div className="animate-fade-up space-y-6">
       <div><p className="text-sm text-ink-3">{t("dashboard.welcome")}</p><h1 className="text-2xl font-semibold">{t("dashboard.greeting", { name: first })}</h1></div>
+
+      <InstallAppPrompt variant="banner" />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Link href="/parent/invoices" className="block">

@@ -1489,5 +1489,42 @@
       "hint": "La fiche entraîneur est liée à ce compte lorsque l'invitation est acceptée."
     },
     "you": "Vous"
+  },
+  "pwa": {
+    "manifest": {
+      "description": "Stages, entraînement individuel et vie du club chez {club}."
+    },
+    "install": {
+      "title": "Installer l’application {app}",
+      "body": "Ajoutez-la à votre écran d’accueil pour accéder en un geste aux stages, aux réservations d’entraînement et aux nouvelles du club.",
+      "button": "Installer l’application",
+      "dismiss": "Plus tard",
+      "close": "Fermer",
+      "iosTitle": "Sur iPhone ou iPad :",
+      "iosStep1": "Touchez le bouton Partager dans la barre du navigateur.",
+      "iosStep2": "Choisissez « Sur l’écran d’accueil ».",
+      "iosStep3": "Touchez « Ajouter ». L’application s’ouvre désormais depuis votre écran d’accueil."
+    },
+    "offline": {
+      "title": "Vous êtes hors ligne",
+      "body": "Vérifiez votre connexion Internet et réessayez. Aucune donnée personnelle n’est enregistrée sur cet appareil.",
+      "retry": "Réessayer"
+    },
+    "hub": {
+      "metaTitle": "Stages et entraînements",
+      "eyebrow": "Bienvenue",
+      "intro": "Réservez directement des stages et des entraînements individuels, sans être membre.",
+      "signIn": "Se connecter",
+      "openApp": "Ouvrir l’application",
+      "campsTitle": "Stages",
+      "campsIntro": "Stages actuellement ouverts aux inscriptions.",
+      "campsEmpty": "Aucun stage n’est ouvert aux inscriptions pour le moment. Revenez bientôt.",
+      "campRegister": "S’inscrire",
+      "trainingTitle": "Entraînement individuel",
+      "trainingIntro": "Séances individuelles ou en petit groupe avec nos coachs. Choisissez le créneau qui vous convient.",
+      "trainingCta": "Réserver une séance",
+      "membersTitle": "Déjà membre ?",
+      "signInHint": "Connectez-vous pour voir vos enfants, factures, réservations et documents."
+    }
   }
 }

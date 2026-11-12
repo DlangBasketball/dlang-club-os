@@ -1489,5 +1489,42 @@
       "hint": "Der Trainereintrag wird mit diesem Konto verknüpft, sobald die Einladung angenommen ist."
     },
     "you": "Sie"
+  },
+  "pwa": {
+    "manifest": {
+      "description": "Camps, Personaltraining und Vereinsleben bei {club}."
+    },
+    "install": {
+      "title": "{app} als App installieren",
+      "body": "Auf dem Home-Bildschirm haben Sie Camps, Trainingsbuchungen und Vereinsnews mit einem Fingertipp griffbereit.",
+      "button": "App installieren",
+      "dismiss": "Nicht jetzt",
+      "close": "Schliessen",
+      "iosTitle": "Auf iPhone oder iPad:",
+      "iosStep1": "Tippen Sie in der Browserleiste auf „Teilen“.",
+      "iosStep2": "Wählen Sie „Zum Home-Bildschirm“.",
+      "iosStep3": "Tippen Sie auf „Hinzufügen“. Die App startet nun vom Home-Bildschirm."
+    },
+    "offline": {
+      "title": "Sie sind offline",
+      "body": "Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut. Auf diesem Gerät werden keine persönlichen Daten gespeichert.",
+      "retry": "Erneut versuchen"
+    },
+    "hub": {
+      "metaTitle": "Camps und Training",
+      "eyebrow": "Willkommen",
+      "intro": "Buchen Sie Camps und Personaltrainings direkt, ohne Mitgliedschaft.",
+      "signIn": "Anmelden",
+      "openApp": "App öffnen",
+      "campsTitle": "Trainingscamps",
+      "campsIntro": "Camps, für die die Anmeldung offen ist.",
+      "campsEmpty": "Zurzeit sind keine Camps zur Anmeldung offen. Schauen Sie bald wieder vorbei.",
+      "campRegister": "Anmelden",
+      "trainingTitle": "Personaltraining",
+      "trainingIntro": "Einzel- und Kleingruppentrainings mit unseren Coaches. Wählen Sie einen passenden Termin.",
+      "trainingCta": "Training buchen",
+      "membersTitle": "Bereits Mitglied?",
+      "signInHint": "Melden Sie sich an, um Ihre Kinder, Rechnungen, Buchungen und Dokumente zu sehen."
+    }
   }
 }

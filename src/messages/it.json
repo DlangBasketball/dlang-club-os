@@ -1489,5 +1489,42 @@
       "hint": "La scheda allenatore viene collegata a questo account quando l'invito è accettato."
     },
     "you": "Voi"
+  },
+  "pwa": {
+    "manifest": {
+      "description": "Camp, allenamenti personali e vita del club presso {club}."
+    },
+    "install": {
+      "title": "Installa l’app {app}",
+      "body": "Aggiungila alla schermata Home per accedere con un tocco a camp, prenotazioni di allenamenti e notizie del club.",
+      "button": "Installa l’app",
+      "dismiss": "Non ora",
+      "close": "Chiudi",
+      "iosTitle": "Su iPhone o iPad:",
+      "iosStep1": "Tocca il pulsante Condividi nella barra del browser.",
+      "iosStep2": "Scegli «Aggiungi alla schermata Home».",
+      "iosStep3": "Tocca «Aggiungi». Ora l’app si apre dalla schermata Home."
+    },
+    "offline": {
+      "title": "Sei offline",
+      "body": "Controlla la connessione Internet e riprova. Su questo dispositivo non vengono salvati dati personali.",
+      "retry": "Riprova"
+    },
+    "hub": {
+      "metaTitle": "Camp e allenamenti",
+      "eyebrow": "Benvenuti",
+      "intro": "Prenota camp e allenamenti personali direttamente, senza essere socio.",
+      "signIn": "Accedi",
+      "openApp": "Apri l’app",
+      "campsTitle": "Camp",
+      "campsIntro": "Camp con iscrizioni aperte.",
+      "campsEmpty": "Al momento non ci sono camp con iscrizioni aperte. Torna a trovarci presto.",
+      "campRegister": "Iscriviti",
+      "trainingTitle": "Allenamento personale",
+      "trainingIntro": "Sessioni individuali e in piccoli gruppi con i nostri allenatori. Scegli l’orario che preferisci.",
+      "trainingCta": "Prenota una sessione",
+      "membersTitle": "Sei già socio?",
+      "signInHint": "Accedi per vedere i tuoi figli, le fatture, le prenotazioni e i documenti."
+    }
   }
 }
