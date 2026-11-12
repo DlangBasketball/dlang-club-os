@@ -4,9 +4,30 @@ import { getPublicProgram } from "@/lib/data/public-registration";
 import { RegisterStepper } from "./register-client";
 import { getI18n } from "@/lib/i18n/server";
 import { I18nProvider } from "@/lib/i18n/client";
+import { getPublicCamp } from "@/lib/camps/data";
+import { CampRegister } from "@/components/camps/camp-register";
+import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
 
 export default async function PublicProgramPage({ params }: { params: Promise<{ programSlug: string }> }) {
   const { programSlug } = await params;
+  // Camps with editions: editions, age groups, price options, guest sign-up.
+  const camp = await getPublicCamp(programSlug);
+  if (camp && camp.editions.length + camp.options.length > 0) {
+    if (!orgMatchesTenant(camp.program.orgId, await getTenant())) notFound();
+    const i18n = await getI18n(camp.program.orgId);
+    return (
+      <div className="animate-fade-up space-y-8">
+        <section>
+          <div className="text-xs uppercase tracking-[0.18em] text-maroon">{i18n.t("programKind.camp")}</div>
+          <h1 className="mt-1 font-display text-3xl font-semibold">{camp.program.name}</h1>
+          {camp.program.description && <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-ink-2">{camp.program.description}</p>}
+        </section>
+        <I18nProvider ctx={i18n.ctx} messages={i18n.messages}>
+          <CampRegister mode="public" camp={camp} slug={programSlug} />
+        </I18nProvider>
+      </div>
+    );
+  }
   const data = await getPublicProgram(programSlug);
   if (!data) notFound();
   const { program, consents, siblingDiscountPct } = data;

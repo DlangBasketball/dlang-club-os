@@ -296,6 +296,8 @@ export type Database = {
           contact_name: string | null;
           contact_email: string | null;
           primary_contact_id: string | null;
+          /** member | guest (registered from a public camp page without membership). */
+          membership_status: "member" | "guest";
           created_at: string;
         };
         Insert: Record<string, unknown>;

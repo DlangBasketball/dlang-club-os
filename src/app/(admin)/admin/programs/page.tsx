@@ -1,27 +1,41 @@
 import Link from "next/link";
-import { CalendarRange, Plus, MapPin, Pencil } from "lucide-react";
+import { CalendarRange, Plus, MapPin, Pencil, Percent } from "lucide-react";
 import { PageHeader, Button, Card, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { listPrograms } from "@/lib/data/programs-admin";
 import { getI18n } from "@/lib/i18n/server";
 import { getTenant } from "@/lib/tenant/server";
 import { termOr } from "@/lib/tenant/terms";
+import { PROGRAM_KINDS } from "@/lib/club-ops/validation";
 
 const TONE = { draft: "warning", published: "success", archived: "neutral" } as const;
 
-export default async function ProgramsPage() {
+export default async function ProgramsPage({ searchParams }: { searchParams: Promise<{ kind?: string }> }) {
+  const { kind } = await searchParams;
+  const kindFilter = (PROGRAM_KINDS as readonly string[]).includes(kind ?? "") ? kind : null;
   const [me, tenant, { t, f }] = await Promise.all([getSessionUser(), getTenant(), getI18n()]);
   const title = termOr(tenant.terminology, "program", t("nav.programs"), { plural: true });
   if (!me?.orgId) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("editOps.common.noOrgTitle")} message={t("editOps.common.noOrg")} /></div>);
   const { data, error } = await listPrograms(me.orgId);
   if (error) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("editOps.common.loadFailed")} message={error} /></div>);
-  const programs = data!;
+  const programs = kindFilter ? data!.filter((p) => p.kind === kindFilter) : data!;
   const isAdmin = me.roles.includes("admin");
 
   return (
     <div className="animate-fade-up">
       <PageHeader title={title} description={t("editOps.programs.listDescription")}
-        actions={isAdmin ? <Link href="/admin/programs/new"><Button><Plus className="h-4 w-4" /> {t("editOps.programs.new")}</Button></Link> : undefined} />
+        actions={<div className="flex flex-wrap gap-2">
+          <Link href="/admin/discounts"><Button variant="secondary"><Percent className="h-4 w-4" /> {t("camps.discounts.title")}</Button></Link>
+          {isAdmin && <Link href="/admin/programs/new"><Button><Plus className="h-4 w-4" /> {t("editOps.programs.new")}</Button></Link>}
+        </div>} />
+      <nav aria-label={t("camps.filterByType")} className="mb-4 flex flex-wrap gap-2">
+        {[null, ...PROGRAM_KINDS].map((k) => (
+          <Link key={k ?? "all"} href={k ? `/admin/programs?kind=${k}` : "/admin/programs"} aria-current={kindFilter === k ? "page" : undefined}
+            className={`rounded-full border px-3 py-1 text-xs ${kindFilter === k ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-3 hover:border-maroon/40"}`}>
+            {k ? t.dynamic(`programKind.${k}`, undefined, k) : t("common.all")}
+          </Link>
+        ))}
+      </nav>
       {programs.length === 0 ? (
         <EmptyState icon={<CalendarRange className="h-5 w-5" />} title={t("editOps.programs.empty")}
           description={isAdmin ? t("editOps.programs.emptyHint") : undefined} />

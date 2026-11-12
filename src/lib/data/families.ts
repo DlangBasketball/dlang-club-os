@@ -12,15 +12,18 @@ export type FamilyListItem = {
   id: string;
   name: string;
   phone: string | null;
+  membership: "member" | "guest";
   athleteCount: number;
   openInvoices: number;
   balance: number;
 };
 
-export async function listFamilies(): Promise<Result<FamilyListItem[]>> {
+export async function listFamilies(membership?: "member" | "guest" | null): Promise<Result<FamilyListItem[]>> {
   const supabase = await createClient();
   const [families, athletes, invoices] = await Promise.all([
-    supabase.from("families").select("id,name,phone").order("name"),
+    membership
+      ? supabase.from("families").select("id,name,phone,membership_status").eq("membership_status", membership).order("name")
+      : supabase.from("families").select("id,name,phone,membership_status").order("name"),
     supabase.from("athletes").select("id,family_id"),
     supabase.from("invoices").select("family_id,total_chf,status").in("status", UNPAID),
   ]);
@@ -43,6 +46,7 @@ export async function listFamilies(): Promise<Result<FamilyListItem[]>> {
       id: f.id,
       name: f.name,
       phone: f.phone,
+      membership: f.membership_status ?? "member",
       athleteCount: countByFamily.get(f.id) ?? 0,
       openInvoices: balByFamily.get(f.id)?.count ?? 0,
       balance: balByFamily.get(f.id)?.total ?? 0,
