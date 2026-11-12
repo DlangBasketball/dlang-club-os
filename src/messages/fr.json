@@ -175,7 +175,12 @@
     "heroLine3": "Développez l'activité.",
     "heroBody": "Un seul système pour les inscriptions, les paiements, les entraînements, le travail des coachs et la communication avec les parents.",
     "statusLabel": "Statut",
-    "statusOperational": "Opérationnel"
+    "statusOperational": "Opérationnel",
+    "passwordLabel": "Mot de passe (comptes de démonstration)",
+    "passwordHint": "Laissez vide pour recevoir un lien de connexion.",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion…",
+    "passwordError": "Adresse e-mail ou mot de passe incorrect."
   },
   "dashboard": {
     "title": "Tableau de bord",

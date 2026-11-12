@@ -175,7 +175,12 @@
     "heroLine3": "Sviluppa l'attività.",
     "heroBody": "Un unico sistema per iscrizioni, pagamenti, allenamenti, lavoro degli allenatori e comunicazione con i genitori.",
     "statusLabel": "Stato",
-    "statusOperational": "Operativo"
+    "statusOperational": "Operativo",
+    "passwordLabel": "Password (account demo)",
+    "passwordHint": "Lascia vuoto per ricevere invece un link di accesso.",
+    "signIn": "Accedi",
+    "signingIn": "Accesso in corso…",
+    "passwordError": "Indirizzo e-mail o password non corretti."
   },
   "dashboard": {
     "title": "Panoramica",

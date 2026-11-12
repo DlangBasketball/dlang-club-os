@@ -12,6 +12,18 @@ import { useTenant } from "@/lib/tenant/context";
 import { useT } from "@/lib/i18n/client";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 
+/**
+ * Optional email + password sign-in, for staging/demo deployments whose demo
+ * accounts use reserved (undeliverable) addresses. OFF unless the deployment
+ * sets NEXT_PUBLIC_AUTH_PASSWORD_LOGIN=true; production keeps magic links only.
+ */
+const PASSWORD_LOGIN = process.env.NEXT_PUBLIC_AUTH_PASSWORD_LOGIN === "true";
+
+/** Same-origin relative path only (blocks //host and /\\host open redirects). */
+function safeRedirect(path: string | null): string {
+  return path && path.startsWith("/") && !path.startsWith("//") && !path.startsWith("/\\") ? path : "/";
+}
+
 export default function LoginPage() {
   // useSearchParams must be inside a Suspense boundary in Next 15.
   return (
@@ -27,6 +39,8 @@ function LoginInner() {
   const t = useT();
   const redirect = params.get("redirect");
   const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const usePassword = PASSWORD_LOGIN && password.length > 0;
   const [status, setStatus] = React.useState<"idle" | "loading" | "sent" | "error">(
     "idle",
   );
@@ -37,6 +51,17 @@ function LoginInner() {
     setStatus("loading");
     setError(null);
     const supabase = createClient();
+    if (usePassword) {
+      const { error: pwError } = await supabase.auth.signInWithPassword({ email, password });
+      if (pwError) {
+        setError(t("auth.passwordError"));
+        setStatus("error");
+        return;
+      }
+      // Full navigation so the server sees the new session cookies.
+      window.location.assign(safeRedirect(redirect));
+      return;
+    }
     const emailRedirectTo = `${SITE_URL}/auth/callback${
       redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""
     }`;
@@ -138,13 +163,35 @@ function LoginInner() {
                       aria-describedby={error ? "email-error" : undefined}
                     />
                   </div>
+                  {PASSWORD_LOGIN && (
+                    <div>
+                      <Label htmlFor="password">{t("auth.passwordLabel")}</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        aria-describedby="password-hint"
+                      />
+                      <p id="password-hint" className="mt-1 text-xs text-text-muted">
+                        {t("auth.passwordHint")}
+                      </p>
+                    </div>
+                  )}
                   {error && (
                     <p id="email-error" role="alert" className="text-xs text-danger">
                       {error}
                     </p>
                   )}
                   <Button type="submit" size="lg" className="w-full" loading={status === "loading"}>
-                    {status === "loading" ? t("auth.sending") : t("auth.sendLink")}
+                    {usePassword
+                      ? status === "loading"
+                        ? t("auth.signingIn")
+                        : t("auth.signIn")
+                      : status === "loading"
+                        ? t("auth.sending")
+                        : t("auth.sendLink")}
                   </Button>
                 </form>
               </>

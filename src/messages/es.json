@@ -175,7 +175,12 @@
     "heroLine3": "Impulsa el negocio.",
     "heroBody": "Un único sistema para inscripciones, pagos, entrenamientos, trabajo de los entrenadores y comunicación con las familias.",
     "statusLabel": "Estado",
-    "statusOperational": "Operativo"
+    "statusOperational": "Operativo",
+    "passwordLabel": "Contraseña (cuentas de demostración)",
+    "passwordHint": "Déjalo vacío para recibir un enlace de acceso.",
+    "signIn": "Iniciar sesión",
+    "signingIn": "Iniciando sesión…",
+    "passwordError": "El correo o la contraseña no son correctos."
   },
   "dashboard": {
     "title": "Panel",

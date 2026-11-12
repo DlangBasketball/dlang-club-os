@@ -175,7 +175,12 @@
     "heroLine3": "Grow the business.",
     "heroBody": "One operating system for registrations, payments, training, coach workflow and parent communication.",
     "statusLabel": "Status",
-    "statusOperational": "Operational"
+    "statusOperational": "Operational",
+    "passwordLabel": "Password (demo accounts)",
+    "passwordHint": "Leave empty to receive a magic link instead.",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "passwordError": "Email or password is incorrect."
   },
   "dashboard": {
     "title": "Dashboard",

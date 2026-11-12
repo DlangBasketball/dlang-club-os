@@ -56,6 +56,7 @@ for (const [k, v] of Object.entries(env)) {
 }
 if (prod && has("STRIPE_SECRET_KEY") && env.STRIPE_SECRET_KEY.includes("_test_")) warnings.push("STRIPE_SECRET_KEY is a test key");
 if (!prod && has("STRIPE_SECRET_KEY") && env.STRIPE_SECRET_KEY.includes("_live_")) warnings.push(`STRIPE_SECRET_KEY is a LIVE key in ${appEnv}`);
+if (prod && env.NEXT_PUBLIC_AUTH_PASSWORD_LOGIN === "true") problems.push("NEXT_PUBLIC_AUTH_PASSWORD_LOGIN=true is for staging/demo only");
 if (prod && !has("SENTRY_DSN")) warnings.push("SENTRY_DSN not set (errors only in logs)");
 if (prod && !has("HEALTH_CHECK_TOKEN")) warnings.push("HEALTH_CHECK_TOKEN not set");
 if (has("DATA_REGION") && has("NEXT_PUBLIC_SUPABASE_URL") && env.DATA_REGION === "us" && /eu|frankfurt|zurich/i.test(env.NEXT_PUBLIC_SUPABASE_URL))

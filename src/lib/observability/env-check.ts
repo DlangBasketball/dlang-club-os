@@ -26,6 +26,7 @@ export const envSchema = z.object({
   APP_ENV: z.enum(["local", "staging", "production"]).optional(),
   DATA_REGION: z.enum(["eu", "us"]).optional(),
   PLATFORM_ROOT_DOMAIN: optionalStr,
+  NEXT_PUBLIC_AUTH_PASSWORD_LOGIN: z.enum(["true", "false"]).optional(),
   // --- Payments ---
   STRIPE_SECRET_KEY: z.string().trim().regex(/^(sk|rk)_(test|live)_/, "must start with sk_test_/sk_live_").optional(),
   STRIPE_WEBHOOK_SECRET: z.string().trim().regex(/^whsec_/, "must start with whsec_").optional(),
@@ -96,6 +97,8 @@ export function checkEnv(source: Record<string, string | undefined> = process.en
     if (input.STRIPE_SECRET_KEY?.includes("_test_")) warnings.push("STRIPE_SECRET_KEY is a TEST key in production");
     if (input.NEXT_PUBLIC_SITE_URL && !input.NEXT_PUBLIC_SITE_URL.startsWith("https://"))
       invalid.push({ name: "NEXT_PUBLIC_SITE_URL", issue: "must be https:// in production" });
+    if (input.NEXT_PUBLIC_AUTH_PASSWORD_LOGIN === "true")
+      invalid.push({ name: "NEXT_PUBLIC_AUTH_PASSWORD_LOGIN", issue: "password sign-in is for staging/demo only" });
     if (!input.SENTRY_DSN) warnings.push("SENTRY_DSN not set — errors only go to logs");
   }
   for (const [k, v] of Object.entries(input)) {

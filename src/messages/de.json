@@ -175,7 +175,12 @@
     "heroLine3": "Das Geschäft ausbauen.",
     "heroBody": "Ein Betriebssystem für Anmeldungen, Zahlungen, Training, Trainerarbeit und Elternkommunikation.",
     "statusLabel": "Status",
-    "statusOperational": "In Betrieb"
+    "statusOperational": "In Betrieb",
+    "passwordLabel": "Passwort (Demo-Konten)",
+    "passwordHint": "Leer lassen, um stattdessen einen Anmeldelink zu erhalten.",
+    "signIn": "Anmelden",
+    "signingIn": "Anmeldung läuft…",
+    "passwordError": "E-Mail-Adresse oder Passwort ist falsch."
   },
   "dashboard": {
     "title": "Übersicht",
