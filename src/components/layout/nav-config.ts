@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Upload } from "lucide-react";
 
 export type NavKey = "admin" | "coach" | "parent";
 
@@ -20,6 +20,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Bookings", href: "/admin/bookings", icon: Dumbbell },
     { label: "Services", href: "/admin/services", icon: Dumbbell },
     { label: "Invitations", href: "/admin/invitations", icon: Mail },
+    { label: "Import", href: "/admin/import", icon: Upload },
     { label: "Assistant", href: "/admin/assistant", icon: Sparkles },
     { label: "Settings", href: "/admin/settings", icon: Settings },
   ],
