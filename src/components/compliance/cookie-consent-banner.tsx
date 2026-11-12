@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CATEGORY_INFO,
   CONSENT_CHANGED_EVENT,
@@ -84,6 +84,20 @@ export function CookieConsentBanner({ policyHref = "/legal" }: { policyHref?: st
     return () => window.removeEventListener(OPEN_CONSENT_EVENT, reopen);
   }, []);
 
+  // Reserve space under the page while the banner is open, so it never covers
+  // page content (e.g. the Sign in button on phones): the page can scroll past it.
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open || !panelRef.current || typeof ResizeObserver === "undefined") return;
+    const body = document.body;
+    const previous = body.style.paddingBottom;
+    const ro = new ResizeObserver(([entry]) => {
+      body.style.paddingBottom = `${Math.ceil(entry.target.getBoundingClientRect().height)}px`;
+    });
+    ro.observe(panelRef.current);
+    return () => { ro.disconnect(); body.style.paddingBottom = previous; };
+  }, [open, details]);
+
   const save = useCallback((c: CookieConsent) => { writeConsentCookie(c); setOpen(false); setDetails(false); }, []);
   const rejectAll = () => save(NECESSARY_ONLY(gpc));
   const acceptAll = () => save({ ...NECESSARY_ONLY(gpc), functional: true, analytics: true, marketing: !gpc });
@@ -96,11 +110,12 @@ export function CookieConsentBanner({ policyHref = "/legal" }: { policyHref?: st
       role="dialog"
       aria-modal="false"
       aria-labelledby="cookie-consent-title"
-      className="fixed inset-x-0 bottom-0 z-[100] p-3 sm:p-4"
+      ref={panelRef}
+      className="fixed inset-x-0 bottom-0 z-[100] p-2 sm:p-4"
     >
-      <div className="mx-auto max-w-3xl rounded-lg border border-line bg-surface-elevated p-4 text-sm text-ink shadow-lg sm:p-5">
+      <div className="mx-auto max-h-[60vh] max-w-3xl overflow-y-auto rounded-lg border border-line bg-surface-elevated p-3 text-sm text-ink shadow-lg sm:max-h-none sm:p-5">
         <h2 id="cookie-consent-title" className="font-display text-base font-semibold">Your privacy choices</h2>
-        <p className="mt-1.5 text-ink-2">
+        <p className="mt-1.5 text-xs text-ink-2 sm:text-sm">
           We only use strictly necessary cookies to sign you in and keep the service secure. Optional cookies stay off
           unless you switch them on.{" "}
           <a href={policyHref} className="text-maroon underline underline-offset-2">Cookie &amp; privacy information</a>
@@ -137,20 +152,20 @@ export function CookieConsentBanner({ policyHref = "/legal" }: { policyHref?: st
           </ul>
         )}
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <div className="mt-3 grid grid-cols-3 gap-2 text-xs sm:mt-4 sm:flex sm:justify-end sm:text-sm">
           {details ? (
-            <button type="button" onClick={saveChoice} className="rounded-md border border-line px-4 py-2 font-medium text-ink hover:bg-surface">
+            <button type="button" onClick={saveChoice} className="rounded-md border border-line px-2 py-2 font-medium sm:px-4 text-ink hover:bg-surface">
               Save choices
             </button>
           ) : (
-            <button type="button" onClick={() => setDetails(true)} className="rounded-md border border-line px-4 py-2 font-medium text-ink hover:bg-surface">
+            <button type="button" onClick={() => setDetails(true)} className="rounded-md border border-line px-2 py-2 font-medium sm:px-4 text-ink hover:bg-surface">
               Customise
             </button>
           )}
-          <button type="button" onClick={rejectAll} className="rounded-md border border-line px-4 py-2 font-medium text-ink hover:bg-surface">
+          <button type="button" onClick={rejectAll} className="rounded-md border border-line px-2 py-2 font-medium sm:px-4 text-ink hover:bg-surface">
             Necessary only
           </button>
-          <button type="button" onClick={acceptAll} className="rounded-md bg-maroon px-4 py-2 font-medium text-inverse hover:bg-maroon-dark">
+          <button type="button" onClick={acceptAll} className="rounded-md bg-maroon px-2 py-2 font-medium sm:px-4 text-inverse hover:bg-maroon-dark">
             Accept all
           </button>
         </div>
