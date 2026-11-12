@@ -32,7 +32,7 @@ Supabase 2.106.
 
 ## 2. Architecture — three layers of access control
 
-1. **Middleware** (`middleware.ts`): refreshes the session every request and
+1. **Middleware** (`src/middleware.ts`): refreshes the session every request and
    redirects signed-out users away from protected paths to `/login`.
 2. **Server route guards** (`requireRole`, `requireAuth` in `lib/auth/get-user.ts`),
    called in each group layout: keeps each role in its own area and gates

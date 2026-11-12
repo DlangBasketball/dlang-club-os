@@ -20,7 +20,7 @@ const startedAt = Date.now();
  * Public output contains no secrets and no tenant data. Variable NAMES of
  * missing/invalid config are only returned when the caller sends
  * `Authorization: Bearer <HEALTH_CHECK_TOKEN>`.
- * Excluded from the auth middleware (see middleware.ts matcher).
+ * Excluded from the auth middleware (see src/middleware.ts matcher).
  */
 export async function GET(req: Request) {
   const info = buildInfo();

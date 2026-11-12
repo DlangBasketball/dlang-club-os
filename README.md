@@ -20,7 +20,7 @@ npm run types                   # supabase gen types -> src/types/database.ts
 ## How it's organized
 
 ```
-middleware.ts                  Auth gate + Supabase session refresh (runs on every request)
+src/middleware.ts              Auth gate + Supabase session refresh (runs on every request)
 tailwind.config.ts             Theme tokens -> utilities (bg-surface, text-ink, text-maroon …)
 src/
   app/
@@ -51,7 +51,7 @@ src/
 
 ## Auth & role protection (two layers + RLS)
 
-1. **`middleware.ts`** refreshes the session and bounces signed-out users to `/login`.
+1. **`src/middleware.ts`** refreshes the session and bounces signed-out users to `/login`.
 2. **Group layouts** call `requireRole([...])` (server-side) to keep each role in its own area.
 3. **Supabase RLS** is the real boundary — even if routing were bypassed, the database
    returns only rows the user is entitled to. The `service_role` key (server-only, used by
