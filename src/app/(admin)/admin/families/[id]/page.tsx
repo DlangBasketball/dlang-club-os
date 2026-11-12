@@ -7,9 +7,11 @@ import {
 } from "@/components/ui";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
 import { getFamily } from "@/lib/data/families";
-import { formatCHF, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const f = await getFormatter();
   const { id } = await params;
   const { data, error } = await getFamily(id);
   if (error) return <ErrorState title="Couldn't load family" message={error} />;
@@ -29,7 +31,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Balance due" value={formatCHF(data.balance)} accent={data.balance > 0} />
+        <StatCard label="Balance due" value={f.money(data.balance)} accent={data.balance > 0} />
         <StatCard label="Open invoices" value={String(data.invoices.filter((i) => ["pending", "draft", "overdue"].includes(i.status)).length)} />
         <StatCard label="Athletes" value={String(data.athletes.length)} />
         <StatCard label="Registrations" value={String(data.registrationCount)} />
@@ -85,7 +87,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
                         <div className="text-xs text-ink-3">Due {formatDate(i.dueDate)}</div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="tnum text-sm">{formatCHF(i.total)}</span>
+                        <span className="tnum text-sm">{f.money(i.total)}</span>
                         <Badge tone={statusTone(i.status)}>{i.status}</Badge>
                       </div>
                     </li>

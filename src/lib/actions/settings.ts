@@ -77,8 +77,11 @@ export async function updateLocalization(input: { currency: string; defaultLocal
   const admin = createAdminClient();
   await admin.from("app_settings").update({ currency: input.currency, default_locale: input.defaultLocale }).eq("org_id", me.orgId);
   await admin.from("organizations").update({ currency: input.currency }).eq("id", me.orgId);
+  // Typed column from the i18n migration; ignored if the migration isn't applied yet.
+  await admin.from("app_settings").update({ enabled_locales: input.languages }).eq("org_id", me.orgId);
   const { error } = await patchSettings(me.orgId, { languages: input.languages });
   if (error) return { ok: false, error };
+  revalidatePath("/", "layout");
   revalidatePath("/admin/settings/branding");
   return { ok: true };
 }

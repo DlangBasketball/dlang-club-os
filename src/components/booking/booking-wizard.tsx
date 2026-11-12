@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, CreditCard, Coins, CalendarClock } from "lucide-react";
 import { Card, CardBody, Button, Badge } from "@/components/ui";
 import { bookSession } from "@/lib/actions/booking";
-import { formatCHF, formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTime } from "@/lib/utils";
+import { useFormat } from "@/lib/i18n/client";
 import type { WizardData, WizardService, WizardSlot } from "@/lib/data/booking";
 
 export function BookingWizard({ data }: { data: WizardData }) {
+  const f = useFormat();
   const router = useRouter();
   const [step, setStep] = React.useState(0);
   const [childId, setChildId] = React.useState(data.children[0]?.id ?? "");
@@ -74,7 +76,7 @@ export function BookingWizard({ data }: { data: WizardData }) {
             <button key={s.id} onClick={() => { setService(s); setStep(2); }} className={`block w-full rounded-xl border p-4 text-left transition active:scale-[0.99] ${service?.id === s.id ? "border-maroon" : "border-line"}`}>
               <div className="flex items-center justify-between">
                 <div className="font-medium text-ink">{s.name}</div>
-                <span className="tnum text-sm text-ink-2">{formatCHF(s.priceChf)}</span>
+                <span className="tnum text-sm text-ink-2">{f.money(s.priceChf)}</span>
               </div>
               {s.description && <div className="mt-0.5 text-xs text-ink-3">{s.description}</div>}
               <div className="mt-1 flex gap-2 text-[11px] text-ink-3">
@@ -112,7 +114,7 @@ export function BookingWizard({ data }: { data: WizardData }) {
           <div className="space-y-2">
             <button onClick={() => setPay("invoice")} className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left ${pay === "invoice" ? "border-maroon" : "border-line"}`}>
               <CreditCard className="h-5 w-5 text-maroon" />
-              <div><div className="text-sm font-medium text-ink">Pay by invoice</div><div className="text-xs text-ink-3">An invoice for {formatCHF(service.priceChf)} will be issued.</div></div>
+              <div><div className="text-sm font-medium text-ink">Pay by invoice</div><div className="text-xs text-ink-3">An invoice for {f.money(service.priceChf)} will be issued.</div></div>
             </button>
             <button disabled={!canUseCredits} onClick={() => setPay("credits")} className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left disabled:opacity-50 ${pay === "credits" ? "border-maroon" : "border-line"}`}>
               <Coins className="h-5 w-5 text-maroon" />

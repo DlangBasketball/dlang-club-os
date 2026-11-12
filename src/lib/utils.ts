@@ -1,25 +1,28 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { formatMoney, formatDate as formatDateL, formatTime as formatTimeL } from "@/lib/format";
 
 /** Merge Tailwind classes safely. */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** CHF currency, Swiss formatting: CHF 1'490.00 */
+/**
+ * CHF currency, Swiss formatting: CHF 1'490.00
+ * @deprecated Use `formatMoney(amount, currency, locale)` from "@/lib/format",
+ * or the tenant-bound `f.money()` from `getFormatter()` (server) / `useFormat()` (client).
+ */
 export function formatCHF(amount: number | string | null | undefined) {
-  const n = typeof amount === "string" ? Number(amount) : amount ?? 0;
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-  }).format(Number.isFinite(n as number) ? (n as number) : 0);
+  return formatMoney(amount, "CHF", "de-CH");
 }
 
-/** Swiss date: 23.05.2026 */
+/**
+ * Swiss date: 23.05.2026
+ * @deprecated Use `f.date()` from `getFormatter()` (server) / `useFormat()` (client),
+ * which apply the tenant locale and time zone.
+ */
 export function formatDate(date: string | Date | null | undefined) {
-  if (!date) return "—";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("de-CH", { dateStyle: "medium" }).format(d);
+  return formatDateL(date, { locale: "de-CH", timeZone: "Europe/Zurich" });
 }
 
 export function initials(name: string | null | undefined) {
@@ -33,14 +36,18 @@ export function initials(name: string | null | undefined) {
     .toUpperCase();
 }
 
-/** Short time, Swiss locale: 17:00 */
+/**
+ * Short time, Swiss locale: 17:00
+ * @deprecated Use `f.time()` from `getFormatter()` / `useFormat()`.
+ */
 export function formatTime(date: string | Date | null | undefined) {
-  if (!date) return "—";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("de-CH", { hour: "2-digit", minute: "2-digit" }).format(d);
+  return formatTimeL(date, { locale: "de-CH", timeZone: "Europe/Zurich" });
 }
 
-/** Compact relative time: "just now", "3h ago", "2d ago". */
+/**
+ * Compact relative time: "just now", "3h ago", "2d ago".
+ * Prefer `f.relative()` from `useFormat()` for localised output.
+ */
 export function timeAgo(date: string | Date | null | undefined) {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;

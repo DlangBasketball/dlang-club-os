@@ -8,11 +8,13 @@ import { ManualPaymentForm } from "@/components/invoice/manual-payment-form";
 import { PaymentMethods } from "@/components/invoice/payment-methods";
 import { getPaymentSettings, getAcceptedMethods } from "@/lib/data/payment-settings";
 import { formatQrReference } from "@/lib/swiss-payments";
-import { formatCHF, formatDate, timeAgo } from "@/lib/utils";
+import { formatDate, timeAgo } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 const METHOD_LABEL: Record<string, string> = { card: "Card", bank_transfer: "Bank transfer", twint: "TWINT", manual: "Cash / manual", qr_bill: "QR-bill" };
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const f = await getFormatter();
   const { id } = await params;
   const { data, error } = await getInvoiceDetail(id);
   if (error) return <ErrorState title="Couldn't load invoice" message={error} />;
@@ -32,9 +34,9 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       <InvoiceActions id={data.id} status={data.status} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Total" value={formatCHF(data.total)} />
-        <StatCard label="Paid" value={formatCHF(data.paid)} />
-        <StatCard label="Balance" value={formatCHF(data.balance)} />
+        <StatCard label="Total" value={f.money(data.total)} />
+        <StatCard label="Paid" value={f.money(data.paid)} />
+        <StatCard label="Balance" value={f.money(data.balance)} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -55,12 +57,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                     <tr key={it.id} className="border-b border-line-soft last:border-0">
                       <td className="px-5 py-2.5 text-ink">{it.description}</td>
                       <td className="px-5 py-2.5 text-right tnum text-ink-2">{it.quantity}</td>
-                      <td className="px-5 py-2.5 text-right tnum text-ink-2">{formatCHF(it.unitPrice)}</td>
-                      <td className="px-5 py-2.5 text-right tnum text-ink">{formatCHF(it.amount)}</td>
+                      <td className="px-5 py-2.5 text-right tnum text-ink-2">{f.money(it.unitPrice)}</td>
+                      <td className="px-5 py-2.5 text-right tnum text-ink">{f.money(it.amount)}</td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot><tr><td colSpan={3} className="px-5 py-3 text-right text-ink-2">Total</td><td className="px-5 py-3 text-right tnum font-semibold text-ink">{formatCHF(data.total)}</td></tr></tfoot>
+                <tfoot><tr><td colSpan={3} className="px-5 py-3 text-right text-ink-2">Total</td><td className="px-5 py-3 text-right tnum font-semibold text-ink">{f.money(data.total)}</td></tr></tfoot>
               </table>
             </CardBody>
           </Card>
@@ -80,7 +82,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                         <div className="text-xs text-ink-3">{formatDate(p.paidAt)}{p.notes ? ` · ${p.notes}` : ""}</div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="tnum text-sm text-success">+ {formatCHF(p.amount)}</span>
+                        <span className="tnum text-sm text-success">+ {f.money(p.amount)}</span>
                         <Badge tone={statusTone(p.status)}>{p.status}</Badge>
                       </div>
                     </li>

@@ -4,9 +4,11 @@ import { CheckCircle2, ChevronLeft, Receipt } from "lucide-react";
 import { PageHeader, Card, CardBody, Badge, statusTone, ErrorState } from "@/components/ui";
 import { getParentBookingDetail } from "@/lib/data/booking";
 import { BookingActions } from "@/components/booking/booking-actions";
-import { formatCHF, formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTime } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function ParentBookingDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirmed?: string }> }) {
+  const f = await getFormatter();
   const [{ id }, { confirmed }] = await Promise.all([params, searchParams]);
   const { data, error } = await getParentBookingDetail(id);
   if (error) return <ErrorState title="Couldn't load booking" message={error} />;
@@ -24,7 +26,7 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
       <PageHeader title={data.serviceName} description={`${data.athleteName} · with ${data.coachName}`} actions={<Badge tone={statusTone(data.status)}>{data.status}</Badge>} />
       <Card><CardBody className="space-y-2 text-sm">
         <div className="flex justify-between"><span className="text-ink-3">When</span><span className="text-ink">{formatDate(data.start)} · {formatTime(data.start)}</span></div>
-        <div className="flex justify-between"><span className="text-ink-3">Payment</span><span className="text-ink">{data.creditsUsed > 0 ? `${data.creditsUsed} training credit(s)` : data.price !== null ? formatCHF(data.price) : "—"}</span></div>
+        <div className="flex justify-between"><span className="text-ink-3">Payment</span><span className="text-ink">{data.creditsUsed > 0 ? `${data.creditsUsed} training credit(s)` : data.price !== null ? f.money(data.price) : "—"}</span></div>
         {data.invoice && <div className="flex justify-between"><span className="text-ink-3">Invoice</span><Link href={`/parent/invoices/${data.invoice.id}`} className="inline-flex items-center gap-1 text-maroon hover:underline"><Receipt className="h-3.5 w-3.5" />{data.invoice.number}</Link></div>}
       </CardBody></Card>
       {data.status === "booked" && (

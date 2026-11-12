@@ -4,9 +4,11 @@ import { Mail, Phone, UserCircle, FileText, ShieldCheck } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { getRegistrationDetail } from "@/lib/data/registrations";
 import { RegistrationStatusControl } from "../registration-status-control";
-import { formatCHF, formatDate, timeAgo } from "@/lib/utils";
+import { formatDate, timeAgo } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function RegistrationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const f = await getFormatter();
   const { id } = await params;
   const { data, error } = await getRegistrationDetail(id);
   if (error) return <ErrorState title="Couldn't load registration" message={error} />;
@@ -61,7 +63,7 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
               {data.invoices.map((i) => (
                 <li key={i.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
                   <div><div className="tnum text-sm font-medium text-ink">{i.number}</div><div className="text-xs text-ink-3">Due {formatDate(i.dueDate)}</div></div>
-                  <div className="flex items-center gap-3"><span className="tnum text-sm">{formatCHF(i.total)}</span><Badge tone={statusTone(i.status)}>{i.status}</Badge></div>
+                  <div className="flex items-center gap-3"><span className="tnum text-sm">{f.money(i.total)}</span><Badge tone={statusTone(i.status)}>{i.status}</Badge></div>
                 </li>
               ))}
             </ul>

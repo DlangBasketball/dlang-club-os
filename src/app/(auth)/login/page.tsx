@@ -8,6 +8,8 @@ import { BrandMark } from "@/components/layout/brand-mark";
 import { Button, Input, Label } from "@/components/ui";
 import { SITE_URL } from "@/lib/constants";
 import { MailCheck } from "lucide-react";
+import { useT } from "@/lib/i18n/client";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 
 export default function LoginPage() {
   // useSearchParams must be inside a Suspense boundary in Next 15.
@@ -20,6 +22,7 @@ export default function LoginPage() {
 
 function LoginInner() {
   const params = useSearchParams();
+  const t = useT();
   const redirect = params.get("redirect");
   const [email, setEmail] = React.useState("");
   const [status, setStatus] = React.useState<"idle" | "loading" | "sent" | "error">(
@@ -40,7 +43,7 @@ function LoginInner() {
       options: { emailRedirectTo },
     });
     if (error) {
-      setError(error.message);
+      setError(error.message || t("auth.errorGeneric"));
       setStatus("error");
     } else {
       setStatus("sent");
@@ -49,6 +52,9 @@ function LoginInner() {
 
   return (
     <div className="grain relative flex min-h-dvh items-center justify-center bg-bg bg-radial-maroon px-4">
+      <div className="absolute right-4 top-4">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-sm animate-fade-up">
         <div className="mb-8 flex justify-center">
           <BrandMark />
@@ -60,28 +66,29 @@ function LoginInner() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-soft text-success">
                 <MailCheck className="h-6 w-6" />
               </div>
-              <h1 className="text-xl font-semibold">Check your inbox</h1>
-              <p className="mt-2 text-sm text-ink-2">
-                We sent a secure sign-in link to{" "}
-                <span className="text-ink">{email}</span>. Open it on this
-                device to continue.
-              </p>
+              <h1 className="text-xl font-semibold">{t("auth.checkInbox")}</h1>
+              <p className="mt-2 text-sm text-ink-2">{t("auth.linkSent", { email })}</p>
+              <button
+                type="button"
+                onClick={() => setStatus("idle")}
+                className="mt-4 text-xs text-ink-3 underline-offset-4 hover:text-ink hover:underline"
+              >
+                {t("auth.useDifferentEmail")}
+              </button>
             </div>
           ) : (
             <>
-              <h1 className="text-xl font-semibold">Sign in</h1>
-              <p className="mt-1 text-sm text-ink-2">
-                Use your email to receive a one-time secure link.
-              </p>
+              <h1 className="text-xl font-semibold">{t("auth.signInTitle")}</h1>
+              <p className="mt-1 text-sm text-ink-2">{t("auth.signInSubtitle")}</p>
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
                 <div>
-                  <Label htmlFor="email">Email address</Label>
+                  <Label htmlFor="email">{t("auth.emailLabel")}</Label>
                   <Input
                     id="email"
                     type="email"
                     autoComplete="email"
                     required
-                    placeholder="you@example.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -92,7 +99,7 @@ function LoginInner() {
                   className="w-full"
                   disabled={status === "loading"}
                 >
-                  {status === "loading" ? "Sending link…" : "Send magic link"}
+                  {status === "loading" ? t("auth.sending") : t("auth.sendLink")}
                 </Button>
               </form>
             </>
@@ -100,7 +107,7 @@ function LoginInner() {
         </div>
 
         <p className="mt-6 text-center text-xs text-ink-3">
-          DLang Basketball · Geneva · Protected by row-level security
+          DLang Basketball · {t("auth.footer")}
         </p>
       </div>
     </div>

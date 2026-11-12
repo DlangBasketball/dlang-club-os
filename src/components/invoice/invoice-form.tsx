@@ -4,12 +4,13 @@ import * as React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Card, CardBody, Button, Input, Label } from "@/components/ui";
 import { createInvoice } from "@/lib/actions/invoice";
-import { formatCHF } from "@/lib/utils";
+import { useFormat } from "@/lib/i18n/client";
 
 type Item = { description: string; quantity: string; unit_price_chf: string };
 const emptyItem = (): Item => ({ description: "", quantity: "1", unit_price_chf: "" });
 
 export function InvoiceForm({ families }: { families: { id: string; name: string }[] }) {
+  const f = useFormat();
   const [familyId, setFamilyId] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [dueDate, setDueDate] = React.useState("");
@@ -78,7 +79,7 @@ export function InvoiceForm({ families }: { families: { id: string; name: string
 
           <div className="flex items-center justify-between rounded-md bg-surface-elevated px-4 py-3 text-sm">
             <span className="text-ink-2">Total</span>
-            <span className="tnum text-base font-semibold text-ink">{formatCHF(total)}</span>
+            <span className="tnum text-base font-semibold text-ink">{f.money(total)}</span>
           </div>
 
           {error && <p className="text-sm text-danger">{error}</p>}
