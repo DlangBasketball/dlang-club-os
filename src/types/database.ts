@@ -105,6 +105,15 @@ export type Database = {
           description: string | null;
           payment_reference: string | null;
           total_chf: number;
+          currency: string;
+          subtotal_amount: number | null;
+          tax_rate: number;
+          tax_amount: number;
+          tax_label: string | null;
+          tax_inclusive: boolean;
+          reverse_charge: boolean;
+          tax_exempt_reason: string | null;
+          buyer_tax_id: string | null;
           status:
             | "draft"
             | "sent"
@@ -308,7 +317,7 @@ export type Database = {
           invoice_id: string;
           amount_chf: number;
           currency: string;
-          method: "card" | "bank_transfer" | "twint" | "manual" | "qr_bill";
+          method: "card" | "bank_transfer" | "twint" | "manual" | "qr_bill" | "sepa_debit" | "ach" | "ideal" | "bancontact" | "apple_pay" | "google_pay";
           status:
             | "pending"
             | "succeeded"
@@ -318,6 +327,10 @@ export type Database = {
           stripe_charge_id: string | null;
           stripe_payment_intent_id: string | null;
           qr_reference: string | null;
+          stripe_account_id: string | null;
+          stripe_refund_id: string | null;
+          application_fee_amount: number | null;
+          method_detail: string | null;
           recorded_by: string | null;
           paid_at: string | null;
           notes: string | null;
@@ -508,9 +521,48 @@ export type Database = {
         Returns: Json;
       };
       apply_stripe_payment: {
-        Args: { p_invoice: string; p_amount: number; p_payment_intent: string; p_charge?: string };
+        Args: {
+          p_invoice: string; p_amount: number; p_payment_intent: string; p_charge?: string;
+          p_method?: string; p_currency?: string; p_account?: string; p_fee?: number; p_method_detail?: string;
+        };
         Returns: Json;
       };
+      // Regional payments (migration 20250420091800)
+      apply_stripe_refund: {
+        Args: { p_payment_intent: string; p_refund_id: string; p_amount: number; p_currency?: string; p_account?: string };
+        Returns: Json;
+      };
+      claim_stripe_event: { Args: { p_id: string; p_type: string; p_account?: string; p_livemode?: boolean }; Returns: boolean };
+      finish_stripe_event: { Args: { p_id: string; p_status: string; p_error?: string }; Returns: undefined };
+      set_stripe_connect_account: {
+        Args: {
+          p_org: string; p_account_id: string; p_account_type?: string;
+          p_charges_enabled?: boolean; p_payouts_enabled?: boolean; p_details_submitted?: boolean;
+        };
+        Returns: Json;
+      };
+      org_for_stripe_account: { Args: { p_account: string }; Returns: string | null };
+      resolve_application_fee: { Args: { p_org: string; p_amount_minor: number }; Returns: number };
+      get_org_payment_profile: { Args: { p_org: string }; Returns: Json };
+      update_payment_settings: { Args: { p_patch: Json }; Returns: Json };
+      create_installment_plan: {
+        Args: { p_invoice: string; p_count: number; p_first_due: string; p_frequency?: string };
+        Returns: Json;
+      };
+      create_recurring_plan: { Args: { p_payload: Json }; Returns: Json };
+      run_recurring_billing: { Args: { p_org: string; p_as_of?: string }; Returns: number };
+      installments_due: {
+        Args: { p_org: string; p_as_of?: string };
+        Returns: {
+          installment_id: string; plan_id: string; invoice_id: string | null; family_id: string;
+          seq: number; due_date: string; amount: number; currency: string;
+        }[];
+      };
+      installment_schedule: {
+        Args: { p_total: number; p_count: number; p_start: string; p_frequency?: string; p_currency?: string; p_interval_count?: number };
+        Returns: { seq: number; due_date: string; amount: number }[];
+      };
+      invoice_net_paid: { Args: { p_invoice: string }; Returns: number };
       flag_overdue_invoices: { Args: { p_org: string }; Returns: number };
       open_attendance_session: { Args: { p_program_session: string }; Returns: Json };
       save_attendance: { Args: { p_session: string; p_marks: Json; p_submit?: boolean }; Returns: Json };
@@ -559,7 +611,7 @@ export type Database = {
         | "overdue"
         | "void"
         | "refunded";
-      payment_method: "card" | "bank_transfer" | "twint" | "manual" | "qr_bill";
+      payment_method: "card" | "bank_transfer" | "twint" | "manual" | "qr_bill" | "sepa_debit" | "ach" | "ideal" | "bancontact" | "apple_pay" | "google_pay";
       attendance_status: "present" | "late" | "absent" | "excused";
     };
     CompositeTypes: Record<string, never>;

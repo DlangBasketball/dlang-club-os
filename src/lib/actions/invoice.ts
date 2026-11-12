@@ -7,6 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getStripe } from "@/lib/stripe";
+import { createInvoiceCheckout } from "@/lib/stripe-connect";
+import { loadPayableInvoice } from "@/lib/payments/invoice-payable";
+import { getOrgPaymentProfile, methodsForInvoice } from "@/lib/payments/settings";
 import { sendEmail } from "@/lib/email/resend";
 import { invoiceIssued, overdueReminder } from "@/lib/email/templates";
 import { formatDate } from "@/lib/utils";
@@ -158,47 +161,37 @@ export async function sendReminder(id: string): Promise<ActionResult> {
 }
 
 // --- Stripe Checkout (parent or finance) -----------------------------------
+// Charges the club's connected Stripe account in the invoice currency with the
+// region's payment methods (card / TWINT / SEPA / iDEAL / Bancontact / ACH …).
 export async function createCheckoutSession(invoiceId: string): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   const me = await getSessionUser();
   if (!me) return { ok: false, error: "Please sign in" };
 
   // RLS ensures the caller may only read an invoice they're entitled to.
-  const supabase = await createClient();
-  const { data: inv } = await supabase.from("invoices").select("id,number,total_chf,status,family_id").eq("id", invoiceId).maybeSingle();
-  if (!inv) return { ok: false, error: "Invoice not found" };
-  if (inv.status === "paid") return { ok: false, error: "This invoice is already paid" };
-  if (inv.status === "cancelled") return { ok: false, error: "This invoice was cancelled" };
+  const inv = await loadPayableInvoice(invoiceId);
+  if (!inv.ok) return inv;
 
-  // Compute outstanding balance from succeeded payments.
-  const { data: pays } = await supabase.from("payments").select("amount_chf,status").eq("invoice_id", invoiceId).eq("status", "succeeded");
-  const paid = (pays ?? []).reduce((s, p) => s + Number(p.amount_chf ?? 0), 0);
-  const balance = Number(inv.total_chf ?? 0) - paid;
-  if (balance <= 0) return { ok: false, error: "Nothing left to pay" };
+  if (!getStripe()) return { ok: false, error: "Online payments aren't configured yet" };
+  const profile = await getOrgPaymentProfile(inv.orgId);
+  if (!profile.stripeReady) return { ok: false, error: "Online payments aren't set up for this club yet" };
+  const methods = methodsForInvoice(profile, inv.currency).filter((m) => m.via === "stripe");
+  if (!methods.length) return { ok: false, error: "No online payment method is available for this invoice" };
 
-  const stripe = getStripe();
-  if (!stripe) return { ok: false, error: "Online payments aren't configured yet" };
-
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: "chf",
-          unit_amount: Math.round(balance * 100),
-          product_data: { name: `DLang Basketball — Invoice ${inv.number}` },
-        },
-      },
-    ],
-    metadata: { invoice_id: invoiceId },
-    payment_intent_data: { metadata: { invoice_id: invoiceId } },
-    success_url: `${site}/parent/invoices/${invoiceId}?paid=1`,
-    cancel_url: `${site}/parent/invoices/${invoiceId}`,
-  });
-  if (!session.url) return { ok: false, error: "Could not start checkout" };
-  return { ok: true, url: session.url };
+  try {
+    const url = await createInvoiceCheckout({
+      profile,
+      invoiceId: inv.id,
+      invoiceNumber: inv.number,
+      currency: inv.currency,
+      amount: inv.balance,
+      methods,
+      customerEmail: me.email,
+    });
+    return { ok: true, url };
+  } catch (err) {
+    console.error("[stripe] checkout failed:", err);
+    return { ok: false, error: "Could not start checkout" };
+  }
 }
 
 // --- One-click "mark as paid" (records the outstanding balance) -------------
