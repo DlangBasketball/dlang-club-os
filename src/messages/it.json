@@ -138,7 +138,8 @@
     "support": "Assistenza",
     "teams": "Squadre",
     "reports": "Report",
-    "myTeam": "La mia squadra"
+    "myTeam": "La mia squadra",
+    "import": "Importa"
   },
   "shell": {
     "openMenu": "Apri menu",
