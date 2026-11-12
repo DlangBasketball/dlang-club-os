@@ -135,7 +135,10 @@
     "home": "Home",
     "children": "Children",
     "account": "Account",
-    "support": "Support"
+    "support": "Support",
+    "teams": "Teams",
+    "reports": "Reports",
+    "myTeam": "My team"
   },
   "shell": {
     "openMenu": "Open menu",

@@ -135,7 +135,10 @@
     "home": "Start",
     "children": "Kinder",
     "account": "Konto",
-    "support": "Hilfe"
+    "support": "Hilfe",
+    "teams": "Teams",
+    "reports": "Berichte",
+    "myTeam": "Mein Team"
   },
   "shell": {
     "openMenu": "Menü öffnen",
