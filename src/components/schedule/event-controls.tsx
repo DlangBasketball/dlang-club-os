@@ -6,6 +6,8 @@ import { Button, Input, Label } from "@/components/ui";
 import { FormError, Select } from "@/components/teams/fields";
 import { deleteEvent, recordResult, setEventStatus, setRsvp } from "@/lib/sportsops/actions";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/client";
+import { ReasonDialog, ScopeChoice } from "@/components/club-ops/reason-dialog";
 
 type Rsvp = "going" | "maybe" | "not_going";
 
@@ -72,32 +74,70 @@ export function ResultForm({ eventId, scoreFor, scoreAgainst, notes }: { eventId
   );
 }
 
-export function EventStatusControl({ eventId, status, canDelete, afterDelete }: { eventId: string; status: string; canDelete?: boolean; afterDelete?: string }) {
+type EventStatusValue = "scheduled" | "postponed" | "cancelled" | "completed";
+
+export function EventStatusControl({ eventId, status, seriesId, canDelete, afterDelete }: {
+  eventId: string; status: string; seriesId?: string | null; canDelete?: boolean; afterDelete?: string;
+}) {
+  const t = useT();
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
-  async function change(s: string) {
+  const [dialog, setDialog] = React.useState<null | "cancel" | "delete">(null);
+  const [scope, setScope] = React.useState<"one" | "following">("one");
+  const inSeries = !!seriesId;
+
+  async function change(s: EventStatusValue, reason?: string) {
     setBusy(true); setErr(null);
-    const res = await setEventStatus(eventId, s as "scheduled" | "postponed" | "cancelled" | "completed");
+    const res = await setEventStatus(eventId, s, { reason, scope });
     setBusy(false);
-    if (!res.ok) setErr(res.error); else router.refresh();
+    if (!res.ok) { setErr(res.error); return; }
+    setDialog(null); setScope("one");
+    router.refresh();
+  }
+  function onSelect(s: string) {
+    if (s === status) return;
+    if (s === "cancelled") { setScope("one"); setErr(null); setDialog("cancel"); return; }
+    void change(s as EventStatusValue);
   }
   async function remove() {
-    if (!confirm("Delete this event permanently? RSVPs and results are removed too. Prefer “cancelled” to keep a record.")) return;
-    setBusy(true);
-    const res = await deleteEvent(eventId);
+    setBusy(true); setErr(null);
+    const res = await deleteEvent(eventId, scope);
     setBusy(false);
     if (!res.ok) return setErr(res.error);
+    setDialog(null);
     router.push(afterDelete ?? "/admin/schedule");
     router.refresh();
   }
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Select aria-label="Event status" className="h-8 w-36" value={status} disabled={busy} onChange={(e) => change(e.target.value)}>
-        <option value="scheduled">Scheduled</option><option value="postponed">Postponed</option><option value="cancelled">Cancelled</option><option value="completed">Completed</option>
+      <Select aria-label={t("common.status")} className="h-8 w-40" value={status} disabled={busy} onChange={(e) => onSelect(e.target.value)}>
+        {(["scheduled", "postponed", "cancelled", "completed"] as const).map((s) => <option key={s} value={s}>{t(`editOps.events.statuses.${s}`)}</option>)}
       </Select>
-      {canDelete && <Button size="sm" variant="ghost" onClick={remove} disabled={busy}>Delete</Button>}
-      {err && <span className="text-xs text-danger">{err}</span>}
+      {status !== "cancelled" && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onSelect("cancelled")}>{t("editOps.events.cancelEvent")}</Button>}
+      {canDelete && <Button size="sm" variant="ghost" onClick={() => { setScope("one"); setErr(null); setDialog("delete"); }} disabled={busy}>{t("common.delete")}</Button>}
+      {err && !dialog && <span role="alert" className="text-xs text-danger">{err}</span>}
+
+      <ReasonDialog open={dialog === "cancel"} title={t("editOps.events.cancelTitle")} description={t("editOps.events.cancelDescription")}
+        confirmLabel={t("editOps.events.cancelConfirm")} pending={busy} error={err}
+        onClose={() => setDialog(null)} onConfirm={(reason) => change("cancelled", reason)}>
+        {inSeries && <ScopeChoice value={scope} onChange={setScope} />}
+      </ReasonDialog>
+
+      {dialog === "delete" && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center" onClick={() => !busy && setDialog(null)}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md space-y-3 rounded-t-2xl border border-line bg-surface-card p-5 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-semibold text-ink">{t("editOps.events.deleteTitle")}</h3>
+            <p className="text-sm text-ink-2">{t("editOps.events.deleteConfirm")}</p>
+            {inSeries && <ScopeChoice value={scope} onChange={setScope} />}
+            {err && <p role="alert" className="text-sm text-danger">{err}</p>}
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" disabled={busy} onClick={() => setDialog(null)}>{t("common.cancel")}</Button>
+              <Button variant="danger" disabled={busy} onClick={remove}>{busy ? t("common.saving") : t("common.delete")}</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

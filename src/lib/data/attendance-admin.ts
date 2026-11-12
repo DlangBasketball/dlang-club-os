@@ -45,25 +45,71 @@ export async function listAttendanceSessions(dateFilter?: string): Promise<Resul
   }));
 }
 
-export type SessionMark = { athleteId: string; name: string; status: string; notes: string | null; injury: boolean };
-export async function getAttendanceSessionDetail(id: string): Promise<Result<{ programName: string; coachName: string; date: string; status: string; marks: SessionMark[] } | null>> {
+export type SessionMark = { athleteId: string; name: string; status: string; notes: string | null; injury: boolean; correctedAt: string | null };
+export type AttendanceChange = { id: string; at: string; actorName: string; action: string; athleteName: string | null; from: string | null; to: string | null; noteChanged: boolean; reason: string | null };
+export type AttendanceSessionDetail = {
+  id: string; programName: string; coachName: string; date: string; status: string; reopenedAt: string | null; correctionCount: number;
+  marks: SessionMark[];
+  /** Athletes of the club not yet marked (late arrivals / drop-ins). */
+  addable: { id: string; name: string }[];
+  history: AttendanceChange[];
+};
+
+export async function getAttendanceSessionDetail(id: string): Promise<Result<AttendanceSessionDetail | null>> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return ok(null);
   const supabase = await createClient();
-  const { data: s, error } = await supabase.from("attendance_sessions").select("id,program_id,coach_id,session_date,status").eq("id", id).maybeSingle();
+  const { data: s, error } = await supabase.from("attendance_sessions").select("id,org_id,program_id,coach_id,session_date,status,reopened_at,correction_count").eq("id", id).maybeSingle();
   if (error) return fail(error.message);
   if (!s) return ok(null);
-  const [marksRes, prog, coach] = await Promise.all([
-    supabase.from("attendance_marks").select("athlete_id,status,notes,injury_flag").eq("attendance_session_id", id),
+  const [marksRes, prog, coach, regs, logs] = await Promise.all([
+    supabase.from("attendance_marks").select("id,athlete_id,status,notes,injury_flag,corrected_at").eq("attendance_session_id", id),
     s.program_id ? supabase.from("programs").select("name").eq("id", s.program_id).maybeSingle() : Promise.resolve({ data: null }),
     s.coach_id ? supabase.from("coaches").select("display_name").eq("id", s.coach_id).maybeSingle() : Promise.resolve({ data: null }),
+    s.program_id ? supabase.from("registrations").select("athlete_id").eq("program_id", s.program_id).neq("status", "cancelled") : Promise.resolve({ data: [] as { athlete_id: string }[] }),
+    // audit_logs RLS: club admins only (others get no history).
+    supabase.from("audit_logs").select("id,actor_id,action,old_data,new_data,created_at").eq("org_id", s.org_id)
+      .in("action", ["attendance.correct", "attendance.mark_added", "attendance.mark_removed", "attendance.reopen"])
+      .filter("new_data->>session_id", "eq", id).order("created_at", { ascending: false }).limit(100),
   ]);
-  const athleteIds = uniq((marksRes.data ?? []).map((m) => m.athlete_id));
-  const athletes = athleteIds.length ? await supabase.from("athletes").select("id,first_name,last_name").in("id", athleteIds) : { data: [] as { id: string; first_name: string; last_name: string }[] };
-  const aName = new Map((athletes.data ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
+  const marks = marksRes.data ?? [];
+  const marked = new Set(marks.map((m) => m.athlete_id));
+  const { data: allAthletes } = await supabase.from("athletes").select("id,first_name,last_name,status").eq("org_id", s.org_id).neq("status", "archived").order("last_name").limit(1000);
+  const aName = new Map((allAthletes ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
+  const missing = uniq(marks.map((m) => m.athlete_id).filter((a) => !aName.has(a)));
+  if (missing.length) {
+    const { data: extra } = await supabase.from("athletes").select("id,first_name,last_name").in("id", missing);
+    for (const a of extra ?? []) aName.set(a.id, `${a.first_name} ${a.last_name}`);
+  }
+  const registered = new Set((regs.data ?? []).map((r) => r.athlete_id));
+  const addable = (allAthletes ?? []).filter((a) => !marked.has(a.id))
+    .map((a) => ({ id: a.id, name: `${a.first_name} ${a.last_name}`, reg: registered.has(a.id) }))
+    .sort((a, b) => Number(b.reg) - Number(a.reg) || a.name.localeCompare(b.name))
+    .map(({ id: aid, name }) => ({ id: aid, name }));
+
+  type Log = { id: number | string; actor_id: string | null; action: string; old_data: Record<string, unknown> | null; new_data: Record<string, unknown> | null; created_at: string };
+  const logRows = ((logs as { data: Log[] | null }).data ?? []);
+  const actorIds = uniq(logRows.map((l) => l.actor_id));
+  const actors = actorIds.length ? (await supabase.from("profiles").select("id,full_name,email").in("id", actorIds)).data ?? [] : [];
+  const actorName = new Map(actors.map((p) => [p.id, p.full_name ?? p.email ?? "—"]));
+  const str = (v: unknown) => (typeof v === "string" ? v : null);
+  const history = logRows.map((l) => ({
+    id: String(l.id), at: l.created_at, actorName: l.actor_id ? actorName.get(l.actor_id) ?? "—" : "—", action: l.action,
+    athleteName: str(l.new_data?.athlete_id) ? aName.get(String(l.new_data?.athlete_id)) ?? null : null,
+    from: str(l.old_data?.status), to: l.action === "attendance.mark_removed" ? null : str(l.new_data?.status),
+    noteChanged: l.new_data?.note_changed === true, reason: str(l.new_data?.reason),
+  }));
+
   return ok({
-    programName: (prog.data as { name?: string } | null)?.name ?? "Session",
+    id: s.id,
+    programName: (prog.data as { name?: string } | null)?.name ?? "—",
     coachName: (coach.data as { display_name?: string } | null)?.display_name ?? "—",
     date: s.session_date, status: s.status,
-    marks: (marksRes.data ?? []).map((m) => ({ athleteId: m.athlete_id, name: aName.get(m.athlete_id) ?? "Athlete", status: m.status, notes: m.notes, injury: m.injury_flag })),
+    reopenedAt: (s as { reopened_at?: string | null }).reopened_at ?? null,
+    correctionCount: (s as { correction_count?: number }).correction_count ?? 0,
+    marks: marks.map((m) => ({ athleteId: m.athlete_id, name: aName.get(m.athlete_id) ?? "—", status: m.status, notes: m.notes, injury: m.injury_flag, correctedAt: (m as { corrected_at?: string | null }).corrected_at ?? null }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    addable,
+    history,
   });
 }
 

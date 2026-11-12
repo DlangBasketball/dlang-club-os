@@ -151,6 +151,10 @@ export type Database = {
           location: string | null;
           is_public: boolean;
           is_active: boolean;
+          // club ops admin edit (20250420095800)
+          schedule: Json | null; status: "draft" | "published" | "archived"; currency: string | null;
+          min_age: number | null; max_age: number | null; registration_opens_at: string | null;
+          registration_closes_at: string | null; archived_at: string | null; updated_at: string;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -299,6 +303,8 @@ export type Database = {
           status: "open" | "submitted" | "locked";
           roster_size: number | null;
           submitted_at: string | null;
+          // club ops admin edit (20250420095800)
+          reopened_at: string | null; reopened_by: string | null; correction_count: number;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -420,6 +426,8 @@ export type Database = {
           athlete_id: string;
           status: "present" | "late" | "absent" | "excused";
           marked_at: string;
+          // club ops admin edit (20250420095800)
+          corrected_by: string | null; corrected_at: string | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -480,7 +488,7 @@ export type Database = {
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       training_bookings: {
-        Row: { id: string; org_id: string; athlete_id: string; service_id: string; coach_id: string; slot_start: string; slot_end: string | null; status: "booked" | "completed" | "no_show" | "cancelled"; paid_with: string | null; invoice_id: string | null; credits_used: number; price_chf: number | null; notes: string | null; created_by: string | null };
+        Row: { id: string; org_id: string; athlete_id: string; service_id: string; coach_id: string; slot_start: string; slot_end: string | null; status: "booked" | "completed" | "no_show" | "cancelled"; paid_with: string | null; invoice_id: string | null; credits_used: number; price_chf: number | null; notes: string | null; created_by: string | null; cancel_reason: string | null; cancelled_at: string | null; cancelled_by: string | null };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       email_logs: {
@@ -696,6 +704,11 @@ export type Database = {
       cancel_training_booking: { Args: { p_booking: string }; Returns: Json };
       book_training_session: { Args: { p_athlete: string; p_service: string; p_slot: string; p_pay_with?: string }; Returns: Json };
       reschedule_booking: { Args: { p_booking: string; p_new_slot: string }; Returns: Json };
+      // club ops admin edit (20250420095800)
+      admin_update_booking: { Args: { p_booking: string; p_service: string; p_coach: string; p_start: string; p_end: string | null; p_status: string; p_notes?: string | null }; Returns: Json };
+      admin_cancel_booking: { Args: { p_booking: string; p_reason: string }; Returns: Json };
+      correct_attendance: { Args: { p_session: string; p_marks: Json; p_reason?: string | null }; Returns: Json };
+      reopen_attendance_session: { Args: { p_session: string; p_reason?: string | null }; Returns: Json };
       grant_training_credits: { Args: { p_athlete: string; p_category: string; p_credits: number }; Returns: Json };
       athlete_attendance_summary: {
         Args: { p_athlete: string };

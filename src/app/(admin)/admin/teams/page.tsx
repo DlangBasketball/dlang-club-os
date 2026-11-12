@@ -1,18 +1,18 @@
 import Link from "next/link";
-import { Plus, Shield } from "lucide-react";
+import { Pencil, Plus, Shield } from "lucide-react";
 import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
 import { SeasonForm } from "@/components/teams/season-form";
 import { listSeasons, listTeams } from "@/lib/sportsops/data";
 import { labelsFor } from "@/lib/sportsops/labels";
 import { getTenant } from "@/lib/tenant/server";
 import { selectClass } from "@/components/teams/fields";
-import { getFormatter } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server";
 
 export const metadata = { title: "Teams" };
 
 export default async function TeamsPage({ searchParams }: { searchParams: Promise<{ season?: string; all?: string }> }) {
   const LABELS = labelsFor((await getTenant()).terminology);
-  const f = await getFormatter();
+  const { t: tr, f } = await getI18n();
   const sp = await searchParams;
   const seasons = await listSeasons();
   if (seasons.error !== null) return <div className="animate-fade-up"><PageHeader title={LABELS.teams} /><ErrorState message={seasons.error} /></div>;
@@ -44,12 +44,16 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {teams.data.map((t) => (
-                <Link key={t.id} href={`/admin/teams/${t.id}`}>
-                  <Card className="h-full transition-colors hover:border-maroon" style={t.color ? { borderTop: `3px solid ${t.color}` } : undefined}>
+                <Card key={t.id} className="h-full transition-colors hover:border-maroon" style={t.color ? { borderTop: `3px solid ${t.color}` } : undefined}>
                     <CardBody>
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-base font-semibold">{t.name}</h3>
-                        {!t.isActive && <Badge>inactive</Badge>}
+                        <Link href={`/admin/teams/${t.id}`} className="text-base font-semibold text-ink hover:text-maroon">{t.name}</Link>
+                        <div className="flex shrink-0 items-center gap-1">
+                          {!t.isActive && <Badge>inactive</Badge>}
+                          <Link href={`/admin/teams/${t.id}/edit`} aria-label={tr("editOps.teams.editNamed", { name: t.name })}>
+                            <Button size="sm" variant="ghost"><Pencil className="h-3.5 w-3.5" /> {tr("common.edit")}</Button>
+                          </Link>
+                        </div>
                       </div>
                       <div className="mt-1 flex flex-wrap gap-1.5 text-xs text-ink-3">
                         {[t.sport, t.ageGroup, t.gender, t.level].filter(Boolean).map((x) => <Badge key={x} tone="neutral">{x}</Badge>)}
@@ -61,7 +65,6 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
                       {t.seasonName && <div className="mt-1 text-xs text-ink-3">{t.seasonName}</div>}
                     </CardBody>
                   </Card>
-                </Link>
               ))}
             </div>
           )}

@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { Plus, Coins, CalendarClock, Dumbbell } from "lucide-react";
+import { Plus, Coins, CalendarClock, Dumbbell, Pencil } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, DataTable, Badge, statusTone, Button, EmptyState, ErrorState, type Column } from "@/components/ui";
 import { listServices, getBookingSettings, type ServiceRow } from "@/lib/data/training-admin";
 import { BookingSettingsForm } from "@/components/admin/booking-settings-form";
-import { getFormatter } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server";
 
 export default async function AdminServicesPage() {
-  const f = await getFormatter();
+  const { t, f } = await getI18n();
   const [{ data, error }, settings] = await Promise.all([listServices(), getBookingSettings()]);
   if (error) return (<div className="animate-fade-up"><PageHeader title="Training services" /><ErrorState title="Couldn't load" message={error} /></div>);
   const services = data!;
@@ -16,6 +16,9 @@ export default async function AdminServicesPage() {
     { key: "priceChf", header: "Price", align: "right", render: (s) => f.money(s.priceChf) },
     { key: "creditsRequired", header: "Credits", render: (s) => s.creditsRequired > 0 ? `${s.creditsRequired} ${s.creditCategory}` : "—" },
     { key: "isActive", header: "Status", render: (s) => <Badge tone={s.isActive ? "success" : "neutral"}>{s.isActive ? "active" : "inactive"}</Badge> },
+    { key: "id", header: t("common.actions"), render: (s) => (
+      <Link href={`/admin/services/${s.id}`} aria-label={t("editOps.services.editNamed", { name: s.name })}><Button size="sm" variant="secondary"><Pencil className="h-3.5 w-3.5" /> {t("common.edit")}</Button></Link>
+    ) },
   ];
   return (
     <div className="animate-fade-up space-y-6">

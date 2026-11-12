@@ -8,6 +8,8 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { sendEmail } from "@/lib/email/resend";
 import { getOrgEmailContext } from "@/lib/email/org-context";
 import { bookingConfirmation, coachBookingAlert } from "@/lib/email/templates";
+import { getTranslations } from "@/lib/i18n/server";
+import { availabilitySchema, bookingEditSchema, dbErrorKey, requiredReasonSchema, serviceSchema, zodErrorKey, type BookingEditInput, type ServiceInput } from "@/lib/club-ops/validation";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -26,7 +28,57 @@ const friendly = (m: string) => ERR[m] ?? m;
 
 async function requireAdmin() {
   const me = await getSessionUser();
-  return me && me.roles.includes("admin") ? me : null;
+  return me && me.orgId && me.roles.includes("admin") ? (me as typeof me & { orgId: string }) : null;
+}
+
+async function tFail(key: string): Promise<{ ok: false; error: string }> {
+  const t = await getTranslations();
+  return { ok: false, error: t.dynamic(key, undefined, t("editOps.errors.generic")) };
+}
+const isUuid = (v: string) => z.string().uuid().safeParse(v).success;
+
+function revalidateBooking(id: string) {
+  revalidatePath("/admin/bookings");
+  revalidatePath(`/admin/bookings/${id}`);
+  revalidatePath("/parent/bookings");
+  revalidatePath(`/parent/bookings/${id}`);
+  revalidatePath("/admin/availability");
+  revalidatePath("/coach/availability");
+}
+
+// ===========================================================================
+// ADMIN: edit / cancel a booking (audited by trigger)
+// ===========================================================================
+/** Change service, coach, time, status or notes. Payment is not changed here. */
+export async function adminUpdateBooking(bookingId: string, input: BookingEditInput): Promise<ActionResult> {
+  const me = await requireAdmin();
+  if (!me) return tFail("editOps.errors.notPermitted");
+  if (!isUuid(bookingId)) return tFail("editOps.errors.invalidRequest");
+  const p = bookingEditSchema.safeParse(input);
+  if (!p.success) return tFail(zodErrorKey(p.error));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_update_booking", {
+    p_booking: bookingId, p_service: p.data.serviceId, p_coach: p.data.coachId,
+    p_start: new Date(p.data.startsAt).toISOString(), p_end: p.data.endsAt ? new Date(p.data.endsAt).toISOString() : null,
+    p_status: p.data.status, p_notes: p.data.notes || null,
+  });
+  if (error) return tFail(dbErrorKey(error.message));
+  revalidateBooking(bookingId);
+  return { ok: true };
+}
+
+/** Cancel with a reason (refunds credits / voids an unpaid invoice like any staff cancel). */
+export async function adminCancelBooking(bookingId: string, reason: string): Promise<ActionResult> {
+  const me = await requireAdmin();
+  if (!me) return tFail("editOps.errors.notPermitted");
+  if (!isUuid(bookingId)) return tFail("editOps.errors.invalidRequest");
+  const r = requiredReasonSchema.safeParse(reason);
+  if (!r.success) return tFail(zodErrorKey(r.error));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_cancel_booking", { p_booking: bookingId, p_reason: r.data });
+  if (error) return tFail(dbErrorKey(error.message));
+  revalidateBooking(bookingId);
+  return { ok: true };
 }
 
 // ===========================================================================
@@ -105,24 +157,15 @@ export async function cancelBookingAction(bookingId: string): Promise<ActionResu
 // ===========================================================================
 // ADMIN: services
 // ===========================================================================
-const serviceSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  description: z.string().optional().default(""),
-  durationMin: z.coerce.number().int().min(15).max(480),
-  priceChf: z.coerce.number().min(0),
-  creditCategory: z.enum(["personal", "nutrition", "mental"]),
-  creditsRequired: z.coerce.number().int().min(0).max(99),
-  isActive: z.boolean().default(true),
-});
-export type ServiceInput = z.input<typeof serviceSchema>;
+export type { ServiceInput } from "@/lib/club-ops/validation";
 
 function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60); }
 
 export async function createService(input: ServiceInput): Promise<ActionResult<{ id: string }>> {
   const me = await requireAdmin();
-  if (!me) return { ok: false, error: "Admins only" };
+  if (!me) return tFail("editOps.errors.notPermitted");
   const p = serviceSchema.safeParse(input);
-  if (!p.success) return { ok: false, error: p.error.issues[0]?.message ?? "Invalid service" };
+  if (!p.success) return tFail(zodErrorKey(p.error));
   const d = p.data;
   const supabase = await createClient();
   const { data, error } = await supabase.from("training_services").insert({
@@ -130,33 +173,37 @@ export async function createService(input: ServiceInput): Promise<ActionResult<{
     description: d.description || null, duration_min: d.durationMin, price_chf: d.priceChf,
     credit_category: d.creditCategory, credits_required: d.creditsRequired, is_active: d.isActive,
   }).select("id").single();
-  if (error) return { ok: false, error: error.message };
+  if (error) return tFail(dbErrorKey(error.message));
   revalidatePath("/admin/services");
   return { ok: true, data: { id: data.id } };
 }
 
 export async function updateService(id: string, input: ServiceInput): Promise<ActionResult> {
   const me = await requireAdmin();
-  if (!me) return { ok: false, error: "Admins only" };
+  if (!me) return tFail("editOps.errors.notPermitted");
+  if (!isUuid(id)) return tFail("editOps.errors.invalidRequest");
   const p = serviceSchema.safeParse(input);
-  if (!p.success) return { ok: false, error: p.error.issues[0]?.message ?? "Invalid service" };
+  if (!p.success) return tFail(zodErrorKey(p.error));
   const d = p.data;
   const supabase = await createClient();
-  const { error } = await supabase.from("training_services").update({
+  const { data, error } = await supabase.from("training_services").update({
     name: d.name, description: d.description || null, duration_min: d.durationMin, price_chf: d.priceChf,
     credit_category: d.creditCategory, credits_required: d.creditsRequired, is_active: d.isActive,
-  }).eq("id", id);
-  if (error) return { ok: false, error: error.message };
+  }).eq("id", id).eq("org_id", me.orgId).select("id");
+  if (error) return tFail(dbErrorKey(error.message));
+  if (!data?.length) return tFail("editOps.errors.notFound");
   revalidatePath("/admin/services");
+  revalidatePath(`/admin/services/${id}`);
   return { ok: true };
 }
 
 export async function toggleService(id: string, isActive: boolean): Promise<ActionResult> {
   const me = await requireAdmin();
-  if (!me) return { ok: false, error: "Admins only" };
+  if (!me) return tFail("editOps.errors.notPermitted");
+  if (!isUuid(id)) return tFail("editOps.errors.invalidRequest");
   const supabase = await createClient();
-  const { error } = await supabase.from("training_services").update({ is_active: isActive }).eq("id", id);
-  if (error) return { ok: false, error: error.message };
+  const { error } = await supabase.from("training_services").update({ is_active: isActive }).eq("id", id).eq("org_id", me.orgId);
+  if (error) return tFail(dbErrorKey(error.message));
   revalidatePath("/admin/services");
   return { ok: true };
 }
@@ -236,6 +283,24 @@ export async function removeAvailability(slotId: string): Promise<ActionResult> 
   const supabase = await createClient();
   const { error } = await supabase.from("coach_availability").delete().eq("id", slotId).eq("is_booked", false);
   if (error) return { ok: false, error: error.message };
+  revalidatePath("/coach/availability");
+  revalidatePath("/admin/availability");
+  return { ok: true };
+}
+
+/** Move/resize an unbooked availability slot (admin, or the slot's own coach via RLS). */
+export async function updateAvailability(slotId: string, startISO: string, endISO: string): Promise<ActionResult> {
+  const me = await getSessionUser();
+  if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("coach"))) return tFail("editOps.errors.notPermitted");
+  if (!isUuid(slotId)) return tFail("editOps.errors.invalidRequest");
+  const p = availabilitySchema.safeParse({ startsAt: startISO, endsAt: endISO });
+  if (!p.success) return tFail(zodErrorKey(p.error));
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("coach_availability")
+    .update({ starts_at: new Date(p.data.startsAt).toISOString(), ends_at: new Date(p.data.endsAt).toISOString() })
+    .eq("id", slotId).eq("org_id", me.orgId).eq("is_booked", false).select("id");
+  if (error) return tFail(dbErrorKey(error.message));
+  if (!data?.length) return tFail("editOps.errors.slotBookedOrGone");
   revalidatePath("/coach/availability");
   revalidatePath("/admin/availability");
   return { ok: true };

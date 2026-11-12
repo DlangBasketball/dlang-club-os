@@ -1,6 +1,6 @@
 import { MapPin } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
-import { VenueForm, VenueRowActions } from "@/components/schedule/venue-form";
+import { VenueEditButton, VenueForm, VenueRowActions } from "@/components/schedule/venue-form";
 import { listVenues } from "@/lib/sportsops/data";
 
 export const metadata = { title: "Venues" };
@@ -24,6 +24,7 @@ export default async function VenuesPage() {
                   </div>
                   <VenueRowActions venueId={v.id} isActive={v.isActive} />
                 </div>
+                <VenueEditButton venue={v} />
                 <div className="flex flex-wrap gap-1.5">
                   {v.spaces.length === 0 ? <span className="text-xs text-ink-4">Booked as a whole venue</span> : v.spaces.map((s) => <Badge key={s.id} tone="neutral">{s.name}</Badge>)}
                 </div>

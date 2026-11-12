@@ -130,6 +130,7 @@ export type EventItem = {
   teamId: string | null; teamName: string | null; teamColor: string | null; venueId: string | null; venueName: string | null;
   spaceId: string | null; spaceName: string | null; locationText: string | null; opponent: string | null; homeAway: HomeAway | null;
   notes: string | null; conflictsWith: string[]; result: { scoreFor: number; scoreAgainst: number; outcome: string } | null;
+  venueAddress: string | null; locationName: string | null; seriesId: string | null; cancelReason: string | null; cancelledAt: string | null;
 };
 
 async function hydrateEvents(rows: EventRow[]): Promise<EventItem[]> {
@@ -137,12 +138,13 @@ async function hydrateEvents(rows: EventRow[]): Promise<EventItem[]> {
   const ids = rows.map((e) => e.id);
   const [t, v, s, r] = await Promise.all([
     uniq(rows.map((e) => e.team_id)).length ? db.from("teams").select("id,name,color").in("id", uniq(rows.map((e) => e.team_id))) : Promise.resolve({ data: [] as { id: string; name: string; color: string | null }[] }),
-    uniq(rows.map((e) => e.venue_id)).length ? db.from("venues").select("id,name").in("id", uniq(rows.map((e) => e.venue_id))) : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    uniq(rows.map((e) => e.venue_id)).length ? db.from("venues").select("id,name,address,city").in("id", uniq(rows.map((e) => e.venue_id))) : Promise.resolve({ data: [] as { id: string; name: string; address: string | null; city: string | null }[] }),
     uniq(rows.map((e) => e.venue_space_id)).length ? db.from("venue_spaces").select("id,name").in("id", uniq(rows.map((e) => e.venue_space_id))) : Promise.resolve({ data: [] as { id: string; name: string }[] }),
     ids.length ? db.from("game_results").select("event_id,score_for,score_against,outcome").in("event_id", ids) : Promise.resolve({ data: [] as { event_id: string; score_for: number; score_against: number; outcome: string }[] }),
   ]);
   const team = new Map((t.data ?? []).map((x) => [x.id, x]));
   const venue = new Map((v.data ?? []).map((x) => [x.id, x.name]));
+  const venueAddr = new Map((v.data ?? []).map((x) => [x.id, [x.address, x.city].filter(Boolean).join(", ") || null]));
   const space = new Map((s.data ?? []).map((x) => [x.id, x.name]));
   const result = new Map((r.data ?? []).map((x) => [x.event_id, x]));
   const conflicts = findConflicts(rows.map((e) => ({ id: e.id, venueId: e.venue_id, spaceId: e.venue_space_id, startsAt: e.starts_at, endsAt: e.ends_at, status: e.status })));
@@ -156,6 +158,9 @@ async function hydrateEvents(rows: EventRow[]): Promise<EventItem[]> {
       locationText: e.location_text, opponent: e.opponent, homeAway: e.home_away, notes: e.notes,
       conflictsWith: conflicts.get(e.id) ?? [],
       result: res ? { scoreFor: res.score_for, scoreAgainst: res.score_against, outcome: res.outcome } : null,
+      venueAddress: e.venue_id ? venueAddr.get(e.venue_id) ?? null : null,
+      locationName: e.location_name ?? null, seriesId: e.series_id ?? null,
+      cancelReason: e.cancel_reason ?? null, cancelledAt: e.cancelled_at ?? null,
     };
   });
 }

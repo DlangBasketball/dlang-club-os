@@ -19,14 +19,14 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     <div className="animate-fade-up max-w-2xl">
       <PageHeader title="Edit event" />
       <Card><CardBody>
-        <EventForm eventId={e.id} returnTo={`/admin/schedule/${e.id}`}
+        <EventForm eventId={e.id} seriesId={e.seriesId} canCreateVenue returnTo={`/admin/schedule/${e.id}`}
           initial={{
             teamId: e.teamId ?? "", type: e.type, title: e.title ?? "", venueId: e.venueId ?? "", spaceId: e.spaceId ?? "",
-            locationText: e.locationText ?? "", date: s.date, start: s.time, end: en.time, opponent: e.opponent ?? "",
+            locationText: e.locationText ?? "", locationName: e.locationName ?? "", date: s.date, start: s.time, end: en.time, opponent: e.opponent ?? "",
             homeAway: e.homeAway ?? "", notes: e.notes ?? "", status: e.status,
           }}
           teams={teams.data!.map((t) => ({ id: t.id, name: t.name }))}
-          venues={venues.data!.map((v) => ({ id: v.id, name: v.name, spaces: v.spaces }))} />
+          venues={venues.data!.filter((v) => v.isActive || v.id === e.venueId).map((v) => ({ id: v.id, name: v.name, spaces: v.spaces }))} />
       </CardBody></Card>
     </div>
   );
