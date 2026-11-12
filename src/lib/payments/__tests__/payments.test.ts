@@ -11,6 +11,7 @@ import {
 import { buildInstallmentSchedule, addPeriods } from "../schedule";
 import { applicationFeeMinor, feeRuleForPlan } from "../fees";
 import { buildEpcQrPayload } from "../epc-qr";
+import { expressCapabilities, twintCapabilityEnabled, TWINT_CAPABILITY } from "../connect-capabilities";
 
 test("currency minor units", () => {
   assert.equal(currencyExponent("chf"), 2);
@@ -141,4 +142,24 @@ test("EPC QR payload", () => {
   assert.equal(q.split("\n")[4], "ABNANL2A");
   assert.equal(q.split("\n").at(-1), "INV-2026-0001");
   assert.throws(() => buildEpcQrPayload({ name: "x", iban: "nope", amountEur: 1 }));
+});
+
+test("Express connected-account capabilities", () => {
+  assert.equal(TWINT_CAPABILITY, "twint_payments");
+  assert.deepEqual(Object.keys(expressCapabilities("CH")).sort(), ["card_payments", "transfers", "twint_payments"]);
+  assert.deepEqual(expressCapabilities("ch").twint_payments, { requested: true });
+  assert.deepEqual(Object.keys(expressCapabilities("DE")).sort(), ["card_payments", "transfers"]);
+  assert.deepEqual(Object.keys(expressCapabilities("US")).sort(), ["card_payments", "transfers"]);
+  assert.deepEqual(Object.keys(expressCapabilities("CH", { requestTwint: false })).sort(), ["card_payments", "transfers"]);
+  assert.equal(twintCapabilityEnabled(undefined), true);
+  assert.equal(twintCapabilityEnabled("true"), true);
+  assert.equal(twintCapabilityEnabled("false"), false);
+  assert.equal(twintCapabilityEnabled(" OFF "), false);
+});
+
+test("TWINT is offered online for CHF invoices of a connected CH club only", () => {
+  const ctx = { country: "CH", stripeReady: true, twintOnline: true, enabled: ["card", "twint"] };
+  assert.deepEqual(stripeMethodTypes(availableMethods({ ...ctx, currency: "CHF" })), ["card", "twint"]);
+  assert.deepEqual(stripeMethodTypes(availableMethods({ ...ctx, currency: "EUR" })), ["card"]);
+  assert.deepEqual(stripeMethodTypes(availableMethods({ ...ctx, currency: "CHF", twintOnline: false })), ["card"]);
 });

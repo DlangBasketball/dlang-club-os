@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { toMinorUnits } from "@/lib/payments/currency";
 import { stripeMethodTypes, type AvailableMethod } from "@/lib/payments/methods";
 import type { OrgPaymentProfile } from "@/lib/payments/settings";
+import { expressCapabilities, twintCapabilityEnabled } from "@/lib/payments/connect-capabilities";
+import { orgReturnOrigin } from "@/lib/tenant/return-origin";
 
 /**
  * Stripe Connect for club fee collection.
@@ -18,6 +20,9 @@ import type { OrgPaymentProfile } from "@/lib/payments/settings";
  * Founding-club / single-tenant fallback: with no connected account and
  * STRIPE_CONNECT_REQUIRED != "true", charges go to the platform account (the
  * pre-Connect behaviour).
+ *
+ * Return links (Checkout success/cancel, onboarding refresh/return) point at
+ * the org's own host (orgReturnOrigin), because auth cookies are per host.
  */
 
 export type ConnectAccountType = "standard" | "express";
@@ -26,14 +31,25 @@ export function connectAccountType(): ConnectAccountType {
   return process.env.STRIPE_CONNECT_ACCOUNT_TYPE === "express" ? "express" : "standard";
 }
 
-function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+function expressCapabilitiesFor(country: string) {
+  return expressCapabilities(country, { requestTwint: twintCapabilityEnabled(process.env.STRIPE_CONNECT_REQUEST_TWINT) });
 }
 
 /** Returns the org's connected account id, creating the account on first use. */
 export async function ensureConnectAccount(profile: OrgPaymentProfile, email?: string | null): Promise<string> {
-  if (profile.stripeAccountId) return profile.stripeAccountId;
   const stripe = getStripe();
+  if (profile.stripeAccountId) {
+    // Express accounts created before TWINT was requested: ask again (no-op
+    // for capabilities already requested). Best effort; never blocks onboarding.
+    if (stripe && profile.settings.stripe?.account_type === "express") {
+      try {
+        await stripe.accounts.update(profile.stripeAccountId, { capabilities: expressCapabilitiesFor(profile.country) });
+      } catch (err) {
+        console.warn("[stripe-connect] capability update failed:", (err as Error).message);
+      }
+    }
+    return profile.stripeAccountId;
+  }
   if (!stripe) throw new Error("Stripe isn't configured (STRIPE_SECRET_KEY)");
 
   const type = connectAccountType();
@@ -46,7 +62,7 @@ export async function ensureConnectAccount(profile: OrgPaymentProfile, email?: s
       business_profile: { name: profile.name, mcc: "7941" }, // 7941: sports clubs / fields / promoters
       metadata: { org_id: profile.orgId },
       ...(type === "express"
-        ? { capabilities: { card_payments: { requested: true }, transfers: { requested: true } } }
+        ? { capabilities: expressCapabilitiesFor(profile.country) }
         : {}),
     },
     { idempotencyKey: `connect-account-${profile.orgId}` },
@@ -56,14 +72,15 @@ export async function ensureConnectAccount(profile: OrgPaymentProfile, email?: s
 }
 
 /** Hosted onboarding link (expires after a few minutes; regenerate on refresh). */
-export async function createOnboardingLink(accountId: string): Promise<string> {
+export async function createOnboardingLink(accountId: string, orgId: string): Promise<string> {
   const stripe = getStripe();
   if (!stripe) throw new Error("Stripe isn't configured (STRIPE_SECRET_KEY)");
+  const origin = await orgReturnOrigin(orgId);
   const link = await stripe.accountLinks.create({
     account: accountId,
     type: "account_onboarding",
-    refresh_url: `${siteUrl()}/api/stripe/connect/onboard`,
-    return_url: `${siteUrl()}/api/stripe/connect/return`,
+    refresh_url: `${origin}/api/stripe/connect/onboard`,
+    return_url: `${origin}/api/stripe/connect/return`,
   });
   return link.url;
 }
@@ -133,7 +150,7 @@ export async function createInvoiceCheckout(input: InvoiceChargeInput): Promise<
   const amountMinor = toMinorUnits(input.amount, input.currency);
   const fee = profile.stripeAccountId ? await applicationFee(profile.orgId, amountMinor) : 0;
   const metadata = { invoice_id: input.invoiceId, org_id: profile.orgId };
-  const back = `${siteUrl()}/parent/invoices/${input.invoiceId}`;
+  const back = `${await orgReturnOrigin(profile.orgId)}/parent/invoices/${input.invoiceId}`;
 
   const base: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",

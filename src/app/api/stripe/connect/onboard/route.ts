@@ -20,7 +20,7 @@ export async function GET(req: Request) {
   try {
     const profile = await getOrgPaymentProfile(me.orgId);
     const accountId = await ensureConnectAccount(profile, me.email);
-    const url = await createOnboardingLink(accountId);
+    const url = await createOnboardingLink(accountId, me.orgId);
     return NextResponse.redirect(url, { status: 303 });
   } catch (err) {
     console.error("[stripe-connect] onboarding failed:", err);

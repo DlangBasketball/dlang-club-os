@@ -25,7 +25,9 @@
 | Money flow | **Direct charges** on the club's connected account (`stripeAccount` header) + `application_fee_amount` | `src/lib/stripe-connect.ts` |
 | Account type | **Standard by default**; Express if `STRIPE_CONNECT_ACCOUNT_TYPE=express` | `connectAccountType()` |
 | Account creation | `accounts.create` with the club's country, default currency, business name, MCC 7941 (sports clubs), `metadata.org_id` | `ensureConnectAccount()` |
-| Onboarding | Stripe-hosted Account Link; refresh URL `/api/stripe/connect/onboard`, return URL `/api/stripe/connect/return` (both on `NEXT_PUBLIC_SITE_URL`) | `src/app/api/stripe/connect/*` |
+| Onboarding | Stripe-hosted Account Link; refresh URL `/api/stripe/connect/onboard`, return URL `/api/stripe/connect/return`, both on the **club's own host** (see "Return URLs" below) | `src/app/api/stripe/connect/*`, `createOnboardingLink()` |
+| Return URLs | Checkout success/cancel and onboarding refresh/return are built server-side from the org's hosts: the host the user is on if it is the org's custom domain or `<slug>.<PLATFORM_ROOT_DOMAIN>`; `NEXT_PUBLIC_SITE_URL` only if the user is on the platform host itself; otherwise the org's canonical host (custom domain, then subdomain). An unknown or spoofed Host header is never used | `tenantReturnOrigin()` in `src/lib/tenant/url.ts`, `src/lib/tenant/return-origin.ts` |
+| Express capabilities | `card_payments` + `transfers`, plus `twint_payments` for CH accounts (re-requested for existing Express accounts when the admin reopens onboarding). `STRIPE_CONNECT_REQUEST_TWINT=false` turns the TWINT request off | `src/lib/payments/connect-capabilities.ts` |
 | Who may connect | Only a signed-in **admin** of the club (server-side check) | `onboard/route.ts` |
 | Payment UI | Stripe **hosted Checkout**; asks for the region's methods (CH: card, TWINT), falls back to automatic methods if one isn't activated | `createInvoiceCheckout()`, `src/lib/payments/methods.ts` |
 | Application fee | From `public.resolve_application_fee()` per plan. Defaults: founding 0%, starter 1.5%, club 1%, pro/academy/federation 0.5% | `src/lib/payments/fees.ts` |
@@ -35,7 +37,7 @@
 
 **Recommendation: Standard accounts with direct charges + application fee** (the code's default). The club has its own full Stripe dashboard, activates TWINT itself, handles its own refunds and disputes, and carries Stripe's fees. DLANG never holds funds. This matches `03_CTO_TECHNOLOGY_STRATEGY.md` §5.
 
-> **Do not switch to Express for now.** For Express accounts the code requests only `card_payments` and `transfers` capabilities, not TWINT [Repo, `ensureConnectAccount`]. TWINT would not work until `payments-engineer` adds the TWINT capability request [Verify capability name with Stripe].
+> **Express is possible but not recommended for Gate 2.** For Express CH accounts the code now requests `twint_payments` alongside `card_payments` and `transfers` [Repo, `ensureConnectAccount`; the capability name matches the Stripe SDK types]. [Verify] with Stripe that the platform may request `twint_payments` on Express accounts with direct charges, and that TWINT is enabled in the platform's payment method settings for connected accounts. If Stripe refuses the request at account creation, set `STRIPE_CONNECT_REQUEST_TWINT=false` so onboarding still works (cards only) until Stripe confirms.
 
 ---
 
@@ -84,8 +86,10 @@ Set these in **Vercel → Project → Settings → Environment Variables**, sepa
 | `STRIPE_WEBHOOK_SECRET` | `whsec_…` of the **platform** endpoint (§6) | new live `whsec_…` | Required in production [Repo] |
 | `STRIPE_CONNECT_WEBHOOK_SECRET` | `whsec_…` of the **connected accounts** endpoint (§6) | new live `whsec_…` | Club payments arrive here |
 | `STRIPE_CONNECT_ACCOUNT_TYPE` | `standard` | `standard` | See §1 |
+| `STRIPE_CONNECT_REQUEST_TWINT` | `true` (default) | `true` | Express only: request `twint_payments` for CH accounts; `false` = don't [Verify] |
 | `STRIPE_CONNECT_REQUIRED` | `false` (lets you test the fallback) | **`true`** | Production must never charge on the platform account |
-| `NEXT_PUBLIC_SITE_URL` | staging URL | `https://app.<your root domain>` | Onboarding return URLs and Checkout success URLs use it |
+| `NEXT_PUBLIC_SITE_URL` | staging URL | `https://app.<your root domain>` | Platform host. Stripe return URLs use it only when the user is on this host; club hosts come from the org (custom domain / `<slug>.PLATFORM_ROOT_DOMAIN`) |
+| `PLATFORM_ROOT_DOMAIN` | staging root domain | your root domain | Needed so return URLs can target `<slug>.<root>` |
 | `STRIPE_BILLING_SECRET_KEY`, `STRIPE_BILLING_WEBHOOK_SECRET` | optional | leave unset until DLANG bills clubs (Q2 2027) | DLang is on the founding deal |
 
 After setting them: `APP_ENV=production node scripts/deploy/check-env.mjs <file>` (see `docs/ops/DEPLOY.md`) and check `/api/health` with the health token. Redeploy so the new values are used.
@@ -133,7 +137,7 @@ Other events are acknowledged and ignored. Later, for DLANG's own SaaS billing: 
 7. Failure cases: decline a TWINT payment; resend the same webhook from the dashboard (must be a no-op, "duplicate"); refund from the club's dashboard (refund row appears).
 8. Run `scripts/deploy/smoke-test.sh` against staging.
 
-**Known gap to check in staging [Repo]:** onboarding return and Checkout success URLs are built from `NEXT_PUBLIC_SITE_URL`, while login cookies are per host. If DLang admins and parents use `dlang.<root>` and `NEXT_PUBLIC_SITE_URL` is `app.<root>`, they may land on a login page after Stripe. The payment still reconciles (the webhook does that), but it looks broken. For the pilot either use one host, or ask `payments-engineer` to build these URLs from the tenant host before 7 Dec.
+**Return-URL check in staging [Repo, resolved in code]:** onboarding return and Checkout success/cancel URLs now go back to the host the user started on when it belongs to the club (`dlang.<root>` or its custom domain), so login cookies are still there. Check it once on staging: start onboarding and a CHF 1 Checkout from `dlang.<staging root>` and confirm you return there signed in, not on a login page. `PLATFORM_ROOT_DOMAIN` must be set for this.
 
 ### 7.2 Go live (after CTO sign-off and the AML view)
 
@@ -185,7 +189,7 @@ A Swiss platform with a **US connected account** (a US club paid in USD) is a di
 - [ ] TWINT checked for CH accounts and pricing [Verify] (§4)
 - [ ] Staging env vars set (test keys), env check green (§5)
 - [ ] Two test webhook endpoints with the 10 events (§6)
-- [ ] Test run passes incl. decline, duplicate, refund (§7.1); host/return-URL gap resolved or worked around
+- [ ] Test run passes incl. decline, duplicate, refund (§7.1); return to the club host after Stripe checked on staging
 - [ ] CTO sign-off; live keys and live webhooks in Production only; `STRIPE_CONNECT_REQUIRED=true` (§7.2)
 - [ ] DLang connected, TWINT active, CHF 1 TWINT paid, reconciled and refunded (§8)
 - [ ] ≥10 real DLang payments reconciled automatically → **Gate 2** (18 Dec / 31 Dec / 31 Jan)

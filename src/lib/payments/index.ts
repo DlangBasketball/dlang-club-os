@@ -9,3 +9,4 @@ export * from "./methods";
 export * from "./schedule";
 export * from "./fees";
 export * from "./epc-qr";
+export * from "./connect-capabilities";
