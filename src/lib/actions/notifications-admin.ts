@@ -21,13 +21,20 @@ export async function sendOverdueReminders(): Promise<BulkResult> {
   if (!me) return { ok: false, error: "Admins only" };
   const admin = createAdminClient();
 
-  const { data: invs } = await admin.from("invoices").select("id,number,family_id,total_chf,due_date").eq("org_id", me.orgId).eq("status", "overdue");
+  // Invoices with reminders paused by finance are skipped.
+  const { data: invs } = await admin
+    .from("invoices")
+    .select("id,number,family_id,total_chf,adjustments_total,due_date")
+    .eq("org_id", me.orgId)
+    .eq("status", "overdue")
+    .eq("reminders_paused", false);
   if (!invs || invs.length === 0) return { ok: true, sent: 0, failed: 0, inApp: 0, targets: 0 };
 
   const invIds = invs.map((i) => i.id);
   const famIds = Array.from(new Set(invs.map((i) => i.family_id).filter((x): x is string => Boolean(x))));
   const [paysRes, membersRes] = await Promise.all([
-    admin.from("payments").select("invoice_id,amount_chf").in("invoice_id", invIds),
+    // Net paid as public.invoice_net_paid(): succeeded rows + negative refund rows.
+    admin.from("payments").select("invoice_id,amount_chf").in("invoice_id", invIds).or("status.eq.succeeded,amount_chf.lt.0"),
     famIds.length ? admin.from("family_members").select("family_id,profile_id").in("family_id", famIds) : Promise.resolve({ data: [] as { family_id: string; profile_id: string }[] }),
   ]);
   const paid = new Map<string, number>();
@@ -51,7 +58,9 @@ export async function sendOverdueReminders(): Promise<BulkResult> {
   const rows = [];
   for (const inv of invs) {
     if (!inv.family_id) continue;
-    const balance = Number(inv.total_chf) - (paid.get(inv.id) ?? 0);
+    // Amount due = issued total + credit / debit notes, minus what was paid.
+    const balance = Math.round((Number(inv.total_chf) + Number(inv.adjustments_total ?? 0) - (paid.get(inv.id) ?? 0)) * 100) / 100;
+    if (balance <= 0) continue;
     for (const g of guardiansByFam.get(inv.family_id) ?? []) {
       const vars: NotifVars = { parent_name: g.full_name ?? undefined, invoice_number: inv.number, amount_due: balance, due_date: inv.due_date ?? undefined, payment_link: link(`/parent/invoices/${inv.id}`) };
       rows.push({ orgId: me.orgId as string, type: "payment_overdue" as const, recipientProfileId: g.id, toEmail: g.email, invoiceId: inv.id, vars });

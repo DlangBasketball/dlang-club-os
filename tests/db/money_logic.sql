@@ -215,9 +215,9 @@ begin
   perform public.apply_stripe_payment(v_inv, 10, 'pi_test_over_1');
   select sum(amount_chf) into v_paid from public.payments where invoice_id = v_inv and status = 'succeeded';
   perform t.ok((select status::text from public.invoices where id = v_inv) = 'paid', 'overpaid invoice stays paid');
-  perform t.known(exists (select 1 from public.audit_logs where target_table = 'invoices' and action ilike '%overpa%'),
-                  format('overpayment (paid %s on 1490) is flagged for follow-up', v_paid),
-                  'no overpayment flag/credit exists yet (TESTING_AND_LAUNCH_PLAN §4)');
+  -- fixed in 20250420095900_money_editing.sql (recompute_invoice flags it)
+  perform t.ok(exists (select 1 from public.audit_logs where target_table = 'invoices' and action ilike '%overpa%'),
+               format('overpayment (paid %s on 1490) is flagged for follow-up', v_paid));
 end $$;
 
 -- Overdue flagging

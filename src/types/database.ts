@@ -125,10 +125,19 @@ export type Database = {
             | "overdue"
             | "void"
             | "cancelled"
-            | "refunded";
+            | "refunded"
+            | "written_off";
           due_date: string | null;
           issued_at: string;
           paid_at: string | null;
+          // Money editing (migration 20250420095900)
+          adjustments_total: number;
+          notes: string | null;
+          locale: string | null;
+          reminders_paused: boolean;
+          cancelled_at: string | null;
+          cancel_reason: string | null;
+          written_off_at: string | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -337,6 +346,13 @@ export type Database = {
           paid_at: string | null;
           notes: string | null;
           created_at: string;
+          // Money editing (migration 20250420095900)
+          voided_at: string | null;
+          voided_by: string | null;
+          void_reason: string | null;
+          reverses_payment_id: string | null;
+          replaced_by_payment_id: string | null;
+          admin_note: string | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -449,6 +465,35 @@ export type Database = {
       };
       training_credits: {
         Row: { id: string; org_id: string; athlete_id: string; credit_category: "personal" | "nutrition" | "mental"; total_credits: number; used_credits: number };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      // Money editing (migration 20250420095900): written only through RPCs.
+      invoice_adjustments: {
+        Row: {
+          id: string; org_id: string; invoice_id: string; number: string;
+          kind: "credit_note" | "debit_note" | "write_off" | "cancellation";
+          amount: number; currency: string; tax_rate: number; tax_amount: number;
+          description: string | null; reason: string; created_by: string | null;
+          voided_at: string | null; voided_by: string | null; void_reason: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      family_credit_entries: {
+        Row: {
+          id: string; org_id: string; family_id: string; amount: number; currency: string;
+          kind: "overpayment" | "applied" | "manual" | "reversal";
+          invoice_id: string | null; payment_id: string | null; reason: string;
+          created_by: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      training_credit_adjustments: {
+        Row: {
+          id: string; org_id: string; athlete_id: string; credit_category: "personal" | "nutrition" | "mental";
+          kind: "grant" | "adjust" | "revoke"; delta: number; total_before: number; total_after: number;
+          used_at_time: number; reason: string; created_by: string | null; created_at: string; updated_at: string;
+        };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       training_services: {
@@ -676,6 +721,30 @@ export type Database = {
       book_training_session: { Args: { p_athlete: string; p_service: string; p_slot: string; p_pay_with?: string }; Returns: Json };
       reschedule_booking: { Args: { p_booking: string; p_new_slot: string }; Returns: Json };
       grant_training_credits: { Args: { p_athlete: string; p_category: string; p_credits: number }; Returns: Json };
+      // Money editing (migration 20250420095900)
+      update_draft_invoice: { Args: { p_invoice: string; p_payload: Json }; Returns: Json };
+      update_invoice_details: { Args: { p_invoice: string; p_payload: Json }; Returns: Json };
+      issue_invoice_adjustment: {
+        Args: { p_invoice: string; p_kind: string; p_amount: number | null; p_reason: string; p_description?: string | null };
+        Returns: Json;
+      };
+      void_invoice_adjustment: { Args: { p_adjustment: string; p_reason: string }; Returns: Json };
+      cancel_invoice: { Args: { p_invoice: string; p_reason: string }; Returns: Json };
+      reopen_invoice: { Args: { p_invoice: string; p_reason: string }; Returns: Json };
+      record_offline_payment: {
+        Args: { p_invoice: string; p_amount: number; p_method: string; p_paid_on?: string | null; p_reference?: string | null; p_note?: string | null };
+        Returns: Json;
+      };
+      void_payment: { Args: { p_payment: string; p_reason: string }; Returns: Json };
+      edit_manual_payment: { Args: { p_payment: string; p_payload: Json; p_reason: string }; Returns: Json };
+      annotate_payment: { Args: { p_payment: string; p_note: string }; Returns: Json };
+      transfer_overpayment_to_credit: { Args: { p_invoice: string; p_amount?: number | null; p_reason?: string | null }; Returns: Json };
+      apply_family_credit: { Args: { p_invoice: string; p_amount?: number | null; p_reason?: string | null }; Returns: Json };
+      adjust_family_credit: { Args: { p_family: string; p_currency: string; p_amount: number; p_reason: string }; Returns: Json };
+      adjust_training_credits: {
+        Args: { p_athlete: string; p_category: string; p_delta?: number | null; p_new_total?: number | null; p_reason: string };
+        Returns: Json;
+      };
       athlete_attendance_summary: {
         Args: { p_athlete: string };
         Returns: { session_date: string; program_name: string | null; status: "present" | "late" | "absent" | "excused" }[];
@@ -701,7 +770,11 @@ export type Database = {
         | "paid"
         | "overdue"
         | "void"
-        | "refunded";
+        | "refunded"
+        | "sent"
+        | "partially_paid"
+        | "cancelled"
+        | "written_off";
       payment_method: "card" | "bank_transfer" | "twint" | "manual" | "qr_bill" | "sepa_debit" | "ach" | "ideal" | "bancontact" | "apple_pay" | "google_pay";
       attendance_status: "present" | "late" | "absent" | "excused";
     };
