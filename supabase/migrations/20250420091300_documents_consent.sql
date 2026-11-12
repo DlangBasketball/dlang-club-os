@@ -77,10 +77,12 @@ update public.consent_forms set body =
   'I consent to my child being transported by club-organised transport to and from training sessions, matches and events.'
   where key = 'transport' and (body is null or body = '');
 
+-- Founding-club data: skipped on an empty database (new white-label project).
 insert into public.consent_forms (id, org_id, key, title, body, version, locale, is_required, is_active)
-  values ('00000000-0000-0000-0000-000000000037','00000000-0000-0000-0000-000000000001','conduct','Code of conduct',
+  select '00000000-0000-0000-0000-000000000037','00000000-0000-0000-0000-000000000001','conduct','Code of conduct',
     'I and my child agree to abide by the DLang Basketball Club code of conduct: to show respect to coaches, teammates, opponents and officials; to attend punctually; to refrain from abusive language, violence or discrimination; and to represent the club positively. I understand serious breaches may result in suspension.',
-    1, 'en', true, true)
+    1, 'en', true, true
+   where exists (select 1 from public.organizations where id = '00000000-0000-0000-0000-000000000001')
   on conflict (id) do nothing;
 
 -- 3a. Backfill snapshots for pre-existing acceptances (accurate while version matches)

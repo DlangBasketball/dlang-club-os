@@ -106,8 +106,8 @@ begin
 
   update public.app_settings set invoice_pattern = 'INV-{YYYY}-{####}', invoice_counter = 9999 where org_id = v_org;
   v1 := public.next_invoice_number(v_org);
-  perform t.known(v1 = 'INV-' || v_yyyy || '-10000', 'counter past 9999 keeps all digits (got ' || v1 || ')',
-                  'next_invoice_number uses lpad(counter,4) which TRUNCATES 10000 to 1000 -> duplicate numbers; use lpad only when shorter');
+  -- fixed in 20250420095100_integration_fixes.sql (lpad only when shorter)
+  perform t.ok(v1 = 'INV-' || v_yyyy || '-10000', 'counter past 9999 keeps all digits (got ' || v1 || ')');
 
   begin
     perform public.next_invoice_number('00000000-0000-0000-0000-00000000dead');

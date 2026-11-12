@@ -6,6 +6,7 @@
 -- or FAIL; lines starting "EXPECT <CODE>" must show that error code.
 -- Simulates auth via the request.jwt.claim.sub setting read by auth.uid().
 -- ============================================================================
+-- db-test: expected-errors
 \set ON_ERROR_STOP off
 \pset tuples_only on
 \pset format unaligned

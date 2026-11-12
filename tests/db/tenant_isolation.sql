@@ -45,7 +45,8 @@ language sql immutable as $$ select case when u is null then null else md5('prob
 -- may be visible to any authenticated/anon user.
 create table tenant_test.allowed_public (tbl text primary key, predicate text not null, why text not null);
 insert into tenant_test.allowed_public values
-  ('programs', 'is_public', 'public camp / registration pages list public programs of every club');
+  ('programs', 'is_public', 'public camp / registration pages list public programs of every club'),
+  ('subprocessors', 'org_id is null', 'platform-wide sub-processor list (org_id null) is shared read-only with every tenant');
 
 -- Known, tracked findings: key = '<check>:<table>' (check = read|update|delete|insert|move|rls)
 -- or '<check>:<table>:<role>' for a role-specific finding.
@@ -63,44 +64,48 @@ create table tenant_test.known (key text primary key, note text not null);
 -- current_org_id()), add `org_id = current_org_id()` to every USING and WITH
 -- CHECK, and freeze profiles.org_id (column privilege or trigger). Delete
 -- entries here as they are fixed; run with STRICT_KNOWN=1 to treat them as FAIL.
-insert into tenant_test.known (key, note) values
-  ('read:athlete_medical',        'S: medical policy uses is_admin() without org scope'),
-  ('read:athletes',               'S: athletes_select uses is_finance() without org scope'),
-  ('read:attendance_marks',       'S: att_marks_select uses is_admin() without org scope'),
-  ('read:attendance_sessions',    'S: staff select without org scope'),
-  ('read:consent_acceptances',    'S: staff select without org scope'),
-  ('read:documents',              'S: documents_select uses is_admin() without org scope'),
-  ('read:families',               'S: staff select without org scope'),
-  ('read:invoice_items',          'S: finance select without org scope'),
-  ('read:invoices',               'S: invoices_select uses is_finance() without org scope'),
-  ('read:notifications',          'S: admin select without org scope'),
-  ('read:payments',               'S: finance select without org scope'),
-  ('read:program_sessions',       'S: staff select without org scope'),
-  ('read:registrations',          'S: staff select without org scope'),
-  ('read:staff_roles',            'S: staff_roles_select uses is_admin() without org scope'),
-  ('read:training_credits',       'S: staff select without org scope'),
-  ('update:attendance_marks',     'S: att_marks_write uses is_admin() without org scope'),
-  ('update:documents',            'S: documents_write uses is_admin() without org scope'),
-  ('delete:attendance_marks',     'S: att_marks_write uses is_admin() without org scope'),
-  ('delete:documents',            'S: documents_write uses is_admin() without org scope'),
-  ('insert:attendance_marks',     'S: WITH CHECK has no org scope'),
-  ('insert:consent_acceptances',  'S: WITH CHECK has no org scope'),
-  ('insert:documents',            'S: WITH CHECK has no org scope'),
-  ('insert:registrations',        'S: WITH CHECK has no org scope'),
-  ('move:athlete_medical',        'M: guardian write WITH CHECK has no org scope'),
-  ('move:athletes',               'M: athletes_guardian_write WITH CHECK has no org scope'),
-  ('move:attendance_marks',       'M: WITH CHECK has no org scope'),
-  ('move:documents',              'M: WITH CHECK has no org scope'),
-  ('move:families',               'M: guardian write WITH CHECK has no org scope'),
-  ('move:registrations',          'M: guardian write WITH CHECK has no org scope'),
-  ('move:profiles',               'P: profiles_update_self allows changing own org_id (tenant hop)'),
-  ('read:deletion_requests',      'S: admin select without org scope'),
-  ('update:deletion_requests',    'S: admin review policy without org scope'),
-  ('move:deletion_requests',      'M: WITH CHECK has no org scope'),
-  ('read:training_bookings',      'S: staff select without org scope'),
-  ('update:training_bookings',    'S: staff write without org scope'),
-  ('insert:training_bookings',    'S: WITH CHECK has no org scope'),
-  ('move:training_bookings',      'M: WITH CHECK has no org scope');
+-- All findings from the first run are fixed: (S)/(M) by the restrictive
+-- platform_tenant_isolation policies (20250420091700_platform_saas.sql) and
+-- org-scoped has_role(); (P) and staff_roles by 20250420095100_integration_fixes.sql.
+-- Add a row here only for a newly found, tracked defect. Original list:
+--   insert into tenant_test.known (key, note) values
+--     ('read:athlete_medical',        'S: medical policy uses is_admin() without org scope'),
+--     ('read:athletes',               'S: athletes_select uses is_finance() without org scope'),
+--     ('read:attendance_marks',       'S: att_marks_select uses is_admin() without org scope'),
+--     ('read:attendance_sessions',    'S: staff select without org scope'),
+--     ('read:consent_acceptances',    'S: staff select without org scope'),
+--     ('read:documents',              'S: documents_select uses is_admin() without org scope'),
+--     ('read:families',               'S: staff select without org scope'),
+--     ('read:invoice_items',          'S: finance select without org scope'),
+--     ('read:invoices',               'S: invoices_select uses is_finance() without org scope'),
+--     ('read:notifications',          'S: admin select without org scope'),
+--     ('read:payments',               'S: finance select without org scope'),
+--     ('read:program_sessions',       'S: staff select without org scope'),
+--     ('read:registrations',          'S: staff select without org scope'),
+--     ('read:staff_roles',            'S: staff_roles_select uses is_admin() without org scope'),
+--     ('read:training_credits',       'S: staff select without org scope'),
+--     ('update:attendance_marks',     'S: att_marks_write uses is_admin() without org scope'),
+--     ('update:documents',            'S: documents_write uses is_admin() without org scope'),
+--     ('delete:attendance_marks',     'S: att_marks_write uses is_admin() without org scope'),
+--     ('delete:documents',            'S: documents_write uses is_admin() without org scope'),
+--     ('insert:attendance_marks',     'S: WITH CHECK has no org scope'),
+--     ('insert:consent_acceptances',  'S: WITH CHECK has no org scope'),
+--     ('insert:documents',            'S: WITH CHECK has no org scope'),
+--     ('insert:registrations',        'S: WITH CHECK has no org scope'),
+--     ('move:athlete_medical',        'M: guardian write WITH CHECK has no org scope'),
+--     ('move:athletes',               'M: athletes_guardian_write WITH CHECK has no org scope'),
+--     ('move:attendance_marks',       'M: WITH CHECK has no org scope'),
+--     ('move:documents',              'M: WITH CHECK has no org scope'),
+--     ('move:families',               'M: guardian write WITH CHECK has no org scope'),
+--     ('move:registrations',          'M: guardian write WITH CHECK has no org scope'),
+--     ('move:profiles',               'P: profiles_update_self allows changing own org_id (tenant hop)'),
+--     ('read:deletion_requests',      'S: admin select without org scope'),
+--     ('update:deletion_requests',    'S: admin review policy without org scope'),
+--     ('move:deletion_requests',      'M: WITH CHECK has no org scope'),
+--     ('read:training_bookings',      'S: staff select without org scope'),
+--     ('update:training_bookings',    'S: staff write without org scope'),
+--     ('insert:training_bookings',    'S: WITH CHECK has no org scope'),
+--     ('move:training_bookings',      'M: WITH CHECK has no org scope');
 
 create table tenant_test.results (id serial, status text, check_name text, who text, tbl text, detail text);
 grant usage on schema tenant_test to anon, authenticated;
@@ -286,8 +291,12 @@ begin
     for t in select * from tenant_test.org_tables order by tbl loop
       select predicate into v_allowed from tenant_test.allowed_public where tbl = t.tbl;
       perform tenant_test.become(u.uid);
-      execute format('select count(*) from public.%I where org_id is distinct from $1 and not coalesce((%s), false)',
-                     t.tbl, coalesce(v_allowed, 'false')) into n using u.org;
+      begin
+        execute format('select count(*) from public.%I where org_id is distinct from $1 and not coalesce((%s), false)',
+                       t.tbl, coalesce(v_allowed, 'false')) into n using u.org;
+      exception when insufficient_privilege then
+        n := 0;  -- no table privilege at all (e.g. anon on compliance registers): nothing visible
+      end;
       perform tenant_test.unbecome();
       perform tenant_test.record(case when n = 0 then 'PASS' else 'FAIL' end, 'read', u.who, t.tbl,
                                  format('%s foreign-tenant row(s) visible', n));

@@ -15,8 +15,10 @@ alter table public.families add column if not exists contact_email citext;
 create index if not exists families_contact_email_idx on public.families (org_id, contact_email);
 
 -- Privacy-policy consent form (the seed shipped media/transport/health/terms/liability).
-insert into public.consent_forms (id, org_id, key, title, version, locale, is_required) values
-  ('00000000-0000-0000-0000-000000000036','00000000-0000-0000-0000-000000000001','privacy','Privacy policy', 1, 'en', true)
+-- Founding-club data: skipped on an empty database (new white-label project).
+insert into public.consent_forms (id, org_id, key, title, version, locale, is_required)
+select '00000000-0000-0000-0000-000000000036','00000000-0000-0000-0000-000000000001','privacy','Privacy policy', 1, 'en', true
+ where exists (select 1 from public.organizations where id = '00000000-0000-0000-0000-000000000001')
 on conflict (id) do nothing;
 
 -- ----------------------------------------------------------------------------

@@ -168,7 +168,7 @@ begin
     raise exception 'expected INVALID_METHOD';
   exception when others then assert sqlerrm like 'INVALID_METHOD%', sqlerrm; end;
 
-  raise notice 'regional payments: all assertions passed';
+  raise notice 'PASS — regional payments: all assertions passed';
 end;
 $$;
 

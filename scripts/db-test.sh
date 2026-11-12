@@ -7,7 +7,8 @@
 #   3. applies EVERY file in supabase/migrations/*.sql in lexical (timestamp) order
 #   4. loads supabase/seeds/*.sql in lexical order
 #   5. for each suite, clones a FRESH database from the template and runs it:
-#        testing/rls_test_suite.sql, supabase/tests/*.sql, tests/db/*.sql
+#        testing/rls_test_suite.sql, testing/*_test*.sql, supabase/tests/*.sql,
+#        tests/db/*.sql
 #   6. fails if any suite errors, prints a FAIL line, or prints no PASS line
 #   7. drops every database it created (set KEEP_DB=1 to keep them for debugging)
 #
@@ -133,7 +134,12 @@ fi
 if [[ $# -gt 0 ]]; then
   suites=("$@")
 else
-  suites=(testing/rls_test_suite.sql supabase/tests/*.sql tests/db/*.sql)
+  # testing/*_test*.sql: per-track regression suites (platform, payments,
+  # compliance, sports operations). Each runs once on its own fresh clone.
+  suites=()
+  for f in testing/rls_test_suite.sql testing/*_test.sql testing/*_test_suite.sql supabase/tests/*.sql tests/db/*.sql; do
+    [[ " ${suites[*]} " == *" $f "* ]] || suites+=("$f")
+  done
 fi
 
 # A failing assertion is a line that STARTS with FAIL — either query output
@@ -161,6 +167,10 @@ for suite in "${suites[@]}"; do
   passes=$(grep -cE "$PASS_RE" "$log" || true)
   fails=$(grep -cE "$FAIL_RE" "$log" || true)
   errors=$(grep -E "$ERROR_RE" "$log" | grep -vcE "$FAIL_RE" || true)
+  # Suites that deliberately trigger errors (negative tests printed as
+  # "EXPECT <CODE>") opt out of the error count with this header line:
+  #   -- db-test: expected-errors
+  if grep -q '^-- db-test: expected-errors' "$suite"; then errors=0; fi
   xfails=$(grep -cE "$XFAIL_RE" "$log" || true)
   xpasses=$(grep -cE "$XPASS_RE" "$log" || true)
   total_pass=$((total_pass + passes)); total_xfail=$((total_xfail + xfails))

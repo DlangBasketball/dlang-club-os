@@ -12,6 +12,8 @@ export const DEFAULT_PLAN_FEES: Record<string, FeeRule> = {
   starter: { bps: 150 },
   club: { bps: 100 },
   pro: { bps: 50 },
+  academy: { bps: 50 },
+  federation: { bps: 50 },
   default: { bps: 100 },
 };
 

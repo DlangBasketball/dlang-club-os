@@ -93,4 +93,6 @@ from (values
 where not exists (
   select 1 from public.coach_availability
   where coach_id = '00000000-0000-0000-0000-000000000011'
-);
+)
+-- Founding-club demo data: skipped on an empty database.
+and exists (select 1 from public.coaches where id = '00000000-0000-0000-0000-000000000011');
