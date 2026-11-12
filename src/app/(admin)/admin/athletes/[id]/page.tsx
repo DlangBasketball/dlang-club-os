@@ -5,6 +5,7 @@ import {
   PageHeader, Avatar, Button, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, ErrorState, EmptyState,
 } from "@/components/ui";
 import { MedicalSection } from "@/components/athlete/medical-section";
+import { PhotoManager } from "@/components/athlete/photo-manager";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
 import { ActivityTimeline } from "@/components/athlete/activity-timeline";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
@@ -139,6 +140,14 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <div className="space-y-6">
+          {isAdmin && (
+            <Card>
+              <CardHeader><CardTitle>{t("athletePhoto.title")}</CardTitle></CardHeader>
+              <CardBody>
+                <PhotoManager athleteId={id} name={fullName} photoUrl={photos.get(id) ?? null} compact />
+              </CardBody>
+            </Card>
+          )}
           <MedicalSection medical={medical} athleteId={id} canView={canViewMedical} />
           <ParentContactSection
             guardians={family.data?.guardians ?? []}
