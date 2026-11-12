@@ -1,18 +1,27 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
-import { upsertMedical, type MedicalInput } from "@/lib/actions/athlete";
-import { Card, CardHeader, CardTitle, CardBody, Button, Input, Label, Badge } from "@/components/ui";
+import { upsertMedical } from "@/lib/actions/athlete";
+import { Card, CardHeader, CardTitle, CardBody, Button, Input, Label, Badge, Textarea } from "@/components/ui";
+import { useT } from "@/lib/i18n/client";
 
-export function MedicalForm({
-  athleteId,
-  initial,
-}: {
-  athleteId: string;
-  initial?: Partial<MedicalInput>;
-}) {
-  const [f, setF] = React.useState<MedicalInput>({
+type Medical = {
+  allergies: string;
+  conditions: string;
+  medications: string;
+  insurance: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  notes: string;
+};
+
+/** Admin editor for the athlete's medical record + emergency contact (admin only; never finance). */
+export function MedicalForm({ athleteId, initial }: { athleteId: string; initial?: Partial<Medical> }) {
+  const t = useT();
+  const router = useRouter();
+  const [f, setF] = React.useState<Medical>({
     allergies: initial?.allergies ?? "",
     conditions: initial?.conditions ?? "",
     medications: initial?.medications ?? "",
@@ -21,44 +30,47 @@ export function MedicalForm({
     emergencyContactPhone: initial?.emergencyContactPhone ?? "",
     notes: initial?.notes ?? "",
   });
-  const set = (k: keyof MedicalInput) => (v: string) => setF((s) => ({ ...s, [k]: v }));
-  const [error, setError] = React.useState<string | null>(null);
+  const set = (k: keyof Medical) => (v: string) => setF((s) => ({ ...s, [k]: v }));
+  const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   const [pending, setPending] = React.useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setPending(true);
-    setError(null);
+    setMsg(null);
     const res = await upsertMedical(athleteId, f);
     setPending(false);
-    if (res && !res.ok) setError(res.error);
+    if (res.ok) {
+      setMsg({ ok: true, text: res.message ?? t("editPeople.saved") });
+      router.refresh();
+    } else setMsg({ ok: false, text: res.error });
   }
 
   return (
     <Card className="max-w-2xl">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-maroon" /> Medical information</CardTitle>
-        <Badge tone="danger">Sensitive</Badge>
+        <CardTitle className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-maroon" /> {t("editPeople.medical.title")}</CardTitle>
+        <Badge tone="danger">{t("editPeople.medical.sensitive")}</Badge>
       </CardHeader>
       <CardBody>
         <form onSubmit={onSubmit} className="space-y-4">
-          <div><Label htmlFor="alg">Allergies</Label><Input id="alg" value={f.allergies} onChange={(e) => set("allergies")(e.target.value)} placeholder="e.g. Peanuts · EpiPen in kit bag" /></div>
-          <div><Label htmlFor="cond">Conditions</Label><Input id="cond" value={f.conditions} onChange={(e) => set("conditions")(e.target.value)} placeholder="e.g. Mild asthma · inhaler at camp" /></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="med">Medications</Label><Input id="med" value={f.medications} onChange={(e) => set("medications")(e.target.value)} /></div>
-            <div><Label htmlFor="ins">Insurance</Label><Input id="ins" value={f.insurance} onChange={(e) => set("insurance")(e.target.value)} /></div>
+          <p className="text-xs text-ink-3">{t("editPeople.medical.access")}</p>
+          <div><Label htmlFor="alg">{t("editPeople.medical.allergies")}</Label><Input id="alg" maxLength={1000} value={f.allergies} onChange={(e) => set("allergies")(e.target.value)} /></div>
+          <div><Label htmlFor="cond">{t("editPeople.medical.conditions")}</Label><Input id="cond" maxLength={1000} value={f.conditions} onChange={(e) => set("conditions")(e.target.value)} /></div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div><Label htmlFor="med">{t("editPeople.medical.medications")}</Label><Input id="med" maxLength={1000} value={f.medications} onChange={(e) => set("medications")(e.target.value)} /></div>
+            <div><Label htmlFor="ins">{t("editPeople.medical.insurance")}</Label><Input id="ins" maxLength={200} value={f.insurance} onChange={(e) => set("insurance")(e.target.value)} /></div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="ecn">Emergency contact</Label><Input id="ecn" value={f.emergencyContactName} onChange={(e) => set("emergencyContactName")(e.target.value)} placeholder="Name (relation)" /></div>
-            <div><Label htmlFor="ecp">Emergency phone</Label><Input id="ecp" value={f.emergencyContactPhone} onChange={(e) => set("emergencyContactPhone")(e.target.value)} placeholder="+41 …" /></div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div><Label htmlFor="ecn">{t("editPeople.medical.emergencyName")}</Label><Input id="ecn" maxLength={120} value={f.emergencyContactName} onChange={(e) => set("emergencyContactName")(e.target.value)} /></div>
+            <div><Label htmlFor="ecp">{t("editPeople.medical.emergencyPhone")}</Label><Input id="ecp" type="tel" maxLength={40} value={f.emergencyContactPhone} onChange={(e) => set("emergencyContactPhone")(e.target.value)} /></div>
           </div>
           <div>
-            <Label htmlFor="mnotes">Medical notes</Label>
-            <textarea id="mnotes" value={f.notes} onChange={(e) => set("notes")(e.target.value)} rows={3}
-              className="w-full rounded border border-line bg-surface-input px-3 py-2 text-sm text-ink" />
+            <Label htmlFor="mnotes">{t("editPeople.medical.notes")}</Label>
+            <Textarea id="mnotes" maxLength={2000} value={f.notes} onChange={(e) => set("notes")(e.target.value)} rows={3} />
           </div>
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <Button type="submit" disabled={pending}>{pending ? "Saving…" : "Save medical info"}</Button>
+          {msg && <p role="status" className={msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{msg.text}</p>}
+          <Button type="submit" loading={pending}>{pending ? t("editPeople.saving") : t("editPeople.medical.save")}</Button>
         </form>
       </CardBody>
     </Card>

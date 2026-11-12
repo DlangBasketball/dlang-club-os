@@ -4,15 +4,18 @@ import { ChevronLeft, ShieldCheck, ClipboardList, HeartPulse } from "lucide-reac
 import { Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { getChildProfile } from "@/lib/data/parent";
 import { MedicalForm } from "@/components/parent/medical-form";
-import { getFormatter } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server";
+import { PhotoManager } from "@/components/athlete/photo-manager";
+import { photoUrlsForAthletes } from "@/lib/people/server";
 
 export default async function ChildProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  const f = await getFormatter();
+  const { t, f } = await getI18n();
   const { id } = await params;
   const { data, error } = await getChildProfile(id);
   if (error) return <ErrorState title="Couldn't load profile" message={error} />;
   if (!data) notFound();
   const m = data.medical;
+  const photos = await photoUrlsForAthletes([data.id]);
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -20,6 +23,13 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
         <Link href="/parent/children" className="text-ink-3 hover:text-ink"><ChevronLeft className="h-5 w-5" /></Link>
         <div><h1 className="font-display text-2xl font-semibold">{data.name}</h1><p className="text-xs text-ink-3">{data.age !== null ? `Age ${data.age}` : ""}{data.gender ? ` · ${data.gender}` : ""} · born {f.date(data.dob)}</p></div>
       </div>
+
+      <Card>
+        <CardHeader><CardTitle>{t("athletePhoto.title")}</CardTitle></CardHeader>
+        <CardBody>
+          <PhotoManager athleteId={data.id} name={data.name} photoUrl={photos[data.id] ?? null} compact />
+        </CardBody>
+      </Card>
 
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><HeartPulse className="h-4 w-4 text-maroon" /> Medical information</CardTitle></CardHeader>

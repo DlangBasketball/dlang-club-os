@@ -26,7 +26,7 @@ export async function consentAudit(formId: string): Promise<AuditResult> {
   const { data: form } = await admin.from("consent_forms").select("id,key,title,version").eq("id", formId).eq("org_id", me.orgId).maybeSingle();
   if (!form) return { form: null, accepted: [], notAccepted: [] };
 
-  const { data: accs } = await admin.from("consent_acceptances").select("athlete_id,accepted_by,accepted_version,accepted_at,ip_address,accepted_text").eq("org_id", me.orgId).eq("consent_form_id", formId).eq("status", "accepted").order("accepted_at", { ascending: false });
+  const { data: accs } = await admin.from("consent_acceptances").select("athlete_id,accepted_by,accepted_version,accepted_at,ip_address,accepted_text,signer_name,source").eq("org_id", me.orgId).eq("consent_form_id", formId).eq("status", "accepted").order("accepted_at", { ascending: false });
   const rows = accs ?? [];
   const aIds = Array.from(new Set(rows.map((r) => r.athlete_id).filter((x): x is string => !!x)));
   const pIds = Array.from(new Set(rows.map((r) => r.accepted_by).filter((x): x is string => !!x)));
@@ -35,7 +35,7 @@ export async function consentAudit(formId: string): Promise<AuditResult> {
   const profs = pIds.length ? (await admin.from("profiles").select("id,full_name,email").in("id", pIds)).data ?? [] : [];
   const pName = new Map(profs.map((p) => [p.id, p.full_name ?? p.email]));
 
-  const accepted: Acceptance[] = rows.map((r) => ({ athleteName: r.athlete_id ? aName.get(r.athlete_id) ?? "—" : "—", parentName: r.accepted_by ? pName.get(r.accepted_by) ?? "—" : "Public registration", version: r.accepted_version, acceptedAt: r.accepted_at, ip: r.ip_address, hasSnapshot: Boolean(r.accepted_text) }));
+  const accepted: Acceptance[] = rows.map((r) => ({ athleteName: r.athlete_id ? aName.get(r.athlete_id) ?? "—" : "—", parentName: r.accepted_by ? pName.get(r.accepted_by) ?? "—" : r.signer_name ? `${r.signer_name} (${r.source})` : "Public registration", version: r.accepted_version, acceptedAt: r.accepted_at, ip: r.ip_address, hasSnapshot: Boolean(r.accepted_text) }));
   const acceptedAthletes = new Set(aIds);
   const notAccepted = allAthletes.filter((a) => !acceptedAthletes.has(a.id)).map((a) => `${a.first_name} ${a.last_name}`);
   return { form, accepted, notAccepted };

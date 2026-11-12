@@ -4,13 +4,18 @@ import { Mail, Phone, UserCircle, FileText, ShieldCheck } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { getRegistrationDetail } from "@/lib/data/registrations";
 import { RegistrationStatusControl } from "../registration-status-control";
+import { RegistrationEditForm } from "../registration-edit-form";
 import { timeAgo } from "@/lib/utils";
-import { getFormatter } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { listProgramOptions } from "@/lib/data/people-edit";
 
 export default async function RegistrationDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const f = await getFormatter();
+  const { t, f } = await getI18n();
   const { id } = await params;
-  const { data, error } = await getRegistrationDetail(id);
+  const [{ data, error }, user] = await Promise.all([getRegistrationDetail(id), getSessionUser()]);
+  const isAdmin = !!user?.roles.includes("admin");
+  const programs = isAdmin ? await listProgramOptions() : [];
   if (error) return <ErrorState title="Couldn't load registration" message={error} />;
   if (!data) notFound();
 
@@ -23,8 +28,29 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
           <CardTitle>Status</CardTitle>
           <Badge tone={statusTone(data.status)}>{data.status}</Badge>
         </CardHeader>
-        <CardBody><RegistrationStatusControl id={data.id} current={data.status} /></CardBody>
+        <CardBody className="space-y-3">
+          <RegistrationStatusControl id={data.id} current={data.status} />
+          {data.status === "cancelled" && (data.cancellationReason || data.cancelledAt) && (
+            <div className="rounded bg-surface-elevated px-3 py-2 text-sm">
+              {data.cancelledAt && <div className="text-xs text-ink-3">{t("editPeople.registrations.cancelledOn", { date: f.date(data.cancelledAt) })}</div>}
+              {data.cancellationReason && <div className="text-ink">{t("editPeople.registrations.reasonLabel")}: {data.cancellationReason}</div>}
+            </div>
+          )}
+        </CardBody>
       </Card>
+
+      {isAdmin && (
+        <Card id="edit" className="scroll-mt-6">
+          <CardHeader><CardTitle>{t("editPeople.registrations.editTitle")}</CardTitle></CardHeader>
+          <CardBody>
+            <RegistrationEditForm
+              id={data.id}
+              programs={programs.some((p) => p.id === data.program.id) ? programs : [{ id: data.program.id, label: data.program.name }, ...programs]}
+              initial={{ programId: data.program.id, status: data.status, notes: data.notes, cancellationReason: data.cancellationReason }}
+            />
+          </CardBody>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>

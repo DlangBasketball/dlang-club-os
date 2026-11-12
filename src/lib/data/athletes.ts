@@ -22,6 +22,8 @@ export type AthleteCore = {
   positionPref: string | null;
   status: string;
   notes: string | null;
+  photoPath: string | null;
+  orgId: string;
 };
 
 export type Medical = {
@@ -67,7 +69,7 @@ export async function getAthleteDetail(id: string): Promise<Result<AthleteDetail
   const { data: a, error } = await supabase
     .from("athletes")
     .select(
-      "id,family_id,first_name,last_name,dob,gender,nationality,school,jersey_size,dominant_hand,position_pref,status,notes",
+      "id,org_id,family_id,first_name,last_name,dob,gender,nationality,school,jersey_size,dominant_hand,position_pref,status,notes,photo_path",
     )
     .eq("id", id)
     .maybeSingle();
@@ -160,6 +162,8 @@ export async function getAthleteDetail(id: string): Promise<Result<AthleteDetail
       positionPref: a.position_pref,
       status: a.status,
       notes: a.notes,
+      photoPath: a.photo_path,
+      orgId: a.org_id,
     },
     medical: m
       ? {

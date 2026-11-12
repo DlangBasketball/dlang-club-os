@@ -9,7 +9,6 @@ const OPTIONS: { value: RegistrationStatus; label: string }[] = [
   { value: "confirmed", label: "Confirm" },
   { value: "waitlist", label: "Waitlist" },
   { value: "pending", label: "Pending" },
-  { value: "cancelled", label: "Cancel" },
   { value: "completed", label: "Complete" },
 ];
 

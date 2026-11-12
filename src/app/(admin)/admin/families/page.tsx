@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, Plus } from "lucide-react";
+import { Users, Plus, Pencil } from "lucide-react";
 import { PageHeader, Button, DataTable, EmptyState, ErrorState, type Column } from "@/components/ui";
 import { listFamilies, type FamilyListItem } from "@/lib/data/families";
 import { getI18n } from "@/lib/i18n/server";
@@ -23,6 +23,16 @@ export default async function FamiliesPage() {
     { key: "phone", header: "Phone", render: (r) => r.phone ?? "—" },
     { key: "openInvoices", header: "Open" },
     { key: "balance", header: "Balance", align: "right", render: (r) => <span className="tnum">{f.money(r.balance)}</span> },
+    {
+      key: "actions",
+      header: t("common.actions"),
+      align: "right",
+      render: (r) => (
+        <Link href={`/admin/families/${r.id}/edit`} aria-label={t("editPeople.editAria", { name: r.name })}>
+          <Button size="sm" variant="ghost" type="button"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button>
+        </Link>
+      ),
+    },
   ];
   return (
     <div className="animate-fade-up">

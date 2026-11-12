@@ -12,6 +12,16 @@ import { getOrgAlertRecipients } from "@/lib/data/org-alert-recipients";
 import { sendEmail } from "@/lib/email/resend";
 import { registrationConfirmation, adminRegistrationAlert } from "@/lib/email/templates";
 import type { Json } from "@/types/database";
+import { requireRole, writeAudit, type ActionResult as PeopleResult } from "@/lib/people/server";
+import {
+  registrationEditSchema,
+  registrationCreateSchema,
+  cancelSchema,
+  firstIssueKey,
+  type RegistrationEditInput,
+  type RegistrationCreateInput,
+} from "@/lib/people/validation";
+import { logError } from "@/lib/log";
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -197,4 +207,129 @@ export async function updateRegistrationStatus(
   revalidatePath(`/admin/registrations/${id}`);
   revalidatePath("/admin/registrations");
   return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Admin: edit a registration (programme, status, notes), cancel with reason,
+// enrol an athlete. Admin only; the org comes from the session and every
+// referenced programme / athlete is re-resolved inside that org.
+// ---------------------------------------------------------------------------
+
+async function programInOrg(programId: string, orgId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("programs").select("id").eq("id", programId).eq("org_id", orgId).maybeSingle();
+  return !!data;
+}
+
+function revalidateRegistration(id: string, athleteId?: string | null) {
+  revalidatePath(`/admin/registrations/${id}`);
+  revalidatePath("/admin/registrations");
+  if (athleteId) {
+    revalidatePath(`/admin/athletes/${athleteId}`);
+    revalidatePath(`/admin/athletes/${athleteId}/edit`);
+  }
+}
+
+export async function updateRegistration(id: string, input: RegistrationEditInput): Promise<PeopleResult> {
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
+  const p = registrationEditSchema.safeParse(input);
+  if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
+
+  const supabase = await createClient();
+  const { data: reg } = await supabase
+    .from("registrations")
+    .select("id,athlete_id,program_id,status,cancelled_at")
+    .eq("id", id)
+    .eq("org_id", me.orgId)
+    .maybeSingle();
+  if (!reg) return { ok: false, error: t("editPeople.errors.notFound") };
+  if (!(await programInOrg(p.data.programId, me.orgId))) return { ok: false, error: t("editPeople.errors.programNotFound") };
+
+  if (p.data.programId !== reg.program_id) {
+    const { data: dup } = await supabase
+      .from("registrations")
+      .select("id")
+      .eq("athlete_id", reg.athlete_id)
+      .eq("program_id", p.data.programId)
+      .neq("id", id)
+      .maybeSingle();
+    if (dup) return { ok: false, error: t("editPeople.registrations.duplicate") };
+  }
+
+  const cancelled = p.data.status === "cancelled";
+  const keepCancelledAt = reg.status === "cancelled" && reg.cancelled_at;
+  const { error } = await supabase
+    .from("registrations")
+    .update({
+      program_id: p.data.programId,
+      status: p.data.status,
+      notes: p.data.notes,
+      cancellation_reason: cancelled ? p.data.cancellationReason : null,
+      cancelled_at: cancelled ? (keepCancelledAt ? reg.cancelled_at : new Date().toISOString()) : null,
+      cancelled_by: cancelled ? me.id : null,
+    })
+    .eq("id", id)
+    .eq("org_id", me.orgId);
+  if (error) {
+    logError("updateRegistration", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
+  if (p.data.programId !== reg.program_id) {
+    await writeAudit(me, "registration.program.change", "registrations", id, { from: reg.program_id, to: p.data.programId });
+  }
+  revalidateRegistration(id, reg.athlete_id);
+  return { ok: true, message: t("editPeople.saved") };
+}
+
+export async function cancelRegistration(id: string, reason: string): Promise<PeopleResult> {
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
+  const p = cancelSchema.safeParse({ reason });
+  if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("registrations")
+    .update({ status: "cancelled", cancellation_reason: p.data.reason, cancelled_at: new Date().toISOString(), cancelled_by: me.id })
+    .eq("id", id)
+    .eq("org_id", me.orgId)
+    .select("athlete_id");
+  if (error) {
+    logError("cancelRegistration", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
+  if (!data?.length) return { ok: false, error: t("editPeople.errors.notFound") };
+  await writeAudit(me, "registration.cancel", "registrations", id);
+  revalidateRegistration(id, data[0].athlete_id);
+  return { ok: true, message: t("editPeople.registrations.cancelled") };
+}
+
+/** Enrol an athlete in a programme from the admin side (no invoice is created here). */
+export async function createRegistration(input: RegistrationCreateInput): Promise<PeopleResult<{ id: string }>> {
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
+  const p = registrationCreateSchema.safeParse(input);
+  if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
+  const supabase = await createClient();
+  const { data: athlete } = await supabase.from("athletes").select("id").eq("id", p.data.athleteId).eq("org_id", me.orgId).maybeSingle();
+  if (!athlete) return { ok: false, error: t("editPeople.errors.notFound") };
+  if (!(await programInOrg(p.data.programId, me.orgId))) return { ok: false, error: t("editPeople.errors.programNotFound") };
+  const { data: dup } = await supabase
+    .from("registrations")
+    .select("id")
+    .eq("athlete_id", p.data.athleteId)
+    .eq("program_id", p.data.programId)
+    .maybeSingle();
+  if (dup) return { ok: false, error: t("editPeople.registrations.duplicate") };
+  const { data, error } = await supabase
+    .from("registrations")
+    .insert({ org_id: me.orgId, athlete_id: p.data.athleteId, program_id: p.data.programId, status: p.data.status, registered_by: me.id })
+    .select("id")
+    .single();
+  if (error || !data) {
+    logError("createRegistration", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
+  revalidateRegistration(data.id, p.data.athleteId);
+  return { ok: true, message: t("editPeople.registrations.enrolled"), data: { id: data.id } };
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, UserCircle, Users } from "lucide-react";
 import {
-  PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, ErrorState, EmptyState,
+  PageHeader, Avatar, Button, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, ErrorState, EmptyState,
 } from "@/components/ui";
 import { MedicalSection } from "@/components/athlete/medical-section";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
@@ -14,7 +14,8 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { deleteAthlete } from "@/lib/actions/athlete";
 import { athleteAttendanceHistory } from "@/lib/data/attendance-admin";
 import { AlertTriangle } from "lucide-react";
-import { getFormatter } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server";
+import { signAthletePhotos } from "@/lib/people/server";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -26,7 +27,7 @@ function Detail({ label, value }: { label: string; value: string | null }) {
 }
 
 export default async function AthleteDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const f = await getFormatter();
+  const { t, f } = await getI18n();
   const { id } = await params;
   const [{ data, error }, user] = await Promise.all([getAthleteDetail(id), getSessionUser()]);
   if (error) return <ErrorState title="Couldn't load athlete" message={error} />;
@@ -34,6 +35,11 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
 
   const { athlete: a, medical, safety, programs, timeline } = data;
   const canViewMedical = !!user?.roles.includes("admin");
+  const isAdmin = canViewMedical;
+  const photos = await signAthletePhotos([{ id: a.id, photoPath: a.photoPath }], a.orgId);
+  const fullName = `${a.firstName} ${a.lastName}`;
+  const optionLabel = (group: "gender" | "hand", v: string | null) =>
+    v ? t.dynamic(`editPeople.${group}.${v.trim().toLowerCase()}`, undefined, v) : null;
   const family = await getFamily(a.familyId);
   const emergencyName = medical?.emergencyContactName ?? safety?.emergencyContactName ?? null;
   const emergencyPhone = medical?.emergencyContactPhone ?? safety?.emergencyContactPhone ?? null;
@@ -41,22 +47,29 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="animate-fade-up space-y-6">
-      <PageHeader
-        title={`${a.firstName} ${a.lastName}`}
-        actions={
-          <div className="flex gap-2">
-            <Link href={`/admin/athletes/${id}/edit`}><Button variant="ghost"><Pencil className="h-4 w-4" /> Edit</Button></Link>
-            <ConfirmDeleteButton action={deleteAthlete.bind(null, id)} label="Delete" confirmText={`Delete ${a.firstName} ${a.lastName}? This cannot be undone.`} />
-          </div>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <Avatar name={fullName} src={photos.get(id) ?? null} alt={t("athletePhoto.alt", { name: fullName })} size="xl" />
+        <div className="min-w-0 flex-1">
+          <PageHeader
+            title={fullName}
+            actions={
+              isAdmin ? (
+                <div className="flex gap-2">
+                  <Link href={`/admin/athletes/${id}/edit`}><Button variant="secondary"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button></Link>
+                  <ConfirmDeleteButton action={deleteAthlete.bind(null, id)} label={t("common.delete")} confirmText={t("editPeople.athlete.confirmDelete", { name: fullName })} />
+                </div>
+              ) : undefined
+            }
+          />
+        </div>
+      </div>
 
       <div className="flex flex-wrap items-center gap-3 text-sm text-ink-3">
         <Link href={`/admin/families/${a.familyId}`} className="flex items-center gap-1.5 hover:text-maroon">
           <Users className="h-4 w-4" /> {a.familyName ?? "Family"}
         </Link>
         <span>·</span>
-        <Badge tone={statusTone(a.status)}>{a.status}</Badge>
+        <Badge tone={statusTone(a.status)}>{t.dynamic(`editPeople.athleteStatus.${a.status}`, undefined, a.status)}</Badge>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -66,11 +79,11 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
             <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
             <CardBody className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               <Detail label="Date of birth" value={f.date(a.dob)} />
-              <Detail label="Gender" value={a.gender} />
+              <Detail label="Gender" value={optionLabel("gender", a.gender)} />
               <Detail label="Nationality" value={a.nationality} />
               <Detail label="School" value={a.school} />
               <Detail label="Jersey size" value={a.jerseySize} />
-              <Detail label="Dominant hand" value={a.dominantHand} />
+              <Detail label="Dominant hand" value={optionLabel("hand", a.dominantHand)} />
               <Detail label="Position" value={a.positionPref} />
               {a.notes ? <div className="col-span-2 sm:col-span-3"><Detail label="Notes" value={a.notes} /></div> : null}
             </CardBody>
@@ -80,7 +93,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
           <Card>
             <CardHeader>
               <CardTitle>Programs &amp; teams</CardTitle>
-              <Link href="/admin/registrations" className="text-xs text-maroon hover:underline">Manage</Link>
+              {isAdmin && <Link href={`/admin/athletes/${id}/edit`} className="text-xs text-maroon hover:underline">{t("editPeople.edit")}</Link>}
             </CardHeader>
             <CardBody className="p-0">
               {programs.length === 0 ? (
@@ -89,7 +102,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
                 <ul>
                   {programs.map((p) => (
                     <li key={p.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
-                      <span className="text-sm text-ink">{p.name}</span>
+                      <Link href={`/admin/registrations/${p.id}`} className="text-sm text-ink hover:text-maroon">{p.name}</Link>
                       <Badge tone={statusTone(p.status)}>{p.status}</Badge>
                     </li>
                   ))}

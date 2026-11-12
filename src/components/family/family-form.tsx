@@ -1,32 +1,44 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { createFamily, updateFamily } from "@/lib/actions/family";
 import { Card, CardBody, Button, Input, Label } from "@/components/ui";
+import { useT } from "@/lib/i18n/client";
+
+type FamilyFields = { name: string; address: string; phone: string; contactName: string; contactEmail: string };
 
 export function FamilyForm({
   familyId,
   initial,
 }: {
   familyId?: string;
-  initial?: { name: string; address: string; phone: string };
+  initial?: Partial<Record<keyof FamilyFields, string | null>>;
 }) {
-  const [name, setName] = React.useState(initial?.name ?? "");
-  const [address, setAddress] = React.useState(initial?.address ?? "");
-  const [phone, setPhone] = React.useState(initial?.phone ?? "");
-  const [error, setError] = React.useState<string | null>(null);
+  const t = useT();
+  const router = useRouter();
+  const [f, setF] = React.useState<FamilyFields>({
+    name: initial?.name ?? "",
+    address: initial?.address ?? "",
+    phone: initial?.phone ?? "",
+    contactName: initial?.contactName ?? "",
+    contactEmail: initial?.contactEmail ?? "",
+  });
+  const set = (k: keyof FamilyFields) => (e: React.ChangeEvent<HTMLInputElement>) => setF((s) => ({ ...s, [k]: e.target.value }));
+  const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   const [pending, setPending] = React.useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setPending(true);
-    setError(null);
-    const payload = { name, address, phone };
-    const res = familyId
-      ? await updateFamily(familyId, payload)
-      : await createFamily(payload);
+    setMsg(null);
+    const res = familyId ? await updateFamily(familyId, f) : await createFamily(f);
     setPending(false);
-    if (res && !res.ok) setError(res.error);
+    if (!res) return;
+    if (res.ok) {
+      setMsg({ ok: true, text: res.message ?? t("editPeople.saved") });
+      router.refresh();
+    } else setMsg({ ok: false, text: res.error });
   }
 
   return (
@@ -34,23 +46,32 @@ export function FamilyForm({
       <CardBody>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Family name</Label>
-            <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Lopes family" />
+            <Label htmlFor="name">{t("editPeople.family.name")}</Label>
+            <Input id="name" required maxLength={120} value={f.name} onChange={set("name")} />
           </div>
           <div>
-            <Label htmlFor="address">Address</Label>
-            <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rue de Lyon 24, 1203 Genève" />
+            <Label htmlFor="address">{t("editPeople.family.address")}</Label>
+            <Input id="address" maxLength={300} autoComplete="street-address" value={f.address} onChange={set("address")} />
           </div>
           <div>
-            <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+41 …" />
+            <Label htmlFor="phone">{t("editPeople.family.phone")}</Label>
+            <Input id="phone" type="tel" maxLength={40} value={f.phone} onChange={set("phone")} />
           </div>
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <div className="flex gap-2">
-            <Button type="submit" disabled={pending}>
-              {pending ? "Saving…" : familyId ? "Save changes" : "Create family"}
-            </Button>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="contactName">{t("editPeople.family.contactName")}</Label>
+              <Input id="contactName" maxLength={120} value={f.contactName} onChange={set("contactName")} />
+            </div>
+            <div>
+              <Label htmlFor="contactEmail">{t("editPeople.family.contactEmail")}</Label>
+              <Input id="contactEmail" type="email" maxLength={200} value={f.contactEmail} onChange={set("contactEmail")} />
+            </div>
           </div>
+          <p className="text-xs text-ink-3">{t("editPeople.family.contactHint")}</p>
+          {msg && <p role="status" className={msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{msg.text}</p>}
+          <Button type="submit" loading={pending}>
+            {pending ? t("editPeople.saving") : familyId ? t("editPeople.saveChanges") : t("editPeople.family.create")}
+          </Button>
         </form>
       </CardBody>
     </Card>

@@ -7,10 +7,10 @@ import {
 } from "@/components/ui";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
 import { getFamily } from "@/lib/data/families";
-import { getFormatter } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server";
 
 export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const f = await getFormatter();
+  const { t, f } = await getI18n();
   const { id } = await params;
   const { data, error } = await getFamily(id);
   if (error) return <ErrorState title="Couldn't load family" message={error} />;
@@ -24,7 +24,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
         actions={
           <div className="flex gap-2">
             <Link href={`/admin/athletes/new?family=${id}`}><Button variant="secondary"><Plus className="h-4 w-4" /> Add athlete</Button></Link>
-            <Link href={`/admin/families/${id}/edit`}><Button variant="ghost"><Pencil className="h-4 w-4" /> Edit</Button></Link>
+            <Link href={`/admin/families/${id}/edit`}><Button variant="secondary"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button></Link>
           </div>
         }
       />

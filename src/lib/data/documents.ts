@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 
 export type DocScope = "global" | "program" | "family" | "athlete";
-export type AdminDoc = { id: string; title: string | null; fileName: string | null; kind: string; scope: DocScope; targetName: string; sizeBytes: number | null; createdAt: string };
+export type AdminDoc = { id: string; title: string | null; fileName: string | null; kind: string; scope: DocScope; targetId: string | null; targetName: string; sizeBytes: number | null; createdAt: string; expiresAt: string | null };
 
 function scopeOf(d: { athlete_id: string | null; family_id: string | null; program_id: string | null }): DocScope {
   if (d.athlete_id) return "athlete";
@@ -16,7 +16,7 @@ export async function listAllDocuments(): Promise<AdminDoc[]> {
   const me = await getSessionUser();
   if (!me?.orgId) return [];
   const admin = createAdminClient();
-  const { data } = await admin.from("documents").select("id,title,file_name,kind,athlete_id,family_id,program_id,size_bytes,created_at").eq("org_id", me.orgId).order("created_at", { ascending: false });
+  const { data } = await admin.from("documents").select("id,title,file_name,kind,athlete_id,family_id,program_id,size_bytes,created_at,expires_at").eq("org_id", me.orgId).order("created_at", { ascending: false });
   const rows = data ?? [];
   const aIds = rows.map((r) => r.athlete_id).filter((x): x is string => !!x);
   const fIds = rows.map((r) => r.family_id).filter((x): x is string => !!x);
@@ -32,7 +32,8 @@ export async function listAllDocuments(): Promise<AdminDoc[]> {
   return rows.map((r) => {
     const scope = scopeOf(r);
     const targetName = scope === "athlete" ? aName.get(r.athlete_id!) ?? "—" : scope === "family" ? fName.get(r.family_id!) ?? "—" : scope === "program" ? pName.get(r.program_id!) ?? "—" : "All members";
-    return { id: r.id, title: r.title, fileName: r.file_name, kind: r.kind, scope, targetName, sizeBytes: r.size_bytes, createdAt: r.created_at };
+    const targetId = r.athlete_id ?? r.family_id ?? r.program_id ?? null;
+    return { id: r.id, title: r.title, fileName: r.file_name, kind: r.kind, scope, targetId, targetName, sizeBytes: r.size_bytes, createdAt: r.created_at, expiresAt: r.expires_at };
   });
 }
 

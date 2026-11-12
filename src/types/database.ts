@@ -88,6 +88,8 @@ export type Database = {
           position_pref: string | null;
           status: string;
           notes: string | null;
+          photo_path: string | null;
+          photo_updated_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -234,6 +236,11 @@ export type Database = {
           accepted_text: string | null;
           withdrawn_at: string | null;
           user_agent: string | null;
+          source: "online" | "paper" | "verbal" | "email" | "other";
+          recorded_by: string | null;
+          signer_name: string | null;
+          withdrawal_reason: string | null;
+          withdrawn_by: string | null;
         };
         Insert: {
           org_id: string | null;
@@ -241,6 +248,12 @@ export type Database = {
           consent_form_id: string;
           accepted_version: number;
           accepted_by?: string | null;
+          accepted_at?: string;
+          status?: "accepted" | "withdrawn" | "expired";
+          program_id?: string | null;
+          source?: "online" | "paper" | "verbal" | "email" | "other";
+          recorded_by?: string | null;
+          signer_name?: string | null;
         };
         Update: Record<string, unknown>;
         Relationships: [];
@@ -305,6 +318,9 @@ export type Database = {
             | "completed";
           registered_by: string | null;
           notes: string | null;
+          cancellation_reason: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -389,6 +405,7 @@ export type Database = {
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
           notes?: string | null;
+          updated_by?: string | null;
         };
         Update: Record<string, unknown>;
         Relationships: [];
@@ -422,6 +439,9 @@ export type Database = {
           uploaded_by: string | null;
           file_name: string | null;
           mime_type: string | null;
+          expires_at: string | null;
+          updated_at: string;
+          updated_by: string | null;
           created_at: string;
         };
         Insert: Record<string, unknown>;
@@ -599,6 +619,7 @@ export type Database = {
       org_ai_assistant_enabled: { Args: { p_org: string }; Returns: boolean };
       anonymise_family: { Args: { p_family: string }; Returns: Json };
       withdraw_consent: { Args: { p_id: string }; Returns: Json };
+      withdraw_consent_with_reason: { Args: { p_id: string; p_reason: string }; Returns: Json };
       next_invoice_number: { Args: { p_org: string }; Returns: string };
       register_public: { Args: { p_payload: Json }; Returns: Json };
       create_manual_invoice: { Args: { p_payload: Json }; Returns: Json };

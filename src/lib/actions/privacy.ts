@@ -44,6 +44,13 @@ export async function processDeletionRequest(id: string, approve: boolean): Prom
         const { error: rmErr } = await admin.storage.from("documents").remove(ownPaths);
         if (rmErr) logError("processDeletionRequest.storage", rmErr);
       }
+      // ...and the children's identification photos (athlete-photos bucket).
+      const photos = ((erased as { photo_paths?: unknown } | null)?.photo_paths ?? []) as unknown[];
+      const ownPhotos = photos.filter((p): p is string => typeof p === "string" && p.startsWith(`${me.orgId}/`));
+      if (ownPhotos.length) {
+        const { error: rmErr } = await admin.storage.from("athlete-photos").remove(ownPhotos);
+        if (rmErr) logError("processDeletionRequest.photos", rmErr);
+      }
       await admin.from("deletion_requests").update({ status: "completed", reviewed_by: me.id, reviewed_at: new Date().toISOString(), completed_at: new Date().toISOString() }).eq("id", id);
       await admin.from("audit_logs").insert({ org_id: me.orgId, actor_id: me.id, action: "privacy.erasure_completed", target_table: "families", target_id: req.family_id, new_data: { request_id: id } });
     } else {

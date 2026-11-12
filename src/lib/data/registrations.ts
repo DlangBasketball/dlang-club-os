@@ -63,6 +63,8 @@ export type RegistrationDetail = {
   status: string;
   createdAt: string;
   notes: string | null;
+  cancellationReason: string | null;
+  cancelledAt: string | null;
   athlete: { id: string; name: string; dob: string };
   family: { id: string; name: string; contactName: string | null; contactEmail: string | null; phone: string | null };
   program: { id: string; name: string; slug: string | null };
@@ -74,7 +76,7 @@ export async function getRegistrationDetail(id: string): Promise<Result<Registra
   const supabase = await createClient();
   const { data: reg, error } = await supabase
     .from("registrations")
-    .select("id,status,created_at,notes,athlete_id,program_id")
+    .select("id,status,created_at,notes,athlete_id,program_id,cancellation_reason,cancelled_at")
     .eq("id", id)
     .maybeSingle();
   if (error) return fail(error.message);
@@ -109,6 +111,8 @@ export async function getRegistrationDetail(id: string): Promise<Result<Registra
     status: reg.status,
     createdAt: reg.created_at,
     notes: reg.notes,
+    cancellationReason: reg.cancellation_reason,
+    cancelledAt: reg.cancelled_at,
     athlete: {
       id: reg.athlete_id,
       name: athlete ? `${athlete.first_name} ${athlete.last_name}` : "Athlete",

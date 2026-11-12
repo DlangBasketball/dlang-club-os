@@ -6,6 +6,7 @@ import { Check, Clock, X, ShieldOff, NotebookPen, AlertTriangle, ChevronLeft } f
 import Link from "next/link";
 import { saveAttendance, type AttendanceMarkInput } from "@/lib/actions/attendance";
 import type { RosterEntry } from "@/lib/data/coach-sessions";
+import { Avatar } from "@/components/ui";
 
 type Status = "present" | "late" | "absent" | "excused";
 type Row = RosterEntry & { dirty?: boolean };
@@ -18,12 +19,14 @@ const OPTS: { value: Status; label: string; Icon: React.ComponentType<{ classNam
 ];
 
 export function AttendanceRoster({
-  attendanceSessionId, programName, initialRoster, locked,
+  attendanceSessionId, programName, initialRoster, locked, photos,
 }: {
   attendanceSessionId: string;
   programName: string;
   initialRoster: RosterEntry[];
   locked: boolean;
+  /** athleteId -> short-lived signed photo URL (identification only). */
+  photos?: Record<string, string>;
 }) {
   const router = useRouter();
   const [rows, setRows] = React.useState<Row[]>(initialRoster);
@@ -77,6 +80,7 @@ export function AttendanceRoster({
           <div key={r.athleteId} className="rounded-xl border border-line bg-surface-card p-3">
             <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
+                <Avatar name={r.fullName} src={photos?.[r.athleteId] ?? null} size="lg" />
                 <span className="font-medium text-ink">{r.fullName}</span>
                 {(r.allergies || r.conditions) && (
                   <span title={`${r.allergies ?? ""} ${r.conditions ?? ""}`.trim()} className="rounded bg-warning-soft px-1.5 py-0.5 text-[10px] text-warning">medical</span>

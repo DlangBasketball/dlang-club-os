@@ -3,119 +3,141 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSessionUser } from "@/lib/auth/get-user";
-import type { ActionResult } from "./family";
+import { requireRole, writeAudit, type ActionResult } from "@/lib/people/server";
+import {
+  athleteSchema,
+  medicalSchema,
+  firstIssueKey,
+  isPhotoPathFor,
+  PHOTO_BUCKET,
+  type AthleteInput,
+  type MedicalInput,
+} from "@/lib/people/validation";
+import { logError } from "@/lib/log";
 
-async function gate(adminOnly = false) {
-  const me = await getSessionUser();
-  const allowed =
-    !!me &&
-    (adminOnly
-      ? me.roles.includes("admin")
-      : me.roles.includes("admin") || me.roles.includes("finance"));
-  return { me: allowed ? me : null };
+export type { AthleteInput, MedicalInput } from "@/lib/people/validation";
+
+/** The family must belong to the caller's org (checked through RLS + org filter). */
+async function familyInOrg(familyId: string, orgId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("families").select("id").eq("id", familyId).eq("org_id", orgId).maybeSingle();
+  return !!data;
 }
 
-export type AthleteInput = {
-  familyId: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  gender?: string;
-  nationality?: string;
-  school?: string;
-  jerseySize?: string;
-  dominantHand?: string;
-  positionPref?: string;
-  status?: string;
-  notes?: string;
-};
-
-function toRow(input: AthleteInput, orgId: string | null) {
+function toRow(d: ReturnType<typeof athleteSchema.parse>) {
   return {
-    org_id: orgId,
-    family_id: input.familyId,
-    first_name: input.firstName,
-    last_name: input.lastName,
-    dob: input.dob,
-    gender: input.gender || null,
-    nationality: input.nationality || null,
-    school: input.school || null,
-    jersey_size: input.jerseySize || null,
-    dominant_hand: input.dominantHand || null,
-    position_pref: input.positionPref || null,
-    status: input.status || "active",
-    notes: input.notes || null,
+    family_id: d.familyId,
+    first_name: d.firstName,
+    last_name: d.lastName,
+    dob: d.dob,
+    gender: d.gender,
+    nationality: d.nationality,
+    school: d.school,
+    jersey_size: d.jerseySize,
+    dominant_hand: d.dominantHand,
+    position_pref: d.positionPref,
+    status: d.status,
+    notes: d.notes,
   };
 }
 
-export async function createAthlete(input: AthleteInput): Promise<ActionResult> {
-  const { me } = await gate();
-  if (!me) return { ok: false, error: "You don't have permission to do that." };
+export async function createAthlete(input: AthleteInput): Promise<ActionResult<{ id: string }>> {
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
+  const p = athleteSchema.safeParse(input);
+  if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
+  if (!(await familyInOrg(p.data.familyId, me.orgId))) return { ok: false, error: t("editPeople.errors.familyNotFound") };
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("athletes")
-    .insert(toRow(input, me.orgId))
+    .insert({ ...toRow(p.data), org_id: me.orgId })
     .select("id")
     .single();
-  if (error) return { ok: false, error: error.message };
-  revalidatePath(`/admin/families/${input.familyId}`);
+  if (error || !data) {
+    logError("createAthlete", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
+  revalidatePath(`/admin/families/${p.data.familyId}`);
+  revalidatePath("/admin/athletes");
   redirect(`/admin/athletes/${data.id}`);
 }
 
 export async function updateAthlete(id: string, input: AthleteInput): Promise<ActionResult> {
-  const { me } = await gate();
-  if (!me) return { ok: false, error: "You don't have permission to do that." };
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
+  const p = athleteSchema.safeParse(input);
+  if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
+  if (!(await familyInOrg(p.data.familyId, me.orgId))) return { ok: false, error: t("editPeople.errors.familyNotFound") };
+
   const supabase = await createClient();
-  const { error } = await supabase.from("athletes").update(toRow(input, me.orgId)).eq("id", id);
-  if (error) return { ok: false, error: error.message };
+  const { data: before } = await supabase.from("athletes").select("family_id").eq("id", id).eq("org_id", me.orgId).maybeSingle();
+  if (!before) return { ok: false, error: t("editPeople.errors.notFound") };
+  const { error } = await supabase.from("athletes").update(toRow(p.data)).eq("id", id).eq("org_id", me.orgId);
+  if (error) {
+    logError("updateAthlete", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
+  if (before.family_id !== p.data.familyId) {
+    await writeAudit(me, "athlete.family.move", "athletes", id, { from: before.family_id, to: p.data.familyId });
+    revalidatePath(`/admin/families/${before.family_id}`);
+  }
   revalidatePath(`/admin/athletes/${id}`);
-  redirect(`/admin/athletes/${id}`);
+  revalidatePath(`/admin/families/${p.data.familyId}`);
+  revalidatePath("/admin/athletes");
+  return { ok: true, message: t("editPeople.saved") };
 }
 
 export async function deleteAthlete(id: string): Promise<ActionResult> {
-  const { me } = await gate(true);
-  if (!me) return { ok: false, error: "Only admins can delete athletes." };
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
   const supabase = await createClient();
-  const { data: a } = await supabase.from("athletes").select("family_id").eq("id", id).maybeSingle();
-  const { error } = await supabase.from("athletes").delete().eq("id", id);
-  if (error) return { ok: false, error: error.message };
-  const familyId = (a as { family_id?: string } | null)?.family_id;
+  const { data: a } = await supabase.from("athletes").select("family_id,photo_path").eq("id", id).eq("org_id", me.orgId).maybeSingle();
+  if (!a) return { ok: false, error: t("editPeople.errors.notFound") };
+  const { error } = await supabase.from("athletes").delete().eq("id", id).eq("org_id", me.orgId);
+  if (error) {
+    logError("deleteAthlete", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
+  if (a.photo_path && isPhotoPathFor(a.photo_path, me.orgId, id)) {
+    const rm = await supabase.storage.from(PHOTO_BUCKET).remove([a.photo_path]);
+    if (rm.error) logError("deleteAthlete.photo", rm.error);
+  }
+  await writeAudit(me, "athlete.delete", "athletes", id, { family_id: a.family_id });
   revalidatePath("/admin/families");
-  redirect(familyId ? `/admin/families/${familyId}` : "/admin/families");
+  revalidatePath("/admin/athletes");
+  redirect(`/admin/families/${a.family_id}`);
 }
 
-export type MedicalInput = {
-  allergies?: string;
-  conditions?: string;
-  medications?: string;
-  insurance?: string;
-  emergencyContactName?: string;
-  emergencyContactPhone?: string;
-  notes?: string;
-};
-
+/** Medical record: admin only here (guardians edit their own child from the parent app). */
 export async function upsertMedical(athleteId: string, input: MedicalInput): Promise<ActionResult> {
-  const { me } = await gate(true); // medical writes: admin (RLS also allows guardian elsewhere)
-  if (!me) return { ok: false, error: "Only admins can edit medical info here." };
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
+  const p = medicalSchema.safeParse(input);
+  if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("athlete_medical")
-    .upsert(
-      {
-        org_id: me.orgId,
-        athlete_id: athleteId,
-        allergies: input.allergies || null,
-        conditions: input.conditions || null,
-        medications: input.medications || null,
-        insurance: input.insurance || null,
-        emergency_contact_name: input.emergencyContactName || null,
-        emergency_contact_phone: input.emergencyContactPhone || null,
-        notes: input.notes || null,
-      },
-      { onConflict: "athlete_id" },
-    );
-  if (error) return { ok: false, error: error.message };
+  const { data: a } = await supabase.from("athletes").select("id").eq("id", athleteId).eq("org_id", me.orgId).maybeSingle();
+  if (!a) return { ok: false, error: t("editPeople.errors.notFound") };
+  const d = p.data;
+  const { error } = await supabase.from("athlete_medical").upsert(
+    {
+      org_id: me.orgId,
+      athlete_id: athleteId,
+      allergies: d.allergies,
+      conditions: d.conditions,
+      medications: d.medications,
+      insurance: d.insurance,
+      emergency_contact_name: d.emergencyContactName,
+      emergency_contact_phone: d.emergencyContactPhone,
+      notes: d.notes,
+      updated_by: me.id,
+    },
+    { onConflict: "athlete_id" },
+  );
+  if (error) {
+    logError("upsertMedical", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
   revalidatePath(`/admin/athletes/${athleteId}`);
-  redirect(`/admin/athletes/${athleteId}`);
+  return { ok: true, message: t("editPeople.saved") };
 }

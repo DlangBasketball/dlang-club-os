@@ -83,6 +83,8 @@ export type FamilyDetail = {
   name: string;
   address: string | null;
   phone: string | null;
+  contactName: string | null;
+  contactEmail: string | null;
   guardians: Guardian[];
   athletes: FamilyAthlete[];
   invoices: FamilyInvoice[];
@@ -95,7 +97,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
   const supabase = await createClient();
   const { data: family, error } = await supabase
     .from("families")
-    .select("id,name,address,phone")
+    .select("id,name,address,phone,contact_name,contact_email")
     .eq("id", id)
     .maybeSingle();
   if (error) return fail(error.message);
@@ -137,6 +139,8 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
     name: family.name,
     address: family.address,
     phone: family.phone,
+    contactName: family.contact_name,
+    contactEmail: family.contact_email,
     guardians: (members.data ?? []).map((m) => {
       const p = pMap.get(m.profile_id);
       return {

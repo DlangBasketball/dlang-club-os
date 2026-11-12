@@ -10,5 +10,8 @@ const nextConfig = {
   // Pin the tracing root to this project so .next/standalone/server.js lands
   // at the top level even if a parent directory contains another lockfile.
   outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
+  // Athlete photos (max 2 MB after client-side resizing) are posted to a
+  // server action; the default 1 MB body limit would reject larger ones.
+  experimental: { serverActions: { bodySizeLimit: "3mb" } },
 };
 export default nextConfig;
