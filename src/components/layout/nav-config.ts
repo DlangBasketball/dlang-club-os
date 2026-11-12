@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -22,6 +22,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", labelKey: "athletes", href: "/admin/athletes", icon: UserCircle },
     { label: "Programs", labelKey: "programs", href: "/admin/programs", icon: CalendarRange },
     { label: "Registrations", labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList },
+    { label: "Discounts", labelKey: "discounts", href: "/admin/discounts", icon: Percent },
     { label: "Teams", labelKey: "teams", href: "/admin/teams", icon: Shield },
     { label: "Coaches", labelKey: "coaches", href: "/admin/coaches", icon: UserCog },
     { label: "Schedule", labelKey: "schedule", href: "/admin/schedule", icon: CalendarDays },
@@ -46,6 +47,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
     { label: "Children", labelKey: "children", href: "/parent/children", icon: UserCircle },
     { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },
+    { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
     { label: "Invoices", labelKey: "invoices", href: "/parent/invoices", icon: Receipt },
     { label: "Bookings", labelKey: "bookings", href: "/parent/bookings", icon: Dumbbell },
     { label: "Attendance", labelKey: "attendance", href: "/parent/attendance", icon: CheckSquare },

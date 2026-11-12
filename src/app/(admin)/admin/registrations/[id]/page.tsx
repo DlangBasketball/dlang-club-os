@@ -9,6 +9,7 @@ import { timeAgo } from "@/lib/utils";
 import { getI18n } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { listProgramOptions } from "@/lib/data/people-edit";
+import { CampRegistrationPanel } from "@/components/camps/camp-registration-panel";
 
 export default async function RegistrationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { t, f } = await getI18n();
@@ -38,6 +39,11 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
           )}
         </CardBody>
       </Card>
+
+      {user?.orgId && (
+        <CampRegistrationPanel registrationId={data.id} orgId={user.orgId}
+          canDiscount={!!(user.roles.includes("admin") || user.roles.includes("finance"))} />
+      )}
 
       {isAdmin && (
         <Card id="edit" className="scroll-mt-6">
