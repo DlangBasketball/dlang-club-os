@@ -334,7 +334,17 @@
     "received": "Zahlung erhalten",
     "recordPayment": "Zahlung erfassen",
     "method": "Zahlungsart",
-    "receipt": "Quittung"
+    "receipt": "Quittung",
+    "payWith": "Bezahlen mit {methods}",
+    "stripeHint": "Sichere Zahlung über Stripe, direkt an {club}. Deine Rechnung wird nach der Zahlung automatisch aktualisiert.",
+    "delayedHint": "Bankeinzüge (SEPA / ACH) werden innerhalb von 3–5 Werktagen bestätigt.",
+    "reverseCharge": "Reverse Charge — Steuerschuld beim Leistungsempfänger",
+    "taxLine": "{label} {rate} %",
+    "taxLineIncluded": "{label} {rate} % (inbegriffen)",
+    "bankToBic": "Banküberweisung an {creditor}, IBAN {iban} (BIC {bic}) — Referenz {reference}.",
+    "epcAlt": "QR-Code für SEPA-Überweisung",
+    "epcHint": "Mit deiner Banking-App scannen, um die SEPA-Überweisung vorauszufüllen.",
+    "reconciledBankHint": "Bankzahlungen werden nach Eingang von der Geschäftsstelle abgeglichen."
   },
   "booking": {
     "title": "Buchungen",

@@ -85,6 +85,9 @@ export type InvoiceDetail = {
   total: number;
   paid: number;
   balance: number;
+  /** ISO currency of all amounts on this invoice (regional payments). */
+  currency: string;
+  tax: { rate: number; amount: number; label: string | null; inclusive: boolean; reverseCharge: boolean; subtotal: number };
   dueDate: string | null;
   issuedAt: string;
   paidAt: string | null;
@@ -99,7 +102,7 @@ export async function getInvoiceDetail(id: string): Promise<Result<InvoiceDetail
   const supabase = await createClient();
   const { data: inv, error } = await supabase
     .from("invoices")
-    .select("id,number,status,description,total_chf,due_date,issued_at,paid_at,family_id,program_id,org_id,payment_reference")
+    .select("id,number,status,description,total_chf,due_date,issued_at,paid_at,family_id,program_id,org_id,payment_reference,currency,subtotal_amount,tax_rate,tax_amount,tax_label,tax_inclusive,reverse_charge")
     .eq("id", id)
     .maybeSingle();
   if (error) return fail(error.message);
@@ -115,8 +118,9 @@ export async function getInvoiceDetail(id: string): Promise<Result<InvoiceDetail
   ]);
 
   const total = Number(inv.total_chf ?? 0);
+  // Succeeded payments minus refund rows (negative amounts), as public.invoice_net_paid().
   const paid = (paymentsRes.data ?? [])
-    .filter((p) => p.status === "succeeded")
+    .filter((p) => p.status === "succeeded" || Number(p.amount_chf ?? 0) < 0)
     .reduce((s, p) => s + Number(p.amount_chf ?? 0), 0);
 
   const audit: InvoiceAuditEntry[] = [
@@ -136,6 +140,15 @@ export async function getInvoiceDetail(id: string): Promise<Result<InvoiceDetail
     total,
     paid,
     balance: total - paid,
+    currency: inv.currency ?? "CHF",
+    tax: {
+      rate: Number(inv.tax_rate ?? 0),
+      amount: Number(inv.tax_amount ?? 0),
+      label: inv.tax_label ?? null,
+      inclusive: inv.tax_inclusive ?? true,
+      reverseCharge: inv.reverse_charge ?? false,
+      subtotal: Number(inv.subtotal_amount ?? total),
+    },
     dueDate: inv.due_date,
     issuedAt: inv.issued_at,
     paidAt: inv.paid_at,

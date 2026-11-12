@@ -334,7 +334,17 @@
     "received": "Payment received",
     "recordPayment": "Record payment",
     "method": "Method",
-    "receipt": "Receipt"
+    "receipt": "Receipt",
+    "payWith": "Pay with {methods}",
+    "stripeHint": "Secure payment via Stripe, paid directly to {club}. Your invoice updates automatically once paid.",
+    "delayedHint": "Bank debits (SEPA / ACH) confirm within 3–5 business days.",
+    "reverseCharge": "Reverse charge — VAT payable by recipient",
+    "taxLine": "{label} {rate}%",
+    "taxLineIncluded": "{label} {rate}% (included)",
+    "bankToBic": "Bank transfer to {creditor}, IBAN {iban} (BIC {bic}) — reference {reference}.",
+    "epcAlt": "SEPA transfer QR code",
+    "epcHint": "Scan with your banking app to pre-fill the SEPA transfer.",
+    "reconciledBankHint": "Bank payments are reconciled by the club office once received."
   },
   "booking": {
     "title": "Bookings",

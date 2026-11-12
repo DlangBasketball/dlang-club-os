@@ -7,6 +7,7 @@ const TABS = [
   { href: "/admin/settings", label: "Club profile" },
   { href: "/admin/settings/branding", label: "Branding & venues" },
   { href: "/admin/settings/billing", label: "Billing & tax" },
+  { href: "/admin/settings/payments", label: "Online payments" },
   { href: "/admin/settings/staff", label: "Staff & roles" },
   { href: "/admin/settings/notifications", label: "Templates" },
   { href: "/admin/settings/privacy", label: "Privacy & data" },

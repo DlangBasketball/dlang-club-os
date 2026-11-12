@@ -334,7 +334,17 @@
     "received": "Pagamento ricevuto",
     "recordPayment": "Registra pagamento",
     "method": "Metodo di pagamento",
-    "receipt": "Ricevuta"
+    "receipt": "Ricevuta",
+    "payWith": "Paga con {methods}",
+    "stripeHint": "Pagamento sicuro tramite Stripe, versato direttamente a {club}. La fattura si aggiorna automaticamente dopo il pagamento.",
+    "delayedHint": "Gli addebiti bancari (SEPA / ACH) vengono confermati entro 3–5 giorni lavorativi.",
+    "reverseCharge": "Inversione contabile — IVA a carico del destinatario",
+    "taxLine": "{label} {rate}%",
+    "taxLineIncluded": "{label} {rate}% (inclusa)",
+    "bankToBic": "Bonifico bancario a {creditor}, IBAN {iban} (BIC {bic}) — riferimento {reference}.",
+    "epcAlt": "Codice QR per bonifico SEPA",
+    "epcHint": "Scansiona con l'app della tua banca per precompilare il bonifico SEPA.",
+    "reconciledBankHint": "I pagamenti bancari vengono riconciliati dalla segreteria del club alla ricezione."
   },
   "booking": {
     "title": "Prenotazioni",

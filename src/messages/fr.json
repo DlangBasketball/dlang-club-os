@@ -334,7 +334,17 @@
     "received": "Paiement reçu",
     "recordPayment": "Enregistrer un paiement",
     "method": "Mode de paiement",
-    "receipt": "Reçu"
+    "receipt": "Reçu",
+    "payWith": "Payer par {methods}",
+    "stripeHint": "Paiement sécurisé via Stripe, versé directement à {club}. Votre facture est mise à jour automatiquement après le paiement.",
+    "delayedHint": "Les prélèvements bancaires (SEPA / ACH) sont confirmés sous 3 à 5 jours ouvrables.",
+    "reverseCharge": "Autoliquidation — TVA due par le destinataire",
+    "taxLine": "{label} {rate} %",
+    "taxLineIncluded": "{label} {rate} % (incluse)",
+    "bankToBic": "Virement bancaire à {creditor}, IBAN {iban} (BIC {bic}) — référence {reference}.",
+    "epcAlt": "Code QR de virement SEPA",
+    "epcHint": "Scannez avec votre application bancaire pour préremplir le virement SEPA.",
+    "reconciledBankHint": "Les paiements bancaires sont rapprochés par le secrétariat du club dès réception."
   },
   "booking": {
     "title": "Réservations",

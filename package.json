@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "i18n:check": "node scripts/i18n-check.mjs",
+    "test:payments": "node --no-warnings --import ./src/lib/payments/__tests__/register.mjs --test src/lib/payments/__tests__/*.test.ts",
     "types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > src/types/database.ts"
   },
   "dependencies": {

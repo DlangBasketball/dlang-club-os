@@ -31,6 +31,7 @@ const JSON_OUT = args.has("--json");
 // Strings that are legitimately the same across languages.
 const SAME_AS_EN_OK = new Set([
   "auth.statusLabel",
+  "payments.taxLine",
   "meta.direction",
   "common.status",
   "common.total",
