@@ -40,7 +40,7 @@ function LoginInner() {
   const redirect = params.get("redirect");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const usePassword = PASSWORD_LOGIN && password.length > 0;
+  const usePassword = PASSWORD_LOGIN && password.trim().length > 0;
   const [status, setStatus] = React.useState<"idle" | "loading" | "sent" | "error">(
     "idle",
   );
@@ -52,7 +52,11 @@ function LoginInner() {
     setError(null);
     const supabase = createClient();
     if (usePassword) {
-      const { error: pwError } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: pwError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        // Pasted passwords often carry stray whitespace (phones, docs).
+        password: password.trim(),
+      });
       if (pwError) {
         setError(t("auth.passwordError"));
         setStatus("error");
@@ -66,7 +70,7 @@ function LoginInner() {
       redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""
     }`;
     const { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: email.trim(),
       options: { emailRedirectTo },
     });
     if (error) {
@@ -155,6 +159,9 @@ function LoginInner() {
                       id="email"
                       type="email"
                       autoComplete="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       required
                       placeholder={t("auth.emailPlaceholder")}
                       value={email}
@@ -170,6 +177,9 @@ function LoginInner() {
                         id="password"
                         type="password"
                         autoComplete="current-password"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         aria-describedby="password-hint"
