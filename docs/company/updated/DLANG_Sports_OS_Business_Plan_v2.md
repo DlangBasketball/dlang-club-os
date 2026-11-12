@@ -1,7 +1,7 @@
 ---
 title: "DLANG Sports OS — Business Plan v2"
 subtitle: "The operating system for club sport in Switzerland, and the plan to build a company around it. Re-baselined November 2026."
-date: "11 November 2026, updated 12 November 2026"
+date: "11 November 2026, updated 12 November 2026 (round 2)"
 ---
 
 **BUSINESS PLAN · v2 · NOVEMBER 2026**
@@ -49,7 +49,7 @@ What is new in v2 is a third job: **telling the truth about the last three month
 
 ## Founder decisions of 12 November 2026 [Updated 12 Nov 2026]
 
-The founder answered the open status questions and took fifteen decisions the day after this plan was drafted. They are applied throughout and logged in `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md`.
+The founder answered the open status questions and took fifteen decisions the day after this plan was drafted, then answered three follow-ups the same day (**round 2**: AI as a paid add-on, no free pilots, a parent AI add-on idea). They are applied throughout and logged in `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md`. Financial figures of record: workbook **v2.2** (`DLANG_Sports_OS_Financial_Model_v2.2.xlsx`).
 
 | # | Decision | Effect on this plan |
 |---|---|---|
@@ -61,13 +61,14 @@ The founder answered the open status questions and took fifteen decisions the da
 | 6 | **EUR 50k secured, released once a CTO is in place**; one cap table for now | CTO on the critical path for cash; Jan–Mar 2027 bridge (11.4) |
 | 8 | **Lean-cost variant** accepted | Plan of record (11.1) |
 | 9 | "Cheapest payment rail" adopted; "cheaper than Spond" retired | Claims (2.2) |
-| 10, 11 | No free pilots in Switzerland; **one free EU and one free US design-partner pilot** in 2027 | New phases in 5.5 and gates in 13.3 |
-| 12 | **AI assistant opt-in per club** once fully functional; DLang beta Q1 2027; included in the Club tier *[Confirm]* | 5.2, 5.3, 6.4 |
+| 10, 11 | **No free pilots anywhere** (round 2); **one discounted paid EU and one discounted paid US design-partner pilot** in 2027 (proposed 50% off the Club-tier list for 6 months, 12-month commitment, then list *[Confirm]*) | New phases in 5.5 and gates in 13.3 |
+| 12 | **AI assistant opt-in per club** once fully functional; DLang beta Q1 2027. Round 2: **a paid add-on for clubs, not in the Club price** (CHF 69/month proposed *[Confirm]*); **DLang free** | 5.2, 5.3, 6.4 |
+| B (round 2) | Parent AI add-on: an idea, "maybe" | Proposal only (`docs/company/13_PARENT_AI_ADDON_SPEC.md`); not in this plan's numbers |
 | 13 | Master-brand candidate **"Global Sport OS"**; clubs run it under their own name (e.g. "DLang OS") | Trademark and domain check by 15 Jan 2027 (5.1, 10.4) |
 | 14 | Break-even and bridge dates come **only from the v2 workbook** | Section 01 and 11 |
 | 15 | **No kill switch** | Strategy review triggers (13.2) |
 
-**Companion documents.** Rollout v2 (weeks 1–13 from 16 November 2026 plus a 12-month roadmap), Financial Model v2 (`DLANG_Sports_OS_Financial_Model_v2.xlsx`, with Changes_v2 and Timeline_v2 sheets), and the company documents 00–10 in `docs/company/`, which hold the detail behind each section.
+**Companion documents.** Rollout v2 (weeks 1–13 from 16 November 2026 plus a 12-month roadmap), Financial Model v2 (`DLANG_Sports_OS_Financial_Model_v2.xlsx`, with Changes_v2 and Timeline_v2 sheets; plan of record in `v2.2.xlsx` since 12 Nov round 2), and the company documents 00–10 in `docs/company/`, which hold the detail behind each section.
 
 ---
 
@@ -86,7 +87,7 @@ DLANG Sports OS is a Swiss-built operating system for the organisations that run
 | 3 | **The price must be justified on money, and the claim must be the true one** | "Cheaper than Spond on total cost" is false on our own table (DLANG CHF 6,573/yr vs Spond 1,755). The true claim is narrower and still strong: **the cheapest payment rail** (693 vs 1,575 on the same club). Qualify every deal on the club's own audited numbers. |
 | 4 | **Distribution is captured at federation level** | Unchanged. Sell to segments without a federation software deal; treat federations as a 2028 pilot, not 2027 revenue. |
 | 5 | **EUR 50,000 funds about two months, not a year, and arrives only once a CTO is in place** *(changed 12 Nov)* | With realistic Swiss engineering cost, employer social charges and a season-later ramp, the v2 model goes cash-negative in **April 2027** on its base. With the founder's 12 Nov facts (FIT at 0%, EUR 50k released in **March 2027** once the CTO is in place) cash is negative from **January 2027**, about –43.5k in February. The two top cash actions are **signing the fractional CTO** and **bridging January–March 2027 (about CHF 45k)**; then a **pre-seed of about CHF 250–300k in total, including the EUR 50k, in H1 2027**. |
-| 6 | **The global white-label ambition is right as a destination and wrong as a 2027 launch** *(updated 12 Nov)* | Paid sales in 2027 are Swiss only. The founder's wish for an EU and US presence in 2027 is met with **one free design-partner pilot in each** (EU live Sep 2027, US Sep–Oct 2027), behind entry conditions. Paid EUR-track sales open after ≥10 Swiss clubs (Q2 2028, or early 2028 on a strong pilot). Paid US sales not before H2 2029. Broad white-label resale 2029 at the earliest. Each has a written entry gate (section 13.3). |
+| 6 | **The global white-label ambition is right as a destination and wrong as a 2027 launch** *(updated 12 Nov)* | Paid sales in 2027 are Swiss only. The founder's wish for an EU and US presence in 2027 is met with **one discounted paid design-partner pilot in each** (EU live Sep 2027, US Sep–Oct 2027; no free pilots), behind entry conditions. Full-price EUR-track sales open after ≥10 Swiss clubs (Q2 2028, or early 2028 on a strong pilot). Paid US sales not before H2 2029. Broad white-label resale 2029 at the earliest. Each has a written entry gate (section 13.3). |
 
 ## The numbers [Updated Nov 2026]
 
@@ -104,9 +105,9 @@ Financial Model v2, base case. Model year 1 runs December 2026 to November 2027.
 
 **Capital required on top of today's stack (workbook base, incl. a 3-month buffer):** about CHF 110k to November 2027, about CHF 300k to November 2028, about CHF 490k to November 2029. Lowest modelled cash point: base –440.8k, downside –547.8k, upside –237k. A lean-cost variant (founder pay and engineering capped) improves the base trough to about –314k.
 
-**12 Nov founder-facts case** (same workbook, FIT at 0%, EUR 50k released in March 2027): cash negative from January 2027, about –43.5k in February; unfunded shortfall about 82k / 264k / 451k at November 2027 / 2028 / 2029. On the **plan of record** (founder-facts plus the accepted lean-cost variant and the AI assistant included in the Club tier) the shortfall is about 82k / 214k / 330k.
+**12 Nov founder-facts case** (same workbook, FIT at 0%, EUR 50k released in March 2027): cash negative from January 2027, about –43.5k in February; unfunded shortfall about 82k / 264k / 451k at November 2027 / 2028 / 2029. On the round-1 plan of record (founder-facts plus the accepted lean-cost variant and the AI assistant included in the Club tier) the shortfall was about 82k / 214k / 330k. **Plan of record after round 2 (workbook v2.2: plus EU/US pilot costs CHF 22.5k, discounted pilot fees, and the AI assistant as a paid add-on at CHF 69 with 20% attach from June 2027, DLang free): shortfall about 102k / 225k / 326k; ARR in November 2029 about 249k; the January–March 2027 bridge stays about CHF 45k.**
 
-**Break-even (official, v2 workbook):** the base case does not reach a profitable month inside the 36-month horizon; at the Year-3 sales pace it gets there around **Q4 2030**, at roughly 75–80 clubs. On the **lean-cost plan of record** the founder accepted, around **mid-2030**. The upside case breaks even in **August 2029**; the downside not before 2032. The August plan's "first profitable month July 2028" no longer holds.
+**Break-even (official, v2 workbook):** the base case does not reach a profitable month inside the 36-month horizon; at the Year-3 sales pace it gets there around **Q4 2030**, at roughly 75–80 clubs. On the **lean-cost plan of record** the founder accepted, around **mid-2030** (Q2 2030 on v2.2). The upside case breaks even in **August 2029** (March 2029 on v2.2); the downside not before 2032. The August plan's "first profitable month July 2028" no longer holds.
 
 *Note on other company documents:* on 12 November 2026 the founder made the v2 workbook the only source for break-even and bridge dates. `00_EXECUTIVE_PLAN.md`, `01_BUSINESS_MODEL.md` and `09_FOUNDER_PLAN_REVIEW.md` have been aligned to it.
 
@@ -326,7 +327,7 @@ Changes from August: "four languages" becomes French, German and English with It
 | FR / DE / EN (IT later) | Partly | A requirement met, not an advantage held. |
 | Founder-led onboarding | For now | Ends around 25 clubs. Productise before then. |
 | Multi-tenant, white-label-ready platform *(new)* | Yes, technically | An option for 2028+, not a 2027 selling point. |
-| AI assistant suite | Not yet | Do not lead with AI. Opt-in per club from the DLang beta (Q1 2027); included in the Club tier *[Confirm]*. |
+| AI assistant suite | Not yet | Do not lead with AI. Opt-in per club from the DLang beta (Q1 2027); a paid add-on, CHF 69/month proposed *[Confirm]*, free for DLang. |
 
 ## 5.3 The dual-track pricing architecture [Updated Nov 2026]
 
@@ -349,9 +350,9 @@ Changes from August: "four languages" becomes French, German and English with It
 
 USD prices (indicatively USD 299 / 499 / 899) are **not published** and are not used in the model. They exist only so a future US gate review has a starting point.
 
-**Add-ons** *(new)*: custom domain; SMS passed through at cost; AI assistant opt-in per club, **included in the Club tier for now** *[Confirm]* (the CHF 90/month add-on is parked; the workbook still models 15% attach from Year 3 until its defaults are updated); white-label native app (2029 at the earliest, paid by the customer).
+**Add-ons** *(new)*: custom domain; SMS passed through at cost; **AI assistant for clubs, a paid add-on (round 2, 12 Nov 2026): proposed CHF 69 / EUR 69 / USD 79 per club per month, annual CHF 690** *[Est.][Confirm]*, opt-in per club, not in any tier price, **free for DLang** (customer zero); priced from inference cost (about CHF 12–22 per AI club per month, so a 68–83% gross margin), 14% of the Club tier, below the August CHF 90; workbook v2.2 models 20% attach from June 2027; a **parent AI add-on** (CHF 3–5 per family per month or about CHF 30–45 per season *[Est.]*) is a proposal only, not in the plan (`docs/company/13_PARENT_AI_ADDON_SPEC.md`); white-label native app (2029 at the earliest, paid by the customer).
 
-**Founding offer, unchanged in substance:** five clubs, CHF 290/month for life (capped at the signed tier), onboarding waived, 24 months of direct founder access, quarterly roadmap vote, 60-day money-back, month-to-month. Slots close 30 September 2027. No free pilots in Switzerland (confirmed 12 Nov 2026); the only free pilots are one EU and one US design partner (5.5).
+**Founding offer, unchanged in substance:** five clubs, CHF 290/month for life (capped at the signed tier), onboarding waived, 24 months of direct founder access, quarterly roadmap vote, 60-day money-back, month-to-month. Slots close 30 September 2027. No free pilots anywhere (round 2, 12 Nov 2026). The one EU and one US design partner (5.5) are discounted paid pilots: proposed 50% off the Club-tier list for the first 6 months, 12-month commitment, then list (EU EUR 234.50 then 469; US USD 249.50 then 499 indicative) *[Confirm]*.
 
 **Payments: the deliberate decision to under-charge [Updated Nov 2026].** August modelled 0.9% net on 50% of collections, which assumed Payrexx at about 1.3%. On Stripe the margin is close to zero. v2 models **0.2% net on 40% of collections**, about CHF 4 per club per month. The rail is a reason to buy, not a profit line. Revisit at 25+ clubs (Payrexx or negotiated Stripe pricing), not before.
 
@@ -369,13 +370,13 @@ Three real moats, none of them technology: switching cost once a club is fully m
 | 1 | Swiss programme-revenue organisations, Romandie first | First paid signature 31 Jan / 31 Mar 2027 | GmbH + IP, Gate 1, compliance pack, security review, insurance |
 | 1b | Schools (international-school sports programmes) | H2 2027 | 3+ Swiss clubs live; school data-protection review |
 | 2 | Federation or multi-site pilot | H2 2028 / 2029 | Reference base in Romandie |
-| 2b | Free EU design-partner pilot *(12 Nov)* | Live Sep 2027 / Jan 2028 | DLang live + ≥3 paying Swiss clubs; EUR, SEPA, FR/DE complete; GDPR pack incl. Art. 27 representative; support hours covered; go/no-go 30 Jun 2027 |
-| 2c | Free US design-partner pilot *(12 Nov)* | Live Sep–Oct 2027 (US fall season) / Mar 2028 | Same conditions; USD, US English, COPPA verifiable parental consent; no US entity [Verify]; cross-border Stripe Connect [Verify] |
+| 2b | Discounted paid EU design-partner pilot *(12 Nov; paid since round 2)* | Live Sep 2027 / Jan 2028 | DLang live + ≥3 paying Swiss clubs; EUR, SEPA, FR/DE complete; GDPR pack incl. Art. 27 representative; support hours covered; go/no-go 30 Jun 2027 |
+| 2c | Discounted paid US design-partner pilot *(12 Nov; paid since round 2)* | Live Sep–Oct 2027 (US fall season) / Mar 2028 | Same conditions; USD, US English, COPPA verifiable parental consent; entity and sales-tax position for a paid pilot [Verify]; cross-border Stripe Connect [Verify] |
 | 3 | Paid EUR track (France border region first, then DE/AT) | Signed Q2 2028 (early 2028 on a strong pilot), live Sep 2028 / 2029 | ≥10 paying Swiss clubs, gross margin ≥75%, SEPA live, EU VAT set up, GDPR Art. 27 representative, FR + DE complete |
 | 4 | Paid US sales | Not before H2 2029 / 2030 | ≥40 clubs, ≥CHF 25k MRR, NRR ≥100% for 12 months, seed closed, the 2027 design partner (or another) paying and a named channel, COPPA and sales-tax review |
 | 5 | Broad white-label resale | 2029 at the earliest / 2030+ | ≥25 clubs on one codebase, external pen test passed, tenant-isolation tests in CI, a support SLA the company can staff |
 
-**Why the founder's ambition and this sequence diverge.** The goal of a global, any-sport, white-label SaaS sold in Switzerland, the EU and the USA is a sound ten-year destination. As a 2027 launch it would fail. The only proven advantages (TWINT and QR-bill economics, French coverage, the Romandie network) do not travel to the US; the US is held by consolidating, well-funded incumbents with free tiers and channels; one founder cannot sell in three legal systems and two time zones; and the company has well under CHF 100k of committed money. The platform is built multi-tenant now so none of this needs a rewrite later. The two free pilots are the honest compromise with the founder's wish for a 2027 EU and US presence: one design partner each, behind entry conditions, used as case studies. They go live in the Swiss peak (Sep–Oct 2027) and cost about CHF 15–30k and 150–250 founder and CTO hours [Est.], none of it in the workbook.
+**Why the founder's ambition and this sequence diverge.** The goal of a global, any-sport, white-label SaaS sold in Switzerland, the EU and the USA is a sound ten-year destination. As a 2027 launch it would fail. The only proven advantages (TWINT and QR-bill economics, French coverage, the Romandie network) do not travel to the US; the US is held by consolidating, well-funded incumbents with free tiers and channels; one founder cannot sell in three legal systems and two time zones; and the company has well under CHF 100k of committed money. The platform is built multi-tenant now so none of this needs a rewrite later. The two discounted paid pilots are the honest compromise with the founder's wish for a 2027 EU and US presence: one design partner each, behind entry conditions, used as case studies, paying 50% of list for six months and then list (round 2: no free pilots). They go live in the Swiss peak (Sep–Oct 2027) and cost about CHF 15–30k and 150–250 founder and CTO hours [Est.]; workbook v2.2 carries CHF 22.5k of cost and about CHF 21.7k of fees over three years.
 
 ---
 
@@ -449,7 +450,7 @@ Language rule unchanged: "nFADP-aligned by design, with Swiss data residency; in
 
 ## 6.4 The AI roadmap, and what to say about it [Updated Nov 2026]
 
-August scheduled the admin assistant ("Max") for "once 15+ clubs are live" and the paid AI module from Month 13. *[Updated 12 Nov 2026]* The founder wants the assistant available to clubs as soon as it is fully functional. So: **opt-in per club** (a club admin switches it on); **DLang beta first, Q1 2027**; then the founding clubs once written acceptance criteria are met (base Q2 2027). Guardrails: tenant-scoped context only; minimal personal data, with an allow-list that never sends minors' medical data, dates of birth or coach notes to an external model; no training on tenant data; the AI provider listed as a sub-processor in the DPA; a DPIA addendum signed off before any club switches it on; staff-only access. Pricing: **included in the Club tier and above for now** *[Confirm]*; the CHF 90 add-on is parked. The parent assistant ("Lina") ships first as a logged human 1:1 thread. The coach and athlete assistants stay in Year 2+ and, for athletes, only after a safeguarding review. The three August rules (no AI message auto-sent to a parent, no identifiable data to an external model without minimisation, anything on health or welfare escalates to a human) are kept.
+August scheduled the admin assistant ("Max") for "once 15+ clubs are live" and the paid AI module from Month 13. *[Updated 12 Nov 2026]* The founder wants the assistant available to clubs as soon as it is fully functional. So: **opt-in per club** (a club admin switches it on); **DLang beta first, Q1 2027**; then sold to clubs once written acceptance criteria are met (base June 2027, downside September 2027). Guardrails: tenant-scoped context only; minimal personal data, with an allow-list that never sends minors' medical data, dates of birth or coach notes to an external model; no training on tenant data; the AI provider listed as a sub-processor in the DPA; a DPIA addendum signed off before any club switches it on; staff-only access. Pricing (round 2): **a paid add-on, not included in any tier; proposed CHF 69 per club per month** *[Confirm]*; **DLang gets it free**; founding clubs per the August promise below *[Confirm]*. A paid **parent AI add-on** is a proposal only (`docs/company/13_PARENT_AI_ADDON_SPEC.md`): guardians only, own family only, no medical advice, guardian consent, COPPA for under-13s; earliest a DLang-parents pilot after November 2027, base Q1 2028 *[Confirm]*. The parent assistant ("Lina") ships first as a logged human 1:1 thread. The coach and athlete assistants stay in Year 2+ and, for athletes, only after a safeguarding review. The three August rules (no AI message auto-sent to a parent, no identifiable data to an external model without minimisation, anything on health or welfare escalates to a human) are kept.
 
 ---
 
@@ -489,7 +490,7 @@ The five stages are kept (reach → workflow audit → demo against their number
 
 ## 7.4 The Strikefirst founding programme, revised again [Updated Nov 2026]
 
-August's four changes are kept (CHF 290 vs 490 anchor; 24 months founder access; AI "free for 24 months from the date each module ships"; hard cap at five). v2 adds: **no free pilots in Switzerland** (confirmed 12 Nov 2026; exceptions: one free EU and one free US design partner, 5.5); up to five additional paid design pilots at list price; slots close 30 September 2027; founding addendum includes the tier cap and is reviewed by a lawyer; DPA signed before any data import; selection criteria, 30/60/90-day reviews and exit tests as in `02_GO_TO_MARKET.md`. Re-dated targets: **first founding club signed 31 January 2027** (downside 31 March), **3 paying clubs by May 2027** (downside August), **5 founding clubs by June 2027** (downside September).
+August's four changes are kept (CHF 290 vs 490 anchor; 24 months founder access; AI "free for 24 months from the date each module ships"; hard cap at five). v2 adds: **no free pilots, anywhere** (round 2, 12 Nov 2026; the one EU and one US design partner are discounted paid pilots, 5.5); the August "AI free for 24 months" promise now meets a paid AI add-on: honour it for the five founding clubs or withdraw it before the first signature *[Confirm]*; up to five additional paid design pilots at list price; slots close 30 September 2027; founding addendum includes the tier cap and is reviewed by a lawyer; DPA signed before any data import; selection criteria, 30/60/90-day reviews and exit tests as in `02_GO_TO_MARKET.md`. Re-dated targets: **first founding club signed 31 January 2027** (downside 31 March), **3 paying clubs by May 2027** (downside August), **5 founding clubs by June 2027** (downside September).
 
 ## 7.5 Federation strategy, now the 2028 bet [Updated Nov 2026]
 
@@ -574,7 +575,7 @@ A Swiss startup lawyer on an hourly basis (the convertible's conversion-price cl
 
 ## 10.1 Entity and canton (decision unchanged, dates moved)
 
-*[Updated 12 Nov 2026]* The company is **Swiss Preparatory Sports Academy GmbH (SPSA)**, a GmbH in Canton de Vaud *[Confirm register number and date]*; no holding company, no EU or US entity (none needed for the free EU and US pilots [Verify]). Because SPSA also runs the academy, ring-fence the software business ("SPSA Tech" account, cost centre, internal agreement) and take advice by 15 December 2026 on carving it into its own company before the seed [Verify]. Convert to an AG before the first employee equity grant or the seed (about Q4 2028 – Q1 2029), with a Vaud tax ruling. A Delaware subsidiary only at the US gate (H2 2029 at the earliest); a "flip" to a US parent only if a US lead investor requires it. Incorporation still does not shield the founder from personal nFADP penalties.
+*[Updated 12 Nov 2026]* The company is **Swiss Preparatory Sports Academy GmbH (SPSA)**, a GmbH in Canton de Vaud *[Confirm register number and date]*; no holding company, no EU or US entity (whether the discounted paid EU and US pilots need one, or EU VAT / US sales-tax registration, is to be checked [Verify]). Because SPSA also runs the academy, ring-fence the software business ("SPSA Tech" account, cost centre, internal agreement) and take advice by 15 December 2026 on carving it into its own company before the seed [Verify]. Convert to an AG before the first employee equity grant or the seed (about Q4 2028 – Q1 2029), with a Vaud tax ruling. A Delaware subsidiary only at the US gate (H2 2029 at the earliest); a "flip" to a US parent only if a US lead investor requires it. Incorporation still does not shield the founder from personal nFADP penalties.
 
 ## 10.2 Payments and anti-money-laundering (new)
 
@@ -626,9 +627,13 @@ Full model: `DLANG_Sports_OS_Financial_Model_v2.xlsx` (a copy of the August work
 | Average monthly burn | 12,000 | 15,200 | 15,500 |
 | **ARR at year end** | **39,600** | **117,100** | **238,500** |
 | CHF 10k MRR reached | | Dec 2028 | |
-| *Plan of record (lean, AI in Club tier, FIT 0%, round Mar 2027):* EBITDA | (143,500) | (131,600) | (116,700) |
+| *Round-1 plan of record (lean, AI in Club tier, FIT 0%, round Mar 2027; superseded):* EBITDA | (143,500) | (131,600) | (116,700) |
+| ***Plan of record after round 2 (workbook v2.2: + AI add-on CHF 69, + discounted paid EU/US pilots and their costs):*** revenue | 21,400 | 101,700 | 211,600 |
+| *v2.2:* EBITDA | (163,600) | (122,700) | (101,500) |
+| *v2.2:* ARR at year end (incl. 2 pilot clubs) | 46,500 | 131,700 | 249,000 |
+| *v2.2:* unfunded shortfall at year end | (102,100) | (224,800) | (326,400) |
 
-**What drives the change from August.** Signings start in February 2027 and follow the season (none in December or July; peaks March–June and August–October), 57 over three years instead of 138. Churn is 1.8% a month (month-to-month terms, treasurer turnover at season change). Founding clubs stay at CHF 290 for life. Payment margin is 0.2%, not 0.9%. AI revenue starts in Year 3. Employer social charges, dated hires and one-off costs (CTO trial 10k, security review 10k, company setup 3k, compliance pack 2.5k, EU entry 6k, second pen test 10k) are now in.
+**What drives the change from August.** Signings start in February 2027 and follow the season (none in December or July; peaks March–June and August–October), 57 over three years instead of 138. Churn is 1.8% a month (month-to-month terms, treasurer turnover at season change). Founding clubs stay at CHF 290 for life. Payment margin is 0.2%, not 0.9%. AI revenue starts in Year 3 (v2; in v2.2 the paid AI add-on is sold from June 2027). Employer social charges, dated hires and one-off costs (CTO trial 10k, security review 10k, company setup 3k, compliance pack 2.5k, EU entry 6k, second pen test 10k) are now in.
 
 **Read the shape.** August's plan described a business that turns profitable in July 2028 on EUR 50k. v2 describes a business that is **slow to scale and default-dead until about 75 clubs unless costs stay lean**. That is not a bad business; it is a business that needs either discipline (founder plus agents plus reviewer, about CHF 20k a month total, until about 30 clubs) or a seed raised on evidence of 25+ clubs and churn below 2% a month. Probably both.
 
@@ -676,10 +681,10 @@ Our odds [Est.]: 10 Swiss clubs by end-2027, **50–60%**; a fundable Swiss vert
 | Cash low before the round lands | –17.5k in Jan 2027 (workbook base); **–43.5k in Feb 2027** (founder-facts case) | | CTO trial + compliance pack + pen test |
 | **Jan–Mar 2027 bridge** | **~45,000** | Agreed by 15 Dec 2026 | Founder funds, investor advance, or deferred costs *[Confirm]* |
 | **Cash negative for good** | **from Apr 2027** (workbook base); **from Jan 2027** (founder-facts case and downside) | | |
-| EU/US free pilots (2027) | ~22,500 [Est.] | May–Oct 2027 | In workbook v2.1 (12 Nov); not in the figures above |
-| Need to Nov 2027 incl. buffer | ~110,000 (base); ~120,000 (founder-facts); ~145,000 (v2.1 plan of record incl. pilots) | Pre-seed CHF 250–300k in total incl. the EUR 50k, cash in by Apr 2027 at the latest | |
-| Need to Nov 2028 incl. buffer | ~300,000 (base); ~260,000 on the lean plan of record; ~270,000 (v2.1 incl. pilots) | Same pre-seed, H1 2027 | |
-| Need to Nov 2029 incl. buffer | ~490,000 | Seed CHF 400–500k in Q1 2029, raised from Q3 2028 | |
+| EU/US pilots (2027; discounted paid since round 2) | cost ~22,500 [Est.]; fees ~2,600 in 2027, ~21,700 over three years | May–Oct 2027 | In workbook v2.1 (cost) and v2.2 (cost and fees); not in the figures above |
+| Need to Nov 2027 incl. buffer | ~110,000 (base); ~120,000 (founder-facts); ~145,000 (v2.1 incl. pilots); **~143,000 (v2.2 plan of record)** | Pre-seed CHF 250–300k in total incl. the EUR 50k, cash in by Apr 2027 at the latest | |
+| Need to Nov 2028 incl. buffer | ~300,000 (base); ~260,000 on the lean plan of record; ~270,000 (v2.1 incl. pilots); **~255,000 (v2.2 plan of record)** | Same pre-seed, H1 2027 | |
+| Need to Nov 2029 incl. buffer | ~490,000 (base); **~352,000 (v2.2 plan of record)** | Seed CHF 400–500k in Q1 2029, raised from Q3 2028 | |
 
 **Ways to close the gap, in order of preference (revised):**
 
@@ -722,7 +727,7 @@ The investor buys into whichever is true; show it before signing. Note that the 
 | R7 | **Churn above 2.5% a month** | M | High | Any club two weeks without an admin login | Stop acquisition; sit with the club |
 | R8 | **Spond or Paak closes the gap** | M | High | Paak ships AI; Spond adds TWINT/QR-bill | Lead with programme and camp commerce, not the rail |
 | R9 | **Fractional CTO search drags** (now delays the EUR 50k) *(updated)* | H | High | No signed CTO by 15 Dec 2026 | Shortlist 30 Nov; reviewer cover from 16 Dec; latest 31 Jan 2027 |
-| R10 | **Scope creep toward the global vision** (AI, native, pilots growing into launches, resale) *(updated)* | H | Medium | Any non-gate feature before 28 Feb 2027; custom pilot requests | Gates in 5.5; one free pilot per market with written scope; AI opt-in with guardrails; one codebase |
+| R10 | **Scope creep toward the global vision** (AI, native, pilots growing into launches, resale) *(updated)* | H | Medium | Any non-gate feature before 28 Feb 2027; custom pilot requests | Gates in 5.5; one discounted paid pilot per market with written scope; AI opt-in with guardrails; one codebase |
 | R11 | **IP / cap-table inconsistency blocks investment** *(new)* | M | High | Before the EUR 50k is released | IP present assignment to SPSA by 31 Dec; one working cap table |
 | R12 | **Seasonal timing missed** *(new)* | M | M–H | Fewer than 2 clubs signed by 30 April 2027 | Signing window Jan–Apr; set-up deadline 31 May |
 | R13 | **A public claim is challenged** | M | High | Any prospect questions a figure | Claim audit by 4 Dec 2026 |
@@ -743,14 +748,14 @@ The investor buys into whichever is true; show it before signing. Note that the 
 |---|---|---|---|---|
 | **Nov 2026** | Founder decisions (12 Nov). Truth week and retrospective (20 Nov; SPSA register details). Stripe Connect application for DLang + legal view requested (27 Nov). FIT intake and eligibility checked (27 Nov). Fractional CTO shortlist (30 Nov). >>venture>> submitted (30 Nov). | — | Status sheet; Connect application; submission receipt | Nothing else proceeds until status is known |
 | **Dec 2026** | Deck and claims fixed (4 Dec). Security review booked (4 Dec). DLang winter-camp pilot (13 Dec). **Fractional CTO signed (15 Dec)**; **Jan–Mar bridge agreed (15 Dec)**; carve-out view (15 Dec). Fallback price card (15 Dec). **Gate 2: TWINT reconciles on DLang (18 Dec)**. IP assigned to SPSA (31 Dec). | Gate 2 31 Jan; CTO 31 Jan | Reconciled real payments; signed CTO | Manual beta; payments only priority |
-| **Jan 2027** | Model refresh (3 Jan; workbook v2.1, on the plan of record since 12 Nov, refreshed with actuals). CTO's structure proposal (8 Jan). Compliance pack incl. AI DPIA addendum signed off (15 Jan). Trademark and domain check (15 Jan). DLang spring invoicing on platform. **Gate 1 (31 Jan)**, **first founding club signed (31 Jan)**, security review done, insurance bound, **convertible signed (31 Jan)**. | Gate 1 15 Mar; first club 31 Mar; round Apr | Signed addendum + DPA; audit write-ups | Strategy review (13.2); fallback price card |
+| **Jan 2027** | Model refresh (3 Jan; workbook v2.2, on the plan of record since 12 Nov round 2, refreshed with actuals). CTO's structure proposal (8 Jan). Compliance pack incl. AI DPIA addendum signed off (15 Jan). Trademark and domain check (15 Jan). DLang spring invoicing on platform. **Gate 1 (31 Jan)**, **first founding club signed (31 Jan)**, security review done, insurance bound, **convertible signed (31 Jan)**. | Gate 1 15 Mar; first club 31 Mar; round Apr | Signed addendum + DPA; audit write-ups | Strategy review (13.2); fallback price card |
 | **Feb 2027** | **Gate 3: DLang full cycle (14 Feb)**. Naming decision (15 Feb). AI assistant opt-in beta on DLang. Four missing beta items shipped (28 Feb). Trademark filing (28 Feb). Pre-seed signed (28 Feb). | Gate 3 31 Mar | DLang cycle with <5% manual matching | Freeze features; adoption cycle |
 | **Mar 2027** | **EUR 50k released** (founder-facts case). DLang case study published (31 Mar). VAT decision (31 Mar). Help centre wave 1. EU and US design-partner shortlists (31 Mar). First strategy-review checkpoint (31 Mar). | Case study 30 Apr | Signed case study with measured numbers | Sales stay theoretical |
 | **Apr 2027** | **Gate 3b: club #1 weekly (30 Apr)**. Public launch "Season 2027/28 ready" (Apr–May). Pre-seed cash in (latest). | 30 Jun | Usage data | Freeze acquisition |
 | **May 2027** | **3 paying clubs**. All 2027 clubs set up by 31 May. Onboarding kit complete. | Aug 2027 | Invoices paid | Clubs wait a season |
 | **Jun 2027** | **5 founding clubs**. Peak season: no migrations, no risky releases. **Pilot go/no-go (30 Jun)**, EU and US. | Sep 2027 | 5 signed addenda; pilot decision memo | Close the cohort at what exists by 30 Sep |
 | **Jul–Aug 2027** | DLang summer camps and 2027/28 registration on platform. Referral programme on (after 2 case studies). | — | DLang season live | — |
-| **Sep 2027** | **DLang runs the whole club.** Founding slots close (30 Sep). First list-price clubs signed. **Free EU pilot live; free US pilot live Sep–Oct.** Customer-success recruiting opens. | Oct 2027; pilots Jan / Mar 2028 | Pilot cycles running | Pilots move to the downside dates |
+| **Sep 2027** | **DLang runs the whole club.** Founding slots close (30 Sep). First list-price clubs signed. **Discounted paid EU pilot live; discounted paid US pilot live Sep–Oct.** Customer-success recruiting opens. | Oct 2027; pilots Jan / Mar 2028 | Pilot cycles running | Pilots move to the downside dates |
 | **Oct 2027** | **10 paying clubs.** EUR-track readiness review (no selling); pull-forward to early 2028 if the EU pilot is strong. | Mar 2028 | Billing | Re-plan 2028 capital |
 | **Nov 2027** | Model re-run on actuals; Year-2 capital plan agreed; customer success hired for Jan 2028. | Jun 2028 hire | Updated model | Enter Year 2 under-capitalised |
 
@@ -764,7 +769,7 @@ Kept from August: monthly investor update (sent by the 5th, especially in bad mo
 
 | Phase | Earliest | Every condition must be met |
 |---|---|---|
-| Free EU and US design-partner pilots *(12 Nov)* | EU Sep 2027; US Sep–Oct 2027 | DLang live + ≥3 paying Swiss clubs; i18n and currency for that market; privacy pack for that jurisdiction (GDPR Art. 27 representative; COPPA verifiable parental consent); support hours covered; one pilot per market, free, written agreement |
+| Discounted paid EU and US design-partner pilots *(12 Nov; paid since round 2)* | EU Sep 2027; US Sep–Oct 2027 | DLang live + ≥3 paying Swiss clubs; i18n and currency for that market; privacy pack for that jurisdiction (GDPR Art. 27 representative; COPPA verifiable parental consent); support hours covered; one pilot per market, discounted paid (50% off for 6 months, 12-month commitment, then list *[Confirm]*), written agreement |
 | Paid EUR track | Signed Q2 2028 (early 2028 on a strong EU pilot), live Sep 2028 | ≥10 paying Swiss clubs; gross margin ≥75%; SEPA Direct Debit live; EU VAT (non-Union OSS, reverse charge) set up [Verify]; GDPR Art. 27 representative; FR and DE complete across all surfaces; EUR price card; France border region first |
 | Federation / multi-site pilot | H2 2028 | Romandie reference base; multi-club membership in the data model; enterprise onboarding track |
 | Broad white-label resale | 2029 | ≥25 clubs on one codebase with no forks; external pen test passed; tenant-isolation tests in CI; staffable support SLA; reseller contract reviewed [Verify] |
@@ -815,9 +820,9 @@ See `CHANGELOG.md` in this folder for the full list by area, and the Changes_v2 
 | Round | EUR 50k for 10% | Upsize to CHF 150–200k | EUR 50k secured, released once a CTO is in place; Jan–Mar bridge ~CHF 45k; pre-seed CHF 250–300k incl. EUR 50k in H1 2027 |
 | Cash negative | Jul 2027 | Apr 2027 | Jan 2027 (founder-facts case); Apr 2027 workbook base |
 | Founder pay | 2.5k / 6k / 8.5k | 2.5k / 5k / 7k + charges | Lean-cost variant accepted |
-| Pilots | Founding programme | No free pilots | No free pilots in CH; one free EU and one free US design partner |
-| Markets | Worldwide (deck) | EUR Q2 2028; US H2 2029 | Plus free EU (Sep 2027) and US (Sep–Oct 2027) pilots; paid EU early 2028 on a strong pilot |
-| AI assistant | Paid module from Month 13 | Off, unsold before 2028 | Opt-in per club, DLang beta Q1 2027, included in the Club tier *[Confirm]* |
+| Pilots | Founding programme | No free pilots | No free pilots anywhere (round 2); one discounted paid EU and one discounted paid US design partner |
+| Markets | Worldwide (deck) | EUR Q2 2028; US H2 2029 | Plus discounted paid EU (Sep 2027) and US (Sep–Oct 2027) pilots; full-price EU early 2028 on a strong pilot |
+| AI assistant | Paid module from Month 13 | Off, unsold before 2028 | Opt-in per club, DLang beta Q1 2027 (free for DLang); round 2: paid add-on, CHF 69/month proposed *[Confirm]*; parent add-on a proposal only |
 | Name | DLANG Sports OS | DLANG pending clearance | "Global Sport OS" candidate; clubs use their own names; check by 15 Jan 2027 |
-| Break-even | Jul 2028 | ~Q4 2030 (workbook) | Same source; ~mid-2030 on the lean plan of record |
+| Break-even | Jul 2028 | ~Q4 2030 (workbook) | Same source; ~mid-2030 on the lean plan of record (v2.2: Q2 2030) |
 | Stop rule | Kill criteria | Fewer than 8 clubs by 31 Mar 2028 → lifestyle or stop | Strategy review triggers; no stop decision |

@@ -122,7 +122,7 @@ Passer de « construit et testé » à « prouvé et vendu » en Suisse romande 
 4. **Marque blanche et localisation comme propriétés du produit**, pas comme développements spécifiques : marque, terminologie, sport, pays, langues, monnaie, fuseau horaire et format des montants (CHF 1'234.50) par organisation, sans code propre à un client.
 5. **Méthode d'ingénierie.** Un CTO humain à temps partiel dirige une équipe d'agents logiciels assistés par IA ; chaque modification est revue par un humain, et les changements touchant la base de données, la sécurité, les paiements et l'authentification exigent une seconde approbation humaine. Cette méthode permet à une très petite équipe de livrer et tester une plateforme de ce niveau à coût réduit, sous contrôle humain.
 
-**Ce que nous ne revendiquons pas.** Un module d'assistant IA existe, mais il est désactivé par défaut et ne sera pas vendu avant 2028. Il ne fait pas partie de ce projet.
+**Ce que nous ne revendiquons pas.** Un module d'assistant IA pour le personnel des clubs existe. Il est désactivé par défaut, activé seulement par un club qui le choisit, et vendu comme option payante séparée (non comprise dans un abonnement) au plus tôt dès mi-2027, après une analyse d'impact relative à la protection des données. Il ne fait pas partie de ce projet et aucun financement FIT n'y est consacré.
 
 ---
 
@@ -145,7 +145,7 @@ Prix concurrents vérifiés en août 2026 ; à revérifier avant usage commercia
 
 ## 5.3 International (sans revenu en 2027)
 
-En 2027, la priorité est la Suisse. En parallèle, nous menons quelques **pilotes gratuits de partenaires de conception** dans l'UE et aux États-Unis, uniquement pour apprendre (terminologie, monnaies, exigences de protection des données), sans revenu attendu. La commercialisation en EUR ne s'ouvre qu'après au moins 10 clubs suisses payants (premier club UE signé au plus tôt au 2e trimestre 2028) ; les États-Unis ne seront pas explorés commercialement avant le second semestre 2029.
+En 2027, la priorité est la Suisse. En parallèle, nous menons **deux pilotes de partenaires de conception**, un dans l'UE et un aux États-Unis, surtout pour apprendre (terminologie, monnaies, exigences de protection des données). Ils **ne sont pas gratuits** : chaque club pilote paie un prix réduit (proposé : 50 % du prix catalogue pendant les six premiers mois, puis le prix catalogue, avec un engagement de 12 mois), afin que les pilotes couvrent une partie de leur coût. La commercialisation en EUR ne s'ouvre qu'après au moins 10 clubs suisses payants (premier club UE signé au plus tôt au 2e trimestre 2028) ; les États-Unis ne seront pas explorés commercialement avant le second semestre 2029.
 
 ---
 

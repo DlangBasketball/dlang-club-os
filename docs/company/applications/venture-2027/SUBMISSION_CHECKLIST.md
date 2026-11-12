@@ -8,7 +8,7 @@ Files in this folder:
 | File | What it is |
 |---|---|
 | `DLANG_venture_2027_Startup_Plan.md` | The source text. Edit this one. |
-| `DLANG_venture_2027_Startup_Plan.pdf` | The file to upload. Current draft: **18 A4 pages** (inside the 10–20 range). |
+| `DLANG_venture_2027_Startup_Plan.pdf` | The file to upload. Current draft: **19 A4 pages** (re-rendered 12 Nov 2026 after the round-2 decisions) (inside the 10–20 range). |
 | `DLANG_venture_2027_Startup_Plan.docx` | An editable copy in the house style. It runs to about 27 pages because the reference styles are larger, so **do not upload the DOCX**. |
 | `build/print.css`, `build/pagebreak.lua` | The print style and page-break filter used to make the PDF. |
 
@@ -51,9 +51,9 @@ Files in this folder:
 | C3 | Cover | Contact e-mail and phone for the jury | A business e-mail address |
 | C4 | §2.3 | Baseline numbers already measured at DLang | For example admin hours per week, CHF outstanding on a given date, or % paid within 7 days. If none exist, delete the sentence |
 | C5 | §3.3 | Which "implemented in code" items are live in production | Stripe Connect and TWINT, CSV import, languages, data-protection tooling |
-| C6 | §4.2, §7.1, §7.4 | Second design-partner pilot market and timing | For example France or Germany, and the start month (the plan suggests after May 2027) |
+| C6 | §4.2, §7.1, §7.4 | EU design-partner pilot market, and the pilot price (round 2: discounted paid, proposed 50% off the Club list for 6 months, 12-month commitment, then list) | For example France or Germany; confirm the price |
 | C7 | §7.3 | Warm access to 30+ Geneva-region clubs | Confirm the number, or soften the wording |
-| C8 | §7.4 | Budget for the two free pilots | The plan estimates CHF 5–10k. This cost is not in the financial model |
+| C8 | §7.4, §3.4 | Pilot budget (plan of record CHF 22.5k cost, about CHF 2.6k of 2027 fees) and the AI add-on price (CHF 69 per club per month proposed) | Confirm both, or adjust the text |
 | C9 | §8.1 | Founder bio | 80–120 words: sport career, years running the academy, education, languages, business experience |
 | C10 | §8.1 | Named contractor or CTO candidate | Name and role, or keep anonymous |
 | C11 | §8.1 | Advisors | Names and roles, or "being recruited" |
@@ -80,8 +80,8 @@ Files in this folder:
 
 The jury will read the plan as one story. These four points differ from Business Plan v2 and Rollout v2 on purpose. Make sure they are what you want:
 
-1. **Free design-partner pilots in the USA and one more market in 2027.** v2 said "no free pilots" and "US not before H2 2029". The plan keeps paid entry behind the v2 gates. It limits the pilots to two, time-boxes them, runs them remotely, and starts them only after the Swiss set-up window.
-2. **AI assistant offered early as an opt-in.** It stays off by default and is free during the beta, under a DPIA. Paid AI revenue stays in Year 3 of the model.
+1. **Discounted paid design-partner pilots in the USA and one EU market in 2027** (round 2, 12 Nov: no free pilots). v2 said "US not before H2 2029". The plan keeps full-price entry behind the v2 gates, limits the pilots to two, runs them remotely, and starts them only after the Swiss set-up window.
+2. **AI assistant as a paid opt-in add-on** (round 2, 12 Nov): not in any tier, CHF 69 per club per month proposed, free for DLang. The v2 base table in §10.1 still shows the August-style AI module in Year 3; the plan-of-record row in §10.3 uses workbook v2.2.
 3. **FIT Digital not applied for.** The plan re-runs the model with the grant at 0% and the EUR 50k arriving in March 2027. The result: cash goes negative from January 2027, and the shortfall is about CHF 10k larger at each year end.
 4. **Founder pay lean until about 30 clubs.** The base case in the plan stays the v2 base. The lean-cost variant is quoted as the plan of record for discipline (cash trough about –CHF 324k instead of –451k).
 

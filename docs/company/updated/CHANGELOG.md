@@ -1,5 +1,58 @@
 # CHANGELOG — DLANG Sports OS business pack
 
+## 2026-11-12 (round 2) — AI as a paid add-on, no free pilots, parent AI add-on proposal, workbook v2.2
+
+**Why.** On 12 November 2026 the founder answered three follow-up points, which replace decisions 10, 11 and 12 of the first round (log: `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md` §1a):
+- **A.** The AI assistant is **not included in the Club price**; it is a **paid add-on for clubs**. **DLang (customer zero) gets it free.** Proposed price **CHF 69 per club per month** (EUR 69 / USD 79 indicative; annual CHF 690) [Est.][Confirm].
+- **B.** A **parent AI add-on** ("maybe"): specified as a proposal in the new `docs/company/13_PARENT_AI_ADDON_SPEC.md`; not in the plan or the model.
+- **C.** **No free pilots at all.** The EU and US pilots become **discounted paid pilots**; the "second free pilot in a market TBD" is removed. Proposed price: **50% off the Club-tier list for 6 months, 12-month commitment, then list**; onboarding at 50% [Est.][Confirm]. Pilot costs still apply.
+
+Originals in `docs/company/source/` and workbooks v2 and v2.1 were not changed. No code was changed.
+
+### Files changed
+
+| File | What changed |
+|---|---|
+| `updated/DLANG_Sports_OS_Financial_Model_v2.2.xlsx` | **New** (copy of v2.1). AI add-on: `Assumptions!B25` 69, `B26` 20%, `B74` Y1, `B36` = `B26*B90`, new section J (`B90` inference CHF 17 per AI club, `B91` first month sold = 7 / Jun-27, `B92`/`B93` DLang complimentary inference CHF 25/month from Feb-27). Pilots: new rows 84–86 (pilot subscription at 50% for 6 months then list, pilot onboarding at 50%, pilot clubs for cost of revenue); `Model_Monthly` rows 18, 19, 21, 25–28, 57 updated. Pilot cost row 83 unchanged. Timeline_v2 and README text updated. New **Changes_v2.2** sheet (43 entries + results). Recalculated in LibreOffice, no formula errors |
+| `docs/company/13_PARENT_AI_ADDON_SPEC.md` | **New.** Parent AI add-on spec (proposal): user stories, what it must not do, minors' data / COPPA / guardian consent, pricing options (CHF 3–5 per family per month or about CHF 30–45 per season), club vs platform collection and revenue share, Stripe, dependencies, privacy review, effort (5–8 weeks), earliest timing (DLang-parents pilot not before Nov 2027, base Q1 2028) |
+| `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md` | New §1a (round 2); rows 10, 11, 12 amended (round 1 kept for traceability); rows 8 and 14 annotated; new §2.0 figures of record from v2.2 (round-1 figures kept as §2.1, superseded); dates of record for the AI add-on, pilot prices and parent pilot |
+| `docs/company/00_EXECUTIVE_PLAN.md` | §0 rows (markets, AI, parent add-on), plan in one page, roadmap Q1–Q3 2027, §4.3/§4.4 wording, §4.6 rewritten as discounted paid pilots with price and entity/VAT points, OKR KR4, risk 8, decision log D3, D4, D10, D14, D15, deck fix, model note, changes table |
+| `docs/company/01_BUSINESS_MODEL.md` | Decision 7; segments; add-ons table (AI CHF 69 paid add-on, DLang free; parent add-on proposal) and price rationale; revenue streams; market table; phasing; new §10.0 (v2.2 figures of record), §10.1 relabelled; validation note; changes table |
+| `docs/company/02_GO_TO_MARKET.md` | Decisions 1 and 4; sequencing 1c/1d; pull-forward; §5.5 and §6.5 rewritten (discounted paid, price, terms, VAT / sales tax); US gate; §7.1 policy; validation list; changes table |
+| `docs/company/03_CTO_TECHNOLOGY_STRATEGY.md` | AI decision 4 (add-on entitlement: complimentary or paid, no plan includes it); AI roadmap A4 back in the plan, new A5 (parent add-on); guardrails 2 and 6; Q3 2027 pilot billing; risks; changes table |
+| `docs/company/06_CUSTOMER_SUCCESS_AND_SUPPORT.md` | Status line; decisions 7 and 8; onboarding step 14; AI support needs (price, cancellation, health-score line); capacity; milestones; validation; changes table |
+| `docs/company/09_FOUNDER_PLAN_REVIEW.md` | AI module row; scope row; pilot milestones and decision text; US gate; action 13; question 15; §8 summary and table (pilots, AI, parent add-on) |
+| `docs/company/10_FINANCIAL_MODEL_V2_NOTES.md` | New §0b on v2.2 (inputs, formulas, results by scenario, effect vs v2.1, funding need, sensitivities); §2, §4, §5 notes |
+| `updated/DLANG_Sports_OS_Business_Plan_v2.md` + `.docx` | Decisions table and intro; six conclusions; numbers (v2.2 plan of record); add-ons and AI pricing; founding offer and pilots; phases 2b/2c; AI roadmap; founding programme; legal; 11.1 and 11.4 tables; risks; milestones; gates; Appendix B |
+| `updated/DLANG_Sports_OS_Rollout_v2.md` + `.docx` | Status box; holiday phase; W4–W5 price confirmations (15 Dec); DLang beta; model refresh on v2.2; Q1 2027 – Q1 2028 roadmap |
+| `updated/README.md` | v2.2 workbook row; `13` row; reading order and "where documents disagree" |
+| `applications/venture-2027/DLANG_venture_2027_Startup_Plan.md` + `.pdf` + `.docx` | Pilots discounted paid (summary, market table, phases, §7.4, risks); AI a paid opt-in add-on (§3.4, §5.1); plan-of-record row (v2.2) in §10.3; pilot cost wording. PDF re-rendered: **19 pages** |
+| `applications/venture-2027/SUBMISSION_CHECKLIST.md` | Page count; C6, C8; §5 departures |
+| `applications/fit-digital/FIT_Digital_Application_EN.md` / `_FR.md` + `.docx` | Pilots "not free / ne sont pas gratuits" (discounted paid); AI described as an opt-in paid add-on outside the project |
+
+### Figures of record after round 2 (workbook v2.2, base unless stated)
+
+| | v2.2 Base (plan of record) | v2.2 Bear | v2.2 Bull | v2.1 Base (superseded) |
+|---|---|---|---|---|
+| ARR Nov-29 | 249.0k | 146.8k | 476.0k | 231.2k |
+| Cash Jan / Feb / Mar 2027 | –17.6k / –43.5k / –7.9k | –17.6k / –43.6k / –54.6k | –17.6k / –43.5k / –7.8k | –17.6k / –43.5k / –7.8k |
+| Bridge before the EUR 50k | **about CHF 45k (Jan–Mar)** | about CHF 55k (Jan–Apr) | about CHF 45k | about CHF 45k |
+| Unfunded shortfall Nov-27 / 28 / 29 | **102.1k / 224.8k / 326.4k** | 111.8k / 253.3k / 425.0k | 91.7k / 157.0k / 108.5k | 104.5k / 236.0k / 352.7k |
+| First EBITDA-positive month | about mid-2030 (Q2 2030) [Est.] | 2032 or later | Mar 2029 | about mid-2030 |
+
+AI add-on: about +CHF 8.8k by Nov 2029; pilot fees (net of the pilot clubs' running cost): about +CHF 17.5k. Funding need incl. a 3-month buffer: about 143k / 255k / 352k (Nov-27 / 28 / 29).
+
+### Open items from round 2
+
+1. **Confirm two prices by 15 Dec 2026:** AI add-on CHF 69 per club per month; pilot price 50% off for 6 months with a 12-month commitment (or the founding-equivalent EUR 279 / USD 299 alternative).
+2. **Founding clubs and AI:** the August founding offer promised AI "free for 24 months from the date each module ships" (Business Plan v2 §7.4). Honour it for the five founding clubs, or withdraw it before the first signature [Confirm]. v2.2 does not carve it out (about CHF 1–2k).
+3. **Paid pilots abroad:** EU VAT (reverse charge / OSS) and US entity / sales-tax position for invoicing a pilot club from SPSA [Verify, counsel memos by 31 May 2027].
+4. **AI add-on in the product:** billing (Stripe subscription item), entitlement, cancellation; written acceptance criteria by 31 Mar 2027 (the code change is being made separately).
+5. **Parent AI add-on:** proposal only; review at the 31 Mar 2027 checkpoint.
+6. **Wording kept on purpose:** older entries in this CHANGELOG and the "changes" tables keep the round-1 wording (free pilots, AI in the Club tier) as history.
+
+---
+
 ## 2026-11-12 (second pass) — workbook v2.1 and the remaining files
 
 **Why.** The first 12 Nov pass left four files stale and the workbook on its 11 Nov defaults. This pass brings them in line with `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md` and saves the plan of record as a new workbook. Originals in `docs/company/source/` and the v2 workbook were not changed. No code was changed.
@@ -221,9 +274,9 @@ The founder made the v2 workbook the only source for break-even and bridge dates
 6. **CTO decision (8 Jan 2027):** Structure A (start Mar 2027) vs reviewer + contractor + AI-agent model (from Feb 2027). → *Answered: named human fractional CTO + AI agent team, signed 15 Dec 2026 (latest 31 Jan 2027); the CTO proposes structure by 8 Jan 2027.*
 7. **Founder pay and lean-cost discipline:** accept the lean-cost variant (founder pay and engineering capped until ~30 clubs)? → *Answered: accepted; v2.1 default.*
 8. **Headline claim:** adopt "cheapest payment rail" and retire "cheaper than Spond on total cost" across all assets by 4 Dec 2026. → *Answered: adopted.*
-9. **Founding offer details:** cap the lifetime price at the signed tier; close slots 30 Sep 2027; no free pilots. → *Answered: kept; no free pilots in CH, except one free EU and one free US design-partner pilot.*
+9. **Founding offer details:** cap the lifetime price at the signed tier; close slots 30 Sep 2027; no free pilots. → *Answered: kept; no free pilots in CH, except one free EU and one free US design-partner pilot. Superseded in round 2 (12 Nov): no free pilots anywhere; the EU and US pilots are discounted paid pilots.*
 10. **Market gates:** confirm the EUR, US and white-label resale entry gates and dates (EUR Q2 2028 earliest; US not before H2 2029; resale 2029 earliest). → *Answered: paid gates kept (paid EU early 2028 on a strong pilot); free EU and US pilots in 2027.*
-11. **AI:** keep the assistant switched off by default and unsold until 2028. → *Answered: opt-in per club, DLang beta Q1 2027, included in the Club tier [Confirm].*
+11. **AI:** keep the assistant switched off by default and unsold until 2028. → *Answered: opt-in per club, DLang beta Q1 2027, included in the Club tier [Confirm]. Superseded in round 2 (12 Nov): a paid add-on for clubs (CHF 69 proposed), DLang free.*
 12. **Name:** keep "DLANG Sports OS" for 2027 pending trademark clearance (15 Jan) and naming decision (15 Feb 2027). → *Answered: "Global Sport OS" candidate; check by 15 Jan, decision 15 Feb 2027; per-club app names (e.g. "DLang OS") are tenant branding.*
 13. **Which break-even and bridge dates are official**; once chosen, update 00 / 01 / 09 to match. → *Answered: the v2 workbook; done.*
 14. **Kill criterion:** fewer than 8 paying clubs by 31 Mar 2028 triggers a lifestyle-or-stop decision. → *Answered: no kill switch; strategy review triggers instead.*

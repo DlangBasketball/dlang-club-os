@@ -169,7 +169,7 @@ Club counts and ARR come from the v2 workbook (`01_BUSINESS_MODEL.md` §10.1). *
 |---|---|---|---|---|
 | Q4 2026 | Stripe Connect accepted (12 Nov); TWINT on DLang (18 Dec) | **Fractional CTO shortlisted 30 Nov, signed 15 Dec** (releases EUR 50k); reviewer pre-contracted 16 Dec; engage fiduciary and lawyer; IP assigned to SPSA by 31 Dec | 1.0 + CTO (fractional) + contractors | CTO within the engineering line |
 | Q1 2027 | CTO structure proposal 8 Jan; convertible 31 Jan; EUR 50k released (Mar in the founder-facts case); first paid signature 31 Jan / 31 Mar | CTO runs the AI agent team; reviewer stays as second key if the CTO wants one; translators for FR/DE/IT; pen-test firm | 1.0 + CTO | Per CTO contract; reviewer 24–48k/yr if kept |
-| Q2–Q3 2027 | 3 → 5 founding clubs (May / Jun); EU and US free pilots go/no-go 30 Jun, live Sep–Oct | No hires. Name support hours for the pilots (US time zone) before go. Productise onboarding before club #3 [review §3.5]. DLang staff as "customer success" for the reference account (documented as a related-party arrangement [Verify]) | 1.0 + partner | — |
+| Q2–Q3 2027 | 3 → 5 founding clubs (May / Jun); EU and US discounted paid pilots go/no-go 30 Jun, live Sep–Oct | No hires. Name support hours for the pilots (US time zone) before go. Productise onboarding before club #3 [review §3.5]. DLang staff as "customer success" for the reference account (documented as a related-party arrangement [Verify]) | 1.0 + partner | — |
 | Q4 2027 | 10 clubs (Oct; downside Mar 2028); pre-seed (CHF 250–300k incl. EUR 50k) closed in H1 2027 | Open the Customer Success Lead search (job post Oct; Swiss notice 1–3 months) | 1.0 + partner | — |
 | Q1 2028 | ≥ 8 live clubs | **CS Lead starts at 50% (Jan)** | 1.5 | ~50k |
 | Q2–Q3 2028 | Peak registration season; first EUR club signed Q2 | CS Lead to 80–100% for Jun–Oct; finance coordinator (freelance) | 2.0–2.3 | +40–55k |
@@ -368,7 +368,7 @@ R = responsible, A = accountable, C = consulted, I = informed.
 | Equity / cap table | Founder 90→81→72% (model) vs. 64.8% (CTO proposal); 10% pool | **12 Nov:** one working cap table now, refined with the CTO and advisors; 10% pool kept; investor told about any CTO equity; AG before employee grants | The two tables disagree; investors will diligence it |
 | Founder pay (12 Nov) | 2.5k / 6k / 8.5k | Lean-cost variant accepted: Y2/Y3 founder 3.5k/5k, engineering 6k/8k | Founder decision 8 |
 | Entity (12 Nov) | GmbH to be formed | SPSA GmbH is the employer; carve-out view by 15 Dec 2026 | Founder decision 1 |
-| Pilot staffing (12 Nov) | — | No hires for the EU/US free pilots; support hours named before go/no-go (30 Jun 2027) | Capacity |
+| Pilot staffing (12 Nov) | — | No hires for the EU/US discounted paid pilots (round 2: no free pilots); support hours named before go/no-go (30 Jun 2027) | Capacity |
 | Stop rule (12 Nov) | — | Strategy review triggers; no employee hired until a review's plan is agreed | Founder's commitment to keep going |
 | Vesting | 4 years, 1-year cliff, founder reverse-vesting | **Kept**, applied to every grant | Sound and market-standard |
 | Fiduciary | CHF 250–400/month on incorporation | **Kept**; also runs payroll and social-insurance registration before the first hire | Sound; scope widened |

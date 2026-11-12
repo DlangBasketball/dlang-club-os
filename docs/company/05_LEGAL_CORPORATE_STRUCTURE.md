@@ -1,6 +1,6 @@
 # 05 — Legal & Corporate Structure
 
-**DLANG Sports OS** · Version 1.1 · 11 November 2026, updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`)
+**DLANG Sports OS** · Version 1.1 · 11 November 2026, updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`; round 2: no free pilots, the EU/US pilots are discounted paid pilots; the AI assistant is a paid add-on, DLang free)
 **Owner:** founder / CEO. Each item is checked by a Swiss corporate lawyer, a fiduciary/tax adviser and, for the EU and US, local counsel before anyone relies on it.
 **Builds on:** Business Plan §10 "Legal, tax and structure" and §8 data-protection controls (Aug 2026), the CTO Partnership Proposal, the Financial Model, the Investor Deck, `09_FOUNDER_PLAN_REVIEW.md`, `03_CTO_TECHNOLOGY_STRATEGY.md` and `04_ORG_DESIGN_AND_HR.md`.
 
@@ -18,8 +18,8 @@
 | D4 | Payments | **Stripe Connect accepted by the founder (12 Nov 2026)**: direct charges to each club's own connected account, plus an application fee. The platform never holds club money. DLang connects first (`docs/ops/STRIPE_CONNECT_TWINT_SETUP.md`). Written anti-money-laundering (AML) opinion still needed before the first external club; confirm with Stripe how SPSA can be both platform and DLang's account **[Verify]** | Connect application 27 Nov 2026; AML view 15 Jan 2027. Live on DLang by 18 Dec 2026 / 31 Jan 2027 |
 | D5 | Trademark | Founder's master-brand candidate is **"Global Sport OS"**; each club runs the product under its own name (e.g. "DLang OS"). Generic names are hard to register: run a **CH / EU / US trademark and domain check** on it plus **2–3 alternatives** by 15 Jan 2027. "DLANG Sports OS" stays the working name until then ("DLang" also identifies the D programming language). File in Switzerland (IGE/IPI) first; extend through Madrid at the paid EUR or US gates. | Check by **15 Jan 2027**; decision 15 Feb; CH filing by 28 Feb 2027 |
 | D6 | VAT | Register for Swiss VAT **voluntarily or by the threshold, decided with the fiduciary in Q1 2027**. EU VAT (non-Union OSS plus reverse charge) only at the EUR gate. US sales tax only at the US gate. | Fiduciary decision by **31 Mar 2027** |
-| D7 | EU presence | **No EU entity.** For the **free EU design-partner pilot (live Sep 2027 / Jan 2028)** appoint a GDPR Art. 27 representative and sign an EU-language DPA; contract from SPSA. Non-Union OSS and an Employer of Record (EoR) only at the paid EUR gate. Form a subsidiary only once a country has 3+ staff and recurring revenue. | Art. 27 representative before the EU pilot goes live; paid EUR gate Q2 2028 (early 2028 on a strong pilot) |
-| D8 | US presence | **No US entity for the free US design-partner pilot (live Sep–Oct 2027 / Mar 2028)** [Verify with US counsel]; COPPA verifiable parental consent before any under-13 data; cross-border Stripe Connect confirmed **[Verify]**. At the paid US gate (not before H2 2029), form a **Delaware C-Corp subsidiary of the Swiss company**. Model a "flip" only if a US lead investor makes it a term. | US counsel memo by 31 May 2027; paid US gate review H2 2029 at the earliest |
+| D7 | EU presence | **No EU entity.** For the **discounted paid EU design-partner pilot (live Sep 2027 / Jan 2028; round 2: no free pilots)** appoint a GDPR Art. 27 representative and sign an EU-language DPA; contract from SPSA. Because the pilot now pays, check EU VAT on the invoice (reverse charge for VAT-registered clubs; non-Union OSS for non-registered ones) before the first pilot invoice **[Verify]**; an Employer of Record (EoR) only at the full-price EUR gate. Form a subsidiary only once a country has 3+ staff and recurring revenue. | Art. 27 representative before the EU pilot goes live; paid EUR gate Q2 2028 (early 2028 on a strong pilot) |
+| D8 | US presence | **No US entity planned for the discounted paid US design-partner pilot (live Sep–Oct 2027 / Mar 2028)**; whether invoicing a US club from SPSA creates entity, sales-tax or nexus obligations [Verify with US counsel]; COPPA verifiable parental consent before any under-13 data; cross-border Stripe Connect confirmed **[Verify]**. At the paid US gate (not before H2 2029), form a **Delaware C-Corp subsidiary of the Swiss company**. Model a "flip" only if a US lead investor makes it a term. | US counsel memo by 31 May 2027; paid US gate review H2 2029 at the earliest |
 | D1b | Academy and software in one entity (new, 12 Nov) | SPSA also runs the academy (customer zero). Ring-fence now (separate "SPSA Tech" account and bookkeeping segment, internal service agreement, IP held for the software business), and get a lawyer/fiduciary view on **carving the software business into its own GmbH** (sister or subsidiary) before the seed, or before the convertible if the investor or lawyer requires it **[Counsel] [Tax]** | View by **15 Dec 2026** |
 | D9 | Insurance | Cyber plus professional liability (E&O) before the first external club's live data. Add D&O when a board with outside members exists. | Bound by **31 Jan 2027** |
 
@@ -72,7 +72,7 @@ The founder's comparison (BP §10.1) is sound and is kept here: GmbH CHF 20,000 
 
 ### 3.3 EU: no entity until there is a reason
 
-**Free EU design-partner pilot (12 Nov 2026):** one EU club, contracted from SPSA, live Sep 2027 (downside Jan 2028); needs an Art. 27 representative, an EU-language DPA and a written pilot agreement; no entity, no OSS while it is free **[Verify]**.
+**EU design-partner pilot (12 Nov 2026; discounted paid since round 2):** one EU club, contracted from SPSA, live Sep 2027 (downside Jan 2028), paying 50% of the Club-tier list for 6 months on a 12-month commitment, then list [Confirm]; needs an Art. 27 representative, an EU-language DPA and a written pilot agreement with price terms; no entity; because it is paid, EU VAT treatment (reverse charge / non-Union OSS) applies from the first invoice **[Verify]**. **AI add-on (round 2):** a separately priced, opt-in service in the club terms (price, cancellation, sub-processor); DLang receives it free, which is a related-party benefit to document **[Verify]**.
 
 The paid EUR track enters only after its gate (review §5): **at least 10 Swiss clubs, SEPA live, EU VAT set up, a GDPR Art. 27 representative, and DE/FR product and legal texts complete**. Base: first club signed Q2 2028, live Sep 2028. Downside: 2029.
 
@@ -90,7 +90,7 @@ The deck's "worldwide" framing is a vision line, not a plan. The **US gate** (re
 
 | Option | How it works | Fundraising effect | Cost and complexity | When it makes sense |
 |---|---|---|---|---|
-| **No entity** (sell from CH) | Swiss company contracts directly with US customers | Neutral | Lowest. But US customers and payment processors may prefer a US counterparty. Sales-tax nexus still applies (§6.3). | The one free US design-partner pilot (Sep–Oct 2027 / Mar 2028) and any paying design partner, pre-gate [Verify] |
+| **No entity** (sell from CH) | Swiss company contracts directly with US customers | Neutral | Lowest. But US customers and payment processors may prefer a US counterparty. Sales-tax nexus still applies (§6.3). | The one discounted paid US design-partner pilot (Sep–Oct 2027 / Mar 2028) and any paying design partner, pre-gate [Verify] |
 | **Delaware C-Corp subsidiary** (CH parent owns US sub) | US sub sells and employs. Intercompany licence or services agreement with the Swiss parent. | Fine for Swiss and European investors. **Some US VCs will not invest in a non-US parent.** | Moderate: registered agent, Delaware franchise tax, federal and state returns, transfer-pricing documentation **[Tax]** | **Default at the US gate** |
 | **"Flip"** (new Delaware parent; Swiss company becomes a subsidiary through a share exchange) | Shareholders swap Swiss shares for Delaware shares | Preferred by many US institutional seed and Series A investors. Uses US-standard option plans. | High. Swiss tax consequences for the founder and the company (possible taxation on the transfer, loss of Swiss tax-free capital-gain treatment, IP migration and exit-tax questions), plus restructuring of the Swiss ESOP **[Tax] [Counsel]**. Expensive to undo. | **Only** if a US lead investor makes it a condition of a round large enough to justify it. Model it then. Never do it pre-emptively. |
 
@@ -222,8 +222,8 @@ Vaud combined profit tax for a GmbH is roughly in the mid-teens percent range **
 | Regime | When it applies | Must-haves | Owner / date |
 |---|---|---|---|
 | **Swiss nFADP** (in force since Sep 2023) | Now | ROPA, DPIA (minors, medical fields, AI), DPA template, breach procedure (notify the FDPIC where the risk is high), consent records, export and erasure | Founder + data-protection adviser, **15 Jan 2027** |
-| **GDPR** | Offering services to EU clubs or monitoring EU residents | **Art. 27 EU representative** (a service, about a few hundred to low thousands EUR a year **[Est.]**), Art. 28 DPA, transfer mechanism | **Before the free EU pilot goes live (Sep 2027 / Jan 2028)**; full set at the paid EUR gate (2028) |
-| **COPPA and US state privacy laws** | US, children under 13, state thresholds | Verifiable parental consent flows, school-context rules, US privacy notice | **Before the free US pilot goes live (Sep–Oct 2027 / Mar 2028)**; US counsel memo by 31 May 2027 |
+| **GDPR** | Offering services to EU clubs or monitoring EU residents | **Art. 27 EU representative** (a service, about a few hundred to low thousands EUR a year **[Est.]**), Art. 28 DPA, transfer mechanism | **Before the discounted paid EU pilot goes live (Sep 2027 / Jan 2028)**; full set at the paid EUR gate (2028) |
+| **COPPA and US state privacy laws** | US, children under 13, state thresholds | Verifiable parental consent flows, school-context rules, US privacy notice | **Before the discounted paid US pilot goes live (Sep–Oct 2027 / Mar 2028)**; US counsel memo by 31 May 2027 |
 | **AI assistant (12 Nov 2026)** | Any club that switches the opt-in assistant on (DLang beta Q1 2027) | DPIA addendum; AI provider listed as sub-processor in the DPA; no training on tenant data; data allow-list (no medical notes, dates of birth or coach notes); human approval before any message to a parent | DPIA addendum and DPA update by **15 Jan 2027** |
 
 Personal liability: nFADP fines (up to CHF 250,000) fall on the **responsible individual**, not the company **[Founder]**. Incorporation does not remove that risk. The controls do.
@@ -276,8 +276,8 @@ Owners: **F** = founder, **L** = Swiss lawyer, **FT** = fiduciary/tax adviser, *
 |---|---|---|---|
 | Formal SLA and trust page at 10 clubs | F, E | Oct 2027 | Mar 2028 |
 | Pre-seed papers, CHF 250–300k incl. the EUR 50k (same template) | F, L | Signed 28 Feb 2027, cash by Apr 2027 | Jan–Feb 2027 |
-| Free EU pilot: Art. 27 representative, EU DPA, pilot agreement | F, L, EU counsel | Before go-live Sep 2027 | Jan 2028 |
-| Free US pilot: counsel memo (no-entity position, COPPA consent, state law), cross-border Stripe Connect, pilot agreement | F, US counsel | Memo 31 May 2027; go-live Sep–Oct 2027 | Mar 2028 |
+| Discounted paid EU pilot: Art. 27 representative, EU DPA, pilot agreement with price terms, EU VAT on the invoice | F, L, EU counsel | Before go-live Sep 2027 | Jan 2028 |
+| Discounted paid US pilot: counsel memo (entity and sales-tax position for a paid pilot, COPPA consent, state law), cross-border Stripe Connect, pilot agreement with price terms | F, US counsel | Memo 31 May 2027; go-live Sep–Oct 2027 | Mar 2028 |
 | Mandatory VAT registration check at the CHF 100k trailing turnover | FT | Late 2028 | 2029 |
 | Annual DPIA and sub-processor review; second pen test | E | Each Q1 | — |
 
@@ -310,7 +310,7 @@ Owners: **F** = founder, **L** = Swiss lawyer, **FT** = fiduciary/tax adviser, *
 | Item | CHF (range) |
 |---|---|
 | GmbH formation: not needed (SPSA exists); carve-out into a separate GmbH, if advised | 0 / 2,000–4,000 **[Founder]** |
-| Free EU and US pilots: Art. 27 representative, EU DPA, US counsel memo (2027) | 4,000–10,000 |
+| EU and US discounted paid pilots: Art. 27 representative, EU DPA, US counsel memo incl. VAT / sales tax (2027) | 4,000–10,000 |
 | Share capital (paid in, remains company cash) | 20,000 **[Founder]** |
 | Contract stack (MSA, Addendum, DPA, privacy notice, contractor template) | 6,000–12,000 |
 | Convertible review plus shareholders' agreement | 3,000–8,000 |
@@ -355,8 +355,8 @@ The founder model does not carry this as a separate line. Add it in the 3 Jan 20
 | Payments | Payrexx for TWINT (beta); Stripe card. No fund-flow design. | **12 Nov:** Stripe Connect direct charges accepted; DLang connects first; written AML view by 15 Jan 2027 | The current single-account repo would make the platform hold club money, which raises financial-intermediary risk. |
 | Contracts | Six documents before club #1 (BP §10.4) | Same core set, plus Founding Addendum guardrails (tier cap), related-party agreement, SLA staging and **reseller agreement deferred to 2029+** | An uncapped "lifetime" price is a long-term liability. White-label resale is behind a gate. |
 | Swiss VAT | Threshold crossed in Year 2 | Threshold likely **late 2028** on the re-baselined base case. **Voluntary-registration decision by 31 Mar 2027.** Acquisition-tax check on imported services. | Revenue has slipped about one quarter or more. Registration cuts clubs' effective price by 8.1%, and that trade-off needs real numbers. |
-| EU | Reverse charge "generally applies", confirm per country | **12 Nov:** free EU pilot from Sep 2027 needs an Art. 27 representative and EU DPA. Non-Union OSS, reverse charge at the paid EUR gate (Q2 2028, early 2028 on a strong pilot / 2029) | Many clubs are not VAT-registered and fall under OSS. The founder's B2B-only framing was incomplete. |
-| US | Deck: "worldwide", US statistics | **12 Nov:** free US pilot from Sep–Oct 2027 with COPPA consent and no entity [Verify]; paid US not before H2 2029; Delaware subsidiary by default; flip only if a lead investor requires it | The Swiss wedge does not carry over. Incumbent market. A flip is costly and hard to reverse. |
+| EU | Reverse charge "generally applies", confirm per country | **12 Nov (round 2):** discounted paid EU pilot from Sep 2027 needs an Art. 27 representative, an EU DPA and EU VAT on its invoices [Verify]. Non-Union OSS, reverse charge in full at the paid EUR gate (Q2 2028, early 2028 on a strong pilot / 2029) | Many clubs are not VAT-registered and fall under OSS. The founder's B2B-only framing was incomplete. |
+| US | Deck: "worldwide", US statistics | **12 Nov (round 2):** discounted paid US pilot from Sep–Oct 2027 with COPPA consent; entity / sales-tax position for a paid pilot [Verify]; paid US not before H2 2029; Delaware subsidiary by default; flip only if a lead investor requires it | The Swiss wedge does not carry over. Incumbent market. A flip is costly and hard to reverse. |
 | FIT Digital (12 Nov) | CHF 20k, deadline 10 Nov 2026 | Not filed; 0%; eligibility under the company-age rule to be checked | Founder's answer |
 | Funding papers (12 Nov) | EUR 50k round | EUR 50k released on CTO in place; Jan–Mar bridge ~CHF 45k; pre-seed CHF 250–300k incl. EUR 50k in H1 2027 | Founder-facts case: cash negative from Jan 2027 |
 | Data protection for AI (12 Nov) | "AI from day one" dropped | Opt-in assistant per club; DPIA addendum and DPA sub-processor entry by 15 Jan 2027 | Founder wants AI available once fully functional |

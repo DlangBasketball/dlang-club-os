@@ -122,7 +122,7 @@ Move from "built and tested" to "proven and sold" in French-speaking Switzerland
 4. **White label and localisation as product properties**, not custom work: brand, terminology, sport, country, languages, currency, time zone and money format (CHF 1'234.50) per organisation, with no customer-specific code.
 5. **Engineering method.** A human fractional CTO directs a team of AI-assisted software agents; every change is reviewed by a human, and changes to the database, security, payments and authentication need a second human approval. This lets a very small team ship and test a platform of this level at low cost, under human control.
 
-**What we do not claim.** An AI assistant module exists, but it is off by default and will not be sold before 2028. It is not part of this project.
+**What we do not claim.** An AI assistant module for club staff exists. It is off by default, switched on only by a club that opts in, and sold as a separate paid add-on (not included in any subscription) from mid-2027 at the earliest, after a data-protection impact assessment. It is not part of this project, and no FIT funds are used for it.
 
 ---
 
@@ -145,7 +145,7 @@ Competitor prices verified August 2026; re-check before commercial use.
 
 ## 5.3 International (no revenue in 2027)
 
-In 2027 the priority is Switzerland. Alongside, we run a few **free design-partner pilots** in the EU and the US, for learning only (terminology, currencies, data-protection requirements), with no revenue expected. EUR sales open only after at least 10 paying Swiss clubs (first EU club signed Q2 2028 at the earliest); the US will not be explored commercially before H2 2029.
+In 2027 the priority is Switzerland. Alongside, we run **two design-partner pilots**, one in the EU and one in the US, mainly for learning (terminology, currencies, data-protection requirements). They are **not free**: each pilot club pays a reduced price (proposed 50% of list for the first six months, then list price, with a 12-month commitment), so the pilots recover part of their cost. EUR sales open only after at least 10 paying Swiss clubs (first EU club signed Q2 2028 at the earliest); the US will not be explored commercially before H2 2029.
 
 ---
 

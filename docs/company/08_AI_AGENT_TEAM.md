@@ -86,7 +86,7 @@ Agents propose. Humans decide. These require explicit human approval every time:
 |---|---|
 | Merge to `main` | Founder, plus the fractional CTO once signed (the paid reviewer until then). A second human approver on payments, RLS, auth, migrations and the AI assistant (`src/lib/ai`) |
 | Production deploy, production database migration, DNS or hosting billing | Founder |
-| Pricing, discounts, founding-club terms (including whether the AI assistant stays included in the Club tier [Confirm 15 Dec 2026]) | Founder, with finance-analyst analysis |
+| Pricing, discounts, founding-club terms (including the AI add-on price, CHF 69 per club per month proposed in round 2, and the EU/US pilot price [Confirm 15 Dec 2026]) | Founder, with finance-analyst analysis |
 | Switching the AI assistant on for a club | That club's admin (opt-in, default off); never before the DPIA addendum and the DPA sub-processor entry are signed off |
 | Any legal document, contract, privacy notice, DPA or consent text before use | Qualified lawyer, then the founder |
 | Tax, VAT and accounting treatment | Fiduciary or tax adviser |

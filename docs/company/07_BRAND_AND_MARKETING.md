@@ -1,6 +1,6 @@
 # DLANG Sports OS: Brand Architecture and Marketing Plan
 
-**Status:** working document, re-baselined 11 November 2026; updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`)
+**Status:** working document, re-baselined 11 November 2026; updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`; round 2: no free pilots, the AI assistant is a paid add-on)
 **Builds on:** the founder's August 2026 Business Plan (§2.2 claim audit, §5.1 positioning, §5.2 differentiators, §7.4 founding programme), 90-Day Rollout, Financial Model (Sales and marketing opex line), Investor Deck, the strategy review `09_FOUNDER_PLAN_REVIEW.md`, `01_BUSINESS_MODEL.md` (pricing) and `02_GO_TO_MARKET.md` (markets, channels, calendar, co-branding rules). Where this document and `02_GO_TO_MARKET.md` overlap, the dates are the same.
 
 **Labels**
@@ -15,7 +15,7 @@
 1. **Keep the founder's positioning and tagline.** "Run your club. Not your inbox." and the revised statement (programme-revenue organisations, Swiss payment rails, four languages, built by an operator) stay [Founder §5.1]. What changes is the evidence behind them: no claim goes out until DLang has run it live.
 2. **Separate the platform brand from the DLang club brand.** DLang Basketball is tenant number one, not the product. The founder's master-brand candidate (12 Nov 2026) is **"Global Sport OS"** for the mass-market platform, with each club running it under its own name (for example **"DLang OS"**). Because generic names are hard to register, run a **Swiss / EU / US trademark and domain check by 15 Jan 2027** on it and **2–3 alternatives**. Keep **"DLANG Sports OS"** as the company/working name until then. Make the naming decision by **15 Feb 2027**, before the public website and the case study go out.
 3. **No public launch before proof.** From now to March 2027 the work is quiet: one-to-one selling, a holding page and founder LinkedIn posts. The public launch, "Season 2027/28 ready", follows the DLang case study (31 Mar 2027) and runs April–May 2027, when Swiss clubs sign.
-4. **Romandie and French first, German second, English for international schools.** No public EU or US marketing in 2027. The one free EU and one free US design-partner pilot (live Sep–Oct 2027, founder decision 12 Nov) are found through the network, not campaigns, and produce one case study each.
+4. **Romandie and French first, German second, English for international schools.** No public EU or US marketing in 2027. The one EU and one US design-partner pilot (live Sep–Oct 2027, founder decision 12 Nov; discounted paid since round 2, no free pilots) are found through the network, not campaigns, and produce one case study each.
 5. **Spend stays small and founder-led.** The 12-month cash budget is about CHF 13.5k [Est.], against the founder's CHF 9.6k for Year 1. A CHF 9.6k minimum version is set out below. No paid ads in 2027 [Founder].
 
 ---
@@ -125,9 +125,9 @@ These follow `02_GO_TO_MARKET.md` §8.2 and set out where each element sits.
 | **German-speaking Switzerland (2027 web, sales 2028)** | Swiss Standard German, *Sie*, **no "ß"** (always "ss"); "Verein", "Vorstand", "Mitgliederbeitrag", "QR-Rechnung" | Native Swiss-German review is required; a German-from-Germany translation will read as foreign |
 | **English** | International-school and academy English, British spelling | For international schools and investors; secondary in CH |
 | **Ticino (later)** | Italian, *Lei* | Only when Italian ships |
-| **EU: France border (free pilot Sep 2027; paid 2028, gated)** | French (France): "association", "adhésion", SEPA | Remove Swiss-only claims (TWINT, QR-bill) and lead with workflow. Separate pages, not the Swiss page with a currency switch; no public pages until the paid gate |
+| **EU: France border (discounted paid pilot Sep 2027; full price 2028, gated)** | French (France): "association", "adhésion", SEPA | Remove Swiss-only claims (TWINT, QR-bill) and lead with workflow. Separate pages, not the Swiss page with a currency switch; no public pages until the paid gate |
 | **EU: DACH ex-CH (later)** | German **with "ß"**; "Verein", "DSGVO" | A separate de-DE locale from de-CH |
-| **US (free pilot fall 2027; paid not before H2 2029)** | "program", "registration", "roster", USD | No spend or public pages before the paid gate; the pilot is found through the basketball network. The Swiss wedge does not travel and US incumbents are consolidating [Review]. Do not put "worldwide" on the website |
+| **US (discounted paid pilot fall 2027; full price not before H2 2029)** | "program", "registration", "roster", USD | No spend or public pages before the paid gate; the pilot is found through the basketball network. The Swiss wedge does not travel and US incumbents are consolidating [Review]. Do not put "worldwide" on the website |
 
 **Translation rule:** AI-assisted drafts are allowed. Every page and email template is reviewed by a paid native speaker before publishing.
 
@@ -139,7 +139,7 @@ These follow `02_GO_TO_MARKET.md` §8.2 and set out where each element sits.
 | "QR-bill included" | "TWINT payments matched automatically": after Gate 2 | "nFADP-compliant" or "GDPR-compliant": use "designed for nFADP" and the published security pack [Founder] |
 | "Pilot programme: 5 founding clubs" | "Saves X hours a week": after timing at DLang | Industry benchmarks presented as our results |
 | | Security-review statement: after the review (base 31 Jan 2027) | Native apps or modules that are not built; "worldwide"; "€6,160 MVP"; "cheaper than Spond" (retired 12 Nov 2026) |
-| | "Optional AI assistant, switched on by each club": after the DLang beta (Q1 2027) and the DPIA addendum | AI as the headline message; any claim that tenant data trains a model |
+| | "Optional AI assistant add-on, switched on by each club" (a paid extra, round 2; never "included"): after the DLang beta (Q1 2027) and the DPIA addendum | AI as the headline message; any claim that tenant data trains a model |
 
 Comparative claims about named competitors must be accurate and verifiable under Swiss unfair-competition law (UWG) [Verify with counsel]. Use only the prices cited in the founder plan, with the date checked.
 
@@ -264,8 +264,8 @@ This is a club-facing deck, separate from the investor deck. It is in FR first, 
 | After measurement | 60 days after go-live | The same metrics, the same method |
 | Publish | 31 Mar / 30 Apr 2027 | One-page PDF (FR/EN, DE by June), web page, deck slide 9, 2-minute video |
 | Second case: founding club #1 | Sep / Dec 2027 | After its first full registration cycle |
-| EU design-partner pilot case (free pilot, 12 Nov 2026) | Dec 2027 / Q2 2028 | Supports the paid EUR gate and its possible pull-forward to early 2028 |
-| US design-partner pilot case (free pilot) | Jan 2028 / Q3 2028 | Evidence for the paid US gate; not published in Switzerland as a sales claim |
+| EU design-partner pilot case (discounted paid pilot, 12 Nov 2026) | Dec 2027 / Q2 2028 | Supports the paid EUR gate and its possible pull-forward to early 2028 |
+| US design-partner pilot case (discounted paid pilot) | Jan 2028 / Q3 2028 | Evidence for the paid US gate; not published in Switzerland as a sales claim |
 | Third case: an academy or camp operator | Q1 2028 | Supports the EUR-track gate |
 
 **Integrity rules:**
@@ -341,7 +341,7 @@ Founder time is the main cost: about 4–6 hours a week on marketing and content
 | Product name | DLANG Sports OS; trademark "checked and, if defended, registered" | **12 Nov:** master-brand candidate "Global Sport OS"; clubs run it under their own name (e.g. "DLang OS"); CH/EU/US trademark and domain check with 2–3 alternatives by 15 Jan 2027; "DLANG Sports OS" stays the working name; decision 15 Feb 2027 | Generic names are hard to register; renaming is cheapest before public launch |
 | Positioning | "Only platform on TWINT, four languages" (revised to programme-revenue buyers) | Kept the revised statement; "French, German and English"; lead with the programme-to-payment chain; TWINT claim only after Gate 2 | Swiss competitors have TWINT and QR-bill; no translation layer or Italian yet; TWINT is a label in the repo today |
 | Cost claim vs Spond | "Cheaper than Spond on total cost" | Only "lower payment-rail cost" (693 vs 1,575 on the plan's example); "cheapest payment rail" adopted by the founder 12 Nov | The total-cost claim is false on the plan's own table (6,573 vs 1,755) |
-| Geography in messaging | Deck: "every team sport", "worldwide" | Romandie FR first, DE-CH second, EN for schools; **12 Nov:** one free EU and one free US design partner in 2027 via network, no public pages; EU pages only after ≥ 10 CH clubs; no US pages before H2 2029 | The Swiss wedge does not travel; capacity and capital are limited |
+| Geography in messaging | Deck: "every team sport", "worldwide" | Romandie FR first, DE-CH second, EN for schools; **12 Nov:** one EU and one US design partner in 2027 (discounted paid since round 2) via network, no public pages; EU pages only after ≥ 10 CH clubs; no US pages before H2 2029 | The Swiss wedge does not travel; capacity and capital are limited |
 | Launch timing | Implied by the 90-day rollout (club #1 weekly by 22 Nov 2026) | Quiet build to Jan 2027; case study 31 Mar 2027; public launch Apr–May 2027 | Gates not met; Swiss signing window is Jan–May; no claims without DLang proof |
 | Case study | "Co-branded launch case study" with founding clubs | DLang first (baseline from Dec 2026, publish 31 Mar / 30 Apr 2027), with disclosure of the relationship and minors' consent rules | A measured lighthouse is needed before external clubs sign; integrity in a small market |
 | Claim standard | Founder's claim audit (§2.2) | Kept, plus an allowed-now / after-trigger / never table and a quarterly claim review | Turns a good principle into an operating routine |

@@ -1,6 +1,6 @@
 # DLANG Sports OS: Go-to-Market and Launch Plan
 
-**Status:** working document, re-baselined 11 November 2026; updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`)
+**Status:** working document, re-baselined 11 November 2026; updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`), including **round 2**: no free pilots anywhere (EU and US pilots are discounted paid pilots), and the AI assistant is a paid club add-on (DLang free)
 **Builds on:** the founder's August 2026 Business Plan (§7 go-to-market, §7.4 founding programme, §7.5 federation strategy), 90-Day Rollout, Financial Model, CTO Partnership Proposal and Investor Deck (`docs/company/source/`), the strategy review `09_FOUNDER_PLAN_REVIEW.md`, and `01_BUSINESS_MODEL.md` (pricing and phasing, which this document follows).
 
 **Labels**
@@ -12,10 +12,10 @@
 
 ## 1. Decisions in brief
 
-1. **One paid market at a time, plus two free pilots.** Switzerland (Romandie first) is the only market **sold to** in 2027. The founder wants an EU and US presence in 2027, so there is **one free EU design-partner pilot** (live Sep 2027 / downside Jan 2028) and **one free US design-partner pilot** (US fall season, live Sep–Oct 2027 / downside Mar 2028), each behind entry conditions (§5.5, §6.5). Paid EUR-track sales open only when ≥ 10 Swiss clubs pay (base: first paid EU club signed Q2 2028, or **early 2028 if the EU pilot is strong**; live Sep 2028). Paid US sales: not before H2 2029. Broad white-label resale: 2029 at the earliest.
+1. **One full-price market at a time, plus two discounted paid pilots.** Switzerland (Romandie first) is the only market **sold to at list price** in 2027. The founder wants an EU and US presence in 2027, so there is **one discounted paid EU design-partner pilot** (live Sep 2027 / downside Jan 2028) and **one discounted paid US design-partner pilot** (US fall season, live Sep–Oct 2027 / downside Mar 2028), each behind entry conditions (§5.5, §6.5). Full-price EUR-track sales open only when ≥ 10 Swiss clubs pay (base: first full-price EU club signed Q2 2028, or **early 2028 if the EU pilot is strong**; live Sep 2028). Full-price US sales: not before H2 2029. Broad white-label resale: 2029 at the earliest.
 2. **DLang Basketball is customer zero and the lighthouse.** No external club is promised a payment flow that DLang has not run end to end. DLang goes live Feb 2027 (downside Mar 2027) and its before/after figures become the case study by 31 Mar 2027.
 3. **Founder-led selling, sequenced to the Swiss club calendar.** The signing window is Jan–Jun; nobody is onboarded during the Jun–Sep registration peak unless set up by end of May. Sales cycle planned at 45–90 days, not the 21 days in the founder plan.
-4. **Paid pilots in Switzerland, two free design partners abroad** (founder, 12 Nov 2026). The Swiss pilot programme *is* the founder's founding programme: 5 clubs at CHF 290/month for life, 60-day refund, month-to-month. Up to 5 further "design pilot" clubs at list price with the same refund. **No free pilots in Switzerland once live.** Exceptions: exactly one free EU and one free US design-partner pilot, used as a model and case study.
+4. **Paid pilots everywhere; no free pilots** (founder, 12 Nov 2026, round 2). The Swiss pilot programme *is* the founder's founding programme: 5 clubs at CHF 290/month for life, 60-day refund, month-to-month. Up to 5 further "design pilot" clubs at list price with the same refund. **No free pilots in Switzerland once live, and none abroad.** Exactly one EU and one US design-partner pilot, used as a model and case study, both **discounted paid** ("so we don't lose"): proposed **50% off the Club-tier list for the first 6 months, 12-month commitment, then list** (EU EUR 234.50 then 469; US USD 249.50 then 499 indicative), onboarding at 50% [Est.][Confirm]. The earlier "second free pilot in a market TBD" is removed; that market pays the reduced price.
 5. **Partners come after proof.** Referral rewards switch on after two clubs show measured results (~Q3 2027). Implementation partners 2028. White-label resellers 2029, behind a gate.
 
 ---
@@ -40,14 +40,14 @@
 | 0 | DLang (customer zero) | Gate 2: TWINT reconciles automatically | live Feb 2027 | Mar 2027 | Without money moving end to end there is nothing to sell |
 | 1 | Romandie (VD, GE, VS) | Gate 1 (≥ 6/10 audits at 3× value) + GmbH + contract set | first paid Feb 2027 | Apr 2027 | Founder network, French-speaking, under-served vs German-speaking CH [Founder] |
 | 1b | Rest of CH (BE/FR bilingual, ZH, BS, then Ticino) | DE interface live; 5 founding clubs live | from Q4 2027 | 2028 | Same rails (TWINT, QR-bill); needs DE (and later IT) |
-| 1c | EU free design-partner pilot (new, 12 Nov) | DLang live + ≥ 3 paying CH clubs; EUR/SEPA and FR/DE complete; GDPR pack incl. Art. 27 representative; support hours covered | live Sep 2027 | Jan 2028 | Founder wants an EU presence in 2027; one free pilot buys a case study cheaply |
-| 1d | US free design-partner pilot (new, 12 Nov) | Same conditions; USD, US English, COPPA verifiable parental consent; cross-border Connect [Verify] | live Sep–Oct 2027 (fall season) | Mar 2028 (spring season) | Founder wants a US presence in 2027; learning, not revenue |
+| 1c | EU discounted paid design-partner pilot (12 Nov; paid since round 2) | DLang live + ≥ 3 paying CH clubs; EUR/SEPA and FR/DE complete; GDPR pack incl. Art. 27 representative; support hours covered | live Sep 2027 | Jan 2028 | Founder wants an EU presence in 2027; one discounted pilot buys a case study cheaply and tests willingness to pay |
+| 1d | US discounted paid design-partner pilot (12 Nov; paid since round 2) | Same conditions; USD, US English, COPPA verifiable parental consent; cross-border Connect and sales tax on a paid pilot [Verify] | live Sep–Oct 2027 (fall season) | Mar 2028 (spring season) | Founder wants a US presence in 2027; learning first, a small discounted fee |
 | 2 | EU (EUR track, paid) | ≥ 10 paying CH clubs, SEPA, EU VAT set-up, GDPR Art. 27 representative, DE/FR contract texts | signed Q2 2028 (early 2028 on a strong pilot), live Sep 2028 | 2029 | Same product, but the Swiss payment wedge disappears; must win on workflow alone |
 | 3 | Federation / multi-site pilot | One live reference club in the federation's sport | H2 2028 | 2029 | Founder §7.5 sequence, kept |
 | 4 | USA (paid) | ≥ 40 clubs, CHF 25k+ MRR, NRR ≥ 100%, seed closed, the 2027 design partner (or another) paying + channel | not before H2 2029 | later | No Swiss advantage carries over; incumbents consolidating; capital and capacity too small before then |
 | 5 | Broad white-label resale | ≥ 25 clubs on one codebase, external pen test, staffable support SLA | 2029 earliest | later | A reseller multiplies support load before the company can carry it |
 
-**Where ambition and realism diverge.** The deck says "worldwide, every team sport" and 150 clubs / EUR 808k ARR. The code is already multi-tenant and white-label capable, so the product is not the bottleneck. The bottlenecks are one founder's selling hours, a Swiss calendar where signing concentrates in Jan–Jun, per-country payment and compliance set-up, and capital. We put the deck's numbers on the deck's timeline at under 15% likelihood and 10 clubs by end-2027 at 50–60% [Review estimate]. "Any sport, any country" stays the product architecture; it is not the 2027 sales plan. The two free pilots are the honest way to start abroad in 2027: they cost about CHF 15–30k and 150–250 founder and CTO hours [Est.], they go live during the Swiss peak, and they are not in the financial model.
+**Where ambition and realism diverge.** The deck says "worldwide, every team sport" and 150 clubs / EUR 808k ARR. The code is already multi-tenant and white-label capable, so the product is not the bottleneck. The bottlenecks are one founder's selling hours, a Swiss calendar where signing concentrates in Jan–Jun, per-country payment and compliance set-up, and capital. We put the deck's numbers on the deck's timeline at under 15% likelihood and 10 clubs by end-2027 at 50–60% [Review estimate]. "Any sport, any country" stays the product architecture; it is not the 2027 sales plan. The two discounted paid pilots are the honest way to start abroad in 2027: they cost about CHF 15–30k and 150–250 founder and CTO hours [Est.] and go live during the Swiss peak; workbook v2.2 carries CHF 22.5k of cost and the discounted fees (about CHF 2.6k in 2027, about 21.7k over three years).
 
 ---
 
@@ -218,30 +218,31 @@ Prerequisite work starts ~6 months before G+0 because tax, legal and payment set
 | Launch 3 | W7–W9 | First EU club onboarded with SEPA; parent payment cycle completed |
 | Launch 4 | W10–W13 | Decide whether to open Germany/Austria based on EU club #1 weekly usage and cycle time |
 
-**Pull-forward (12 Nov 2026):** if the free EU pilot (§5.5) meets its success criteria and ≥ 10 Swiss clubs pay (base Oct 2027), G+0 moves to the pilot review, and the first paid EU club can be signed in **early 2028** instead of Q2 2028.
+**Pull-forward (12 Nov 2026):** if the EU pilot (§5.5) meets its success criteria and ≥ 10 Swiss clubs pay (base Oct 2027), G+0 moves to the pilot review, and the first full-price EU club can be signed in **early 2028** instead of Q2 2028.
 
 **EU KPIs:** audits → signatures ≥ 15%; time to first SEPA collection ≤ 21 days from signature; EU support hours per club ≤ CH level; first EU club live Sep 2028 (downside 2029); 5 EU clubs by mid-2029 [Est.].
 
-### 5.5 EU free design-partner pilot, 2027 (added 12 Nov 2026)
+### 5.5 EU discounted paid design-partner pilot, 2027 (added 12 Nov 2026; paid since round 2)
 
 | Item | Plan |
 |---|---|
 | Who | One academy, camp operator or club with paid staff, 100–300 athletes, in a FR/DE-speaking border region (Grand Genève / Haute-Savoie first; Baden or Alsace as alternatives). Country TBD by 31 Mar 2027 |
-| Why free | Founder decision: used as a model and case study for the paid EUR track |
+| Why discounted, not free | Founder decision, round 2: no free pilots "so we don't lose". A model and case study for the full-price EUR track that also tests willingness to pay |
+| Price (proposal) [Est.][Confirm] | **EUR 234.50 a month (50% off Club-tier EUR 469) for months 1–6, then EUR 469**; 12-month minimum; onboarding at 50%. Alternative: EUR 279 (founding-equivalent) for 12 months, then list. Pilot costs (about CHF 15–30k for both pilots) are ours. EU VAT on the invoice (reverse charge / OSS) [Verify] |
 | Entry conditions | DLang live in CH; ≥ 3 paying CH clubs live (base May 2027 / downside Aug 2027); EUR formatting, SEPA via Stripe Connect and FR or DE complete; GDPR Art. 27 representative appointed, DPA in the pilot's language, EU hosting confirmed; support hours named |
 | Dates (base / downside) | Shortlist 31 Mar 2027 · counsel memo 31 May · go/no-go 30 Jun · set-up Jul–Aug · **live Sep 2027 / Jan 2028** · 60-day review Nov 2027 |
-| Terms | Written pilot agreement: 6 months, no custom development, data terms, case-study consent, post-pilot EUR price stated up front |
-| Success criteria | One full registration → SEPA/card payment → attendance → reminder cycle; ≥ 80% of one programme's fees through the platform; admin active weekly; signed case study; conversion to paid at the end |
+| Terms | Written pilot agreement: 12-month commitment (6 months at the pilot price, then list), no custom development, data terms, case-study consent, list EUR price stated up front |
+| Success criteria | One full registration → SEPA/card payment → attendance → reminder cycle; ≥ 80% of one programme's fees through the platform; admin active weekly; signed case study; stays on at list price after month 6 |
 
 ---
 
-## 6. United States (paid sales gated; one free pilot in 2027)
+## 6. United States (full-price sales gated; one discounted paid pilot in 2027)
 
 ### 6.1 Why later, plainly
 
 The founder's ambition includes the US. It is a large market for youth club, AAU/travel basketball, private-school and camp software. But: (1) none of DLANG's Swiss advantages (TWINT, QR-bill, Romandie network, FR/DE/IT) apply; (2) the market is served by large, consolidating incumbents with registration, payments and scheduling already bundled [specific vendor numbers not verified, not cited]; (3) US norms differ (fees often passed to families, background-check and safety workflows, school procurement); (4) one founder cannot sell across nine time zones while the Swiss base is under 40 clubs. Entering early would spend the scarcest resource, founder time, where DLANG has no edge.
 
-**Gate for paid US sales (not before H2 2029):** ≥ 40 paying clubs, CHF 25k+ MRR, net revenue retention ≥ 100%, seed closed, one **paying** US design partner (the 2027 free pilot converting is the preferred route), and one channel (e.g. a basketball academy network or camp operator group) committed. The free 2027 pilot (§6.5) does not open this gate; it only produces evidence for it.
+**Gate for paid US sales (not before H2 2029):** ≥ 40 paying clubs, CHF 25k+ MRR, net revenue retention ≥ 100%, seed closed, one US design partner **paying list price** (the 2027 discounted pilot moving to list is the preferred route), and one channel (e.g. a basketball academy network or camp operator group) committed. The discounted 2027 pilot (§6.5) does not open this gate; it only produces evidence for it.
 
 ### 6.2 ICP and channels (for when the gate opens)
 
@@ -271,15 +272,16 @@ The founder's ambition includes the US. It is a large market for youth club, AAU
 
 **KPIs:** 1 paying design partner; ≥ 3 qualified channel conversations; payment cycle completed; decision memo by W13. No US hiring before a go decision.
 
-### 6.5 US free design-partner pilot, 2027 (added 12 Nov 2026)
+### 6.5 US discounted paid design-partner pilot, 2027 (added 12 Nov 2026; paid since round 2)
 
 | Item | Plan |
 |---|---|
 | Who | One AAU/travel basketball programme, academy or camp operator, reached through the DLang basketball network |
-| Why free | Founder decision: a model and case study for the US, not revenue |
-| Entry conditions | DLang live in CH; ≥ 3 paying CH clubs live; USD, US English terminology (season, roster, tryouts), US date and address formats; **COPPA verifiable parental consent** flow for under-13s, US privacy notice and state-law check [Verify with US counsel]; no US entity for a free pilot [Verify]; cross-border Stripe Connect for a US connected account [Verify with Stripe]; support hours across the time difference named |
+| Why discounted, not free | Founder decision, round 2: no free pilots. A model and case study for the US; the fee is small, the learning is the point |
+| Price (proposal) [Est.][Confirm] | **USD 249.50 a month (50% off the indicative Club-tier USD 499) for months 1–6, then USD 499**; 12-month minimum; onboarding at 50%. Alternative: USD 299 for 12 months. US price not published. Whether invoicing a US club from SPSA creates sales-tax or entity obligations [Verify with US counsel] |
+| Entry conditions | DLang live in CH; ≥ 3 paying CH clubs live; USD, US English terminology (season, roster, tryouts), US date and address formats; **COPPA verifiable parental consent** flow for under-13s, US privacy notice and state-law check [Verify with US counsel]; entity and sales-tax position for a paid pilot [Verify]; cross-border Stripe Connect for a US connected account [Verify with Stripe]; support hours across the time difference named |
 | Dates (base / downside) | Shortlist 31 Mar 2027 · US counsel memo 31 May · go/no-go 30 Jun · set-up Jul–Aug · **live Sep–Oct 2027 (fall season) / Mar 2028 (spring season)** · 60-day review Dec 2027 |
-| Terms | As the EU pilot; post-pilot USD price stated up front but not published |
+| Terms | As the EU pilot (12-month commitment, 6 months discounted, then list); USD list price stated up front but not published |
 | Success criteria | One season registration and payment cycle; parents complete consent and payment without support; admin active weekly; written decision memo on the US gate inputs |
 
 **Capacity warning.** Both pilots go live in the same weeks as the Swiss registration peak, DLang running the whole club and the push to 10 paying clubs. If the Swiss KPIs are red on 31 Aug 2027 (fewer than 3 paying clubs, churn above 2.5%, P1 backlog), the pilots move to the downside dates.
@@ -295,7 +297,7 @@ The founder's ambition includes the US. It is a large market for youth club, AAU
 | **Founding clubs** [Founder, kept] | 5 (hard cap, in writing) | CHF 290/month for life, any tier; onboarding waived | 24 months founder access, quarterly roadmap vote, co-branded case study, founding listing, month-to-month, 60-day refund. Slots close 30 Sep 2027 |
 | **Design pilots** [Est., new] | up to 5 | List price; onboarding fee 50% off | Same refund and exit terms; must fit the ICP; first in line for the referral reward |
 
-No free pilots in Switzerland: a free pilot proves usage, not willingness to pay, and Gate 1 is about paying. The only free pilots are the single EU and single US design partners (§5.5, §6.5), outside the Swiss programme.
+No free pilots, anywhere (round 2, 12 Nov 2026): a free pilot proves usage, not willingness to pay, and Gate 1 is about paying. The single EU and single US design partners (§5.5, §6.5) are discounted paid pilots outside the Swiss programme (50% off the Club list for 6 months, 12-month commitment, then list [Confirm]).
 
 ### 7.2 Selection criteria
 
@@ -374,8 +376,8 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 | J+S data interfaces and what is permitted | BASPO / J+S office |
 | EU: Art. 27 representative, governing law, local invoice rules | EU counsel per country |
 | US: entity, sales tax nexus, COPPA, state privacy law | US counsel and tax adviser |
-| US free pilot: no-entity position, COPPA verifiable parental consent, cross-border Stripe Connect (by 31 May 2027) | US counsel; Stripe |
-| EU free pilot: Art. 27 representative, DPA language, pilot agreement (by 31 May 2027) | EU counsel |
+| US discounted paid pilot: entity and sales-tax position for invoicing a US club, COPPA verifiable parental consent, cross-border Stripe Connect (by 31 May 2027) | US counsel and tax adviser; Stripe |
+| EU discounted paid pilot: Art. 27 representative, DPA language, pilot agreement with price terms, EU VAT on the invoice (by 31 May 2027) | EU counsel; fiduciary |
 | SPSA GmbH contracting with other clubs while running an academy; carve-out | Swiss lawyer |
 | Reseller agreement and partner liability | Lawyer |
 
@@ -385,7 +387,7 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 
 | Topic | Founder plan | Updated | Why |
 |---|---|---|---|
-| Launch markets | "Worldwide, every team sport" (deck); Swiss first, EUR second (plan) | CH 2027 (paid); **12 Nov:** one free EU pilot (Sep 2027 / Jan 2028) and one free US pilot (Sep–Oct 2027 / Mar 2028); paid EU signed Q2 2028 (early 2028 on a strong pilot), live Sep 2028; paid US not before H2 2029; white-label resale 2029+ | Swiss wedge does not travel; capacity and capital too small; founder wants a 2027 EU/US presence |
+| Launch markets | "Worldwide, every team sport" (deck); Swiss first, EUR second (plan) | CH 2027 (paid); **12 Nov, round 2:** one discounted paid EU pilot (Sep 2027 / Jan 2028) and one discounted paid US pilot (Sep–Oct 2027 / Mar 2028); full-price EU signed Q2 2028 (early 2028 on a strong pilot), live Sep 2028; paid US not before H2 2029; white-label resale 2029+ | Swiss wedge does not travel; capacity and capital too small; founder wants a 2027 EU/US presence |
 | Gate 2 (TWINT reconciles) | 18 Oct 2026 | 18 Dec 2026 (downside 31 Jan 2027) | TWINT is only a label in the code; no Connect yet |
 | Gate 1 (willingness to pay) | 20 Sep 2026 | 31 Jan 2027 (downside 15 Mar 2027) | Audits not done/confirmed; Jan–Mar is the comité window |
 | First paid signature | by 30 Nov 2026 | 31 Jan 2027 signed, paying Feb 2027 (downside Mar–Apr 2027) | Company, contracts and payment rail must exist first |
@@ -394,7 +396,7 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 | Sales cycle | 21 days | 45–90 days; 21 days as best case | Comité decisions, AGM timing |
 | Founder hours per club | 22 h (model) vs 31 h (plan) | Plan on 31 h; target 20 h by club 10 | Use the conservative figure consistently |
 | Competitive claim | "Cheaper than Spond on total cost" | "Cheapest payment rail for clubs collecting real money" (adopted by the founder 12 Nov) | Plan's own table: CHF 6,573 vs 1,755 total |
-| Pilots | Founding programme only | Founding (5) + up to 5 paid design pilots; **no free pilots in CH** (confirmed 12 Nov); exceptions: one free EU and one free US design partner | Gate 1 tests payment, not usage; the two exceptions buy market learning |
+| Pilots | Founding programme only | Founding (5) + up to 5 paid design pilots; **no free pilots anywhere** (round 2, 12 Nov); one discounted paid EU and one discounted paid US design partner | Gate 1 tests payment, not usage; the two discounted pilots buy market learning and still test payment |
 | Referral | Switch on Month 6 | Switch on after 2 measured references (~Q3 2027) | Month 6 of a slipped plan is meaningless; tie to proof |
 | Federation strategy | Relationship Y1, group deal months 15–24 | Kept; pilot H2 2028 (downside 2029); Swiss Basketball first via DLang | Needs live reference in the sport |
 | J+S integration | Validate with 5 clubs, then build | Kept; validate in 2027; never sold before built | Unverified gap; BASPO interfaces unknown |
@@ -403,5 +405,5 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 | Localisation | Multilingual in beta scope | FR/EN/DE by 28 Feb 2027; IT 2028 | No translation layer in repo yet |
 | Paid acquisition | None in Year 1 | None in 2027; content/SEO from Q2 2027 | Kept; low-cost compounding channel added |
 | Company (12 Nov) | GmbH to be formed | SPSA GmbH signs all contracts; answer for prospects on the shared academy/software entity | Founder's answer |
-| AI in sales (12 Nov) | — | AI assistant opt-in per club, included in the Club tier [Confirm]; never the lead message | Founder decision |
+| AI in sales (12 Nov) | — | AI assistant opt-in per club and a **paid add-on** (CHF 69 per club per month proposed [Confirm]; DLang free); never the lead message, offered at onboarding as an extra | Founder decision (round 2) |
 | Team for selling | Part-time CS at club 10, SDR at club 25 | Part-time CS Jan 2028 (downside Jun 2028); SDR at ~club 25 (Oct 2028 base) | Same triggers, real dates; CH notice periods 1–3 months |

@@ -1,6 +1,6 @@
 # DLANG Sports OS: Customer Onboarding, Success and Support
 
-**Status:** working document, re-baselined 11 November 2026; **updated 12 November 2026** with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`): AI assistant opt-in per club, per-club app name, fractional CTO, free EU and US design-partner pilots, strategy review triggers instead of a stop rule
+**Status:** working document, re-baselined 11 November 2026; **updated 12 November 2026** with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`): AI assistant opt-in per club, per-club app name, fractional CTO, EU and US design-partner pilots, strategy review triggers instead of a stop rule. **Round 2 (12 Nov):** the AI assistant is a **paid add-on** (DLang free), the EU/US pilots are **discounted paid pilots** (no free pilots anywhere), and a parent AI add-on is a proposal only (`13_PARENT_AI_ADDON_SPEC.md`)
 **Owner:** founder / CEO until the part-time customer success hire (base Jan 2028, downside Jun 2028)
 **Builds on:** Business Plan §8.1 "Onboarding", §8.2 "Support model", §8.3 "Operating rhythm" and the onboarding-fee table (Aug 2026); the 90-Day Rollout; `09_FOUNDER_PLAN_REVIEW.md`; and the companion documents `01_BUSINESS_MODEL.md`, `02_GO_TO_MARKET.md` and `04_ORG_DESIGN_AND_HR.md`.
 
@@ -19,8 +19,8 @@
 4. **Support promises are cut to what one founder can keep.** Founding clubs keep direct founder access for 24 months [Founder], but on a logged channel, with posted hours and a defined holiday rota. No "24/7" claim anywhere. Money and data incidents are answered the same day, always [Founder].
 5. **Productise before club six, which now falls in Jul–Sep 2027 (base).** That falls in the registration peak, when nobody new is migrated. So the onboarding kit is built **Feb–May 2027** while founding clubs 1–5 are onboarded [Founder rule, re-dated].
 6. **Customer success is measured from day one** with a manual monthly health sheet. An in-product health score follows in Q4 2027. NPS is reported as raw counts until there are at least 20 responses.
-7. **The AI assistant is an opt-in onboarding step, never a default** (12 Nov 2026). A club admin switches it on in **Settings → App & assistant**; it is off until then. DLang runs the beta first (Q1 2027, switched on Feb 2027 / downside Mar 2027), founding clubs can opt in once written acceptance criteria are met (base Q2 2027). It is included in the Club tier and above for now [Confirm]. CS explains what data it sees and does not see, and that a human approves every message to a parent.
-8. **Two free design-partner pilots in 2027, one EU and one US** (12 Nov 2026), on top of the Swiss cohort. No free pilots in Switzerland. Each runs on a written pilot agreement (scope, 6-month term, data terms, case-study consent, conversion price stated up front) and only starts when its entry conditions hold, including **support hours covered** for its time zone and language (`00` §4.6). Live EU **Sep 2027** / downside Jan 2028; US **Sep–Oct 2027** / downside Mar 2028, the same weeks as the Swiss season peak, so they count against the work-in-progress cap.
+7. **The AI assistant is an opt-in onboarding step, never a default** (12 Nov 2026). A club admin switches it on in **Settings → App & assistant**; it is off until then. DLang runs the beta first (Q1 2027, switched on Feb 2027 / downside Mar 2027), then clubs can buy it once written acceptance criteria are met (base Jun 2027 / downside Sep 2027). **It is a paid add-on (round 2), not part of any tier: proposed CHF 69 per club per month [Confirm]; DLang gets it free.** CS offers it at onboarding as an optional extra, never as part of the core pitch, explains the price and how to cancel, and explains what data it sees and does not see, and that a human approves every message to a parent.
+8. **Two discounted paid design-partner pilots in 2027, one EU and one US** (12 Nov 2026; paid since round 2), on top of the Swiss cohort. **No free pilots anywhere.** Each runs on a written pilot agreement (scope, 12-month commitment with 6 months at 50% off the Club-tier list, then list price [Confirm], data terms, case-study consent) and is billed and dunned like any paying club and only starts when its entry conditions hold, including **support hours covered** for its time zone and language (`00` §4.6). Live EU **Sep 2027** / downside Jan 2028; US **Sep–Oct 2027** / downside Mar 2028, the same weeks as the Swiss season peak, so they count against the work-in-progress cap.
 
 ---
 
@@ -61,7 +61,7 @@ Each step has an exit test. A step without a passed exit test is not done.
 | 11 | Coach adoption | 30-minute group training on their own phones with their own roster [Founder] | Every coach takes attendance for one real session [Founder] | Exists (online only) |
 | 12 | Parent launch | Club announces DLANG in parents' languages with supplied templates | 60% of families opened the parent app at least once [Founder] | Templates FR/EN first, DE/IT later |
 | 13 | First reminder cycle and review | Reminders run; founder and director review before/after numbers | Written before-and-after: hours spent, money outstanding [Founder]. This is the case study | Exists |
-| 14 | AI assistant (optional, opt-in) | Only if the club asks: an admin reads the one-page "what the assistant sees" note and switches it on in Settings → App & assistant; admin and finance staff only | Admin's opt-in recorded; club named in the DPA sub-processor annex | Implemented, off by default. Offered after the DLang beta (Q1 2027) and the DPIA addendum (15 Jan 2027); founding clubs base Q2 2027 |
+| 14 | AI assistant (optional, opt-in) | Only if the club asks: an admin reads the one-page "what the assistant sees" note and switches it on in Settings → App & assistant; admin and finance staff only | Admin's opt-in recorded; club named in the DPA sub-processor annex | Implemented, off by default; needs the paid add-on (DLang complimentary). Offered after the DLang beta (Q1 2027) and the DPIA addendum (15 Jan 2027); on sale base Jun 2027, CHF 69/month proposed [Confirm] |
 
 ### 3.2 Three tracks and their timelines
 
@@ -216,7 +216,7 @@ Real tool choices are made at each stage against these criteria: EU or Swiss dat
 | **2: 10–40 clubs** | from Q4 2027 (base) | Helpdesk with multilingual KB, macros, SLA timers and in-app widget; CRM link for renewal dates; internal health dashboard reading platform data |
 | **3: partners and enterprise** | 2029+ | Partner-scoped tier-1 queues for implementation partners and resellers (`02_GO_TO_MARKET.md`); on-call rota tool once a second engineer exists |
 
-**AI assistant (12 Nov 2026).** The club-facing assistant is now **opt-in per club** (DLang beta Q1 2027; founding clubs base Q2 2027), so CS needs: a help-centre article "Switching the assistant on and off" and a one-page note on what it sees (tenant-scoped, allow-listed fields; never medical notes, dates of birth or coach notes; no training on tenant data); a ticket tag `ai` to track questions and incidents; and an opt-in log per club for the DPA sub-processor annex. **Using the assistant to draft DLANG's own support replies** stays a later step: 2028 at the earliest, once the knowledge base has ≥ 40 articles and 6+ months of ticket log, and with a data-protection review [Verify]. Ticket logs are never used to train a model.
+**AI assistant (12 Nov 2026; round 2).** The club-facing assistant is **opt-in per club and a paid add-on** (DLang beta Q1 2027, complimentary; on sale to clubs base Jun 2027, CHF 69/month proposed [Confirm]), so CS needs: a price and cancellation note, an add-on usage line in the health score (an AI club that stops using it is a churn signal for the add-on), a help-centre article "Switching the assistant on and off" and a one-page note on what it sees (tenant-scoped, allow-listed fields; never medical notes, dates of birth or coach notes; no training on tenant data); a ticket tag `ai` to track questions and incidents; and an opt-in log per club for the DPA sub-processor annex. **Using the assistant to draft DLANG's own support replies** stays a later step: 2028 at the earliest, once the knowledge base has ≥ 40 articles and 6+ months of ticket log, and with a data-protection review [Verify]. Ticket logs are never used to train a model.
 
 ---
 
@@ -306,7 +306,7 @@ All targets are [Est.] for a market with no measured baseline yet. They are revi
 | Clubs live | Onboarding load | Support load [Est.] | Who |
 |---|---|---|---|
 | 1–5 (2027 H1) | 8–10 h per club, max 2 in parallel | ≤ 10 h/month | Founder; fractional CTO (paid reviewer until the CTO starts) as P1 backup |
-| 6–12 (H2 2027) | 6–8 h; kit in use | 10–25 h/month, **plus the two free EU/US pilots** (about 150–250 founder and CTO hours in 2027 in total [Est.], peaking Sep–Oct) | Founder. **Start recruiting customer success Sep–Oct 2027** to cover Swiss notice periods of 1–3 months. If the pilots and the Swiss season collide, the Swiss paying clubs come first |
+| 6–12 (H2 2027) | 6–8 h; kit in use | 10–25 h/month, **plus the two discounted paid EU/US pilots** (about 150–250 founder and CTO hours in 2027 in total [Est.], peaking Sep–Oct) | Founder. **Start recruiting customer success Sep–Oct 2027** to cover Swiss notice periods of 1–3 months. If the pilots and the Swiss season collide, the Swiss paying clubs come first |
 | 12–25 (2028) | ≤ 6 h; self-serve opens for Starter | 25–50 h/month | Part-time customer success (50%) from **Jan 2028 base / Jun 2028 downside** [`04_ORG_DESIGN_AND_HR.md`] |
 | 25+ (2029) | Implementation partners onboard under DLANG brand | 50+ h/month | CS role to 80–100%; partners take tier-1 how-to |
 
@@ -328,11 +328,11 @@ Founder-led onboarding breaks at about 25 clubs [Founder]. That is base Oct 2028
 | CSV import, translation layer, offline attendance | 28 Feb 2027 | 30 Apr 2027 |
 | Help centre wave 1 (FR + EN) | 31 Mar 2027 | 30 Apr 2027 |
 | In-product checklist; logged support access | Q2 2027 | Q3 2027 |
-| AI assistant offered (opt-in) to founding clubs, once acceptance criteria are met | Q2 2027 | Q3 2027 [Est.] |
-| Pilot agreement template (EU and US free design-partner pilots) | 31 Mar 2027 | 31 Mar 2027 |
+| AI add-on on sale to clubs (paid, opt-in), once acceptance criteria are met | Jun 2027 | Sep 2027 [Est.] |
+| Pilot agreement template with price terms (EU and US discounted paid design-partner pilots) | 31 Mar 2027 | 31 Mar 2027 |
 | Pilot go/no-go (EU and US) | 30 Jun 2027 | 30 Jun 2027 |
-| Free EU design-partner pilot live (EUR, SEPA, GDPR) | Sep 2027 | Jan 2028 |
-| Free US design-partner pilot live (USD, US English, COPPA consent) | Sep–Oct 2027 | Mar 2028 |
+| Discounted paid EU design-partner pilot live (EUR, SEPA, GDPR) | Sep 2027 | Jan 2028 |
+| Discounted paid US design-partner pilot live (USD, US English, COPPA consent) | Sep–Oct 2027 | Mar 2028 |
 | 5 founding clubs live; full training set FR + EN | Jun 2027 | Sep 2027 |
 | First NPS round | Oct 2027 | Mar 2028 |
 | Help centre wave 2 + DE; helpdesk tool; health dashboard | Q4 2027 | Q2 2028 |
@@ -355,7 +355,7 @@ Founder-led onboarding breaks at about 25 clubs [Founder]. That is base Oct 2028
 | Support access to tenant data | Logged, consented access mechanism | Counsel + external security review (done by 31 Jan 2027) |
 | Customer success employment | Part-time contract, social charges, notice periods | Fiduciary / employment lawyer |
 | AI assistant opt-in | DPIA addendum; AI provider as sub-processor in the DPA; how a club's opt-in is recorded and withdrawn | Data-protection counsel (by 15 Jan 2027) |
-| Free EU and US pilots | Pilot agreement; GDPR Art. 27 representative; COPPA verifiable parental consent; support across time zones; no US entity for a free pilot | Counsel (EU and US memos by 31 May 2027) |
+| Discounted paid EU and US pilots | Pilot agreement with price terms; GDPR Art. 27 representative; COPPA verifiable parental consent; support across time zones; EU VAT and US entity / sales-tax position for a paid pilot [Verify] | Counsel (EU and US memos by 31 May 2027) |
 
 ---
 
@@ -380,8 +380,8 @@ Founder-led onboarding breaks at about 25 clubs [Founder]. That is base Oct 2028
 | QBRs | Quarterly reviews for Academy; founding roadmap call | Standard 7-part QBR template, avoiding Jun–Sep; federation add-ons | Repeatable once there is more than one Academy client |
 | NPS / CSAT | Not set | Targets set; NPS not quoted externally until n ≥ 20 | Small samples mislead investors and the team |
 | AI support assistant | Support log as training data for the parent assistant | Kept as a long-term idea; out of beta; internal drafting 2028 at the earliest with privacy review | Beta scope and data protection |
-| AI assistant (12 Nov 2026) | Support log as training data; AI out of beta | **Opt-in per club** (Settings → App & assistant, default off), DLang beta Q1 2027, founding clubs base Q2 2027, included in the Club tier [Confirm]; onboarding step 14; no training on tenant data or ticket logs | Founder wants AI available once fully functional; guardrails and DPIA addendum first |
+| AI assistant (12 Nov 2026) | Support log as training data; AI out of beta | **Opt-in per club** (Settings → App & assistant, default off), DLang beta Q1 2027, paid add-on (round 2; CHF 69/month proposed [Confirm]; DLang free), on sale base Jun 2027; onboarding step 14; no training on tenant data or ticket logs | Founder wants AI available once fully functional; guardrails and DPIA addendum first |
 | Club app name (12 Nov 2026) | Not specified | Each club can run the product under its own name (e.g. "DLang OS"), set during branding (step 3) | Clubs present the product as their own |
 | P1 backup (12 Nov 2026) | Not specified | Fractional CTO (signed 15 Dec 2026, latest 31 Jan 2027); paid reviewer until then | Founder decision: named human CTO + AI agent team |
-| Free pilots (12 Nov 2026) | Not specified | No free pilots in Switzerland; one free EU and one free US design-partner pilot in 2027 with entry conditions and written agreements | Market learning and case studies; capped to protect the Swiss season |
+| Pilots (12 Nov 2026, round 2) | Not specified | No free pilots anywhere; one discounted paid EU and one discounted paid US design-partner pilot in 2027 with entry conditions and written agreements | Market learning and case studies; capped to protect the Swiss season |
 | Red-line misses (12 Nov 2026) | — | A missed CS target (e.g. founding cohort, churn) triggers the two-week strategy review in `00` §4.7, not a stop | Founder decision: no kill switch |
