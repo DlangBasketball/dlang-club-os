@@ -46,6 +46,8 @@ export type NotifVars = {
   program_name?: string;
   title?: string;
   message?: string;
+  /** Issuing club (tenant) name; filled in by dispatchNotification(). */
+  club_name?: string;
 };
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
@@ -53,18 +55,24 @@ export type Rendered = { title: string; body: string; link?: string; subject: st
 const BRAND = "#DA2627";
 const BG = "#0A0A0A";
 
+const PLATFORM = () => process.env.NEXT_PUBLIC_PLATFORM_NAME || "Club OS";
+// Set per render() call so every template's shell shows the issuing club.
+let currentClub: string | null = null;
+const clubName = (v?: NotifVars) => v?.club_name?.trim() || currentClub || PLATFORM();
+
 function shell(heading: string, lines: string[], cta?: { label: string; href: string }): string {
+  const club = clubName();
   const body = lines.map((l) => `<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#D8D8D8;">${l}</p>`).join("");
   const button = cta
     ? `<a href="${cta.href}" style="display:inline-block;margin-top:8px;background:${BRAND};color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 20px;border-radius:8px;">${cta.label}</a>`
     : "";
   return `<!doctype html><html><body style="margin:0;background:${BG};font-family:Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
-    <div style="font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:${BRAND};font-weight:700;">DLang Basketball</div>
+    <div style="font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:${BRAND};font-weight:700;">${club}</div>
     <h1 style="margin:16px 0 18px;font-size:22px;color:#F1F1F1;">${heading}</h1>
     ${body}${button}
     <hr style="border:none;border-top:1px solid #222;margin:28px 0 14px;" />
-    <p style="margin:0;font-size:12px;color:#777;">DLang Basketball Club · Geneva</p>
+    <p style="margin:0;font-size:12px;color:#777;">${club}</p>
   </div></body></html>`;
 }
 
@@ -90,7 +98,7 @@ export const TEMPLATES: Record<NotifType, Builder> = {
     title: "Registration confirmed",
     body: `${v.athlete_name ?? "Your child"} is registered for ${v.program_name ?? "the program"}.`,
     link: "/parent/children",
-    subject: `Registration confirmed — ${v.program_name ?? "DLang Basketball"}`,
+    subject: `Registration confirmed — ${v.program_name ?? clubName(v)}`,
     html: shell("You're all set!", [
       `Hi ${name(v.parent_name)},`,
       `${v.athlete_name ?? "Your child"} is now registered for <strong>${v.program_name ?? "the program"}</strong>.`,
@@ -164,7 +172,7 @@ export const TEMPLATES: Record<NotifType, Builder> = {
     title: "New document available",
     body: `${v.document_name ?? "A document"} was added to your family file.`,
     link: "/parent/documents",
-    subject: `New document — ${v.document_name ?? "DLang Basketball"}`,
+    subject: `New document — ${v.document_name ?? clubName(v)}`,
     html: shell("New document", [
       `Hi ${name(v.parent_name)},`,
       `<strong>${v.document_name ?? "A new document"}</strong> has been added to your family's records.`,
@@ -182,10 +190,10 @@ export const TEMPLATES: Record<NotifType, Builder> = {
     ], { label: "Review now", href: "/parent/documents" }),
   }),
   announcement: (v) => ({
-    title: v.title ?? "A message from DLang Basketball",
+    title: v.title ?? `A message from ${clubName(v)}`,
     body: applyVars(v.message ?? "", v),
     link: "/parent/notifications",
-    subject: v.title ?? "A message from DLang Basketball",
+    subject: v.title ?? `A message from ${clubName(v)}`,
     html: shell(v.title ?? "A message from your club", [
       `Hi ${name(v.parent_name)},`,
       applyVars(v.message ?? "", v).replace(/\n/g, "<br/>"),
@@ -194,5 +202,10 @@ export const TEMPLATES: Record<NotifType, Builder> = {
 };
 
 export function render(type: NotifType, vars: NotifVars): Rendered {
-  return TEMPLATES[type](vars);
+  currentClub = vars.club_name?.trim() || null;
+  try {
+    return TEMPLATES[type](vars);
+  } finally {
+    currentClub = null;
+  }
 }

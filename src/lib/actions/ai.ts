@@ -2,7 +2,7 @@
 import { getSessionUser } from "@/lib/auth/get-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildParentContext, buildAdminContext, buildCoachContext } from "@/lib/ai/context";
-import { buildSystemPrompt, FALLBACK } from "@/lib/ai/prompts";
+import { buildSystemPrompt, fallbackFor, FALLBACK } from "@/lib/ai/prompts";
 import { callClaude } from "@/lib/ai/client";
 
 export type Scope = "parent" | "admin" | "coach";
@@ -22,17 +22,20 @@ export async function askAssistant(question: string, scope: Scope): Promise<AskR
   // Permission-aware retrieval: each builder uses an RLS-scoped client, so the
   // model can only ever see data this user is allowed to see.
   const bundle = scope === "admin" ? await buildAdminContext() : scope === "coach" ? await buildCoachContext() : await buildParentContext();
-  const system = buildSystemPrompt(scope, bundle.text);
+  const admin = createAdminClient();
+  const { data: org } = await admin.from("organizations").select("name").eq("id", me.orgId).maybeSingle();
+  const clubName = org?.name ?? undefined;
+  const fallback = fallbackFor(clubName);
+  const system = buildSystemPrompt(scope, bundle.text, clubName);
   const res = await callClaude(system, q);
 
   let answer: string;
   let grounded: boolean;
-  if (!res.ok) { answer = FALLBACK; grounded = false; }
-  else { answer = res.text; grounded = bundle.hasData && !answer.includes(FALLBACK); }
+  if (!res.ok) { answer = fallback; grounded = false; }
+  else { answer = res.text; grounded = bundle.hasData && !answer.includes(fallback); }
   const escalate = !grounded;
 
   // Audit — service role; we store the question + a short preview, never the context.
-  const admin = createAdminClient();
   await admin.from("ai_queries").insert({ org_id: me.orgId, actor_id: me.id, role: scope, question: q, answer_preview: answer.slice(0, 280), grounded, escalated: escalate });
 
   return { answer, grounded, escalate };

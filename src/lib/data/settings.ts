@@ -58,3 +58,13 @@ export async function getTemplateOverrides(): Promise<Record<string, { subject?:
   const s = obj(data?.settings);
   return obj(s.notification_templates) as Record<string, { subject?: string; body?: string }>;
 }
+
+/** The signed-in user's club contact email (Settings → Profile), or null. */
+export async function getClubContactEmail(): Promise<string | null> {
+  const me = await getSessionUser();
+  if (!me?.orgId) return null;
+  const admin = createAdminClient();
+  const { data } = await admin.from("app_settings").select("settings").eq("org_id", me.orgId).maybeSingle();
+  const email = str(obj(obj(data?.settings).profile).contact_email).trim();
+  return email || null;
+}

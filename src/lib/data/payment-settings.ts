@@ -2,11 +2,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { PaymentSettings } from "@/lib/swiss-payments";
 
 const DEFAULTS: PaymentSettings = {
-  creditorName: "DLang Basketball",
+  creditorName: "",
   creditorStreet: "",
   creditorBuilding: "",
   creditorZip: "",
-  creditorCity: "Genève",
+  creditorCity: "",
   creditorCountry: "CH",
   iban: "",
   qrIban: "",
@@ -22,15 +22,19 @@ const DEFAULTS: PaymentSettings = {
  */
 export async function getPaymentSettings(orgId: string): Promise<PaymentSettings> {
   const supabase = createAdminClient();
-  const { data } = await supabase.from("app_settings").select("settings").eq("org_id", orgId).maybeSingle();
+  const [{ data }, { data: org }] = await Promise.all([
+    supabase.from("app_settings").select("settings").eq("org_id", orgId).maybeSingle(),
+    supabase.from("organizations").select("name, country").eq("id", orgId).maybeSingle(),
+  ]);
   const p = ((data?.settings ?? {}) as { payments?: Record<string, string> }).payments ?? {};
+  // Creditor falls back to the tenant's own name/country, never another club's.
   return {
-    creditorName: p.creditor_name ?? DEFAULTS.creditorName,
+    creditorName: p.creditor_name || org?.name || DEFAULTS.creditorName,
     creditorStreet: p.creditor_street ?? "",
     creditorBuilding: p.creditor_building ?? "",
     creditorZip: p.creditor_zip ?? "",
     creditorCity: p.creditor_city ?? DEFAULTS.creditorCity,
-    creditorCountry: p.creditor_country ?? "CH",
+    creditorCountry: p.creditor_country ?? org?.country ?? "CH",
     iban: p.iban ?? "",
     qrIban: p.qr_iban ?? "",
     twintNumber: p.twint_number ?? "",

@@ -24,6 +24,9 @@ export type InvoicePdfData = {
   paid: number;
   balance: number;
   qrBill?: QrBillSection | null;
+  /** Issuing club (tenant) identity and the invoice currency. */
+  club: { name: string; city?: string | null; country?: string | null };
+  currency: string;
 };
 
 const MAROON = rgb(0.855, 0.149, 0.153); // #DA2627
@@ -31,10 +34,12 @@ const INK = rgb(0.1, 0.1, 0.1);
 const MUTE = rgb(0.45, 0.45, 0.45);
 const LINE = rgb(0.85, 0.85, 0.85);
 
-const chf = (n: number) => `CHF ${n.toFixed(2)}`;
 const fmtDate = (s: string | null) => (s ? new Date(s).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—");
 
 export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
+  const chf = (n: number) => `${d.currency} ${n.toFixed(2)}`;
+  const place = [d.club.city, d.club.country].filter(Boolean).join(" · ");
+  const initial = (d.club.name.trim().match(/[A-Za-z0-9]/)?.[0] ?? "C").toUpperCase();
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595.28, 841.89]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -50,9 +55,9 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
 
   // Header
   page.drawRectangle({ x: M, y: y - 6, width: 30, height: 30, color: MAROON });
-  text(page, "D", M + 9, y + 1, bold, 20, rgb(1, 1, 1));
-  text(page, "DLang Basketball", M + 42, y + 8, bold, 15);
-  text(page, "Club OS · Genève", M + 42, y - 5, font, 9, MUTE);
+  text(page, initial, M + 9, y + 1, bold, 20, rgb(1, 1, 1));
+  text(page, d.club.name, M + 42, y + 8, bold, 15);
+  text(page, place ? `Club OS · ${place}` : "Club OS", M + 42, y - 5, font, 9, MUTE);
   right("INVOICE", width - M, y + 6, bold, 22, MAROON);
   right(d.number, width - M, y - 10, font, 11, MUTE);
   y -= 54;
@@ -110,7 +115,7 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
 
   // Footer
   text(page, "Payment by card or TWINT via your parent account, or bank transfer to the club account.", M, M + 16, font, 9, MUTE);
-  text(page, "DLang Basketball · Genève · Switzerland", M, M, font, 9, MUTE);
+  text(page, [d.club.name, place].filter(Boolean).join(" · "), M, M, font, 9, MUTE);
 
   // ----- Swiss QR-bill payment part (scaffold; final layout finalised later) -----
   if (d.qrBill) {

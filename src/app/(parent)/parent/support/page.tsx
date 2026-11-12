@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LifeBuoy, Mail, Receipt, CalendarClock, ShieldCheck } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody } from "@/components/ui";
+import { getClubContactEmail } from "@/lib/data/settings";
 
 const FAQ = [
   { q: "How do I pay an invoice?", a: "Open Invoices, choose an invoice and pay by card, or use the TWINT / bank transfer details with the payment reference shown." },
@@ -9,14 +10,15 @@ const FAQ = [
   { q: "Who can see my data?", a: "Only you and authorised club staff. Other families can never see your information." },
 ];
 
-export default function ParentSupportPage() {
+export default async function ParentSupportPage() {
+  const email = await getClubContactEmail();
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title="Help & support" description="Answers to common questions, and how to reach the club." />
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><Mail className="h-4 w-4 text-maroon" /> Contact the club</CardTitle></CardHeader>
         <CardBody className="space-y-1 text-sm text-ink-2">
-          <p>Email: <a href="mailto:hello@dlangbasketball.ch" className="text-maroon hover:underline">hello@dlangbasketball.ch</a></p>
+          {email && <p>Email: <a href={`mailto:${email}`} className="text-maroon hover:underline">{email}</a></p>}
           <p>We typically reply within one business day.</p>
         </CardBody>
       </Card>

@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { getOrgName } from "@/lib/data/org-name";
 import { sendEmail } from "@/lib/email/resend";
 import { registrationConfirmation, adminRegistrationAlert } from "@/lib/email/templates";
 import { formatDate } from "@/lib/utils";
@@ -131,7 +132,9 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
   try {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
     const childNames = data.children.map((c) => `${c.firstName} ${c.lastName}`);
+    const clubName = await getOrgName(program.org_id);
     const conf = registrationConfirmation({
+      clubName,
       parentName: data.parent.name,
       programName: program.name,
       children: childNames,
@@ -140,18 +143,19 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
       dueDateLabel: formatDate(new Date(Date.now() + 14 * 864e5)),
       manageUrl: `${siteUrl}/login`,
     });
-    await sendEmail({ to: data.parent.email, subject: conf.subject, html: conf.html });
+    await sendEmail({ to: data.parent.email, subject: conf.subject, html: conf.html, fromName: clubName });
 
     const adminInbox = process.env.CLUB_ADMIN_EMAIL;
     if (adminInbox) {
       const alert = adminRegistrationAlert({
+        clubName,
         programName: program.name,
         parentName: data.parent.name,
         children: childNames,
         totalChf: total,
         invoiceNumber,
       });
-      await sendEmail({ to: adminInbox, subject: alert.subject, html: alert.html });
+      await sendEmail({ to: adminInbox, subject: alert.subject, html: alert.html, fromName: clubName });
     }
   } catch (e) {
     console.error("[register] email error (non-fatal):", e);

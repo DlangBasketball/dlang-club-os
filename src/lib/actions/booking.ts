@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { sendEmail } from "@/lib/email/resend";
+import { getOrgName } from "@/lib/data/org-name";
 import { bookingConfirmation, coachBookingAlert } from "@/lib/email/templates";
 import { formatDate, formatTime } from "@/lib/utils";
 
@@ -64,11 +65,12 @@ export async function bookSession(athleteId: string, serviceId: string, slotId: 
       }
     }
     const payNote = payWith === "credits" ? `Paid with ${res.credits_used ?? 0} training credit(s).` : `An invoice for CHF ${(res.price_chf ?? 0).toFixed(2)} has been issued.`;
-    const parent = bookingConfirmation({ parentName: me.fullName ?? "there", athleteName, serviceName, coachName, when, payNote });
-    if (me.email) await sendEmail({ to: me.email, subject: parent.subject, html: parent.html });
+    const clubName = await getOrgName(me.orgId);
+    const parent = bookingConfirmation({ clubName, parentName: me.fullName ?? "there", athleteName, serviceName, coachName, when, payNote });
+    if (me.email) await sendEmail({ to: me.email, subject: parent.subject, html: parent.html, fromName: clubName });
     if (coachEmail) {
-      const alert = coachBookingAlert({ coachName, athleteName, serviceName, when });
-      await sendEmail({ to: coachEmail, subject: alert.subject, html: alert.html });
+      const alert = coachBookingAlert({ clubName, coachName, athleteName, serviceName, when });
+      await sendEmail({ to: coachEmail, subject: alert.subject, html: alert.html, fromName: clubName });
     }
   } catch { /* email is best-effort */ }
 

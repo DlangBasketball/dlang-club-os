@@ -21,7 +21,12 @@ export async function dispatchNotification(opts: {
   email?: boolean; // default true when toEmail is present
 }): Promise<DispatchResult> {
   const admin = createAdminClient();
-  const r = render(opts.type, opts.vars);
+  let clubName = opts.vars.club_name ?? null;
+  if (!clubName) {
+    const { data: org } = await admin.from("organizations").select("name").eq("id", opts.orgId).maybeSingle();
+    clubName = (org as { name?: string } | null)?.name ?? null;
+  }
+  const r = render(opts.type, { ...opts.vars, ...(clubName ? { club_name: clubName } : {}) });
   const result: DispatchResult = { notificationId: null, emailLogId: null, emailOk: false };
 
   // 1. In-app notification (only if we have a recipient profile)
@@ -45,7 +50,7 @@ export async function dispatchNotification(opts: {
     const logId = (logRow as { id: string } | null)?.id ?? null;
     result.emailLogId = logId;
 
-    const sent = await sendEmail({ to: opts.toEmail, subject: r.subject, html: r.html });
+    const sent = await sendEmail({ to: opts.toEmail, subject: r.subject, html: r.html, fromName: clubName });
     result.emailOk = sent.ok;
     if (logId) {
       await admin

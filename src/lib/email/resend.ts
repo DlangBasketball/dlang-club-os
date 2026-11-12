@@ -3,11 +3,19 @@
  * If RESEND_API_KEY is unset (e.g. local dev) it logs and no-ops so the
  * registration flow never fails just because email isn't configured.
  */
-type SendArgs = { to: string; subject: string; html: string; replyTo?: string };
+type SendArgs = { to: string; subject: string; html: string; replyTo?: string; fromName?: string | null };
 
-export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promise<{ ok: boolean; error?: string }> {
+/** RESEND_FROM may be "Name <addr>" or a bare address; the tenant name replaces the display name. */
+function fromHeader(fromName?: string | null): string {
+  const raw = process.env.RESEND_FROM ?? process.env.RESEND_FROM_EMAIL ?? "noreply@example.com";
+  const addr = raw.match(/<([^>]+)>/)?.[1] ?? raw.trim();
+  const name = (fromName ?? raw.match(/^([^<]+)</)?.[1] ?? process.env.NEXT_PUBLIC_PLATFORM_NAME ?? "Club OS").replace(/["<>\r\n]/g, "").trim();
+  return name ? `${name} <${addr}>` : addr;
+}
+
+export async function sendEmail({ to, subject, html, replyTo, fromName }: SendArgs): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM ?? "DLang Basketball <noreply@dlangbasketball.ch>";
+  const from = fromHeader(fromName);
   if (!apiKey) {
     console.warn(`[email] RESEND_API_KEY not set — skipping email to ${to} (“${subject}”)`);
     return { ok: false, error: "email-not-configured" };

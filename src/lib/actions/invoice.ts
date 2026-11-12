@@ -11,6 +11,7 @@ import { createInvoiceCheckout } from "@/lib/stripe-connect";
 import { loadPayableInvoice } from "@/lib/payments/invoice-payable";
 import { getOrgPaymentProfile, methodsForInvoice } from "@/lib/payments/settings";
 import { sendEmail } from "@/lib/email/resend";
+import { getOrgName } from "@/lib/data/org-name";
 import { invoiceIssued, overdueReminder } from "@/lib/email/templates";
 import { formatDate } from "@/lib/utils";
 import type { Json } from "@/types/database";
@@ -73,7 +74,9 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
   const { data: family } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
   if (family?.contact_email) {
+    const clubName = await getOrgName(me.orgId);
     const t = invoiceIssued({
+      clubName,
       parentName: family.contact_name ?? "there",
       invoiceNumber: inv.number,
       description: inv.description,
@@ -81,7 +84,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
       dueDateLabel: formatDate(inv.due_date),
       payUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/parent/invoices/${id}`,
     });
-    await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html });
+    await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: clubName });
   }
   revalidatePath(`/admin/invoices/${id}`);
   revalidatePath("/admin/invoices");
@@ -147,7 +150,9 @@ export async function sendReminder(id: string): Promise<ActionResult> {
   const { data: family } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
   if (!family?.contact_email) return { ok: false, error: "No contact email on file for this family" };
 
+  const clubName = await getOrgName(me.orgId);
   const t = overdueReminder({
+    clubName,
     parentName: family.contact_name ?? "there",
     invoiceNumber: inv.number,
     description: null,
@@ -155,7 +160,7 @@ export async function sendReminder(id: string): Promise<ActionResult> {
     dueDateLabel: formatDate(inv.due_date),
     payUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/parent/invoices/${id}`,
   });
-  const res = await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html });
+  const res = await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: clubName });
   if (!res.ok && res.error === "email-not-configured") return { ok: false, error: "Email isn't configured (set RESEND_API_KEY)" };
   return { ok: true };
 }
