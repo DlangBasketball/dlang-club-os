@@ -1,0 +1,26 @@
+@page { size: A4; margin: 18mm 17mm 18mm 17mm;
+  @bottom-left { content: "DLANG Sports OS (working name) · >>venture>> 2027 startup plan"; font: 8pt Inter, sans-serif; color: #777; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt Inter, sans-serif; color: #777; } }
+@page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
+:root { --ink:#1A1A1A; --muted:#5a5a5a; --accent:#961F1F; --gold:#9a7a33; --rule:#d9d4c7; --head:#f4f1ea; }
+html { font-size: 9.6pt; }
+body { font-family: Inter, "DejaVu Sans", sans-serif; color: var(--ink); background:#fff; line-height: 1.42; margin:0; max-width:none; }
+header#title-block-header { margin: 30mm 0 10mm; border-left: 5px solid var(--accent); padding-left: 8mm; }
+h1.title { font-size: 26pt; margin: 0 0 4mm; letter-spacing: -0.01em; }
+p.subtitle { font-size: 13pt; color: var(--muted); margin: 0 0 6mm; }
+p.author, p.date { margin: 1mm 0; font-size: 10pt; }
+p.date { color: var(--accent); font-weight: 600; }
+h1 { font-size: 16pt; color: var(--accent); border-bottom: 1.5px solid var(--rule); padding-bottom: 2mm; margin: 0 0 4mm; page-break-after: avoid; }
+h2 { font-size: 11.5pt; color: var(--ink); margin: 5mm 0 2mm; page-break-after: avoid; }
+p { margin: 0 0 2.4mm; orphans: 3; widows: 3; }
+ul, ol { margin: 0 0 2.6mm; padding-left: 5mm; } li { margin-bottom: 1mm; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 4mm; font-size: 8.4pt; page-break-inside: auto; }
+th { background: var(--head); text-align: left; font-weight: 600; }
+th, td { border: 0.5px solid var(--rule); padding: 1.2mm 1.6mm; vertical-align: top; }
+tr { page-break-inside: avoid; }
+.cover-meta table { font-size: 9.2pt; } .cover-meta td:first-child { width: 30%; }
+.cover-meta thead { display: none; }
+strong { font-weight: 650; }
+code { font-size: 8.5pt; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 5mm 0; }
+.pagebreak { page-break-after: always; break-after: page; }
