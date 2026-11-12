@@ -1,6 +1,6 @@
 # DLANG Sports OS: Org Design and HR Plan
 
-**Status:** working document, re-baselined 11 November 2026
+**Status:** working document, re-baselined 11 November 2026; updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`; CTO model in `12_CTO_SOLUTION_AI_PLUS_HUMAN.md`)
 **Owner:** founder / CEO. People, payroll and legal items are checked by a Swiss fiduciary and an employment lawyer before use.
 **Builds on:** Business Plan §9 "Organisation and people" (Aug 2026), the CTO Partnership Proposal (Structure A), the Financial Model, `09_FOUNDER_PLAN_REVIEW.md`, and the companion documents `01_BUSINESS_MODEL.md`, `02_GO_TO_MARKET.md` and `03_CTO_TECHNOLOGY_STRATEGY.md`.
 
@@ -13,10 +13,10 @@
 
 ## 1. The decisions in brief
 
-1. **The founder's question stays the right one.** The question is "in what order does the founder stop doing things", not "who do we hire" [Founder BP §9.1]. Until there are 10 paying clubs, DLANG hires **capacity by the hour**, not people by the year. That means contractors, a paid senior reviewer and AI agents. The only equity hire is the CTO partner.
+1. **The founder's question stays the right one.** The question is "in what order does the founder stop doing things", not "who do we hire" [Founder BP §9.1]. Until there are 10 paying clubs, DLANG hires **capacity by the hour**, not people by the year. That means contractors, a paid senior reviewer and AI agents. The only senior hire now is a **named human fractional CTO** who leads the AI agent team (founder decision, 12 Nov 2026).
 2. **Headcount follows revenue gates, not dates.** Stage 1 (5–8 people, about 3–5 FTE) is built across **2027–2029**, not in 2027. Stage 2 (15–25 people) requires a seed round and the EUR track working, so it is **2030 at the earliest**. Stage 3 (40+) is a Series-A-funded company, so **2032 or later**. The deck's "worldwide" org cannot be staffed or funded on the current plan, and this document does not pretend it can.
-3. **Switzerland is the employer of record for the core team.** The company is a Swiss GmbH now, converted to an AG before the first employee equity grant. EU and US people are contractors or go through an Employer-of-Record (EoR) until a country has 3 or more people and recurring revenue. A local entity comes only after that.
-4. **The CTO decision is due by 8 Jan 2027**, with Structure A as the preferred path [Founder]. The fallback is fixed now: the founder plus AI agents, a paid senior reviewer at 4–8 hours a week, and fixed-price specialists. The first engineer employee comes in **Q1 2029, after the seed**. Swiss notice periods of 1–3 months mean recruiting starts the day the seed closes.
+3. **Switzerland is the employer of record for the core team.** The company is **Swiss Preparatory Sports Academy GmbH (SPSA)** [Founder, 12 Nov; Confirm register no.], converted to an AG before the first employee equity grant. EU and US people are contractors or go through an Employer-of-Record (EoR) until a country has 3 or more people and recurring revenue. A local entity comes only after that.
+4. **CTO model decided 12 Nov 2026: fractional CTO + AI agent team.** The founder asked whether an AI agent could be CTO; the answer is that agents do the engineering but a named human must be accountable for architecture, security sign-off, payment/RLS/migration approvals and investor diligence. Target **signed by 15 Dec 2026** (latest 31 Jan 2027). The EUR 50k is released only once a CTO is in place, so this hire is on the **critical path for cash**. The CTO proposes structure, decision rights and any equity by 8 Jan 2027 (Structure A is one option, no longer the default). A paid senior reviewer (4–8 h/week, pre-contracted by 16 Dec) covers until the CTO starts. The first engineer employee comes in **Q1 2029, after the seed**. Swiss notice periods of 1–3 months mean recruiting starts the day the seed closes.
 5. **The first non-engineering hire is customer success, not sales.** The founder plan triggered it at club 10 [Founder]; here it starts in **Jan 2028** (base) or **Jun 2028** (downside). Onboarding at 8–10 hours per club breaks the founder at about 5 concurrent clubs [review §3.5]. Productised onboarding has to come first, and the person comes second.
 6. **One equity philosophy, written once.** There is a 10% option pool [Founder cap table]. Grants are made in the AG under a Swiss employee participation plan with a cantonal tax ruling. Every grant vests over 4 years with a 1-year cliff, and the founder reverse-vests too [Founder]. US options wait for a US entity.
 
@@ -28,12 +28,12 @@
 |---|---|---|
 | People | Founder only. Contractors ad hoc. AI coding agents in use. | Review brief |
 | Founder load | 45–50 h/week without an engineering partner, alongside running DLang Basketball (145+ athletes, Sep–May season, holiday camps) | RO §01, review §3.5 |
-| CTO partner | Structure A proposed (20% before the round, CHF 1,200/month retainer in Y1, 5-week paid trial). Trial status unknown. | CTO proposal; [Verify with founder] |
-| Legal entity | Incorporation status unconfirmed. GmbH plus IP assignment due by 31 Dec 2026. | Review Action 6 |
+| CTO | None confirmed (founder, 12 Nov). Fractional CTO + AI agent team adopted; target signed 15 Dec 2026. EUR 50k released once a CTO is in place | Founder decisions 3, 6, 7 |
+| Legal entity | Swiss Preparatory Sports Academy GmbH (SPSA), Vaud; bank account "SPSA Tech" [Confirm register no. and date]. IP present assignment to SPSA by 31 Dec 2026. The academy and the software business share the entity (carve-out view by 15 Dec) | Founder decision 1 |
 | Payroll, social insurance | Nothing set up. A fiduciary is planned "immediately on incorporation" at CHF 250–400/month. | BP §9.1 |
-| Budget envelope | Lean opex 2027 / 28 / 29 ≈ CHF 105k / 196k / 241k, with no employees before 2028 | `01_BUSINESS_MODEL.md` §10 |
+| Budget envelope | Lean-cost plan of record (accepted 12 Nov): founder pay Y2/Y3 CHF 3.5k/5k, engineering Y2/Y3 CHF 6k/8k; no employees before 2028 | v2 workbook; `01_BUSINESS_MODEL.md` §10.1 |
 
-**The constraint everything follows from:** the base case has 12 / 24 / 47 paying clubs at end-2027 / 28 / 29, and ARR of CHF 54k / 124k / 264k. One Swiss software engineer, fully loaded, costs roughly CHF 150–185k a year [Est.]. **That is more than the company's 2028 ARR.** Every hire before the seed has to be part-time, variable or paid in equity.
+**The constraint everything follows from:** the v2 workbook base has 10 / 26 / 45 paying clubs at Nov 2027 / 28 / 29, and ARR of CHF 39.6k / 117.1k / 238.5k. One Swiss software engineer, fully loaded, costs roughly CHF 150–185k a year [Est.]. **That is more than the company's 2028 ARR.** Every hire before the seed has to be part-time, variable or paid in equity.
 
 ---
 
@@ -46,9 +46,9 @@
                               |
      +------------------------+-------------------------+----------------------+
      |                        |                         |                      |
- CTO partner (Structure A)   Senior reviewer            Fixed-price            Outsourced services
- from Mar 2027 [base]        4-8 h/week [fallback,      specialists            - Fiduciary (books, payroll, VAT)
-   or none [downside]        or alongside the CTO]      - pen-test firm        - Employment / corporate lawyer
+ Fractional CTO (human)      Senior reviewer            Fixed-price            Outsourced services
+ from Dec 2026 [base]        4-8 h/week [cover until    specialists            - Fiduciary (books, payroll, VAT)
+   Feb 2027 [downside]       the CTO starts]            - pen-test firm        - Employment / corporate lawyer
      |                                                  - translators FR/DE/IT - External DPO / privacy adviser
  AI coding agents (planner, implementer, migration-     - designer (sprints)
  reviewer, security-reviewer, test-writer, docs-keeper)
@@ -57,8 +57,8 @@
 
 | Seat | Who | Load | Cost/month [Est.] |
 |---|---|---|---|
-| CEO | Founder | full time, of which ~40% DLang | 2,000 + social charges [model] |
-| CTO | Partner, Structure A | 4–5 days/week | 1,200 + 25% of onboarding fees [Founder] |
+| CEO | Founder | full time, of which ~40% DLang | 2,500 + social charges in Y1; lean plan 3,500 / 5,000 in Y2 / Y3 [workbook] |
+| CTO | Fractional CTO (named human) leading the AI agent team; structure set by the CTO | part-time [Est.] | Within the engineering line (CHF 4.8k/month Y1 in the workbook) [Est.; Confirm with the CTO] |
 | Review and security sign-off | Senior Swiss/EU engineer, contractor | 4–8 h/week | 1,500–4,000 |
 | Finance, payroll, VAT | Fiduciary | retainer | 250–400 [Founder] |
 | Legal, privacy | Lawyer + external DPO, by the hour | spikes | budget 10–12k/year one-off [01 §10] |
@@ -136,8 +136,8 @@ Hire dates are **base / downside**. Each one depends on its trigger, not on the 
 
 | Role | Trigger | Base / downside date | Location | Model | Band [Est.] |
 |---|---|---|---|---|---|
-| CTO partner | Trial passed; decision 8 Jan 2027 | Mar 2027 / none (fallback) | CH or EU-remote, CET ±1 | Equity + retainer (Structure A) | Retainer CHF 1.2k / 4k / 7k per month Y1–Y3 [Founder]; market salary would be CHF 160–200k |
-| Senior reviewer | No CTO partner by 8 Jan, or CTO wants a second key | Feb 2027 | CH/EU | Contractor, CHF 110–150/h | CHF 2–4k/month |
+| Fractional CTO | Founder decision 12 Nov 2026; releases the EUR 50k | **15 Dec 2026 / 31 Jan 2027** | CH or EU-remote, CET ±1 | Fractional contract (equity, if any, proposed by the CTO and shown to the investor) | Day rate at Swiss market [Est.]; Structure A retainer CHF 1.2k / 4k / 7k only if the CTO chooses it |
+| Senior reviewer | Cover until the fractional CTO starts, or a second key on payments/RLS | Pre-contracted 16 Dec 2026 | CH/EU | Contractor, CHF 110–150/h | CHF 2–4k/month |
 | Customer Success Lead | ≥ 8 live clubs or > 3 concurrent onboardings | Jan 2028 / Jun 2028 (start 50%) | CH (Romandie, FR+DE) | Employee, part-time | CHF 85–105k (at 100%) |
 | Ops & finance coordinator | Fiduciary invoices > CHF 1k/month or > 25 clubs billing | Q3 2028 / 2029 | CH | Employee 40–60% or freelance | CHF 75–95k (at 100%) |
 | Part-time SDR | Club 25 [Founder] | Q4 2028 / mid-2029 | CH | Employee 50% or student/intern | CHF 60–80k (at 100%) + variable |
@@ -163,23 +163,23 @@ Hire dates are **base / downside**. Each one depends on its trigger, not on the 
 
 ## 5. Hiring plan by quarter (base case, tied to milestones)
 
-Club counts and ARR come from `01_BUSINESS_MODEL.md` §10. **A row only executes if its gate is met.** Otherwise it slides with the gate.
+Club counts and ARR come from the v2 workbook (`01_BUSINESS_MODEL.md` §10.1). **A row only executes if its gate is met.** Otherwise it slides with the gate.
 
 | Quarter | Milestone gate | People action | FTE (excl. agents) | Incremental people cost/yr [Est.] |
 |---|---|---|---|---|
-| Q4 2026 | Payment rail decided (27 Nov); TWINT on DLang (18 Dec) | Run the CTO trial or start the reviewer search; engage fiduciary and lawyer; GmbH + IP by 31 Dec | 1.0 + contractors | — |
-| Q1 2027 | CTO decision 8 Jan; convertible 31 Jan; first paid signature 31 Jan / 31 Mar | CTO partner contract (Structure A) **or** reviewer at 4–8 h/week from Feb; translators for FR/DE/IT; pen-test firm | 1.0 + partner | CTO 14.4k or reviewer 24–48k |
-| Q2–Q3 2027 | 3 → 5 founding clubs (May / Jun) | No hires. Productise onboarding before club #3 [review §3.5]. DLang staff as "customer success" for the reference account (documented as a related-party arrangement [Verify]) | 1.0 + partner | — |
-| Q4 2027 | 10 clubs (Oct; downside Mar 2028); bridge closed by Sep | Open the Customer Success Lead search (job post Oct; Swiss notice 1–3 months) | 1.0 + partner | — |
+| Q4 2026 | Stripe Connect accepted (12 Nov); TWINT on DLang (18 Dec) | **Fractional CTO shortlisted 30 Nov, signed 15 Dec** (releases EUR 50k); reviewer pre-contracted 16 Dec; engage fiduciary and lawyer; IP assigned to SPSA by 31 Dec | 1.0 + CTO (fractional) + contractors | CTO within the engineering line |
+| Q1 2027 | CTO structure proposal 8 Jan; convertible 31 Jan; EUR 50k released (Mar in the founder-facts case); first paid signature 31 Jan / 31 Mar | CTO runs the AI agent team; reviewer stays as second key if the CTO wants one; translators for FR/DE/IT; pen-test firm | 1.0 + CTO | Per CTO contract; reviewer 24–48k/yr if kept |
+| Q2–Q3 2027 | 3 → 5 founding clubs (May / Jun); EU and US free pilots go/no-go 30 Jun, live Sep–Oct | No hires. Name support hours for the pilots (US time zone) before go. Productise onboarding before club #3 [review §3.5]. DLang staff as "customer success" for the reference account (documented as a related-party arrangement [Verify]) | 1.0 + partner | — |
+| Q4 2027 | 10 clubs (Oct; downside Mar 2028); pre-seed (CHF 250–300k incl. EUR 50k) closed in H1 2027 | Open the Customer Success Lead search (job post Oct; Swiss notice 1–3 months) | 1.0 + partner | — |
 | Q1 2028 | ≥ 8 live clubs | **CS Lead starts at 50% (Jan)** | 1.5 | ~50k |
 | Q2–Q3 2028 | Peak registration season; first EUR club signed Q2 | CS Lead to 80–100% for Jun–Oct; finance coordinator (freelance) | 2.0–2.3 | +40–55k |
 | Q4 2028 | 25 clubs (Oct; downside Jun 2029); CHF 10k MRR | Part-time SDR (50%); prepare the seed and the hiring plan | 2.5–2.8 | +35–45k |
 | Q1 2029 | **Seed closed** | Search for the first engineer employee (notice period means a Q2 start); AG conversion done; ESOP plan live | 2.8 | — |
 | Q2–Q3 2029 | 35–45 clubs | Senior engineer starts; seasonal support (Jun–Oct) | 3.8–4.3 | +170k + 30k |
-| Q4 2029 | ~47 clubs, ARR ~CHF 264k; US gate review | Decide on AE CH and EU AE (EoR) for 2030; Stage 1 complete at 5–8 people | 4–5 | — |
+| Q4 2029 | ~45 clubs, ARR ~CHF 238.5k (v2 workbook); US gate review | Decide on AE CH and EU AE (EoR) for 2030; Stage 1 complete at 5–8 people | 4–5 | — |
 | 2030 | EUR track ≥ 10 clubs; Series A prep | Stage 2 build-out (section 3), paced at roughly one hire every 6–8 weeks [Est.] | 8–15 | per plan |
 
-**Downside:** shift every row from Q4 2027 onward by 2–3 quarters. If there are fewer than 8 paying clubs on 31 Mar 2028, the stop rule in `01_BUSINESS_MODEL.md` §10 applies and **no employee is hired** until that decision is made.
+**Downside:** shift every row from Q4 2027 onward by 2–3 quarters. If there are fewer than 10 paying clubs on 31 Mar 2028, the strategy review in `00_EXECUTIVE_PLAN.md` §4.7 runs (the old stop rule was retired on 12 Nov 2026) and **no employee is hired** until its corrective plan is agreed.
 
 **Where the founder's ambition and this plan differ:** the founder's model hires 1 FTE engineer in Y2 at CHF 8.5k/month and 2 FTE by Y3 [Founder model]. CHF 8.5k/month is EU-remote pricing, and the model leaves out employer charges [review §3.3]. A Lausanne hire costs roughly 1.7–2× that. This plan therefore keeps engineering on partner + reviewer + agents until a seed pays for a real salary.
 
@@ -320,9 +320,9 @@ R = responsible, A = accountable, C = consulted, I = informed.
 | Activity (deadline) | F | C | E | D | Fi | L | CS |
 |---|---|---|---|---|---|---|---|
 | Payment architecture + legal view on fund-holding (27 Nov 2026) | A | R | C | I | C | R | — |
-| GmbH formation, IP assignment, CTO grant (31 Dec 2026) | A/R | C | — | — | R | R | — |
+| IP assignment to SPSA GmbH; any CTO equity disclosed (31 Dec 2026) | A/R | C | — | — | R | R | — |
 | TWINT live and reconciling on DLang (18 Dec / 31 Jan) | A | R | R | C | I | — | — |
-| CTO decision or fallback reviewer contract (8 Jan 2027) | A/R | C | — | — | C | C | — |
+| Fractional CTO signed (15 Dec 2026); reviewer pre-contracted (16 Dec); CTO structure proposal (8 Jan 2027) | A/R | C | — | — | C | C | — |
 | Compliance pack: DPA, privacy notice, record of processing (15 Jan 2027) | A | C | C | I | — | R | — |
 | External security review (booked 4 Dec, done 31 Jan) | A | R | C | — | I | C | — |
 | Convertible signed (31 Jan 2027) | A/R | I | — | — | C | R | — |
@@ -343,7 +343,8 @@ R = responsible, A = accountable, C = consulted, I = informed.
 | Salary bands, employer charge rate, BVG plan choice | Fiduciary + current salary survey |
 | Contract templates, probation and notice, contractor classification, IP assignment | Swiss employment lawyer |
 | GmbH→AG conversion cost and timing; employee participation plan; cantonal tax ruling | Corporate lawyer + tax adviser |
-| CTO grant at nominal value and its disclosure to the convertible investor | Lawyer + tax adviser |
+| Fractional CTO contract: IP assignment, decision rights, disguised-employment risk, any equity and its disclosure to the investor | Lawyer + tax adviser |
+| Software business and academy in one GmbH (SPSA): carve-out, intercompany agreement | Lawyer + fiduciary |
 | Cross-border telework (FR/CH) social-security treatment | Fiduciary / social insurance office |
 | EoR provider choice and per-country cost; EU works-council thresholds | EoR provider + local counsel |
 | US option plan, benefits, background checks | US counsel (only once the US gate opens) |
@@ -353,10 +354,10 @@ R = responsible, A = accountable, C = consulted, I = informed.
 
 ## 13. Changes vs. founder's August 2026 plan
 
-| Topic | Founder plan | Updated | Why |
+| Topic | Founder plan | Updated (11 Nov 2026; rows marked 12 Nov reflect the founder's decisions) | Why |
 |---|---|---|---|
 | Hiring principle | Founder hands roles over in order (engineering → onboarding → support → sales) | **Kept.** Made explicit as stage gates tied to club counts | The sequencing is right; only the dates were optimistic |
-| CTO partner | Structure A; co-founder by end of Month 4 (Dec 2026), else contractor model | Decision **8 Jan 2027**; base start Mar 2027; fallback fixed now (reviewer 4–8 h/week from Feb 2027, CHF 2–4k/month) | The Month-4 cutoff has arrived; a CHF 1,200/month retainer for 4–5 days a week narrows the pool; Swiss notice periods add 1–3 months |
+| CTO partner | Structure A; co-founder by end of Month 4 (Dec 2026), else contractor model | **12 Nov:** named human fractional CTO + AI agent team; signed 15 Dec 2026 (latest 31 Jan 2027); CTO sets structure by 8 Jan; reviewer covers until then | An AI agent cannot be accountable; the EUR 50k is released only once a CTO is in place |
 | Engineering cost | CHF 4,500/month for ~24 h/week (Y1); 1 FTE at CHF 8.5k/month (Y2); 2 FTE (Y3) | Partner + reviewer + agents through 2028; first engineer employee **Q2 2029** at CHF 125–155k + ~17% charges | CHF 43/h is far below Swiss contractor rates (CHF 110–150/h); CHF 8.5k/month is EU-remote pricing; employer charges not modelled |
 | Customer success | Part-time at club 10, about Month 12 (Sep 2027) | CS Lead at 50% from **Jan 2028** (downside Jun 2028); onboarding productised before club #3 | Clubs arrive later (10 clubs Oct 2027 base); onboarding breaks the founder at about 5 concurrent clubs, not 25 |
 | First-line support | Club 15, same person | Same person, plus **seasonal** support Jun–Oct from 2029 | Registration peaks Jun–Sep concentrate parent tickets |
@@ -364,7 +365,11 @@ R = responsible, A = accountable, C = consulted, I = informed.
 | EU / US staffing | Implied by "worldwide" deck framing | EU AE via EoR only after the EUR gate (2029/2030); US hire **not before 2030**, behind the US gate | Capacity and capital too small; the Swiss wedge does not carry to the US |
 | Org size | Not specified beyond Year 3 | Stage 1 5–8 people (2027–29); Stage 2 15–25 (2030+, seed/Series A); Stage 3 40+ (2032+, undated) | Base ARR CHF 264k at end-2029 cannot fund more |
 | Employer social charges | Not modelled | Plan at ~1.17 × Swiss gross [Verify] | Mandatory AHV/ALV/BVG/UVG/FAK |
-| Equity / cap table | Founder 90→81→72% (model) vs. 64.8% (CTO proposal); 10% pool | One reconciled cap table by 3 Jan 2027; 10% pool kept; investor told about the CTO grant; AG before employee grants | The two tables disagree; investors will diligence it |
+| Equity / cap table | Founder 90→81→72% (model) vs. 64.8% (CTO proposal); 10% pool | **12 Nov:** one working cap table now, refined with the CTO and advisors; 10% pool kept; investor told about any CTO equity; AG before employee grants | The two tables disagree; investors will diligence it |
+| Founder pay (12 Nov) | 2.5k / 6k / 8.5k | Lean-cost variant accepted: Y2/Y3 founder 3.5k/5k, engineering 6k/8k | Founder decision 8 |
+| Entity (12 Nov) | GmbH to be formed | SPSA GmbH is the employer; carve-out view by 15 Dec 2026 | Founder decision 1 |
+| Pilot staffing (12 Nov) | — | No hires for the EU/US free pilots; support hours named before go/no-go (30 Jun 2027) | Capacity |
+| Stop rule (12 Nov) | — | Strategy review triggers; no employee hired until a review's plan is agreed | Founder's commitment to keep going |
 | Vesting | 4 years, 1-year cliff, founder reverse-vesting | **Kept**, applied to every grant | Sound and market-standard |
 | Fiduciary | CHF 250–400/month on incorporation | **Kept**; also runs payroll and social-insurance registration before the first hire | Sound; scope widened |
 | Policies, recruiting, onboarding | Not covered | Scorecards, paid work samples, 30/60/90, Swiss/EU/US policy baselines, safeguarding | Required before the first employee in a children's-data business |

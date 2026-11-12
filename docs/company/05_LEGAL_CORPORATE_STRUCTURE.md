@@ -1,6 +1,6 @@
 # 05 — Legal & Corporate Structure
 
-**DLANG Sports OS** · Version 1.0 · 11 November 2026
+**DLANG Sports OS** · Version 1.1 · 11 November 2026, updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`)
 **Owner:** founder / CEO. Each item is checked by a Swiss corporate lawyer, a fiduciary/tax adviser and, for the EU and US, local counsel before anyone relies on it.
 **Builds on:** Business Plan §10 "Legal, tax and structure" and §8 data-protection controls (Aug 2026), the CTO Partnership Proposal, the Financial Model, the Investor Deck, `09_FOUNDER_PLAN_REVIEW.md`, `03_CTO_TECHNOLOGY_STRATEGY.md` and `04_ORG_DESIGN_AND_HR.md`.
 
@@ -12,28 +12,29 @@
 
 | # | Decision | Recommendation | Deadline (base / latest) |
 |---|---|---|---|
-| D1 | Legal form now | **One Swiss GmbH in Canton de Vaud**, with no holding company and no foreign entity. Keep the founder's choice. | Register entry by **31 Dec 2026** / 31 Jan 2027 |
+| D1 | Legal form now | **The company is Swiss Preparatory Sports Academy GmbH (SPSA), Vaud** [Founder, 12 Nov 2026; Confirm register number (CHE-…), register date, purpose clause and shareholders]. Bank account for the software business: "SPSA Tech". No holding company and no foreign entity. | Register details on file by **20 Nov 2026** |
 | D2 | AG conversion | Convert the GmbH to an **AG before the first employee equity grant or the seed round**, whichever comes first (likely Q4 2028 to Q1 2029). Do not do it earlier. | Decide at seed term sheet |
 | D3 | IP | **Present assignment** of all code, designs and brand from the founder, SIDIS and every contractor **to the GmbH**. No IP may sit with the founder personally. | **31 Dec 2026** (before the convertible closes) |
-| D4 | Payments | **Stripe Connect with direct charges** to each club's own connected account, plus a DLANG application fee. DLANG never holds club money. Get a written anti-money-laundering (AML) opinion before the first external club. | Architecture decision and legal view by **27 Nov 2026**. Live on DLang by 18 Dec 2026 / 31 Jan 2027 |
-| D5 | Trademark | Run a clearance search first. "DLang" already identifies the D programming language. File in Switzerland (IGE/IPI) and extend through Madrid only when the EUR or US gates come into sight. | Clearance by **15 Jan 2027**. CH filing by 28 Feb 2027 |
+| D4 | Payments | **Stripe Connect accepted by the founder (12 Nov 2026)**: direct charges to each club's own connected account, plus an application fee. The platform never holds club money. DLang connects first (`docs/ops/STRIPE_CONNECT_TWINT_SETUP.md`). Written anti-money-laundering (AML) opinion still needed before the first external club; confirm with Stripe how SPSA can be both platform and DLang's account **[Verify]** | Connect application 27 Nov 2026; AML view 15 Jan 2027. Live on DLang by 18 Dec 2026 / 31 Jan 2027 |
+| D5 | Trademark | Founder's master-brand candidate is **"Global Sport OS"**; each club runs the product under its own name (e.g. "DLang OS"). Generic names are hard to register: run a **CH / EU / US trademark and domain check** on it plus **2–3 alternatives** by 15 Jan 2027. "DLANG Sports OS" stays the working name until then ("DLang" also identifies the D programming language). File in Switzerland (IGE/IPI) first; extend through Madrid at the paid EUR or US gates. | Check by **15 Jan 2027**; decision 15 Feb; CH filing by 28 Feb 2027 |
 | D6 | VAT | Register for Swiss VAT **voluntarily or by the threshold, decided with the fiduciary in Q1 2027**. EU VAT (non-Union OSS plus reverse charge) only at the EUR gate. US sales tax only at the US gate. | Fiduciary decision by **31 Mar 2027** |
-| D7 | EU presence | **No EU entity.** Use a GDPR Art. 27 representative, non-Union OSS and an Employer of Record (EoR) for staff when the EUR gate is met (2028). Form a subsidiary only once a country has 3+ staff and recurring revenue. | EUR gate: Q2 2028 at the earliest |
-| D8 | US presence | **Not before H2 2029.** At the US gate, form a **Delaware C-Corp subsidiary of the Swiss company**. Model a "flip" only if a US lead investor makes it a term. | US gate review: H2 2029 at the earliest |
+| D7 | EU presence | **No EU entity.** For the **free EU design-partner pilot (live Sep 2027 / Jan 2028)** appoint a GDPR Art. 27 representative and sign an EU-language DPA; contract from SPSA. Non-Union OSS and an Employer of Record (EoR) only at the paid EUR gate. Form a subsidiary only once a country has 3+ staff and recurring revenue. | Art. 27 representative before the EU pilot goes live; paid EUR gate Q2 2028 (early 2028 on a strong pilot) |
+| D8 | US presence | **No US entity for the free US design-partner pilot (live Sep–Oct 2027 / Mar 2028)** [Verify with US counsel]; COPPA verifiable parental consent before any under-13 data; cross-border Stripe Connect confirmed **[Verify]**. At the paid US gate (not before H2 2029), form a **Delaware C-Corp subsidiary of the Swiss company**. Model a "flip" only if a US lead investor makes it a term. | US counsel memo by 31 May 2027; paid US gate review H2 2029 at the earliest |
+| D1b | Academy and software in one entity (new, 12 Nov) | SPSA also runs the academy (customer zero). Ring-fence now (separate "SPSA Tech" account and bookkeeping segment, internal service agreement, IP held for the software business), and get a lawyer/fiduciary view on **carving the software business into its own GmbH** (sister or subsidiary) before the seed, or before the convertible if the investor or lawyer requires it **[Counsel] [Tax]** | View by **15 Dec 2026** |
 | D9 | Insurance | Cyber plus professional liability (E&O) before the first external club's live data. Add D&O when a board with outside members exists. | Bound by **31 Jan 2027** |
 
 ---
 
 ## 2. Where things stand (11 Nov 2026)
 
-The founder must confirm each of these. The review (`09` §4) treats anything unconfirmed as **not done**.
+The founder answered the main items on 12 Nov 2026 (`11_FOUNDER_DECISIONS_2026-11-12.md`). Anything still unconfirmed is treated as **not done**.
 
 | Item | Founder plan (Aug 2026) | Status now | Consequence |
 |---|---|---|---|
-| GmbH in Vaud | Formed W1 (24 Aug), register entry W3 | **Unknown.** No register extract in the materials. | Until it exists, the convertible, contracts, Stripe in the company's name, insurance and FIT Digital (which requires Vaud incorporation) cannot close properly. |
-| FIT Digital (CHF 20k) | Deadline 10 Nov 2026, committee 1 Dec 2026 | **Unknown whether filed.** The deadline has passed. | If not filed, set its probability to 0 in the model. If filed, register entry dates start the 6- and 12-month eligibility clocks. |
+| GmbH in Vaud | Formed W1 (24 Aug), register entry W3 | **Exists: Swiss Preparatory Sports Academy GmbH (SPSA)** [Founder, 12 Nov]. Register number and date [Confirm]. Bank account "SPSA Tech". | The convertible, contracts, Stripe and insurance go in SPSA's name. The academy and the software business share one entity (D1b). |
+| FIT Digital (CHF 20k) | Deadline 10 Nov 2026, committee 1 Dec 2026 | **Not filed** [Founder, 12 Nov]. Application pack being prepared (`applications/fit-digital/`). | Modelled at 0%. **Eligibility may be blocked**: the Grant is described as open to companies entered in the register no more than 6 months ago (12 months for the Seed loan) [Verify on fondation-fit.ch]. If SPSA is older, FIT may require a new, carved-out GmbH (D1b). |
 | IP | "100% founder-owned asset … under SIDIS draft" (deck) | Founder holds it personally. SIDIS agreement in draft. | This is a diligence red flag. Fix it before money comes in (D3). |
-| Payments rail | Payrexx favoured for TWINT. Stripe for card. | The repo has Stripe Checkout, one Stripe account, and TWINT only as a manual label. | Gate 2 is not met. There is a fund-holding question until Connect exists (D4). |
+| Payments rail | Payrexx favoured for TWINT. Stripe for card. | **Stripe Connect accepted** [Founder, 12 Nov]. The repo still has one Stripe account and TWINT only as a manual label. | Gate 2 not met until Connect is live for DLang (D4). |
 | Contract set (§10.4) | Required before club #1 | No drafts found in the materials | Must be ready before the first paid signature (base **31 Jan 2027**). |
 | Cyber / E&O insurance | "In place" before club #1 | Unknown | Clubs' committees will ask for it (D9). |
 | Data-protection pack (ROPA, DPIA, DPA, breach procedure) | Required before club #1 | Drafting per review W2 | Due **15 Jan 2027** (review action 7). |
@@ -55,21 +56,25 @@ The founder's comparison (BP §10.1) is sound and is kept here: GmbH CHF 20,000 
 | **Founder personal HoldCo above OpCo** | Can help with reinvesting dividends or exit proceeds and with participation relief. | Extra entity, accounts and cost. For a Swiss-resident individual, private capital gains on shares are generally tax-free, so the benefit is often small at this stage **[Tax]**. A later restructuring can trigger tax and blocking-period issues. | **Ask a tax adviser once, before the convertible converts.** Value is lowest now, so if a holding company is ever wanted, set it up now. Default: no. |
 | **Group HoldCo with separate IP-Co / OpCo** | Ring-fences IP from operating risk. | Transfer-pricing documentation, two sets of books, and no real benefit while there is one market and pre-revenue. | **No.** Revisit when the US subsidiary is formed. |
 
-**Relationship to DLang Basketball / Swiss Prep Sports Academy.** The founding club is the first customer and the reference case. It must be a **separate legal person** (association, sole trader or company, to be confirmed by the founder, review question 4). It needs a **written subscription agreement on arm's-length terms** with the GmbH, for example the founding-club price of CHF 290 per month **[Founder]**. Without one, the academy's athletes' data and money flow through an unclear structure, and an investor or tax authority could treat academy costs and SaaS costs as commingled **[Tax]**.
+**Update 12 Nov 2026: the company is the academy's own GmbH.** The founder confirmed the company is Swiss Preparatory Sports Academy GmbH. If the academy (DLang Basketball) is operated by the same GmbH, the paragraph below cannot be met as written: customer zero and the vendor are one legal person. Until a decision on a carve-out (D1b, view by 15 Dec 2026), keep the software business ring-fenced ("SPSA Tech" account, separate cost centre, internal agreement recording what the academy would pay, IP register for the software) and tell the investor plainly what the EUR 50k buys into **[Counsel] [Tax]**.
 
-**Directors, signatories and residency.** A Swiss GmbH needs at least one managing director resident in Switzerland **[Verify]**. The founder meets this. If a CTO partner joins as a shareholder (Structure A, 20% before the round **[Founder]**), put in a **shareholders' agreement**, signed before or alongside the quota transfer, covering: vesting with reverse vesting and good/bad leaver terms, the CTO's security veto as described in the proposal, drag-along and tag-along, pre-emption, information rights, deadlock, and non-compete or non-solicit to the extent enforceable in Switzerland **[Counsel]**. The convertible investor must be **told about the CTO grant in writing** before signing (review correction 7).
+**Relationship to DLang Basketball / Swiss Prep Sports Academy (original recommendation).** The founding club is the first customer and the reference case. It must be a **separate legal person** (association, sole trader or company, to be confirmed by the founder, review question 4). It needs a **written subscription agreement on arm's-length terms** with the GmbH, for example the founding-club price of CHF 290 per month **[Founder]**. Without one, the academy's athletes' data and money flow through an unclear structure, and an investor or tax authority could treat academy costs and SaaS costs as commingled **[Tax]**.
+
+**Directors, signatories and residency.** A Swiss GmbH needs at least one managing director resident in Switzerland **[Verify]**. The founder meets this. If the fractional CTO takes equity (the CTO proposes the structure by 8 Jan 2027; Structure A's 20% before the round **[Founder]** is one option), put in a **shareholders' agreement**, signed before or alongside the quota transfer, covering: vesting with reverse vesting and good/bad leaver terms, the CTO's security veto as described in the proposal, drag-along and tag-along, pre-emption, information rights, deadlock, and non-compete or non-solicit to the extent enforceable in Switzerland **[Counsel]**. The convertible investor must be **told about the CTO grant in writing** before signing (review correction 7).
 
 ### 3.2 Funding instruments and corporate steps
 
 | Instrument | Founder plan | Updated | Legal points |
 |---|---|---|---|
-| Pre-seed | EUR 50k (CHF 46.5k) as a **subordinated convertible loan**, cap CHF 418.5k pre-money (= 465k post), 15–20% discount, 18–24 months **[Founder]** | Kept. Sign by **31 Jan 2027**. | Have a Swiss lawyer review the conversion-price definition (2 h, BP §9). Subordination keeps it out of over-indebtedness calculations (CO 725b) **[Counsel]**. Conversion needs a capital increase, which means a notarial deed **[Verify]**. Keep the discount at or below the Swiss safe-harbour level the plan cites. |
-| Bridge | Not in plan | **CHF 100–150k by Sep 2027** (downside Jun 2027), same instrument family | Use the same document template to keep legal cost down. Use most-favoured-nation clauses with care. |
+| Pre-seed | EUR 50k (CHF 46.5k) as a **subordinated convertible loan**, cap CHF 418.5k pre-money (= 465k post), 15–20% discount, 18–24 months **[Founder]** | **Secured; released once a CTO is in place** [Founder, 12 Nov]. Sign by **31 Jan 2027**; cash assumed Mar 2027. Write down the release condition (what counts as "a CTO in place") by 27 Nov 2026. | Have a Swiss lawyer review the conversion-price definition (2 h, BP §9). Subordination keeps it out of over-indebtedness calculations (CO 725b) **[Counsel]**. Conversion needs a capital increase, which means a notarial deed **[Verify]**. Keep the discount at or below the Swiss safe-harbour level the plan cites. |
+| Bridge | Not in plan | **Jan–Mar 2027 bridge of about CHF 45k** (agreed by 15 Dec 2026), then a **pre-seed of about CHF 250–300k in total, including the EUR 50k, in H1 2027** (cash in by Apr 2027 at the latest), same instrument family | Use the same document template to keep legal cost down. A founder loan for the Jan–Mar bridge needs a written loan agreement and subordination **[Counsel]**. Use most-favoured-nation clauses with care. |
 | Seed | Not dated | **Q1 2029** | AG conversion, an employee participation plan with a Vaud tax ruling, and full IP and data-room diligence. See `04` §6. |
 
 ### 3.3 EU: no entity until there is a reason
 
-The EUR track enters only after its gate (review §5): **at least 10 Swiss clubs, SEPA live, EU VAT set up, a GDPR Art. 27 representative, and DE/FR product and legal texts complete**. Base: first club signed Q2 2028, live Sep 2028. Downside: 2029.
+**Free EU design-partner pilot (12 Nov 2026):** one EU club, contracted from SPSA, live Sep 2027 (downside Jan 2028); needs an Art. 27 representative, an EU-language DPA and a written pilot agreement; no entity, no OSS while it is free **[Verify]**.
+
+The paid EUR track enters only after its gate (review §5): **at least 10 Swiss clubs, SEPA live, EU VAT set up, a GDPR Art. 27 representative, and DE/FR product and legal texts complete**. Base: first club signed Q2 2028, live Sep 2028. Downside: 2029.
 
 | Stage | Structure | Trigger | Main legal risk |
 |---|---|---|---|
@@ -85,7 +90,7 @@ The deck's "worldwide" framing is a vision line, not a plan. The **US gate** (re
 
 | Option | How it works | Fundraising effect | Cost and complexity | When it makes sense |
 |---|---|---|---|---|
-| **No entity** (sell from CH) | Swiss company contracts directly with US customers | Neutral | Lowest. But US customers and payment processors may prefer a US counterparty. Sales-tax nexus still applies (§6.3). | One or two US design partners, pre-gate |
+| **No entity** (sell from CH) | Swiss company contracts directly with US customers | Neutral | Lowest. But US customers and payment processors may prefer a US counterparty. Sales-tax nexus still applies (§6.3). | The one free US design-partner pilot (Sep–Oct 2027 / Mar 2028) and any paying design partner, pre-gate [Verify] |
 | **Delaware C-Corp subsidiary** (CH parent owns US sub) | US sub sells and employs. Intercompany licence or services agreement with the Swiss parent. | Fine for Swiss and European investors. **Some US VCs will not invest in a non-US parent.** | Moderate: registered agent, Delaware franchise tax, federal and state returns, transfer-pricing documentation **[Tax]** | **Default at the US gate** |
 | **"Flip"** (new Delaware parent; Swiss company becomes a subsidiary through a share exchange) | Shareholders swap Swiss shares for Delaware shares | Preferred by many US institutional seed and Series A investors. Uses US-standard option plans. | High. Swiss tax consequences for the founder and the company (possible taxation on the transfer, loss of Swiss tax-free capital-gain treatment, IP migration and exit-tax questions), plus restructuring of the Swiss ESOP **[Tax] [Counsel]**. Expensive to undo. | **Only** if a US lead investor makes it a condition of a round large enough to justify it. Model it then. Never do it pre-emptively. |
 
@@ -103,7 +108,7 @@ Swiss law gives the employer the rights to software that **employees** write in 
 |---|---|---|---|
 | Founder (pre-incorporation work, prototype `club-os-v1-prototype.html`, repo, brand, domain names) | **IP contribution / assignment agreement** to the GmbH, or a contribution in kind at formation (notarial, valuation needed) **[Counsel]** | Present assignment ("hereby assigns") of copyright, database rights, designs, domain names and know-how. Waiver of moral-right exercise to the extent Swiss law permits. Founder warranty about third-party code. | At incorporation, latest **31 Dec 2026** |
 | SIDIS (development partner, draft agreement) | **Sign the development agreement with a present assignment to the GmbH**, not to the founder | Assignment on creation (not on payment), source-code delivery, no retained licence beyond what is agreed, open-source disclosure, confidentiality, warranty of originality | **31 Dec 2026** |
-| CTO partner (trial and Structure A) | **Contractor agreement with IP assignment** for the 5-week paid trial (CHF 9–11k **[Founder]**), then a shareholders' agreement plus a service or employment contract | Assignment of all trial output whether or not the partnership proceeds | Before the trial starts |
+| Fractional CTO (any trial, and any equity the CTO proposes) | **Contractor agreement with IP assignment** for the 5-week paid trial (CHF 9–11k **[Founder]**), then a shareholders' agreement plus a service or employment contract | Assignment of all trial output whether or not the partnership proceeds | Before the trial starts |
 | Freelancers, designers, translators, pen-testers | Short-form **contractor IP and confidentiality agreement** (one template) | Assignment, confidentiality, data-processing clause where they touch personal data | Before any work starts |
 | Future employees | Swiss employment contract with an IP and inventions clause (CO Art. 332) plus confidentiality | Covers inventions and designs, not only software | At hire |
 
@@ -115,6 +120,8 @@ Swiss law gives the employer the rights to software that **employees** write in 
 4. Run an **open-source licence scan** of the dependency tree once before the convertible closes (BP §10.3). Copyleft dependencies in a commercial SaaS should be identified now.
 
 ### 4.2 Trademark strategy
+
+**Founder's candidate (12 Nov 2026): "Global Sport OS"** as the master brand, with each club running the product under its own name (e.g. "DLang OS" for DLang). Naming note: descriptive and laudatory words ("global", "sport", "OS") are hard to register in classes 9 and 42 and may be refused as non-distinctive, and matching domains are likely taken [Est.; Verify with a trademark attorney]. So the check by **15 Jan 2027** covers "Global Sport OS" plus **2–3 more distinctive alternatives** (coined or composite names), in CH, EU and US registers and on domains and handles. Club names such as "DLang OS" are tenant branding and need no platform filing, but the club should own its own name. The legal entity (SPSA GmbH) appears on contracts and invoices whatever the product is called.
 
 **Clearance risk:** "DLang" / "D Lang" is the established name of the **D programming language** (dlang.org). A Class 9 (software) filing for "DLANG" may face conflicts or weak distinctiveness. A Class 41/42 filing for sports-club software is a different field, but this must be searched before money is spent on branding. "DLang Basketball" may also be a separate brand owned by the academy entity, so decide which entity owns which mark.
 
@@ -138,7 +145,7 @@ Governing law: **Swiss law, venue Lausanne** for all Swiss and EU B2B contracts 
 | **Master Subscription Agreement / Terms of Service** (club-facing) | The commercial contract | Month-to-month for founding clubs, annual for others. Prices exclude VAT, with the VAT-inclusive figure stated. Liability cap = 12 months' fees. Exclusion of indirect loss. Data export on exit (the anti-lock-in promise). Suspension for non-payment. Acceptable use. | **First paid signature, 31 Jan 2027** (downside 31 Mar 2027) |
 | **Founding Club Addendum** | Lifetime price lock at CHF 290, 24-month founder access, 60-day refund, roadmap voting **[Founder]** | Define "lifetime" (for the life of the product and the club's continuous subscription, non-transferable). Cap tier and athlete-count growth (otherwise a 400-athlete academy pays CHF 290 forever). | Same. Never agreed by email (BP §10.4). |
 | **Data Processing Agreement (DPA)** | Club = controller, DLANG = processor. nFADP plus GDPR Art. 28. | Sub-processor list (hosting, email, payments, any AI provider). Swiss addendum to the EU Standard Contractual Clauses for transfers outside CH/EU. Breach notice within 48–72 h of discovery. Audit by questionnaire. | Same |
-| **Parent/athlete privacy notice** (FR, DE, IT, EN) | Transparency for data subjects, including minors | Medical fields, photos, retention, under-16 rule (one rule, BP §8), AI off by default (`03`) | Same |
+| **Parent/athlete privacy notice** (FR, DE, IT, EN) | Transparency for data subjects, including minors | Medical fields, photos, retention, under-16 rule (one rule, BP §8), AI assistant only if the club has switched it on (opt-in, 12 Nov 2026), with what it processes | Same |
 | **Service Level Agreement** | Beta: **best-effort** with published support hours. Paid tiers: availability target. | Do not promise 99.9% before monitoring and on-call exist. Use service credits, not damages. | Beta: simple support policy. Formal SLA from club 10 (Oct 2027). |
 | **Payments terms** (club ↔ payment provider, accepted through Connect onboarding) | The club contracts with the payment provider. DLANG is the platform. | DLANG's application fee is disclosed. Refunds and chargebacks are the club's. | Before TWINT goes live on DLang |
 | **Contractor IP and NDA template** | §4.1 | — | Now |
@@ -183,7 +190,7 @@ This matters because many small clubs are not VAT-registered, so a large share o
 
 ### 6.4 Corporate income tax (CH)
 
-Vaud combined profit tax for a GmbH is roughly in the mid-teens percent range **[Est.] [Tax]**. With losses expected until about 2029 (review: break-even Q2 2029 base), **carry losses forward** (7 years in Switzerland **[Verify]**) and keep clean books from day one. Swiss R&D super-deductions and the patent box are cantonal options. Ask the fiduciary whether Vaud's R&D deduction applies to the engineering spend **[Tax]**.
+Vaud combined profit tax for a GmbH is roughly in the mid-teens percent range **[Est.] [Tax]**. With losses expected until about 2029 (v2 workbook: first EBITDA-positive month about mid-2030 on the lean plan of record, about Q4 2030 on default costs), **carry losses forward** (7 years in Switzerland **[Verify]**) and keep clean books from day one. Swiss R&D super-deductions and the patent box are cantonal options. Ask the fiduciary whether Vaud's R&D deduction applies to the engineering spend **[Tax]**.
 
 ---
 
@@ -215,8 +222,9 @@ Vaud combined profit tax for a GmbH is roughly in the mid-teens percent range **
 | Regime | When it applies | Must-haves | Owner / date |
 |---|---|---|---|
 | **Swiss nFADP** (in force since Sep 2023) | Now | ROPA, DPIA (minors, medical fields, AI), DPA template, breach procedure (notify the FDPIC where the risk is high), consent records, export and erasure | Founder + data-protection adviser, **15 Jan 2027** |
-| **GDPR** | Offering services to EU clubs or monitoring EU residents | **Art. 27 EU representative** (a service, about a few hundred to low thousands EUR a year **[Est.]**), Art. 28 DPA, transfer mechanism | At the EUR gate (2028) |
-| **COPPA and US state privacy laws** | US, children under 13, state thresholds | Verifiable parental consent flows, school-context rules | US gate (2029+) |
+| **GDPR** | Offering services to EU clubs or monitoring EU residents | **Art. 27 EU representative** (a service, about a few hundred to low thousands EUR a year **[Est.]**), Art. 28 DPA, transfer mechanism | **Before the free EU pilot goes live (Sep 2027 / Jan 2028)**; full set at the paid EUR gate (2028) |
+| **COPPA and US state privacy laws** | US, children under 13, state thresholds | Verifiable parental consent flows, school-context rules, US privacy notice | **Before the free US pilot goes live (Sep–Oct 2027 / Mar 2028)**; US counsel memo by 31 May 2027 |
+| **AI assistant (12 Nov 2026)** | Any club that switches the opt-in assistant on (DLang beta Q1 2027) | DPIA addendum; AI provider listed as sub-processor in the DPA; no training on tenant data; data allow-list (no medical notes, dates of birth or coach notes); human approval before any message to a parent | DPIA addendum and DPA update by **15 Jan 2027** |
 
 Personal liability: nFADP fines (up to CHF 250,000) fall on the **responsible individual**, not the company **[Founder]**. Incorporation does not remove that risk. The controls do.
 
@@ -244,19 +252,19 @@ Owners: **F** = founder, **L** = Swiss lawyer, **FT** = fiduciary/tax adviser, *
 
 | # | Item | Owner | Base | Downside | Done when |
 |---|---|---|---|---|---|
-| 1 | Confirm status of GmbH, FIT, round, SIDIS and insurance (review action 1) | F | 20 Nov 2026 | 20 Nov 2026 | Written status note |
+| 1 | Confirm SPSA register number, date, purpose clause, shareholders; SIDIS status; insurance (GmbH, FIT, round and rail answered 12 Nov) | F | 20 Nov 2026 | 20 Nov 2026 | Register extract on file |
 | 2 | Payment-architecture decision plus written AML/fund-holding view | F, E, L | 27 Nov 2026 | 11 Dec 2026 | Decision memo plus counsel email or opinion |
-| 3 | GmbH formed in Vaud (if not done): capital deposit, deed, register | F, FT, notary | 31 Dec 2026 | 31 Jan 2027 | Register extract |
-| 4 | Business bank account; Stripe platform account in the GmbH's name | F | 31 Dec 2026 | 31 Jan 2027 | Accounts live |
-| 5 | IP assignments: founder → GmbH, SIDIS signed with present assignment, contractor template | F, L | 31 Dec 2026 | 31 Jan 2027 | Signed copies in data room |
+| 3 | SPSA register extract and articles on file; lawyer/fiduciary view on carving the software business out (D1b) | F, FT, L | 15 Dec 2026 | 31 Jan 2027 | Extract; written view |
+| 4 | "SPSA Tech" bank account [Founder]; Stripe platform account in SPSA's name; DLang connected account | F | 31 Dec 2026 | 31 Jan 2027 | Accounts live |
+| 5 | IP assignments: founder → SPSA GmbH (or the carved-out company), SIDIS signed with present assignment, contractor template, fractional CTO contract with IP assignment | F, L | 31 Dec 2026 | 31 Jan 2027 | Signed copies in data room |
 | 6 | Related-party subscription (academy ↔ GmbH) | F, L | 31 Dec 2026 | 31 Jan 2027 | Signed |
 | 7 | Open-source licence scan | E | 15 Jan 2027 | 31 Jan 2027 | Report, no unresolved copyleft |
-| 8 | Trademark clearance search | L | 15 Jan 2027 | 15 Feb 2027 | Go/no-go on "DLANG" as a mark |
+| 8 | Trademark and domain check CH/EU/US: "Global Sport OS" + 2–3 alternatives | L | 15 Jan 2027 | 15 Feb 2027 | Go/no-go per name; shortlist for the 15 Feb decision |
 | 9 | Compliance pack: ROPA, DPIA, DPA, privacy notice (FR/EN first, DE/IT next), breach procedure | F, L | 15 Jan 2027 | 15 Feb 2027 | Documents approved |
 | 10 | MSA, Founding Club Addendum, support policy | L | 15 Jan 2027 | 15 Feb 2027 | Templates final |
 | 11 | External security review booked (4 Dec) and completed | E | 31 Jan 2027 | 28 Feb 2027 | Report, criticals fixed |
 | 12 | Cyber plus E&O bound | B | 31 Jan 2027 | 28 Feb 2027 | Policy schedule |
-| 13 | Convertible loan signed (CTO grant disclosed); shareholders' agreement if CTO joins | F, L | 31 Jan 2027 | 31 Mar 2027 | Signed, funds received |
+| 13 | Convertible loan signed (release on CTO in place; any CTO equity disclosed); Jan–Mar bridge papers (~CHF 45k) | F, L | 31 Jan 2027 (bridge papers 15 Dec 2026) | 31 Mar 2027 | Signed; funds received |
 | 14 | Swiss trademark filed | L | 28 Feb 2027 | 31 Mar 2027 | IGE filing receipt |
 | 15 | VAT decision (voluntary or threshold); bookkeeping set up | FT | 31 Mar 2027 | 30 Apr 2027 | Memo; registered if decided |
 
@@ -267,7 +275,9 @@ Owners: **F** = founder, **L** = Swiss lawyer, **FT** = fiduciary/tax adviser, *
 | Item | Owner | Base | Downside |
 |---|---|---|---|
 | Formal SLA and trust page at 10 clubs | F, E | Oct 2027 | Mar 2028 |
-| Bridge round papers (same template) | F, L | Sep 2027 | Jun 2027 (earlier if cash forces it) |
+| Pre-seed papers, CHF 250–300k incl. the EUR 50k (same template) | F, L | Signed 28 Feb 2027, cash by Apr 2027 | Jan–Feb 2027 |
+| Free EU pilot: Art. 27 representative, EU DPA, pilot agreement | F, L, EU counsel | Before go-live Sep 2027 | Jan 2028 |
+| Free US pilot: counsel memo (no-entity position, COPPA consent, state law), cross-border Stripe Connect, pilot agreement | F, US counsel | Memo 31 May 2027; go-live Sep–Oct 2027 | Mar 2028 |
 | Mandatory VAT registration check at the CHF 100k trailing turnover | FT | Late 2028 | 2029 |
 | Annual DPIA and sub-processor review; second pen test | E | Each Q1 | — |
 
@@ -299,7 +309,8 @@ Owners: **F** = founder, **L** = Swiss lawyer, **FT** = fiduciary/tax adviser, *
 
 | Item | CHF (range) |
 |---|---|
-| GmbH formation (if not done), incl. notary and register | 2,000–4,000 **[Founder]** |
+| GmbH formation: not needed (SPSA exists); carve-out into a separate GmbH, if advised | 0 / 2,000–4,000 **[Founder]** |
+| Free EU and US pilots: Art. 27 representative, EU DPA, US counsel memo (2027) | 4,000–10,000 |
 | Share capital (paid in, remains company cash) | 20,000 **[Founder]** |
 | Contract stack (MSA, Addendum, DPA, privacy notice, contractor template) | 6,000–12,000 |
 | Convertible review plus shareholders' agreement | 3,000–8,000 |
@@ -318,7 +329,8 @@ The founder model does not carry this as a separate line. Add it in the 3 Jan 20
 
 | Topic | Who |
 |---|---|
-| Pre-incorporation acts; contribution in kind of founder IP vs. post-formation assignment | Swiss corporate lawyer, notary |
+| IP assignment from founder, SIDIS and contractors to SPSA; carve-out of the software business from the academy GmbH | Swiss corporate lawyer, fiduciary |
+| FIT Digital eligibility for SPSA (company-age rule) | FIT / Innovaud |
 | Fund-holding / AML status under Stripe Connect or Payrexx; PSD2 position for EU clubs | Swiss financial-regulatory lawyer; EU counsel at the EUR gate |
 | Convertible conversion-price definition; subordination; safe-harbour discount | Swiss startup lawyer |
 | Personal holding company question; GmbH→AG timing; ESOP tax ruling | Tax adviser, Vaud tax administration |
@@ -333,18 +345,21 @@ The founder model does not carry this as a separate line. Add it in the 3 Jan 20
 
 ## 13. Changes vs. founder's August 2026 plan
 
-| Topic | Founder plan (Aug 2026) | Updated (11 Nov 2026) | Why |
+| Topic | Founder plan (Aug 2026) | Updated (11 Nov 2026; rows marked 12 Nov reflect the founder's decisions) | Why |
 |---|---|---|---|
-| Entity | GmbH in Vaud, formed W1 (24 Aug), register W3 | GmbH in Vaud kept. Status unconfirmed. **Register entry by 31 Dec 2026 / 31 Jan 2027.** | Sound choice. The timeline was missed or is unknown. The Christmas closure lengthens formation. |
+| Entity | GmbH in Vaud, formed W1 (24 Aug), register W3 | **12 Nov:** Swiss Preparatory Sports Academy GmbH (SPSA) exists [Confirm register no. and date]; account "SPSA Tech"; carve-out view by 15 Dec 2026 | Founder's answer; academy and software in one entity is a new risk |
 | AG | Mentioned only as a requirement for angel syndication | **Convert before the first employee grant or the seed (Q4 2028 – Q1 2029)** | AG is the standard for ESOP and VC. Converting earlier wastes CHF 30k+ of tied-up capital. |
 | Holding structure | Not addressed | No HoldCo by default. One tax-adviser check before the convertible converts. | Value is lowest now, so if a holding is ever wanted, set it up now. Otherwise unnecessary. |
 | IP | "Founder-owned under SIDIS draft" (deck); BP §10.3 says assign to the company | **Present assignment to the GmbH by 31 Dec 2026**, SIDIS signed. AI-assisted code risk addressed. | IP held personally under a draft is a diligence red flag. Contractors' work is not assigned automatically under Swiss law. |
-| Trademark | "Register in Switzerland at minimum" | **Clearance first** (D-language conflict), CH by 28 Feb 2027, EU at the EUR gate, US at the US gate, all through Madrid | Avoid paying to file a mark that may be blocked. Sequence filings with the market gates. |
-| Payments | Payrexx for TWINT (beta); Stripe card. No fund-flow design. | **Stripe Connect direct charges (or per-club Payrexx), written AML view by 27 Nov 2026** | The current single-account repo would make DLANG hold club money, which raises financial-intermediary risk. |
+| Trademark | "Register in Switzerland at minimum" | **12 Nov:** "Global Sport OS" candidate + 2–3 alternatives checked CH/EU/US (marks and domains) by 15 Jan 2027; clubs use their own names; CH by 28 Feb 2027, EU and US at the paid gates, through Madrid | Generic names are hard to register; D-language conflict for "DLANG" |
+| Payments | Payrexx for TWINT (beta); Stripe card. No fund-flow design. | **12 Nov:** Stripe Connect direct charges accepted; DLang connects first; written AML view by 15 Jan 2027 | The current single-account repo would make the platform hold club money, which raises financial-intermediary risk. |
 | Contracts | Six documents before club #1 (BP §10.4) | Same core set, plus Founding Addendum guardrails (tier cap), related-party agreement, SLA staging and **reseller agreement deferred to 2029+** | An uncapped "lifetime" price is a long-term liability. White-label resale is behind a gate. |
 | Swiss VAT | Threshold crossed in Year 2 | Threshold likely **late 2028** on the re-baselined base case. **Voluntary-registration decision by 31 Mar 2027.** Acquisition-tax check on imported services. | Revenue has slipped about one quarter or more. Registration cuts clubs' effective price by 8.1%, and that trade-off needs real numbers. |
-| EU | Reverse charge "generally applies", confirm per country | Non-Union OSS for non-registered clubs, reverse charge for B2B, Art. 27 representative. **Only at the EUR gate (Q2 2028 / 2029).** | Many clubs are not VAT-registered and fall under OSS. The founder's B2B-only framing was incomplete. |
-| US | Deck: "worldwide", US statistics | **Not before H2 2029.** Delaware subsidiary by default. Flip only if a lead investor requires it. Nexus, COPPA. | The Swiss wedge does not carry over. Incumbent market. Capacity and capital are too small. A flip is costly and hard to reverse. |
+| EU | Reverse charge "generally applies", confirm per country | **12 Nov:** free EU pilot from Sep 2027 needs an Art. 27 representative and EU DPA. Non-Union OSS, reverse charge at the paid EUR gate (Q2 2028, early 2028 on a strong pilot / 2029) | Many clubs are not VAT-registered and fall under OSS. The founder's B2B-only framing was incomplete. |
+| US | Deck: "worldwide", US statistics | **12 Nov:** free US pilot from Sep–Oct 2027 with COPPA consent and no entity [Verify]; paid US not before H2 2029; Delaware subsidiary by default; flip only if a lead investor requires it | The Swiss wedge does not carry over. Incumbent market. A flip is costly and hard to reverse. |
+| FIT Digital (12 Nov) | CHF 20k, deadline 10 Nov 2026 | Not filed; 0%; eligibility under the company-age rule to be checked | Founder's answer |
+| Funding papers (12 Nov) | EUR 50k round | EUR 50k released on CTO in place; Jan–Mar bridge ~CHF 45k; pre-seed CHF 250–300k incl. EUR 50k in H1 2027 | Founder-facts case: cash negative from Jan 2027 |
+| Data protection for AI (12 Nov) | "AI from day one" dropped | Opt-in assistant per club; DPIA addendum and DPA sub-processor entry by 15 Jan 2027 | Founder wants AI available once fully functional |
 | Insurance | "In place" before club #1 | Cyber plus E&O bound by **31 Jan 2027**. D&O at the seed. | Same intent, now dated and ordered. |
 | Data protection | Controls listed; "nFADP-aligned" language | Kept. Pack due **15 Jan 2027**. GDPR/COPPA tied to the market gates. | The founder's discipline is right. It needed dates. |
 | Legal budget | Not modelled as a line | **About CHF 20–45k** in the first 12 months [Est.] | Unbudgeted legal cost is a common cause of cash surprises. Add it at the 3 Jan 2027 model refresh. |

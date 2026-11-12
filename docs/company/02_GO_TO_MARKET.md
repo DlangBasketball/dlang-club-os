@@ -1,6 +1,6 @@
 # DLANG Sports OS: Go-to-Market and Launch Plan
 
-**Status:** working document, re-baselined 11 November 2026
+**Status:** working document, re-baselined 11 November 2026; updated 12 November 2026 with the founder's decisions (`11_FOUNDER_DECISIONS_2026-11-12.md`)
 **Builds on:** the founder's August 2026 Business Plan (§7 go-to-market, §7.4 founding programme, §7.5 federation strategy), 90-Day Rollout, Financial Model, CTO Partnership Proposal and Investor Deck (`docs/company/source/`), the strategy review `09_FOUNDER_PLAN_REVIEW.md`, and `01_BUSINESS_MODEL.md` (pricing and phasing, which this document follows).
 
 **Labels**
@@ -12,10 +12,10 @@
 
 ## 1. Decisions in brief
 
-1. **One market at a time.** Switzerland (Romandie first) is the only market sold to in 2027. The EUR track opens only when ≥ 10 Swiss clubs pay (base: first EU club signed Q2 2028, live Sep 2028). The US is an exploration gate, not a launch: not before H2 2029. Broad white-label resale: 2029 at the earliest.
+1. **One paid market at a time, plus two free pilots.** Switzerland (Romandie first) is the only market **sold to** in 2027. The founder wants an EU and US presence in 2027, so there is **one free EU design-partner pilot** (live Sep 2027 / downside Jan 2028) and **one free US design-partner pilot** (US fall season, live Sep–Oct 2027 / downside Mar 2028), each behind entry conditions (§5.5, §6.5). Paid EUR-track sales open only when ≥ 10 Swiss clubs pay (base: first paid EU club signed Q2 2028, or **early 2028 if the EU pilot is strong**; live Sep 2028). Paid US sales: not before H2 2029. Broad white-label resale: 2029 at the earliest.
 2. **DLang Basketball is customer zero and the lighthouse.** No external club is promised a payment flow that DLang has not run end to end. DLang goes live Feb 2027 (downside Mar 2027) and its before/after figures become the case study by 31 Mar 2027.
 3. **Founder-led selling, sequenced to the Swiss club calendar.** The signing window is Jan–Jun; nobody is onboarded during the Jun–Sep registration peak unless set up by end of May. Sales cycle planned at 45–90 days, not the 21 days in the founder plan.
-4. **Paid pilots, not free ones.** The pilot programme *is* the founder's founding programme: 5 clubs at CHF 290/month for life, 60-day refund, month-to-month. Up to 5 further "design pilot" clubs at list price with the same refund. No free pilots.
+4. **Paid pilots in Switzerland, two free design partners abroad** (founder, 12 Nov 2026). The Swiss pilot programme *is* the founder's founding programme: 5 clubs at CHF 290/month for life, 60-day refund, month-to-month. Up to 5 further "design pilot" clubs at list price with the same refund. **No free pilots in Switzerland once live.** Exceptions: exactly one free EU and one free US design-partner pilot, used as a model and case study.
 5. **Partners come after proof.** Referral rewards switch on after two clubs show measured results (~Q3 2027). Implementation partners 2028. White-label resellers 2029, behind a gate.
 
 ---
@@ -28,7 +28,7 @@
 | Reference customer | DLang Basketball / Swiss Prep Sports Academy, 145+ athletes [Founder] | Lighthouse, but not yet live on the product |
 | Warm network | 30+ Geneva-region football and ski clubs [Founder claim] | Channel 1; expect 20–25% conversion over 12 months, i.e. 6–8 clubs [Founder] |
 | Product | Card checkout and QR-bill work. TWINT is a label only. No Stripe Connect. Missing: CSV import, translation layer, offline attendance, per-club payment accounts [Review] | First external signature cannot happen before TWINT reconciles on DLang and Connect exists |
-| Company | Incorporation, IP assignment, FIT grant status, round: **to be confirmed by the founder** | No contract can be signed by an entity that does not exist; target GmbH + IP assignment by 31 Dec 2026 [Verify with lawyer/fiduciary] |
+| Company | **Swiss Preparatory Sports Academy GmbH (SPSA)**, Vaud; bank account "SPSA Tech" [Founder, 12 Nov; Confirm register no. and date]. FIT not filed (0%). EUR 50k secured, released once a CTO is in place | Contracts are signed by SPSA. IP present assignment to SPSA by 31 Dec 2026. Prospect clubs will notice they contract with another club's company: have the answer ready (ring-fenced "SPSA Tech", DPA, possible carve-out) [Verify with lawyer] |
 | Original rollout | Gates of 20 Sep / 18 Oct / 22 Nov 2026 not met (Gate 2 very probably not met) | All dates below are re-baselined |
 
 ---
@@ -40,12 +40,14 @@
 | 0 | DLang (customer zero) | Gate 2: TWINT reconciles automatically | live Feb 2027 | Mar 2027 | Without money moving end to end there is nothing to sell |
 | 1 | Romandie (VD, GE, VS) | Gate 1 (≥ 6/10 audits at 3× value) + GmbH + contract set | first paid Feb 2027 | Apr 2027 | Founder network, French-speaking, under-served vs German-speaking CH [Founder] |
 | 1b | Rest of CH (BE/FR bilingual, ZH, BS, then Ticino) | DE interface live; 5 founding clubs live | from Q4 2027 | 2028 | Same rails (TWINT, QR-bill); needs DE (and later IT) |
-| 2 | EU (EUR track) | ≥ 10 paying CH clubs, SEPA, EU VAT set-up, GDPR Art. 27 representative, DE/FR contract texts | signed Q2 2028, live Sep 2028 | 2029 | Same product, but the Swiss payment wedge disappears; must win on workflow alone |
+| 1c | EU free design-partner pilot (new, 12 Nov) | DLang live + ≥ 3 paying CH clubs; EUR/SEPA and FR/DE complete; GDPR pack incl. Art. 27 representative; support hours covered | live Sep 2027 | Jan 2028 | Founder wants an EU presence in 2027; one free pilot buys a case study cheaply |
+| 1d | US free design-partner pilot (new, 12 Nov) | Same conditions; USD, US English, COPPA verifiable parental consent; cross-border Connect [Verify] | live Sep–Oct 2027 (fall season) | Mar 2028 (spring season) | Founder wants a US presence in 2027; learning, not revenue |
+| 2 | EU (EUR track, paid) | ≥ 10 paying CH clubs, SEPA, EU VAT set-up, GDPR Art. 27 representative, DE/FR contract texts | signed Q2 2028 (early 2028 on a strong pilot), live Sep 2028 | 2029 | Same product, but the Swiss payment wedge disappears; must win on workflow alone |
 | 3 | Federation / multi-site pilot | One live reference club in the federation's sport | H2 2028 | 2029 | Founder §7.5 sequence, kept |
-| 4 | USA (exploration) | ≥ 40 clubs, CHF 25k+ MRR, NRR ≥ 100%, seed closed, paying US design partner + channel | not before H2 2029 | later | No Swiss advantage carries over; incumbents consolidating; capital and capacity too small before then |
+| 4 | USA (paid) | ≥ 40 clubs, CHF 25k+ MRR, NRR ≥ 100%, seed closed, the 2027 design partner (or another) paying + channel | not before H2 2029 | later | No Swiss advantage carries over; incumbents consolidating; capital and capacity too small before then |
 | 5 | Broad white-label resale | ≥ 25 clubs on one codebase, external pen test, staffable support SLA | 2029 earliest | later | A reseller multiplies support load before the company can carry it |
 
-**Where ambition and realism diverge.** The deck says "worldwide, every team sport" and 150 clubs / EUR 808k ARR. The code is already multi-tenant and white-label capable, so the product is not the bottleneck. The bottlenecks are one founder's selling hours, a Swiss calendar where signing concentrates in Jan–Jun, per-country payment and compliance set-up, and capital. We put the deck's numbers on the deck's timeline at under 15% likelihood and 10 clubs by end-2027 at 50–60% [Review estimate]. "Any sport, any country" stays the product architecture; it is not the 2027 sales plan.
+**Where ambition and realism diverge.** The deck says "worldwide, every team sport" and 150 clubs / EUR 808k ARR. The code is already multi-tenant and white-label capable, so the product is not the bottleneck. The bottlenecks are one founder's selling hours, a Swiss calendar where signing concentrates in Jan–Jun, per-country payment and compliance set-up, and capital. We put the deck's numbers on the deck's timeline at under 15% likelihood and 10 clubs by end-2027 at 50–60% [Review estimate]. "Any sport, any country" stays the product architecture; it is not the 2027 sales plan. The two free pilots are the honest way to start abroad in 2027: they cost about CHF 15–30k and 150–250 founder and CTO hours [Est.], they go live during the Swiss peak, and they are not in the financial model.
 
 ---
 
@@ -137,14 +139,14 @@ J+S matters because it is a uniquely Swiss compliance chore with very large reac
 
 | Week | Dates | Milestones | Exit test |
 |---|---|---|---|
-| W1 | 16–22 Nov | **Truth week:** confirm incorporation, FIT filing, round, audits, CTO trial; retrospective on the Aug plan (by 20 Nov). Draft payment architecture | Written status sheet; open questions to lawyer/fiduciary sent |
-| W2 | 23–29 Nov | **Payment-rail decision (27 Nov):** Stripe Connect + TWINT. >>venture>> submission (deadline 30 Nov). Build ranked list of 30+ warm contacts; segment academies/camps first | Decision memo signed off; >>venture>> filed; list of 15 audit targets |
+| W1 | 16–22 Nov | **Truth week:** entity (SPSA GmbH), FIT (not filed), round (EUR 50k on CTO release), CTO (none yet) and rail (Stripe Connect) answered 12 Nov; still confirm audits done, cash and SPSA register details; retrospective on the Aug plan (by 20 Nov). Draft payment architecture | Written status sheet; open questions to lawyer/fiduciary sent |
+| W2 | 23–29 Nov | **Stripe Connect accepted (12 Nov); DLang Connect application 27 Nov.** >>venture>> submission (deadline 30 Nov; draft in `applications/venture-2027/`). Fractional CTO shortlist (30 Nov). Build ranked list of 30+ warm contacts; segment academies/camps first | Connect application filed; >>venture>> filed; list of 15 audit targets |
 | W3 | 30 Nov–6 Dec | Fix deck and claims (4 Dec). Book external security review (4 Dec). Start Connect onboarding for DLang. Book 6+ audits for January | Deck has no "worldwide", no "€6,160 MVP", no unbuilt modules; 6 audits in calendars |
-| W4 | 7–13 Dec | TWINT + reconciliation build; DLang pilot data loaded. 2 audits before the holidays where possible | Test TWINT payment reconciles in staging |
+| W4 | 7–13 Dec | TWINT + reconciliation build; DLang pilot data loaded. 2 audits before the holidays where possible. Fractional CTO signed and Jan–Mar bridge agreed (by 15 Dec) | Test TWINT payment reconciles in staging |
 | W5 | 14–20 Dec | **Gate 2 target (18 Dec):** a real TWINT payment reconciles on DLang. Gate 1 fallback price card ready (15 Dec) | Real CHF payment from a DLang parent auto-matched |
 | W6 | 21–27 Dec | Holiday: maintenance only. Founder off sales | — |
 | W7 | 28 Dec–3 Jan | Holiday: model refresh (3 Jan). GmbH and IP assignment completed (31 Dec) | Updated model with seasonality and 45–90 day cycle |
-| W8 | 4–10 Jan | **CTO decision (8 Jan):** partner or contractor-plus-reviewer. Translation layer work begins (FR first). Audits resume (2–3 this week) | Decision communicated; audits 3/10 done |
+| W8 | 4–10 Jan | **CTO structure proposal (8 Jan)** from the fractional CTO signed by 15 Dec (reviewer model if the CTO slips; latest 31 Jan). Translation layer work begins (FR first). Audits resume (2–3 this week) | Decision communicated; audits 3/10 done |
 | W9 | 11–17 Jan | DLang spring invoicing run through the product. Compliance pack (15 Jan): T&Cs, DPA, privacy notice. Audits 6/10 | DLang invoices sent with QR-bill + TWINT; pack reviewed by counsel |
 | W10 | 18–24 Jan | Security review in progress; fixes. Proposals to the 2–3 best audits. Comité dates identified | ≥ 3 proposals out, each with a named decision date |
 | W11 | 25–31 Jan | **Gate 1 (31 Jan):** ≥ 6 of 10 audits at 3×. **First founding club signed (31 Jan).** Security review done. Convertible signed (31 Jan) | Signature + onboarding kickoff booked within 7 days |
@@ -216,17 +218,30 @@ Prerequisite work starts ~6 months before G+0 because tax, legal and payment set
 | Launch 3 | W7–W9 | First EU club onboarded with SEPA; parent payment cycle completed |
 | Launch 4 | W10–W13 | Decide whether to open Germany/Austria based on EU club #1 weekly usage and cycle time |
 
+**Pull-forward (12 Nov 2026):** if the free EU pilot (§5.5) meets its success criteria and ≥ 10 Swiss clubs pay (base Oct 2027), G+0 moves to the pilot review, and the first paid EU club can be signed in **early 2028** instead of Q2 2028.
+
 **EU KPIs:** audits → signatures ≥ 15%; time to first SEPA collection ≤ 21 days from signature; EU support hours per club ≤ CH level; first EU club live Sep 2028 (downside 2029); 5 EU clubs by mid-2029 [Est.].
+
+### 5.5 EU free design-partner pilot, 2027 (added 12 Nov 2026)
+
+| Item | Plan |
+|---|---|
+| Who | One academy, camp operator or club with paid staff, 100–300 athletes, in a FR/DE-speaking border region (Grand Genève / Haute-Savoie first; Baden or Alsace as alternatives). Country TBD by 31 Mar 2027 |
+| Why free | Founder decision: used as a model and case study for the paid EUR track |
+| Entry conditions | DLang live in CH; ≥ 3 paying CH clubs live (base May 2027 / downside Aug 2027); EUR formatting, SEPA via Stripe Connect and FR or DE complete; GDPR Art. 27 representative appointed, DPA in the pilot's language, EU hosting confirmed; support hours named |
+| Dates (base / downside) | Shortlist 31 Mar 2027 · counsel memo 31 May · go/no-go 30 Jun · set-up Jul–Aug · **live Sep 2027 / Jan 2028** · 60-day review Nov 2027 |
+| Terms | Written pilot agreement: 6 months, no custom development, data terms, case-study consent, post-pilot EUR price stated up front |
+| Success criteria | One full registration → SEPA/card payment → attendance → reminder cycle; ≥ 80% of one programme's fees through the platform; admin active weekly; signed case study; conversion to paid at the end |
 
 ---
 
-## 6. United States (exploration gate, not a launch)
+## 6. United States (paid sales gated; one free pilot in 2027)
 
 ### 6.1 Why later, plainly
 
 The founder's ambition includes the US. It is a large market for youth club, AAU/travel basketball, private-school and camp software. But: (1) none of DLANG's Swiss advantages (TWINT, QR-bill, Romandie network, FR/DE/IT) apply; (2) the market is served by large, consolidating incumbents with registration, payments and scheduling already bundled [specific vendor numbers not verified, not cited]; (3) US norms differ (fees often passed to families, background-check and safety workflows, school procurement); (4) one founder cannot sell across nine time zones while the Swiss base is under 40 clubs. Entering early would spend the scarcest resource, founder time, where DLANG has no edge.
 
-**Gate (not before H2 2029):** ≥ 40 paying clubs, CHF 25k+ MRR, net revenue retention ≥ 100%, seed closed, one **paying** US design partner, and one channel (e.g. a basketball academy network or camp operator group) committed.
+**Gate for paid US sales (not before H2 2029):** ≥ 40 paying clubs, CHF 25k+ MRR, net revenue retention ≥ 100%, seed closed, one **paying** US design partner (the 2027 free pilot converting is the preferred route), and one channel (e.g. a basketball academy network or camp operator group) committed. The free 2027 pilot (§6.5) does not open this gate; it only produces evidence for it.
 
 ### 6.2 ICP and channels (for when the gate opens)
 
@@ -256,6 +271,19 @@ The founder's ambition includes the US. It is a large market for youth club, AAU
 
 **KPIs:** 1 paying design partner; ≥ 3 qualified channel conversations; payment cycle completed; decision memo by W13. No US hiring before a go decision.
 
+### 6.5 US free design-partner pilot, 2027 (added 12 Nov 2026)
+
+| Item | Plan |
+|---|---|
+| Who | One AAU/travel basketball programme, academy or camp operator, reached through the DLang basketball network |
+| Why free | Founder decision: a model and case study for the US, not revenue |
+| Entry conditions | DLang live in CH; ≥ 3 paying CH clubs live; USD, US English terminology (season, roster, tryouts), US date and address formats; **COPPA verifiable parental consent** flow for under-13s, US privacy notice and state-law check [Verify with US counsel]; no US entity for a free pilot [Verify]; cross-border Stripe Connect for a US connected account [Verify with Stripe]; support hours across the time difference named |
+| Dates (base / downside) | Shortlist 31 Mar 2027 · US counsel memo 31 May · go/no-go 30 Jun · set-up Jul–Aug · **live Sep–Oct 2027 (fall season) / Mar 2028 (spring season)** · 60-day review Dec 2027 |
+| Terms | As the EU pilot; post-pilot USD price stated up front but not published |
+| Success criteria | One season registration and payment cycle; parents complete consent and payment without support; admin active weekly; written decision memo on the US gate inputs |
+
+**Capacity warning.** Both pilots go live in the same weeks as the Swiss registration peak, DLang running the whole club and the push to 10 paying clubs. If the Swiss KPIs are red on 31 Aug 2027 (fewer than 3 paying clubs, churn above 2.5%, P1 backlog), the pilots move to the downside dates.
+
 ---
 
 ## 7. Pilot programme playbook (5–10 clubs)
@@ -267,7 +295,7 @@ The founder's ambition includes the US. It is a large market for youth club, AAU
 | **Founding clubs** [Founder, kept] | 5 (hard cap, in writing) | CHF 290/month for life, any tier; onboarding waived | 24 months founder access, quarterly roadmap vote, co-branded case study, founding listing, month-to-month, 60-day refund. Slots close 30 Sep 2027 |
 | **Design pilots** [Est., new] | up to 5 | List price; onboarding fee 50% off | Same refund and exit terms; must fit the ICP; first in line for the referral reward |
 
-No free pilots: a free pilot proves usage, not willingness to pay, and Gate 1 is about paying.
+No free pilots in Switzerland: a free pilot proves usage, not willingness to pay, and Gate 1 is about paying. The only free pilots are the single EU and single US design partners (§5.5, §6.5), outside the Swiss programme.
 
 ### 7.2 Selection criteria
 
@@ -346,6 +374,9 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 | J+S data interfaces and what is permitted | BASPO / J+S office |
 | EU: Art. 27 representative, governing law, local invoice rules | EU counsel per country |
 | US: entity, sales tax nexus, COPPA, state privacy law | US counsel and tax adviser |
+| US free pilot: no-entity position, COPPA verifiable parental consent, cross-border Stripe Connect (by 31 May 2027) | US counsel; Stripe |
+| EU free pilot: Art. 27 representative, DPA language, pilot agreement (by 31 May 2027) | EU counsel |
+| SPSA GmbH contracting with other clubs while running an academy; carve-out | Swiss lawyer |
 | Reseller agreement and partner liability | Lawyer |
 
 ---
@@ -354,7 +385,7 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 
 | Topic | Founder plan | Updated | Why |
 |---|---|---|---|
-| Launch markets | "Worldwide, every team sport" (deck); Swiss first, EUR second (plan) | CH 2027; EU first club signed Q2 2028, live Sep 2028; US exploration not before H2 2029; white-label resale 2029+ | Swiss wedge does not travel; capacity and capital too small; incumbents in US |
+| Launch markets | "Worldwide, every team sport" (deck); Swiss first, EUR second (plan) | CH 2027 (paid); **12 Nov:** one free EU pilot (Sep 2027 / Jan 2028) and one free US pilot (Sep–Oct 2027 / Mar 2028); paid EU signed Q2 2028 (early 2028 on a strong pilot), live Sep 2028; paid US not before H2 2029; white-label resale 2029+ | Swiss wedge does not travel; capacity and capital too small; founder wants a 2027 EU/US presence |
 | Gate 2 (TWINT reconciles) | 18 Oct 2026 | 18 Dec 2026 (downside 31 Jan 2027) | TWINT is only a label in the code; no Connect yet |
 | Gate 1 (willingness to pay) | 20 Sep 2026 | 31 Jan 2027 (downside 15 Mar 2027) | Audits not done/confirmed; Jan–Mar is the comité window |
 | First paid signature | by 30 Nov 2026 | 31 Jan 2027 signed, paying Feb 2027 (downside Mar–Apr 2027) | Company, contracts and payment rail must exist first |
@@ -362,8 +393,8 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 | Gate 3 | Club #1 weekly by 22 Nov 2026 | DLang full cycle 14 Feb 2027; club #1 weekly 30 Apr 2027 (downside 30 Jun) | Lighthouse must run first |
 | Sales cycle | 21 days | 45–90 days; 21 days as best case | Comité decisions, AGM timing |
 | Founder hours per club | 22 h (model) vs 31 h (plan) | Plan on 31 h; target 20 h by club 10 | Use the conservative figure consistently |
-| Competitive claim | "Cheaper than Spond on total cost" | "Cheapest payment rail for clubs collecting real money" | Plan's own table: CHF 6,573 vs 1,755 total |
-| Pilots | Founding programme only | Founding (5) + up to 5 paid design pilots; no free pilots | Gate 1 tests payment, not usage |
+| Competitive claim | "Cheaper than Spond on total cost" | "Cheapest payment rail for clubs collecting real money" (adopted by the founder 12 Nov) | Plan's own table: CHF 6,573 vs 1,755 total |
+| Pilots | Founding programme only | Founding (5) + up to 5 paid design pilots; **no free pilots in CH** (confirmed 12 Nov); exceptions: one free EU and one free US design partner | Gate 1 tests payment, not usage; the two exceptions buy market learning |
 | Referral | Switch on Month 6 | Switch on after 2 measured references (~Q3 2027) | Month 6 of a slipped plan is meaningless; tie to proof |
 | Federation strategy | Relationship Y1, group deal months 15–24 | Kept; pilot H2 2028 (downside 2029); Swiss Basketball first via DLang | Needs live reference in the sport |
 | J+S integration | Validate with 5 clubs, then build | Kept; validate in 2027; never sold before built | Unverified gap; BASPO interfaces unknown |
@@ -371,4 +402,6 @@ Reseller agreement drafted by counsel (liability, data processing chain, sub-pro
 | Seasonality | None in model or plan | Sales calendar drives all dates; no migrations Jun–mid-Sep | Swiss registration peak and holidays |
 | Localisation | Multilingual in beta scope | FR/EN/DE by 28 Feb 2027; IT 2028 | No translation layer in repo yet |
 | Paid acquisition | None in Year 1 | None in 2027; content/SEO from Q2 2027 | Kept; low-cost compounding channel added |
+| Company (12 Nov) | GmbH to be formed | SPSA GmbH signs all contracts; answer for prospects on the shared academy/software entity | Founder's answer |
+| AI in sales (12 Nov) | — | AI assistant opt-in per club, included in the Club tier [Confirm]; never the lead message | Founder decision |
 | Team for selling | Part-time CS at club 10, SDR at club 25 | Part-time CS Jan 2028 (downside Jun 2028); SDR at ~club 25 (Oct 2028 base) | Same triggers, real dates; CH notice periods 1–3 months |

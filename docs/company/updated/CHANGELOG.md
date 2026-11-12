@@ -1,5 +1,64 @@
 # CHANGELOG — DLANG Sports OS business pack
 
+## 2026-11-12 — 12 Nov 2026 founder decisions
+
+**Why.** On 12 November 2026 the founder answered the 14 "Decisions the founder must confirm" listed in the 11 Nov entry below and added one more (the AI assistant). The full decision log, with remaining risks and follow-up dates, is `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md`. Originals in `docs/company/source/` were not changed. No code was changed.
+
+### Files changed
+
+| File | What changed |
+|---|---|
+| `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md` | **New.** Decision log (question / answer / what changed / remaining risk / follow-up date), figures of record (workbook base, 12 Nov founder-facts case, plan of record) and dates of record |
+| `docs/company/00_EXECUTIVE_PLAN.md` | New §0 summary; roadmap, gates, OKRs, risks (two added), decision log D3–D18, first-30-days list and changes table updated; new §4.6 (free EU/US pilots) and §4.7 (strategy review triggers) |
+| `docs/company/01_BUSINESS_MODEL.md` | §10 now shows the v2 workbook (three cases); the calendar-year sketch marked superseded; AI included in the Club tier; pilots; capital plan; stop rule replaced; changes table |
+| `docs/company/02_GO_TO_MARKET.md` | Free EU (§5.5) and US (§6.5) design-partner pilots; sequencing table; founding/pilot policy; W1–W2; validation list; changes table |
+| `docs/company/04_ORG_DESIGN_AND_HR.md` | Fractional CTO + AI agent team; SPSA as employer; lean founder pay; workbook club counts; hiring plan; RACI; changes table |
+| `docs/company/05_LEGAL_CORPORATE_STRUCTURE.md` | SPSA GmbH (new D1b: academy and software in one entity); FIT eligibility; Stripe Connect accepted; pilots' legal needs (Art. 27, COPPA); naming note; funding papers; checklist; budget; changes table |
+| `docs/company/07_BRAND_AND_MARKETING.md` | "Global Sport OS" candidate, naming note and CH/EU/US check by 15 Jan 2027; club-level names; AI claim rule; pilot case studies; changes table |
+| `docs/company/09_FOUNDER_PLAN_REVIEW.md` | Status rows answered; §5.4 milestones aligned to the workbook and pilots; actions 5, 6, 13, 14; question notes; new §8 summary of answers |
+| `updated/DLANG_Sports_OS_Business_Plan_v2.md` + `.docx` | New decisions section in 00; sections 01, 02, 05, 06.4, 07.4, 09, 10, 11, 12, 13 and Appendix B updated |
+| `updated/DLANG_Sports_OS_Rollout_v2.md` + `.docx` | Status box and top cash actions; weeks 1–13; stop rules; quarterly roadmap; week 1 checklist |
+| `updated/README.md` | Index and "where documents disagree" note updated |
+
+### The decisions, in one line each
+
+| # | Topic | Founder answer | Main change |
+|---|---|---|---|
+| 1 | Entity | Swiss Preparatory Sports Academy GmbH (SPSA); account "SPSA Tech" [Confirm register no./date] | Treated as incorporated; new risk: academy and software in one entity; carve-out view by 15 Dec 2026 |
+| 2 | FIT Digital | Not filed; prepare it | 0% until filed and awarded; eligibility may be blocked by the ≤6-months-since-register-entry rule |
+| 3 | CTO | None; can an AI agent be CTO? | AI agents engineer; a named human fractional CTO is needed (`12_CTO_SOLUTION_AI_PLUS_HUMAN.md`); signed by 15 Dec 2026 |
+| 4 | Payment rail | Stripe Connect; DLang connects | Closed; setup guide `docs/ops/STRIPE_CONNECT_TWINT_SETUP.md` |
+| 5 | >>venture>> | Submit by 30 Nov 2026 | Committed; draft in `applications/venture-2027/` |
+| 6 | Funding | EUR 50k secured, released once a CTO is in place; one cap table for now | CTO on the critical path for cash; Jan–Mar 2027 bridge ~CHF 45k |
+| 7 | CTO structure | Defer to the CTO; fractional CTO + AI team | Structure A no longer the default; CTO proposes by 8 Jan 2027 |
+| 8 | Founder pay | Lean-cost variant | Plan of record |
+| 9 | Claim | "Cheapest payment rail" | "Cheaper than Spond" retired |
+| 10 | Pilots | No free pilots in CH; one free US and one free EU design partner | Pilot policy rewritten |
+| 11 | Markets | EU and US presence in 2027 | Free EU pilot live Sep 2027 / Jan 2028; free US pilot Sep–Oct 2027 / Mar 2028; paid EU early 2028 on a strong pilot; paid US unchanged (H2 2029+) |
+| 12 | AI assistant | Available once fully functional | Opt-in per club; DLang beta Q1 2027; included in Club tier [Confirm] |
+| 13 | Name | "Global Sport OS" candidate; clubs use own names (e.g. "DLang OS") | CH/EU/US trademark and domain check by 15 Jan 2027 with 2–3 alternatives; DLANG Sports OS stays the working name |
+| 14 | Official dates | The v2 workbook | 00/01/09 aligned; "Known inconsistencies" closed (below) |
+| 15 | Kill criterion | No kill switch | Strategy review triggers (`00` §4.7) |
+
+### Figures of record (v2 workbook)
+
+| | Workbook base | 12 Nov founder-facts case (FIT 0%, EUR 50k cash Mar 2027) | Plan of record (+ lean cost, AI in Club tier) |
+|---|---|---|---|
+| Cash negative for good | Apr 2027 | **Jan 2027** (about –43.5k in Feb 2027) | Jan 2027 |
+| Unfunded shortfall Nov-27 / 28 / 29 | 72k / 254k / 441k | 82k / 264k / 451k | 82k / 214k / 330k |
+| First EBITDA-positive month | about Q4 2030 | about Q4 2030 | about mid-2030 |
+
+Upside Aug 2029; downside 2032 or later. Top cash actions: **sign the fractional CTO (15 Dec 2026) and bridge January–March 2027 (about CHF 45k)**; pre-seed about CHF 250–300k in total, including the EUR 50k, in H1 2027; seed CHF 400–500k in Q1 2029.
+
+### Remaining inconsistencies and open items
+
+1. **The workbook file still opens on its 11 Nov defaults** (FIT 50%, round Feb 2027, non-lean costs, AI add-on revenue from Year 3). The founder-facts and plan-of-record figures were recalculated on copies. Switch the defaults at the 3 Jan 2027 refresh (`Assumptions!D61`, `C61`, `C42:D45`, `B26`).
+2. **Not in the workbook:** the 2027 EU/US pilots (about CHF 15–30k [Est.]) and any fractional-CTO cost above the engineering line.
+3. **Not updated in this pass** (owned elsewhere or out of scope): `03_CTO_TECHNOLOGY_STRATEGY.md`, `06_CUSTOMER_SUCCESS_AND_SUPPORT.md`, `08_AI_AGENT_TEAM.md` and `10_FINANCIAL_MODEL_V2_NOTES.md` may still say the AI assistant is "not sold before 2028", that the CTO decision is Structure A vs reviewer on 8 Jan, or that 09 shows Q2 2029 break-even. Read them with the 12 Nov decisions.
+4. **First paying club:** the rollout targets a signature on 31 Jan 2027; the workbook books first revenue in Feb 2027 (sign January, pay February). Consistent, noted for clarity.
+
+---
+
 ## 2026-11-11 — Updated business pack (v2)
 
 **Why this update exists.** The founder's August 2026 materials (business plan, 90-day rollout 24 Aug – 22 Nov 2026, financial model, CTO proposal, executive dashboard, investor deck) were written before the rollout ran. On 11 November 2026 the rollout ends in eleven days, Gate 2 (a real TWINT payment reconciling automatically) is very probably not met (the code records TWINT only as a label on manual payments and has no per-club payment accounts), and the other gates are unconfirmed. Every timeline has been **re-baselined from Monday 16 November 2026** and shown as **base / downside**. The originals in `docs/company/source/` were **not changed**. All revisions are new files.
@@ -49,7 +108,7 @@ No application code, migrations or files in `docs/company/source/` were modified
 - **Changed:** headline claim from "cheaper than Spond on total cost" to "cheapest payment rail". *Why:* the founder's own table shows DLANG CHF 6,573/yr vs Spond 1,755/yr; DLANG wins only on the payment line (693 vs 1,575).
 - **Changed:** payment take-rate from 0.9% net on 50% of collections to ~0.2% net on 40%. *Why:* 0.9% assumed Payrexx (~1.3%); the code uses Stripe, where TWINT is ~1.9% + CHF 0.30.
 - **Added:** founding "lifetime" price capped at the signed tier; founding slots close 30 Sep 2027; no free pilots, up to 5 paid design pilots at list price; Gate 1 fallback price card (low subscription + fee on programme/camp value) ready 15 Dec 2026.
-- **Added:** add-ons (custom domain, SMS at cost, AI CHF 90 not sold before 2028, white-label native app 2029+); indicative USD 299/499/899 not published.
+- **Added:** add-ons (custom domain, SMS at cost, AI CHF 90 add-on — superseded 12 Nov 2026: opt-in, included in the Club tier — white-label native app 2029+); indicative USD 299/499/899 not published.
 
 #### Financials
 - Model re-based: month 1 = Dec 2026 (to Nov 2029); Year 1 = Dec 2026 – Nov 2027.
@@ -94,7 +153,7 @@ No application code, migrations or files in `docs/company/source/` were modified
 #### CTO / technology
 - Payment architecture: **Stripe Connect, one account per club, direct charges + application fee**; QR-bill free default; Payrexx fallback; decision 27 Nov 2026.
 - Four missing beta items due 28 Feb 2027: CSV import, FR/EN translation layer, offline attendance, per-club payment accounts. Multi-club membership and cross-tenant tests in CI before club #2.
-- AI assistant switched off by default per tenant; not sold before 2028; DPIA and data allow-list required.
+- AI assistant switched off by default per tenant; DPIA and data allow-list required. *(Superseded 12 Nov 2026: opt-in per club, DLang beta Q1 2027.)*
 - PWA through 2027; native decision Q1 2028.
 - Delivery: CI gates, per-tenant flags, forward-only migrations, weekly release, freezes over holidays/camp weeks/late August; human approval on every merge, second approver for payments/RLS/auth/migrations/AI.
 - Security: external review booked 4 Dec, done 31 Jan 2027; ISO 27001-aligned controls in 2027, no certification before a contract needs it.
@@ -118,18 +177,15 @@ No application code, migrations or files in `docs/company/source/` were modified
 
 ---
 
-### Known inconsistencies inside the pack (to resolve)
+### Reconciliation of 11 Nov differences (resolved 12 Nov 2026)
 
-1. **Break-even date.** `00_EXECUTIVE_PLAN.md` and `09_FOUNDER_PLAN_REVIEW.md` say Q2–Q3 2029 (durable late 2029). `01_BUSINESS_MODEL.md` says Q3 2029 / durable 2030. The v2 workbook and `10_FINANCIAL_MODEL_V2_NOTES.md` say base ~Q4 2030 (upside Aug 2029, lean-cost ~mid-2030). **Business Plan v2 uses the workbook.**
-2. **Bridge timing.** 00 and 09 say a CHF 100–150k bridge by Sep 2027 (Jun downside). The v2 workbook shows cash negative from Apr 2027 and recommends upsizing the January convertible to CHF 150–200k or a bridge by Apr 2027. **Business Plan v2 and Rollout v2 use the workbook.**
-3. **First paying club.** 00 and the rollout target a signature on 31 Jan 2027; the workbook books first revenue in Feb 2027. Consistent (sign Jan, pay Feb), noted for clarity.
-4. **3-year figures.** 01 reports calendar years (12 / 24 / 47 clubs); the workbook reports Dec–Nov model years (10 / 26 / 45). Same trajectory, different year ends.
+The founder made the v2 workbook the only source for break-even and bridge dates. Break-even (00, 01, 09 now say about Q4 2030 on default costs, about mid-2030 on the lean plan of record, Aug 2029 upside, 2032+ downside), bridge timing (00, 01, 09 now follow the workbook and the founder-facts case) and the 3-year figures (01 now reports the workbook's Dec–Nov years; its calendar-year sketch is marked superseded) are aligned. The note on the first paying club is carried in the 12 Nov entry above.
 
 ---
 
-### Decisions the founder must confirm
+### Decisions the founder had to confirm (all answered on 12 Nov 2026 — see the entry above and `docs/company/11_FOUNDER_DECISIONS_2026-11-12.md`)
 
-1. **Status facts (by 20 Nov 2026):** Is the GmbH incorporated? Was FIT Digital filed by 10 Nov? Round status and investor? Number of audits done and results? CTO trial running and its deliverable? Actual cash at 30 Nov 2026?
+1. **Status facts (by 20 Nov 2026):** → *Answered: SPSA GmbH; FIT not filed; EUR 50k on CTO release; no CTO yet. Still open: audits, cash.* Original questions: GmbH incorporated? FIT Digital filed by 10 Nov? Round status and investor? Number of audits done and results? CTO trial running and its deliverable? Actual cash at 30 Nov 2026?
 2. **Payment rail (27 Nov):** Stripe Connect per club with direct charges + application fee (recommended) vs Payrexx per club; engage a lawyer for the fund-holding / AML view.
 3. **>>venture>> submission by 30 Nov 2026:** yes / no.
 4. **Round size and instrument (3 Jan 2027):** keep EUR 50k, or upsize the January convertible to CHF 150–200k; post-money cap wording.
@@ -139,7 +195,7 @@ No application code, migrations or files in `docs/company/source/` were modified
 8. **Headline claim:** adopt "cheapest payment rail" and retire "cheaper than Spond on total cost" across all assets by 4 Dec 2026.
 9. **Founding offer details:** cap the lifetime price at the signed tier; close slots 30 Sep 2027; no free pilots.
 10. **Market gates:** confirm the EUR, US and white-label resale entry gates and dates (EUR Q2 2028 earliest; US not before H2 2029; resale 2029 earliest).
-11. **AI:** keep the assistant switched off by default and unsold until 2028.
+11. **AI:** keep the assistant switched off by default and unsold until 2028. → *Answered: opt-in per club, DLang beta Q1 2027, included in the Club tier [Confirm].*
 12. **Name:** keep "DLANG Sports OS" for 2027 pending trademark clearance (15 Jan) and naming decision (15 Feb 2027).
-13. **Which break-even and bridge dates are official** (see "Known inconsistencies"); once chosen, update 00 / 01 / 09 to match.
-14. **Kill criterion:** fewer than 8 paying clubs by 31 Mar 2028 triggers a lifestyle-or-stop decision.
+13. **Which break-even and bridge dates are official**; once chosen, update 00 / 01 / 09 to match. → *Answered: the v2 workbook; done.*
+14. **Kill criterion:** fewer than 8 paying clubs by 31 Mar 2028 triggers a lifestyle-or-stop decision. → *Answered: no kill switch; strategy review triggers instead.*
