@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -31,6 +31,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Attendance", labelKey: "attendance", href: "/admin/attendance", icon: CheckSquare },
     { label: "Bookings", labelKey: "bookings", href: "/admin/bookings", icon: Dumbbell },
     { label: "Services", labelKey: "services", href: "/admin/services", icon: Dumbbell },
+    { label: "Training", labelKey: "training", href: "/admin/training", icon: Coins },
     { label: "Invitations", labelKey: "invitations", href: "/admin/invitations", icon: Mail },
     { label: "Import", labelKey: "import", href: "/admin/import", icon: Upload },
     { label: "Reports", labelKey: "reports", href: "/admin/reports", icon: BarChart3 },
@@ -42,6 +43,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "My team", labelKey: "myTeam", href: "/coach/team", icon: Shield },
     { label: "Attendance", labelKey: "attendance", href: "/coach/attendance", icon: CheckSquare },
     { label: "Availability", labelKey: "availability", href: "/coach/availability", icon: CalendarClock },
+    { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
   ],
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },

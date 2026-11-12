@@ -7,6 +7,8 @@ const PUBLIC_PREFIXES = [
   "/login",
   "/auth",
   "/register",
+  // Public training booking page per club (guest checkout for non-members).
+  "/book",
   // Public legal pages (privacy, terms, imprint, cookies) per tenant.
   "/legal",
   // Installable club app (PWA): public club hub, personal-training booking,

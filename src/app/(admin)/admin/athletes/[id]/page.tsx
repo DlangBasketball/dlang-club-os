@@ -56,6 +56,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
             actions={
               isAdmin ? (
                 <div className="flex gap-2">
+                  <Link href={`/admin/athletes/${id}/training`}><Button variant="secondary">{t("training.profile.link")}</Button></Link>
                   <Link href={`/admin/athletes/${id}/edit`}><Button variant="secondary"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button></Link>
                   <ConfirmDeleteButton action={deleteAthlete.bind(null, id)} label={t("common.delete")} confirmText={t("editPeople.athlete.confirmDelete", { name: fullName })} />
                 </div>

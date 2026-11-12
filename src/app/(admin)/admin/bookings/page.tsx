@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { ClipboardList, Pencil } from "lucide-react";
-import { PageHeader, DataTable, Badge, statusTone, EmptyState, ErrorState, Avatar, type Column } from "@/components/ui";
+import { ClipboardList, Pencil, Plus } from "lucide-react";
+import { PageHeader, Button, DataTable, Badge, statusTone, EmptyState, ErrorState, Avatar, type Column } from "@/components/ui";
 import { photoUrlsForCoaches } from "@/lib/people/server";
 import { listAllBookings, type AdminBooking } from "@/lib/data/training-admin";
 import { getI18n } from "@/lib/i18n/server";
@@ -23,7 +23,8 @@ export default async function AdminBookingsPage() {
   ];
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Training bookings" description="All private and small-group session bookings." />
+      <PageHeader title={t("training.adminBookings.title")} description={t("training.adminBookings.description")}
+        actions={<Link href="/admin/bookings/new"><Button size="sm"><Plus className="h-4 w-4" /> {t("training.adminBookings.new")}</Button></Link>} />
       <DataTable columns={columns} rows={data!} getRowKey={(b) => b.id}
         empty={<EmptyState icon={<ClipboardList className="h-5 w-5" />} title="No bookings yet" />} />
     </div>
