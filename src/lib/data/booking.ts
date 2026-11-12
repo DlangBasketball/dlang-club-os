@@ -43,8 +43,8 @@ export async function getWizardData(): Promise<Result<WizardData>> {
 }
 
 export type ParentBookingDetail = {
-  id: string; athleteName: string; serviceName: string; coachName: string; coachId: string;
-  start: string; status: string; price: number | null; creditsUsed: number;
+  id: string; athleteName: string; serviceId: string; serviceName: string; coachName: string; coachId: string;
+  start: string; end: string | null; status: string; price: number | null; creditsUsed: number;
   invoice: { id: string; number: string; status: string } | null;
   cancellationHours: number;
   rescheduleSlots: { id: string; coachName: string; start: string }[];
@@ -52,7 +52,7 @@ export type ParentBookingDetail = {
 
 export async function getParentBookingDetail(id: string): Promise<Result<ParentBookingDetail | null>> {
   const supabase = await createClient();
-  const { data: b, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,status,price_chf,credits_used,invoice_id").eq("id", id).maybeSingle();
+  const { data: b, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,slot_end,status,price_chf,credits_used,invoice_id").eq("id", id).maybeSingle();
   if (error) return fail(error.message);
   if (!b) return ok(null);
 
@@ -71,8 +71,8 @@ export async function getParentBookingDetail(id: string): Promise<Result<ParentB
   return ok({
     id: b.id,
     athleteName: a.data ? `${a.data.first_name} ${a.data.last_name}` : "Athlete",
-    serviceName: s.data?.name ?? "Session", coachName: c.data?.display_name ?? "Coach", coachId: b.coach_id,
-    start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null, creditsUsed: b.credits_used,
+    serviceId: b.service_id, serviceName: s.data?.name ?? "", coachName: c.data?.display_name ?? "", coachId: b.coach_id,
+    start: b.slot_start, end: b.slot_end ?? null, status: b.status, price: b.price_chf ? Number(b.price_chf) : null, creditsUsed: b.credits_used,
     invoice: invoice ? { id: invoice.id, number: invoice.number, status: invoice.status } : null,
     cancellationHours: settings.cancellationHours,
     rescheduleSlots: (slots.data ?? []).map((x) => ({ id: x.id, coachName: cN.get(x.coach_id) ?? "Coach", start: x.starts_at })),

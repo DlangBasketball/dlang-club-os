@@ -7,6 +7,8 @@ const PUBLIC_PREFIXES = [
   "/login",
   "/auth",
   "/register",
+  // Public training booking page per club (guest checkout for non-members).
+  "/book",
   // Public legal pages (privacy, terms, imprint, cookies) per tenant.
   "/legal",
   // SaaS layer: club self-signup + machine-to-machine endpoints that verify

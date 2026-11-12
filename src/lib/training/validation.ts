@@ -15,6 +15,9 @@ const optDate = z.union([z.literal(""), z.null(), z.string().regex(isoDate, E("i
 const instant = z.string().refine((s) => !Number.isNaN(Date.parse(s)), E("invalidDate"));
 const toMin = (s: string) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3, 5));
 
+/** Neutral swatch shown by the colour picker before a service has a colour (tenant data, not theme). */
+export const COLOR_PICKER_FALLBACK = "#808080";
+
 export const SESSION_TYPES = ["individual", "group"] as const;
 export const SERVICE_CURRENCIES = ["CHF", "EUR", "USD", "GBP"] as const;
 

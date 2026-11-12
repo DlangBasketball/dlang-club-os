@@ -21,7 +21,8 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
     <div className="animate-fade-up space-y-6">
       <div className="flex items-center gap-2">
         <Link href="/parent/children" className="text-ink-3 hover:text-ink"><ChevronLeft className="h-5 w-5" /></Link>
-        <div><h1 className="font-display text-2xl font-semibold">{data.name}</h1><p className="text-xs text-ink-3">{data.age !== null ? `Age ${data.age}` : ""}{data.gender ? ` · ${data.gender}` : ""} · born {f.date(data.dob)}</p></div>
+        <div className="flex-1"><h1 className="font-display text-2xl font-semibold">{data.name}</h1><p className="text-xs text-ink-3">{data.age !== null ? `Age ${data.age}` : ""}{data.gender ? ` · ${data.gender}` : ""} · born {f.date(data.dob)}</p></div>
+        <Link href={`/parent/children/${data.id}/training`} className="text-sm text-maroon hover:underline">{t("training.profile.link")}</Link>
       </div>
 
       <Card>
