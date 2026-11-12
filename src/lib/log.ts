@@ -8,7 +8,8 @@ import "server-only";
 const PATTERNS: [RegExp, string][] = [
   [/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[email]"],
   [/\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/g, "[iban]"],
-  [/\b(?:sk|re|pk)_[A-Za-z0-9]{8,}\b/g, "[key]"],
+  // Stripe (sk_/rk_/pk_ live|test, whsec_) and Resend (re_) keys.
+  [/\b(?:sk|rk|pk|re|whsec)_(?:(?:live|test)_)?[A-Za-z0-9]{8,}\b/g, "[key]"],
   [/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, "[jwt]"],
   [/\+?\d[\d\s().-]{7,}\d/g, "[phone]"],
 ];

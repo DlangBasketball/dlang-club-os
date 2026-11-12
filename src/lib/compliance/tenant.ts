@@ -37,7 +37,7 @@ export const getLegalTenant = cache(async (slug: string): Promise<LegalTenant | 
 
   const s = obj(settings?.settings);
   const profileSettings = obj(s.profile);
-  const aiEnabled = s.ai_assistant_enabled !== false && Boolean(process.env.ANTHROPIC_API_KEY);
+  const aiEnabled = s.ai_assistant_enabled !== false && Boolean(process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_MODEL);
 
   const profile = getComplianceProfile({
     country: org.country,

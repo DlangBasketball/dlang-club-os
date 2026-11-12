@@ -87,7 +87,7 @@ Use TENANT_ONBOARDING_RUNBOOK.md. A new tenant does **not** need a deploy: it is
 
 ## 6. Known blockers to clear before production (status 12 Nov 2026)
 
-1. **Auth middleware is not executed.** `middleware.ts` sits at the repo root, but the app uses `src/app`; Next.js only picks up `src/middleware.ts` in that layout (build output shows an empty middleware manifest). Page access is still guarded by `requireRole()` in layouts and by RLS, but Supabase session cookies are not refreshed and signed-out redirects happen only in layouts. Fix: move the file to `src/middleware.ts` (integrator; touches the tenancy track's routing). The matcher already excludes `/api/health` and `/api/stripe/webhook` so machine callers are not redirected to `/login` once it is active.
-2. **AI model default** in `src/lib/env.ts` is hard-coded; move it to configuration (`ANTHROPIC_MODEL`) per policy.
+1. ~~**Auth middleware is not executed.**~~ Resolved at integration (12 Nov 2026): moved to `src/middleware.ts`; the build now emits a middleware bundle. The matcher excludes `/api/health` and `/api/stripe/webhook`; `/signup`, `/legal`, `/api/billing/webhook` and `/api/platform/cron` are public prefixes.
+2. ~~**AI model default** hard-coded in `src/lib/env.ts`.~~ Resolved at integration: the model comes only from `ANTHROPIC_MODEL`; the assistant is disabled when it or the key is unset.
 3. `RESEND_FROM` vs `RESEND_FROM_EMAIL`: the code reads `RESEND_FROM`; both are in `.env.example` — set `RESEND_FROM`.
 4. RLS suite has only been run against plain Postgres stubs; it must pass on the staging Supabase project (milestone 1 gate).

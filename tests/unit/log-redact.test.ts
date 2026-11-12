@@ -21,13 +21,9 @@ describe("redact() — strings", () => {
     expect(redact(fake("key sk", "_abcdEFGH1234"))).toBe("key [key]");
   });
 
-  // KNOWN BUG (src/lib/log.ts): the key pattern `(?:sk|re|pk)_[A-Za-z0-9]{8,}`
-  // does not match real Stripe keys, which have a second underscore
-  // (sk_live_…, sk_test_…, rk_live_…, whsec_…), so they are logged in clear.
-  // Suggested fix: /\b(?:sk|rk|pk|re|whsec)_(?:(?:live|test)_)?[A-Za-z0-9]{8,}\b/g
-  // `it.fails` keeps CI green until the fix lands, then flips to an error so
-  // this marker gets converted into a normal `it`.
-  it.fails("masks Stripe live/test keys and webhook secrets", () => {
+  // Real Stripe keys have a second underscore (sk_live_…, whsec_…); fixed in
+  // src/lib/log.ts at integration.
+  it("masks Stripe live/test keys and webhook secrets", () => {
     expect(redact(fake("key sk_", "test_", "abcdEFGH1234"))).toBe("key [key]");
     expect(redact(fake("sk_", "live_", "51HabcdEFGH1234"))).toBe("[key]");
     expect(redact(fake("pk_", "live_", "12345678"))).toBe("[key]");

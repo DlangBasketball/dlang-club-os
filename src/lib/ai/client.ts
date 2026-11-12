@@ -2,21 +2,22 @@ import "server-only";
 import { env } from "@/lib/env";
 
 /**
- * Minimal Anthropic Messages API wrapper. Server-only. If ANTHROPIC_API_KEY is
- * unset the assistant is treated as unconfigured and callers fall back to the
+ * Minimal Anthropic Messages API wrapper. Server-only. If ANTHROPIC_API_KEY or
+ * ANTHROPIC_MODEL is unset the assistant is treated as unconfigured and callers fall back to the
  * human-support message — the app never fabricates answers.
  */
 export type AIResult = { ok: true; text: string } | { ok: false; reason: "unconfigured" | "error" };
 
 export async function callClaude(system: string, userMessage: string): Promise<AIResult> {
   const key = env.anthropicApiKey();
-  if (!key) return { ok: false, reason: "unconfigured" };
+  const model = env.anthropicModel();
+  if (!key || !model) return { ok: false, reason: "unconfigured" };
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({
-        model: env.anthropicModel(),
+        model,
         max_tokens: 600,
         temperature: 0,            // deterministic, grounded answers
         system,

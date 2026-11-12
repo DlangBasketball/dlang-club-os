@@ -28,7 +28,8 @@ export const env = {
   stripeSecretKey: () => optional("STRIPE_SECRET_KEY"),
   stripeWebhookSecret: () => optional("STRIPE_WEBHOOK_SECRET"),
   anthropicApiKey: () => optional("ANTHROPIC_API_KEY"),
-  anthropicModel: () => optional("ANTHROPIC_MODEL") ?? "claude-3-5-haiku-latest",
+  // Model identifier is configuration, never hard-coded (set ANTHROPIC_MODEL).
+  anthropicModel: () => optional("ANTHROPIC_MODEL"),
 };
 
 /** Fail fast at boot if critical secrets are absent or obviously misplaced. */
