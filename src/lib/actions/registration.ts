@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getOrgName } from "@/lib/data/org-name";
+import { getOrgAlertRecipients } from "@/lib/data/org-alert-recipients";
 import { sendEmail } from "@/lib/email/resend";
 import { registrationConfirmation, adminRegistrationAlert } from "@/lib/email/templates";
 import { formatDate } from "@/lib/utils";
@@ -117,6 +118,12 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
   });
   if (error) {
     console.error("[register] rpc error:", error);
+    if (/VPC_REQUIRED/.test(error.message ?? "")) {
+      return {
+        ok: false,
+        formError: "Children under 13 can't be registered online for this club. Please contact the club to register them.",
+      };
+    }
     return { ok: false, formError: "We couldn't complete your registration. Please try again." };
   }
 
@@ -145,8 +152,10 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
     });
     await sendEmail({ to: data.parent.email, subject: conf.subject, html: conf.html, fromName: clubName });
 
-    const adminInbox = process.env.CLUB_ADMIN_EMAIL;
-    if (adminInbox) {
+    // The club's own staff only (per-org setting or its admins): the alert
+    // names the parent and children, so it never goes to a shared inbox.
+    const adminInboxes = await getOrgAlertRecipients(program.org_id);
+    if (adminInboxes.length) {
       const alert = adminRegistrationAlert({
         clubName,
         programName: program.name,
@@ -155,7 +164,9 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
         totalChf: total,
         invoiceNumber,
       });
-      await sendEmail({ to: adminInbox, subject: alert.subject, html: alert.html, fromName: clubName });
+      for (const to of adminInboxes) {
+        await sendEmail({ to, subject: alert.subject, html: alert.html, fromName: clubName });
+      }
     }
   } catch (e) {
     console.error("[register] email error (non-fatal):", e);

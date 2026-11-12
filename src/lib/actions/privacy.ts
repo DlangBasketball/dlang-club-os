@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
-import { safeError } from "@/lib/log";
+import { logError, safeError } from "@/lib/log";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -32,8 +32,18 @@ export async function processDeletionRequest(id: string, approve: boolean): Prom
   if (req.status !== "pending") return { ok: false, error: "Already processed" };
   try {
     if (approve) {
-      const { error: rpcErr } = await admin.rpc("anonymise_family", { p_family: req.family_id });
+      // Session client: anonymise_family checks is_admin() and the target's org
+      // against the signed-in user (the service role has no user and is refused).
+      const session = await createClient();
+      const { data: erased, error: rpcErr } = await session.rpc("anonymise_family", { p_family: req.family_id });
       if (rpcErr) return { ok: false, error: rpcErr.message };
+      // Remove the family's document files; the rows are already gone.
+      const paths = ((erased as { storage_paths?: unknown } | null)?.storage_paths ?? []) as unknown[];
+      const ownPaths = paths.filter((p): p is string => typeof p === "string" && p.startsWith(`${me.orgId}/`));
+      if (ownPaths.length) {
+        const { error: rmErr } = await admin.storage.from("documents").remove(ownPaths);
+        if (rmErr) logError("processDeletionRequest.storage", rmErr);
+      }
       await admin.from("deletion_requests").update({ status: "completed", reviewed_by: me.id, reviewed_at: new Date().toISOString(), completed_at: new Date().toISOString() }).eq("id", id);
       await admin.from("audit_logs").insert({ org_id: me.orgId, actor_id: me.id, action: "privacy.erasure_completed", target_table: "families", target_id: req.family_id, new_data: { request_id: id } });
     } else {
@@ -49,15 +59,34 @@ export async function exportMyData(): Promise<ActionResult<{ json: string }>> {
   const me = await getSessionUser();
   if (!me?.orgId) return { ok: false, error: "Not signed in" };
   const session = await createClient(); // RLS-scoped: parent only ever reads their own family
-  const [family, athletes, registrations, invoices, consents, documents] = await Promise.all([
+  // Everything RLS lets the guardian see about themselves and their children
+  // (GDPR Art. 15/20, nFADP Art. 25), health data included.
+  const [profile, family, athletes, medical, registrations, invoices, consents, documents, attendance, bookings] = await Promise.all([
+    session.from("profiles").select("*").eq("id", me.id),
     session.from("families").select("*"),
-    session.from("athletes").select("id,first_name,last_name,dob,status"),
-    session.from("registrations").select("id,program_id,status,created_at"),
-    session.from("invoices").select("number,total_chf,status,due_date,issued_at"),
-    session.from("consent_acceptances").select("consent_form_id,accepted_version,accepted_at,status,ip_address"),
-    session.from("documents").select("file_name,kind,created_at"),
+    session.from("athletes").select("*"),
+    session.from("athlete_medical").select("*"),
+    session.from("registrations").select("*"),
+    session.from("invoices").select("*"),
+    session.from("consent_acceptances").select("*"),
+    session.from("documents").select("*"),
+    session.from("attendance_marks").select("*"),
+    session.from("training_bookings").select("*"),
   ]);
-  const payload = { exportedAt: new Date().toISOString(), subject: { id: me.id, email: me.email }, family: family.data, athletes: athletes.data, registrations: registrations.data, invoices: invoices.data, consents: consents.data, documents: documents.data };
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    subject: { id: me.id, email: me.email },
+    profile: profile.data?.[0] ?? null,
+    family: family.data,
+    athletes: athletes.data,
+    medical: medical.data,
+    registrations: registrations.data,
+    invoices: invoices.data,
+    consents: consents.data,
+    documents: documents.data,
+    attendance: attendance.data,
+    bookings: bookings.data,
+  };
   return { ok: true, data: { json: JSON.stringify(payload, null, 2) } };
 }
 

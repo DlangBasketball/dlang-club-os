@@ -26,7 +26,6 @@ export const envSchema = z.object({
   APP_ENV: z.enum(["local", "staging", "production"]).optional(),
   DATA_REGION: z.enum(["eu", "us"]).optional(),
   PLATFORM_ROOT_DOMAIN: optionalStr,
-  CLUB_ADMIN_EMAIL: z.string().trim().email().optional(),
   // --- Payments ---
   STRIPE_SECRET_KEY: z.string().trim().regex(/^(sk|rk)_(test|live)_/, "must start with sk_test_/sk_live_").optional(),
   STRIPE_WEBHOOK_SECRET: z.string().trim().regex(/^whsec_/, "must start with whsec_").optional(),

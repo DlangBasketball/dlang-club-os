@@ -118,7 +118,7 @@ function privacy(t: LegalTenant): LegalDocument {
     section(t, "privacy.children", "4. Children", [
       `Most of our participants are minors. A parent or guardian registers each child and manages their data. Below the age of ${p.childConsentAge} we always rely on the consent of the parent or guardian.`,
       ...(p.requiresVerifiableParentalConsent
-        ? ["For children under 13 in the United States we obtain verifiable parental consent before collecting personal information, as required by COPPA. Parents can review their child's information, have it deleted and refuse further collection at any time, and can consent to collection without consenting to disclosure to third parties."]
+        ? ["Children under 13 in the United States cannot be registered through our online form. As required by COPPA, we collect their personal information only after obtaining verifiable parental consent directly from a parent or guardian; please contact the club to register them. Parents can review their child's information, have it deleted and refuse further collection at any time, and can consent to collection without consenting to disclosure to third parties."]
         : []),
       "We do not sell children's data, do not use it for advertising and do not create profiles for marketing.",
     ]),
