@@ -87,6 +87,8 @@ declare -A SEED_AFTER=()
 declare -A SEED_EARLY=()
 if [[ -f testing/seed_plan.conf ]]; then
   while read -r kw mig seed _; do
+    # "skip <seed>": a staging/demo seed that must not load into test DBs.
+    if [[ "$kw" == "skip" && -n "${mig:-}" ]]; then SEED_EARLY[$mig]=1; continue; fi
     [[ "$kw" == "after" && -n "${mig:-}" && -n "${seed:-}" ]] || continue
     [[ -f "$seed" ]] || { echo "${RED}seed_plan.conf: missing $seed${RESET}"; exit 1; }
     SEED_AFTER[$mig]="${SEED_AFTER[$mig]:-} $seed"
