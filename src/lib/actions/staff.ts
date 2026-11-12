@@ -19,6 +19,9 @@ export async function assignRole(profileId: string, role: string): Promise<Actio
   if (!STAFF_ROLES.includes(role as AppRole)) return { ok: false, error: "Unknown role" };
   const r = role as AppRole;
   const admin = createAdminClient();
+  // Only members of this club can receive one of its roles.
+  const { data: target } = await admin.from("profiles").select("org_id").eq("id", profileId).maybeSingle();
+  if (!target || target.org_id !== me.orgId) return { ok: false, error: "User not found" };
   const { data: existing } = await admin.from("staff_roles").select("id").eq("org_id", me.orgId).eq("profile_id", profileId).eq("role", r).maybeSingle();
   if (existing) return { ok: true };
   const { error } = await admin.from("staff_roles").insert({ org_id: me.orgId, profile_id: profileId, role: r });

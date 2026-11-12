@@ -19,7 +19,8 @@ export type Database = {
       profiles: {
         Row: {
           id: string;
-          org_id: string;
+          /** Null until an invitation or provision_tenant() assigns a club. */
+          org_id: string | null;
           full_name: string | null;
           email: string;
           phone: string | null;
@@ -33,7 +34,6 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & {
           id: string;
-          org_id: string;
           email: string;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;

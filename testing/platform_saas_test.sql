@@ -17,6 +17,10 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000aa02', 'admin2@dlang.test'),
   ('00000000-0000-0000-0000-00000000aa03', 'founder@newclub.test'),
   ('00000000-0000-0000-0000-00000000aa04', 'second@newclub.test');
+-- Uninvited signups belong to no club (20250420095200); the DLang admin
+-- fixture is placed in DLang explicitly, as an invitation would.
+update public.profiles set org_id = '00000000-0000-0000-0000-000000000001'
+ where id = '00000000-0000-0000-0000-00000000aa02';
 insert into public.staff_roles (org_id, profile_id, role) values
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000aa02', 'admin');
 insert into public.platform_admins (profile_id) values ('00000000-0000-0000-0000-00000000aa01');

@@ -26,13 +26,36 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
  */
 export async function inviteUser(input: InviteInput): Promise<ActionResult> {
   const me = await getSessionUser();
-  if (!me || !me.roles.includes("admin")) {
+  if (!me || !me.orgId || !me.roles.includes("admin")) {
     return { ok: false, error: "Only admins can invite users." };
+  }
+  const orgId = me.orgId;
+
+  // Linked records must belong to the inviting club: never trust ids from the
+  // client (the DB trigger trg_invitations_same_org enforces the same rule).
+  const admin = createAdminClient();
+  if (input.familyId) {
+    const { data: fam } = await admin
+      .from("families")
+      .select("id")
+      .eq("id", input.familyId)
+      .eq("org_id", orgId)
+      .maybeSingle();
+    if (!fam) return { ok: false, error: "Family not found." };
+  }
+  if (input.coachId) {
+    const { data: coach } = await admin
+      .from("coaches")
+      .select("id")
+      .eq("id", input.coachId)
+      .eq("org_id", orgId)
+      .maybeSingle();
+    if (!coach) return { ok: false, error: "Coach not found." };
   }
 
   const supabase = await createClient();
   const { error: insertError } = await supabase.from("invitations").insert({
-    org_id: me.orgId,
+    org_id: orgId,
     email: input.email,
     role: input.role,
     family_id: input.familyId ?? null,
@@ -42,7 +65,6 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
   });
   if (insertError) return { ok: false, error: insertError.message };
 
-  const admin = createAdminClient();
   const { error: inviteError } = await admin.auth.admin.inviteUserByEmail(
     input.email,
     {
@@ -60,6 +82,26 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
     );
     if (!existing) return { ok: false, error: inviteError.message };
 
+    // An existing account may only be linked when it belongs to this club or
+    // to no club yet. A member of another club is never given roles here:
+    // roles and family links in a foreign org would be a tenant hop.
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("org_id")
+      .eq("id", existing.id)
+      .maybeSingle();
+    if (profile?.org_id && profile.org_id !== orgId) {
+      return { ok: false, error: "This email already belongs to another organisation." };
+    }
+    if (profile && !profile.org_id) {
+      const { error: homeError } = await admin
+        .from("profiles")
+        .update({ org_id: orgId })
+        .eq("id", existing.id)
+        .is("org_id", null);
+      if (homeError) return { ok: false, error: homeError.message };
+    }
+
     if (input.familyId) {
       await admin.from("family_members").upsert({
         family_id: input.familyId,
@@ -70,17 +112,19 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
     if (input.role !== "parent") {
       await admin
         .from("staff_roles")
-        .upsert({ org_id: me.orgId!, profile_id: existing.id, role: input.role });
+        .upsert({ org_id: orgId, profile_id: existing.id, role: input.role });
     }
     if (input.coachId) {
       await admin
         .from("coaches")
         .update({ profile_id: existing.id })
-        .eq("id", input.coachId);
+        .eq("id", input.coachId)
+        .eq("org_id", orgId);
     }
     await admin
       .from("invitations")
       .update({ status: "accepted", accepted_at: new Date().toISOString(), accepted_by: existing.id })
+      .eq("org_id", orgId)
       .eq("email", input.email)
       .eq("status", "pending");
   }
