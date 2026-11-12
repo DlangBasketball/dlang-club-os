@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3 } from "lucide-react";
 
 export type NavKey = "admin" | "coach" | "parent";
 
@@ -14,17 +14,21 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", href: "/admin/athletes", icon: UserCircle },
     { label: "Programs", href: "/admin/programs", icon: CalendarRange },
     { label: "Registrations", href: "/admin/registrations", icon: ClipboardList },
+    { label: "Teams", href: "/admin/teams", icon: Shield },
+    { label: "Schedule", href: "/admin/schedule", icon: CalendarDays },
     { label: "Invoices", href: "/admin/invoices", icon: FileText },
     { label: "Payments", href: "/admin/payments", icon: CreditCard },
     { label: "Attendance", href: "/admin/attendance", icon: CheckSquare },
     { label: "Bookings", href: "/admin/bookings", icon: Dumbbell },
     { label: "Services", href: "/admin/services", icon: Dumbbell },
     { label: "Invitations", href: "/admin/invitations", icon: Mail },
+    { label: "Reports", href: "/admin/reports", icon: BarChart3 },
     { label: "Assistant", href: "/admin/assistant", icon: Sparkles },
     { label: "Settings", href: "/admin/settings", icon: Settings },
   ],
   coach: [
     { label: "Schedule", href: "/coach/schedule", icon: CalendarClock },
+    { label: "My team", href: "/coach/team", icon: Shield },
     { label: "Attendance", href: "/coach/attendance", icon: CheckSquare },
     { label: "Availability", href: "/coach/availability", icon: CalendarClock },
     { label: "Assistant", href: "/coach/assistant", icon: Sparkles },
@@ -32,6 +36,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
   parent: [
     { label: "Home", href: "/parent/home", icon: Home },
     { label: "Children", href: "/parent/children", icon: UserCircle },
+    { label: "Schedule", href: "/parent/schedule", icon: CalendarDays },
     { label: "Invoices", href: "/parent/invoices", icon: Receipt },
     { label: "Bookings", href: "/parent/bookings", icon: Dumbbell },
     { label: "Attendance", href: "/parent/attendance", icon: CheckSquare },
