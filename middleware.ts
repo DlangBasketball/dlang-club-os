@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 /** Paths reachable without a session. */
-const PUBLIC_PREFIXES = ["/login", "/auth", "/register"];
+const PUBLIC_PREFIXES = ["/login", "/auth", "/register", "/legal"];
 
 function isPublic(pathname: string) {
   if (pathname === "/") return true; // root resolves role-home server-side
