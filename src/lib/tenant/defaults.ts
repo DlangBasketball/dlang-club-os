@@ -1,7 +1,8 @@
 import type { Tenant, TenantBranding, Terminology } from "./types";
+import { PLATFORM_NAME } from "@/lib/brand";
 
 /** Product name shown when no tenant can be resolved. Not a club name. */
-export const PLATFORM_NAME = process.env.NEXT_PUBLIC_PLATFORM_NAME || "Club OS";
+export { PLATFORM_NAME };
 
 /**
  * Platform default theme = the "V5 dark luxury" palette from the design
@@ -138,6 +139,7 @@ export function fallbackTenant(slug = "default", source: Tenant["source"] = "fal
     id: null,
     slug,
     name: PLATFORM_NAME,
+    appName: PLATFORM_NAME,
     customDomain: null,
     branding: DEFAULT_BRANDING,
     terminology: DEFAULT_TERMINOLOGY,

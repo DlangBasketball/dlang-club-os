@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { APP_TAGLINE } from "@/lib/constants";
 import { getTenant } from "@/lib/tenant/server";
 import { TenantProvider } from "@/lib/tenant/context";
 import { TenantGate } from "@/components/layout/tenant-gate";
@@ -39,10 +38,13 @@ const fontMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const tenant = await getTenant();
   const icon = tenant.branding.faviconUrl ?? tenant.branding.logoUrl;
+  // The club's own product name ("DLang OS"); falls back to the club name.
+  const app = tenant.appName;
   return {
-    title: { default: `${tenant.name} — ${APP_TAGLINE}`, template: `%s · ${tenant.name}` },
-    description: `${tenant.name} — ${APP_TAGLINE}.`,
-    applicationName: tenant.name,
+    title: { default: app, template: `%s · ${app}` },
+    description: app === tenant.name ? app : `${app} · ${tenant.name}`,
+    applicationName: app,
+    appleWebApp: { title: app },
     ...(icon ? { icons: { icon, apple: icon } } : {}),
   };
 }

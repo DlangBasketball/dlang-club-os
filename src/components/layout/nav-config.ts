@@ -9,6 +9,9 @@ export type NavKey = "admin" | "coach" | "parent";
  */
 export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: string; icon: LucideIcon };
 
+/** Admin nav entries that only show when the club enabled the feature. */
+export const ASSISTANT_HREF = "/admin/assistant";
+
 export const NAV: Record<NavKey, NavItem[]> = {
   admin: [
     { label: "Dashboard", labelKey: "dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -37,7 +40,6 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "My team", labelKey: "myTeam", href: "/coach/team", icon: Shield },
     { label: "Attendance", labelKey: "attendance", href: "/coach/attendance", icon: CheckSquare },
     { label: "Availability", labelKey: "availability", href: "/coach/availability", icon: CalendarClock },
-    { label: "Assistant", labelKey: "assistant", href: "/coach/assistant", icon: Sparkles },
   ],
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
@@ -47,7 +49,6 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Bookings", labelKey: "bookings", href: "/parent/bookings", icon: Dumbbell },
     { label: "Attendance", labelKey: "attendance", href: "/parent/attendance", icon: CheckSquare },
     { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },
-    { label: "Assistant", labelKey: "assistant", href: "/parent/assistant", icon: Sparkles },
     { label: "Account", labelKey: "account", href: "/parent/account", icon: Settings },
     { label: "Documents", labelKey: "documents", href: "/parent/documents", icon: FolderOpen },
   ],

@@ -493,5 +493,70 @@
   "language": {
     "label": "Langue",
     "changed": "Langue mise à jour"
+  },
+  "appSettings": {
+    "tab": "Application et assistant",
+    "appName": {
+      "title": "Nom de l'application",
+      "description": "Le nom que vos membres voient dans l'en-tête de l'application, les titres de page, la page de connexion et comme expéditeur des e-mails. Laissez vide pour utiliser le nom de votre club.",
+      "label": "Nom affiché de l'application",
+      "placeholder": "p. ex. {example}",
+      "preview": "Affiché comme : {name}",
+      "maxHint": "{max} caractères au maximum.",
+      "save": "Enregistrer le nom",
+      "saved": "Nom de l'application enregistré.",
+      "errorTooLong": "Utilisez au maximum {max} caractères.",
+      "errorInvalidChars": "Le nom ne peut contenir ni retours à la ligne ni caractères spéciaux tels que chevrons, accolades, guillemets ou barres obliques inverses."
+    },
+    "ai": {
+      "title": "Assistant IA",
+      "description": "Permet aux administrateurs et à l'équipe financière de poser des questions sur le fonctionnement du club. Les réponses proviennent uniquement des données de votre club.",
+      "toggleLabel": "Activer l'assistant IA pour ce club",
+      "statusOn": "Activé",
+      "statusOff": "Désactivé",
+      "turnOn": "Activer",
+      "turnOff": "Désactiver",
+      "enabled": "Assistant IA activé.",
+      "disabled": "Assistant IA désactivé.",
+      "unconfigured": "L'assistant IA n'est pas encore disponible sur cette plateforme.",
+      "notInPlan": "Votre abonnement n'inclut pas l'assistant IA.",
+      "processingNotice": "Lorsqu'il est activé, les questions et un résumé minimal des données de votre club sont traités par un sous-traitant IA pour le compte du club. Vos données ne sont pas utilisées pour entraîner des modèles d'IA. Les notes médicales et les données de carte de paiement ne sont jamais transmises.",
+      "whoCanUse": "Disponible pour les administrateurs et l'équipe financière du club.",
+      "auditNote": "Chaque modification est enregistrée dans le journal d'audit."
+    },
+    "errors": {
+      "forbidden": "Seuls les administrateurs du club peuvent modifier ce paramètre.",
+      "wrongOrg": "Vous êtes connecté à une autre organisation que ce site.",
+      "notInPlan": "Votre abonnement n'inclut pas l'assistant IA.",
+      "generic": "Enregistrement impossible. Veuillez réessayer."
+    }
+  },
+  "aiAssistant": {
+    "pageTitle": "Assistant",
+    "pageDescription": "Résumez le fonctionnement du club, les factures, les présences et les réservations.",
+    "header": "Assistant {app}",
+    "grounded": "Basé sur vos données",
+    "intro": "Posez vos questions sur le fonctionnement du club. Les réponses proviennent uniquement des données de votre club.",
+    "placeholder": "Posez une question…",
+    "send": "Envoyer",
+    "thinking": "Réflexion…",
+    "contact": "Contacter {club}",
+    "disclaimer": "L'IA peut se tromper. Pour les questions médicales, de paiement ou sensibles, contactez directement le club.",
+    "notice": "Les données de votre club sont traitées par un sous-traitant IA et ne servent pas à l'entraînement. Les notes médicales ne sont jamais partagées.",
+    "suggestions": {
+      "overdue": "Combien de factures sont en retard ?",
+      "registrations": "Résume les inscriptions de ce mois",
+      "outstanding": "Quel est le montant en souffrance ?"
+    },
+    "unavailableTitle": "Assistant IA indisponible",
+    "unavailable": {
+      "unconfigured": "L'assistant IA n'est pas encore disponible sur cette plateforme.",
+      "notInPlan": "L'abonnement de votre club n'inclut pas l'assistant IA.",
+      "disabled": "L'assistant IA est désactivé pour ce club. Un administrateur peut l'activer dans les paramètres.",
+      "role": "L'assistant IA est réservé aux administrateurs et à l'équipe financière du club."
+    },
+    "openSettings": "Ouvrir les paramètres",
+    "noAccess": "Vous n'avez pas accès à cet assistant.",
+    "emptyQuestion": "Veuillez saisir une question."
   }
 }

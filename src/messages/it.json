@@ -493,5 +493,70 @@
   "language": {
     "label": "Lingua",
     "changed": "Lingua aggiornata"
+  },
+  "appSettings": {
+    "tab": "App e assistente",
+    "appName": {
+      "title": "Nome dell'app",
+      "description": "Il nome che i vostri membri vedono nell'intestazione dell'app, nei titoli delle pagine, nella pagina di accesso e come mittente delle e-mail. Lasciate vuoto per usare il nome del club.",
+      "label": "Nome visualizzato dell'app",
+      "placeholder": "ad es. {example}",
+      "preview": "Visualizzato come: {name}",
+      "maxHint": "Al massimo {max} caratteri.",
+      "save": "Salva nome",
+      "saved": "Nome dell'app salvato.",
+      "errorTooLong": "Usate al massimo {max} caratteri.",
+      "errorInvalidChars": "Il nome non può contenere a capo o caratteri speciali come parentesi angolari o graffe, virgolette o barre rovesciate."
+    },
+    "ai": {
+      "title": "Assistente IA",
+      "description": "Consente agli amministratori e al team finanziario di porre domande sulla gestione del club. Le risposte provengono solo dai dati del vostro club.",
+      "toggleLabel": "Attiva l'assistente IA per questo club",
+      "statusOn": "Attivo",
+      "statusOff": "Disattivo",
+      "turnOn": "Attiva",
+      "turnOff": "Disattiva",
+      "enabled": "Assistente IA attivato.",
+      "disabled": "Assistente IA disattivato.",
+      "unconfigured": "L'assistente IA non è ancora disponibile su questa piattaforma.",
+      "notInPlan": "Il vostro abbonamento non include l'assistente IA.",
+      "processingNotice": "Quando è attivo, le domande e un riepilogo minimo dei dati del club sono trattati da un sub-responsabile IA per conto del club. I vostri dati non sono usati per addestrare modelli di IA. Le note mediche e i dati delle carte di pagamento non vengono mai inviati.",
+      "whoCanUse": "Disponibile per gli amministratori e il team finanziario del club.",
+      "auditNote": "Ogni modifica viene registrata nel registro di audit."
+    },
+    "errors": {
+      "forbidden": "Solo gli amministratori del club possono modificare questa impostazione.",
+      "wrongOrg": "Avete effettuato l'accesso a un'organizzazione diversa da questo sito.",
+      "notInPlan": "Il vostro abbonamento non include l'assistente IA.",
+      "generic": "Impossibile salvare. Riprovate."
+    }
+  },
+  "aiAssistant": {
+    "pageTitle": "Assistente",
+    "pageDescription": "Riassumete gestione del club, fatture, presenze e prenotazioni.",
+    "header": "Assistente {app}",
+    "grounded": "Basato sui vostri dati",
+    "intro": "Ponete domande sulla gestione del club. Le risposte provengono solo dai dati del vostro club.",
+    "placeholder": "Fate una domanda…",
+    "send": "Invia",
+    "thinking": "Sto pensando…",
+    "contact": "Contatta {club}",
+    "disclaimer": "L'IA può sbagliare. Per questioni mediche, di pagamento o delicate, contattate direttamente il club.",
+    "notice": "I dati del vostro club sono trattati da un sub-responsabile IA e non sono usati per l'addestramento. Le note mediche non vengono mai condivise.",
+    "suggestions": {
+      "overdue": "Quante fatture sono scadute?",
+      "registrations": "Riassumi le iscrizioni di questo mese",
+      "outstanding": "Qual è l'importo ancora da incassare?"
+    },
+    "unavailableTitle": "Assistente IA non disponibile",
+    "unavailable": {
+      "unconfigured": "L'assistente IA non è ancora disponibile su questa piattaforma.",
+      "notInPlan": "L'abbonamento del vostro club non include l'assistente IA.",
+      "disabled": "L'assistente IA è disattivato per questo club. Un amministratore può attivarlo nelle impostazioni.",
+      "role": "L'assistente IA è riservato agli amministratori e al team finanziario del club."
+    },
+    "openSettings": "Apri impostazioni",
+    "noAccess": "Non avete accesso a questo assistente.",
+    "emptyQuestion": "Scrivete una domanda."
   }
 }

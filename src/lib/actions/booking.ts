@@ -67,10 +67,10 @@ export async function bookSession(athleteId: string, serviceId: string, slotId: 
     const payNote = payWith === "credits" ? `Paid with ${res.credits_used ?? 0} training credit(s).` : `An invoice for ${org.f.money(res.price_chf ?? 0)} has been issued.`;
     const clubName = org.clubName;
     const parent = bookingConfirmation({ ...org.brand, parentName: me.fullName ?? "there", athleteName, serviceName, coachName, when, payNote });
-    if (me.email) await sendEmail({ to: me.email, subject: parent.subject, html: parent.html, fromName: clubName });
+    if (me.email) await sendEmail({ to: me.email, subject: parent.subject, html: parent.html, fromName: org.senderName ?? clubName });
     if (coachEmail) {
       const alert = coachBookingAlert({ ...org.brand, coachName, athleteName, serviceName, when });
-      await sendEmail({ to: coachEmail, subject: alert.subject, html: alert.html, fromName: clubName });
+      await sendEmail({ to: coachEmail, subject: alert.subject, html: alert.html, fromName: org.senderName ?? clubName });
     }
   } catch { /* email is best-effort */ }
 

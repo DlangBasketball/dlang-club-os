@@ -43,6 +43,7 @@ const SAME_AS_EN_OK = new Set([
   "common.actions",
   "common.no",
   "nav.assistant",
+  "aiAssistant.pageTitle",
   "nav.documents",
   "nav.notifications",
   "nav.home",

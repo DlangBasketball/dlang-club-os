@@ -1,6 +1,7 @@
 import { formatDate, formatMoney, FORMAT_DEFAULTS } from "@/lib/format";
 import { brandStyle, type ClubBrand } from "@/lib/email/templates";
 import { tenantLink } from "@/lib/tenant/url";
+import { PLATFORM_NAME } from "@/lib/brand";
 
 /**
  * Template keys. Nine product event types plus a freeform "announcement"
@@ -54,7 +55,7 @@ export type NotifVars = {
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
 
-const PLATFORM = () => process.env.NEXT_PUBLIC_PLATFORM_NAME || "Club OS";
+const PLATFORM = () => PLATFORM_NAME;
 
 /**
  * Per-render tenant context: brand colour/logo, money and date formatting in

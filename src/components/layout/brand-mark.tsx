@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useTenant } from "@/lib/tenant/context";
-import { APP_TAGLINE } from "@/lib/constants";
+import { PLATFORM_NAME } from "@/lib/brand";
 
 /** Monogram from a tenant name: "DLang Basketball" -> "D", "Riverside High" -> "R". */
 export function monogram(name: string): string {
@@ -13,15 +13,16 @@ export function monogram(name: string): string {
 /**
  * Wordmark — prototype `.dl-wordmark`: logo (or gradient brand tile with a
  * monogram) + display-serif name + uppercase tag. Defaults come from the
- * current tenant; pass `name` / `logoUrl` / `initial` to override (e.g. the
- * branding live preview).
+ * current tenant: the club's app name ("DLang OS") with the club name as tag,
+ * or the club name with the platform name when no app name is set. Pass
+ * `name` / `logoUrl` / `initial` / `tagline` to override (e.g. live preview).
  */
 export function BrandMark({
   compact = false,
   className,
   name,
   logoUrl,
-  tagline = "Club OS",
+  tagline,
   initial,
 }: {
   compact?: boolean;
@@ -32,7 +33,8 @@ export function BrandMark({
   initial?: string;
 }) {
   const tenant = useTenant();
-  const displayName = name ?? tenant.name;
+  const displayName = name ?? tenant.appName;
+  const tag = tagline ?? (name === undefined && tenant.appName !== tenant.name ? tenant.name : PLATFORM_NAME);
   const logo = logoUrl === undefined ? tenant.branding.logoUrl : logoUrl;
   const letter = (initial ?? monogram(displayName)).toUpperCase();
   return (
@@ -55,8 +57,8 @@ export function BrandMark({
           <div className="truncate font-display text-[15px] font-medium tracking-[-0.02em] text-text">
             {displayName}
           </div>
-          <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted" title={APP_TAGLINE}>
-            {tagline}
+          <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted" title={tag}>
+            {tag}
           </div>
         </div>
       )}

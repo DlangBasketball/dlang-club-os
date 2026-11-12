@@ -493,5 +493,70 @@
   "language": {
     "label": "Language",
     "changed": "Language updated"
+  },
+  "appSettings": {
+    "tab": "App & assistant",
+    "appName": {
+      "title": "App name",
+      "description": "The name your members see in the app header, page titles, the sign-in page and as the email sender. Leave empty to use your club name.",
+      "label": "App display name",
+      "placeholder": "e.g. {example}",
+      "preview": "Shown as: {name}",
+      "maxHint": "Up to {max} characters.",
+      "save": "Save name",
+      "saved": "App name saved.",
+      "errorTooLong": "Use at most {max} characters.",
+      "errorInvalidChars": "The name cannot contain line breaks or special characters such as angle brackets, braces, quotes or backslashes."
+    },
+    "ai": {
+      "title": "AI assistant",
+      "description": "Lets admins and finance staff ask questions about club operations. Answers come only from your club's own records.",
+      "toggleLabel": "Enable the AI assistant for this club",
+      "statusOn": "On",
+      "statusOff": "Off",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off",
+      "enabled": "AI assistant turned on.",
+      "disabled": "AI assistant turned off.",
+      "unconfigured": "The AI assistant is not available on this platform yet.",
+      "notInPlan": "Your plan does not include the AI assistant.",
+      "processingNotice": "When it is on, questions and a minimal summary of your club's records are processed by an AI sub-processor on the club's behalf. Your data is not used to train AI models. Medical notes and payment-card details are never sent.",
+      "whoCanUse": "Available to club admins and finance staff.",
+      "auditNote": "Every change is recorded in the audit log."
+    },
+    "errors": {
+      "forbidden": "Only club admins can change this setting.",
+      "wrongOrg": "You are signed in to a different organization than this site.",
+      "notInPlan": "Your plan does not include the AI assistant.",
+      "generic": "Could not save. Please try again."
+    }
+  },
+  "aiAssistant": {
+    "pageTitle": "Assistant",
+    "pageDescription": "Summarize club operations, invoices, attendance and bookings.",
+    "header": "{app} Assistant",
+    "grounded": "Grounded in your records",
+    "intro": "Ask about club operations. Answers come only from your club's records.",
+    "placeholder": "Ask a question…",
+    "send": "Send",
+    "thinking": "Thinking…",
+    "contact": "Contact {club}",
+    "disclaimer": "AI can make mistakes. For medical, payment or sensitive matters, contact the club directly.",
+    "notice": "Your club's data is processed by an AI sub-processor and is not used for training. Medical notes are never shared.",
+    "suggestions": {
+      "overdue": "How many overdue invoices are there?",
+      "registrations": "Summarize this month's registrations",
+      "outstanding": "How much is outstanding?"
+    },
+    "unavailableTitle": "AI assistant unavailable",
+    "unavailable": {
+      "unconfigured": "The AI assistant is not available on this platform yet.",
+      "notInPlan": "Your club's plan does not include the AI assistant.",
+      "disabled": "The AI assistant is turned off for this club. An admin can turn it on in Settings.",
+      "role": "The AI assistant is available to club admins and finance staff only."
+    },
+    "openSettings": "Open settings",
+    "noAccess": "You don't have access to this assistant.",
+    "emptyQuestion": "Please type a question."
   }
 }

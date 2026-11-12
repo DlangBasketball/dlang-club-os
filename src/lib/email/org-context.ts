@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeBranding } from "@/lib/tenant/normalize";
+import { resolveAppName } from "@/lib/tenant/app-name";
 import { tenantBaseUrl, tenantLink } from "@/lib/tenant/url";
 import { getStandaloneI18n } from "@/lib/i18n/messages";
 import type { Formatter } from "@/lib/format";
@@ -8,6 +9,8 @@ import type { ClubBrand } from "./templates";
 
 export type OrgEmailContext = {
   clubName: string | null;
+  /** Email "From" display name: the club's app name ("DLang OS"), else the club name. */
+  senderName: string | null;
   /** Branding + money/locale for the email templates. */
   brand: ClubBrand;
   /** Tenant-bound formatter (club currency, time zone; recipient language when known). */
@@ -45,6 +48,7 @@ export async function getOrgEmailContext(orgId: string | null | undefined, recip
   const logo = branding.logoUrl ? (branding.logoUrl.startsWith("/") ? (baseUrl ? tenantLink(baseUrl, branding.logoUrl) : null) : branding.logoUrl) : null;
   return {
     clubName: org?.name ?? null,
+    senderName: org ? resolveAppName(org.name, org.branding) : null,
     brand: {
       clubName: org?.name ?? null,
       primaryColor: branding.colors.primary,

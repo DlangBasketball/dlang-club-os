@@ -1,5 +1,14 @@
 import { PageHeader } from "@/components/ui";
-import { AssistantChat } from "@/components/ai/assistant-chat";
-export default function ParentAssistantPage() {
-  return (<div className="animate-fade-up"><PageHeader title="Assistant" description="Ask about your family, invoices and bookings." /><AssistantChat scope="parent" supportHref="/parent/support" /></div>);
+import { AssistantUnavailable } from "@/components/ai/assistant-unavailable";
+import { getTranslations } from "@/lib/i18n/server";
+
+/** The assistant is a club-staff (admin/finance) feature; guardians are not offered it. */
+export default async function ParentAssistantPage() {
+  const t = await getTranslations();
+  return (
+    <div className="animate-fade-up">
+      <PageHeader title={t("aiAssistant.pageTitle")} />
+      <AssistantUnavailable reason="role" />
+    </div>
+  );
 }

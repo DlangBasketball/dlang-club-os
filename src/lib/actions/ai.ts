@@ -1,32 +1,43 @@
 "use server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { buildParentContext, buildAdminContext, buildCoachContext } from "@/lib/ai/context";
+import { buildAdminContext } from "@/lib/ai/context";
 import { buildSystemPrompt, fallbackFor, FALLBACK } from "@/lib/ai/prompts";
 import { callClaude } from "@/lib/ai/client";
+import { getAssistantAccess } from "@/lib/ai/settings";
+import { getTranslations } from "@/lib/i18n/server";
+import { tenantMatchesOrg } from "@/lib/tenant/server";
 
 export type Scope = "parent" | "admin" | "coach";
 export type AskResult = { answer: string; grounded: boolean; escalate: boolean };
 
+/**
+ * Club-staff assistant. Opt-in per club: the platform must be configured, the
+ * club's plan must include it, a club admin must have switched it on, and the
+ * caller must be club admin/finance (src/lib/ai/access.ts). Parent and coach
+ * scopes are not offered while the assistant is a staff-only feature.
+ */
 export async function askAssistant(question: string, scope: Scope): Promise<AskResult> {
+  const t = await getTranslations();
   const me = await getSessionUser();
   if (!me?.orgId) return { answer: FALLBACK, grounded: false, escalate: true };
 
-  // Authorise the requested scope against the caller's real roles.
-  const allowed = scope === "admin" ? me.roles.includes("admin") : scope === "coach" ? me.roles.includes("coach") : me.roles.includes("parent");
-  if (!allowed) return { answer: "You don't have access to this assistant.", grounded: false, escalate: false };
+  const access = await getAssistantAccess(me);
+  if (scope !== "admin" || !access.allowed || !(await tenantMatchesOrg(me.orgId))) {
+    return { answer: t("aiAssistant.noAccess"), grounded: false, escalate: false };
+  }
 
   const q = question.trim().slice(0, 1000);
-  if (!q) return { answer: "Please type a question.", grounded: false, escalate: false };
+  if (!q) return { answer: t("aiAssistant.emptyQuestion"), grounded: false, escalate: false };
 
-  // Permission-aware retrieval: each builder uses an RLS-scoped client, so the
-  // model can only ever see data this user is allowed to see.
-  const bundle = scope === "admin" ? await buildAdminContext() : scope === "coach" ? await buildCoachContext() : await buildParentContext();
+  // Tenant-scoped, minimal context: org-wide aggregates for the caller's own
+  // org only (no names, no medical notes, no card data).
+  const bundle = await buildAdminContext();
   const admin = createAdminClient();
   const { data: org } = await admin.from("organizations").select("name").eq("id", me.orgId).maybeSingle();
   const clubName = org?.name ?? undefined;
   const fallback = fallbackFor(clubName);
-  const system = buildSystemPrompt(scope, bundle.text, clubName);
+  const system = buildSystemPrompt("admin", bundle.text, clubName);
   const res = await callClaude(system, q);
 
   let answer: string;

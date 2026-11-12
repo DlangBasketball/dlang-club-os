@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { invalidateTenantCache, tenantMatchesOrg } from "@/lib/tenant/server";
 import { brandingToJson } from "@/lib/tenant/normalize";
+import { appNameFromBranding } from "@/lib/tenant/app-name";
 import { brandingContrastChecks } from "@/lib/tenant/theme";
 import { TERM_KEYS } from "@/lib/tenant/types";
 
@@ -68,13 +69,16 @@ export async function saveTenantBranding(input: BrandingInput): Promise<Branding
   }
 
   const admin = createAdminClient();
+  // The app display name is edited in Settings -> App & assistant; keep it.
+  const { data: current } = await admin.from("organizations").select("branding").eq("id", me.orgId).maybeSingle();
+  const appName = appNameFromBranding(current?.branding);
   const { error } = await admin
     .from("organizations")
     .update({
       // slug / custom_domain / plan / status / data_region are platform-managed
       name: v.name,
       sport: v.sport,
-      branding: brandingToJson(v.branding),
+      branding: { ...brandingToJson(v.branding), app_name: appName },
       terminology: v.terminology,
       country: v.country,
       currency: v.currency,

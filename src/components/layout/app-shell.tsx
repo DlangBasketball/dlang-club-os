@@ -41,11 +41,14 @@ export function AppShell({
   navKey,
   user,
   notifications,
+  hiddenHrefs,
   children,
 }: {
   navKey: NavKey;
   user: SessionUser;
   notifications?: NotifProp;
+  /** Nav destinations to hide for this user/club (e.g. a feature the club has not enabled). */
+  hiddenHrefs?: string[];
   children: React.ReactNode;
 }) {
   const variant = navKey === "admin" ? "sidebar" : "bottom";
@@ -55,6 +58,7 @@ export function AppShell({
       <a href="#main" className="skip-link">
         {t("shell.skipToContent")}
       </a>
+      <HiddenNavContext.Provider value={hiddenHrefs ?? NO_HIDDEN}>
       {variant === "sidebar" ? (
         <SidebarShell navKey={navKey} user={user} notifications={notifications}>
           {children}
@@ -64,8 +68,18 @@ export function AppShell({
           {children}
         </BottomShell>
       )}
+      </HiddenNavContext.Provider>
     </>
   );
+}
+
+const NO_HIDDEN: string[] = [];
+const HiddenNavContext = React.createContext<string[]>(NO_HIDDEN);
+
+/** NAV[navKey] minus the destinations hidden for this user/club. */
+function useNavItems(navKey: NavKey): NavItem[] {
+  const hidden = React.useContext(HiddenNavContext);
+  return React.useMemo(() => NAV[navKey].filter((i) => !hidden.includes(i.href)), [navKey, hidden]);
 }
 
 function useIsActive() {
@@ -98,9 +112,10 @@ function NavLinks({
 }) {
   const isActive = useIsActive();
   const navLabel = useNavLabel();
+  const items = useNavItems(navKey);
   return (
     <ul className="flex flex-col gap-0.5">
-      {NAV[navKey].map(({ labelKey, href, icon: Icon }) => {
+      {items.map(({ labelKey, href, icon: Icon }) => {
         const active = isActive(href);
         return (
           <li key={href}>
@@ -260,7 +275,7 @@ function BottomShell({
 }) {
   const t = useT();
   const isActive = useIsActive();
-  const items = NAV[navKey];
+  const items = useNavItems(navKey);
   const overflow = items.length > MAX_TABS;
   const primary = overflow ? items.slice(0, MAX_TABS - 1) : items;
   const extra = overflow ? items.slice(MAX_TABS - 1) : [];

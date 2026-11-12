@@ -64,7 +64,13 @@ export type TenantSource = "custom_domain" | "subdomain" | "default" | "fallback
 export type Tenant = {
   id: string | null;
   slug: string;
+  /** Organization (club) name, e.g. "DLang Basketball". */
   name: string;
+  /**
+   * Product name the club sees in the app shell, page titles, login and email
+   * sender ("DLang OS"). branding.app_name, else the organization name.
+   */
+  appName: string;
   customDomain: string | null;
   branding: TenantBranding;
   terminology: Terminology;

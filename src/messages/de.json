@@ -493,5 +493,70 @@
   "language": {
     "label": "Sprache",
     "changed": "Sprache geändert"
+  },
+  "appSettings": {
+    "tab": "App und Assistent",
+    "appName": {
+      "title": "App-Name",
+      "description": "Der Name, den Ihre Mitglieder in der App-Kopfzeile, in Seitentiteln, auf der Anmeldeseite und als E-Mail-Absender sehen. Leer lassen, um den Vereinsnamen zu verwenden.",
+      "label": "Angezeigter App-Name",
+      "placeholder": "z. B. {example}",
+      "preview": "Angezeigt als: {name}",
+      "maxHint": "Höchstens {max} Zeichen.",
+      "save": "Namen speichern",
+      "saved": "App-Name gespeichert.",
+      "errorTooLong": "Verwenden Sie höchstens {max} Zeichen.",
+      "errorInvalidChars": "Der Name darf keine Zeilenumbrüche oder Sonderzeichen wie spitze oder geschweifte Klammern, Anführungszeichen oder Backslashes enthalten."
+    },
+    "ai": {
+      "title": "KI-Assistent",
+      "description": "Ermöglicht Administratoren und dem Finanzteam, Fragen zum Vereinsbetrieb zu stellen. Die Antworten stammen ausschliesslich aus den Daten Ihres Vereins.",
+      "toggleLabel": "KI-Assistent für diesen Verein aktivieren",
+      "statusOn": "Ein",
+      "statusOff": "Aus",
+      "turnOn": "Einschalten",
+      "turnOff": "Ausschalten",
+      "enabled": "KI-Assistent eingeschaltet.",
+      "disabled": "KI-Assistent ausgeschaltet.",
+      "unconfigured": "Der KI-Assistent ist auf dieser Plattform noch nicht verfügbar.",
+      "notInPlan": "Ihr Abo enthält den KI-Assistenten nicht.",
+      "processingNotice": "Wenn er eingeschaltet ist, werden Fragen und eine minimale Zusammenfassung der Vereinsdaten im Auftrag des Vereins von einem KI-Unterauftragsverarbeiter verarbeitet. Ihre Daten werden nicht zum Training von KI-Modellen verwendet. Medizinische Notizen und Zahlungskartendaten werden nie übermittelt.",
+      "whoCanUse": "Verfügbar für Administratoren und das Finanzteam des Vereins.",
+      "auditNote": "Jede Änderung wird im Audit-Protokoll festgehalten."
+    },
+    "errors": {
+      "forbidden": "Nur Vereinsadministratoren können diese Einstellung ändern.",
+      "wrongOrg": "Sie sind bei einer anderen Organisation angemeldet als dieser Website.",
+      "notInPlan": "Ihr Abo enthält den KI-Assistenten nicht.",
+      "generic": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut."
+    }
+  },
+  "aiAssistant": {
+    "pageTitle": "Assistent",
+    "pageDescription": "Fassen Sie Vereinsbetrieb, Rechnungen, Anwesenheiten und Buchungen zusammen.",
+    "header": "{app}-Assistent",
+    "grounded": "Basiert auf Ihren Daten",
+    "intro": "Stellen Sie Fragen zum Vereinsbetrieb. Die Antworten stammen ausschliesslich aus den Daten Ihres Vereins.",
+    "placeholder": "Frage stellen…",
+    "send": "Senden",
+    "thinking": "Denke nach…",
+    "contact": "{club} kontaktieren",
+    "disclaimer": "KI kann Fehler machen. Wenden Sie sich bei medizinischen, finanziellen oder heiklen Fragen direkt an den Verein.",
+    "notice": "Die Daten Ihres Vereins werden von einem KI-Unterauftragsverarbeiter verarbeitet und nicht für Training verwendet. Medizinische Notizen werden nie weitergegeben.",
+    "suggestions": {
+      "overdue": "Wie viele Rechnungen sind überfällig?",
+      "registrations": "Fasse die Anmeldungen dieses Monats zusammen",
+      "outstanding": "Wie hoch ist der offene Betrag?"
+    },
+    "unavailableTitle": "KI-Assistent nicht verfügbar",
+    "unavailable": {
+      "unconfigured": "Der KI-Assistent ist auf dieser Plattform noch nicht verfügbar.",
+      "notInPlan": "Das Abo Ihres Vereins enthält den KI-Assistenten nicht.",
+      "disabled": "Der KI-Assistent ist für diesen Verein ausgeschaltet. Ein Administrator kann ihn in den Einstellungen einschalten.",
+      "role": "Der KI-Assistent steht nur Vereinsadministratoren und dem Finanzteam zur Verfügung."
+    },
+    "openSettings": "Einstellungen öffnen",
+    "noAccess": "Sie haben keinen Zugriff auf diesen Assistenten.",
+    "emptyQuestion": "Bitte geben Sie eine Frage ein."
   }
 }

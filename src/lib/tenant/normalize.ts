@@ -1,6 +1,7 @@
 import { DEFAULT_BRANDING, DEFAULT_LIGHT_COLORS } from "./defaults";
 import { normalizeTerminology } from "./terms";
 import { safeFont, sanitizeColors } from "./theme";
+import { resolveAppName } from "./app-name";
 import type { PublicTenantRow, Tenant, TenantBranding, TenantSource, TenantStatus } from "./types";
 
 const URL_RE = /^(https:\/\/[^\s"'<>()]+|\/[^\s"'<>()]*)$/;
@@ -45,6 +46,7 @@ export function rowToTenant(row: PublicTenantRow, source: TenantSource): Tenant 
     id: row.id,
     slug: row.slug,
     name: row.name,
+    appName: resolveAppName(row.name, row.branding),
     customDomain: row.custom_domain,
     branding: normalizeBranding(row.branding),
     terminology: normalizeTerminology(row.terminology),

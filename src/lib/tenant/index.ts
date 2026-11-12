@@ -7,5 +7,6 @@ export * from "./types";
 export * from "./defaults";
 export * from "./terms";
 export * from "./theme";
+export * from "./app-name";
 export { normalizeBranding, brandingToJson, rowToTenant } from "./normalize";
 export { parseTenantHost, normalizeHost, isValidSlug } from "./host";

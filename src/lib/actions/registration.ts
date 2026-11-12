@@ -150,7 +150,7 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
       dueDateLabel: org.f.date(new Date(Date.now() + 14 * 864e5)),
       manageUrl: org.link("/login"),
     });
-    await sendEmail({ to: data.parent.email, subject: conf.subject, html: conf.html, fromName: clubName });
+    await sendEmail({ to: data.parent.email, subject: conf.subject, html: conf.html, fromName: org.senderName ?? clubName });
 
     // The club's own staff only (per-org setting or its admins): the alert
     // names the parent and children, so it never goes to a shared inbox.
@@ -165,7 +165,7 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
         invoiceNumber,
       });
       for (const to of adminInboxes) {
-        await sendEmail({ to, subject: alert.subject, html: alert.html, fromName: clubName });
+        await sendEmail({ to, subject: alert.subject, html: alert.html, fromName: org.senderName ?? clubName });
       }
     }
   } catch (e) {

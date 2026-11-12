@@ -1,4 +1,5 @@
 import type { BillingInterval, Currency } from "./types";
+import { PLATFORM_NAME } from "@/lib/brand";
 
 /**
  * Static catalogue for the SaaS layer: product name, sellable currencies,
@@ -6,7 +7,7 @@ import type { BillingInterval, Currency } from "./types";
  * Safe to import from client and server code (no secrets).
  */
 
-export const PLATFORM_NAME = process.env.NEXT_PUBLIC_PLATFORM_NAME ?? "Club OS";
+export { PLATFORM_NAME };
 
 export const CURRENCIES: Currency[] = ["CHF", "EUR", "USD"];
 export const INTERVALS: BillingInterval[] = ["month", "year"];

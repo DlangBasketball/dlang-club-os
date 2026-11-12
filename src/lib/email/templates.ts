@@ -1,4 +1,5 @@
 import { formatMoney, FORMAT_DEFAULTS } from "@/lib/format";
+import { PLATFORM_NAME } from "@/lib/brand";
 
 const DEFAULT_BRAND = "#DA2627";
 const DEFAULT_BG = "#0A0A0A";
@@ -21,7 +22,7 @@ export type ClubBrand = {
   /** Intl locale for number formatting, e.g. "de-CH", "en-US". */
   locale?: string | null;
 };
-const clubOf = (d: ClubBrand) => d.clubName?.trim() || process.env.NEXT_PUBLIC_PLATFORM_NAME || "Club OS";
+const clubOf = (d: ClubBrand) => d.clubName?.trim() || PLATFORM_NAME;
 
 const HEX = /^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i;
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

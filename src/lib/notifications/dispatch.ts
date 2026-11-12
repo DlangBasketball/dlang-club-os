@@ -49,7 +49,7 @@ export async function dispatchNotification(opts: {
     const logId = (logRow as { id: string } | null)?.id ?? null;
     result.emailLogId = logId;
 
-    const sent = await sendEmail({ to: opts.toEmail, subject: r.subject, html: r.html, fromName: clubName });
+    const sent = await sendEmail({ to: opts.toEmail, subject: r.subject, html: r.html, fromName: org.senderName ?? clubName });
     result.emailOk = sent.ok;
     if (logId) {
       await admin

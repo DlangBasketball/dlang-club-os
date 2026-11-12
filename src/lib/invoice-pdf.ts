@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
+import { PLATFORM_NAME } from "@/lib/brand";
 
 export type QrBillSection = {
   payload: string; // Swiss Payment Code (SPC) string
@@ -95,7 +96,7 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const charset = new Set(font.getCharacterSet());
   const MAROON = hexToRgb(d.brandColor);
-  const platform = d.platformName?.trim() || process.env.NEXT_PUBLIC_PLATFORM_NAME || "Club OS";
+  const platform = d.platformName?.trim() || PLATFORM_NAME;
   const { width, height } = page.getSize();
   const M = 50;
   let y = height - M;

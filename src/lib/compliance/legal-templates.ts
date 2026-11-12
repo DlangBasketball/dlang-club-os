@@ -11,6 +11,7 @@
 import { CATEGORY_INFO, type ConsentCategory } from "./cookies";
 import { frameworkLabel, type ComplianceProfile } from "./profile";
 import { DATA_CATEGORY_LABELS, formatMonths, type DataCategory } from "./retention";
+import { PLATFORM_NAME } from "@/lib/brand";
 
 export const LEGAL_DOCS = ["privacy", "terms", "imprint", "cookies"] as const;
 export type LegalDocKey = (typeof LEGAL_DOCS)[number];
@@ -26,7 +27,7 @@ export function isLegalDoc(v: string): v is LegalDocKey {
   return (LEGAL_DOCS as readonly string[]).includes(v);
 }
 
-export const PLATFORM_NAME = process.env.NEXT_PUBLIC_PLATFORM_NAME ?? "DLANG Sports OS";
+export { PLATFORM_NAME };
 
 export type LegalSubprocessor = { name: string; service: string; location: string; mechanism: string | null };
 

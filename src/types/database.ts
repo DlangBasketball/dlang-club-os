@@ -573,6 +573,10 @@ export type Database = {
           currency: string | null; timezone: string | null; status: string | null;
         }[];
       };
+      // AI assistant opt-in (migration 20250420095500)
+      set_org_ai_assistant: { Args: { p_enabled: boolean }; Returns: boolean };
+      org_ai_assistant_entitled: { Args: { p_org: string }; Returns: boolean };
+      org_ai_assistant_enabled: { Args: { p_org: string }; Returns: boolean };
       anonymise_family: { Args: { p_family: string }; Returns: Json };
       withdraw_consent: { Args: { p_id: string }; Returns: Json };
       next_invoice_number: { Args: { p_org: string }; Returns: string };

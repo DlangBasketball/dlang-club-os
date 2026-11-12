@@ -86,7 +86,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
       dueDateLabel: org.f.date(inv.due_date),
       payUrl: org.link(`/parent/invoices/${id}`),
     });
-    await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: clubName });
+    await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: org.senderName ?? clubName });
   }
   revalidatePath(`/admin/invoices/${id}`);
   revalidatePath("/admin/invoices");
@@ -164,7 +164,7 @@ export async function sendReminder(id: string): Promise<ActionResult> {
     dueDateLabel: org.f.date(inv.due_date),
     payUrl: org.link(`/parent/invoices/${id}`),
   });
-  const res = await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: clubName });
+  const res = await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: org.senderName ?? clubName });
   if (!res.ok && res.error === "email-not-configured") return { ok: false, error: "Email isn't configured (set RESEND_API_KEY)" };
   return { ok: true };
 }

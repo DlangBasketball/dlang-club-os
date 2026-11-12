@@ -1,3 +1,4 @@
+import { PLATFORM_NAME } from "@/lib/brand";
 /**
  * Minimal Resend client over fetch — no SDK dependency.
  * If RESEND_API_KEY is unset (e.g. local dev) it logs and no-ops so the
@@ -6,10 +7,10 @@
 type SendArgs = { to: string; subject: string; html: string; replyTo?: string; fromName?: string | null };
 
 /** RESEND_FROM may be "Name <addr>" or a bare address; the tenant name replaces the display name. */
-function fromHeader(fromName?: string | null): string {
+export function fromHeader(fromName?: string | null): string {
   const raw = process.env.RESEND_FROM ?? process.env.RESEND_FROM_EMAIL ?? "noreply@example.com";
   const addr = raw.match(/<([^>]+)>/)?.[1] ?? raw.trim();
-  const name = (fromName ?? raw.match(/^([^<]+)</)?.[1] ?? process.env.NEXT_PUBLIC_PLATFORM_NAME ?? "Club OS").replace(/["<>\r\n]/g, "").trim();
+  const name = (fromName ?? raw.match(/^([^<]+)</)?.[1] ?? PLATFORM_NAME).replace(/["<>\r\n]/g, "").trim();
   return name ? `${name} <${addr}>` : addr;
 }
 

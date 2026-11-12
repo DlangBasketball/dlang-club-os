@@ -152,7 +152,7 @@ function LoginInner() {
           </div>
 
           <p className="mt-6 text-center text-xs text-text-muted">
-            {tenant.name} · {t("auth.footer")}
+            {tenant.appName} · {t("auth.footer")}
           </p>
         </div>
       </main>
