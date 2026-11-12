@@ -7,7 +7,6 @@ import {
 } from "@/components/ui";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
 import { getFamily } from "@/lib/data/families";
-import { formatDate } from "@/lib/utils";
 import { getFormatter } from "@/lib/i18n/server";
 
 export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -57,7 +56,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-elevated text-maroon"><UserCircle className="h-5 w-5" /></div>
                           <div>
                             <div className="text-sm font-medium text-ink">{a.firstName} {a.lastName}</div>
-                            <div className="text-xs text-ink-3">Born {formatDate(a.dob)}</div>
+                            <div className="text-xs text-ink-3">Born {f.date(a.dob)}</div>
                           </div>
                         </div>
                         <Badge tone={statusTone(a.status)}>{a.status}</Badge>
@@ -84,7 +83,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
                     <li key={i.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
                       <div>
                         <div className="tnum text-sm font-medium text-ink">{i.number}</div>
-                        <div className="text-xs text-ink-3">Due {formatDate(i.dueDate)}</div>
+                        <div className="text-xs text-ink-3">Due {f.date(i.dueDate)}</div>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="tnum text-sm">{f.money(i.total)}</span>

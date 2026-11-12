@@ -12,9 +12,8 @@ import { loadPayableInvoice } from "@/lib/payments/invoice-payable";
 import { roundMoney } from "@/lib/payments/currency";
 import { getOrgPaymentProfile, methodsForInvoice } from "@/lib/payments/settings";
 import { sendEmail } from "@/lib/email/resend";
-import { getOrgName } from "@/lib/data/org-name";
+import { getOrgEmailContext } from "@/lib/email/org-context";
 import { invoiceIssued, overdueReminder } from "@/lib/email/templates";
-import { formatDate } from "@/lib/utils";
 import type { Json } from "@/types/database";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -64,7 +63,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
   const { data: inv } = await supabase
     .from("invoices")
-    .select("id,number,status,description,total_chf,due_date,family_id")
+    .select("id,number,status,description,total_chf,currency,due_date,family_id")
     .eq("id", id)
     .maybeSingle();
   if (!inv) return { ok: false, error: "Invoice not found" };
@@ -75,15 +74,17 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
   const { data: family } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
   if (family?.contact_email) {
-    const clubName = await getOrgName(me.orgId);
+    const org = await getOrgEmailContext(me.orgId);
+    const clubName = org.clubName;
     const t = invoiceIssued({
-      clubName,
+      ...org.brand,
+      currency: inv.currency ?? org.brand.currency,
       parentName: family.contact_name ?? "there",
       invoiceNumber: inv.number,
       description: inv.description,
       totalChf: Number(inv.total_chf ?? 0),
-      dueDateLabel: formatDate(inv.due_date),
-      payUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/parent/invoices/${id}`,
+      dueDateLabel: org.f.date(inv.due_date),
+      payUrl: org.link(`/parent/invoices/${id}`),
     });
     await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: clubName });
   }
@@ -143,7 +144,7 @@ export async function sendReminder(id: string): Promise<ActionResult> {
   const supabase = await createClient();
   const { data: inv } = await supabase
     .from("invoices")
-    .select("number,total_chf,due_date,family_id,status")
+    .select("number,total_chf,currency,due_date,family_id,status")
     .eq("id", id)
     .maybeSingle();
   if (!inv) return { ok: false, error: "Invoice not found" };
@@ -151,15 +152,17 @@ export async function sendReminder(id: string): Promise<ActionResult> {
   const { data: family } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
   if (!family?.contact_email) return { ok: false, error: "No contact email on file for this family" };
 
-  const clubName = await getOrgName(me.orgId);
+  const org = await getOrgEmailContext(me.orgId);
+  const clubName = org.clubName;
   const t = overdueReminder({
-    clubName,
+    ...org.brand,
+    currency: inv.currency ?? org.brand.currency,
     parentName: family.contact_name ?? "there",
     invoiceNumber: inv.number,
     description: null,
     totalChf: Number(inv.total_chf ?? 0),
-    dueDateLabel: formatDate(inv.due_date),
-    payUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/parent/invoices/${id}`,
+    dueDateLabel: org.f.date(inv.due_date),
+    payUrl: org.link(`/parent/invoices/${id}`),
   });
   const res = await sendEmail({ to: family.contact_email, subject: t.subject, html: t.html, fromName: clubName });
   if (!res.ok && res.error === "email-not-configured") return { ok: false, error: "Email isn't configured (set RESEND_API_KEY)" };

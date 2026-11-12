@@ -1,9 +1,10 @@
 import { CalendarClock, MapPin } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardBody, EmptyState, ErrorState, SkeletonCard } from "@/components/ui";
 import { getUpcomingSessions } from "@/lib/data/dashboard";
-import { formatDate, formatTime } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export async function UpcomingSessions() {
+  const f = await getFormatter();
   const { data, error } = await getUpcomingSessions(5);
   if (error) return <ErrorState title="Couldn't load sessions" message={error} />;
   const sessions = data!;
@@ -30,8 +31,8 @@ export async function UpcomingSessions() {
                   </div>
                 </div>
                 <div className="text-right text-xs">
-                  <div className="text-ink">{formatDate(s.startsAt)}</div>
-                  <div className="tnum text-ink-3">{formatTime(s.startsAt)}</div>
+                  <div className="text-ink">{f.date(s.startsAt)}</div>
+                  <div className="tnum text-ink-3">{f.time(s.startsAt)}</div>
                 </div>
               </li>
             ))}

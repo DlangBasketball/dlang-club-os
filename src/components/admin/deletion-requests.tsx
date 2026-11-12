@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardBody, Button, Badge } from "@/components/ui";
 import { processDeletionRequest } from "@/lib/actions/privacy";
 import type { DeletionRequest } from "@/lib/data/privacy";
-import { formatDate } from "@/lib/utils";
+import { useFormat } from "@/lib/i18n/client";
 
 const TONE: Record<string, "warning" | "success" | "danger" | "neutral"> = { pending: "warning", completed: "success", rejected: "danger" };
 
 export function DeletionRequests({ requests }: { requests: DeletionRequest[] }) {
+  const f = useFormat();
   const router = useRouter();
   const [busy, setBusy] = React.useState<string | null>(null);
   async function act(id: string, approve: boolean) {
@@ -24,7 +25,7 @@ export function DeletionRequests({ requests }: { requests: DeletionRequest[] }) 
         ) : (
           <ul>{requests.map((r) => (
             <li key={r.id} className="flex items-center justify-between gap-3 border-b border-line-soft px-5 py-3 last:border-0">
-              <div className="min-w-0"><div className="truncate text-sm text-ink">{r.familyName}</div><div className="truncate text-xs text-ink-3">by {r.requestedBy} · {formatDate(r.createdAt)}{r.reason ? ` · ${r.reason}` : ""}</div></div>
+              <div className="min-w-0"><div className="truncate text-sm text-ink">{r.familyName}</div><div className="truncate text-xs text-ink-3">by {r.requestedBy} · {f.date(r.createdAt)}{r.reason ? ` · ${r.reason}` : ""}</div></div>
               <div className="flex shrink-0 items-center gap-2">
                 <Badge tone={TONE[r.status] ?? "neutral"}>{r.status}</Badge>
                 {r.status === "pending" && (

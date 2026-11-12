@@ -1,9 +1,11 @@
 import type { EventStatus, EventType, MembershipStatus, RsvpStatus } from "./db";
+import { term } from "@/lib/tenant/terms";
+import type { Terminology } from "@/lib/tenant/types";
 
 /**
- * Neutral, sport-agnostic vocabulary for this module.
- * TODO(tenancy): route these through the tenant terminology helper (term())
- * so a school can say "Squad"/"Student" and a club "Team"/"Player".
+ * Neutral, sport-agnostic vocabulary for this module (platform defaults).
+ * Pages use labelsFor(tenant.terminology) so a school says "Student" and a
+ * club "Player".
  */
 export const LABELS = {
   team: "Team",
@@ -16,6 +18,19 @@ export const LABELS = {
   coach: "Coach",
   roster: "Roster",
 } as const;
+
+export type Labels = { [K in keyof typeof LABELS]: string };
+
+/** LABELS in the tenant's own vocabulary (athlete, coach, season are configurable). */
+export function labelsFor(terminology: Terminology | undefined): Labels {
+  return {
+    ...LABELS,
+    athlete: term(terminology, "athlete"),
+    athletes: term(terminology, "athlete", { plural: true }),
+    coach: term(terminology, "coach"),
+    season: term(terminology, "season"),
+  };
+}
 
 export const EVENT_TYPES: { value: EventType; label: string }[] = [
   { value: "training", label: "Training" },

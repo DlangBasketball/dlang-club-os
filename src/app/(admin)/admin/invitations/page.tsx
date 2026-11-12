@@ -1,7 +1,8 @@
 import { Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, DataTable, EmptyState, Badge, statusTone, type Column } from "@/components/ui";
-import { formatDate } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
+import type { Formatter } from "@/lib/format";
 import { InviteForm } from "./invite-form";
 
 type Invite = {
@@ -13,15 +14,16 @@ type Invite = {
   expires_at: string;
 };
 
-const columns: Column<Invite>[] = [
+const columnsFor = (f: Formatter): Column<Invite>[] => [
   { key: "email", header: "Email", render: (r) => <span className="font-medium text-ink">{r.email}</span> },
   { key: "role", header: "Role" },
-  { key: "created_at", header: "Sent", render: (r) => formatDate(r.created_at) },
-  { key: "expires_at", header: "Expires", render: (r) => formatDate(r.expires_at) },
+  { key: "created_at", header: "Sent", render: (r) => f.date(r.created_at) },
+  { key: "expires_at", header: "Expires", render: (r) => f.date(r.expires_at) },
   { key: "status", header: "Status", render: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge> },
 ];
 
 export default async function InvitationsPage() {
+  const columns = columnsFor(await getFormatter());
   const supabase = await createClient();
   // RLS returns only this org's invitations, and only to admins.
   const { data } = await supabase

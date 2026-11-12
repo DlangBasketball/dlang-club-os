@@ -1,4 +1,6 @@
-import { formatCHF, formatDate } from "@/lib/utils";
+import { formatDate, formatMoney, FORMAT_DEFAULTS } from "@/lib/format";
+import { brandStyle, type ClubBrand } from "@/lib/email/templates";
+import { tenantLink } from "@/lib/tenant/url";
 
 /**
  * Template keys. Nine product event types plus a freeform "announcement"
@@ -52,23 +54,33 @@ export type NotifVars = {
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
 
-const BRAND = "#DA2627";
-const BG = "#0A0A0A";
-
 const PLATFORM = () => process.env.NEXT_PUBLIC_PLATFORM_NAME || "Club OS";
+
+/**
+ * Per-render tenant context: brand colour/logo, money and date formatting in
+ * the club's currency / locale / time zone, and the club's own base URL for
+ * call-to-action links. Built by dispatchNotification() from the org.
+ */
+export type RenderContext = ClubBrand & { timeZone?: string | null; baseUrl?: string | null };
+
 // Set per render() call so every template's shell shows the issuing club.
-let currentClub: string | null = null;
-const clubName = (v?: NotifVars) => v?.club_name?.trim() || currentClub || PLATFORM();
+let current: RenderContext = {};
+const clubName = (v?: NotifVars) => v?.club_name?.trim() || current.clubName?.trim() || PLATFORM();
 
 function shell(heading: string, lines: string[], cta?: { label: string; href: string }): string {
   const club = clubName();
+  const { brand: BRAND, bg: BG, logo } = brandStyle(current);
+  const href = cta && current.baseUrl ? tenantLink(current.baseUrl, cta.href) : cta?.href;
   const body = lines.map((l) => `<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#D8D8D8;">${l}</p>`).join("");
   const button = cta
-    ? `<a href="${cta.href}" style="display:inline-block;margin-top:8px;background:${BRAND};color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 20px;border-radius:8px;">${cta.label}</a>`
+    ? `<a href="${href}" style="display:inline-block;margin-top:8px;background:${BRAND};color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 20px;border-radius:8px;">${cta.label}</a>`
     : "";
+  const header = logo
+    ? `<img src="${logo.replace(/"/g, "&quot;")}" alt="${club.replace(/"/g, "&quot;")}" height="40" style="display:block;height:40px;max-width:200px;border:0;" />`
+    : `<div style="font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:${BRAND};font-weight:700;">${club}</div>`;
   return `<!doctype html><html><body style="margin:0;background:${BG};font-family:Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
-    <div style="font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:${BRAND};font-weight:700;">${club}</div>
+    ${header}
     <h1 style="margin:16px 0 18px;font-size:22px;color:#F1F1F1;">${heading}</h1>
     ${body}${button}
     <hr style="border:none;border-top:1px solid #222;margin:28px 0 14px;" />
@@ -76,8 +88,10 @@ function shell(heading: string, lines: string[], cta?: { label: string; href: st
   </div></body></html>`;
 }
 
-const money = (n?: number) => (typeof n === "number" ? formatCHF(n) : "—");
-const day = (d?: string) => (d ? formatDate(d) : "—");
+const money = (n?: number) =>
+  typeof n === "number" ? formatMoney(n, current.currency || FORMAT_DEFAULTS.currency, current.locale || FORMAT_DEFAULTS.locale) : "—";
+const day = (d?: string) =>
+  d ? formatDate(d, { locale: current.locale || FORMAT_DEFAULTS.locale, timeZone: current.timeZone || FORMAT_DEFAULTS.timeZone }) : "—";
 const name = (v?: string) => v ?? "there";
 
 /** Replace {{variable}} placeholders in freeform text (admin broadcasts). */
@@ -201,11 +215,11 @@ export const TEMPLATES: Record<NotifType, Builder> = {
   }),
 };
 
-export function render(type: NotifType, vars: NotifVars): Rendered {
-  currentClub = vars.club_name?.trim() || null;
+export function render(type: NotifType, vars: NotifVars, ctx: RenderContext = {}): Rendered {
+  current = { ...ctx, clubName: vars.club_name?.trim() || ctx.clubName || null };
   try {
     return TEMPLATES[type](vars);
   } finally {
-    currentClub = null;
+    current = {};
   }
 }

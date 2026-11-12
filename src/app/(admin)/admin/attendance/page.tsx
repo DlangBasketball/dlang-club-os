@@ -2,9 +2,10 @@ import Link from "next/link";
 import { CheckSquare, AlertTriangle } from "lucide-react";
 import { PageHeader, DataTable, Badge, statusTone, EmptyState, ErrorState, Input, type Column } from "@/components/ui";
 import { listAttendanceSessions, type AttendanceSessionRow } from "@/lib/data/attendance-admin";
-import { formatDate, formatTime } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function AdminAttendancePage({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
+  const f = await getFormatter();
   const { date } = await searchParams;
   const { data, error } = await listAttendanceSessions(date);
   if (error) return (<div className="animate-fade-up"><PageHeader title="Attendance" /><ErrorState title="Couldn't load" message={error} /></div>);
@@ -13,7 +14,7 @@ export default async function AdminAttendancePage({ searchParams }: { searchPara
   const columns: Column<AttendanceSessionRow>[] = [
     { key: "programName", header: "Session", render: (r) => <Link href={`/admin/attendance/${r.id}`} className="font-medium text-ink hover:text-maroon">{r.programName}</Link> },
     { key: "coachName", header: "Coach" },
-    { key: "date", header: "Date", render: (r) => `${formatDate(r.date)} ${formatTime(r.date)}` },
+    { key: "date", header: "Date", render: (r) => `${f.date(r.date)} ${f.time(r.date)}` },
     { key: "present", header: "Counts", render: (r) => (
       <span className="text-xs">
         <span className="text-success">{r.present}P</span> · <span className="text-warning">{r.late}L</span> · <span className="text-danger">{r.absent}A</span> · {r.excused}E

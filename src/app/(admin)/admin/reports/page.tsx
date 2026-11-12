@@ -4,11 +4,13 @@ import { Input } from "@/components/ui";
 import { RateBar, ReportCard } from "@/components/reports/report-card";
 import { attendanceReport, defaultRange, outstandingReceivables, registrationsByProgram, revenueByProgram, type Range } from "@/lib/sportsops/reports";
 import { isDayKey } from "@/lib/sportsops/time";
-import { formatCHF, formatDate } from "@/lib/utils";
+import { formatCHF } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export const metadata = { title: "Reports" };
 
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
+  const f = await getFormatter();
   const sp = await searchParams;
   const def = await defaultRange();
   const range: Range = {
@@ -37,7 +39,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="animate-fade-up space-y-6">
-      <PageHeader title="Reports" description={`${formatDate(range.from)} – ${formatDate(range.to)}. Receivables are as of today.`} />
+      <PageHeader title="Reports" description={`${f.date(range.from)} – ${f.date(range.to)}. Receivables are as of today.`} />
 
       <form method="get" className="flex flex-wrap items-end gap-3">
         <div><label htmlFor="from" className="mb-1.5 block text-xs font-medium text-ink-2">From</label><Input id="from" name="from" type="date" defaultValue={range.from} className="w-44" /></div>
@@ -79,7 +81,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           { header: "Invoice", cell: (r) => <Link href={`/admin/invoices/${r.invoiceId}`} className="font-mono text-ink hover:text-maroon">{r.number}</Link> },
           { header: "Family", cell: (r) => r.family },
           { header: "Program", cell: (r) => r.program },
-          { header: "Due", cell: (r) => (r.dueDate ? formatDate(r.dueDate) : "—") },
+          { header: "Due", cell: (r) => (r.dueDate ? f.date(r.dueDate) : "—") },
           { header: "Aging", cell: (r) => <span className={r.daysOverdue > 30 ? "text-danger" : r.daysOverdue > 0 ? "text-warning" : ""}>{r.bucket === "current" ? "current" : `${r.bucket} days`}</span> },
           { header: "Balance", align: "right", cell: (r) => <span className="text-ink">{formatCHF(r.balance)}</span> },
         ]} />

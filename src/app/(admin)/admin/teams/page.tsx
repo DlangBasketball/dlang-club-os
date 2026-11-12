@@ -3,13 +3,16 @@ import { Plus, Shield } from "lucide-react";
 import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
 import { SeasonForm } from "@/components/teams/season-form";
 import { listSeasons, listTeams } from "@/lib/sportsops/data";
-import { LABELS } from "@/lib/sportsops/labels";
-import { formatDate } from "@/lib/utils";
+import { labelsFor } from "@/lib/sportsops/labels";
+import { getTenant } from "@/lib/tenant/server";
 import { selectClass } from "@/components/teams/fields";
+import { getFormatter } from "@/lib/i18n/server";
 
 export const metadata = { title: "Teams" };
 
 export default async function TeamsPage({ searchParams }: { searchParams: Promise<{ season?: string; all?: string }> }) {
+  const LABELS = labelsFor((await getTenant()).terminology);
+  const f = await getFormatter();
   const sp = await searchParams;
   const seasons = await listSeasons();
   if (seasons.error !== null) return <div className="animate-fade-up"><PageHeader title={LABELS.teams} /><ErrorState message={seasons.error} /></div>;
@@ -73,7 +76,7 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
                 {seasons.data.map((s) => (
                   <li key={s.id} className="flex items-center justify-between gap-2">
                     <span className="font-medium text-ink">{s.name}</span>
-                    <span className="text-xs text-ink-3">{formatDate(s.startsOn)} – {formatDate(s.endsOn)}{s.isCurrent && <Badge tone="maroon" className="ml-2">current</Badge>}</span>
+                    <span className="text-xs text-ink-3">{f.date(s.startsOn)} – {f.date(s.endsOn)}{s.isCurrent && <Badge tone="maroon" className="ml-2">current</Badge>}</span>
                   </li>
                 ))}
               </ul>

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Receipt, Plus, Download, Landmark } from "lucide-react";
 import { PageHeader, Button, DataTable, EmptyState, Badge, statusTone, ErrorState, type Column } from "@/components/ui";
 import { listInvoices, type InvoiceListItem } from "@/lib/data/invoices";
-import { formatDate } from "@/lib/utils";
 import { getFormatter } from "@/lib/i18n/server";
 
 const FILTERS = ["all", "draft", "sent", "partially_paid", "paid", "overdue", "cancelled"];
@@ -19,7 +18,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
     { key: "familyName", header: "Family" },
     { key: "total", header: "Total", align: "right", render: (r) => <span className="tnum">{f.money(r.total)}</span> },
     { key: "balance", header: "Balance", align: "right", render: (r) => <span className="tnum">{f.money(r.balance)}</span> },
-    { key: "dueDate", header: "Due", render: (r) => formatDate(r.dueDate) },
+    { key: "dueDate", header: "Due", render: (r) => f.date(r.dueDate) },
     { key: "status", header: "Status", render: (r) => <Badge tone={statusTone(r.status)}>{r.status.replace("_", " ")}</Badge> },
   ];
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cn, formatCHF, formatDate, formatTime, initials, timeAgo } from "@/lib/utils";
+import { cn, formatCHF, initials, timeAgo } from "@/lib/utils";
 
 /** Intl uses narrow no-break spaces and typographic apostrophes; normalise for assertions. */
 const norm = (s: string) => s.replace(/[  ]/g, " ").replace(/[’']/g, "'");
@@ -26,23 +26,6 @@ describe("formatCHF", () => {
   it("rounds to cents", () => {
     expect(norm(formatCHF(0.1 + 0.2))).toBe("CHF 0.30");
     expect(norm(formatCHF(10.005))).toMatch(/^CHF 10\.0[01]$/);
-  });
-});
-
-describe("formatDate / formatTime", () => {
-  it("formats Swiss medium dates", () => {
-    expect(formatDate("2026-05-23")).toBe("23.05.2026");
-    expect(formatDate(new Date(2026, 0, 2))).toBe("02.01.2026");
-  });
-  it("returns an em dash for empty input", () => {
-    expect(formatDate(null)).toBe("—");
-    expect(formatDate(undefined)).toBe("—");
-    expect(formatDate("")).toBe("—");
-    expect(formatTime(null)).toBe("—");
-  });
-  it("formats 24h time in the club's time zone", () => {
-    expect(formatTime("2026-05-23T15:00:00Z")).toBe("17:00"); // CEST = UTC+2
-    expect(formatTime("2026-01-10T08:05:00Z")).toBe("09:05"); // CET = UTC+1
   });
 });
 

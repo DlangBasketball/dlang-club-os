@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchMany, retryEmailLog } from "@/lib/notifications/dispatch";
 import type { NotifVars } from "@/lib/notifications/templates";
+import { getOrgEmailContext } from "@/lib/email/org-context";
 
 export type BulkResult = { ok: true; sent: number; failed: number; inApp: number; targets: number } | { ok: false; error: string };
 
@@ -12,10 +13,6 @@ async function getAdmin() {
   const me = await getSessionUser();
   if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("finance"))) return null;
   return me as typeof me & { orgId: string };
-}
-
-function siteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "";
 }
 
 /** Email + in-app reminder to every guardian of every overdue invoice. */
@@ -49,12 +46,14 @@ export async function sendOverdueReminders(): Promise<BulkResult> {
     guardiansByFam.set(m.family_id, arr);
   }
 
+  // Links open the club's own host, never the platform apex.
+  const { link } = await getOrgEmailContext(me.orgId);
   const rows = [];
   for (const inv of invs) {
     if (!inv.family_id) continue;
     const balance = Number(inv.total_chf) - (paid.get(inv.id) ?? 0);
     for (const g of guardiansByFam.get(inv.family_id) ?? []) {
-      const vars: NotifVars = { parent_name: g.full_name ?? undefined, invoice_number: inv.number, amount_due: balance, due_date: inv.due_date ?? undefined, payment_link: `${siteUrl()}/parent/invoices/${inv.id}` };
+      const vars: NotifVars = { parent_name: g.full_name ?? undefined, invoice_number: inv.number, amount_due: balance, due_date: inv.due_date ?? undefined, payment_link: link(`/parent/invoices/${inv.id}`) };
       rows.push({ orgId: me.orgId as string, type: "payment_overdue" as const, recipientProfileId: g.id, toEmail: g.email, invoiceId: inv.id, vars });
     }
   }

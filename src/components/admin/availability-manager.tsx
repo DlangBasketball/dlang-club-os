@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import { Trash2, Plus } from "lucide-react";
 import { Button, Input, Badge } from "@/components/ui";
 import { addAvailability, removeAvailability } from "@/lib/actions/booking";
-import { formatDate, formatTime } from "@/lib/utils";
+import { useFormat } from "@/lib/i18n/client";
+import { zonedWallTimeToUtc } from "@/lib/format";
 
 type Slot = { id: string; coachId: string; coachName: string; start: string; end: string; isBooked: boolean };
 export function AvailabilityManager({ coachId, slots, showCoach }: { coachId: string; slots: Slot[]; showCoach?: boolean }) {
+  const f = useFormat();
   const router = useRouter();
   const [date, setDate] = React.useState("");
   const [from, setFrom] = React.useState("17:00");
@@ -18,8 +20,12 @@ export function AvailabilityManager({ coachId, slots, showCoach }: { coachId: st
   async function add() {
     if (!date) { setErr("Pick a date."); return; }
     setBusy(true); setErr(null);
-    const startISO = new Date(`${date}T${from}`).toISOString();
-    const endISO = new Date(`${date}T${to}`).toISOString();
+    // Times are entered in the club's time zone, not the browser's.
+    const start = zonedWallTimeToUtc(date, from, f.timeZone);
+    const end = zonedWallTimeToUtc(date, to, f.timeZone);
+    if (!start || !end) { setBusy(false); setErr("Enter a valid date and time."); return; }
+    const startISO = start.toISOString();
+    const endISO = end.toISOString();
     const res = await addAvailability(coachId, startISO, endISO);
     setBusy(false);
     if (res.ok) { setDate(""); router.refresh(); } else setErr(res.error);
@@ -44,7 +50,7 @@ export function AvailabilityManager({ coachId, slots, showCoach }: { coachId: st
             <li key={s.id} className="flex items-center justify-between rounded-lg border border-line px-3 py-2">
               <span className="text-sm text-ink">
                 {showCoach && <span className="text-ink-3">{s.coachName} · </span>}
-                {formatDate(s.start)} · {formatTime(s.start)}–{formatTime(s.end)}
+                {f.date(s.start)} · {f.time(s.start)}–{f.time(s.end)}
               </span>
               <div className="flex items-center gap-2">
                 {s.isBooked ? <Badge tone="warning">booked</Badge> : (

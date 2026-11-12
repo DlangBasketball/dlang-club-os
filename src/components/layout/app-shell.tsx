@@ -12,7 +12,20 @@ import { Avatar } from "@/components/ui/avatar";
 import { NotificationBell } from "./notification-bell";
 import type { NavNotification } from "@/lib/data/notifications";
 import { useT } from "@/lib/i18n/client";
+import { useTenant } from "@/lib/tenant/context";
+import { NAV_TERM, termOr } from "@/lib/tenant/terms";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+
+/** Nav label in the tenant's vocabulary ("Students" for a school that renamed athletes). */
+function useNavLabel() {
+  const t = useT();
+  const { terminology } = useTenant();
+  return (labelKey: NavItem["labelKey"]) => {
+    const translated = t(`nav.${labelKey}`);
+    const m = NAV_TERM[labelKey];
+    return m ? termOr(terminology, m.key, translated, { plural: m.plural }) : translated;
+  };
+}
 
 type NotifProp = { data: { items: NavNotification[]; unread: number }; viewAllHref?: string } | undefined;
 
@@ -84,7 +97,7 @@ function NavLinks({
   onNavigate?: () => void;
 }) {
   const isActive = useIsActive();
-  const t = useT();
+  const navLabel = useNavLabel();
   return (
     <ul className="flex flex-col gap-0.5">
       {NAV[navKey].map(({ labelKey, href, icon: Icon }) => {
@@ -116,7 +129,7 @@ function NavLinks({
                   active ? "text-brand-primary" : "text-text-muted group-hover:text-brand-primary",
                 )}
               />
-              {t(`nav.${labelKey}`)}
+              {navLabel(labelKey)}
             </Link>
           </li>
         );
@@ -343,7 +356,7 @@ function TabLink({
   onClick?: () => void;
   tile?: boolean;
 }) {
-  const t = useT();
+  const navLabel = useNavLabel();
   return (
     <Link
       href={href as never}
@@ -360,7 +373,7 @@ function TabLink({
         <span aria-hidden className="absolute inset-x-1/4 top-0 h-0.5 rounded-full bg-brand-primary shadow-glow" />
       )}
       <Icon className="h-5 w-5" aria-hidden />
-      <span className="max-w-full truncate px-1">{t(`nav.${labelKey}`)}</span>
+      <span className="max-w-full truncate px-1">{navLabel(labelKey)}</span>
     </Link>
   );
 }

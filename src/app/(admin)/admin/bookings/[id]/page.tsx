@@ -3,7 +3,6 @@ import Link from "next/link";
 import { PageHeader, Card, CardBody, Badge, statusTone, ErrorState } from "@/components/ui";
 import { getAdminBookingFull } from "@/lib/data/booking-admin-detail";
 import { BookingActions } from "@/components/booking/booking-actions";
-import { formatDate, formatTime } from "@/lib/utils";
 import { getFormatter } from "@/lib/i18n/server";
 
 export default async function AdminBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -17,7 +16,7 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
       <PageHeader title={data.serviceName} description={`${data.athleteName} · with ${data.coachName}`}
         actions={<Badge tone={statusTone(data.status)}>{data.status}</Badge>} />
       <Card><CardBody className="space-y-2 text-sm">
-        <div className="flex justify-between"><span className="text-ink-3">When</span><span className="text-ink">{formatDate(data.start)} · {formatTime(data.start)}</span></div>
+        <div className="flex justify-between"><span className="text-ink-3">When</span><span className="text-ink">{f.date(data.start)} · {f.time(data.start)}</span></div>
         <div className="flex justify-between"><span className="text-ink-3">Payment</span><span className="text-ink">{data.creditsUsed > 0 ? `${data.creditsUsed} credits` : data.price !== null ? f.money(data.price) : "—"}</span></div>
         {data.invoice && <div className="flex justify-between"><span className="text-ink-3">Invoice</span><Link href={`/admin/invoices/${data.invoice.id}`} className="text-maroon hover:underline">{data.invoice.number} ({data.invoice.status})</Link></div>}
       </CardBody></Card>

@@ -2,18 +2,19 @@ import Link from "next/link";
 import { CalendarClock, MapPin, ChevronRight } from "lucide-react";
 import { PageHeader, Card, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { listCoachSessions } from "@/lib/data/coach-sessions";
-import { formatDate, formatTime } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 const LABEL: Record<string, string> = { not_started: "Take attendance", open: "In progress", submitted: "Submitted", locked: "Locked" };
 
 export default async function CoachSessionListPage() {
+  const f = await getFormatter();
   const { data, error } = await listCoachSessions();
   if (error) return (<div className="animate-fade-up"><PageHeader title="Attendance" /><ErrorState title="Couldn't load sessions" message={error} /></div>);
   const sessions = data!;
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const groups = new Map<string, typeof sessions>();
   for (const s of sessions) {
-    const key = formatDate(s.startsAt);
+    const key = f.date(s.startsAt);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(s);
   }
@@ -36,7 +37,7 @@ export default async function CoachSessionListPage() {
                         <div className="min-w-0">
                           <div className="font-medium text-ink">{s.programName}</div>
                           <div className="mt-0.5 flex items-center gap-x-3 text-xs text-ink-3">
-                            <span className="flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" />{formatTime(s.startsAt)}</span>
+                            <span className="flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" />{f.time(s.startsAt)}</span>
                             {s.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{s.location}</span>}
                           </div>
                         </div>

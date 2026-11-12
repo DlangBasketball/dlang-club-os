@@ -5,11 +5,13 @@ import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, Error
 import { RosterManager } from "@/components/teams/roster-manager";
 import { EventList } from "@/components/schedule/event-views";
 import { getTeam, listAthleteOptions, listUpcomingEvents, rsvpCounts } from "@/lib/sportsops/data";
-import { LABELS } from "@/lib/sportsops/labels";
+import { labelsFor } from "@/lib/sportsops/labels";
+import { getTenant } from "@/lib/tenant/server";
 
 export const metadata = { title: "Team" };
 
 export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const LABELS = labelsFor((await getTenant()).terminology);
   const { id } = await params;
   const [team, athletes, upcoming] = await Promise.all([getTeam(id), listAthleteOptions(), listUpcomingEvents({ teamIds: [id], limit: 8 })]);
   const error = team.error ?? athletes.error ?? upcoming.error;

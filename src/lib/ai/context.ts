@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
-import { formatCHF, formatDate } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export type Bundle = { text: string; hasData: boolean };
 
@@ -19,6 +19,7 @@ function age(dob: string | null): string {
  * payment-card data are deliberately EXCLUDED from what the model ever sees.
  */
 export async function buildParentContext(): Promise<Bundle> {
+  const f = await getFormatter();
   const sb = await createClient();
   const [fam, ath, regs, inv, bk] = await Promise.all([
     sb.from("families").select("name"),
@@ -51,15 +52,16 @@ export async function buildParentContext(): Promise<Bundle> {
   lines.push("REGISTRATIONS:");
   for (const r of regs.data ?? []) lines.push(`- ${aName.get(r.athlete_id) ?? "Child"} — ${pName.get(r.program_id ?? "") ?? "Program"} (${r.status})`);
   lines.push("INVOICES:");
-  for (const i of inv.data ?? []) lines.push(`- ${i.number} — ${formatCHF(Number(i.total_chf))} — ${i.status}${i.due_date ? ` — due ${formatDate(i.due_date)}` : ""}`);
+  for (const i of inv.data ?? []) lines.push(`- ${i.number} — ${f.money(Number(i.total_chf))} — ${i.status}${i.due_date ? ` — due ${f.date(i.due_date)}` : ""}`);
   lines.push("BOOKINGS:");
-  for (const b of bk.data ?? []) lines.push(`- ${sName.get(b.service_id ?? "") ?? "Session"} with ${cName.get(b.coach_id ?? "") ?? "coach"} — ${formatDate(b.slot_start)} (${b.status})`);
+  for (const b of bk.data ?? []) lines.push(`- ${sName.get(b.service_id ?? "") ?? "Session"} with ${cName.get(b.coach_id ?? "") ?? "coach"} — ${f.date(b.slot_start)} (${b.status})`);
   lines.push("\nNote: medical records and payment-card details are intentionally not available here.");
   return { text: lines.join("\n"), hasData: true };
 }
 
 /** ADMIN context: org-wide aggregates via the admin client (admin is authorised org-wide). */
 export async function buildAdminContext(): Promise<Bundle> {
+  const f = await getFormatter();
   const me = await getSessionUser();
   if (!me?.orgId) return { text: "No organization.", hasData: false };
   const admin = createAdminClient();
@@ -85,14 +87,14 @@ export async function buildAdminContext(): Promise<Bundle> {
   const { data: recentSessions } = await admin.from("attendance_sessions").select("id,created_at").eq("org_id", org).order("created_at", { ascending: false }).limit(5);
 
   const lines = [
-    `CLUB OPERATIONS SUMMARY (as of ${formatDate(new Date().toISOString())}):`,
+    `CLUB OPERATIONS SUMMARY (as of ${f.date(new Date().toISOString())}):`,
     `- Families: ${families}`,
     `- Athletes: ${athletes}`,
     `- Confirmed registrations: ${activeRegs}`,
     `- Invoices: ${invPaid} paid, ${invSent} sent, ${invOverdue} overdue`,
-    `- Outstanding (sent + overdue): ${formatCHF(outstanding)}`,
+    `- Outstanding (sent + overdue): ${f.money(outstanding)}`,
     `- Active bookings: ${bookings}`,
-    `- Recent registrations (last 5): ${(recentReg ?? []).map((r) => `${r.status} ${formatDate(r.created_at)}`).join("; ") || "none"}`,
+    `- Recent registrations (last 5): ${(recentReg ?? []).map((r) => `${r.status} ${f.date(r.created_at)}`).join("; ") || "none"}`,
     `- Recent attendance sessions: ${(recentSessions ?? []).length}`,
   ];
   return { text: lines.join("\n"), hasData: true };
@@ -100,12 +102,13 @@ export async function buildAdminContext(): Promise<Bundle> {
 
 /** COACH context: only sessions/rosters assigned to this coach (RLS-scoped session client). */
 export async function buildCoachContext(): Promise<Bundle> {
+  const f = await getFormatter();
   const sb = await createClient();
   const { data: sessions } = await sb.from("attendance_sessions").select("id,session_date,status,roster_size").order("session_date", { ascending: false }).limit(15);
   const list = sessions ?? [];
   if (list.length === 0) return { text: "No assigned sessions found.", hasData: false };
   const lines = ["YOUR ASSIGNED ATTENDANCE SESSIONS:"];
-  for (const s of list) lines.push(`- ${s.session_date ? formatDate(s.session_date) : "session"} — status ${s.status} — roster ${s.roster_size ?? 0}`);
+  for (const s of list) lines.push(`- ${s.session_date ? f.date(s.session_date) : "session"} — status ${s.status} — roster ${s.roster_size ?? 0}`);
   lines.push("\nNote: you do not have access to financial or medical information.");
   return { text: lines.join("\n"), hasData: true };
 }

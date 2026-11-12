@@ -1,6 +1,7 @@
 import { ClipboardList, CheckSquare, FileCheck } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardBody, EmptyState } from "@/components/ui";
-import { timeAgo, formatDate } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 import type { TimelineEvent } from "@/lib/data/athletes";
 
 const ICON = {
@@ -16,7 +17,8 @@ const DOT = {
   neutral: "bg-ink-4",
 } as const;
 
-export function ActivityTimeline({ events }: { events: TimelineEvent[] }) {
+export async function ActivityTimeline({ events }: { events: TimelineEvent[] }) {
+  const f = await getFormatter();
   return (
     <Card>
       <CardHeader><CardTitle>Activity timeline</CardTitle></CardHeader>
@@ -39,7 +41,7 @@ export function ActivityTimeline({ events }: { events: TimelineEvent[] }) {
                       </div>
                       {e.sublabel && <div className="mt-0.5 text-xs text-ink-3 capitalize">{e.sublabel}</div>}
                     </div>
-                    <time className="shrink-0 text-xs text-ink-4" title={formatDate(e.at)}>{timeAgo(e.at)}</time>
+                    <time className="shrink-0 text-xs text-ink-4" title={f.date(e.at)}>{timeAgo(e.at)}</time>
                   </div>
                 </li>
               );

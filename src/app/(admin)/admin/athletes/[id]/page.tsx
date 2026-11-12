@@ -12,9 +12,9 @@ import { getAthleteDetail } from "@/lib/data/athletes";
 import { getFamily } from "@/lib/data/families";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { deleteAthlete } from "@/lib/actions/athlete";
-import { formatDate } from "@/lib/utils";
 import { athleteAttendanceHistory } from "@/lib/data/attendance-admin";
 import { AlertTriangle } from "lucide-react";
+import { getFormatter } from "@/lib/i18n/server";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -26,6 +26,7 @@ function Detail({ label, value }: { label: string; value: string | null }) {
 }
 
 export default async function AthleteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const f = await getFormatter();
   const { id } = await params;
   const [{ data, error }, user] = await Promise.all([getAthleteDetail(id), getSessionUser()]);
   if (error) return <ErrorState title="Couldn't load athlete" message={error} />;
@@ -64,7 +65,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
           <Card>
             <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
             <CardBody className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <Detail label="Date of birth" value={formatDate(a.dob)} />
+              <Detail label="Date of birth" value={f.date(a.dob)} />
               <Detail label="Gender" value={a.gender} />
               <Detail label="Nationality" value={a.nationality} />
               <Detail label="School" value={a.school} />
@@ -113,7 +114,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
                         {a.injury && <AlertTriangle className="h-3.5 w-3.5 text-danger" />}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-ink-3">{formatDate(a.date)}</span>
+                        <span className="text-xs text-ink-3">{f.date(a.date)}</span>
                         <Badge tone={statusTone(a.status)}>{a.status}</Badge>
                       </div>
                     </li>

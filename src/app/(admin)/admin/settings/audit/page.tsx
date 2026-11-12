@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardBody, DataTable, Badge, type Column } from "@/components/ui";
 import { listAuditLogs, auditTables, type AuditEntry } from "@/lib/data/audit";
-import { formatDate, formatTime, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function AuditPage({ searchParams }: { searchParams: Promise<{ table?: string }> }) {
+  const f = await getFormatter();
   const sp = await searchParams;
   const [rows, tables] = await Promise.all([listAuditLogs({ table: sp.table, limit: 150 }), auditTables()]);
   const cols: Column<AuditEntry>[] = [
-    { key: "createdAt", header: "When", render: (r) => <span className="whitespace-nowrap text-ink-2">{formatDate(r.createdAt)} {formatTime(r.createdAt)}</span> },
+    { key: "createdAt", header: "When", render: (r) => <span className="whitespace-nowrap text-ink-2">{f.date(r.createdAt)} {f.time(r.createdAt)}</span> },
     { key: "actorName", header: "Actor", render: (r) => r.actorName },
     { key: "action", header: "Action", render: (r) => <Badge tone="neutral">{r.action}</Badge> },
     { key: "targetTable", header: "Table", render: (r) => <span className="text-ink-3">{r.targetTable ?? "—"}</span> },

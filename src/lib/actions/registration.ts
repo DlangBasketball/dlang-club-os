@@ -7,11 +7,10 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/get-user";
-import { getOrgName } from "@/lib/data/org-name";
+import { getOrgEmailContext } from "@/lib/email/org-context";
 import { getOrgAlertRecipients } from "@/lib/data/org-alert-recipients";
 import { sendEmail } from "@/lib/email/resend";
 import { registrationConfirmation, adminRegistrationAlert } from "@/lib/email/templates";
-import { formatDate } from "@/lib/utils";
 import type { Json } from "@/types/database";
 
 // ---------------------------------------------------------------------------
@@ -137,18 +136,19 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
 
   // Confirmation + admin alert. Email failure must NOT roll back the (committed) registration.
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
     const childNames = data.children.map((c) => `${c.firstName} ${c.lastName}`);
-    const clubName = await getOrgName(program.org_id);
+    // The club's own name, brand, currency, time zone and host (never the platform apex).
+    const org = await getOrgEmailContext(program.org_id);
+    const clubName = org.clubName;
     const conf = registrationConfirmation({
-      clubName,
+      ...org.brand,
       parentName: data.parent.name,
       programName: program.name,
       children: childNames,
       invoiceNumber,
       totalChf: total,
-      dueDateLabel: formatDate(new Date(Date.now() + 14 * 864e5)),
-      manageUrl: `${siteUrl}/login`,
+      dueDateLabel: org.f.date(new Date(Date.now() + 14 * 864e5)),
+      manageUrl: org.link("/login"),
     });
     await sendEmail({ to: data.parent.email, subject: conf.subject, html: conf.html, fromName: clubName });
 
@@ -157,7 +157,7 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
     const adminInboxes = await getOrgAlertRecipients(program.org_id);
     if (adminInboxes.length) {
       const alert = adminRegistrationAlert({
-        clubName,
+        ...org.brand,
         programName: program.name,
         parentName: data.parent.name,
         children: childNames,

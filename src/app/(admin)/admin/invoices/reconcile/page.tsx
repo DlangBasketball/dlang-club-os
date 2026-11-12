@@ -3,7 +3,6 @@ import { Landmark } from "lucide-react";
 import { PageHeader, Card, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { listAwaitingPayment } from "@/lib/data/reconciliation";
 import { MarkPaidButton } from "@/components/invoice/mark-paid-button";
-import { formatDate } from "@/lib/utils";
 import { getFormatter } from "@/lib/i18n/server";
 
 export default async function ReconcilePage() {
@@ -28,7 +27,7 @@ export default async function ReconcilePage() {
                     <Badge tone={statusTone(r.status)}>{r.status.replace("_", " ")}</Badge>
                   </div>
                   <div className="text-sm text-ink-2">{r.familyName}</div>
-                  <div className="mt-1 text-xs text-ink-3">Ref <span className="tnum text-ink-2">{r.reference}</span> · due {formatDate(r.dueDate)}</div>
+                  <div className="mt-1 text-xs text-ink-3">Ref <span className="tnum text-ink-2">{r.reference}</span> · due {f.date(r.dueDate)}</div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">

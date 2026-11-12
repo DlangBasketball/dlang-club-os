@@ -1,9 +1,10 @@
 import { CheckSquare } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
-import { formatDate } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function ParentAttendancePage() {
+  const f = await getFormatter();
   const supabase = await createClient();
   // RLS scopes athletes to the guardian's own children.
   const { data: kids } = await supabase.from("athletes").select("id,first_name,last_name").order("first_name");
@@ -29,7 +30,7 @@ export default async function ParentAttendancePage() {
               <ul>
                 {s.rows.map((r, i) => (
                   <li key={i} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
-                    <div><div className="text-sm text-ink">{r.program_name ?? "Session"}</div><div className="text-xs text-ink-3">{formatDate(r.session_date)}</div></div>
+                    <div><div className="text-sm text-ink">{r.program_name ?? "Session"}</div><div className="text-xs text-ink-3">{f.date(r.session_date)}</div></div>
                     <Badge tone={statusTone(r.status)}>{r.status}</Badge>
                   </li>
                 ))}

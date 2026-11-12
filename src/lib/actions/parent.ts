@@ -7,7 +7,6 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { bookingConfirmation, coachBookingAlert } from "@/lib/email/templates";
-import { formatDate, formatTime } from "@/lib/utils";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 

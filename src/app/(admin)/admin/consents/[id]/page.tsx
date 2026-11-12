@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, CheckCircle2, XCircle } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, DataTable, type Column } from "@/components/ui";
 import { consentAudit, type Acceptance } from "@/lib/data/consents-admin";
-import { formatDate } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function ConsentAuditPage({ params }: { params: Promise<{ id: string }> }) {
+  const f = await getFormatter();
   const { id } = await params;
   const { form, accepted, notAccepted } = await consentAudit(id);
   if (!form) notFound();
@@ -14,7 +15,7 @@ export default async function ConsentAuditPage({ params }: { params: Promise<{ i
     { key: "athleteName", header: "Athlete", render: (r) => r.athleteName },
     { key: "parentName", header: "Accepted by", render: (r) => r.parentName },
     { key: "version", header: "Version", render: (r) => `v${r.version}` },
-    { key: "acceptedAt", header: "Date", render: (r) => formatDate(r.acceptedAt) },
+    { key: "acceptedAt", header: "Date", render: (r) => f.date(r.acceptedAt) },
     { key: "ip", header: "IP", render: (r) => <span className="tnum text-xs text-ink-3">{r.ip ?? "—"}</span> },
     { key: "snap", header: "Snapshot", render: (r) => (r.hasSnapshot ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-ink-4" />) },
   ];

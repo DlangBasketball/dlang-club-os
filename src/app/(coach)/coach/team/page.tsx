@@ -4,11 +4,13 @@ import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, Empty
 import { RosterManager } from "@/components/teams/roster-manager";
 import { EventList } from "@/components/schedule/event-views";
 import { getMyCoachTeams, listUpcomingEvents, rsvpCounts } from "@/lib/sportsops/data";
-import { LABELS } from "@/lib/sportsops/labels";
+import { labelsFor } from "@/lib/sportsops/labels";
+import { getTenant } from "@/lib/tenant/server";
 
 export const metadata = { title: "My team" };
 
 export default async function CoachTeamPage({ searchParams }: { searchParams: Promise<{ team?: string }> }) {
+  const LABELS = labelsFor((await getTenant()).terminology);
   const sp = await searchParams;
   const teams = await getMyCoachTeams();
   if (teams.error !== null) return <div className="animate-fade-up"><PageHeader title={`My ${LABELS.team.toLowerCase()}`} /><ErrorState message={teams.error} /></div>;

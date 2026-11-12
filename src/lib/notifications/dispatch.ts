@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
+import { getOrgEmailContext } from "@/lib/email/org-context";
 import { render, ENUM_FOR, type NotifType, type NotifVars } from "./templates";
 
 export type DispatchResult = { notificationId: string | null; emailLogId: string | null; emailOk: boolean };
@@ -21,12 +22,10 @@ export async function dispatchNotification(opts: {
   email?: boolean; // default true when toEmail is present
 }): Promise<DispatchResult> {
   const admin = createAdminClient();
-  let clubName = opts.vars.club_name ?? null;
-  if (!clubName) {
-    const { data: org } = await admin.from("organizations").select("name").eq("id", opts.orgId).maybeSingle();
-    clubName = (org as { name?: string } | null)?.name ?? null;
-  }
-  const r = render(opts.type, { ...opts.vars, ...(clubName ? { club_name: clubName } : {}) });
+  // The issuing club's own name, brand, currency, time zone and host.
+  const org = await getOrgEmailContext(opts.orgId);
+  const clubName = opts.vars.club_name ?? org.clubName;
+  const r = render(opts.type, { ...opts.vars, ...(clubName ? { club_name: clubName } : {}) }, { ...org.brand, timeZone: org.f.timeZone, baseUrl: org.baseUrl });
   const result: DispatchResult = { notificationId: null, emailLogId: null, emailOk: false };
 
   // 1. In-app notification (only if we have a recipient profile)

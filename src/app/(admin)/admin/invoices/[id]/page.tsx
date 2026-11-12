@@ -8,7 +8,7 @@ import { ManualPaymentForm } from "@/components/invoice/manual-payment-form";
 import { PaymentMethods } from "@/components/invoice/payment-methods";
 import { getPaymentSettings, getAcceptedMethods } from "@/lib/data/payment-settings";
 import { formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
-import { formatDate, timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import { getFormatter } from "@/lib/i18n/server";
 
 const METHOD_LABEL: Record<string, string> = { card: "Card", bank_transfer: "Bank transfer", twint: "TWINT", manual: "Cash / manual", qr_bill: "QR-bill" };
@@ -81,7 +81,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                     <li key={p.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
                       <div>
                         <div className="text-sm text-ink">{METHOD_LABEL[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""}</div>
-                        <div className="text-xs text-ink-3">{formatDate(p.paidAt)}{p.notes ? ` · ${p.notes}` : ""}</div>
+                        <div className="text-xs text-ink-3">{f.date(p.paidAt)}{p.notes ? ` · ${p.notes}` : ""}</div>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="tnum text-sm text-success">+ {f.money(p.amount)}</span>
@@ -122,8 +122,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               <div className="flex items-center gap-2 font-medium text-ink"><Users className="h-4 w-4" />{data.family.name}</div>
               {data.family.contactName && <div className="text-ink-2">{data.family.contactName}</div>}
               {data.family.contactEmail && <div className="text-ink-3">{data.family.contactEmail}</div>}
-              <div className="pt-2 text-ink-3">Issued {formatDate(data.issuedAt)}</div>
-              <div className="text-ink-3">Due {formatDate(data.dueDate)}</div>
+              <div className="pt-2 text-ink-3">Issued {f.date(data.issuedAt)}</div>
+              <div className="text-ink-3">Due {f.date(data.dueDate)}</div>
             </CardBody>
           </Card>
 

@@ -312,3 +312,42 @@ export function createFormatter(ctx: FormatContext = {}) {
     weekdayNames: (width?: "long" | "short" | "narrow") => weekdayNames(locale, width),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Wall-clock time in a zone -> UTC instant
+// ---------------------------------------------------------------------------
+
+/** Offset (ms) of `timeZone` from UTC at the instant `utcMs`. */
+function zoneOffsetMs(utcMs: number, timeZone: string): number {
+  const parts = dateFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(new Date(utcMs));
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+  const asUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour") % 24, get("minute"), get("second"));
+  return asUtc - Math.floor(utcMs / 1000) * 1000;
+}
+
+/**
+ * The UTC instant at which the clock in `timeZone` reads `date` + `time`
+ * ("2026-11-20", "17:00"). Use it for times an admin types in, so a 17:00
+ * slot is 17:00 in the club's time zone, whatever the browser's zone is.
+ * Returns null for malformed input. In a DST gap the later offset wins.
+ */
+export function zonedWallTimeToUtc(date: string, time: string, timeZone: string = FORMAT_DEFAULTS.timeZone): Date | null {
+  const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  const tm = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(time);
+  if (!dm || !tm) return null;
+  const wall = Date.UTC(+dm[1], +dm[2] - 1, +dm[3], +tm[1], +tm[2], +(tm[3] ?? 0));
+  if (Number.isNaN(wall)) return null;
+  let utc = wall - zoneOffsetMs(wall, timeZone);
+  // Second pass corrects for a DST change between the guess and the answer.
+  utc = wall - zoneOffsetMs(utc, timeZone);
+  return new Date(utc);
+}

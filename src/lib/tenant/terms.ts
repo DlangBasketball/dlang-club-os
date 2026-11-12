@@ -67,3 +67,27 @@ export function makeTerm(terminology: Terminology) {
   return (key: TermKey, opts?: TermOptions) => term(terminology, key, opts);
 }
 export type TermFn = ReturnType<typeof makeTerm>;
+
+/** True when the tenant renamed `key` (e.g. athlete -> Student). */
+export function isCustomTerm(terminology: Terminology | undefined, key: TermKey): boolean {
+  const t = terminology?.[key];
+  const d = DEFAULT_TERMINOLOGY[key];
+  return Boolean(t && (t.one !== d.one || t.other !== d.other));
+}
+
+/**
+ * Label for a UI string that names a configurable concept: the tenant's own
+ * word when it renamed the concept, otherwise the translated catalogue label
+ * (so an untouched tenant still gets "Athlètes" / "Athleten" in fr/de).
+ */
+export function termOr(terminology: Terminology | undefined, key: TermKey, translated: string, opts: TermOptions = {}): string {
+  return isCustomTerm(terminology, key) ? term(terminology, key, opts) : translated;
+}
+
+/** Nav label keys that name a configurable concept, and which term they map to. */
+export const NAV_TERM: Partial<Record<string, { key: TermKey; plural: boolean }>> = {
+  athletes: { key: "athlete", plural: true },
+  programs: { key: "program", plural: true },
+  families: { key: "family", plural: true },
+  children: { key: "athlete", plural: true },
+};

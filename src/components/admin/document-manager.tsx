@@ -5,7 +5,7 @@ import { Upload, Download, Trash2, FileText } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardBody, Button, Input, Label, Badge } from "@/components/ui";
 import { uploadDocument, deleteDocument, getDocumentUrl } from "@/lib/actions/documents";
 import type { AdminDoc, Opt } from "@/lib/data/documents";
-import { formatDate } from "@/lib/utils";
+import { useFormat } from "@/lib/i18n/client";
 
 const SCOPES = [
   { v: "global", label: "All members (global)" },
@@ -17,6 +17,7 @@ const KINDS = ["other", "consent_pdf", "medical", "insurance", "photo"] as const
 const SCOPE_TONE: Record<string, "neutral" | "success" | "warning" | "maroon"> = { global: "success", program: "warning", family: "neutral", athlete: "maroon" };
 
 export function DocumentManager({ docs, targets }: { docs: AdminDoc[]; targets: { programs: Opt[]; families: Opt[]; athletes: Opt[] } }) {
+  const f = useFormat();
   const router = useRouter();
   const [scope, setScope] = React.useState<string>("global");
   const [targetId, setTargetId] = React.useState("");
@@ -84,7 +85,7 @@ export function DocumentManager({ docs, targets }: { docs: AdminDoc[]; targets: 
                     <FileText className="h-4 w-4 shrink-0 text-ink-3" />
                     <div className="min-w-0">
                       <div className="truncate text-sm text-ink">{d.title || d.fileName || "Document"}</div>
-                      <div className="truncate text-xs text-ink-3">{d.targetName} · {formatDate(d.createdAt)}{d.sizeBytes ? ` · ${(d.sizeBytes / 1024).toFixed(0)} KB` : ""}</div>
+                      <div className="truncate text-xs text-ink-3">{d.targetName} · {f.date(d.createdAt)}{d.sizeBytes ? ` · ${(d.sizeBytes / 1024).toFixed(0)} KB` : ""}</div>
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">

@@ -118,3 +118,44 @@ export async function getRosterForProgramSession(
     })),
   });
 }
+
+export type CoachBooking = {
+  id: string;
+  serviceName: string;
+  athleteName: string | null;
+  startsAt: string;
+  endsAt: string | null;
+  status: string;
+};
+
+/** Upcoming 1:1 / player-development bookings with the signed-in coach.
+ *  RLS (bookings_select: coach_id = current_coach_id()) limits the rows; the
+ *  athlete name only shows when the coach may read that athlete. */
+export async function listCoachBookings(): Promise<Result<CoachBooking[]>> {
+  const supabase = await createClient();
+  const { data: rows, error } = await supabase
+    .from("training_bookings")
+    .select("id,service_id,athlete_id,slot_start,slot_end,status")
+    .eq("status", "booked")
+    .gte("slot_start", new Date(Date.now() - 2 * 36e5).toISOString())
+    .order("slot_start", { ascending: true })
+    .limit(50);
+  if (error) return fail(error.message);
+  const list = rows ?? [];
+  const svcIds = Array.from(new Set(list.map((b) => b.service_id)));
+  const athIds = Array.from(new Set(list.map((b) => b.athlete_id)));
+  const [svc, ath] = await Promise.all([
+    svcIds.length ? supabase.from("training_services").select("id,name").in("id", svcIds) : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    athIds.length ? supabase.from("athletes").select("id,first_name,last_name").in("id", athIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
+  ]);
+  const sName = new Map(((svc.data ?? []) as { id: string; name: string }[]).map((s) => [s.id, s.name]));
+  const aName = new Map(((ath.data ?? []) as { id: string; first_name: string; last_name: string }[]).map((a) => [a.id, `${a.first_name} ${a.last_name}`.trim()]));
+  return ok(list.map((b) => ({
+    id: b.id,
+    serviceName: sName.get(b.service_id) ?? "Training session",
+    athleteName: aName.get(b.athlete_id) ?? null,
+    startsAt: b.slot_start,
+    endsAt: b.slot_end,
+    status: b.status,
+  })));
+}

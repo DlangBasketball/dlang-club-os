@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { PageHeader, Card, CardBody, Badge, statusTone, ErrorState } from "@/components/ui";
 import { getAttendanceSessionDetail } from "@/lib/data/attendance-admin";
-import { formatDate, formatTime } from "@/lib/utils";
+import { getFormatter } from "@/lib/i18n/server";
 
 export default async function AdminAttendanceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const f = await getFormatter();
   const { id } = await params;
   const { data, error } = await getAttendanceSessionDetail(id);
   if (error) return <ErrorState title="Couldn't load" message={error} />;
@@ -12,7 +13,7 @@ export default async function AdminAttendanceDetailPage({ params }: { params: Pr
 
   return (
     <div className="animate-fade-up space-y-5">
-      <PageHeader title={data.programName} description={`${data.coachName} · ${formatDate(data.date)} ${formatTime(data.date)}`}
+      <PageHeader title={data.programName} description={`${data.coachName} · ${f.date(data.date)} ${f.time(data.date)}`}
         actions={<Badge tone={statusTone(data.status)}>{data.status}</Badge>} />
       <Card>
         <CardBody className="p-0">

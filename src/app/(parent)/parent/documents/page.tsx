@@ -1,12 +1,13 @@
 import { FileText, ShieldCheck } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
 import { listFamilyDocuments, listFamilyConsents } from "@/lib/data/parent";
-import { formatDate } from "@/lib/utils";
 import { DocumentDownload } from "@/components/parent/document-download";
+import { getFormatter } from "@/lib/i18n/server";
 
 const KIND_LABEL: Record<string, string> = { consent_pdf: "Consent PDF", medical: "Medical", insurance: "Insurance", photo: "Photo", other: "Document" };
 
 export default async function ParentDocumentsPage() {
+  const f = await getFormatter();
   const [{ data: docs, error: dErr }, { data: consents }] = await Promise.all([listFamilyDocuments(), listFamilyConsents()]);
   if (dErr) return (<div className="animate-fade-up"><PageHeader title="Documents" /><ErrorState title="Couldn't load documents" message={dErr} /></div>);
 
@@ -22,7 +23,7 @@ export default async function ParentDocumentsPage() {
           ) : (
             <ul>{(docs ?? []).map((d) => (
               <li key={d.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
-                <div><div className="text-sm text-ink">{d.fileName ?? "Document"}</div><div className="text-xs text-ink-3">{d.athleteName ? `${d.athleteName} · ` : ""}{formatDate(d.createdAt)}</div></div>
+                <div><div className="text-sm text-ink">{d.fileName ?? "Document"}</div><div className="text-xs text-ink-3">{d.athleteName ? `${d.athleteName} · ` : ""}{f.date(d.createdAt)}</div></div>
                 <div className="flex items-center gap-2"><Badge tone="neutral">{KIND_LABEL[d.kind] ?? d.kind}</Badge><DocumentDownload id={d.id} /></div>
               </li>
             ))}</ul>
@@ -39,7 +40,7 @@ export default async function ParentDocumentsPage() {
             <ul>{(consents ?? []).map((c, i) => (
               <li key={i} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
                 <span className="flex items-center gap-2 text-sm text-ink"><ShieldCheck className="h-4 w-4 text-success" />{c.title}<span className="text-xs text-ink-3">· {c.athleteName}</span></span>
-                <span className="text-xs text-ink-3">{formatDate(c.acceptedAt)}</span>
+                <span className="text-xs text-ink-3">{f.date(c.acceptedAt)}</span>
               </li>
             ))}</ul>
           )}

@@ -27,9 +27,58 @@ export type InvoicePdfData = {
   /** Issuing club (tenant) identity and the invoice currency. */
   club: { name: string; city?: string | null; country?: string | null };
   currency: string;
+  /** Tenant brand colour (#RRGGBB); default: platform red. */
+  brandColor?: string | null;
+  /** White-label platform name printed under the club name. */
+  platformName?: string | null;
+  /** Footer line on how to pay, built from the club's enabled methods (paymentFooterText). */
+  paymentNote?: string | null;
 };
 
-const MAROON = rgb(0.855, 0.149, 0.153); // #DA2627
+const DEFAULT_BRAND = rgb(0.855, 0.149, 0.153); // #DA2627
+
+function hexToRgb(hex: string | null | undefined) {
+  const m = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(hex ?? "");
+  if (!m) return DEFAULT_BRAND;
+  const h = m[1].length === 3 ? m[1].split("").map((c) => c + c).join("") : m[1];
+  const n = parseInt(h, 16);
+  return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+}
+
+/** Letters the standard fonts lack, mapped to their closest Latin-1 form. */
+const FOLD: Record<string, string> = {
+  "Ł": "L", "ł": "l", "Đ": "D", "đ": "d", "Ħ": "H", "ħ": "h", "ı": "i", "Ŀ": "L", "ŀ": "l",
+  "Ŧ": "T", "ŧ": "t", "ĸ": "k", "Ŋ": "N", "ŋ": "n", "Ə": "E", "ə": "e", "ẞ": "SS",
+  "\u2018": "'", "\u2019": "'", "\u201C": '"', "\u201D": '"', "\u2013": "-", "\u2014": "-", "\u00A0": " ", "\u202F": " ",
+};
+
+/**
+ * Make text drawable with a WinAnsi standard font: keeps every character the
+ * font can encode, folds the rest to their base letter (Č -> C, ő -> o,
+ * Ł -> L, Nguyễn -> Nguyen) and replaces anything left with "?". pdf-lib's
+ * drawText throws on unencodable characters, which used to 500 the invoice.
+ */
+export function toWinAnsi(input: string, supported: ReadonlySet<number>): string {
+  let out = "";
+  for (const ch of input) {
+    const cp = ch.codePointAt(0)!;
+    if (supported.has(cp)) { out += ch; continue; }
+    if (FOLD[ch] !== undefined) { out += FOLD[ch]; continue; }
+    const base = ch.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    out += base && [...base].every((c) => supported.has(c.codePointAt(0)!)) ? base : "?";
+  }
+  return out;
+}
+
+/** "How to pay" footer from the methods the payer can actually use (no TWINT outside CH, etc.). */
+export function paymentFooterText(methods: { key: string; label: string; via: "stripe" | "offline" }[]): string {
+  const online = Array.from(new Set(methods.filter((m) => m.via === "stripe" && m.key !== "manual").map((m) => m.label)));
+  const bank = methods.some((m) => m.via === "offline" && (m.key === "bank_transfer" || m.key === "qr_bill"));
+  if (online.length && bank) return `Pay online (${online.join(", ")}) via your parent account, or by bank transfer to the club account.`;
+  if (online.length) return `Pay online (${online.join(", ")}) via your parent account.`;
+  if (bank) return "Pay by bank transfer to the club account.";
+  return "Please contact the club to arrange payment.";
+}
 const INK = rgb(0.1, 0.1, 0.1);
 const MUTE = rgb(0.45, 0.45, 0.45);
 const LINE = rgb(0.85, 0.85, 0.85);
@@ -39,25 +88,28 @@ const fmtDate = (s: string | null) => (s ? new Date(s).toLocaleDateString("en-GB
 export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
   const chf = (n: number) => `${d.currency} ${n.toFixed(2)}`;
   const place = [d.club.city, d.club.country].filter(Boolean).join(" · ");
-  const initial = (d.club.name.trim().match(/[A-Za-z0-9]/)?.[0] ?? "C").toUpperCase();
+  const initial = (d.club.name.trim().match(/[\p{L}\p{N}]/u)?.[0] ?? "C").toUpperCase();
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595.28, 841.89]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const charset = new Set(font.getCharacterSet());
+  const MAROON = hexToRgb(d.brandColor);
+  const platform = d.platformName?.trim() || process.env.NEXT_PUBLIC_PLATFORM_NAME || "Club OS";
   const { width, height } = page.getSize();
   const M = 50;
   let y = height - M;
 
   const text = (p: PDFPage, s: string, x: number, yy: number, f: PDFFont, size: number, color = INK) =>
-    p.drawText(s, { x, y: yy, size, font: f, color });
+    p.drawText(toWinAnsi(s, charset), { x, y: yy, size, font: f, color });
   const right = (s: string, xRight: number, yy: number, f: PDFFont, size: number, color = INK) =>
-    text(page, s, xRight - f.widthOfTextAtSize(s, size), yy, f, size, color);
+    text(page, s, xRight - f.widthOfTextAtSize(toWinAnsi(s, charset), size), yy, f, size, color);
 
   // Header
   page.drawRectangle({ x: M, y: y - 6, width: 30, height: 30, color: MAROON });
   text(page, initial, M + 9, y + 1, bold, 20, rgb(1, 1, 1));
   text(page, d.club.name, M + 42, y + 8, bold, 15);
-  text(page, place ? `Club OS · ${place}` : "Club OS", M + 42, y - 5, font, 9, MUTE);
+  text(page, place ? `${platform} · ${place}` : platform, M + 42, y - 5, font, 9, MUTE);
   right("INVOICE", width - M, y + 6, bold, 22, MAROON);
   right(d.number, width - M, y - 10, font, 11, MUTE);
   y -= 54;
@@ -114,7 +166,7 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
   right(chf(d.balance), width - M - 8, y, bold, 12, MAROON);
 
   // Footer
-  text(page, "Payment by card or TWINT via your parent account, or bank transfer to the club account.", M, M + 16, font, 9, MUTE);
+  if (d.paymentNote) text(page, d.paymentNote, M, M + 16, font, 9, MUTE);
   text(page, [d.club.name, place].filter(Boolean).join(" · "), M, M, font, 9, MUTE);
 
   // ----- Swiss QR-bill payment part (scaffold; final layout finalised later) -----

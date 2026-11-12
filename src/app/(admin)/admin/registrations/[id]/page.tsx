@@ -4,7 +4,7 @@ import { Mail, Phone, UserCircle, FileText, ShieldCheck } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { getRegistrationDetail } from "@/lib/data/registrations";
 import { RegistrationStatusControl } from "../registration-status-control";
-import { formatDate, timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import { getFormatter } from "@/lib/i18n/server";
 
 export default async function RegistrationDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +33,7 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
             <Link href={`/admin/athletes/${data.athlete.id}`} className="flex items-center gap-2 font-medium text-ink hover:text-maroon">
               <UserCircle className="h-4 w-4" /> {data.athlete.name}
             </Link>
-            <div className="text-ink-3">Born {formatDate(data.athlete.dob)}</div>
+            <div className="text-ink-3">Born {f.date(data.athlete.dob)}</div>
             <div className="pt-2 text-ink-2">Program: <span className="text-ink">{data.program.name}</span></div>
             {data.notes && <div className="text-ink-3">Notes: {data.notes}</div>}
           </CardBody>
@@ -62,7 +62,7 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
             <ul>
               {data.invoices.map((i) => (
                 <li key={i.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
-                  <div><div className="tnum text-sm font-medium text-ink">{i.number}</div><div className="text-xs text-ink-3">Due {formatDate(i.dueDate)}</div></div>
+                  <div><div className="tnum text-sm font-medium text-ink">{i.number}</div><div className="text-xs text-ink-3">Due {f.date(i.dueDate)}</div></div>
                   <div className="flex items-center gap-3"><span className="tnum text-sm">{f.money(i.total)}</span><Badge tone={statusTone(i.status)}>{i.status}</Badge></div>
                 </li>
               ))}
@@ -82,7 +82,7 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
                 <li key={c.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
                   <div className="flex items-center gap-2 text-sm text-ink"><ShieldCheck className="h-4 w-4 text-success" />{c.title}</div>
                   <div className="text-right text-xs text-ink-3">
-                    <div>{formatDate(c.acceptedAt)}</div>
+                    <div>{f.date(c.acceptedAt)}</div>
                     {c.ip && <div className="tnum">IP {c.ip}</div>}
                   </div>
                 </li>

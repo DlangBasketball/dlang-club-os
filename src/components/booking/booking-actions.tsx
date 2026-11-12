@@ -3,12 +3,13 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { cancelBookingAction, rescheduleBookingAction } from "@/lib/actions/booking";
-import { formatDate, formatTime } from "@/lib/utils";
+import { useFormat } from "@/lib/i18n/client";
 
 type Slot = { id: string; coachName: string; start: string };
 export function BookingActions({ bookingId, status, cancellationHours, slotStart, rescheduleSlots }: {
   bookingId: string; status: string; cancellationHours: number; slotStart: string; rescheduleSlots: Slot[];
 }) {
+  const f = useFormat();
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
@@ -47,7 +48,7 @@ export function BookingActions({ bookingId, status, cancellationHours, slotStart
             <div className="space-y-1">
               {rescheduleSlots.map((s) => (
                 <button key={s.id} disabled={busy} onClick={() => doReschedule(s.id)} className="flex w-full items-center justify-between rounded border border-line px-3 py-2 text-left text-sm hover:border-maroon/40 disabled:opacity-50">
-                  <span className="text-ink">{formatDate(s.start)} · {formatTime(s.start)}</span><span className="text-xs text-ink-3">{s.coachName}</span>
+                  <span className="text-ink">{f.date(s.start)} · {f.time(s.start)}</span><span className="text-xs text-ink-3">{s.coachName}</span>
                 </button>
               ))}
             </div>
