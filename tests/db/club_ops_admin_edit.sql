@@ -201,6 +201,21 @@ begin
   perform cot.ok(v = 'OK:0', 'cross-tenant: org B admin cannot edit org A''s series (' || v || ')');
   perform cot.ok(exists (select 1 from public.audit_logs where target_table = 'events' and target_id = 'ebb00000-0000-0000-0000-000000000001'), 'event changes are audit-logged');
 
+  -- venue change: a club venue, then an away location (name + address), audited
+  v := cot.run_as(a_admin, $q$with v as (insert into public.venues (org_id, name, address) values ('aaaa0b00-0000-0000-0000-000000000001', 'Ops Gym', 'Rue 1') returning id)
+        update public.events set venue_id = (select id from v) where id = 'ebb00000-0000-0000-0000-000000000001' returning venue_id::text$q$);
+  perform cot.ok(v like 'OK:%' and v <> 'OK:<null>', 'admin creates a club venue and moves the event there (' || v || ')');
+  v := cot.run_as(a_admin, $q$with u as (update public.events set venue_id = null, location_name = 'Away gym', location_text = 'Main St 5'
+        where id = 'ebb00000-0000-0000-0000-000000000001' returning location_name) select * from u$q$);
+  perform cot.ok(v = 'OK:Away gym', 'event moved to an away location with a name (' || v || ')');
+  perform cot.ok((select count(*) from public.audit_logs where target_table = 'events' and target_id = 'ebb00000-0000-0000-0000-000000000001'
+                   and old_data->>'venue_id' is distinct from new_data->>'venue_id') >= 2, 'venue changes are audited with old and new venue');
+  perform cot.ok(exists (select 1 from public.audit_logs where target_table = 'venues' and action = 'INSERT' and new_data->>'name' = 'Ops Gym'), 'venue creation is audited');
+  v := cot.run_as(b_admin, $q$with u as (update public.venues set name = 'x' where name = 'Ops Gym' returning 1) select count(*)::text from u$q$);
+  perform cot.ok(v = 'OK:0', 'cross-tenant: org B admin cannot edit org A venues (' || v || ')');
+  v := cot.run_as(b_admin, $q$update public.events set venue_id = (select id from public.venues where name = 'Ops Gym') where id = 'ebb00000-0000-0000-0000-000000000001' returning 1$q$);
+  perform cot.ok(v = 'OK:<null>', 'cross-tenant: org B admin cannot move org A events (' || v || ')');
+
   -- ===================== ATTENDANCE ========================================
   v := cot.run_as(a_admin, format($q$select (public.correct_attendance(%L, '[{"athlete_id":"e0b00000-0000-0000-0000-000000000001","status":"late","notes":"knee sore"},{"athlete_id":"e0b00000-0000-0000-0000-000000000003","status":"present"}]'::jsonb, 'arrived late'))->>'changed'$q$, sess));
   perform cot.ok(v = 'OK:2', 'admin corrects a submitted session and adds a late arrival (' || v || ')');

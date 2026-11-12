@@ -34,12 +34,16 @@ async function loadPublicProgram(slug: string): Promise<PublicRegistrationData |
 
   const { data: program } = await supabase
     .from("programs")
-    .select("id,org_id,slug,name,kind,description,price_chf,location,starts_on,ends_on,is_public,is_active")
+    .select("id,org_id,slug,name,kind,description,price_chf,location,starts_on,ends_on,is_public,is_active,registration_opens_at,registration_closes_at")
     .eq("slug", slug)
     .eq("is_public", true)
     .eq("is_active", true)
     .maybeSingle();
   if (!program) return null;
+  // Outside the programme's registration window the page is not offered.
+  const now = Date.now();
+  const w = program as { registration_opens_at?: string | null; registration_closes_at?: string | null };
+  if ((w.registration_opens_at && now < Date.parse(w.registration_opens_at)) || (w.registration_closes_at && now >= Date.parse(w.registration_closes_at))) return null;
 
   const [{ data: forms }, { data: settings }] = await Promise.all([
     supabase

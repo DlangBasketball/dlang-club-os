@@ -1,10 +1,11 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { Button, Input, Label } from "@/components/ui";
 import { FormError } from "@/components/teams/fields";
-import { addVenueSpace, createVenue, setVenueActive } from "@/lib/sportsops/actions";
+import { addVenueSpace, createVenue, setVenueActive, updateVenue } from "@/lib/sportsops/actions";
+import { useT } from "@/lib/i18n/client";
 
 export function VenueForm() {
   const router = useRouter();
@@ -70,5 +71,36 @@ export function VenueRowActions({ venueId, isActive }: { venueId: string; isActi
       <Button size="sm" variant="ghost" onClick={toggle} disabled={busy}>{isActive ? "Deactivate" : "Activate"}</Button>
       {err && <span className="text-xs text-danger">{err}</span>}
     </div>
+  );
+}
+
+/** Inline edit of a venue's name, address, city and capacity (admin). */
+export function VenueEditButton({ venue }: { venue: { id: string; name: string; address: string | null; city: string | null; capacity: number | null } }) {
+  const t = useT();
+  const router = useRouter();
+  const [open, setOpen] = React.useState(false);
+  const [v, setV] = React.useState({ name: venue.name, address: venue.address ?? "", city: venue.city ?? "", capacity: venue.capacity?.toString() ?? "" });
+  const [err, setErr] = React.useState<string | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault(); setBusy(true); setErr(null);
+    const res = await updateVenue(venue.id, { name: v.name, address: v.address, city: v.city, capacity: v.capacity ? Number(v.capacity) : null });
+    setBusy(false);
+    if (!res.ok) return setErr(res.error);
+    setOpen(false); router.refresh();
+  }
+  if (!open) return <Button size="sm" variant="secondary" onClick={() => setOpen(true)}><Pencil className="h-3.5 w-3.5" /> {t("common.edit")}</Button>;
+  return (
+    <form onSubmit={onSubmit} className="grid w-full grid-cols-1 gap-2 rounded-md border border-line p-3 sm:grid-cols-2">
+      <div><Label htmlFor={`ve-n-${venue.id}`}>{t("common.name")}</Label><Input id={`ve-n-${venue.id}`} required maxLength={120} value={v.name} onChange={(e) => setV((s) => ({ ...s, name: e.target.value }))} /></div>
+      <div><Label htmlFor={`ve-a-${venue.id}`}>{t("editOps.venues.address")}</Label><Input id={`ve-a-${venue.id}`} maxLength={200} value={v.address} onChange={(e) => setV((s) => ({ ...s, address: e.target.value }))} /></div>
+      <div><Label htmlFor={`ve-c-${venue.id}`}>{t("editOps.venues.city")}</Label><Input id={`ve-c-${venue.id}`} maxLength={100} value={v.city} onChange={(e) => setV((s) => ({ ...s, city: e.target.value }))} /></div>
+      <div><Label htmlFor={`ve-k-${venue.id}`}>{t("editOps.venues.capacity")}</Label><Input id={`ve-k-${venue.id}`} inputMode="numeric" value={v.capacity} onChange={(e) => setV((s) => ({ ...s, capacity: e.target.value.replace(/\D/g, "").slice(0, 6) }))} /></div>
+      <FormError message={err} />
+      <div className="flex gap-2 sm:col-span-2">
+        <Button type="submit" size="sm" disabled={busy}>{busy ? t("common.saving") : t("common.save")}</Button>
+        <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+      </div>
+    </form>
   );
 }

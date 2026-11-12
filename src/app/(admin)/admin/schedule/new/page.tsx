@@ -15,7 +15,7 @@ export default async function NewEventPage({ searchParams }: { searchParams: Pro
     <div className="animate-fade-up max-w-2xl">
       <PageHeader title="New event" description="Overlapping bookings at the same venue are flagged before you save." />
       <Card><CardBody>
-        <EventForm returnTo="/admin/schedule"
+        <EventForm returnTo="/admin/schedule" canCreateVenue
           initial={{ teamId, date: isDayKey(sp.date) ? sp.date : dayKey(new Date()) }}
           teams={teams.data!.map((t) => ({ id: t.id, name: t.name }))}
           venues={venues.data!.filter((v) => v.isActive).map((v) => ({ id: v.id, name: v.name, spaces: v.spaces }))} />

@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import type { Json } from "@/types/database";
+import { z } from "zod";
+import { getTranslations } from "@/lib/i18n/server";
+import { attendanceCorrectionSchema, dbErrorKey, reasonSchema, zodErrorKey, type AttendanceCorrectionInput } from "@/lib/club-ops/validation";
 
 export type AttendanceMarkInput = {
   athlete_id: string;
@@ -38,4 +41,53 @@ export async function saveAttendance(
     present: number; late: number; absent: number; excused: number; injuries: number; total: number; submitted: boolean;
   };
   return { ok: true, summary };
+}
+
+export type CorrectionResult = { ok: true; changed: number } | { ok: false; error: string };
+
+async function tFail(key: string): Promise<{ ok: false; error: string }> {
+  const t = await getTranslations();
+  return { ok: false, error: t.dynamic(key, undefined, t("editOps.errors.generic")) };
+}
+
+function revalidateAttendance(sessionId: string) {
+  revalidatePath("/admin/attendance");
+  revalidatePath(`/admin/attendance/${sessionId}`);
+  revalidatePath("/coach");
+  revalidatePath("/coach/attendance");
+}
+
+/**
+ * Correct marks after submission: change status, add late arrivals, edit
+ * notes/injury flag, or remove a mark (status null). Admin, or the session's
+ * coach (not once locked). The RPC checks org + role and audits each change.
+ */
+export async function correctAttendance(input: AttendanceCorrectionInput): Promise<CorrectionResult> {
+  const me = await getSessionUser();
+  if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("coach"))) return tFail("editOps.errors.notPermitted");
+  const p = attendanceCorrectionSchema.safeParse(input);
+  if (!p.success) return tFail(zodErrorKey(p.error));
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("correct_attendance", {
+    p_session: p.data.sessionId,
+    p_marks: p.data.marks.map((m) => ({ athlete_id: m.athleteId, status: m.status, notes: m.notes, injury_flag: m.injuryFlag })) as unknown as Json,
+    p_reason: p.data.reason || null,
+  });
+  if (error) return tFail(dbErrorKey(error.message));
+  revalidateAttendance(p.data.sessionId);
+  return { ok: true, changed: Number((data as { changed?: number } | null)?.changed ?? 0) };
+}
+
+/** Reopen a submitted (coach or admin) or locked (admin) session for editing. */
+export async function reopenAttendanceSession(sessionId: string, reason?: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const me = await getSessionUser();
+  if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("coach"))) return tFail("editOps.errors.notPermitted");
+  if (!z.string().uuid().safeParse(sessionId).success) return tFail("editOps.errors.invalidRequest");
+  const r = reasonSchema.safeParse(reason ?? "");
+  if (!r.success) return tFail(zodErrorKey(r.error));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reopen_attendance_session", { p_session: sessionId, p_reason: r.data || null });
+  if (error) return tFail(dbErrorKey(error.message));
+  revalidateAttendance(sessionId);
+  return { ok: true };
 }

@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { AlertTriangle, MapPin } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Badge, Card, EmptyState } from "@/components/ui";
 import type { EventItem } from "@/lib/sportsops/data";
 import { eventTitle, eventTone, eventTypeLabel } from "@/lib/sportsops/labels";
 import { dayKey, fmtDayKey, fmtTime, weekDays } from "@/lib/sportsops/time";
 import { cn } from "@/lib/utils";
+import { EventPlaceView } from "./event-place";
 
-function where(e: EventItem) {
-  if (e.venueName) return e.spaceName ? `${e.venueName} · ${e.spaceName}` : e.venueName;
-  return e.locationText ?? "Location TBC";
-}
 
 function ConflictNote({ e, all }: { e: EventItem; all: Map<string, EventItem> }) {
   if (!e.conflictsWith.length) return null;
@@ -32,7 +29,7 @@ function EventChip({ e, href, all }: { e: EventItem; href: (id: string) => strin
     )} style={e.teamColor ? { borderLeft: `3px solid ${e.teamColor}` } : undefined}>
       <div className="font-mono text-[11px] text-ink-3">{fmtTime(e.startsAt)}–{fmtTime(e.endsAt)}</div>
       <div className="mt-0.5 font-medium text-ink">{eventTitle({ ...e, home_away: e.homeAway })}</div>
-      <div className="mt-0.5 truncate text-ink-3">{where(e)}</div>
+      <div className="mt-0.5 truncate text-ink-3"><EventPlaceView e={e} /></div>
       <ConflictNote e={e} all={all} />
     </Link>
   );
@@ -90,7 +87,7 @@ export function EventList({ events, href, rsvp, empty }: {
                         {e.status !== "scheduled" && <Badge tone={e.status === "cancelled" ? "danger" : e.status === "postponed" ? "warning" : "neutral"}>{e.status}</Badge>}
                         {e.result && <Badge tone={e.result.outcome === "win" ? "success" : e.result.outcome === "loss" ? "danger" : "neutral"}>{e.result.scoreFor}–{e.result.scoreAgainst}</Badge>}
                       </div>
-                      <div className="mt-0.5 flex items-center gap-1 text-xs text-ink-3"><MapPin className="h-3 w-3" />{where(e)}</div>
+                      <div className="mt-0.5 text-xs text-ink-3"><EventPlaceView e={e} /></div>
                       <ConflictNote e={e} all={all} />
                     </div>
                     {c && <div className="text-xs text-ink-3 tnum"><span className="text-success">{c.going} going</span> · {c.maybe} maybe · {c.not_going} out</div>}

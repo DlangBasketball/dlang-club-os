@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, MapPin } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { EventCancelNote, EventPlaceView } from "@/components/schedule/event-place";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, ErrorState } from "@/components/ui";
 import { EventStatusControl, ResultForm, RsvpButtons } from "@/components/schedule/event-controls";
 import { getEvent, getMyCoachTeams } from "@/lib/sportsops/data";
@@ -27,9 +28,10 @@ export default async function CoachEventPage({ params }: { params: Promise<{ id:
       <PageHeader title={eventTitle({ ...e, home_away: e.homeAway })} description={fmtRange(e.startsAt, e.endsAt)} />
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone={eventTone(e.type)}>{eventTypeLabel(e.type)}</Badge>
-        <span className="flex items-center gap-1 text-sm text-ink-2"><MapPin className="h-3.5 w-3.5" />{e.venueName ? `${e.venueName}${e.spaceName ? ` · ${e.spaceName}` : ""}` : e.locationText ?? "TBC"}</span>
-        {manages && <span className="ml-auto"><EventStatusControl eventId={e.id} status={e.status} /></span>}
+        <EventPlaceView e={e} withMap className="text-sm text-ink-2" iconClassName="h-3.5 w-3.5" />
+        {manages && <span className="ml-auto"><EventStatusControl eventId={e.id} status={e.status} seriesId={e.seriesId} /></span>}
       </div>
+      {e.status === "cancelled" && <EventCancelNote reason={e.cancelReason} />}
       {e.notes && <p className="whitespace-pre-wrap text-sm text-ink-2">{e.notes}</p>}
 
       <Card>

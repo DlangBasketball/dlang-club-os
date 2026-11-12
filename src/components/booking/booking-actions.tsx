@@ -6,8 +6,10 @@ import { cancelBookingAction, rescheduleBookingAction } from "@/lib/actions/book
 import { useFormat } from "@/lib/i18n/client";
 
 type Slot = { id: string; coachName: string; start: string };
-export function BookingActions({ bookingId, status, cancellationHours, slotStart, rescheduleSlots }: {
+export function BookingActions({ bookingId, status, cancellationHours, slotStart, rescheduleSlots, hideCancel }: {
   bookingId: string; status: string; cancellationHours: number; slotStart: string; rescheduleSlots: Slot[];
+  /** Admin pages cancel through BookingEditor (with a reason). */
+  hideCancel?: boolean;
 }) {
   const f = useFormat();
   const router = useRouter();
@@ -37,7 +39,7 @@ export function BookingActions({ bookingId, status, cancellationHours, slotStart
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" size="sm" disabled={busy} onClick={() => setShow((s) => !s)}>Reschedule</Button>
-        <Button variant="danger" size="sm" disabled={busy} onClick={doCancel}>Cancel booking</Button>
+        {!hideCancel && <Button variant="danger" size="sm" disabled={busy} onClick={doCancel}>Cancel booking</Button>}
       </div>
       {!within && <p className="text-xs text-warning">Within {cancellationHours}h of the session — cancellation won&apos;t refund credits.</p>}
       {err && <p className="text-sm text-danger">{err}</p>}

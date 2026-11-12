@@ -1,40 +1,41 @@
 import Link from "next/link";
-import { CalendarRange, Plus, MapPin } from "lucide-react";
+import { CalendarRange, Plus, MapPin, Pencil } from "lucide-react";
 import { PageHeader, Button, Card, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { listPrograms } from "@/lib/data/programs-admin";
 import { getI18n } from "@/lib/i18n/server";
 import { getTenant } from "@/lib/tenant/server";
-import { term, termOr } from "@/lib/tenant/terms";
+import { termOr } from "@/lib/tenant/terms";
+
+const TONE = { draft: "warning", published: "success", archived: "neutral" } as const;
 
 export default async function ProgramsPage() {
   const [me, tenant, { t, f }] = await Promise.all([getSessionUser(), getTenant(), getI18n()]);
   const title = termOr(tenant.terminology, "program", t("nav.programs"), { plural: true });
-  const one = term(tenant.terminology, "program", { case: "lower" });
-  if (!me?.orgId) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title="No organization" message="Your account isn't linked to a club yet." /></div>);
+  if (!me?.orgId) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("editOps.common.noOrgTitle")} message={t("editOps.common.noOrg")} /></div>);
   const { data, error } = await listPrograms(me.orgId);
-  if (error) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title="Couldn't load programs" message={error} /></div>);
+  if (error) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("editOps.common.loadFailed")} message={error} /></div>);
   const programs = data!;
   const isAdmin = me.roles.includes("admin");
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title={title} description="Camps, teams and clinics open for registration."
-        actions={isAdmin ? <Link href="/admin/programs/new"><Button><Plus className="h-4 w-4" /> New {one}</Button></Link> : undefined} />
+      <PageHeader title={title} description={t("editOps.programs.listDescription")}
+        actions={isAdmin ? <Link href="/admin/programs/new"><Button><Plus className="h-4 w-4" /> {t("editOps.programs.new")}</Button></Link> : undefined} />
       {programs.length === 0 ? (
-        <EmptyState icon={<CalendarRange className="h-5 w-5" />} title={`No ${term(tenant.terminology, "program", { plural: true, case: "lower" })} yet`}
-          description={isAdmin ? `Create your first ${one} to open registration.` : undefined} />
+        <EmptyState icon={<CalendarRange className="h-5 w-5" />} title={t("editOps.programs.empty")}
+          description={isAdmin ? t("editOps.programs.emptyHint") : undefined} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {programs.map((p) => (
-            <Card key={p.id} className={p.isActive ? undefined : "opacity-60"}>
+            <Card key={p.id} className={p.status === "archived" ? "opacity-60" : undefined}>
               <CardBody>
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-semibold">{p.name}</h3>
-                  <div className="flex shrink-0 gap-1">
+                  <Link href={`/admin/programs/${p.id}`} className="text-base font-semibold text-ink hover:text-maroon">{p.name}</Link>
+                  <div className="flex shrink-0 flex-wrap justify-end gap-1">
                     <Badge tone="neutral">{t.dynamic(`programKind.${p.kind}`, undefined, p.kind)}</Badge>
-                    {p.isPublic && <Badge tone="maroon">public</Badge>}
-                    {!p.isActive && <Badge tone="neutral">inactive</Badge>}
+                    <Badge tone={TONE[p.status]}>{t.dynamic(`editOps.programs.statuses.${p.status}`, undefined, p.status)}</Badge>
+                    {p.isPublic && <Badge tone="maroon">{t("editOps.programs.publicBadge")}</Badge>}
                   </div>
                 </div>
                 {(p.startsOn || p.location) && (
@@ -44,12 +45,19 @@ export default async function ProgramsPage() {
                   </div>
                 )}
                 <div className="mt-3 flex items-center justify-between text-sm text-ink-2">
-                  <span>Capacity <span className="tnum">{p.capacity ? `${p.enrolled} / ${p.capacity}` : p.enrolled}</span></span>
-                  <span className="tnum text-ink">{f.money(p.price)}</span>
+                  <span>{t("editOps.programs.capacity")} <span className="tnum">{p.capacity ? `${p.enrolled} / ${p.capacity}` : p.enrolled}</span></span>
+                  <span className="tnum text-ink">{f.money(p.price, p.currency ?? f.currency)}</span>
                 </div>
-                {p.isPublic && p.slug && (
-                  <Link href={`/register/${p.slug}`} className="mt-2 inline-block text-xs text-maroon hover:underline">Registration page</Link>
-                )}
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                  {p.isPublic && p.status === "published" && p.slug
+                    ? <Link href={`/register/${p.slug}`} className="text-xs text-maroon hover:underline">{t("editOps.programs.registrationPage")}</Link>
+                    : <span />}
+                  {isAdmin && (
+                    <Link href={`/admin/programs/${p.id}/edit`} aria-label={t("editOps.programs.editNamed", { name: p.name })}>
+                      <Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button>
+                    </Link>
+                  )}
+                </div>
               </CardBody>
             </Card>
           ))}

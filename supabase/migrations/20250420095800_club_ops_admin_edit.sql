@@ -9,7 +9,8 @@
 --                   registrations exist; public read only for published rows;
 --                   registration window / age / status enforced for
 --                   non-staff registrations
---   2) events       recurring series (series_id), cancellation reason
+--   2) events       recurring series (series_id), cancellation reason,
+--                   away/other location name (location_name)
 --   3) attendance   post-submission corrections (correct_attendance), reopen
 --                   (reopen_attendance_session), audit rows that never copy
 --                   the private coach note text
@@ -199,6 +200,7 @@ create trigger trg_invoices_a_program_currency
 -- ===========================================================================
 alter table public.events
   add column if not exists series_id     uuid,
+  add column if not exists location_name text,  -- away game / other location (not a club venue)
   add column if not exists cancel_reason text,
   add column if not exists cancelled_at  timestamptz,
   add column if not exists cancelled_by  uuid references public.profiles(id) on delete set null;
@@ -206,6 +208,11 @@ alter table public.events
 do $$ begin
   alter table public.events add constraint events_cancel_reason_len
     check (cancel_reason is null or length(cancel_reason) <= 500);
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  alter table public.events add constraint events_location_name_len
+    check (location_name is null or length(location_name) <= 200);
 exception when duplicate_object then null; end $$;
 
 create index if not exists idx_events_series on public.events(series_id, starts_at) where series_id is not null;
@@ -656,6 +663,9 @@ create trigger trg_audit_events after insert or update or delete on public.event
   for each row execute function public.audit_trigger();
 drop trigger if exists trg_audit_teams on public.teams;
 create trigger trg_audit_teams after insert or update or delete on public.teams
+  for each row execute function public.audit_trigger();
+drop trigger if exists trg_audit_venues on public.venues;
+create trigger trg_audit_venues after insert or update or delete on public.venues
   for each row execute function public.audit_trigger();
 drop trigger if exists trg_audit_training_services on public.training_services;
 create trigger trg_audit_training_services after insert or update or delete on public.training_services

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, MapPin, Pencil } from "lucide-react";
+import { AlertTriangle, Pencil } from "lucide-react";
+import { EventCancelNote, EventPlaceView } from "@/components/schedule/event-place";
 import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, ErrorState } from "@/components/ui";
 import { EventStatusControl, ResultForm, RsvpButtons } from "@/components/schedule/event-controls";
 import { getEvent, listEvents } from "@/lib/sportsops/data";
@@ -30,7 +31,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   }
   const tally = { going: 0, maybe: 0, not_going: 0, none: 0 };
   for (const r of e.rsvps) tally[r.status ?? "none"] += 1;
-  const where = e.venueName ? `${e.venueName}${e.spaceName ? ` · ${e.spaceName}` : ""}` : e.locationText ?? "Location TBC";
   const open = e.status !== "cancelled" && e.status !== "completed" && Date.parse(e.endsAt) > Date.now();
 
   return (
@@ -42,9 +42,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <Badge tone={eventTone(e.type)}>{eventTypeLabel(e.type)}</Badge>
         {e.teamName && e.teamId && <Link href={`/admin/teams/${e.teamId}`}><Badge tone="neutral">{e.teamName}</Badge></Link>}
         {e.homeAway && <Badge>{e.homeAway}</Badge>}
-        <span className="flex items-center gap-1 text-sm text-ink-2"><MapPin className="h-3.5 w-3.5" />{where}</span>
-        <span className="ml-auto">{isAdmin && <EventStatusControl eventId={e.id} status={e.status} canDelete />}</span>
+        <EventPlaceView e={e} withMap className="text-sm text-ink-2" iconClassName="h-3.5 w-3.5" />
+        <span className="ml-auto">{isAdmin && <EventStatusControl eventId={e.id} status={e.status} seriesId={e.seriesId} canDelete />}</span>
       </div>
+
+      {e.status === "cancelled" && <EventCancelNote reason={e.cancelReason} />}
 
       {clashes.length > 0 && (
         <Card className="border-warning"><CardBody className="py-4 text-sm">

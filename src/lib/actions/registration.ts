@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { getTranslations } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -117,6 +118,11 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
   });
   if (error) {
     console.error("[register] rpc error:", error);
+    if (/REGISTRATION_CLOSED|PROGRAM_NOT_OPEN|AGE_OUT_OF_RANGE/.test(error.message ?? "")) {
+      const t = await getTranslations();
+      const key = /AGE_OUT_OF_RANGE/.test(error.message ?? "") ? "editOps.registration.ageOutOfRange" : "editOps.registration.closed";
+      return { ok: false, formError: t(key) };
+    }
     if (/VPC_REQUIRED/.test(error.message ?? "")) {
       return {
         ok: false,

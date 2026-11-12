@@ -1,4 +1,5 @@
-import { CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays } from "lucide-react";
+import { EventCancelNote, EventPlaceView } from "@/components/schedule/event-place";
 import { PageHeader, Card, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
 import { RsvpButtons } from "@/components/schedule/event-controls";
 import { getChildrenSchedule } from "@/lib/sportsops/data";
@@ -30,13 +31,14 @@ export default async function ParentSchedulePage() {
                     <div>
                       <div className="text-xs font-medium uppercase tracking-wide text-ink-3">{fmtDayKey(dayKey(e.startsAt))} · {fmtTime(e.startsAt)}–{fmtTime(e.endsAt)}</div>
                       <div className="mt-0.5 font-semibold text-ink">{eventTitle({ ...e, home_away: e.homeAway })}</div>
-                      <div className="mt-0.5 flex items-center gap-1 text-xs text-ink-3"><MapPin className="h-3 w-3" />{e.venueName ? `${e.venueName}${e.spaceName ? ` · ${e.spaceName}` : ""}` : e.locationText ?? "Location TBC"}</div>
+                      <div className="mt-0.5 text-xs text-ink-3"><EventPlaceView e={e} withMap /></div>
                     </div>
                     <div className="flex gap-1.5">
                       <Badge tone={eventTone(e.type)}>{eventTypeLabel(e.type)}</Badge>
                       {e.status !== "scheduled" && <Badge tone={e.status === "cancelled" ? "danger" : "warning"}>{e.status}</Badge>}
                     </div>
                   </div>
+                  {e.status === "cancelled" && <EventCancelNote reason={e.cancelReason} />}
                   {e.notes && <p className="whitespace-pre-wrap text-sm text-ink-2">{e.notes}</p>}
                   {!closed && (
                     <div className="space-y-2 border-t border-line-soft pt-3">

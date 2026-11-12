@@ -1,8 +1,11 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { getTranslations } from "@/lib/i18n/server";
+import { dbErrorKey, eventScopeSchema, reasonSchema, shiftOccurrences, zodErrorKey, type EventScope } from "@/lib/club-ops/validation";
 import { sportsDb, type ConflictRow } from "./db";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
@@ -37,6 +40,12 @@ const optText = z.string().trim().max(200).optional().transform((v) => (v ? v : 
 const uuid = z.string().uuid();
 const optUuid = z.union([z.string().uuid(), z.literal(""), z.null()]).optional().transform((v) => (v ? v : null));
 const parseErr = (e: z.ZodError) => e.issues.map((i) => `${i.path.join(".") || "input"}: ${i.message}`).join("; ");
+
+/** Translated error for the club-ops edit paths (keys under editOps.*). */
+async function tErr(key: string): Promise<{ ok: false; error: string }> {
+  const t = await getTranslations();
+  return { ok: false, error: t.dynamic(key, undefined, t("editOps.errors.generic")) };
+}
 
 function revalidateAll(teamId?: string | null) {
   revalidatePath("/admin/teams");
@@ -112,6 +121,32 @@ export async function addVenueSpace(venueId: string, name: string): Promise<Acti
   const { error } = await db.from("venue_spaces").insert({ org_id: me.orgId, venue_id: venueId, name: n.data });
   if (error) return { ok: false, error: friendly(error.message) };
   revalidatePath("/admin/schedule/venues");
+  return { ok: true };
+}
+
+const VenueUpdate = z.object({
+  name: z.string().trim().min(1, "editOps.errors.nameRequired").max(120, "editOps.errors.tooLong"),
+  address: z.string().trim().max(200, "editOps.errors.tooLong").optional().transform((v) => (v ? v : null)),
+  city: z.string().trim().max(100, "editOps.errors.tooLong").optional().transform((v) => (v ? v : null)),
+  capacity: z.number().int().min(0).max(200000).nullable().optional(),
+});
+export type VenueUpdateInput = z.input<typeof VenueUpdate>;
+
+/** Edit a club venue (admin). Events keep pointing at it, so changes show everywhere. */
+export async function updateVenue(venueId: string, input: VenueUpdateInput): Promise<ActionResult> {
+  const me = await requireStaff();
+  if (!me) return tErr("editOps.errors.notPermitted");
+  if (!uuid.safeParse(venueId).success) return tErr("editOps.errors.invalidRequest");
+  const p = VenueUpdate.safeParse(input);
+  if (!p.success) return tErr(zodErrorKey(p.error));
+  const db = await sportsDb();
+  const { data, error } = await db.from("venues")
+    .update({ name: p.data.name, address: p.data.address, city: p.data.city, capacity: p.data.capacity ?? null })
+    .eq("id", venueId).eq("org_id", me.orgId!).select("id");
+  if (error) return error.message.includes("duplicate key") ? tErr("editOps.errors.venueExists") : tErr(dbErrorKey(error.message));
+  if (!data?.length) return tErr("editOps.errors.notFound");
+  revalidatePath("/admin/schedule/venues");
+  revalidateAll();
   return { ok: true };
 }
 
@@ -248,6 +283,14 @@ const EventInput = z.object({
   status: z.enum(["scheduled", "postponed", "cancelled", "completed"]).default("scheduled"),
   /** Repeat weekly this many extra times (training blocks). */
   repeatWeeks: z.number().int().min(0).max(52).default(0),
+  /** Away game / other location: optional place name (address goes in locationText). */
+  locationName: optText,
+  /** Create this venue for the club and use it (admin only). */
+  newVenue: z.object({
+    name: z.string().trim().min(1, "editOps.errors.nameRequired").max(120, "editOps.errors.tooLong"),
+    address: optText,
+    city: optText,
+  }).nullable().optional(),
 }).refine((e) => Date.parse(e.endsAt) > Date.parse(e.startsAt), { message: "End must be after start", path: ["endsAt"] })
   .refine((e) => Date.parse(e.endsAt) - Date.parse(e.startsAt) <= 14 * 864e5, { message: "Events can last at most 14 days", path: ["endsAt"] })
   .refine((e) => !e.spaceId || e.venueId, { message: "Pick a venue for the court/field", path: ["spaceId"] });
@@ -274,14 +317,37 @@ export async function checkEventConflicts(args: { venueId: string | null; spaceI
  * bookings at the same venue are returned as warnings and nothing is saved.
  * Same-court overlaps are always refused by the database.
  */
-export async function saveEvent(id: string | null, input: EventInput, force = false): Promise<SaveEventResult> {
+export async function saveEvent(id: string | null, input: EventInput, force = false, scope: EventScope = "one"): Promise<SaveEventResult> {
   const me = await requireStaff(["admin", "coach"]);
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
   const p = EventInput.safeParse(input);
-  if (!p.success) return { ok: false, error: parseErr(p.error) };
+  if (!p.success) {
+    const key = zodErrorKey(p.error);
+    return key === "editOps.errors.invalidRequest" ? { ok: false, error: parseErr(p.error) } : tErr(key);
+  }
+  const sc = eventScopeSchema.safeParse(scope);
+  if (!sc.success) return tErr("editOps.errors.invalidRequest");
   const e = p.data;
   const isGame = e.type === "game" || e.type === "tournament";
   const db = await sportsDb();
+
+  // "+ New venue": saved to the club's venues for reuse (admins only); an
+  // existing venue with the same name is reused instead of duplicated.
+  let venueId = e.venueId;
+  if (e.newVenue) {
+    if (!me.roles.includes("admin")) return tErr("editOps.errors.notPermitted");
+    const { data: existing } = await db.from("venues").select("id,name").eq("org_id", me.orgId!).ilike("name", e.newVenue.name).maybeSingle();
+    if (existing) venueId = existing.id;
+    else {
+      const { data: v, error: vErr } = await db.from("venues")
+        .insert({ org_id: me.orgId, name: e.newVenue.name, address: e.newVenue.address, city: e.newVenue.city })
+        .select("id").single();
+      if (vErr || !v) return tErr(dbErrorKey(vErr?.message));
+      venueId = v.id;
+      revalidatePath("/admin/schedule/venues");
+    }
+  }
+  const spaceId = venueId && venueId === e.venueId ? e.spaceId : null;
 
   let seasonId: string | null = null;
   if (e.teamId) {
@@ -289,53 +355,107 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
     seasonId = team?.season_id ?? null;
   }
   const dur = Date.parse(e.endsAt) - Date.parse(e.startsAt);
-  const occurrences = (id ? [0] : Array.from({ length: e.repeatWeeks + 1 }, (_, i) => i)).map((w) => {
-    const s = new Date(Date.parse(e.startsAt) + w * 7 * 864e5);
-    return { startsAt: s.toISOString(), endsAt: new Date(s.getTime() + dur).toISOString() };
-  });
 
-  if (!force && e.venueId && e.status !== "cancelled") {
+  // Which rows get which times.
+  let targets: { id: string | null; startsAt: string; endsAt: string }[];
+  let seriesId: string | null = null;
+  if (id) {
+    const { data: cur, error: cErr } = await db.from("events").select("id,starts_at,series_id").eq("id", id).eq("org_id", me.orgId!).maybeSingle();
+    if (cErr) return { ok: false, error: friendly(cErr.message) };
+    if (!cur) return { ok: false, error: ERR.EVENT_NOT_FOUND };
+    targets = [{ id, startsAt: e.startsAt, endsAt: e.endsAt }];
+    if (sc.data === "following" && cur.series_id) {
+      const { data: later, error: lErr } = await db.from("events").select("id,starts_at")
+        .eq("org_id", me.orgId!).eq("series_id", cur.series_id).gt("starts_at", cur.starts_at).order("starts_at");
+      if (lErr) return { ok: false, error: friendly(lErr.message) };
+      targets.push(...shiftOccurrences({ oldStart: cur.starts_at, newStart: e.startsAt, newEnd: e.endsAt },
+        (later ?? []).map((r) => ({ id: r.id, startsAt: r.starts_at }))));
+    }
+  } else {
+    targets = Array.from({ length: e.repeatWeeks + 1 }, (_, w) => {
+      const s = new Date(Date.parse(e.startsAt) + w * 7 * 864e5);
+      return { id: null, startsAt: s.toISOString(), endsAt: new Date(s.getTime() + dur).toISOString() };
+    });
+    if (targets.length > 1) seriesId = randomUUID();
+  }
+
+  if (!force && venueId && e.status !== "cancelled") {
     const all: ConflictWarning[] = [];
-    for (const o of occurrences) all.push(...(await checkEventConflicts({ venueId: e.venueId, spaceId: e.spaceId, startsAt: o.startsAt, endsAt: o.endsAt, excludeEventId: id })));
+    const own = new Set(targets.map((o) => o.id).filter(Boolean));
+    for (const o of targets) {
+      const found = await checkEventConflicts({ venueId, spaceId, startsAt: o.startsAt, endsAt: o.endsAt, excludeEventId: o.id });
+      all.push(...found.filter((c) => !own.has(c.eventId)));
+    }
     if (all.length) return { ok: false, error: "Venue conflict", conflicts: all };
   }
 
+  const away = !venueId;
   const base = {
-    team_id: e.teamId, season_id: seasonId, type: e.type, title: e.title, venue_id: e.venueId, venue_space_id: e.spaceId,
-    location_text: e.locationText, opponent: isGame ? e.opponent : null, home_away: isGame ? e.homeAway : null,
+    team_id: e.teamId, season_id: seasonId, type: e.type, title: e.title, venue_id: venueId, venue_space_id: spaceId,
+    location_text: away ? e.locationText : null, location_name: away ? e.locationName : null,
+    opponent: isGame ? e.opponent : null, home_away: isGame ? e.homeAway : null,
     notes: e.notes, status: e.status,
   };
   if (id) {
-    const { error } = await db.from("events").update({ ...base, starts_at: occurrences[0].startsAt, ends_at: occurrences[0].endsAt }).eq("id", id);
-    if (error) return { ok: false, error: friendly(error.message) };
+    for (const o of targets) {
+      const { error } = await db.from("events").update({ ...base, starts_at: o.startsAt, ends_at: o.endsAt }).eq("id", o.id!).eq("org_id", me.orgId!);
+      if (error) return { ok: false, error: friendly(error.message) };
+      revalidatePath(`/admin/schedule/${o.id}`);
+    }
     revalidateAll(e.teamId);
-    revalidatePath(`/admin/schedule/${id}`);
-    return { ok: true, data: { ids: [id] } };
+    return { ok: true, data: { ids: targets.map((o) => o.id!) } };
   }
   const { data, error } = await db.from("events")
-    .insert(occurrences.map((o) => ({ ...base, org_id: me.orgId, created_by: me.id, starts_at: o.startsAt, ends_at: o.endsAt })))
+    .insert(targets.map((o) => ({ ...base, org_id: me.orgId, created_by: me.id, series_id: seriesId, starts_at: o.startsAt, ends_at: o.endsAt })))
     .select("id");
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll(e.teamId);
   return { ok: true, data: { ids: (data ?? []).map((r) => r.id) } };
 }
 
-export async function setEventStatus(id: string, status: "scheduled" | "postponed" | "cancelled" | "completed"): Promise<ActionResult> {
+/** Rows affected by a status change / delete: this event, or this and the later ones of its series. */
+async function scopeIds(db: Awaited<ReturnType<typeof sportsDb>>, orgId: string, id: string, scope: EventScope): Promise<string[] | null> {
+  const { data: cur } = await db.from("events").select("id,starts_at,series_id").eq("id", id).eq("org_id", orgId).maybeSingle();
+  if (!cur) return null;
+  if (scope !== "following" || !cur.series_id) return [cur.id];
+  const { data } = await db.from("events").select("id").eq("org_id", orgId).eq("series_id", cur.series_id).gte("starts_at", cur.starts_at);
+  return (data ?? []).map((r) => r.id);
+}
+
+export async function setEventStatus(
+  id: string,
+  status: "scheduled" | "postponed" | "cancelled" | "completed",
+  opts: { reason?: string; scope?: EventScope } = {},
+): Promise<ActionResult> {
   const me = await requireStaff(["admin", "coach"]);
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
+  if (!uuid.safeParse(id).success || !["scheduled", "postponed", "cancelled", "completed"].includes(status)) return tErr("editOps.errors.invalidRequest");
+  const reason = reasonSchema.safeParse(opts.reason ?? "");
+  if (!reason.success) return tErr(zodErrorKey(reason.error));
+  const sc = eventScopeSchema.safeParse(opts.scope ?? "one");
+  if (!sc.success) return tErr("editOps.errors.invalidRequest");
   const db = await sportsDb();
-  const { error } = await db.from("events").update({ status }).eq("id", id);
+  const ids = await scopeIds(db, me.orgId!, id, sc.data);
+  if (!ids) return { ok: false, error: ERR.EVENT_NOT_FOUND };
+  const patch: Record<string, unknown> = { status };
+  if (status === "cancelled") patch.cancel_reason = reason.data || null;
+  const { error } = await db.from("events").update(patch).in("id", ids).eq("org_id", me.orgId!);
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll();
-  revalidatePath(`/admin/schedule/${id}`);
+  for (const x of ids) revalidatePath(`/admin/schedule/${x}`);
+  revalidatePath(`/coach/team/events/${id}`);
   return { ok: true };
 }
 
-export async function deleteEvent(id: string): Promise<ActionResult> {
+export async function deleteEvent(id: string, scope: EventScope = "one"): Promise<ActionResult> {
   const me = await requireStaff();
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
+  const sc = eventScopeSchema.safeParse(scope);
+  if (!uuid.safeParse(id).success || !sc.success) return tErr("editOps.errors.invalidRequest");
   const db = await sportsDb();
-  const { error } = await db.from("events").delete().eq("id", id);
+  const ids = await scopeIds(db, me.orgId!, id, sc.data);
+  if (!ids) return { ok: false, error: ERR.EVENT_NOT_FOUND };
+  const { error } = await db.from("events").delete().in("id", ids).eq("org_id", me.orgId!);
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll();
   return { ok: true };
