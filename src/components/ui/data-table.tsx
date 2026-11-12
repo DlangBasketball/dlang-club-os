@@ -10,29 +10,44 @@ export type Column<T> = {
   align?: "left" | "right";
 };
 
+/**
+ * DataTable — prototype `.table`: eyebrow headers on a secondary band,
+ * hairline row dividers, row hover tint. Scrolls horizontally on small
+ * screens (the scroll region is keyboard-focusable and labelled).
+ */
 export function DataTable<T extends Record<string, unknown>>({
   columns,
   rows,
   empty,
   getRowKey,
+  caption,
 }: {
   columns: Column<T>[];
   rows: T[];
   empty?: React.ReactNode;
   getRowKey?: (row: T, i: number) => string;
+  /** Visually hidden table caption for screen readers. */
+  caption?: string;
 }) {
   if (rows.length === 0 && empty) return <>{empty}</>;
   return (
     <Card className="overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div
+        className="overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label={caption ?? "Table"}
+      >
+        <table className="w-full border-collapse text-[13.5px]">
+          {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
-            <tr className="border-b border-line-soft text-left">
+            <tr className="border-b border-border bg-bg-secondary text-left">
               {columns.map((c) => (
                 <th
                   key={c.key}
+                  scope="col"
                   className={cn(
-                    "px-5 py-3 text-xs font-medium uppercase tracking-wide text-ink-3",
+                    "whitespace-nowrap px-[18px] py-2.5 text-[10.5px] font-medium uppercase tracking-[0.12em] text-text-muted",
                     c.align === "right" && "text-right",
                     c.className,
                   )}
@@ -46,14 +61,14 @@ export function DataTable<T extends Record<string, unknown>>({
             {rows.map((row, i) => (
               <tr
                 key={getRowKey ? getRowKey(row, i) : i}
-                className="border-b border-line-soft last:border-0 transition-colors hover:bg-surface-elevated/50"
+                className="border-b border-border-soft transition-colors duration-150 last:border-0 hover:bg-surface-elevated"
               >
                 {columns.map((c) => (
                   <td
                     key={c.key}
                     className={cn(
-                      "px-5 py-3.5 text-ink-2",
-                      c.align === "right" && "text-right",
+                      "px-[18px] py-[13px] align-middle text-text-secondary",
+                      c.align === "right" && "text-right tnum",
                     )}
                   >
                     {c.render ? c.render(row) : String(row[c.key] ?? "—")}

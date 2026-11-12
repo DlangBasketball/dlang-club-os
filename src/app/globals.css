@@ -3,94 +3,244 @@
 @tailwind utilities;
 
 /* ===========================================================================
-   DLang Basketball — design tokens (sourced from the prototype)
-   Single source of truth; Tailwind maps semantic utilities to these.
+   Club OS design tokens
+   ---------------------------------------------------------------------------
+   Single source of truth for colour, type, radius, shadow and motion.
+   Defaults = the V1 prototype's "V5 dark luxury" palette (founding tenant:
+   DLang Basketball). Every value is a plain CSS value (hex / px / font list)
+   so a tenant can override any token at runtime by writing it onto :root,
+   e.g. <html style="--brand-primary:#0B5FFF">. Tailwind maps its utilities to
+   these variables (see tailwind.config.ts). Full contract:
+   docs/design/DESIGN_SYSTEM.md
    =========================================================================== */
 :root {
-  /* Backgrounds & surfaces */
-  --bg-main:          #0A0A0A;
-  --bg-secondary:     #121212;
-  --surface-card:     #1A1A1A;
-  --surface-elevated: #222222;
-  --surface-input:    #202020;
+  color-scheme: dark;
 
-  /* Ink / text */
-  --text-primary:     #F1F1F1;
-  --text-secondary:   #B8B8B8;
-  --text-muted:       #636263;
-  --ink-4:            #4A4A4A;
-  --text-inverse:     #FFFFFF;
+  /* ---- Brand (tenant-overridable) -------------------------------------- */
+  --brand-primary:          #DA2627; /* buttons, active nav, key accents   */
+  --brand-primary-dark:     #961F1F; /* hover / pressed                    */
+  --brand-primary-deep:     #321615; /* banners, luxury burgundy surfaces  */
+  --brand-primary-contrast: #FFFFFF; /* text/icons placed ON brand-primary */
+  --brand-primary-text:     #F25555; /* brand colour used AS text on --bg (AA) */
+  --brand-accent:           #C19A45; /* single warm metallic (gold)        */
+  --brand-accent-dark:      #9C7A35;
+  --brand-accent-contrast:  #0A0A0A;
+  --brand-accent-text:      #C19A45;
 
-  /* Lines */
-  --border:           #2A2A2A;
-  --border-soft:      #242424;
+  /* ---- Surfaces --------------------------------------------------------- */
+  --bg:                     #0A0A0A;
+  --bg-secondary:           #121212; /* sidebar, top bar, table heads      */
+  --surface:                #1A1A1A; /* cards                              */
+  --surface-elevated:       #222222; /* popovers, hovers, modals           */
+  --surface-input:          #1F1F1F;
+  --border:                 #2A2A2A;
+  --border-soft:            #1F1F1F;
+  --border-strong:          #3A3A3A;
 
-  /* Brand — maroon */
-  --red-primary:      #DA2627;
-  --red-dark:         #961F1F;
-  --red-deep:         #5B1010;
-  --burgundy-glow:    #321615;
-  --maroon-soft:      rgba(218, 38, 39, 0.12);
+  /* ---- Text (all AA >= 4.5:1 on every surface above) -------------------- */
+  --text:                   #F1F1F1;
+  --text-secondary:         #B8B8B8;
+  --text-muted:             #9A999A;
+  --text-subtle:            #8F8E8F;
+  --text-disabled:          #636263; /* non-essential / decorative only    */
+  --text-inverse:           #FFFFFF;
 
-  /* Semantic */
-  --success:          #2F9E55;
-  --success-soft:     rgba(47, 158, 85, 0.14);
-  --warning:          #D9982E;
-  --warning-soft:     rgba(217, 152, 46, 0.14);
-  --danger:           #DA2627;
-  --danger-soft:      rgba(218, 38, 39, 0.14);
+  /* ---- Status ----------------------------------------------------------- */
+  --success:                #4FAE5F;
+  --success-text:           #4FAE5F;
+  --warning:                #D4A352;
+  --warning-text:           #D4A352;
+  --danger:                 #DA2627;
+  --danger-text:            #F25555;
+  --info:                   #5B8DEF;
+  --info-text:              #7FA6F2;
 
-  /* Radii */
-  --radius:           6px;
-  --radius-md:        12px;
-  --radius-lg:        18px;
+  /* ---- Type ------------------------------------------------------------- */
+  /* --font-fraunces / --font-geist / --font-geist-mono are injected by
+     next/font in src/app/layout.tsx; the literal names are fallbacks. */
+  --font-display: var(--font-fraunces, "Fraunces"), "Iowan Old Style", "Times New Roman", serif;
+  --font-ui:      var(--font-geist, "Geist"), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    var(--font-geist-mono, "Geist Mono"), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* Shadows & glows */
-  --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-md:        0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg:        0 18px 50px rgba(0, 0, 0, 0.45);
-  --glow-red:         0 0 30px rgba(218, 38, 39, 0.18);
-  --glow-red-strong:  0 6px 24px rgba(218, 38, 39, 0.28), 0 0 0 1px rgba(218, 38, 39, 0.40);
-  --shadow-red:       0 0 0 3px rgba(218, 38, 39, 0.22);
+  /* ---- Geometry --------------------------------------------------------- */
+  --radius-sm:   4px;
+  --radius:      6px;
+  --radius-md:   8px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --tap-target:  44px;
 
-  /* Typography (CSS vars are injected by next/font in layout.tsx, with these
-     as fallbacks if fonts fail to load) */
-  --font-display: "Fraunces", "Times New Roman", serif;
-  --font-ui:      "Geist", system-ui, -apple-system, sans-serif;
-  --font-mono:    "Geist Mono", ui-monospace, monospace;
+  /* ---- Elevation -------------------------------------------------------- */
+  --shadow-sm:          0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-md:          0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg:          0 18px 44px rgba(0, 0, 0, 0.55);
+
+  /* ---- Motion ----------------------------------------------------------- */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --duration:    150ms;
+
+  /* ---- Derived (recomputed automatically from the tokens above; tenants
+          normally do not override these) ------------------------------- */
+  --brand-primary-soft: color-mix(in srgb, var(--brand-primary) 12%, transparent);
+  --brand-accent-soft:  color-mix(in srgb, var(--brand-accent) 14%, transparent);
+  --success-soft:       color-mix(in srgb, var(--success) 14%, transparent);
+  --warning-soft:       color-mix(in srgb, var(--warning) 14%, transparent);
+  --danger-soft:        color-mix(in srgb, var(--danger) 14%, transparent);
+  --info-soft:          color-mix(in srgb, var(--info) 14%, transparent);
+  --shadow-glow:        0 0 24px color-mix(in srgb, var(--brand-primary) 18%, transparent);
+  --shadow-glow-strong: 0 6px 24px color-mix(in srgb, var(--brand-primary) 28%, transparent),
+                        0 0 0 1px color-mix(in srgb, var(--brand-primary) 40%, transparent);
+  --focus-ring:         0 0 0 2px var(--bg), 0 0 0 4px color-mix(in srgb, var(--brand-primary) 75%, var(--text));
+  --page-glow:          radial-gradient(1200px 600px at 0% 0%, color-mix(in srgb, var(--brand-primary) 5%, transparent), transparent 60%),
+                        radial-gradient(900px 500px at 100% 100%, color-mix(in srgb, var(--brand-primary-deep) 40%, transparent), transparent 60%);
+
+  /* ---- Legacy aliases (pre-design-system names; kept so existing code and
+          other tracks keep working — prefer the names above) ------------- */
+  --bg-main:          var(--bg);
+  --surface-card:     var(--surface);
+  --text-primary:     var(--text);
+  --ink-4:            var(--text-subtle);
+  --red-primary:      var(--brand-primary);
+  --red-dark:         var(--brand-primary-dark);
+  --red-deep:         var(--brand-primary-dark);
+  --burgundy-glow:    var(--brand-primary-deep);
+  --maroon-soft:      var(--brand-primary-soft);
+  --glow-red:         var(--shadow-glow);
+  --glow-red-strong:  var(--shadow-glow-strong);
+  --shadow-red:       var(--focus-ring);
+}
+
+/* ===========================================================================
+   Light theme — for schools / clubs with light branding.
+   Opt in with <html data-theme="light">, or data-theme="system" to follow
+   the OS. Tenant brand overrides still apply on top.
+   =========================================================================== */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --brand-primary:          #B81E1F;
+  --brand-primary-dark:     #961F1F;
+  --brand-primary-deep:     #F6E7E5;
+  --brand-primary-contrast: #FFFFFF;
+  --brand-primary-text:     #A51C1D;
+  --brand-accent:           #A9832F;
+  --brand-accent-dark:      #8A6A24;
+  --brand-accent-contrast:  #FFFFFF;
+  --brand-accent-text:      #7A5D1F;
+  --bg:                     #FAF8F5;
+  --bg-secondary:           #F3EFE9;
+  --surface:                #FFFFFF;
+  --surface-elevated:       #F7F4EF;
+  --surface-input:          #FFFFFF;
+  --border:                 #E4DFD8;
+  --border-soft:            #EEEAE4;
+  --border-strong:          #CFC8BE;
+  --text:                   #161414;
+  --text-secondary:         #3F3B38;
+  --text-muted:             #5E5A57;
+  --text-subtle:            #6E6A66;
+  --text-disabled:          #A8A39D;
+  --text-inverse:           #FFFFFF;
+  --success:                #2E8540;
+  --success-text:           #2A7339;
+  --warning:                #B7791F;
+  --warning-text:           #8F5F0E;
+  --danger:                 #C42B2C;
+  --danger-text:            #A51C1D;
+  --info:                   #2F64D6;
+  --info-text:              #2552B3;
+  --shadow-sm:              0 1px 2px rgba(22, 20, 20, 0.06);
+  --shadow-md:              0 6px 18px rgba(22, 20, 20, 0.08);
+  --shadow-lg:              0 18px 44px rgba(22, 20, 20, 0.12);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+    --brand-primary:          #B81E1F;
+    --brand-primary-dark:     #961F1F;
+    --brand-primary-deep:     #F6E7E5;
+    --brand-primary-contrast: #FFFFFF;
+    --brand-primary-text:     #A51C1D;
+    --brand-accent:           #A9832F;
+    --brand-accent-dark:      #8A6A24;
+    --brand-accent-contrast:  #FFFFFF;
+    --brand-accent-text:      #7A5D1F;
+    --bg:                     #FAF8F5;
+    --bg-secondary:           #F3EFE9;
+    --surface:                #FFFFFF;
+    --surface-elevated:       #F7F4EF;
+    --surface-input:          #FFFFFF;
+    --border:                 #E4DFD8;
+    --border-soft:            #EEEAE4;
+    --border-strong:          #CFC8BE;
+    --text:                   #161414;
+    --text-secondary:         #3F3B38;
+    --text-muted:             #5E5A57;
+    --text-subtle:            #6E6A66;
+    --text-disabled:          #A8A39D;
+    --text-inverse:           #FFFFFF;
+    --success:                #2E8540;
+    --success-text:           #2A7339;
+    --warning:                #B7791F;
+    --warning-text:           #8F5F0E;
+    --danger:                 #C42B2C;
+    --danger-text:            #A51C1D;
+    --info:                   #2F64D6;
+    --info-text:              #2552B3;
+    --shadow-sm:              0 1px 2px rgba(22, 20, 20, 0.06);
+    --shadow-md:              0 6px 18px rgba(22, 20, 20, 0.08);
+    --shadow-lg:              0 18px 44px rgba(22, 20, 20, 0.12);
+  }
 }
 
 /* ===========================================================================
    Base
    =========================================================================== */
 @layer base {
-  * { border-color: var(--border); }
+  *, ::before, ::after { border-color: var(--border); }
 
   html { -webkit-text-size-adjust: 100%; }
 
   body {
-    background-color: var(--bg-main);
-    color: var(--text-primary);
+    background-color: var(--bg);
+    background-image: var(--page-glow);
+    background-attachment: fixed;
+    color: var(--text);
     font-family: var(--font-ui);
-    font-feature-settings: "ss01";
+    font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     min-height: 100dvh;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.018em;
-    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    font-feature-settings: "ss01";
   }
 
-  /* Tabular, monospaced numerics for money & stats */
+  a { text-underline-offset: 3px; }
+
+  /* Visible, consistent keyboard focus everywhere (WCAG 2.4.7). */
+  :focus { outline: none; }
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  ::placeholder { color: var(--text-subtle); opacity: 1; }
+  ::selection { background: var(--brand-primary-soft); color: var(--text); }
+
+  /* Quiet scrollbars that follow the theme. */
+  * { scrollbar-color: var(--border-strong) transparent; scrollbar-width: thin; }
+
+  /* Tabular, monospaced numerics for money & stats. */
   .tnum { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
-  ::selection { background: var(--maroon-soft); color: var(--text-inverse); }
-
-  /* Subtle film-grain atmosphere, matching the prototype's premium feel */
+  /* Subtle film-grain atmosphere, matching the prototype's premium feel. */
   .grain::before {
     content: "";
     position: fixed;
@@ -100,11 +250,64 @@
     opacity: 0.035;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+  :root[data-theme="light"] .grain::before { opacity: 0.02; }
+}
+
+@layer components {
+  /* Eyebrow / overline label used across the prototype (KPI labels, table
+     heads, field labels). */
+  .eyebrow {
+    font-family: var(--font-ui);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Skip link for keyboard / screen-reader users. */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -100px;
+    z-index: 100;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius);
+    background: var(--brand-primary);
+    color: var(--brand-primary-contrast);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .skip-link:focus-visible { top: 1rem; }
 }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
-  .bg-radial-maroon {
-    background-image: radial-gradient(1200px 600px at 70% -10%, rgba(218,38,39,0.10), transparent 60%);
+
+  /* Guarantees a 44x44 hit area on touch devices without changing the
+     desktop density (WCAG 2.5.5 / Apple HIG). */
+  @media (pointer: coarse) {
+    .touch-target { min-height: var(--tap-target); min-width: var(--tap-target); }
+  }
+
+  .bg-radial-maroon,
+  .bg-radial-brand {
+    background-image: radial-gradient(1200px 600px at 70% -10%, color-mix(in srgb, var(--brand-primary) 10%, transparent), transparent 60%);
+  }
+  .bg-brand-banner {
+    background-image:
+      radial-gradient(400px 200px at 100% 0%, color-mix(in srgb, var(--brand-accent) 14%, transparent), transparent 70%),
+      linear-gradient(135deg, var(--brand-primary-deep), color-mix(in srgb, var(--brand-primary-deep) 55%, var(--bg)));
+  }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Respect users who ask for less motion (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
