@@ -30,6 +30,20 @@ const JSON_OUT = args.has("--json");
 
 // Strings that are legitimately the same across languages.
 const SAME_AS_EN_OK = new Set([
+  "editPeople.optional",
+  "editPeople.consentSource.verbal",
+  "editPeople.athlete.status",
+  "editPeople.programmes.status",
+  "editPeople.programmes.teams",
+  "editPeople.registrations.status",
+  "editPeople.consentSource.online",
+  "editPeople.consents.version",
+  "editPeople.medical.allergies",
+  "editPeople.registrations.program",
+  "editPeople.documents.kind",
+  "editPeople.documentKind.photo",
+  "editPeople.documentScope.program",
+  "athletePhoto.title",
   "auth.statusLabel",
   "nav.import",
   "nav.teams",
