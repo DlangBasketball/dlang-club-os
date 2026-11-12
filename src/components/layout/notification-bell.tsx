@@ -17,8 +17,10 @@ export function NotificationBell({ initial, viewAllHref }: { initial: { items: N
   React.useEffect(() => setItems(initial.items), [initial.items]);
   React.useEffect(() => {
     function onDoc(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
     document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
   }, []);
 
   async function onRead(id: string) {
@@ -36,47 +38,57 @@ export function NotificationBell({ initial, viewAllHref }: { initial: { items: N
 
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen((o) => !o)} aria-label="Notifications" className="relative flex items-center justify-center rounded p-2 text-ink-2 hover:text-ink">
-        <Bell className="h-5 w-5" />
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        className={cn(
+          "touch-target relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-text-muted transition-[color,border-color,box-shadow] duration-150",
+          "hover:border-brand-primary hover:text-brand-primary hover:shadow-glow focus-visible:outline-none focus-visible:shadow-focus",
+          open && "border-brand-primary text-brand-primary",
+        )}
+      >
+        <Bell className="h-[18px] w-[18px]" aria-hidden />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-maroon px-1 text-[10px] font-semibold text-white">
+          <span aria-hidden className="absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-bg-secondary bg-brand-primary px-1 text-[10px] font-semibold text-on-brand shadow-glow">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-line bg-surface-card shadow-2xl">
-          <div className="flex items-center justify-between border-b border-line-soft px-4 py-2.5">
-            <span className="text-sm font-semibold text-ink">Notifications</span>
-            {unread > 0 && <button onClick={onReadAll} className="flex items-center gap-1 text-xs text-ink-3 hover:text-ink"><Check className="h-3.5 w-3.5" /> Mark all read</button>}
+        <div role="dialog" aria-label="Notifications" className="absolute right-0 top-full z-50 mt-2 w-[360px] max-w-[calc(100vw-2rem)] animate-fade-up overflow-hidden rounded-lg border border-border bg-surface shadow-lg">
+          <div className="flex items-center justify-between border-b border-border bg-bg-secondary px-4 py-3">
+            <span className="font-display text-base font-medium text-text">Notifications</span>
+            {unread > 0 && <button onClick={onReadAll} className="touch-target -mr-2 flex items-center gap-1 rounded px-2 text-xs text-text-muted hover:text-text focus-visible:outline-none focus-visible:shadow-focus"><Check className="h-3.5 w-3.5" aria-hidden /> Mark all read</button>}
           </div>
           <div className="max-h-[60vh] overflow-y-auto">
             {items.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-ink-3">You&rsquo;re all caught up.</div>
+              <div className="px-4 py-8 text-center text-sm text-text-muted">You&rsquo;re all caught up.</div>
             ) : (
               items.map((n) => {
                 const Inner = (
-                  <div className={cn("flex items-start gap-2.5 px-4 py-3", !n.readAt && "bg-maroon-soft/30")}>
-                    {!n.readAt && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-maroon" />}
+                  <div className={cn("flex items-start gap-2.5 px-4 py-3", !n.readAt && "bg-brand-primary-soft")}>
+                    {!n.readAt && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-primary shadow-glow" aria-label="Unread" />}
                     <div className={cn("min-w-0 flex-1", n.readAt && "pl-[18px]")}>
-                      <div className="truncate text-sm font-medium text-ink">{n.title}</div>
-                      {n.body && <div className="line-clamp-2 text-xs text-ink-3">{n.body}</div>}
-                      <div className="mt-0.5 text-[11px] text-ink-4">{timeAgo(n.createdAt)}</div>
+                      <div className="truncate text-sm font-medium text-text">{n.title}</div>
+                      {n.body && <div className="line-clamp-2 text-xs text-text-muted">{n.body}</div>}
+                      <div className="mt-0.5 text-[11px] text-text-subtle">{timeAgo(n.createdAt)}</div>
                     </div>
-                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onArchive(n.id); }} aria-label="Archive" className="shrink-0 text-ink-4 hover:text-ink"><X className="h-3.5 w-3.5" /></button>
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onArchive(n.id); }} aria-label="Archive" className="touch-target -m-1.5 shrink-0 rounded p-1.5 text-text-subtle hover:bg-surface-elevated hover:text-text focus-visible:outline-none focus-visible:shadow-focus"><X className="h-3.5 w-3.5" aria-hidden /></button>
                   </div>
                 );
                 return n.link ? (
-                  <Link key={n.id} href={n.link as never} onClick={() => { if (!n.readAt) onRead(n.id); setOpen(false); }} className="block border-b border-line-soft last:border-0 hover:bg-surface-elevated/50">{Inner}</Link>
+                  <Link key={n.id} href={n.link as never} onClick={() => { if (!n.readAt) onRead(n.id); setOpen(false); }} className="block border-b border-border-soft last:border-0 hover:bg-surface-elevated focus-visible:outline-none focus-visible:bg-surface-elevated">{Inner}</Link>
                 ) : (
-                  <div key={n.id} onClick={() => !n.readAt && onRead(n.id)} className="cursor-default border-b border-line-soft last:border-0">{Inner}</div>
+                  <div key={n.id} onClick={() => !n.readAt && onRead(n.id)} className="cursor-default border-b border-border-soft last:border-0">{Inner}</div>
                 );
               })
             )}
           </div>
           {viewAllHref && (
-            <Link href={viewAllHref as never} onClick={() => setOpen(false)} className="block border-t border-line-soft px-4 py-2.5 text-center text-xs font-medium text-maroon hover:bg-surface-elevated/50">View all</Link>
+            <Link href={viewAllHref as never} onClick={() => setOpen(false)} className="block border-t border-border bg-bg-secondary px-4 py-3 text-center text-xs font-medium text-brand-primary hover:bg-surface-elevated focus-visible:outline-none focus-visible:shadow-focus">View all</Link>
           )}
         </div>
       )}
