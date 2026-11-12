@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser, postLoginDestination } from "@/lib/auth/get-user";
+import { isSafeNextPath } from "@/lib/auth/safe-next";
 
 /**
  * Single callback for every email auth flow:
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  if (next) return NextResponse.redirect(`${origin}${next}`);
+  if (next && isSafeNextPath(next)) return NextResponse.redirect(`${origin}${next}`);
 
   const user = await getSessionUser();
   const dest = user ? postLoginDestination(user) : "/login";
