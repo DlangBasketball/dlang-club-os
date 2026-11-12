@@ -81,12 +81,19 @@ export function ChangePlanControl({
 }: {
   orgId: string;
   plans: { code: string; name: string; is_active: boolean }[];
-  current: { plan: string | null; status: string | null; trialEndsAt: string | null; customAmount: number | null };
+  current: {
+    plan: string | null;
+    status: string | null;
+    trialEndsAt: string | null;
+    customAmount: number | null;
+    onboardingWaived?: boolean;
+  };
 }) {
   const [plan, setPlan] = React.useState(current.plan ?? plans[0]?.code ?? "");
   const [status, setStatus] = React.useState("");
   const [trial, setTrial] = React.useState(current.trialEndsAt ? current.trialEndsAt.slice(0, 10) : "");
   const [amount, setAmount] = React.useState(current.customAmount != null ? String(current.customAmount) : "");
+  const [waive, setWaive] = React.useState<"" | "yes" | "no">("");
   const { pending, run, Note } = useAction();
 
   return (
@@ -94,7 +101,9 @@ export function ChangePlanControl({
       className="grid gap-3 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
-        run(() => changeTenantPlan({ orgId, plan, status, trialEndsAt: trial, customAmount: amount }));
+        run(() =>
+          changeTenantPlan({ orgId, plan, status, trialEndsAt: trial, customAmount: amount, waiveOnboarding: waive }),
+        );
       }}
     >
       <div>
@@ -125,7 +134,7 @@ export function ChangePlanControl({
         <Input id="trial" type="date" value={trial} onChange={(e) => setTrial(e.target.value)} />
       </div>
       <div>
-        <Label htmlFor="amount">Custom amount per period (Enterprise)</Label>
+        <Label htmlFor="amount">Custom amount per period (federation deal or founding lock)</Label>
         <Input
           id="amount"
           inputMode="decimal"
@@ -133,6 +142,19 @@ export function ChangePlanControl({
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Leave blank to use list price"
         />
+      </div>
+      <div>
+        <Label htmlFor="waive">Onboarding fee</Label>
+        <select
+          id="waive"
+          className={select}
+          value={waive}
+          onChange={(e) => setWaive(e.target.value as "" | "yes" | "no")}
+        >
+          <option value="">Keep ({current.onboardingWaived ? "waived" : "charged on monthly plans"})</option>
+          <option value="yes">Waive (founding club)</option>
+          <option value="no">Charge on first monthly checkout</option>
+        </select>
       </div>
       <div className="sm:col-span-2 space-y-2">
         <Button type="submit" size="sm" disabled={pending}>

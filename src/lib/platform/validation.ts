@@ -75,7 +75,7 @@ export const PROVISION_ERRORS: Record<string, string> = {
   INVALID_CURRENCY: "Please pick CHF, EUR or USD.",
   INVALID_LOCALE: "Please pick a language.",
   INVALID_FULL_NAME: "Your name is too long.",
-  INVALID_PLAN: "That plan can't be selected online — contact sales for Enterprise.",
+  INVALID_PLAN: "That plan can't be selected online — contact sales for Multi-site & Federation.",
 };
 
 /** Extracts the SQL error code (e.g. SLUG_TAKEN) from a PostgREST error message. */
@@ -120,6 +120,7 @@ export const planPriceSchema = z.object({
   currency: z.enum(CURRENCIES as [string, ...string[]]),
   billing_interval: z.enum(INTERVALS as [string, ...string[]]),
   amount: optionalAmount,
+  onboarding_fee: optionalAmount,
   stripe_price_id: z
     .string()
     .trim()

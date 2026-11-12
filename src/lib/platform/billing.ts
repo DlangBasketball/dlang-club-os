@@ -139,7 +139,20 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Billi
       : null;
   const keepTrial = trialEnd !== null && trialEnd > Math.floor(Date.now() / 1000) + 48 * 3600;
 
-  const metadata = { org_id: input.orgId, plan_code: p.code, interval: input.interval, currency };
+  // One-time onboarding fee: monthly plans only (annual prepay waives it), never
+  // for founding clubs (onboarding_fee_waived) and never twice.
+  const onboardingFee =
+    input.interval === "month" && !s.onboarding_fee_waived && !s.onboarding_fee_paid_at
+      ? Number(price.onboarding_fee ?? 0)
+      : 0;
+
+  const metadata = {
+    org_id: input.orgId,
+    plan_code: p.code,
+    interval: input.interval,
+    currency,
+    onboarding_fee: onboardingFee > 0 ? onboardingFee.toFixed(2) : "0",
+  };
 
   const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = price.stripe_price_id
     ? { price: price.stripe_price_id, quantity: 1 }
@@ -160,7 +173,23 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Billi
     mode: "subscription",
     customer,
     client_reference_id: input.orgId,
-    line_items: [lineItem],
+    line_items:
+      onboardingFee > 0
+        ? [
+            lineItem,
+            {
+              quantity: 1,
+              price_data: {
+                currency: currency.toLowerCase(),
+                unit_amount: Math.round(onboardingFee * 100),
+                product_data: {
+                  name: `${PLATFORM_NAME} — ${p.name} onboarding (one-time)`,
+                  metadata: { plan_code: p.code, kind: "onboarding_fee" },
+                },
+              },
+            },
+          ]
+        : [lineItem],
     allow_promotion_codes: true,
     billing_address_collection: "required",
     tax_id_collection: { enabled: true },
@@ -314,6 +343,16 @@ export async function applyBillingEvent(stripe: Stripe, event: Stripe.Event): Pr
       const res = await syncSubscription(sub, {
         fallbackOrgId: session.metadata?.org_id ?? session.client_reference_id ?? null,
       });
+      // Record a paid onboarding fee so a later re-subscription never charges it again.
+      if (res.orgId && Number(session.metadata?.onboarding_fee ?? 0) > 0 && session.payment_status === "paid") {
+        const db = asPlatform(createAdminClient());
+        const { error } = await db
+          .from("subscriptions")
+          .update({ onboarding_fee_paid_at: new Date().toISOString() })
+          .eq("org_id", res.orgId)
+          .is("onboarding_fee_paid_at", null);
+        if (error) throw new Error(`onboarding fee update failed: ${error.message}`);
+      }
       return { orgId: res.orgId, note: res.skipped };
     }
     case "customer.subscription.created":

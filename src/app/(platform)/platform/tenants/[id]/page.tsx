@@ -116,6 +116,7 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
                   status: sub?.status ?? null,
                   trialEndsAt: sub?.trial_ends_at ?? null,
                   customAmount: sub?.custom_amount ?? null,
+                  onboardingWaived: sub?.onboarding_fee_waived ?? false,
                 }}
               />
             </div>

@@ -58,6 +58,8 @@ export async function changeTenantPlan(input: {
   status: string;
   trialEndsAt: string;
   customAmount: string;
+  /** "" = keep, "yes" = waive onboarding fee (founding club), "no" = charge it. */
+  waiveOnboarding?: "" | "yes" | "no";
 }): Promise<ActionResult> {
   const db = await operatorDb();
   if (!db) return { ok: false, error: CONSOLE_ERRORS.FORBIDDEN };
@@ -81,6 +83,7 @@ export async function changeTenantPlan(input: {
     p_status: input.status || null,
     p_trial_ends_at: trial,
     p_custom_amount: amount,
+    p_waive_onboarding: input.waiveOnboarding === "yes" ? true : input.waiveOnboarding === "no" ? false : null,
   });
   if (error) return { ok: false, error: friendlyError(error.message, CONSOLE_ERRORS) };
   revalidatePath("/platform");
@@ -152,6 +155,7 @@ export async function savePlan(raw: unknown): Promise<ActionResult> {
       currency: p.currency,
       billing_interval: p.billing_interval,
       amount: p.amount === null ? "" : String(p.amount),
+      onboarding_fee: p.onboarding_fee === null ? "" : String(p.onboarding_fee),
       stripe_price_id: p.stripe_price_id ?? "",
     })),
   });

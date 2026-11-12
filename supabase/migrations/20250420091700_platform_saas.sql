@@ -83,6 +83,9 @@ create table if not exists public.plan_prices (
   billing_interval text not null check (billing_interval in ('month', 'year')),
   amount           numeric(10,2) not null check (amount >= 0),
   stripe_price_id  text,      -- optional: a pre-created Stripe Price; else price_data is used
+  -- One-time onboarding fee charged with the first monthly checkout. Waived on
+  -- annual prepay and for founding clubs (subscriptions.onboarding_fee_waived).
+  onboarding_fee   numeric(10,2) not null default 0 check (onboarding_fee >= 0),
   updated_at       timestamptz not null default now(),
   primary key (plan_code, currency, billing_interval)
 );
@@ -111,7 +114,9 @@ create table if not exists public.subscriptions (
   canceled_at             timestamptz,
   feature_overrides       jsonb not null default '{}'::jsonb check (jsonb_typeof(feature_overrides) = 'object'),
   limit_overrides         jsonb not null default '{}'::jsonb check (jsonb_typeof(limit_overrides) = 'object'),
-  custom_amount           numeric(10,2) check (custom_amount is null or custom_amount >= 0), -- Enterprise deals (per interval)
+  custom_amount           numeric(10,2) check (custom_amount is null or custom_amount >= 0), -- negotiated / founding-lock price (per interval)
+  onboarding_fee_waived   boolean not null default false, -- founding clubs; set by platform admins
+  onboarding_fee_paid_at  timestamptz,                    -- set by the billing webhook; never charged twice
   last_stripe_event_at    timestamptz,   -- guards against out-of-order webhooks
   notes                   text,
   created_at              timestamptz not null default now(),
@@ -193,37 +198,61 @@ create table if not exists public.platform_audit_log (
 create index if not exists idx_platform_audit_org on public.platform_audit_log(org_id, created_at desc);
 
 -- ---------------------------------------------------------------------------
--- 7. Seed plans (prices identical across CHF / EUR / USD; yearly = 10 months)
+-- 7. Seed plans, aligned with the founder pricing architecture
+--    (docs/company/source/text/DLANG_Sports_OS_Business_Plan.md, section 5.3):
+--      Starter   75 athletes   CHF 290 / EUR 279   onboarding CHF 750
+--      Club     180 athletes   CHF 490 / EUR 469   onboarding CHF 1,500 (primary ICP)
+--      Academy  400 athletes   CHF 890 / EUR 849   onboarding CHF 2,900
+--      Multi-site / Federation 1,000+  from CHF 1,690 / EUR 1,590, negotiated
+--    Annual = 12 x monthly (CHF 3,480 / 5,880 / 10,680); the annual-prepay
+--    benefit is the waived onboarding fee, not a price discount.
+--    USD prices and the EUR/USD onboarding fees are not in the founder
+--    documents: they are derived placeholders (the US is a Year-2 market).
+--    Confirm them before the US go-live and edit them in /platform/plans.
+--    Founding clubs (CHF 290 locked for life, setup waived) are configured per
+--    tenant with subscriptions.custom_amount + onboarding_fee_waived.
 -- ---------------------------------------------------------------------------
-insert into public.plans (code, name, tagline, audience, sort_order, is_public, is_custom, max_athletes, max_staff, features)
+insert into public.plans (code, name, tagline, description, audience, sort_order, is_public, is_custom, max_athletes, max_staff, features)
 values
-  ('starter', 'Starter', 'Everything a small club needs to get organised', 'small clubs & teams', 10, true, false, 100, 5,
+  ('starter', 'Starter', 'One programme or camp, fully organised',
+   'Up to 75 active athletes. Registration, invoicing with Swiss QR-bill, attendance and messaging.',
+   'single-programme clubs & camp operators', 10, true, false, 75, 5,
    '{"registration":true,"invoicing":true,"qr_bill":true,"online_payments":true,"attendance":true,"messaging":true,
      "documents_consent":true,"bookings":false,"ai_assistant":false,"custom_branding":true,"custom_domain":false,
      "white_label":false,"multi_location":false,"reports_advanced":false,"api_access":false,"sso":false,
      "federation_rollup":false,"priority_support":false}'::jsonb),
-  ('club', 'Club', 'The full club operating system', 'growing clubs & academies', 20, true, false, 400, 20,
+  ('club', 'Club', 'The full club operating system',
+   'Up to 180 active athletes. Everything in Starter plus bookings, AI assistant, multiple teams and advanced reports.',
+   'clubs & academies of 100-300 athletes', 20, true, false, 180, 20,
    '{"registration":true,"invoicing":true,"qr_bill":true,"online_payments":true,"attendance":true,"messaging":true,
      "documents_consent":true,"bookings":true,"ai_assistant":true,"custom_branding":true,"custom_domain":false,
      "white_label":false,"multi_location":true,"reports_advanced":true,"api_access":false,"sso":false,
      "federation_rollup":false,"priority_support":false}'::jsonb),
-  ('pro', 'Pro', 'For large multi-team organisations', 'large clubs & multi-sport organisations', 30, true, false, 1500, 75,
+  ('academy', 'Academy', 'Multi-team, multi-location, year-round',
+   'Up to 400 active athletes. Everything in Club plus custom domain, full white-label, API access and priority support.',
+   'multi-team academies & multi-sport organisations', 30, true, false, 400, 60,
    '{"registration":true,"invoicing":true,"qr_bill":true,"online_payments":true,"attendance":true,"messaging":true,
      "documents_consent":true,"bookings":true,"ai_assistant":true,"custom_branding":true,"custom_domain":true,
      "white_label":true,"multi_location":true,"reports_advanced":true,"api_access":true,"sso":false,
      "federation_rollup":false,"priority_support":true}'::jsonb),
-  ('enterprise', 'Enterprise', 'Schools, federations & leagues — custom terms', 'schools, federations & leagues', 40, true, true, null, null,
+  ('federation', 'Multi-site & Federation', 'Federations, academy groups & school networks, negotiated',
+   '1,000+ athletes across sites. From CHF 1,690 / EUR 1,590 per month with a volume discount; SSO and roll-up reporting.',
+   'federations, academy groups & school networks', 40, true, true, null, null,
    '{"registration":true,"invoicing":true,"qr_bill":true,"online_payments":true,"attendance":true,"messaging":true,
      "documents_consent":true,"bookings":true,"ai_assistant":true,"custom_branding":true,"custom_domain":true,
      "white_label":true,"multi_location":true,"reports_advanced":true,"api_access":true,"sso":true,
      "federation_rollup":true,"priority_support":true}'::jsonb)
 on conflict (code) do nothing;
 
-insert into public.plan_prices (plan_code, currency, billing_interval, amount)
-select p.code, c.currency, i.billing_interval,
-       case i.billing_interval when 'month' then p.monthly else p.monthly * 10 end
-from (values ('starter', 49.00), ('club', 149.00), ('pro', 349.00)) as p(code, monthly)
-cross join (values ('CHF'), ('EUR'), ('USD')) as c(currency)
+insert into public.plan_prices (plan_code, currency, billing_interval, amount, onboarding_fee)
+select p.code, p.currency, i.billing_interval,
+       case i.billing_interval when 'month' then p.monthly else p.monthly * 12 end,
+       p.onboarding
+from (values
+        ('starter', 'CHF', 290.00,  750.00), ('starter', 'EUR', 279.00,  720.00), ('starter', 'USD', 299.00,  790.00),
+        ('club',    'CHF', 490.00, 1500.00), ('club',    'EUR', 469.00, 1440.00), ('club',    'USD', 499.00, 1590.00),
+        ('academy', 'CHF', 890.00, 2900.00), ('academy', 'EUR', 849.00, 2790.00), ('academy', 'USD', 899.00, 2990.00)
+     ) as p(code, currency, monthly, onboarding)
 cross join (values ('month'), ('year')) as i(billing_interval)
 on conflict (plan_code, currency, billing_interval) do nothing;
 
@@ -694,12 +723,16 @@ begin
 end;
 $$;
 
+-- Earlier drafts had a 5-argument signature; drop it so no ambiguous overload remains.
+drop function if exists public.platform_change_plan(uuid, text, text, timestamptz, numeric);
+
 create or replace function public.platform_change_plan(
   p_org uuid,
   p_plan text,
   p_status text default null,
   p_trial_ends_at timestamptz default null,
-  p_custom_amount numeric default null
+  p_custom_amount numeric default null,
+  p_waive_onboarding boolean default null
 )
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare
@@ -723,9 +756,11 @@ begin
     if not exists (select 1 from public.organizations where id = p_org) then
       raise exception 'NOT_FOUND';
     end if;
-    insert into public.subscriptions (org_id, plan_code, status, trial_ends_at, custom_amount, currency)
+    insert into public.subscriptions (org_id, plan_code, status, trial_ends_at, custom_amount,
+                                      onboarding_fee_waived, currency)
     select p_org, p_plan, coalesce(p_status, 'trialing'),
            coalesce(p_trial_ends_at, now() + interval '14 days'), p_custom_amount,
+           coalesce(p_waive_onboarding, false),
            case when o.currency in ('CHF','EUR','USD') then o.currency else 'CHF' end
     from public.organizations o where o.id = p_org;
   else
@@ -733,14 +768,16 @@ begin
        set plan_code = p_plan,
            status = coalesce(p_status, status),
            trial_ends_at = coalesce(p_trial_ends_at, trial_ends_at),
-           custom_amount = coalesce(p_custom_amount, custom_amount)
+           custom_amount = coalesce(p_custom_amount, custom_amount),
+           onboarding_fee_waived = coalesce(p_waive_onboarding, onboarding_fee_waived)
      where org_id = p_org;
   end if;
 
   insert into public.platform_audit_log (actor_id, action, org_id, details)
   values (auth.uid(), 'tenant.plan_changed', p_org,
           jsonb_build_object('from', v_old, 'to', p_plan, 'status', p_status,
-                             'trial_ends_at', p_trial_ends_at, 'custom_amount', p_custom_amount));
+                             'trial_ends_at', p_trial_ends_at, 'custom_amount', p_custom_amount,
+                             'waive_onboarding', p_waive_onboarding));
   return jsonb_build_object('org_id', p_org, 'plan', p_plan);
 end;
 $$;
@@ -795,11 +832,12 @@ begin
       delete from public.plan_prices
        where plan_code = v_code and currency = r->>'currency' and billing_interval = r->>'billing_interval';
     else
-      insert into public.plan_prices (plan_code, currency, billing_interval, amount, stripe_price_id)
+      insert into public.plan_prices (plan_code, currency, billing_interval, amount, stripe_price_id, onboarding_fee)
       values (v_code, r->>'currency', r->>'billing_interval', (r->>'amount')::numeric,
-              nullif(r->>'stripe_price_id', ''))
+              nullif(r->>'stripe_price_id', ''), coalesce(nullif(r->>'onboarding_fee', '')::numeric, 0))
       on conflict (plan_code, currency, billing_interval) do update set
-        amount = excluded.amount, stripe_price_id = excluded.stripe_price_id;
+        amount = excluded.amount, stripe_price_id = excluded.stripe_price_id,
+        onboarding_fee = excluded.onboarding_fee;
     end if;
   end loop;
 
@@ -817,7 +855,7 @@ revoke all on function public.capture_usage_snapshot(uuid) from public;
 revoke all on function public.capture_all_usage_snapshots() from public;
 revoke all on function public.platform_tenant_overview() from public;
 revoke all on function public.platform_set_org_suspended(uuid, boolean, text) from public;
-revoke all on function public.platform_change_plan(uuid, text, text, timestamptz, numeric) from public;
+revoke all on function public.platform_change_plan(uuid, text, text, timestamptz, numeric, boolean) from public;
 revoke all on function public.platform_upsert_plan(jsonb, jsonb) from public;
 
 do $$
@@ -828,7 +866,7 @@ begin
     grant execute on function public.capture_all_usage_snapshots() to authenticated;
     grant execute on function public.platform_tenant_overview() to authenticated;
     grant execute on function public.platform_set_org_suspended(uuid, boolean, text) to authenticated;
-    grant execute on function public.platform_change_plan(uuid, text, text, timestamptz, numeric) to authenticated;
+    grant execute on function public.platform_change_plan(uuid, text, text, timestamptz, numeric, boolean) to authenticated;
     grant execute on function public.platform_upsert_plan(jsonb, jsonb) to authenticated;
   end if;
   if exists (select 1 from pg_roles where rolname = 'service_role') then

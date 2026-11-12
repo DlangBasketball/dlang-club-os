@@ -72,7 +72,7 @@ export default async function PlatformOverviewPage() {
       </section>
 
       <p className="text-xs text-ink-3">
-        MRR counts active and past-due subscriptions (yearly plans ÷ 12, custom Enterprise amounts included).
+        MRR counts active and past-due subscriptions (yearly plans ÷ 12, negotiated and founding-lock amounts included).
         Currencies are reported separately — no FX conversion.
       </p>
 

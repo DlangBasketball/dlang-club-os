@@ -47,6 +47,8 @@ export type PlanPriceRow = {
   billing_interval: BillingInterval;
   amount: number;
   stripe_price_id: string | null;
+  /** One-time setup fee charged with the first monthly checkout (0 = none). */
+  onboarding_fee: number;
   updated_at: string;
 };
 
@@ -67,6 +69,8 @@ export type SubscriptionRow = {
   feature_overrides: Record<string, boolean>;
   limit_overrides: Record<string, number | null>;
   custom_amount: number | null;
+  onboarding_fee_waived: boolean;
+  onboarding_fee_paid_at: string | null;
   last_stripe_event_at: string | null;
   notes: string | null;
   created_at: string;
@@ -221,6 +225,7 @@ type PlatformFunctions = {
       p_status?: string | null;
       p_trial_ends_at?: string | null;
       p_custom_amount?: number | null;
+      p_waive_onboarding?: boolean | null;
     };
     Returns: Json;
   };

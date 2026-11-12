@@ -21,12 +21,19 @@ type Draft = {
   max_staff: string;
   features: Record<string, boolean>;
   prices: Record<string, { amount: string; stripe_price_id: string }>;
+  /** One-time onboarding fee per currency (charged on monthly plans only). */
+  onboarding: Record<string, string>;
 };
 
 const key = (c: string, i: string) => `${c}:${i}`;
 
 function toDraft(p: PlanWithPrices | null): Draft {
   const prices: Draft["prices"] = {};
+  const onboarding: Draft["onboarding"] = {};
+  for (const c of CURRENCIES) {
+    const fee = p?.prices.find((x) => x.currency === c && Number(x.onboarding_fee ?? 0) > 0)?.onboarding_fee;
+    onboarding[c] = fee != null ? String(Number(fee)) : "";
+  }
   for (const c of CURRENCIES)
     for (const i of INTERVALS) {
       const row = p?.prices.find((x) => x.currency === c && x.billing_interval === i);
@@ -47,6 +54,7 @@ function toDraft(p: PlanWithPrices | null): Draft {
     max_staff: p?.max_staff == null ? "" : String(p.max_staff),
     features: { ...(p?.features ?? {}) },
     prices,
+    onboarding,
   };
 }
 
@@ -80,6 +88,7 @@ export function PlanEditor({ plan }: { plan: PlanWithPrices | null }) {
             currency: c,
             billing_interval: i,
             amount: d.is_custom ? "" : d.prices[key(c, i)].amount,
+            onboarding_fee: d.onboarding[c] ?? "",
             stripe_price_id: d.prices[key(c, i)].stripe_price_id,
           })),
         ),
@@ -175,6 +184,7 @@ export function PlanEditor({ plan }: { plan: PlanWithPrices | null }) {
                         <th className="pr-4">Currency</th>
                         <th className="pr-4">Monthly</th>
                         <th className="pr-4">Yearly</th>
+                        <th className="pr-4">Onboarding (one-time)</th>
                         <th className="pr-4">Stripe price id (monthly / yearly, optional)</th>
                       </tr>
                     </thead>
@@ -195,6 +205,15 @@ export function PlanEditor({ plan }: { plan: PlanWithPrices | null }) {
                               />
                             </td>
                           ))}
+                          <td className="py-1 pr-4">
+                            <Input
+                              className="w-28"
+                              inputMode="decimal"
+                              value={d.onboarding[c] ?? ""}
+                              onChange={(e) => set("onboarding", { ...d.onboarding, [c]: e.target.value })}
+                              placeholder="0"
+                            />
+                          </td>
                           <td className="flex gap-2 py-1">
                             {INTERVALS.map((i) => (
                               <Input
@@ -218,7 +237,8 @@ export function PlanEditor({ plan }: { plan: PlanWithPrices | null }) {
                 </div>
                 <p className="mt-2 text-xs text-ink-3">
                   Without a Stripe price id, checkout creates the price inline from these amounts (works in test mode with no
-                  dashboard setup). Blank amount = not sold in that currency/period.
+                  dashboard setup). Blank amount = not sold in that currency/period. The onboarding fee is added once to the
+                  first monthly checkout; annual prepay and founding clubs (waived per tenant) skip it.
                 </p>
               </div>
             )}

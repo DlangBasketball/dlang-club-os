@@ -20,11 +20,15 @@ insert into public.staff_roles (org_id, profile_id, role) values
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000aa02', 'admin');
 insert into public.platform_admins (profile_id) values ('00000000-0000-0000-0000-00000000aa01');
 insert into public.subscriptions (org_id, plan_code, status, currency, billing_interval)
-  values ('00000000-0000-0000-0000-000000000001', 'pro', 'active', 'CHF', 'month');
+  values ('00000000-0000-0000-0000-000000000001', 'academy', 'active', 'CHF', 'month');
 
 \echo '--- plans seeded ---'
 select case when count(*) = 4 then 'PASS' else 'FAIL' end || ' — 4 plans' from public.plans;
 select case when count(*) = 18 then 'PASS' else 'FAIL' end || ' — 18 prices' from public.plan_prices;
+select case when amount = 490 and onboarding_fee = 1500 then 'PASS' else 'FAIL' end || ' — Club CHF 490/month, CHF 1,500 onboarding'
+  from public.plan_prices where plan_code = 'club' and currency = 'CHF' and billing_interval = 'month';
+select case when amount = 3480 then 'PASS' else 'FAIL' end || ' — Starter CHF 3,480/year'
+  from public.plan_prices where plan_code = 'starter' and currency = 'CHF' and billing_interval = 'year';
 
 \echo '--- anon ---'
 set role anon; set request.jwt.claim.sub = '';
@@ -42,12 +46,12 @@ select case when count(*) = 0 then 'PASS' else 'FAIL' end || ' — admin cannot 
 select case when public.is_platform_admin() then 'FAIL' else 'PASS' end || ' — admin is not platform admin';
 select 'EXPECT FORBIDDEN: ' || count(*) from public.platform_tenant_overview();
 select 'EXPECT FORBIDDEN: ' || (public.platform_set_org_suspended('00000000-0000-0000-0000-000000000001', true, 'nope'))::text;
-update public.subscriptions set plan_code = 'enterprise';
-select case when plan_code = 'pro' then 'PASS' else 'FAIL' end || ' — admin cannot write subscription' from public.subscriptions;
+update public.subscriptions set plan_code = 'federation';
+select case when plan_code = 'academy' then 'PASS' else 'FAIL' end || ' — admin cannot write subscription' from public.subscriptions;
 insert into public.plans (code, name) values ('hack', 'Hack');
 select 'EXPECT ALREADY_MEMBER: ' || (public.provision_tenant('Another Club','another-club','soccer','CH','CHF'))::text;
-select case when public.org_has_feature('00000000-0000-0000-0000-000000000001', 'custom_domain') then 'PASS' else 'FAIL' end || ' — pro has custom_domain';
-select case when public.org_has_feature('00000000-0000-0000-0000-000000000001', 'sso') then 'FAIL' else 'PASS' end || ' — pro lacks sso';
+select case when public.org_has_feature('00000000-0000-0000-0000-000000000001', 'custom_domain') then 'PASS' else 'FAIL' end || ' — academy has custom_domain';
+select case when public.org_has_feature('00000000-0000-0000-0000-000000000001', 'sso') then 'FAIL' else 'PASS' end || ' — academy lacks sso';
 select case when public.org_within_limit('00000000-0000-0000-0000-000000000001', 'athletes', 1) then 'PASS' else 'FAIL' end || ' — within athlete limit';
 reset role;
 
@@ -57,7 +61,7 @@ select 'EXPECT INVALID_SLUG: ' || (public.provision_tenant('Lakers Youth','Bad S
 select 'EXPECT SLUG_RESERVED: ' || (public.provision_tenant('Lakers Youth','platform','basketball','US','USD'))::text;
 select 'EXPECT SLUG_TAKEN: ' || (public.provision_tenant('Lakers Youth','dlang','basketball','US','USD'))::text;
 select 'EXPECT INVALID_CURRENCY: ' || (public.provision_tenant('Lakers Youth','lakers-youth','basketball','US','GBP'))::text;
-select 'EXPECT INVALID_PLAN: ' || (public.provision_tenant('Lakers Youth','lakers-youth','basketball','US','USD','en',null,'enterprise'))::text;
+select 'EXPECT INVALID_PLAN: ' || (public.provision_tenant('Lakers Youth','lakers-youth','basketball','US','USD','en',null,'federation'))::text;
 select 'EXPECT INVALID_NAME: ' || (public.provision_tenant('<script>','lakers-youth','basketball','US','USD'))::text;
 select case when public.is_slug_available('lakers-youth') then 'PASS' else 'FAIL' end || ' — slug available';
 select 'OK: ' || (public.provision_tenant('Lakers Youth','lakers-youth','basketball','US','USD','en','Jane Founder'))::text;
@@ -78,7 +82,12 @@ select case when count(*) >= 2 then 'PASS' else 'FAIL' end || ' — overview lis
 select 'MRR row: ' || name || ' ' || coalesce(plan_code,'-') || ' ' || mrr || ' ' || athletes from public.platform_tenant_overview();
 select 'EXPECT REASON_REQUIRED: ' || (public.platform_set_org_suspended('00000000-0000-0000-0000-000000000001', true, ''))::text;
 select 'OK: ' || (public.platform_set_org_suspended('00000000-0000-0000-0000-000000000001', true, 'Unpaid invoices'))::text;
-select 'OK: ' || (public.platform_change_plan((select id from public.organizations where slug='lakers-youth'), 'pro', 'active'))::text;
+select 'OK: ' || (public.platform_change_plan((select id from public.organizations where slug='lakers-youth'), 'academy', 'active'))::text;
+-- Founding-club lock: CHF 290 for life, onboarding waived
+select 'OK: ' || (public.platform_change_plan('00000000-0000-0000-0000-000000000001', 'club', null, null, 290, true))::text;
+select case when plan_code = 'club' and custom_amount = 290 and onboarding_fee_waived then 'PASS' else 'FAIL' end
+  || ' — founding lock stored' from public.subscriptions where org_id = '00000000-0000-0000-0000-000000000001';
+select 'OK: ' || (public.platform_change_plan('00000000-0000-0000-0000-000000000001', 'academy'))::text;
 select 'OK: ' || (public.platform_upsert_plan('{"code":"school","name":"School","features":{"registration":true},"max_athletes":"800"}'::jsonb, '[{"currency":"CHF","billing_interval":"month","amount":"199"}]'::jsonb))::text;
 select case when count(*) = 1 then 'PASS' else 'FAIL' end || ' — new plan price' from public.plan_prices where plan_code = 'school';
 select 'OK snapshots: ' || public.capture_all_usage_snapshots();

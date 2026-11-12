@@ -167,6 +167,13 @@ export default async function SignupPlanPage({
                           : ""}
                       </div>
                     )}
+                    {Number(month.onboarding_fee ?? 0) > 0 && (
+                      <div className="text-xs text-ink-3">
+                        {s?.onboarding_fee_waived || s?.onboarding_fee_paid_at
+                          ? "Onboarding included"
+                          : `+ ${formatMoney(Number(month.onboarding_fee), currency)} one-time onboarding on monthly billing — waived when you pay annually`}
+                      </div>
+                    )}
                   </>
                 ) : (
                   <span className="text-sm text-ink-3">Not available in {currency}</span>
