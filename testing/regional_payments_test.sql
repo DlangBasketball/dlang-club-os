@@ -112,6 +112,15 @@ begin
   assert (j->>'duplicate')::boolean, 'duplicate refund ignored';
   assert public.invoice_net_paid(inv) = 50, 'net paid after refund';
 
+  -- Lost dispute: negative adjustment, idempotent, capped at what is left ---------
+  j := public.apply_stripe_dispute_loss('pi_2', 'dp_0', 150, 'chf', 'acct_ch');
+  assert j->>'skipped' = 'already refunded', format('dispute on a fully refunded intent is skipped: %s', j);
+  j := public.apply_stripe_dispute_loss('pi_1', 'dp_1', 50, 'chf', 'acct_ch');
+  assert (j->>'status') = 'sent', format('after lost dispute: %s', j);
+  j := public.apply_stripe_dispute_loss('pi_1', 'dp_1', 50, 'chf', 'acct_ch');
+  assert (j->>'duplicate')::boolean, 'duplicate dispute ignored';
+  assert public.invoice_net_paid(inv) = 0, 'net paid after lost dispute';
+
   -- Webhook event claim ---------------------------------------------------------
   assert public.claim_stripe_event('evt_1', 'payment_intent.succeeded', 'acct_ch', false), 'first claim';
   perform public.finish_stripe_event('evt_1', 'processed');
@@ -139,7 +148,10 @@ begin
   j := public.create_installment_plan(inv2, 3, date '2026-09-01', 'termly');
   assert jsonb_array_length(j->'installments') = 3, 'three installments';
   assert (select due_date from public.invoices where id = inv2) = date '2027-05-01', 'invoice due = last installment';
+  -- The webhook runs as the service role with no end-user identity.
+  perform set_config('request.jwt.claim.sub', '', true);
   perform public.apply_stripe_payment(inv2, 300, 'pi_inst_1');
+  perform set_config('request.jwt.claim.sub', fin::text, true);
   select count(*) into n from public.payment_plan_installments where invoice_id = inv2 and status = 'paid';
   assert n = 1, 'first installment marked paid';
   select count(*) into n from public.installments_due(ch_org, date '2027-01-02');

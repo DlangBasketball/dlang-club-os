@@ -118,6 +118,7 @@ begin
     'public.set_stripe_connect_account(uuid, text, text, boolean, boolean, boolean)',
     'public.apply_stripe_payment(uuid, numeric, text, text, text, text, text, numeric, text)',
     'public.apply_stripe_refund(text, text, numeric, text, text)',
+    'public.apply_stripe_dispute_loss(text, text, numeric, text, text)',
     'public.claim_stripe_event(text, text, text, boolean)',
     'public.finish_stripe_event(text, text, text)',
     'public.org_for_stripe_account(text)',
@@ -250,6 +251,116 @@ begin
   perform rt.ok(v like 'OK:%' and v <> 'OK:0', 'org A admin session_roster(own session) returns the roster (' || v || ')');
   v := rt.run_as('00000000-0000-0000-0000-0000000000f2', $q$select public.record_manual_payment('00000000-0000-0000-0000-000000000091', 1, 'manual')->>'status'$q$);
   perform rt.ok(v like 'OK:%', 'org A finance record_manual_payment(own invoice) works (' || v || ')');
+end $$;
+
+-- ===========================================================================
+-- B2. Payments review: in-body guards, cross-tenant booking prices, rounding
+-- ===========================================================================
+-- The webhook RPCs refuse API callers even if EXECUTE is granted again by
+-- mistake (defence in depth behind the revokes in section A).
+do $$
+declare v text; f text; v_status_before text;
+begin
+  select status::text into v_status_before from public.invoices where id = '00000000-0000-0000-0000-000000000091';
+  foreach f in array array[
+    'public.set_stripe_connect_account(uuid, text, text, boolean, boolean, boolean)',
+    'public.apply_stripe_payment(uuid, numeric, text, text, text, text, text, numeric, text)',
+    'public.apply_stripe_refund(text, text, numeric, text, text)',
+    'public.apply_stripe_dispute_loss(text, text, numeric, text, text)',
+    'public.claim_stripe_event(text, text, text, boolean)',
+    'public.finish_stripe_event(text, text, text)'
+  ] loop
+    execute format('grant execute on function %s to anon, authenticated', f);
+  end loop;
+
+  v := rt.run_as(null, $q$select public.set_stripe_connect_account('00000000-0000-0000-0000-000000000001','acct_attacker','standard',true,true,true)::text$q$);
+  perform rt.ok(v like 'ERR:%FORBIDDEN%', 'guard: anon set_stripe_connect_account FORBIDDEN even with EXECUTE (' || v || ')');
+  v := rt.run_as('00000000-0000-0000-0000-0000000000f2', $q$select public.apply_stripe_payment('00000000-0000-0000-0000-000000000091',1490,'pi_guard_1')::text$q$);
+  perform rt.ok(v like 'ERR:%FORBIDDEN%', 'guard: finance apply_stripe_payment FORBIDDEN even with EXECUTE');
+  v := rt.run_as(null, $q$select public.apply_stripe_refund('pi_x','re_guard',1)::text$q$);
+  perform rt.ok(v like 'ERR:%FORBIDDEN%', 'guard: anon apply_stripe_refund FORBIDDEN');
+  v := rt.run_as(null, $q$select public.apply_stripe_dispute_loss('pi_x','dp_guard',1)::text$q$);
+  perform rt.ok(v like 'ERR:%FORBIDDEN%', 'guard: anon apply_stripe_dispute_loss FORBIDDEN');
+  v := rt.run_as(null, $q$select public.claim_stripe_event('evt_guard','x')::text$q$);
+  perform rt.ok(v like 'ERR:%FORBIDDEN%', 'guard: anon claim_stripe_event FORBIDDEN');
+  v := rt.run_as('00000000-0000-0000-0000-0000000000f1', $q$select public.finish_stripe_event('evt_guard','processed')::text$q$);
+  perform rt.ok(v like 'ERR:%FORBIDDEN%', 'guard: admin finish_stripe_event FORBIDDEN');
+  perform rt.ok((select status::text from public.invoices where id = '00000000-0000-0000-0000-000000000091') = v_status_before
+                and not exists (select 1 from public.payments where stripe_payment_intent_id = 'pi_guard_1'),
+                'guard: no forged payment on invoice …091');
+
+  foreach f in array array[
+    'public.set_stripe_connect_account(uuid, text, text, boolean, boolean, boolean)',
+    'public.apply_stripe_payment(uuid, numeric, text, text, text, text, text, numeric, text)',
+    'public.apply_stripe_refund(text, text, numeric, text, text)',
+    'public.apply_stripe_dispute_loss(text, text, numeric, text, text)',
+    'public.claim_stripe_event(text, text, text, boolean)',
+    'public.finish_stripe_event(text, text, text)'
+  ] loop
+    execute format('revoke execute on function %s from anon, authenticated', f);
+  end loop;
+
+  -- Service role still works through the guard.
+  begin
+    execute 'set local role service_role';
+    perform public.claim_stripe_event('evt_guard_svc', 'x');
+    perform public.finish_stripe_event('evt_guard_svc', 'processed');
+    execute 'reset role';
+    perform rt.ok(true, 'guard: service_role passes claim/finish_stripe_event');
+  exception when others then
+    execute 'reset role';
+    perform rt.ok(false, 'guard: service_role passes claim/finish_stripe_event: ' || sqlerrm);
+  end;
+end $$;
+
+-- book_training_session: a guardian of an org A athlete cannot take the price
+-- or credits of an org B service, nor book an org B coach's slot.
+do $$
+declare
+  v text;
+  v_svc_b  uuid;
+  v_slot_b uuid;
+  v_slot_a uuid;
+  n_before int;
+begin
+  update public.app_settings set settings = settings || '{"bookings_enabled": true}'::jsonb
+   where org_id = '00000000-0000-0000-0000-000000000001';
+  insert into public.training_services (org_id, slug, name, price_chf, credits_required)
+  values ('10000000-0000-0000-0000-000000000002', 'free-b', 'Riverside free session', 0, 1)
+  returning id into v_svc_b;
+  insert into public.coach_availability (org_id, coach_id, starts_at, ends_at)
+  values ('10000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-0000000000d1',
+          now() + interval '30 days', now() + interval '30 days 1 hour')
+  returning id into v_slot_b;
+  insert into public.coach_availability (org_id, coach_id, starts_at, ends_at)
+  values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000012',
+          now() + interval '31 days', now() + interval '31 days 1 hour')
+  returning id into v_slot_a;
+  select count(*) into n_before from public.invoices where org_id = '00000000-0000-0000-0000-000000000001';
+
+  v := rt.run_as('00000000-0000-0000-0000-0000000000f4', format($q$select public.book_training_session('00000000-0000-0000-0000-000000000071', %L, %L, 'invoice')::text$q$, v_svc_b, v_slot_a));
+  perform rt.ok(v like 'ERR:%SERVICE_NOT_FOUND%', 'book_training_session with org B service refused (' || v || ')');
+  v := rt.run_as('00000000-0000-0000-0000-0000000000f2', format($q$select public.book_training_session('00000000-0000-0000-0000-000000000071', %L, %L, 'invoice')::text$q$, v_svc_b, v_slot_a));
+  perform rt.ok(v like 'ERR:%SERVICE_NOT_FOUND%', 'finance book_training_session with org B service refused');
+  v := rt.run_as('00000000-0000-0000-0000-0000000000f4', format($q$select public.book_training_session('00000000-0000-0000-0000-000000000071', '00000000-0000-0000-0000-000000000021', %L, 'invoice')::text$q$, v_slot_b));
+  perform rt.ok(v like 'ERR:%SLOT_NOT_FOUND%', 'book_training_session with org B slot refused (' || v || ')');
+  perform rt.ok(not (select is_booked from public.coach_availability where id = v_slot_b), 'org B slot not marked booked');
+  perform rt.ok((select count(*) from public.invoices where org_id = '00000000-0000-0000-0000-000000000001') = n_before,
+                'no invoice created by the refused bookings');
+end $$;
+
+-- record_manual_payment rounds to the invoice currency's minor unit.
+do $$
+declare v text; v_pay uuid;
+begin
+  v := rt.run_as('00000000-0000-0000-0000-0000000000f2', $q$select public.record_manual_payment('00000000-0000-0000-0000-000000000091', 0.004, 'manual')::text$q$);
+  perform rt.ok(v like 'ERR:%INVALID_AMOUNT%', 'record_manual_payment(0.004 CHF) rounds to 0 and is refused (' || v || ')');
+  v := rt.run_as('00000000-0000-0000-0000-0000000000f2', $q$select public.record_manual_payment('00000000-0000-0000-0000-000000000091', 1.006, 'manual')->>'payment_id'$q$);
+  perform rt.ok(v like 'OK:%', 'record_manual_payment(1.006) accepted');
+  if v like 'OK:%' then
+    v_pay := substr(v, 4)::uuid;
+    perform rt.ok((select amount_chf from public.payments where id = v_pay) = 1.01, 'stored amount rounded to 1.01');
+  end if;
 end $$;
 
 -- ===========================================================================

@@ -9,6 +9,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getStripe } from "@/lib/stripe";
 import { createInvoiceCheckout } from "@/lib/stripe-connect";
 import { loadPayableInvoice } from "@/lib/payments/invoice-payable";
+import { roundMoney } from "@/lib/payments/currency";
 import { getOrgPaymentProfile, methodsForInvoice } from "@/lib/payments/settings";
 import { sendEmail } from "@/lib/email/resend";
 import { getOrgName } from "@/lib/data/org-name";
@@ -207,26 +208,21 @@ export async function markInvoicePaid(
   const me = await requireFinance();
   if (!me) return { ok: false, error: "Not permitted" };
 
-  const supabase = await createClient();
-  const { data: inv } = await supabase
-    .from("invoices")
-    .select("total_chf,status,payment_reference")
-    .eq("id", invoiceId)
-    .maybeSingle();
-  if (!inv) return { ok: false, error: "Invoice not found" };
-  if (inv.status === "paid") return { ok: false, error: "Already paid" };
-  if (inv.status === "cancelled") return { ok: false, error: "Invoice was cancelled" };
-
-  const { data: pays } = await supabase.from("payments").select("amount_chf,status").eq("invoice_id", invoiceId).eq("status", "succeeded");
-  const paid = (pays ?? []).reduce((s, p) => s + Number(p.amount_chf ?? 0), 0);
-  const balance = Number(inv.total_chf ?? 0) - paid;
+  // Outstanding balance net of refund rows (as public.invoice_net_paid), so a
+  // refunded Stripe payment can be settled by bank transfer afterwards.
+  const inv = await loadPayableInvoice(invoiceId);
+  if (!inv.ok) return { ok: false, error: inv.error };
+  const balance = roundMoney(inv.balance, inv.currency);
   if (balance <= 0) return { ok: false, error: "Nothing outstanding" };
+
+  const supabase = await createClient();
+  const { data: ref } = await supabase.from("invoices").select("payment_reference").eq("id", invoiceId).maybeSingle();
 
   const { error } = await supabase.rpc("record_manual_payment", {
     p_invoice: invoiceId,
     p_amount: balance,
     p_method: method,
-    p_reference: inv.payment_reference ?? undefined,
+    p_reference: ref?.payment_reference ?? undefined,
     p_note: "Reconciled — marked paid",
   });
   if (error) return { ok: false, error: error.message };

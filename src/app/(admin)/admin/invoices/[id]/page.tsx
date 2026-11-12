@@ -7,7 +7,7 @@ import { InvoiceActions } from "@/components/invoice/invoice-actions";
 import { ManualPaymentForm } from "@/components/invoice/manual-payment-form";
 import { PaymentMethods } from "@/components/invoice/payment-methods";
 import { getPaymentSettings, getAcceptedMethods } from "@/lib/data/payment-settings";
-import { formatQrReference } from "@/lib/swiss-payments";
+import { formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
 import { formatDate, timeAgo } from "@/lib/utils";
 import { getFormatter } from "@/lib/i18n/server";
 
@@ -21,7 +21,9 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   if (!data) notFound();
 
   const [settings, methods] = await Promise.all([getPaymentSettings(data.orgId), getAcceptedMethods(data.orgId)]);
-  const payIban = settings.referenceType === "QRR" ? settings.qrIban : settings.iban;
+  // Account matching the invoice's own reference (QRR -> QR-IBAN, RF/none -> IBAN).
+  const qrAccount = resolveQrBillAccount(settings, data.reference);
+  const payIban = qrAccount?.iban ?? settings.iban;
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -136,7 +138,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               )}
               {payIban && (
                 <div>
-                  <div className="text-xs uppercase tracking-wide text-ink-3">{settings.referenceType === "QRR" ? "QR-IBAN" : "IBAN"}</div>
+                  <div className="text-xs uppercase tracking-wide text-ink-3">{qrAccount?.referenceType === "QRR" ? "QR-IBAN" : "IBAN"}</div>
                   <div className="tnum text-ink">{payIban}</div>
                 </div>
               )}

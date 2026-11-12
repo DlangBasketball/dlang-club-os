@@ -92,25 +92,65 @@ async function onCheckoutSession(ctx: Ctx, session: Stripe.Checkout.Session): Pr
   return applyPaymentIntent(ctx, pi);
 }
 
+const idOf = (x: string | { id: string } | null | undefined) => (typeof x === "string" ? x : x?.id);
+
+/**
+ * Records one refund once it has succeeded. SEPA Debit / US ACH refunds start
+ * as "pending" when charge.refunded fires and only succeed later
+ * (charge.refund.updated / refund.updated), so every refund event lands here;
+ * apply_stripe_refund is idempotent on the refund id.
+ */
+async function applyRefund(ctx: Ctx, r: Stripe.Refund, piFallback?: string): Promise<WebhookOutcome> {
+  if (r.status !== "succeeded") return { status: "ignored", retry: false, detail: `refund status ${r.status}` };
+  const piId = idOf(r.payment_intent) ?? piFallback;
+  if (!piId) return { status: "ignored", retry: false, detail: "refund without payment_intent" };
+  const supabase = createAdminClient();
+  const { error } = await supabase.rpc("apply_stripe_refund", {
+    p_payment_intent: piId,
+    p_refund_id: r.id,
+    p_amount: fromMinorUnits(r.amount, r.currency),
+    p_currency: r.currency.toUpperCase(),
+    p_account: ctx.event.account ?? undefined,
+  });
+  if (error) {
+    // A refund on a charge we never recorded (e.g. SaaS billing) is not ours.
+    if (/PAYMENT_NOT_FOUND/.test(error.message)) return { status: "ignored", retry: false, detail: error.message };
+    return { status: "failed", retry: !PERMANENT.test(error.message), detail: `apply_stripe_refund: ${error.message}` };
+  }
+  return { status: "processed", retry: false };
+}
+
 async function onChargeRefunded(ctx: Ctx, charge: Stripe.Charge): Promise<WebhookOutcome> {
-  const piId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+  const piId = idOf(charge.payment_intent);
   if (!piId) return { status: "ignored", retry: false };
   const refunds = await ctx.stripe.refunds.list({ charge: charge.id, limit: 100 }, ctx.opts);
-  const supabase = createAdminClient();
+  let applied = false;
   for (const r of refunds.data) {
+    // Pending refunds are picked up by charge.refund.updated / refund.updated.
     if (r.status !== "succeeded") continue;
-    const { error } = await supabase.rpc("apply_stripe_refund", {
-      p_payment_intent: piId,
-      p_refund_id: r.id,
-      p_amount: fromMinorUnits(r.amount, r.currency),
-      p_currency: r.currency.toUpperCase(),
-      p_account: ctx.event.account ?? undefined,
-    });
-    if (error) {
-      // A refund on a charge we never recorded (e.g. SaaS billing) is not ours.
-      if (/PAYMENT_NOT_FOUND/.test(error.message)) return { status: "ignored", retry: false, detail: error.message };
-      return { status: "failed", retry: !PERMANENT.test(error.message), detail: `apply_stripe_refund: ${error.message}` };
-    }
+    const outcome = await applyRefund(ctx, r, piId);
+    if (outcome.status !== "processed") return outcome;
+    applied = true;
+  }
+  return applied ? { status: "processed", retry: false } : { status: "ignored", retry: false, detail: "no succeeded refund yet" };
+}
+
+/** A lost dispute: Stripe has taken the money back, so the ledger must too. */
+async function onDisputeClosed(ctx: Ctx, dispute: Stripe.Dispute): Promise<WebhookOutcome> {
+  if (dispute.status !== "lost") return { status: "ignored", retry: false, detail: `dispute ${dispute.status}` };
+  const piId = idOf(dispute.payment_intent);
+  if (!piId) return { status: "ignored", retry: false, detail: "dispute without payment_intent" };
+  const supabase = createAdminClient();
+  const { error } = await supabase.rpc("apply_stripe_dispute_loss", {
+    p_payment_intent: piId,
+    p_dispute_id: dispute.id,
+    p_amount: fromMinorUnits(dispute.amount, dispute.currency),
+    p_currency: dispute.currency.toUpperCase(),
+    p_account: ctx.event.account ?? undefined,
+  });
+  if (error) {
+    if (/PAYMENT_NOT_FOUND/.test(error.message)) return { status: "ignored", retry: false, detail: error.message };
+    return { status: "failed", retry: !PERMANENT.test(error.message), detail: `apply_stripe_dispute_loss: ${error.message}` };
   }
   return { status: "processed", retry: false };
 }
@@ -148,6 +188,11 @@ async function dispatch(ctx: Ctx): Promise<WebhookOutcome> {
       return onPaymentFailed(ctx, event.data.object as Stripe.PaymentIntent);
     case "charge.refunded":
       return onChargeRefunded(ctx, event.data.object as Stripe.Charge);
+    case "charge.refund.updated":
+    case "refund.updated":
+      return applyRefund(ctx, event.data.object as Stripe.Refund);
+    case "charge.dispute.closed":
+      return onDisputeClosed(ctx, event.data.object as Stripe.Dispute);
     case "account.updated": {
       const orgId = await syncAccount(event.data.object as Stripe.Account);
       return orgId ? { status: "processed", retry: false } : { status: "ignored", retry: false, detail: "unknown account" };

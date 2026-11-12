@@ -70,15 +70,73 @@ export type QrBillInput = {
 /** Strip spaces from an IBAN for the payload. */
 const cleanIban = (iban: string) => iban.replace(/\s/g, "").toUpperCase();
 
+/** A Swiss/Liechtenstein IBAN (the only accounts a QR-bill may name). */
+export function isChLiIban(iban: string | null | undefined): boolean {
+  return /^(CH|LI)\d{2}[0-9A-Z]{17}$/.test(cleanIban(iban ?? ""));
+}
+
+/** A QR-IBAN: CH/LI IBAN whose institution id (QR-IID) is 30000–31999. */
+export function isQrIban(iban: string | null | undefined): boolean {
+  const c = cleanIban(iban ?? "");
+  if (!isChLiIban(c)) return false;
+  const iid = Number(c.slice(4, 9));
+  return iid >= 30000 && iid <= 31999;
+}
+
+/** True for a well-formed ISO 11649 creditor reference (RFxx…, mod 97 = 1). */
+export function isValidScor(ref: string): boolean {
+  const r = ref.replace(/\s/g, "").toUpperCase();
+  if (!/^RF\d{2}[0-9A-Z]{1,21}$/.test(r)) return false;
+  const numeric = (r.slice(4) + r.slice(0, 4)).replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55));
+  let rem = 0;
+  for (const d of numeric) rem = (rem * 10 + Number(d)) % 97;
+  return rem === 1;
+}
+
+export type ReferenceType = "QRR" | "SCOR" | "NON";
+
+/** The reference type of a stored invoice reference (not the org setting). */
+export function referenceTypeOf(reference: string | null | undefined): ReferenceType {
+  const r = (reference ?? "").replace(/\s/g, "");
+  if (!r) return "NON";
+  if (isValidQrr(r)) return "QRR";
+  if (isValidScor(r)) return "SCOR";
+  return "NON";
+}
+
+export type QrBillAccount = { iban: string; referenceType: ReferenceType; reference: string };
+
 /**
- * Build the Swiss QR Code payload (SPC). The reference type is derived from the
- * settings: QRR uses the QR-IBAN, SCOR/NON use the normal IBAN.
+ * Picks the account and reference for a Swiss QR-bill from the invoice's
+ * actual reference (SIX rules): a QRR reference needs a QR-IBAN; an SCOR
+ * reference or no reference needs a normal (non-QR) CH/LI IBAN; NON carries an
+ * empty reference. Returns null when no valid combination exists (no QR-bill
+ * should be printed then, e.g. an EU club whose IBAN is not CH/LI).
+ */
+export function resolveQrBillAccount(settings: Pick<PaymentSettings, "iban" | "qrIban">, reference: string | null | undefined): QrBillAccount | null {
+  const type = referenceTypeOf(reference);
+  if (type === "QRR") {
+    const iban = [settings.qrIban, settings.iban].map(cleanIban).find((i) => isQrIban(i));
+    return iban ? { iban, referenceType: "QRR", reference: (reference ?? "").replace(/\D/g, "") } : null;
+  }
+  const iban = [settings.iban, settings.qrIban].map(cleanIban).find((i) => isChLiIban(i) && !isQrIban(i));
+  if (!iban) return null;
+  return type === "SCOR"
+    ? { iban, referenceType: "SCOR", reference: (reference ?? "").replace(/\s/g, "").toUpperCase() }
+    : { iban, referenceType: "NON", reference: "" };
+}
+
+/**
+ * Build the Swiss QR Code payload (SPC). The reference type and account are
+ * derived from the invoice's reference (resolveQrBillAccount), not from the
+ * org's reference-type setting. Throws when no valid account/reference
+ * combination exists.
  */
 export function buildSpcPayload(input: QrBillInput): string {
   const s = input.settings;
-  const useQrr = s.referenceType === "QRR";
-  const iban = cleanIban(useQrr ? s.qrIban || s.iban : s.iban);
-  const reference = useQrr ? input.reference.replace(/\D/g, "") : input.reference;
+  const account = resolveQrBillAccount(s, input.reference);
+  if (!account) throw new Error("No IBAN matches this reference for a Swiss QR-bill");
+  const { iban, referenceType, reference } = account;
 
   // 33 fixed elements + trailing; CR-LF separated per spec.
   const lines = [
@@ -98,8 +156,8 @@ export function buildSpcPayload(input: QrBillInput): string {
     input.debtorName ?? "",
     "", "", "", "",                // Debtor street/building/zip/city
     input.debtorName ? s.creditorCountry : "",
-    s.referenceType,               // Reference type: QRR | SCOR | NON
-    reference,                     // Reference
+    referenceType,                 // Reference type: QRR | SCOR | NON
+    reference,                     // Reference (empty for NON)
     input.message ?? "",           // Unstructured message
     "EPD",                         // Trailer
   ];

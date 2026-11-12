@@ -594,6 +594,11 @@ export type Database = {
         Args: { p_payment_intent: string; p_refund_id: string; p_amount: number; p_currency?: string; p_account?: string };
         Returns: Json;
       };
+      // Payments review fixes (migration 20250420095300)
+      apply_stripe_dispute_loss: {
+        Args: { p_payment_intent: string; p_dispute_id: string; p_amount: number; p_currency?: string; p_account?: string };
+        Returns: Json;
+      };
       claim_stripe_event: { Args: { p_id: string; p_type: string; p_account?: string; p_livemode?: boolean }; Returns: boolean };
       finish_stripe_event: { Args: { p_id: string; p_status: string; p_error?: string }; Returns: undefined };
       set_stripe_connect_account: {

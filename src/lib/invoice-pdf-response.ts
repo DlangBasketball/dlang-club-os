@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getInvoiceDetail } from "@/lib/data/invoices";
 import { getPaymentSettings } from "@/lib/data/payment-settings";
 import { buildInvoicePdf, type QrBillSection } from "@/lib/invoice-pdf";
-import { buildSpcPayload, formatQrReference } from "@/lib/swiss-payments";
+import { buildSpcPayload, formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
 
 /** Builds and returns the invoice PDF. getInvoiceDetail is RLS-scoped, so the
  *  caller only ever gets a PDF for an invoice they're entitled to see. */
@@ -12,16 +12,19 @@ export async function renderInvoicePdf(id: string): Promise<NextResponse> {
   if (!data) return new NextResponse("Not found", { status: 404 });
 
   const settings = await getPaymentSettings(data.orgId);
-  const payIban = (settings.referenceType === "QRR" ? settings.qrIban : settings.iban).replace(/\s/g, "");
   let qrBill: QrBillSection | null = null;
-  // Swiss QR-bill: CHF or EUR only (SIX implementation guidelines).
+  // Swiss QR-bill: CHF or EUR only, CH/LI account matching the invoice's own
+  // reference type (SIX implementation guidelines). Only for an open balance:
+  // a paid / cancelled invoice must never carry a payable QR code.
   const currency = (data.currency ?? "CHF").toUpperCase();
-  if (payIban.length > 0 && data.reference && (currency === "CHF" || currency === "EUR")) {
-    const amount = data.balance > 0 ? data.balance : data.total;
+  const payable = data.balance > 0 && !["paid", "cancelled", "void"].includes(data.status);
+  const account = resolveQrBillAccount(settings, data.reference);
+  if (payable && account && (currency === "CHF" || currency === "EUR")) {
+    const amount = data.balance;
     qrBill = {
-      payload: buildSpcPayload({ settings, amount, currency: currency as "CHF" | "EUR", reference: data.reference, debtorName: data.family.contactName ?? data.family.name, message: data.number }),
-      iban: settings.referenceType === "QRR" ? settings.qrIban : settings.iban,
-      reference: formatQrReference(data.reference),
+      payload: buildSpcPayload({ settings, amount, currency: currency as "CHF" | "EUR", reference: data.reference ?? "", debtorName: data.family.contactName ?? data.family.name, message: data.number }),
+      iban: account.iban,
+      reference: account.referenceType === "QRR" ? formatQrReference(account.reference) : account.reference,
       creditorLines: [settings.creditorName, `${settings.creditorStreet} ${settings.creditorBuilding}`.trim(), `${settings.creditorZip} ${settings.creditorCity}`.trim()].filter(Boolean),
       debtorLines: [data.family.contactName ?? data.family.name].filter(Boolean) as string[],
       amount,

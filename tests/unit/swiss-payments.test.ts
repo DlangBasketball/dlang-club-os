@@ -5,6 +5,10 @@ import {
   isValidQrr,
   qrrCheckDigit,
   scorReference,
+  isQrIban,
+  isValidScor,
+  referenceTypeOf,
+  resolveQrBillAccount,
   type PaymentSettings,
 } from "@/lib/swiss-payments";
 
@@ -143,9 +147,32 @@ describe("buildSpcPayload (Swiss Payment Code v0200)", () => {
     expect(lines[28]).toBe(rf);
   });
 
-  it("falls back to the IBAN when QRR is configured without a QR-IBAN", () => {
-    const lines = buildSpcPayload({ settings: { ...settings, qrIban: "" }, amount: 1, currency: "CHF", reference: SIX_QRR }).split("\r\n");
+  it("refuses a QRR reference without a QR-IBAN (banks reject QRR on a normal IBAN)", () => {
+    expect(() => buildSpcPayload({ settings: { ...settings, qrIban: "" }, amount: 1, currency: "CHF", reference: SIX_QRR })).toThrow();
+  });
+
+  it("takes the reference type from the invoice reference, not the org setting", () => {
+    // Setting says SCOR, invoice carries a QRR -> QRR + QR-IBAN.
+    const qrr = buildSpcPayload({ settings: { ...settings, referenceType: "SCOR" }, amount: 1, currency: "CHF", reference: SIX_QRR }).split("\r\n");
+    expect(qrr[3]).toBe("CH4431999123000889012");
+    expect(qrr[27]).toBe("QRR");
+    // Setting says QRR, invoice carries an RF reference -> SCOR + normal IBAN.
+    const rf = scorReference("INV20260211");
+    const scor = buildSpcPayload({ settings, amount: 1, currency: "CHF", reference: rf }).split("\r\n");
+    expect(scor[3]).toBe("CH9300762011623852957");
+    expect(scor[27]).toBe("SCOR");
+  });
+
+  it("writes NON with an empty reference when the invoice has none", () => {
+    const lines = buildSpcPayload({ settings: { ...settings, referenceType: "NON" }, amount: 1, currency: "CHF", reference: "" }).split("\r\n");
     expect(lines[3]).toBe("CH9300762011623852957");
+    expect(lines[27]).toBe("NON");
+    expect(lines[28]).toBe("");
+  });
+
+  it("refuses a non-CH/LI IBAN", () => {
+    const eu = { ...settings, iban: "DE89 3704 0044 0532 0130 00", qrIban: "" };
+    expect(() => buildSpcPayload({ settings: eu, amount: 1, currency: "EUR", reference: scorReference("INV1") })).toThrow();
   });
 
   it("formats the amount with exactly two decimals", () => {
@@ -164,5 +191,29 @@ describe("buildSpcPayload (Swiss Payment Code v0200)", () => {
     expect(withDebtor[21]).toBe("Carla Lopes");
     expect(withDebtor[26]).toBe("CH");
     expect(withDebtor[29]).toBe("INV-2026-0211");
+  });
+});
+
+describe("QR-bill account resolution", () => {
+  it("recognises QR-IBANs by their QR-IID (30000-31999)", () => {
+    expect(isQrIban("CH44 3199 9123 0008 8901 2")).toBe(true);
+    expect(isQrIban("CH93 0076 2011 6238 5295 7")).toBe(false);
+    expect(isQrIban("DE89 3704 0044 0532 0130 00")).toBe(false);
+    expect(isQrIban("")).toBe(false);
+  });
+
+  it("classifies stored references", () => {
+    expect(referenceTypeOf(SIX_QRR)).toBe("QRR");
+    expect(referenceTypeOf(scorReference("INV20260211"))).toBe("SCOR");
+    expect(referenceTypeOf("")).toBe("NON");
+    expect(referenceTypeOf(null)).toBe("NON");
+    expect(isValidScor("RF18539007547034")).toBe(true);
+    expect(isValidScor("RF19539007547034")).toBe(false);
+  });
+
+  it("returns null when no account fits the reference", () => {
+    expect(resolveQrBillAccount({ iban: "CH93 0076 2011 6238 5295 7", qrIban: "" }, SIX_QRR)).toBeNull();
+    expect(resolveQrBillAccount({ iban: "", qrIban: "CH44 3199 9123 0008 8901 2" }, scorReference("X1"))).toBeNull();
+    expect(resolveQrBillAccount({ iban: "FR76 3000 6000 0112 3456 7890 189", qrIban: "" }, scorReference("X1"))).toBeNull();
   });
 });

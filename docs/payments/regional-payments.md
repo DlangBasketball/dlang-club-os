@@ -36,7 +36,7 @@ debits settle in 3–5 business days; the invoice flips to paid when Stripe send
    - Platform endpoint → `STRIPE_WEBHOOK_SECRET`
    - Connect endpoint ("Events on connected accounts") → `STRIPE_CONNECT_WEBHOOK_SECRET`
 
-   Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`, `account.updated`, `account.application.deauthorized`.
+   Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`, `charge.refund.updated`, `refund.updated`, `charge.dispute.closed`, `account.updated`, `account.application.deauthorized`.
 4. A club admin opens **Settings → Online payments → Connect Stripe account** (`/api/stripe/connect/onboard`) and completes Stripe onboarding.
 5. On the connected account, the club activates TWINT / SEPA Direct Debit / iDEAL / Bancontact / ACH in its Stripe payment-method settings. If a method in our matrix isn't activated, Checkout falls back to Stripe's automatic methods.
 6. Schedule `select public.run_recurring_billing(org_id)` daily per org (pg_cron or a server cron with the service role) to issue recurring membership invoices.

@@ -5,7 +5,7 @@ import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, E
 import { getInvoiceDetail } from "@/lib/data/invoices";
 import { getOrgPaymentProfile, methodsForInvoice } from "@/lib/payments/settings";
 import { buildEpcQrPayload } from "@/lib/payments/epc-qr";
-import { formatQrReference } from "@/lib/swiss-payments";
+import { formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
 import { PaymentMethods } from "@/components/invoice/payment-methods";
 import { PayButton } from "../pay-button";
 import { getI18n } from "@/lib/i18n/server";
@@ -29,8 +29,18 @@ export default async function ParentInvoiceDetailPage({
   const payable = data.balance > 0 && data.status !== "cancelled" && data.status !== "paid";
 
   const isSwiss = profile.region === "CH";
-  const reference = data.reference ? (isSwiss ? formatQrReference(data.reference) : data.reference) : null;
-  const payIban = isSwiss && settings.referenceType === "QRR" ? settings.qrIban || settings.iban : profile.settings.iban || settings.iban;
+  // Swiss clubs: pair the invoice's own reference with the account kind it
+  // needs (QRR -> QR-IBAN, RF/none -> normal IBAN). Without a matching account
+  // the structured reference is dropped and the invoice number is used instead.
+  const swissAccount = isSwiss ? resolveQrBillAccount(settings, data.reference) : null;
+  const reference = isSwiss
+    ? swissAccount?.reference
+      ? swissAccount.referenceType === "QRR" ? formatQrReference(swissAccount.reference) : swissAccount.reference
+      : null
+    : data.reference ?? null;
+  const payIban = isSwiss
+    ? swissAccount?.iban ?? (settings.iban || profile.settings.iban || "")
+    : profile.settings.iban || settings.iban;
 
   const online = methods.filter((m) => m.via === "stripe");
   const offline = methods.filter((m) => m.via === "offline" && m.key !== "manual");

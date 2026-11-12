@@ -149,7 +149,7 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
       dy -= 4;
     };
     detail("Account / Payable to", [d.qrBill.iban, ...d.qrBill.creditorLines]);
-    detail("Reference", [d.qrBill.reference]);
+    if (d.qrBill.reference) detail("Reference", [d.qrBill.reference]);
     if (d.qrBill.debtorLines.some(Boolean)) detail("Payable by", d.qrBill.debtorLines);
 
     // Amount strip
