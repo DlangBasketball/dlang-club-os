@@ -31,8 +31,8 @@ export default async function ReconcilePage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="tnum text-sm font-medium text-ink">{f.money(r.balance)}</div>
-                    {r.paid > 0 && <div className="text-xs text-ink-3">of {f.money(r.total)}</div>}
+                    <div className="tnum text-sm font-medium text-ink">{f.money(r.balance, r.currency)}</div>
+                    {r.paid > 0 && <div className="text-xs text-ink-3">of {f.money(r.total, r.currency)}</div>}
                   </div>
                   <MarkPaidButton invoiceId={r.id} />
                 </div>

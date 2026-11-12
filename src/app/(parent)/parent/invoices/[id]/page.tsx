@@ -26,7 +26,8 @@ export default async function ParentInvoiceDetailPage({
   const methods = methodsForInvoice(profile, data.currency);
   const money = (n: number) => f.money(n, data.currency);
   const settings = profile.swiss;
-  const payable = data.balance > 0 && data.status !== "cancelled" && data.status !== "paid";
+  const payable = data.balance > 0 && !["cancelled", "void", "paid", "written_off"].includes(data.status);
+  const activeAdjustments = data.adjustments.filter((a) => !a.voidedAt);
 
   const isSwiss = profile.region === "CH";
   // Swiss clubs: pair the invoice's own reference with the account kind it
@@ -79,7 +80,7 @@ export default async function ParentInvoiceDetailPage({
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title={<span className="tnum">{data.number}</span>} description={data.description ?? t("invoices.invoice")}
-        actions={<Badge tone={statusTone(data.status)}>{t.dynamic(`status.${data.status}`, undefined, data.status.replace("_", " "))}</Badge>} />
+        actions={<Badge tone={statusTone(data.status)}>{t.dynamic(`status.${data.status}`, undefined, t.dynamic(`editMoney.status.${data.status}`, undefined, data.status.replace("_", " ")))}</Badge>} />
 
       {paid === "1" && (
         <div className="flex items-center gap-2 rounded-md border border-success/40 bg-success-soft px-4 py-3 text-sm text-success">
@@ -106,8 +107,17 @@ export default async function ParentInvoiceDetailPage({
             </div>
           )}
           <div className="flex items-center justify-between border-t border-line pt-3 text-sm"><span className="text-ink-2">{t("invoices.total")}</span><span className="tnum text-ink">{money(data.total)}</span></div>
+          {/* Credit / debit notes issued on this invoice (the original total never changes). */}
+          {activeAdjustments.map((a) => (
+            <div key={a.id} className="flex items-center justify-between text-sm">
+              <span className="text-ink-2">{t.dynamic(`editMoney.adjust.kinds.${a.kind}`, undefined, a.kind)} <span className="tnum">{a.number}</span>{a.description ? ` · ${a.description}` : ""}</span>
+              <span className="tnum text-ink">{a.kind === "debit_note" ? "+" : "−"} {money(a.amount)}</span>
+            </div>
+          ))}
           {data.paid > 0 && <div className="flex items-center justify-between text-sm"><span className="text-ink-2">{t("invoices.paid")}</span><span className="tnum text-success">- {money(data.paid)}</span></div>}
-          <div className="flex items-center justify-between border-t border-line pt-3 text-base font-semibold"><span>{t("invoices.balanceDue")}</span><span className="tnum text-maroon">{money(data.balance)}</span></div>
+          <div className="flex items-center justify-between border-t border-line pt-3 text-base font-semibold"><span>{t("invoices.balanceDue")}</span><span className="tnum text-maroon">{money(Math.max(0, data.balance))}</span></div>
+          {data.overpaid > 0 && <div className="text-xs text-ink-3">{t("editMoney.overpay.parentNote", { amount: money(data.overpaid) })}</div>}
+          {data.notes && <div className="text-sm text-ink-2">{data.notes}</div>}
           <div className="text-xs text-ink-3">{t("invoices.due", { date: f.date(data.dueDate) })}</div>
           <div className="pt-2"><PaymentMethods methods={methods} /></div>
         </CardBody>

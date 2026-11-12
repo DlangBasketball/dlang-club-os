@@ -22,6 +22,8 @@ export type InvoicePdfData = {
   contactEmail: string | null;
   items: { description: string; quantity: number; unitPrice: number; amount: number }[];
   total: number;
+  /** Active credit / debit notes, write-offs, cancellations: label + signed amount. */
+  adjustments?: { label: string; amount: number }[];
   paid: number;
   balance: number;
   qrBill?: QrBillSection | null;
@@ -160,6 +162,8 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
     y -= 18;
   };
   totalRow("Total", chf(d.total), bold);
+  // Adjustment documents keep the issued total intact (ASCII sign: WinAnsi font).
+  for (const a of d.adjustments ?? []) totalRow(a.label.slice(0, 34), `${a.amount < 0 ? "-" : "+"} ${chf(Math.abs(a.amount))}`);
   if (d.paid > 0) totalRow("Paid", `- ${chf(d.paid)}`, font, rgb(0.18, 0.62, 0.33));
   page.drawLine({ start: { x: totalsX, y: y + 8 }, end: { x: width - M, y: y + 8 }, thickness: 1, color: LINE });
   y -= 4;

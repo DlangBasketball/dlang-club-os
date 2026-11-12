@@ -15,6 +15,8 @@ import { sendEmail } from "@/lib/email/resend";
 import { getOrgEmailContext } from "@/lib/email/org-context";
 import { invoiceIssued, overdueReminder } from "@/lib/email/templates";
 import type { Json } from "@/types/database";
+import { moneyFail, moneyT, notPermitted, invalidInput, requireMoneyStaff, revalidateMoney } from "@/lib/money/action-helpers";
+import { invoiceMoney } from "@/lib/payments/adjustments";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -63,7 +65,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
   const { data: inv } = await supabase
     .from("invoices")
-    .select("id,number,status,description,total_chf,currency,due_date,family_id")
+    .select("id,number,status,description,total_chf,adjustments_total,currency,due_date,family_id,locale")
     .eq("id", id)
     .maybeSingle();
   if (!inv) return { ok: false, error: "Invoice not found" };
@@ -74,7 +76,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
   const { data: family } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
   if (family?.contact_email) {
-    const org = await getOrgEmailContext(me.orgId);
+    const org = await getOrgEmailContext(me.orgId, inv.locale);
     const clubName = org.clubName;
     const t = invoiceIssued({
       ...org.brand,
@@ -82,7 +84,8 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
       parentName: family.contact_name ?? "there",
       invoiceNumber: inv.number,
       description: inv.description,
-      totalChf: Number(inv.total_chf ?? 0),
+      // Amount due: the issued total plus any credit / debit notes.
+      totalChf: Number(inv.total_chf ?? 0) + Number(inv.adjustments_total ?? 0),
       dueDateLabel: org.f.date(inv.due_date),
       payUrl: org.link(`/parent/invoices/${id}`),
     });
@@ -94,46 +97,50 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 }
 
 // --- Cancel ----------------------------------------------------------------
-export async function cancelInvoice(id: string): Promise<ActionResult> {
-  const me = await requireFinance();
-  if (!me) return { ok: false, error: "Not permitted" };
+// Draft: cancelled outright. Issued and unpaid: a cancellation document for
+// the amount due (nothing is deleted; reopenInvoice undoes it). Invoices with
+// money on them are refused: void / re-allocate / refund the payments first.
+export async function cancelInvoice(id: string, reason: string): Promise<ActionResult> {
+  const t = await moneyT();
+  if (!(await requireMoneyStaff())) return notPermitted(t);
+  const parsed = z.object({ id: z.string().uuid(), reason: z.string().trim().min(1).max(500) }).safeParse({ id, reason });
+  if (!parsed.success) return parsed.error.issues.some((i) => i.path[0] === "reason") ? moneyFail(t, "REASON_REQUIRED") : invalidInput(t);
   const supabase = await createClient();
-  const { data: inv } = await supabase.from("invoices").select("status").eq("id", id).maybeSingle();
-  if (!inv) return { ok: false, error: "Invoice not found" };
-  if (inv.status === "paid") return { ok: false, error: "Paid invoices can't be cancelled (issue a refund instead)" };
-  const { error } = await supabase.from("invoices").update({ status: "cancelled" }).eq("id", id);
-  if (error) return { ok: false, error: error.message };
-  revalidatePath(`/admin/invoices/${id}`);
-  revalidatePath("/admin/invoices");
+  const { error } = await supabase.rpc("cancel_invoice", { p_invoice: parsed.data.id, p_reason: parsed.data.reason });
+  if (error) return moneyFail(t, error);
+  revalidateMoney([parsed.data.id]);
   return { ok: true };
 }
 
-// --- Manual payment (bank transfer / TWINT / cash) -------------------------
+// --- Manual payment (cash / bank transfer / TWINT / QR-bill) ----------------
 const paymentSchema = z.object({
-  amount: z.coerce.number().positive("Amount must be positive"),
-  method: z.enum(["bank_transfer", "twint", "manual", "card"]),
-  reference: z.string().optional().default(""),
-  note: z.string().optional().default(""),
+  amount: z.coerce.number().finite().positive(),
+  method: z.enum(["bank_transfer", "twint", "manual", "qr_bill", "card"]),
+  paid_on: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).optional().default(""),
+  reference: z.string().trim().max(200).optional().default(""),
+  note: z.string().trim().max(1000).optional().default(""),
 });
 export type ManualPaymentInput = z.input<typeof paymentSchema>;
 
 export async function recordManualPayment(invoiceId: string, input: ManualPaymentInput): Promise<ActionResult> {
-  const me = await requireFinance();
-  if (!me) return { ok: false, error: "Not permitted" };
+  const t = await moneyT();
+  if (!(await requireMoneyStaff())) return notPermitted(t);
+  const id = z.string().uuid().safeParse(invoiceId);
   const parsed = paymentSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid payment" };
+  if (!id.success) return invalidInput(t);
+  if (!parsed.success) return parsed.error.issues.some((i) => i.path[0] === "amount") ? moneyFail(t, "INVALID_AMOUNT") : invalidInput(t);
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("record_manual_payment", {
-    p_invoice: invoiceId,
+  const { error } = await supabase.rpc("record_offline_payment", {
+    p_invoice: id.data,
     p_amount: parsed.data.amount,
     p_method: parsed.data.method,
-    p_reference: parsed.data.reference || undefined,
-    p_note: parsed.data.note || undefined,
+    p_paid_on: parsed.data.paid_on || null,
+    p_reference: parsed.data.reference || null,
+    p_note: parsed.data.note || null,
   });
-  if (error) return { ok: false, error: error.message };
-  revalidatePath(`/admin/invoices/${invoiceId}`);
-  revalidatePath("/admin/invoices");
+  if (error) return moneyFail(t, error);
+  revalidateMoney([id.data]);
   return { ok: true };
 }
 
@@ -144,15 +151,23 @@ export async function sendReminder(id: string): Promise<ActionResult> {
   const supabase = await createClient();
   const { data: inv } = await supabase
     .from("invoices")
-    .select("number,total_chf,currency,due_date,family_id,status")
+    .select("number,total_chf,adjustments_total,currency,due_date,family_id,status,locale,reminders_paused")
     .eq("id", id)
     .maybeSingle();
   if (!inv) return { ok: false, error: "Invoice not found" };
+  if (inv.reminders_paused) return { ok: false, error: (await moneyT())("editMoney.errors.REMINDERS_PAUSED") };
+  const { data: paidNet } = await supabase.rpc("invoice_net_paid", { p_invoice: id });
+  const due = invoiceMoney({
+    total: Number(inv.total_chf ?? 0),
+    adjustmentsTotal: Number(inv.adjustments_total ?? 0),
+    paid: Number(paidNet ?? 0),
+    currency: inv.currency ?? "CHF",
+  }).outstanding;
 
   const { data: family } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
   if (!family?.contact_email) return { ok: false, error: "No contact email on file for this family" };
 
-  const org = await getOrgEmailContext(me.orgId);
+  const org = await getOrgEmailContext(me.orgId, inv.locale);
   const clubName = org.clubName;
   const t = overdueReminder({
     ...org.brand,
@@ -160,7 +175,7 @@ export async function sendReminder(id: string): Promise<ActionResult> {
     parentName: family.contact_name ?? "there",
     invoiceNumber: inv.number,
     description: null,
-    totalChf: Number(inv.total_chf ?? 0),
+    totalChf: due,
     dueDateLabel: org.f.date(inv.due_date),
     payUrl: org.link(`/parent/invoices/${id}`),
   });
@@ -206,31 +221,31 @@ export async function createCheckoutSession(invoiceId: string): Promise<{ ok: tr
 // --- One-click "mark as paid" (records the outstanding balance) -------------
 export async function markInvoicePaid(
   invoiceId: string,
-  method: "bank_transfer" | "twint" | "manual" = "bank_transfer",
+  method: "bank_transfer" | "twint" | "manual" | "qr_bill" = "bank_transfer",
 ): Promise<ActionResult> {
-  const me = await requireFinance();
-  if (!me) return { ok: false, error: "Not permitted" };
+  const t = await moneyT();
+  if (!(await requireMoneyStaff())) return notPermitted(t);
 
-  // Outstanding balance net of refund rows (as public.invoice_net_paid), so a
-  // refunded Stripe payment can be settled by bank transfer afterwards.
+  // Outstanding balance = amount due (total + credit/debit notes) net of
+  // refund rows (as public.invoice_net_paid), so a refunded Stripe payment
+  // can be settled by bank transfer afterwards.
   const inv = await loadPayableInvoice(invoiceId);
   if (!inv.ok) return { ok: false, error: inv.error };
   const balance = roundMoney(inv.balance, inv.currency);
-  if (balance <= 0) return { ok: false, error: "Nothing outstanding" };
+  if (balance <= 0) return moneyFail(t, "NOTHING_DUE");
 
   const supabase = await createClient();
   const { data: ref } = await supabase.from("invoices").select("payment_reference").eq("id", invoiceId).maybeSingle();
 
-  const { error } = await supabase.rpc("record_manual_payment", {
+  const { error } = await supabase.rpc("record_offline_payment", {
     p_invoice: invoiceId,
     p_amount: balance,
     p_method: method,
-    p_reference: ref?.payment_reference ?? undefined,
-    p_note: "Reconciled — marked paid",
+    p_paid_on: null,
+    p_reference: ref?.payment_reference ?? null,
+    p_note: t("editMoney.payment.markedPaidNote"),
   });
-  if (error) return { ok: false, error: error.message };
-  revalidatePath(`/admin/invoices/${invoiceId}`);
-  revalidatePath("/admin/invoices/reconcile");
-  revalidatePath("/admin/invoices");
+  if (error) return moneyFail(t, error);
+  revalidateMoney([invoiceId]);
   return { ok: true };
 }

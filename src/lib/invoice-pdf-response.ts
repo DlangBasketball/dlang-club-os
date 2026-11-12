@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeBranding } from "@/lib/tenant/normalize";
 import { APP_NAME } from "@/lib/constants";
 import { buildSpcPayload, formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
+import { getTranslations } from "@/lib/i18n/server";
 
 /** Builds and returns the invoice PDF. getInvoiceDetail is RLS-scoped, so the
  *  caller only ever gets a PDF for an invoice they're entitled to see. */
@@ -25,7 +26,9 @@ export async function renderInvoicePdf(id: string): Promise<NextResponse> {
   // reference type (SIX implementation guidelines). Only for an open balance:
   // a paid / cancelled invoice must never carry a payable QR code.
   const currency = (data.currency ?? "CHF").toUpperCase();
-  const payable = data.balance > 0 && !["paid", "cancelled", "void"].includes(data.status);
+  // The QR amount is the open balance against the amount due (credit / debit
+  // notes included); the structured reference never changes.
+  const payable = data.balance > 0 && !["paid", "cancelled", "void", "written_off"].includes(data.status);
   const account = resolveQrBillAccount(settings, data.reference);
   if (payable && account && (currency === "CHF" || currency === "EUR")) {
     const amount = data.balance;
@@ -41,13 +44,20 @@ export async function renderInvoicePdf(id: string): Promise<NextResponse> {
   }
 
   const branding = normalizeBranding((org as { branding?: unknown } | null)?.branding);
+  const t = await getTranslations(data.orgId);
+  const adjustments = data.adjustments
+    .filter((a) => !a.voidedAt)
+    .map((a) => ({
+      label: `${t.dynamic(`editMoney.adjust.kinds.${a.kind}`, undefined, a.kind)} ${a.number}`,
+      amount: a.kind === "debit_note" ? a.amount : -a.amount,
+    }));
   const paymentNote = payable ? paymentFooterText(methodsForInvoice(profile, currency)) : null;
 
   const bytes = await buildInvoicePdf({
     number: data.number, issuedAt: data.issuedAt, dueDate: data.dueDate, status: data.status,
     familyName: data.family.name, contactName: data.family.contactName, contactEmail: data.family.contactEmail,
     items: data.items.map((it) => ({ description: it.description, quantity: it.quantity, unitPrice: it.unitPrice, amount: it.amount })),
-    total: data.total, paid: data.paid, balance: data.balance, qrBill,
+    total: data.total, adjustments, paid: data.paid, balance: Math.max(0, data.balance), qrBill,
     club: { name: settings.creditorName, city: settings.creditorCity, country: settings.creditorCountry },
     currency,
     brandColor: branding.colors.primary,

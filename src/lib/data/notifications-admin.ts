@@ -56,7 +56,7 @@ export async function reminderTargets(): Promise<{ overdueInvoices: number; pare
   if (!orgId) return { overdueInvoices: 0, parents: 0 };
   const admin = createAdminClient();
   const [{ count: overdue }, fams] = await Promise.all([
-    admin.from("invoices").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "overdue"),
+    admin.from("invoices").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "overdue").eq("reminders_paused", false),
     admin.from("families").select("id").eq("org_id", orgId),
   ]);
   const famIds = (fams.data ?? []).map((f) => f.id);
