@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarPlus, Pencil } from "lucide-react";
-import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, ErrorState } from "@/components/ui";
+import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, ErrorState, Avatar } from "@/components/ui";
+import { getTranslations } from "@/lib/i18n/server";
 import { RosterManager } from "@/components/teams/roster-manager";
 import { EventList } from "@/components/schedule/event-views";
 import { getTeam, listAthleteOptions, listUpcomingEvents, rsvpCounts } from "@/lib/sportsops/data";
@@ -11,7 +12,8 @@ import { getTenant } from "@/lib/tenant/server";
 export const metadata = { title: "Team" };
 
 export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const LABELS = labelsFor((await getTenant()).terminology);
+  const [tenant, tr] = await Promise.all([getTenant(), getTranslations()]);
+  const LABELS = labelsFor(tenant.terminology);
   const { id } = await params;
   const [team, athletes, upcoming] = await Promise.all([getTeam(id), listAthleteOptions(), listUpcomingEvents({ teamIds: [id], limit: 8 })]);
   const error = team.error ?? athletes.error ?? upcoming.error;
@@ -29,10 +31,20 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
           <Link href={`/admin/teams/${t.id}/edit`}><Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> Edit</Button></Link>
         </>} />
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {t.coaches.length === 0 && <Badge tone="warning">No coach assigned</Badge>}
-        {t.coaches.map((c) => <Badge key={c.id} tone="maroon">{c.name} · {c.role}</Badge>)}
+        {t.coaches.map((c) => (
+          <Link key={c.id} href={`/admin/coaches/${c.id}`}
+            className="flex items-center gap-2 rounded-full border border-border bg-surface-elevated py-1 pl-1 pr-3 text-sm text-ink hover:border-border-strong">
+            <Avatar name={c.name} src={c.photoUrl} size="md" />
+            <span className="min-w-0">
+              <span className="block font-medium leading-tight">{c.name}</span>
+              <span className="block text-[11px] leading-tight text-ink-3">{tr.dynamic(`coaches.roles.${c.role}`, undefined, c.role)}</span>
+            </span>
+          </Link>
+        ))}
         {!t.isActive && <Badge>inactive</Badge>}
+        <Link href="/admin/coaches" className="text-xs text-ink-3 hover:text-ink">{tr("coaches.team.editCoaches")} →</Link>
       </div>
 
       <section>

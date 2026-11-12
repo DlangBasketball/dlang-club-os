@@ -48,7 +48,7 @@ export async function listAthleteCredits(): Promise<Result<AthleteCredit[]>> {
 }
 
 // ---- Bookings (admin: all) -------------------------------------------------
-export type AdminBooking = { id: string; athleteName: string; serviceName: string; coachName: string; start: string; status: string; price: number | null; creditsUsed: number; invoiceId: string | null };
+export type AdminBooking = { id: string; athleteName: string; serviceName: string; coachName: string; coachId: string; start: string; status: string; price: number | null; creditsUsed: number; invoiceId: string | null };
 export async function listAllBookings(): Promise<Result<AdminBooking[]>> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,status,price_chf,credits_used,invoice_id").order("slot_start", { ascending: false }).limit(300);
@@ -61,7 +61,7 @@ export async function listAllBookings(): Promise<Result<AdminBooking[]>> {
   const aName = new Map((aRes.data ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
   const sName = new Map((sRes.data ?? []).map((s) => [s.id, s.name]));
   const cName = new Map((cRes.data ?? []).map((c) => [c.id, c.display_name]));
-  return ok((data ?? []).map((b) => ({ id: b.id, athleteName: aName.get(b.athlete_id) ?? "Athlete", serviceName: sName.get(b.service_id) ?? "Session", coachName: cName.get(b.coach_id) ?? "Coach", start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null, creditsUsed: b.credits_used, invoiceId: b.invoice_id })));
+  return ok((data ?? []).map((b) => ({ id: b.id, athleteName: aName.get(b.athlete_id) ?? "Athlete", serviceName: sName.get(b.service_id) ?? "Session", coachName: cName.get(b.coach_id) ?? "Coach", coachId: b.coach_id, start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null, creditsUsed: b.credits_used, invoiceId: b.invoice_id })));
 }
 
 export async function getBookingDetail(id: string): Promise<Result<(AdminBooking & { athleteId: string; serviceName: string; notes: string | null }) | null>> {
@@ -77,7 +77,7 @@ export async function getBookingDetail(id: string): Promise<Result<(AdminBooking
   return ok({
     id: b.id, athleteId: b.athlete_id,
     athleteName: a.data ? `${a.data.first_name} ${a.data.last_name}` : "Athlete",
-    serviceName: s.data?.name ?? "Session", coachName: c.data?.display_name ?? "Coach",
+    serviceName: s.data?.name ?? "Session", coachName: c.data?.display_name ?? "Coach", coachId: b.coach_id,
     start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null,
     creditsUsed: b.credits_used, invoiceId: b.invoice_id, notes: b.notes,
   });

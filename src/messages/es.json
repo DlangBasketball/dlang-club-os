@@ -137,6 +137,7 @@
     "account": "Cuenta",
     "support": "Ayuda",
     "teams": "Equipos",
+    "coaches": "Entrenadores",
     "reports": "Informes",
     "myTeam": "Mi equipo",
     "import": "Importar"
@@ -1354,5 +1355,139 @@
       "REMINDERS_PAUSED": "Los recordatorios de esta factura están pausados.",
       "INVALID_KIND": "Elija el tipo de ajuste."
     }
+  },
+  "coaches": {
+    "title": "Entrenadores",
+    "description": "Todas las personas que entrenan en su club: nombres, cargos, fotos, equipos y accesos.",
+    "new": "Nuevo entrenador",
+    "newDescription": "Añada un entrenador y después asígnelo a los equipos en el formulario de equipo.",
+    "editTitle": "Editar entrenador",
+    "back": "Todos los entrenadores",
+    "searchLabel": "Buscar entrenadores",
+    "searchPlaceholder": "Nombre, cargo o equipo",
+    "search": "Buscar",
+    "clear": "Borrar",
+    "filterLabel": "Mostrar",
+    "filter": {
+      "all": "Todos",
+      "active": "Solo activos",
+      "inactive": "Solo inactivos"
+    },
+    "count": "{count, plural, one {# entrenador} other {# entrenadores}}",
+    "columns": {
+      "coach": "Entrenador",
+      "teams": "Equipos",
+      "login": "Acceso",
+      "status": "Estado"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "login": {
+      "linked": "Puede iniciar sesión",
+      "pending": "Invitación enviada",
+      "none": "Sin acceso"
+    },
+    "noTeams": "Sin equipos",
+    "empty": {
+      "title": "Todavía no hay entrenadores",
+      "description": "Añada su primer entrenador y después asígnelo a los equipos."
+    },
+    "noResults": "Ningún entrenador coincide con su búsqueda.",
+    "form": {
+      "displayName": "Nombre",
+      "displayNamePlaceholder": "p. ej. Alex Martin",
+      "roleTitle": "Cargo o función",
+      "roleTitlePlaceholder": "p. ej. Entrenador principal U14",
+      "bio": "Breve presentación",
+      "bioHint": "Visible para el personal y los padres de su club.",
+      "active": "Activo: se puede elegir para equipos, sesiones y reservas",
+      "serves": "Servicios de desarrollo ofrecidos",
+      "servesHint": "Se usa para reservas individuales. Déjelo vacío si este entrenador solo lleva equipos.",
+      "create": "Crear entrenador",
+      "save": "Guardar cambios",
+      "saving": "Guardando…",
+      "cancel": "Cancelar"
+    },
+    "detail": {
+      "profile": "Perfil",
+      "photo": "Fotografía",
+      "teams": "Equipos",
+      "noTeams": "Aún no está asignado a ningún equipo. Los entrenadores se asignan en el formulario de equipo.",
+      "login": "Acceso a la app",
+      "linkedAs": "Vinculado a la cuenta {email}.",
+      "linked": "Vinculado a una cuenta de acceso.",
+      "pending": "Se envió una invitación que espera ser aceptada.",
+      "none": "Este entrenador aún no tiene acceso. Invítelo para que pueda usar la app de entrenadores.",
+      "invite": "Invitar a iniciar sesión",
+      "invitations": "Invitaciones abiertas",
+      "status": "Estado y eliminación",
+      "inactiveNote": "Los entrenadores inactivos permanecen en el historial, pero ya no se pueden elegir para nuevos equipos, sesiones o reservas."
+    },
+    "usage": {
+      "title": "Se usa en",
+      "teams": "{count, plural, one {# equipo} other {# equipos}}",
+      "sessions": "{count, plural, one {# sesión de programa} other {# sesiones de programa}}",
+      "attendance": "{count, plural, one {# registro de asistencia} other {# registros de asistencia}}",
+      "availability": "{count, plural, one {# franja de disponibilidad} other {# franjas de disponibilidad}}",
+      "bookings": "{count, plural, one {# reserva} other {# reservas}}"
+    },
+    "actions": {
+      "deactivate": "Desactivar",
+      "reactivate": "Reactivar",
+      "delete": "Eliminar entrenador",
+      "deleting": "Eliminando…",
+      "confirmDeactivate": "¿Desactivar a {name}? Seguirá en el historial, pero ya no se podrá elegir para nuevos equipos o sesiones.",
+      "confirmDelete": "¿Eliminar a {name} definitivamente? Esta acción no se puede deshacer.",
+      "deleteBlocked": "Este entrenador aparece en los registros del club y no se puede eliminar. Desactívelo en su lugar.",
+      "deleteHint": "Todavía no se usa en ningún sitio, así que este entrenador se puede eliminar."
+    },
+    "messages": {
+      "created": "Entrenador creado.",
+      "saved": "Entrenador guardado.",
+      "deactivated": "Entrenador desactivado.",
+      "reactivated": "Entrenador reactivado.",
+      "deleted": "Entrenador eliminado."
+    },
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "Este texto es demasiado largo.",
+      "invalidId": "Selección no válida.",
+      "invalidService": "Servicio desconocido.",
+      "forbidden": "Solo los administradores del club pueden gestionar entrenadores.",
+      "notFound": "Entrenador no encontrado.",
+      "inUse": "Este entrenador aparece en los registros del club y no se puede eliminar. Desactívelo en su lugar.",
+      "photoPath": "No se pudo guardar la foto.",
+      "generic": "Algo salió mal. Inténtelo de nuevo."
+    },
+    "photo": {
+      "privacy": "Visible solo para el personal y los padres de su club, para que las familias reconozcan a su entrenador. Nunca se muestra en páginas públicas.",
+      "saved": "Foto guardada.",
+      "removed": "Foto eliminada."
+    },
+    "team": {
+      "newCoach": "Nuevo entrenador",
+      "quickTitle": "Añadir un entrenador nuevo",
+      "name": "Nombre",
+      "title": "Cargo (opcional)",
+      "add": "Añadir entrenador",
+      "adding": "Añadiendo…",
+      "cancel": "Cancelar",
+      "editCoaches": "Gestionar entrenadores",
+      "added": "{name} se añadió a la lista."
+    },
+    "roles": {
+      "head": "Entrenador principal",
+      "assistant": "Asistente",
+      "manager": "Delegado",
+      "trainer": "Preparador físico"
+    },
+    "invite": {
+      "coach": "Ficha de entrenador",
+      "selectCoach": "Elegir entrenador…",
+      "hint": "La ficha de entrenador se vincula a esta cuenta cuando se acepta la invitación."
+    },
+    "you": "Usted"
   }
 }

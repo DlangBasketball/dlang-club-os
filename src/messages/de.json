@@ -137,6 +137,7 @@
     "account": "Konto",
     "support": "Hilfe",
     "teams": "Teams",
+    "coaches": "Trainer",
     "reports": "Berichte",
     "myTeam": "Mein Team",
     "import": "Import"
@@ -1354,5 +1355,139 @@
       "REMINDERS_PAUSED": "Die Mahnungen für diese Rechnung sind pausiert.",
       "INVALID_KIND": "Wählen Sie die Art der Anpassung."
     }
+  },
+  "coaches": {
+    "title": "Trainer",
+    "description": "Alle, die in Ihrem Verein trainieren: Namen, Funktionen, Fotos, Teams und Zugänge.",
+    "new": "Neuer Trainer",
+    "newDescription": "Erfassen Sie einen Trainer und teilen Sie ihn danach im Teamformular den Teams zu.",
+    "editTitle": "Trainer bearbeiten",
+    "back": "Alle Trainer",
+    "searchLabel": "Trainer suchen",
+    "searchPlaceholder": "Name, Funktion oder Team",
+    "search": "Suchen",
+    "clear": "Zurücksetzen",
+    "filterLabel": "Anzeigen",
+    "filter": {
+      "all": "Alle",
+      "active": "Nur aktive",
+      "inactive": "Nur inaktive"
+    },
+    "count": "{count, plural, one {# Trainer} other {# Trainer}}",
+    "columns": {
+      "coach": "Trainerin/Trainer",
+      "teams": "Mannschaften",
+      "login": "Zugang",
+      "status": "Zustand"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "login": {
+      "linked": "Kann sich anmelden",
+      "pending": "Einladung gesendet",
+      "none": "Kein Zugang"
+    },
+    "noTeams": "Keine Mannschaften",
+    "empty": {
+      "title": "Noch keine Trainer",
+      "description": "Erfassen Sie Ihren ersten Trainer und teilen Sie ihn danach den Teams zu."
+    },
+    "noResults": "Kein Trainer entspricht Ihrer Suche.",
+    "form": {
+      "displayName": "Vollständiger Name",
+      "displayNamePlaceholder": "z. B. Alex Martin",
+      "roleTitle": "Funktion oder Rolle",
+      "roleTitlePlaceholder": "z. B. Cheftrainer U14",
+      "bio": "Kurzporträt",
+      "bioHint": "Sichtbar für das Personal und die Eltern Ihres Vereins.",
+      "active": "Aktiv: kann für Teams, Trainings und Buchungen gewählt werden",
+      "serves": "Angebotene Förderleistungen",
+      "servesHint": "Für Einzelbuchungen. Leer lassen, wenn dieser Trainer nur Teams betreut.",
+      "create": "Trainer erfassen",
+      "save": "Änderungen speichern",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen"
+    },
+    "detail": {
+      "profile": "Profil",
+      "photo": "Bild",
+      "teams": "Mannschaften",
+      "noTeams": "Noch keinem Team zugeteilt. Trainer werden im Teamformular zugeteilt.",
+      "login": "App-Zugang",
+      "linkedAs": "Verknüpft mit dem Konto {email}.",
+      "linked": "Mit einem Benutzerkonto verknüpft.",
+      "pending": "Eine Einladung wurde gesendet und wartet auf Annahme.",
+      "none": "Dieser Trainer hat noch keinen Zugang. Laden Sie ihn ein, damit er die Trainer-App nutzen kann.",
+      "invite": "Zur Anmeldung einladen",
+      "invitations": "Offene Einladungen",
+      "status": "Zustand und Löschen",
+      "inactiveNote": "Inaktive Trainer bleiben in der Historie, können aber nicht mehr für neue Teams, Trainings oder Buchungen gewählt werden."
+    },
+    "usage": {
+      "title": "Verwendet in",
+      "teams": "{count, plural, one {# Mannschaft} other {# Mannschaften}}",
+      "sessions": "{count, plural, one {# Programmeinheit} other {# Programmeinheiten}}",
+      "attendance": "{count, plural, one {# Anwesenheitseintrag} other {# Anwesenheitseinträge}}",
+      "availability": "{count, plural, one {# Verfügbarkeitsfenster} other {# Verfügbarkeitsfenster}}",
+      "bookings": "{count, plural, one {# Buchung} other {# Buchungen}}"
+    },
+    "actions": {
+      "deactivate": "Deaktivieren",
+      "reactivate": "Reaktivieren",
+      "delete": "Trainer löschen",
+      "deleting": "Wird gelöscht…",
+      "confirmDeactivate": "{name} deaktivieren? Die Person bleibt in der Historie, kann aber nicht mehr für neue Teams oder Trainings gewählt werden.",
+      "confirmDelete": "{name} endgültig löschen? Dies kann nicht rückgängig gemacht werden.",
+      "deleteBlocked": "Dieser Trainer kommt in Vereinsdaten vor und kann nicht gelöscht werden. Deaktivieren Sie ihn stattdessen.",
+      "deleteHint": "Noch nirgends verwendet, daher kann dieser Trainer gelöscht werden."
+    },
+    "messages": {
+      "created": "Trainer erfasst.",
+      "saved": "Trainer gespeichert.",
+      "deactivated": "Trainer deaktiviert.",
+      "reactivated": "Trainer reaktiviert.",
+      "deleted": "Trainer gelöscht."
+    },
+    "errors": {
+      "required": "Dieses Feld ist erforderlich.",
+      "tooLong": "Dieser Text ist zu lang.",
+      "invalidId": "Ungültige Auswahl.",
+      "invalidService": "Unbekannte Leistung.",
+      "forbidden": "Nur Vereinsadministratoren können Trainer verwalten.",
+      "notFound": "Trainer nicht gefunden.",
+      "inUse": "Dieser Trainer kommt in Vereinsdaten vor und kann nicht gelöscht werden. Deaktivieren Sie ihn stattdessen.",
+      "photoPath": "Das Foto konnte nicht gespeichert werden.",
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    },
+    "photo": {
+      "privacy": "Nur für das Personal und die Eltern Ihres Vereins sichtbar, damit Familien ihren Trainer erkennen. Nie auf öffentlichen Seiten.",
+      "saved": "Foto gespeichert.",
+      "removed": "Foto entfernt."
+    },
+    "team": {
+      "newCoach": "Neuer Trainer",
+      "quickTitle": "Neuen Trainer erfassen",
+      "name": "Vollständiger Name",
+      "title": "Funktion (optional)",
+      "add": "Trainer hinzufügen",
+      "adding": "Wird hinzugefügt…",
+      "cancel": "Abbrechen",
+      "editCoaches": "Trainer verwalten",
+      "added": "{name} wurde zur Liste hinzugefügt."
+    },
+    "roles": {
+      "head": "Cheftrainer",
+      "assistant": "Assistenz",
+      "manager": "Teamleitung",
+      "trainer": "Athletiktrainer"
+    },
+    "invite": {
+      "coach": "Trainereintrag",
+      "selectCoach": "Trainer wählen…",
+      "hint": "Der Trainereintrag wird mit diesem Konto verknüpft, sobald die Einladung angenommen ist."
+    },
+    "you": "Sie"
   }
 }

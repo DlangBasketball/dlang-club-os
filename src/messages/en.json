@@ -137,6 +137,7 @@
     "account": "Account",
     "support": "Support",
     "teams": "Teams",
+    "coaches": "Coaches",
     "reports": "Reports",
     "myTeam": "My team",
     "import": "Import"
@@ -1354,5 +1355,139 @@
       "REMINDERS_PAUSED": "Reminders are paused for this invoice.",
       "INVALID_KIND": "Choose the type of adjustment."
     }
+  },
+  "coaches": {
+    "title": "Coaches",
+    "description": "Everyone who coaches in your club: names, titles, photos, teams and logins.",
+    "new": "New coach",
+    "newDescription": "Add a coach, then assign them to teams on the team form.",
+    "editTitle": "Edit coach",
+    "back": "All coaches",
+    "searchLabel": "Search coaches",
+    "searchPlaceholder": "Name, title or team",
+    "search": "Search",
+    "clear": "Clear",
+    "filterLabel": "Show",
+    "filter": {
+      "all": "All",
+      "active": "Active only",
+      "inactive": "Inactive only"
+    },
+    "count": "{count, plural, one {# coach} other {# coaches}}",
+    "columns": {
+      "coach": "Coach",
+      "teams": "Teams",
+      "login": "Login",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "login": {
+      "linked": "Can log in",
+      "pending": "Invitation sent",
+      "none": "No login"
+    },
+    "noTeams": "No teams",
+    "empty": {
+      "title": "No coaches yet",
+      "description": "Add your first coach, then assign them to teams."
+    },
+    "noResults": "No coach matches your search.",
+    "form": {
+      "displayName": "Name",
+      "displayNamePlaceholder": "e.g. Alex Martin",
+      "roleTitle": "Title or role",
+      "roleTitlePlaceholder": "e.g. Head coach U14",
+      "bio": "Short bio",
+      "bioHint": "Visible to the staff and parents of your club.",
+      "active": "Active: can be picked for teams, sessions and bookings",
+      "serves": "Player-development services offered",
+      "servesHint": "Used for private bookings. Leave empty if this coach only coaches teams.",
+      "create": "Create coach",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "detail": {
+      "profile": "Profile",
+      "photo": "Photo",
+      "teams": "Teams",
+      "noTeams": "Not assigned to any team yet. Assign coaches on the team form.",
+      "login": "App access",
+      "linkedAs": "Linked to the account {email}.",
+      "linked": "Linked to a login account.",
+      "pending": "An invitation was sent and is waiting to be accepted.",
+      "none": "This coach has no login yet. Invite them so they can use the coach app.",
+      "invite": "Invite to log in",
+      "invitations": "Open invitations",
+      "status": "Status and removal",
+      "inactiveNote": "Inactive coaches stay on past records but cannot be picked for new teams, sessions or bookings."
+    },
+    "usage": {
+      "title": "Used in",
+      "teams": "{count, plural, one {# team} other {# teams}}",
+      "sessions": "{count, plural, one {# programme session} other {# programme sessions}}",
+      "attendance": "{count, plural, one {# attendance record} other {# attendance records}}",
+      "availability": "{count, plural, one {# availability slot} other {# availability slots}}",
+      "bookings": "{count, plural, one {# booking} other {# bookings}}"
+    },
+    "actions": {
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "delete": "Delete coach",
+      "deleting": "Deleting…",
+      "confirmDeactivate": "Deactivate {name}? They stay on past records but can no longer be picked for new teams or sessions.",
+      "confirmDelete": "Delete {name} permanently? This cannot be undone.",
+      "deleteBlocked": "This coach appears in club records, so they cannot be deleted. Deactivate them instead.",
+      "deleteHint": "Not used anywhere yet, so this coach can be deleted."
+    },
+    "messages": {
+      "created": "Coach created.",
+      "saved": "Coach saved.",
+      "deactivated": "Coach deactivated.",
+      "reactivated": "Coach reactivated.",
+      "deleted": "Coach deleted."
+    },
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "This text is too long.",
+      "invalidId": "Invalid selection.",
+      "invalidService": "Unknown service.",
+      "forbidden": "Only club admins can manage coaches.",
+      "notFound": "Coach not found.",
+      "inUse": "This coach appears in club records and cannot be deleted. Deactivate them instead.",
+      "photoPath": "The photo could not be saved.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "photo": {
+      "privacy": "Visible only to the staff and parents of your club, so families recognise their coach. Never shown on public pages.",
+      "saved": "Photo saved.",
+      "removed": "Photo removed."
+    },
+    "team": {
+      "newCoach": "New coach",
+      "quickTitle": "Add a new coach",
+      "name": "Name",
+      "title": "Title (optional)",
+      "add": "Add coach",
+      "adding": "Adding…",
+      "cancel": "Cancel",
+      "editCoaches": "Edit coaches",
+      "added": "{name} added to the list."
+    },
+    "roles": {
+      "head": "Head coach",
+      "assistant": "Assistant",
+      "manager": "Manager",
+      "trainer": "Trainer"
+    },
+    "invite": {
+      "coach": "Coach record",
+      "selectCoach": "Select coach…",
+      "hint": "The coach record is linked to this account when the invitation is accepted."
+    },
+    "you": "You"
   }
 }

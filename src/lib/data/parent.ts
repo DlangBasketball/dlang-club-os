@@ -176,7 +176,7 @@ export async function listNotifications(status: "active" | "unread" | "archived"
   return ok((data ?? []).map((n) => ({ id: n.id, type: n.type, title: n.title, body: n.body, link: n.link, readAt: n.read_at, archivedAt: n.archived_at, createdAt: n.created_at })));
 }
 
-export type ParentBooking = { id: string; serviceName: string; coachName: string; start: string; status: string; price: number | null };
+export type ParentBooking = { id: string; serviceName: string; coachName: string; coachId: string; start: string; status: string; price: number | null };
 export async function listBookings(): Promise<Result<ParentBooking[]>> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("training_bookings").select("id,service_id,coach_id,slot_start,status,price_chf").order("slot_start", { ascending: false });
@@ -189,7 +189,7 @@ export async function listBookings(): Promise<Result<ParentBooking[]>> {
   ]);
   const sName = new Map((svc.data ?? []).map((s) => [s.id, s.name]));
   const cName = new Map((coaches.data ?? []).map((c) => [c.id, c.display_name]));
-  return ok((data ?? []).map((b) => ({ id: b.id, serviceName: sName.get(b.service_id) ?? "Session", coachName: cName.get(b.coach_id) ?? "Coach", start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null })));
+  return ok((data ?? []).map((b) => ({ id: b.id, serviceName: sName.get(b.service_id) ?? "Session", coachName: cName.get(b.coach_id) ?? "Coach", coachId: b.coach_id, start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null })));
 }
 
 /** Public/active programs a family can register for (read via admin client; public info). */

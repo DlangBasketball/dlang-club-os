@@ -12,6 +12,11 @@ export default async function EditTeamPage({ params }: { params: Promise<{ id: s
   if (error) return <div className="animate-fade-up"><PageHeader title="Edit team" /><ErrorState message={error} /></div>;
   const t = team.data;
   if (!t) notFound();
+  // Keep coaches already on the team selectable even when deactivated, so saving never drops them.
+  const coachOptions = [
+    ...coaches.data!,
+    ...t.coaches.filter((c) => !coaches.data!.some((o) => o.id === c.id)).map((c) => ({ id: c.id, name: c.name })),
+  ];
   return (
     <div className="animate-fade-up max-w-2xl">
       <PageHeader title={`Edit ${t.name}`} />
@@ -22,7 +27,7 @@ export default async function EditTeamPage({ params }: { params: Promise<{ id: s
             gender: t.gender ?? "", level: t.level ?? "", color: t.color ?? "", notes: t.notes ?? "", isActive: t.isActive,
             coaches: t.coaches.map((c) => ({ coachId: c.id, role: c.role as "head" | "assistant" | "manager" | "trainer" })),
           }}
-          seasons={seasons.data!.map((s) => ({ id: s.id, name: s.name }))} programs={programs.data!} coaches={coaches.data!} />
+          seasons={seasons.data!.map((s) => ({ id: s.id, name: s.name }))} programs={programs.data!} coaches={coachOptions} />
       </CardBody></Card>
     </div>
   );

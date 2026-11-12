@@ -9,6 +9,7 @@ export type AttendanceSessionRow = {
   id: string;
   programName: string;
   coachName: string;
+  coachId: string | null;
   date: string;
   status: string;
   present: number; late: number; absent: number; excused: number; injuries: number; total: number;
@@ -41,7 +42,7 @@ export async function listAttendanceSessions(dateFilter?: string): Promise<Resul
   }
   return ok((sessions ?? []).map((s) => {
     const a = byS.get(s.id) ?? { present: 0, late: 0, absent: 0, excused: 0, injuries: 0, total: 0 };
-    return { id: s.id, programName: pName.get(s.program_id ?? "") ?? "Session", coachName: cName.get(s.coach_id ?? "") ?? "—", date: s.session_date, status: s.status, ...a };
+    return { id: s.id, programName: pName.get(s.program_id ?? "") ?? "Session", coachName: cName.get(s.coach_id ?? "") ?? "—", coachId: s.coach_id ?? null, date: s.session_date, status: s.status, ...a };
   }));
 }
 

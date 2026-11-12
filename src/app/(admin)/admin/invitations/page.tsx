@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader, DataTable, EmptyState, Badge, statusTone, type Column } from "@/components/ui";
 import { getFormatter } from "@/lib/i18n/server";
 import type { Formatter } from "@/lib/format";
+import { listUnlinkedCoaches } from "@/lib/data/coaches";
 import { InviteForm } from "./invite-form";
 
 type Invite = {
@@ -22,7 +23,8 @@ const columnsFor = (f: Formatter): Column<Invite>[] => [
   { key: "status", header: "Status", render: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge> },
 ];
 
-export default async function InvitationsPage() {
+export default async function InvitationsPage({ searchParams }: { searchParams: Promise<{ role?: string; coachId?: string }> }) {
+  const sp = await searchParams;
   const columns = columnsFor(await getFormatter());
   const supabase = await createClient();
   // RLS returns only this org's invitations, and only to admins.
@@ -38,6 +40,12 @@ export default async function InvitationsPage() {
     .select("id, name")
     .order("name");
 
+  // Coaches without a login: an invite for the coach role links the coach row
+  // to the new account when accepted (handle_new_user / inviteUser).
+  const coaches = await listUnlinkedCoaches();
+  const defaultRole = sp.role === "coach" ? "coach" : undefined;
+  const defaultCoachId = defaultRole && coaches.some((c) => c.id === sp.coachId) ? sp.coachId : undefined;
+
   return (
     <div className="animate-fade-up">
       <PageHeader
@@ -45,7 +53,12 @@ export default async function InvitationsPage() {
         description="Invite parents and staff by email. They're auto-linked to their family or role on first sign-in."
       />
       <div className="mb-6">
-        <InviteForm families={(families ?? []) as { id: string; name: string }[]} />
+        <InviteForm
+          families={(families ?? []) as { id: string; name: string }[]}
+          coaches={coaches}
+          defaultRole={defaultRole}
+          defaultCoachId={defaultCoachId}
+        />
       </div>
       <DataTable
         columns={columns}

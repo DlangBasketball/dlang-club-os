@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Pencil, Plus, Shield } from "lucide-react";
-import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState } from "@/components/ui";
+import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState, Avatar } from "@/components/ui";
 import { SeasonForm } from "@/components/teams/season-form";
 import { listSeasons, listTeams } from "@/lib/sportsops/data";
 import { labelsFor } from "@/lib/sportsops/labels";
@@ -59,7 +59,14 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
                         {[t.sport, t.ageGroup, t.gender, t.level].filter(Boolean).map((x) => <Badge key={x} tone="neutral">{x}</Badge>)}
                       </div>
                       <div className="mt-3 flex items-center justify-between text-sm text-ink-2">
-                        <span>{t.coaches.length ? t.coaches.map((c) => c.name).join(", ") : "No coach assigned"}</span>
+                        <span className="flex min-w-0 items-center gap-2">
+                          {t.coaches.length > 0 && (
+                            <span className="flex -space-x-2">
+                              {t.coaches.slice(0, 3).map((c) => <Avatar key={c.id} name={c.name} src={c.photoUrl} size="sm" className="ring-2 ring-[var(--surface)]" />)}
+                            </span>
+                          )}
+                          <span className="truncate">{t.coaches.length ? t.coaches.map((c) => c.name).join(", ") : "No coach assigned"}</span>
+                        </span>
                         <span className="tnum text-ink">{t.rosterCount} {t.rosterCount === 1 ? LABELS.athlete.toLowerCase() : LABELS.athletes.toLowerCase()}</span>
                       </div>
                       {t.seasonName && <div className="mt-1 text-xs text-ink-3">{t.seasonName}</div>}

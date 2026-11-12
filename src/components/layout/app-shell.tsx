@@ -42,6 +42,7 @@ export function AppShell({
   user,
   notifications,
   hiddenHrefs,
+  profilePhotoUrl,
   children,
 }: {
   navKey: NavKey;
@@ -49,6 +50,11 @@ export function AppShell({
   notifications?: NotifProp;
   /** Nav destinations to hide for this user/club (e.g. a feature the club has not enabled). */
   hiddenHrefs?: string[];
+  /**
+   * Signed URL of the signed-in user's own profile photo (e.g. the coach's
+   * photo in the coach app). undefined = no header avatar; null = initials.
+   */
+  profilePhotoUrl?: string | null;
   children: React.ReactNode;
 }) {
   const variant = navKey === "admin" ? "sidebar" : "bottom";
@@ -60,11 +66,11 @@ export function AppShell({
       </a>
       <HiddenNavContext.Provider value={hiddenHrefs ?? NO_HIDDEN}>
       {variant === "sidebar" ? (
-        <SidebarShell navKey={navKey} user={user} notifications={notifications}>
+        <SidebarShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl}>
           {children}
         </SidebarShell>
       ) : (
-        <BottomShell navKey={navKey} user={user} notifications={notifications}>
+        <BottomShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl}>
           {children}
         </BottomShell>
       )}
@@ -172,11 +178,11 @@ function SignOutButton({ className }: { className?: string }) {
   );
 }
 
-function UserMenu({ user }: { user: SessionUser }) {
+function UserMenu({ user, photoUrl }: { user: SessionUser; photoUrl?: string | null }) {
   const t = useT();
   return (
     <div className="flex items-center gap-2.5 border-t border-border px-4 py-3.5">
-      <Avatar name={user.fullName ?? user.email} tone="accent" />
+      <Avatar name={user.fullName ?? user.email} src={photoUrl ?? null} tone="accent" />
       <div className="min-w-0 flex-1 leading-tight">
         <div className="truncate text-[12.5px] font-medium text-text">
           {user.fullName ?? t("shell.member")}
@@ -192,11 +198,13 @@ function SidebarShell({
   navKey,
   user,
   notifications,
+  profilePhotoUrl,
   children,
 }: {
   navKey: NavKey;
   user: SessionUser;
   notifications?: NotifProp;
+  profilePhotoUrl?: string | null;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -214,7 +222,7 @@ function SidebarShell({
         <nav aria-label={t("shell.mainNavigation")} className="flex-1 overflow-y-auto px-2 py-3">
           <NavLinks navKey={navKey} />
         </nav>
-        <UserMenu user={user} />
+        <UserMenu user={user} photoUrl={profilePhotoUrl} />
       </aside>
 
       {/* Mobile drawer */}
@@ -231,7 +239,7 @@ function SidebarShell({
             <nav aria-label={t("shell.mainNavigation")} className="flex-1 overflow-y-auto px-2 py-3">
               <NavLinks navKey={navKey} onNavigate={close} />
             </nav>
-            <UserMenu user={user} />
+            <UserMenu user={user} photoUrl={profilePhotoUrl} />
           </aside>
         </div>
       )}
@@ -266,11 +274,13 @@ function BottomShell({
   navKey,
   user,
   notifications,
+  profilePhotoUrl,
   children,
 }: {
   navKey: NavKey;
   user: SessionUser;
   notifications?: NotifProp;
+  profilePhotoUrl?: string | null;
   children: React.ReactNode;
 }) {
   const t = useT();
@@ -292,6 +302,10 @@ function BottomShell({
           <LanguageSwitcher variant="compact" />
           {notifications && (
             <NotificationBell initial={notifications.data} viewAllHref={notifications.viewAllHref} />
+          )}
+          {profilePhotoUrl !== undefined && (
+            <Avatar name={user.fullName ?? user.email} src={profilePhotoUrl} size="md" tone="accent"
+              alt={profilePhotoUrl ? t("athletePhoto.alt", { name: user.fullName ?? user.email }) : undefined} />
           )}
           <SignOutButton />
         </div>

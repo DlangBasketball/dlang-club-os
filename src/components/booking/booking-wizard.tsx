@@ -2,12 +2,12 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, CreditCard, Coins, CalendarClock } from "lucide-react";
-import { Card, CardBody, Button, Badge } from "@/components/ui";
+import { Card, CardBody, Button, Badge, Avatar } from "@/components/ui";
 import { bookSession } from "@/lib/actions/booking";
 import { useFormat } from "@/lib/i18n/client";
 import type { WizardData, WizardService, WizardSlot } from "@/lib/data/booking";
 
-export function BookingWizard({ data }: { data: WizardData }) {
+export function BookingWizard({ data, coachPhotos = {} }: { data: WizardData; coachPhotos?: Record<string, string> }) {
   const f = useFormat();
   const router = useRouter();
   const [step, setStep] = React.useState(0);
@@ -93,7 +93,7 @@ export function BookingWizard({ data }: { data: WizardData }) {
           {data.slots.length === 0 && <p className="text-sm text-ink-3">No open slots right now.</p>}
           {data.slots.map((s) => (
             <button key={s.id} onClick={() => { setSlot(s); setStep(3); }} className={`flex w-full items-center justify-between rounded-xl border p-4 text-left transition active:scale-[0.99] ${slot?.id === s.id ? "border-maroon" : "border-line"}`}>
-              <div><div className="text-sm font-medium text-ink">{f.date(s.start)} · {f.time(s.start)}</div><div className="text-xs text-ink-3">with {s.coachName}</div></div>
+              <div className="flex items-center gap-3"><Avatar name={s.coachName} src={coachPhotos[s.coachId] ?? null} size="lg" /><div><div className="text-sm font-medium text-ink">{f.date(s.start)} · {f.time(s.start)}</div><div className="text-xs text-ink-3">with {s.coachName}</div></div></div>
               <CalendarClock className="h-4 w-4 text-ink-4" />
             </button>
           ))}
@@ -107,7 +107,7 @@ export function BookingWizard({ data }: { data: WizardData }) {
             <div className="flex justify-between"><span className="text-ink-3">Child</span><span className="text-ink">{child.name}</span></div>
             <div className="flex justify-between"><span className="text-ink-3">Service</span><span className="text-ink">{service.name}</span></div>
             <div className="flex justify-between"><span className="text-ink-3">When</span><span className="text-ink">{f.date(slot.start)} · {f.time(slot.start)}</span></div>
-            <div className="flex justify-between"><span className="text-ink-3">Coach</span><span className="text-ink">{slot.coachName}</span></div>
+            <div className="flex items-center justify-between"><span className="text-ink-3">Coach</span><span className="flex items-center gap-2 text-ink"><Avatar name={slot.coachName} src={coachPhotos[slot.coachId] ?? null} size="sm" />{slot.coachName}</span></div>
           </CardBody></Card>
 
           <div className="space-y-2">

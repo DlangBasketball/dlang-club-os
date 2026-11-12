@@ -1,9 +1,13 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import Link from "next/link";
+import { Plus, UserPlus, X } from "lucide-react";
 import { Button, Input, Label } from "@/components/ui";
 import { saveTeam, type TeamInput } from "@/lib/sportsops/actions";
+import { quickCreateCoach } from "@/lib/actions/coaches";
+import { useT } from "@/lib/i18n/client";
+import { COACH_NAME_MAX, COACH_TITLE_MAX } from "@/lib/coaches/validation";
 import { FormError, Select, Textarea } from "./fields";
 
 type Opt = { id: string; name: string };
@@ -18,6 +22,11 @@ export function TeamForm({ teamId, initial, seasons, programs, coaches, defaultS
   teamId?: string; initial?: Partial<TeamFormValues>; seasons: Opt[]; programs: Opt[]; coaches: Opt[]; defaultSport?: string;
 }) {
   const router = useRouter();
+  const tr = useT();
+  const [coachOptions, setCoachOptions] = React.useState<Opt[]>(coaches);
+  const [quick, setQuick] = React.useState<{ open: boolean; name: string; title: string; pending: boolean; msg: { ok: boolean; text: string } | null }>(
+    { open: false, name: "", title: "", pending: false, msg: null },
+  );
   const [f, setF] = React.useState<TeamFormValues>({
     name: "", seasonId: seasons[0]?.id ?? "", programId: "", sport: defaultSport ?? "", ageGroup: "", gender: "", level: "",
     color: "", notes: "", isActive: true, coaches: [], ...initial,
@@ -25,6 +34,34 @@ export function TeamForm({ teamId, initial, seasons, programs, coaches, defaultS
   const [err, setErr] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
   const set = <K extends keyof TeamFormValues>(k: K, v: TeamFormValues[K]) => setF((s) => ({ ...s, [k]: v }));
+
+  /** "+ New coach": create the coach, add it to the picker and to this team. */
+  async function addQuickCoach() {
+    if (!quick.name.trim() || quick.pending) return;
+    setQuick((q) => ({ ...q, pending: true, msg: null }));
+    const res = await quickCreateCoach({ displayName: quick.name, roleTitle: quick.title });
+    if (!res.ok || !res.data) {
+      setQuick((q) => ({ ...q, pending: false, msg: { ok: false, text: res.ok ? tr("coaches.errors.generic") : res.error } }));
+      return;
+    }
+    const created = res.data;
+    setCoachOptions((opts) => [...opts, { id: created.id, name: created.name }].sort((a, b) => a.name.localeCompare(b.name)));
+    setF((s) => {
+      const empty = s.coaches.findIndex((c) => !c.coachId);
+      const coachesNext = empty >= 0
+        ? s.coaches.map((c, j) => (j === empty ? { ...c, coachId: created.id } : c))
+        : [...s.coaches, { coachId: created.id, role: s.coaches.length ? "assistant" as const : "head" as const }];
+      return { ...s, coaches: coachesNext };
+    });
+    setQuick({ open: false, name: "", title: "", pending: false, msg: { ok: true, text: tr("coaches.team.added", { name: created.name }) } });
+  }
+
+  function onQuickKey(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.preventDefault(); // never submit the team form from the quick-add fields
+      void addQuickCoach();
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,17 +110,47 @@ export function TeamForm({ teamId, initial, seasons, programs, coaches, defaultS
           <div key={i} className="flex gap-2">
             <Select aria-label="Coach" value={c.coachId} onChange={(e) => set("coaches", f.coaches.map((x, j) => (j === i ? { ...x, coachId: e.target.value } : x)))}>
               <option value="">Select coach…</option>
-              {coaches.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+              {coachOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
             </Select>
             <Select aria-label="Role" className="w-40" value={c.role} onChange={(e) => set("coaches", f.coaches.map((x, j) => (j === i ? { ...x, role: e.target.value as CoachRole } : x)))}>
-              <option value="head">Head</option><option value="assistant">Assistant</option><option value="manager">Manager</option><option value="trainer">Trainer</option>
+              <option value="head">{tr("coaches.roles.head")}</option><option value="assistant">{tr("coaches.roles.assistant")}</option>
+              <option value="manager">{tr("coaches.roles.manager")}</option><option value="trainer">{tr("coaches.roles.trainer")}</option>
             </Select>
             <Button type="button" variant="ghost" size="icon" aria-label="Remove coach" onClick={() => set("coaches", f.coaches.filter((_, j) => j !== i))}><X className="h-4 w-4" /></Button>
           </div>
         ))}
-        <Button type="button" variant="secondary" size="sm" onClick={() => set("coaches", [...f.coaches, { coachId: "", role: f.coaches.length ? "assistant" : "head" }])}>
-          <Plus className="h-4 w-4" /> Add coach
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="secondary" size="sm" onClick={() => set("coaches", [...f.coaches, { coachId: "", role: f.coaches.length ? "assistant" : "head" }])}>
+            <Plus className="h-4 w-4" /> Add coach
+          </Button>
+          <Button type="button" variant="ghost" size="sm" aria-expanded={quick.open} aria-controls="quick-coach"
+            onClick={() => setQuick((q) => ({ ...q, open: !q.open, msg: null }))}>
+            <UserPlus className="h-4 w-4" /> {tr("coaches.team.newCoach")}
+          </Button>
+          <Link href="/admin/coaches" className="text-xs text-ink-3 hover:text-ink">{tr("coaches.team.editCoaches")} →</Link>
+        </div>
+        {quick.open && (
+          <div id="quick-coach" role="group" aria-label={tr("coaches.team.quickTitle")} className="space-y-3 rounded border border-line bg-bg-secondary p-3">
+            <p className="text-xs font-medium text-ink-2">{tr("coaches.team.quickTitle")}</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div><Label htmlFor="qc-name">{tr("coaches.team.name")}</Label>
+                <Input id="qc-name" autoFocus maxLength={COACH_NAME_MAX} value={quick.name} onKeyDown={onQuickKey}
+                  onChange={(e) => setQuick((q) => ({ ...q, name: e.target.value }))} placeholder={tr("coaches.form.displayNamePlaceholder")} /></div>
+              <div><Label htmlFor="qc-title">{tr("coaches.team.title")}</Label>
+                <Input id="qc-title" maxLength={COACH_TITLE_MAX} value={quick.title} onKeyDown={onQuickKey}
+                  onChange={(e) => setQuick((q) => ({ ...q, title: e.target.value }))} placeholder={tr("coaches.form.roleTitlePlaceholder")} /></div>
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" size="sm" loading={quick.pending} disabled={quick.pending || !quick.name.trim()} onClick={() => void addQuickCoach()}>
+                {quick.pending ? tr("coaches.team.adding") : tr("coaches.team.add")}
+              </Button>
+              <Button type="button" size="sm" variant="ghost" onClick={() => setQuick({ open: false, name: "", title: "", pending: false, msg: null })}>
+                {tr("coaches.team.cancel")}
+              </Button>
+            </div>
+          </div>
+        )}
+        {quick.msg && <p role={quick.msg.ok ? "status" : "alert"} className={quick.msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{quick.msg.text}</p>}
       </fieldset>
 
       <div><Label htmlFor="t-notes">Notes</Label><Textarea id="t-notes" maxLength={2000} value={f.notes} onChange={(e) => set("notes", e.target.value)} /></div>

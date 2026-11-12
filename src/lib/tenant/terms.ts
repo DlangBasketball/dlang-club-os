@@ -90,4 +90,5 @@ export const NAV_TERM: Partial<Record<string, { key: TermKey; plural: boolean }>
   programs: { key: "program", plural: true },
   families: { key: "family", plural: true },
   children: { key: "athlete", plural: true },
+  coaches: { key: "coach", plural: true },
 };

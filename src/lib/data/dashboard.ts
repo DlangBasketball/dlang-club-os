@@ -108,6 +108,7 @@ export type UpcomingSession = {
   location: string | null;
   programName: string;
   coachName: string | null;
+  coachId: string | null;
 };
 
 export async function getUpcomingSessions(limit = 5): Promise<Result<UpcomingSession[]>> {
@@ -140,6 +141,7 @@ export async function getUpcomingSessions(limit = 5): Promise<Result<UpcomingSes
       location: s.location,
       programName: pName.get(s.program_id) ?? "Program",
       coachName: s.coach_id ? cName.get(s.coach_id) ?? null : null,
+      coachId: s.coach_id ?? null,
     })),
   );
 }

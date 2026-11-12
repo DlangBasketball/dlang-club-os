@@ -2,6 +2,8 @@ import "server-only";
 import { sportsDb, type EventRow, type EventStatus, type EventType, type HomeAway, type MembershipStatus, type RsvpStatus, type SeasonRow, type TeamRow } from "./db";
 import { findConflicts } from "./conflicts";
 import { rangeBounds } from "./time";
+import { signCoachPhotos } from "@/lib/people/server";
+import { isPhotoPathFor } from "@/lib/people/validation";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -65,7 +67,7 @@ export async function listAthleteOptions(): Promise<Result<Option[]>> {
 export type TeamSummary = {
   id: string; name: string; sport: string | null; ageGroup: string | null; gender: string | null; level: string | null;
   color: string | null; isActive: boolean; seasonId: string | null; seasonName: string | null; programId: string | null;
-  coaches: { id: string; name: string; role: string }[]; rosterCount: number;
+  coaches: { id: string; name: string; role: string; title: string | null; photoUrl: string | null }[]; rosterCount: number;
 };
 
 async function hydrateTeams(teams: TeamRow[]): Promise<Result<TeamSummary[]>> {
@@ -79,13 +81,24 @@ async function hydrateTeams(teams: TeamRow[]): Promise<Result<TeamSummary[]>> {
   ]);
   if (tc.error) return fail(tc.error.message);
   const coachIds = uniq((tc.data ?? []).map((r) => r.coach_id));
-  const co = coachIds.length ? await db.from("coaches").select("id,display_name").in("id", coachIds) : { data: [] as { id: string; display_name: string }[] };
-  const coachName = new Map((co.data ?? []).map((c) => [c.id, c.display_name]));
+  type CoachLite = { id: string; org_id: string; display_name: string; role_title: string | null; photo_path: string | null };
+  const co = coachIds.length
+    ? await db.from("coaches").select("id,org_id,display_name,role_title,photo_path").in("id", coachIds)
+    : { data: [] as CoachLite[] };
+  const coachRows = (co.data ?? []) as CoachLite[];
+  const coachName = new Map(coachRows.map((c) => [c.id, c.display_name]));
+  const coachTitle = new Map(coachRows.map((c) => [c.id, c.role_title]));
+  const coachPhoto = await signCoachPhotos(
+    coachRows.filter((c) => isPhotoPathFor(c.photo_path, c.org_id, c.id)).map((c) => ({ id: c.id, photoPath: c.photo_path })),
+  );
   const seasonName = new Map((se.data ?? []).map((s) => [s.id, s.name]));
   return ok(teams.map((t) => ({
     id: t.id, name: t.name, sport: t.sport, ageGroup: t.age_group, gender: t.gender, level: t.level, color: t.color,
     isActive: t.is_active, seasonId: t.season_id, seasonName: t.season_id ? seasonName.get(t.season_id) ?? null : null, programId: t.program_id,
-    coaches: (tc.data ?? []).filter((r) => r.team_id === t.id).map((r) => ({ id: r.coach_id, name: coachName.get(r.coach_id) ?? "Coach", role: r.role })),
+    coaches: (tc.data ?? []).filter((r) => r.team_id === t.id).map((r) => ({
+      id: r.coach_id, name: coachName.get(r.coach_id) ?? "Coach", role: r.role,
+      title: coachTitle.get(r.coach_id) ?? null, photoUrl: coachPhoto.get(r.coach_id) ?? null,
+    })),
     rosterCount: (tm.data ?? []).filter((m) => m.team_id === t.id && m.status !== "inactive").length,
   })));
 }

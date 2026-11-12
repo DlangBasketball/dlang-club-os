@@ -137,6 +137,7 @@
     "account": "Compte",
     "support": "Aide",
     "teams": "Équipes",
+    "coaches": "Entraîneurs",
     "reports": "Rapports",
     "myTeam": "Mon équipe",
     "import": "Importer"
@@ -1354,5 +1355,139 @@
       "REMINDERS_PAUSED": "Les rappels sont suspendus pour cette facture.",
       "INVALID_KIND": "Choisissez le type d'ajustement."
     }
+  },
+  "coaches": {
+    "title": "Entraîneurs",
+    "description": "Toutes les personnes qui entraînent dans votre club : noms, fonctions, photos, équipes et accès.",
+    "new": "Nouvel entraîneur",
+    "newDescription": "Ajoutez un entraîneur, puis attribuez-le aux équipes dans le formulaire d'équipe.",
+    "editTitle": "Modifier l'entraîneur",
+    "back": "Tous les entraîneurs",
+    "searchLabel": "Rechercher des entraîneurs",
+    "searchPlaceholder": "Nom, fonction ou équipe",
+    "search": "Rechercher",
+    "clear": "Effacer",
+    "filterLabel": "Afficher",
+    "filter": {
+      "all": "Tous",
+      "active": "Actifs uniquement",
+      "inactive": "Inactifs uniquement"
+    },
+    "count": "{count, plural, one {# entraîneur} other {# entraîneurs}}",
+    "columns": {
+      "coach": "Entraîneur",
+      "teams": "Équipes",
+      "login": "Accès",
+      "status": "Statut"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "login": {
+      "linked": "Peut se connecter",
+      "pending": "Invitation envoyée",
+      "none": "Sans accès"
+    },
+    "noTeams": "Aucune équipe",
+    "empty": {
+      "title": "Aucun entraîneur pour l'instant",
+      "description": "Ajoutez votre premier entraîneur, puis attribuez-le aux équipes."
+    },
+    "noResults": "Aucun entraîneur ne correspond à votre recherche.",
+    "form": {
+      "displayName": "Nom",
+      "displayNamePlaceholder": "p. ex. Alex Martin",
+      "roleTitle": "Fonction ou rôle",
+      "roleTitlePlaceholder": "p. ex. Entraîneur principal U14",
+      "bio": "Courte présentation",
+      "bioHint": "Visible par le personnel et les parents de votre club.",
+      "active": "Actif : peut être choisi pour les équipes, séances et réservations",
+      "serves": "Prestations de développement proposées",
+      "servesHint": "Utilisé pour les réservations individuelles. Laissez vide si cet entraîneur ne s'occupe que d'équipes.",
+      "create": "Créer l'entraîneur",
+      "save": "Enregistrer les modifications",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler"
+    },
+    "detail": {
+      "profile": "Profil",
+      "photo": "Photographie",
+      "teams": "Équipes",
+      "noTeams": "Attribué à aucune équipe pour l'instant. Attribuez les entraîneurs dans le formulaire d'équipe.",
+      "login": "Accès à l'application",
+      "linkedAs": "Lié au compte {email}.",
+      "linked": "Lié à un compte de connexion.",
+      "pending": "Une invitation a été envoyée et attend d'être acceptée.",
+      "none": "Cet entraîneur n'a pas encore d'accès. Invitez-le pour qu'il puisse utiliser l'application entraîneur.",
+      "invite": "Inviter à se connecter",
+      "invitations": "Invitations en cours",
+      "status": "Statut et suppression",
+      "inactiveNote": "Les entraîneurs inactifs restent dans l'historique mais ne peuvent plus être choisis pour de nouvelles équipes, séances ou réservations."
+    },
+    "usage": {
+      "title": "Utilisé dans",
+      "teams": "{count, plural, one {# équipe} other {# équipes}}",
+      "sessions": "{count, plural, one {# séance de programme} other {# séances de programme}}",
+      "attendance": "{count, plural, one {# relevé de présence} other {# relevés de présence}}",
+      "availability": "{count, plural, one {# créneau de disponibilité} other {# créneaux de disponibilité}}",
+      "bookings": "{count, plural, one {# réservation} other {# réservations}}"
+    },
+    "actions": {
+      "deactivate": "Désactiver",
+      "reactivate": "Réactiver",
+      "delete": "Supprimer l'entraîneur",
+      "deleting": "Suppression…",
+      "confirmDeactivate": "Désactiver {name} ? Il reste dans l'historique mais ne pourra plus être choisi pour de nouvelles équipes ou séances.",
+      "confirmDelete": "Supprimer {name} définitivement ? Cette action est irréversible.",
+      "deleteBlocked": "Cet entraîneur figure dans les données du club et ne peut pas être supprimé. Désactivez-le plutôt.",
+      "deleteHint": "Utilisé nulle part pour l'instant : cet entraîneur peut être supprimé."
+    },
+    "messages": {
+      "created": "Entraîneur créé.",
+      "saved": "Entraîneur enregistré.",
+      "deactivated": "Entraîneur désactivé.",
+      "reactivated": "Entraîneur réactivé.",
+      "deleted": "Entraîneur supprimé."
+    },
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "tooLong": "Ce texte est trop long.",
+      "invalidId": "Sélection non valide.",
+      "invalidService": "Prestation inconnue.",
+      "forbidden": "Seuls les administrateurs du club peuvent gérer les entraîneurs.",
+      "notFound": "Entraîneur introuvable.",
+      "inUse": "Cet entraîneur figure dans les données du club et ne peut pas être supprimé. Désactivez-le plutôt.",
+      "photoPath": "La photo n'a pas pu être enregistrée.",
+      "generic": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "photo": {
+      "privacy": "Visible uniquement par le personnel et les parents de votre club, pour que les familles reconnaissent leur entraîneur. Jamais affichée sur les pages publiques.",
+      "saved": "Photo enregistrée.",
+      "removed": "Photo supprimée."
+    },
+    "team": {
+      "newCoach": "Nouvel entraîneur",
+      "quickTitle": "Ajouter un nouvel entraîneur",
+      "name": "Nom",
+      "title": "Fonction (facultatif)",
+      "add": "Ajouter l'entraîneur",
+      "adding": "Ajout…",
+      "cancel": "Annuler",
+      "editCoaches": "Gérer les entraîneurs",
+      "added": "{name} a été ajouté à la liste."
+    },
+    "roles": {
+      "head": "Entraîneur principal",
+      "assistant": "Assistant·e",
+      "manager": "Responsable d'équipe",
+      "trainer": "Préparateur"
+    },
+    "invite": {
+      "coach": "Fiche entraîneur",
+      "selectCoach": "Choisir un entraîneur…",
+      "hint": "La fiche entraîneur est liée à ce compte lorsque l'invitation est acceptée."
+    },
+    "you": "Vous"
   }
 }

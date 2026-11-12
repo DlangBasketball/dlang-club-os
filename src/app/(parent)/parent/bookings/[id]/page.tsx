@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, Receipt } from "lucide-react";
-import { PageHeader, Card, CardBody, Badge, statusTone, ErrorState } from "@/components/ui";
+import { PageHeader, Card, CardBody, Badge, statusTone, ErrorState, Avatar } from "@/components/ui";
+import { photoUrlsForCoaches } from "@/lib/people/server";
 import { getParentBookingDetail } from "@/lib/data/booking";
 import { BookingActions } from "@/components/booking/booking-actions";
 import { getFormatter } from "@/lib/i18n/server";
@@ -12,6 +13,7 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
   const { data, error } = await getParentBookingDetail(id);
   if (error) return <ErrorState title="Couldn't load booking" message={error} />;
   if (!data) notFound();
+  const coachPhotos = await photoUrlsForCoaches([data.coachId]);
 
   return (
     <div className="animate-fade-up max-w-xl space-y-5">
@@ -24,6 +26,7 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
       )}
       <PageHeader title={data.serviceName} description={`${data.athleteName} · with ${data.coachName}`} actions={<Badge tone={statusTone(data.status)}>{data.status}</Badge>} />
       <Card><CardBody className="space-y-2 text-sm">
+        <div className="flex items-center gap-3 pb-1"><Avatar name={data.coachName} src={coachPhotos[data.coachId] ?? null} size="lg" /><span className="font-medium text-ink">{data.coachName}</span></div>
         <div className="flex justify-between"><span className="text-ink-3">When</span><span className="text-ink">{f.date(data.start)} · {f.time(data.start)}</span></div>
         <div className="flex justify-between"><span className="text-ink-3">Payment</span><span className="text-ink">{data.creditsUsed > 0 ? `${data.creditsUsed} training credit(s)` : data.price !== null ? f.money(data.price) : "—"}</span></div>
         {data.invoice && <div className="flex justify-between"><span className="text-ink-3">Invoice</span><Link href={`/parent/invoices/${data.invoice.id}`} className="inline-flex items-center gap-1 text-maroon hover:underline"><Receipt className="h-3.5 w-3.5" />{data.invoice.number}</Link></div>}

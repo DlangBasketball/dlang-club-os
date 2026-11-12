@@ -1,5 +1,6 @@
 import { CalendarClock, MapPin } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardBody, EmptyState, ErrorState, SkeletonCard } from "@/components/ui";
+import { Avatar, Card, CardHeader, CardTitle, CardBody, EmptyState, ErrorState, SkeletonCard } from "@/components/ui";
+import { photoUrlsForCoaches } from "@/lib/people/server";
 import { getUpcomingSessions } from "@/lib/data/dashboard";
 import { getFormatter } from "@/lib/i18n/server";
 
@@ -8,6 +9,7 @@ export async function UpcomingSessions() {
   const { data, error } = await getUpcomingSessions(5);
   if (error) return <ErrorState title="Couldn't load sessions" message={error} />;
   const sessions = data!;
+  const coachPhotos = await photoUrlsForCoaches(sessions.map((s) => s.coachId));
   return (
     <Card>
       <CardHeader><CardTitle>Upcoming sessions</CardTitle></CardHeader>
@@ -26,7 +28,7 @@ export async function UpcomingSessions() {
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-ink">{s.programName}</div>
                   <div className="flex items-center gap-2 text-xs text-ink-3">
-                    {s.coachName && <span>{s.coachName}</span>}
+                    {s.coachName && <span className="flex items-center gap-1.5"><Avatar name={s.coachName} src={s.coachId ? coachPhotos[s.coachId] ?? null : null} size="sm" />{s.coachName}</span>}
                     {s.location && (<><MapPin className="h-3 w-3" /><span className="truncate">{s.location}</span></>)}
                   </div>
                 </div>

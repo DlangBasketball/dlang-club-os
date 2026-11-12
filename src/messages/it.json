@@ -137,6 +137,7 @@
     "account": "Account",
     "support": "Assistenza",
     "teams": "Squadre",
+    "coaches": "Allenatori",
     "reports": "Report",
     "myTeam": "La mia squadra",
     "import": "Importa"
@@ -1354,5 +1355,139 @@
       "REMINDERS_PAUSED": "I solleciti per questa fattura sono sospesi.",
       "INVALID_KIND": "Scegli il tipo di rettifica."
     }
+  },
+  "coaches": {
+    "title": "Allenatori",
+    "description": "Tutte le persone che allenano nel vostro club: nomi, ruoli, foto, squadre e accessi.",
+    "new": "Nuovo allenatore",
+    "newDescription": "Aggiungete un allenatore e poi assegnatelo alle squadre nel modulo squadra.",
+    "editTitle": "Modifica allenatore",
+    "back": "Tutti gli allenatori",
+    "searchLabel": "Cerca allenatori",
+    "searchPlaceholder": "Nome, ruolo o squadra",
+    "search": "Cerca",
+    "clear": "Azzera",
+    "filterLabel": "Mostra",
+    "filter": {
+      "all": "Tutti",
+      "active": "Solo attivi",
+      "inactive": "Solo inattivi"
+    },
+    "count": "{count, plural, one {# allenatore} other {# allenatori}}",
+    "columns": {
+      "coach": "Allenatore",
+      "teams": "Squadre",
+      "login": "Accesso",
+      "status": "Stato"
+    },
+    "status": {
+      "active": "Attivo",
+      "inactive": "Inattivo"
+    },
+    "login": {
+      "linked": "Può accedere",
+      "pending": "Invito inviato",
+      "none": "Nessun accesso"
+    },
+    "noTeams": "Nessuna squadra",
+    "empty": {
+      "title": "Ancora nessun allenatore",
+      "description": "Aggiungete il primo allenatore e poi assegnatelo alle squadre."
+    },
+    "noResults": "Nessun allenatore corrisponde alla ricerca.",
+    "form": {
+      "displayName": "Nome",
+      "displayNamePlaceholder": "ad es. Alex Martin",
+      "roleTitle": "Funzione o ruolo",
+      "roleTitlePlaceholder": "ad es. Allenatore capo U14",
+      "bio": "Breve presentazione",
+      "bioHint": "Visibile al personale e ai genitori del vostro club.",
+      "active": "Attivo: può essere scelto per squadre, sedute e prenotazioni",
+      "serves": "Servizi di sviluppo offerti",
+      "servesHint": "Usato per le prenotazioni individuali. Lasciate vuoto se l'allenatore segue solo squadre.",
+      "create": "Crea allenatore",
+      "save": "Salva modifiche",
+      "saving": "Salvataggio…",
+      "cancel": "Annulla"
+    },
+    "detail": {
+      "profile": "Profilo",
+      "photo": "Fotografia",
+      "teams": "Squadre",
+      "noTeams": "Non ancora assegnato a nessuna squadra. Gli allenatori si assegnano nel modulo squadra.",
+      "login": "Accesso all'app",
+      "linkedAs": "Collegato all'account {email}.",
+      "linked": "Collegato a un account di accesso.",
+      "pending": "È stato inviato un invito in attesa di accettazione.",
+      "none": "Questo allenatore non ha ancora un accesso. Invitatelo perché possa usare l'app allenatori.",
+      "invite": "Invita ad accedere",
+      "invitations": "Inviti aperti",
+      "status": "Stato ed eliminazione",
+      "inactiveNote": "Gli allenatori inattivi restano nello storico ma non possono più essere scelti per nuove squadre, sedute o prenotazioni."
+    },
+    "usage": {
+      "title": "Usato in",
+      "teams": "{count, plural, one {# squadra} other {# squadre}}",
+      "sessions": "{count, plural, one {# seduta di programma} other {# sedute di programma}}",
+      "attendance": "{count, plural, one {# registrazione di presenza} other {# registrazioni di presenza}}",
+      "availability": "{count, plural, one {# fascia di disponibilità} other {# fasce di disponibilità}}",
+      "bookings": "{count, plural, one {# prenotazione} other {# prenotazioni}}"
+    },
+    "actions": {
+      "deactivate": "Disattiva",
+      "reactivate": "Riattiva",
+      "delete": "Elimina allenatore",
+      "deleting": "Eliminazione…",
+      "confirmDeactivate": "Disattivare {name}? Resta nello storico ma non potrà più essere scelto per nuove squadre o sedute.",
+      "confirmDelete": "Eliminare {name} definitivamente? L'operazione è irreversibile.",
+      "deleteBlocked": "Questo allenatore compare nei dati del club e non può essere eliminato. Disattivatelo invece.",
+      "deleteHint": "Non ancora usato da nessuna parte: questo allenatore può essere eliminato."
+    },
+    "messages": {
+      "created": "Allenatore creato.",
+      "saved": "Allenatore salvato.",
+      "deactivated": "Allenatore disattivato.",
+      "reactivated": "Allenatore riattivato.",
+      "deleted": "Allenatore eliminato."
+    },
+    "errors": {
+      "required": "Campo obbligatorio.",
+      "tooLong": "Il testo è troppo lungo.",
+      "invalidId": "Selezione non valida.",
+      "invalidService": "Servizio sconosciuto.",
+      "forbidden": "Solo gli amministratori del club possono gestire gli allenatori.",
+      "notFound": "Allenatore non trovato.",
+      "inUse": "Questo allenatore compare nei dati del club e non può essere eliminato. Disattivatelo invece.",
+      "photoPath": "Non è stato possibile salvare la foto.",
+      "generic": "Si è verificato un errore. Riprovate."
+    },
+    "photo": {
+      "privacy": "Visibile solo al personale e ai genitori del vostro club, così le famiglie riconoscono l'allenatore. Mai mostrata su pagine pubbliche.",
+      "saved": "Foto salvata.",
+      "removed": "Foto rimossa."
+    },
+    "team": {
+      "newCoach": "Nuovo allenatore",
+      "quickTitle": "Aggiungi un nuovo allenatore",
+      "name": "Nome",
+      "title": "Ruolo (facoltativo)",
+      "add": "Aggiungi allenatore",
+      "adding": "Aggiunta…",
+      "cancel": "Annulla",
+      "editCoaches": "Gestisci allenatori",
+      "added": "{name} aggiunto all'elenco."
+    },
+    "roles": {
+      "head": "Allenatore capo",
+      "assistant": "Assistente",
+      "manager": "Dirigente",
+      "trainer": "Preparatore"
+    },
+    "invite": {
+      "coach": "Scheda allenatore",
+      "selectCoach": "Scegli allenatore…",
+      "hint": "La scheda allenatore viene collegata a questo account quando l'invito è accettato."
+    },
+    "you": "Voi"
   }
 }
