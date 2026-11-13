@@ -5,6 +5,7 @@ import { Check, ChevronLeft, CreditCard, MapPin, Package, Users } from "lucide-r
 import { Badge, Button, Card, CardBody, FieldHint, Input, Label } from "@/components/ui";
 import { Select } from "@/components/teams/fields";
 import { guestCheckout } from "@/lib/actions/training";
+import { TrainingPromo } from "./promo-preview";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { packageSavings, perSessionPrice, sortPackages } from "@/lib/training/pricing";
 import type { Slot } from "@/lib/training/slots";
@@ -29,6 +30,7 @@ export function PublicBookingFlow({ catalog }: { catalog: PublicCatalog }) {
   const [consents, setConsents] = React.useState<string[]>([]);
   const [err, setErr] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
+  const [promo, setPromo] = React.useState("");
   const [done, setDone] = React.useState<{ signedIn: boolean; authMode: string } | null>(null);
   const now = React.useMemo(() => new Date(), []);
   const currency = service?.currency ?? catalog.org.currency;
@@ -48,7 +50,7 @@ export function PublicBookingFlow({ catalog }: { catalog: PublicCatalog }) {
       payWith: packageId ? "package" : "invoice", packageId, authMode: form.authMode,
       parent: { name: form.name, email: form.email, phone: form.phone, password: form.password },
       child: { firstName: form.first, lastName: form.last, dob: form.dob },
-      consents, guardianConfirmed: form.guardian as true,
+      consents, guardianConfirmed: form.guardian as true, promoCode: promo,
     });
     setPending(false);
     if (!res.ok) { setErr(res.error); return; }
@@ -146,6 +148,7 @@ export function PublicBookingFlow({ catalog }: { catalog: PublicCatalog }) {
             <div className="flex justify-between gap-3"><span className="text-ink-3">{t("training.book.location")}</span><span className="text-right text-ink">{service.locationText || venueLine(catalog.venues.find((v) => v.id === slot.venueId)) || "—"}</span></div>
             <div className="flex justify-between gap-3"><span className="text-ink-3">{t("training.public.total")}</span><span className="tnum text-right font-medium text-ink">{f.money(pkg ? pkg.price : service.price, currency)}</span></div>
           </CardBody></Card>
+          <TrainingPromo serviceId={service.id} packageId={packageId} start={slot.start} clubSlug={catalog.org.slug} code={promo} onCode={setPromo} />
 
           <fieldset className="space-y-3">
             <legend className="text-sm font-semibold text-ink-2">{t("training.public.parentTitle")}</legend>

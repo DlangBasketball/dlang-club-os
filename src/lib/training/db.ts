@@ -85,7 +85,10 @@ type TrainingFunctions = {
     Returns: { service_id: string; remaining: number; pending: number; next_expiry: string | null }[];
   };
   purchase_training_package: {
-    Args: { p_athlete: string; p_service: string; p_package?: string | null; p_mode?: string; p_note?: string | null };
+    Args: {
+      p_athlete: string; p_service: string; p_package?: string | null; p_mode?: string; p_note?: string | null;
+      p_promo_code?: string | null; p_manual_discounts?: string[] | null;
+    };
     Returns: Json;
   };
   cancel_training_purchase: { Args: { p_purchase: string; p_reason: string }; Returns: Json };
@@ -93,6 +96,7 @@ type TrainingFunctions = {
     Args: {
       p_athlete: string; p_service: string; p_coach: string; p_start: string; p_pay_with?: string; p_purchase?: string | null;
       p_package?: string | null; p_mode?: string; p_override?: boolean; p_notes?: string | null;
+      p_promo_code?: string | null; p_manual_discounts?: string[] | null;
     };
     Returns: Json;
   };
@@ -102,6 +106,7 @@ type TrainingFunctions = {
   cancel_training_group: { Args: { p_coach: string; p_service: string; p_start: string; p_reason: string }; Returns: Json };
   training_public_catalog: { Args: { p_slug: string; p_from: string | null; p_to: string | null }; Returns: Json };
   training_guest_checkout: { Args: { p_slug: string; p_user: string; p_payload: Json }; Returns: Json };
+  training_guest_checkout_promo: { Args: { p_slug: string; p_user: string; p_payload: Json }; Returns: Json };
 };
 
 type Pub = Database["public"];

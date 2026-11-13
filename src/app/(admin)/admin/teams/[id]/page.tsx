@@ -8,6 +8,9 @@ import { EventList } from "@/components/schedule/event-views";
 import { getTeam, listAthleteOptions, listUpcomingEvents, rsvpCounts } from "@/lib/sportsops/data";
 import { labelsFor } from "@/lib/sportsops/labels";
 import { getTenant } from "@/lib/tenant/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { SportTagPicker } from "@/components/sports/sports-manager";
+import { currentSportId, sportOptions } from "@/lib/sports/data";
 
 export const metadata = { title: "Team" };
 
@@ -21,6 +24,10 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
   const t = team.data;
   if (!t) notFound();
   const counts = await rsvpCounts(upcoming.data!.map((e) => e.id));
+  const me = await getSessionUser();
+  const [sports, sportId] = me?.orgId && me.roles.includes("admin")
+    ? await Promise.all([sportOptions(me.orgId), currentSportId("teams", t.id)])
+    : [[], null];
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -30,6 +37,8 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
           <Link href={`/admin/schedule/new?team=${t.id}`}><Button size="sm" variant="secondary"><CalendarPlus className="h-4 w-4" /> Add event</Button></Link>
           <Link href={`/admin/teams/${t.id}/edit`}><Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> Edit</Button></Link>
         </>} />
+
+      <SportTagPicker kind="team" recordId={t.id} value={sportId} sports={sports} />
 
       <div className="flex flex-wrap items-center gap-2">
         {t.coaches.length === 0 && <Badge tone="warning">No coach assigned</Badge>}

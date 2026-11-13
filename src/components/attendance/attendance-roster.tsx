@@ -7,6 +7,7 @@ import Link from "next/link";
 import { saveAttendance, type AttendanceMarkInput } from "@/lib/actions/attendance";
 import type { RosterEntry } from "@/lib/data/coach-sessions";
 import { Avatar } from "@/components/ui";
+import { RollCallScanner } from "./roll-call-scanner";
 
 type Status = "present" | "late" | "absent" | "excused";
 type Row = RosterEntry & { dirty?: boolean };
@@ -65,6 +66,13 @@ export function AttendanceRoster({
 
   const noteRow = rows.find((r) => r.athleteId === noteFor) ?? null;
 
+  // Scanned member card / bracelet: mark present when the athlete is on this roster.
+  const onScan = React.useCallback((athleteId: string): "marked" | "notOnRoster" => {
+    if (!rows.some((r) => r.athleteId === athleteId)) return "notOnRoster";
+    setRows((rs) => rs.map((r) => (r.athleteId === athleteId ? { ...r, status: "present", dirty: true } : r)));
+    return "marked";
+  }, [rows]);
+
   return (
     <div className="pb-28">
       <div className="mb-4 flex items-center gap-2">
@@ -74,6 +82,8 @@ export function AttendanceRoster({
           <p className="text-xs text-ink-3">{counts.marked}/{rows.length} marked{locked ? " · locked" : ""}</p>
         </div>
       </div>
+
+      {!locked && <RollCallScanner onResolved={onScan} />}
 
       <div className="space-y-3">
         {rows.map((r) => (

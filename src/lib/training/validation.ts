@@ -116,6 +116,8 @@ export const purchaseSchema = z.object({
   packageId: optUuid,
   mode: z.enum(PURCHASE_MODES).default("invoice"),
   note: z.string().trim().max(2000, E("tooLong")).optional().default(""),
+  promoCode: z.string().trim().max(40, E("tooLong")).regex(/^[A-Za-z0-9_-]*$/, E("invalidRequest")).optional().default(""),
+  manualDiscountIds: z.array(uuid).max(10).optional().default([]),
 });
 export type PurchaseInput = z.input<typeof purchaseSchema>;
 
@@ -131,6 +133,7 @@ export const bookSchema = z.object({
   mode: z.enum(PURCHASE_MODES).optional().default("invoice"),
   override: z.boolean().optional().default(false),
   notes: z.string().trim().max(2000, E("tooLong")).optional().default(""),
+  promoCode: z.string().trim().max(40, E("tooLong")).regex(/^[A-Za-z0-9_-]*$/, E("invalidRequest")).optional().default(""),
 });
 export type BookInput = z.input<typeof bookSchema>;
 
@@ -178,6 +181,7 @@ export const guestCheckoutSchema = z.object({
   }),
   consents: z.array(z.string().trim().min(1).max(80)).max(30).default([]),
   guardianConfirmed: z.literal(true, { errorMap: () => ({ message: E("guardianConsent") }) }),
+  promoCode: z.string().trim().max(40, E("tooLong")).regex(/^[A-Za-z0-9_-]*$/, E("invalidRequest")).optional().default(""),
 })
   .refine((v) => v.authMode !== "password" || v.parent.password.length >= 8, { message: E("password"), path: ["parent", "password"] })
   .refine((v) => v.payWith !== "package" || !!v.packageId, { message: E("packageRequired"), path: ["packageId"] });

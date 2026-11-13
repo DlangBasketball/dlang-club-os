@@ -8,7 +8,7 @@
  *
  * Rules (mirrored by the checks in public.register_camp):
  *   - a discount applies when it is active, inside valid_from / valid_until,
- *     in scope for the subject (all | camps | training | program | service),
+ *     in scope for the subject (all | camps | training | program | service | shop),
  *     and its rule matches:
  *       promo_code  the entered code equals the discount code (case-insensitive)
  *                   and the total / per-family usage limits are not reached
@@ -25,7 +25,7 @@ import { fromMinorUnits, normalizeCurrency, toMinorUnits } from "@/lib/payments/
 
 export const DISCOUNT_KINDS = ["percent", "fixed_amount"] as const;
 export const DISCOUNT_RULES = ["promo_code", "sibling", "early_bird", "manual"] as const;
-export const DISCOUNT_SCOPES = ["all", "camps", "training", "program", "service"] as const;
+export const DISCOUNT_SCOPES = ["all", "camps", "training", "program", "service", "shop"] as const;
 
 export type DiscountKind = (typeof DISCOUNT_KINDS)[number];
 export type DiscountRule = (typeof DISCOUNT_RULES)[number];
@@ -57,8 +57,8 @@ export type DiscountDef = {
 };
 
 export type PricingSubject = {
-  /** What is sold: "camp" (programme of kind camp), "training" (service / package), "program" (other programmes). */
-  kind: "camp" | "training" | "program";
+  /** What is sold: "camp" (programme of kind camp), "training" (service / package), "program" (other programmes), "shop" (merchandise). */
+  kind: "camp" | "training" | "program" | "shop";
   programId?: string | null;
   serviceId?: string | null;
   currency: string;
@@ -132,6 +132,7 @@ export function inScope(d: Pick<DiscountDef, "scope" | "scopeProgramId" | "scope
     case "training": return s.kind === "training";
     case "program": return !!d.scopeProgramId && d.scopeProgramId === s.programId;
     case "service": return !!d.scopeServiceId && d.scopeServiceId === s.serviceId;
+    case "shop": return s.kind === "shop";
     default: return false;
   }
 }

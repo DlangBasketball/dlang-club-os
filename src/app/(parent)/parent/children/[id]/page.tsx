@@ -7,6 +7,7 @@ import { MedicalForm } from "@/components/parent/medical-form";
 import { getI18n } from "@/lib/i18n/server";
 import { PhotoManager } from "@/components/athlete/photo-manager";
 import { photoUrlsForAthletes } from "@/lib/people/server";
+import { MemberCardPanel } from "@/components/member-card/member-card-panel";
 
 export default async function ChildProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { t, f } = await getI18n();
@@ -29,6 +30,13 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
         <CardHeader><CardTitle>{t("athletePhoto.title")}</CardTitle></CardHeader>
         <CardBody>
           <PhotoManager athleteId={data.id} name={data.name} photoUrl={photos[data.id] ?? null} compact />
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>{t("sports.cards.title")}</CardTitle></CardHeader>
+        <CardBody>
+          <MemberCardPanel athleteId={data.id} pdfHref={`/parent/children/${data.id}/card`} />
         </CardBody>
       </Card>
 

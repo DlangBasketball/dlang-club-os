@@ -129,6 +129,8 @@ export type InvoiceChargeInput = {
   methods: AvailableMethod[];
   customerEmail?: string | null;
   locale?: string;
+  /** Path on the club's site to come back to (default: the parent app invoice page). */
+  returnPath?: string;
 };
 
 function connectOptions(profile: OrgPaymentProfile, idempotencyKey?: string): Stripe.RequestOptions {
@@ -150,7 +152,8 @@ export async function createInvoiceCheckout(input: InvoiceChargeInput): Promise<
   const amountMinor = toMinorUnits(input.amount, input.currency);
   const fee = profile.stripeAccountId ? await applicationFee(profile.orgId, amountMinor) : 0;
   const metadata = { invoice_id: input.invoiceId, org_id: profile.orgId };
-  const back = `${await orgReturnOrigin(profile.orgId)}/parent/invoices/${input.invoiceId}`;
+  const path = input.returnPath && /^\/[A-Za-z0-9/_-]*$/.test(input.returnPath) ? input.returnPath : `/parent/invoices/${input.invoiceId}`;
+  const back = `${await orgReturnOrigin(profile.orgId)}${path}`;
 
   const base: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",
