@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -26,6 +26,9 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Teams", labelKey: "teams", href: "/admin/teams", icon: Shield },
     { label: "Coaches", labelKey: "coaches", href: "/admin/coaches", icon: UserCog },
     { label: "Schedule", labelKey: "schedule", href: "/admin/schedule", icon: CalendarDays },
+    { label: "Calendar", labelKey: "calendar", href: "/admin/calendar", icon: CalendarCheck },
+    { label: "Timesheets", labelKey: "timesheets", href: "/admin/timesheets", icon: Timer },
+    { label: "Lesson plans", labelKey: "lessonPlans", href: "/admin/lesson-plans", icon: NotebookPen },
     { label: "Invoices", labelKey: "invoices", href: "/admin/invoices", icon: FileText },
     { label: "Payments", labelKey: "payments", href: "/admin/payments", icon: CreditCard },
     { label: "Finance", labelKey: "finance", href: "/admin/finance", icon: Wallet },
@@ -41,18 +44,23 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Settings", labelKey: "settings", href: "/admin/settings", icon: Settings },
   ],
   coach: [
+    { label: "Home", labelKey: "home", href: "/coach", icon: Home },
+    { label: "Time clock", labelKey: "clock", href: "/coach/clock", icon: Timer },
+    { label: "Calendar", labelKey: "calendar", href: "/coach/calendar", icon: CalendarCheck },
     { label: "Schedule", labelKey: "schedule", href: "/coach/schedule", icon: CalendarClock },
     { label: "My team", labelKey: "myTeam", href: "/coach/team", icon: Shield },
     { label: "Attendance", labelKey: "attendance", href: "/coach/attendance", icon: CheckSquare },
     { label: "Availability", labelKey: "availability", href: "/coach/availability", icon: CalendarClock },
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
     { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
+    { label: "Roll calls", labelKey: "rollCalls", href: "/coach/roll-calls", icon: ClipboardCheck },
   ],
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
     { label: "Children", labelKey: "children", href: "/parent/children", icon: UserCircle },
     { label: "My training", labelKey: "myTraining", href: "/parent/development", icon: TrendingUp },
     { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },
+    { label: "Calendar", labelKey: "calendar", href: "/parent/calendar", icon: CalendarCheck },
     { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
     { label: "Invoices", labelKey: "invoices", href: "/parent/invoices", icon: Receipt },
     { label: "Bookings", labelKey: "bookings", href: "/parent/bookings", icon: Dumbbell },

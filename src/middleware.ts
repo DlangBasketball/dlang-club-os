@@ -24,6 +24,8 @@ const PUBLIC_PREFIXES = [
   "/signup",
   "/api/billing/webhook",
   "/api/platform/cron",
+  // Read-only calendar subscription (ICS); the URL token is the credential.
+  "/api/calendar/feed",
 ];
 
 function isPublic(pathname: string) {
