@@ -1,0 +1,420 @@
+DLANG OS (reference spec)
+               DLANG OS (reference spec)
+                                         KEY ELEMENTS
+\d 3facilitates           management.
+     standalone solutions which are integrated and managed through a cloud based centrally managed
+ administration module (Mobile Application, Integrated Website/Online Shop, Cloud Administration Module)
+
+
+  1.   General Management & Reporting                  11.   Employee Clock-In
+  2.   Booking & Scheduling                            12.   Client Roll Call
+  3.   Financial Management                            13.   Cliente interactive Emoji
+  4.   Camps, Sessions & Trainings Management          14.   Online shop integrated into the website
+  5.   Customer (Athlete) Management                   15.   Integration of the administration and
+  6.   Workout & Exercise Management                         management of the mobile app, the online
+  7.   E-Commerce (online store, event booking,              shop and the website.
+       and online payments)
+  8.   Communication Management
+  9.   Activity & Fitness tracking
+ 10.   Custom Design & Branding
+               DLANG OS (reference spec)
+                                              OVERVIEW
+\d The
+   facilitates
+       DLang OSmanagement.
+                       App (DLang OS) will be created to meet a need for technology in management of
+    sports teams and clubs. Most of the systems in the market today have a language and formatting
+    geared mainly towards the FITNESS world. The great majority of these products present diﬃculty
+    adjusting to the wide range of segments within sports activities management. DLang OS solves these
+    problems and make management easy.
+    DLang OS works with a modern, easy-to-use platform, that makes the insertion, removal, and editing of
+    information simple to the user. Development and managing of daily tasks such as creation of classes,
+    roll calls, clock-in for employees, student evaluations, signup and sign in for classes and
+    events,ﬁnancial reports , main calendar, rank of students with a student emoji showing his progress,
+    are some of the features. All with a dynamic standalone version dashboard for manager, employees
+    and clients.
+    It separates itself from other products in the market because it creates a constant interaction
+    between managers and employees, and employees and clients. It is focused in the creation of better
+    quality of management for employees, students, and parents, as well as managers, with
+    customization of the tools to serve the client in its most varied situations.
+           DLANG OS (reference spec)
+                                              GOALS
+Built-in to help the daily administration of management of sports activities’ tasks for the most
+varied segments;
+
+Automation of functions that greatly facilitate the manager's life;
+
+Organization of ﬁnancial ﬂows, with reports, payment control of monthly fees, receivables and
+payments;
+
+Allows users to manage and / or implement a variety of sports activities, with payment platform
+integration, registration automation with automatic assembly of classes, all directly on your website;
+
+Allows access via the web, with your own brand / company domain, and application publishing on
+IOS and Android platforms;
+             DLANG OS (reference spec)
+                                    SYSTEM RESOURCES
+Customized interface with your logo, either in the WEB version or in the application version with 3
+types of access:
+
+Manager Access                           Customer Access                           Employees Access
+               DLANG OS (reference spec)
+                                     SYSTEM RESOURCES
+
+  Manager Access                          Customer Access                      Employees Access
+
+
+★ Visualization of all information via interactive dashboard and task menu
+  through the links, which allows total conﬁguration and autonomy;
+★ Setting up students and employees rankings classiﬁed by class, sport /
+  school / place of service, ranking of teachers, and desired enrollment;
+★ Interactive menu with all functions including calendar, students, parents,
+  ﬁnancial reports, contracts, enrollment, plans, messages, notiﬁcations in
+  classes, etc.
+                                   ADMINISTRATIVE DASHBOARD
+
+                          DLANG OS (reference spec)
+LINKS     FINANCES       CLIENTS     PROGRAMS    CALENDAR   REPORTING        NOTIFICATIONS
+
+        TOTAL STUDENTS         ACTIVE STUDENTS       REVENUE                OUTSTANDING
+             0000                    0000            US$00,00                 US$00,00
+
+
+
+
+                FINANCIAL GRAPHICS                          Student Graphics
+
+
+
+
+                     Calendar                                   Reminders
+                                       ADMINISTRATIVE DASHBOARD
+
+                             DLANG OS (reference spec)
+LINKS        FINANCES      CLIENTS       PROGRAMS         CALENDAR     REPORTING         NOTIFICATIONS
+
+
+                         BALANCES                   Client Balances
+
+
+
+                        TRANSACTIONS            Transactions History
+  FINANCES
+
+
+
+
+                         PAYMENTS               Payments Received          NewPayment
+
+                                                                                                5 - Description
+
+                          INVOICES                  Invoice History        New Invoice           4 - Amount
+
+                                                                                                 3 - Supplier
+
+                                                                                                 2 - Category
+                          EXPENSES                  Expenses List         New Expenses
+                                                                                                  1 -Trainer
+                                          ADMINISTRATIVE DASHBOARD
+
+                             DLANG OS (reference spec)
+LINKS      FINANCES        CLIENTS          PROGRAMS        CALENDAR         REPORTING         NOTIFICATIONS
+
+
+                  Client Management               List of clients / search
+
+
+
+                                                  Measurements History             Yearly
+                       Assessments
+                                                  Evaluations per Client          Monthly
+  CLIENT
+
+
+
+
+                                                       Sport Speciﬁc             Age Speciﬁc
+                      Workout Planner
+
+                                                  Strength & Conditioning        Age Speciﬁc
+
+
+
+                      Nutrition Planner                Client Speciﬁc            Age Speciﬁc
+                                       ADMINISTRATIVE DASHBOARD
+
+                            DLANG OS (reference spec)
+LINKS       FINANCES      CLIENTS            PROGRAMS        CALENDAR    REPORTING          NOTIFICATIONS
+                                                                             Combine
+                                                          Location
+                   NBA Basketball School                                       Yearly
+
+                                                           Online              Camp
+
+                                                                            International
+
+                                                                               Yearly
+                 NATI12 Volleyball Academy                Location
+                                                                               Camp
+  PROGRAM
+
+
+
+
+                                                                            International
+
+                                                                               Yearly
+                       R9 Academy                         Location
+                                                                               Camp
+
+                                                                            International
+
+
+                  Strength & Conditioning               Client Speciﬁc       Age Speciﬁc
+                                      ADMINISTRATIVE DASHBOARD
+
+                             DLANG OS (reference spec)
+LINKS        FINANCES      CLIENTS         PROGRAMS         CALENDAR         REPORTING        NOTIFICATIONS
+
+
+              Main Calendar showing all of the events and programs of the business, including but not limiting
+              to daily classes, camps, employee assignments, and international events
+  CALENDAR
+                                    ADMINISTRATIVE DASHBOARD
+
+                           DLANG OS (reference spec)
+LINKS       FINANCES      CLIENTS       PROGRAMS            CALENDAR     REPORTING   NOTIFICATIONS
+
+
+                         GENERAL REPORTS                                 FINANCIAL REPORTS
+
+             SUMMARY: Clients (Active, Non-Active, Total)     Payments Recorded
+                      Services(Membership assigned)           Reconciled Earnings
+                      Financing(Payment and Expenses)         Projected Earnings
+                      Attendance (Student attendance)         Expenses
+  REPORTS
+
+
+
+
+                      Clock In (Employees’ Clock in)          Proﬁt
+                      Classes (Classes assigned)
+                                          ADMINISTRATIVE DASHBOARD
+
+                                  DLANG OS (reference spec)
+LINKS             FINANCES      CLIENTS       PROGRAMS         CALENDAR        REPORTING   NOTIFICATIONS
+
+
+                   Shows all notiﬁcations from parents, employees and also new contacts
+  NOTIFICATIONS
+                                     ADMINISTRATIVE DASHBOARD
+
+                            DLANG OS (reference spec)
+LINKS
+        1. Registration
+        1.1. Editable registration form. System capable of migrating data from other systems by Excel
+             documents
+        2. Contract
+        2.1. Editable student participation contract area to create and edit contracts for speciﬁc physical
+             activities. Auto ﬁlled with registration form information
+        3. Forms
+        3.1. Editable area to create and edit all types of forms such as physicals, waivers , etc.
+        4. System
+        4.1. Student - search engine to locate athletes
+        4.2. Parents / Guardians - search engine to locate parents and guardians
+        4.3. Sports - Development and editing sports in the system
+        4.4. Location - Development and editing locations in the system
+        4.5. Event - Development and editing events in the system
+                                     ADMINISTRATIVE DASHBOARD
+
+                            DLANG OS (reference spec)
+LINKS
+        4.6. Classes - Development and editing of classes in the system
+        4.7. Schedules - Development and editing schedules in the system
+        4.8. Calendar - Development and editing general calendar in the system
+        4.9. Alerts - Creating and editing alerts for employees, parents, and athletes in the system
+        4.10. Roll call -Development classes’ roll calls in the system
+        4.12. Message - Development and editing messages in the system
+        4.13. Employee - Development and editing employees in the system
+        4.14. Financial - Development and editing prices, packages, among others in the system
+        4.15. Notiﬁcations - Development and editing notiﬁcations in the system
+        4.16. Clock-in - Development and editing of employee’s schedules for “Clock-in”
+                                 ADMINISTRATIVE DASHBOARD
+
+                       DLANG OS (reference spec)
+                                         CLOUD MANAGER
+            CORE FEATURES
+1.   Team management & monitoring.                     13.   Online payment management of Camps,
+2.   Team hierarchy and user/custom role                     Workouts and Training's.
+     management & permissions.                         14.   Reporting (Summary, Daily schedule, Sessions
+3.   Camps, training & workout sessions'                     summary, Client list, attendance,
+     management, booking management,                         Session/Project earnings)
+     attendance management.                            15.   Finance Management (Balances, Transactions,
+4.   Creation of sessions, events & training.                Invoices, Payments, Expenses)
+5.   Work-out plan creation on the base of athlete’s   16.   Management of products' inventory, Workout
+     age, skill level and rating range (will be auto         videos & Documents
+     assigned to athletes that belong to speciﬁc       17.   Communication management (Single click
+     categories)                                             communication through In-app messaging,
+6.   Reports and analysis of each session by                 custom alerts, notiﬁcation & email generation).
+     athlete performance, attendance, skill            18.   Automated Data collection, visualization &
+     improvement and their feedback.                         reporting of athletes
+                                 ADMINISTRATIVE DASHBOARD
+
+                        DLANG OS (reference spec)
+                         CLOUD MANAGER
+Future Enhancements & Features
+1.   View Athletes' Training Assignments.
+2.   Athletes' health & ﬁtness tracking reports.
+3.   Guide Your Athletes' Workﬂow.
+4.   Sample Workout design, exercise library,
+     nutrition plan library, exercise video.
+5.   Creating & review of daily wellness
+     questionnaire.
+6.   Custom questionnaire for athletes.
+7.   Coaches' Notes, report generators &
+     assessment builders..
+              DLANG OS (reference spec)
+                                    SYSTEM RESOURCES
+
+ Manager Access                          Customer Access                    Employees Access
+
+
+★ Customer login and password
+★ Interactive panel with class schedules, classes assignments, contracts,
+  event schedule, message board, and the history of evaluations.
+★ It allows sending messages to teachers and managers, with complete
+  conﬁdentiality of personal contacts of both parties.
+★ Interactive personal emoji that improves according to the student rank
+              DLANG OS (reference spec)
+                                      SYSTEM RESOURCES
+
+ Manager Access                          Customer Access   Employees Access
+
+
+★ Bracelet with RFID or NFC chip
+★ Streamlines the Roll Call process
+★ Stores student tests and assessments
+★ Identiﬁes students easily
+                     DASHBOARD DO STUDENT/PARENTS/GUARDIANS
+
+                        DLANG OS (reference spec)
+LINKS
+
+
+        ROLL CALL                  CALENDAR   NOTIFICATIONS         EVALUATIONS
+
+
+                                                        YOUR RANK
+
+         SIGN-UP FOR A PROGRAM/CLASS             Roll Call
+
+                                                 Evaluation
+
+                                                 Participation
+
+
+
+                    ONLINE STORE
+                       DASHBOARD DO STUDENT/PARENTS/GUARDIANS
+
+                          DLANG OS (reference spec)
+LINKS
+        1.   Calendar - Shows all events speciﬁc to the student/client
+        2.   Contract - Shows the student's enrollment contract (s)
+        3.   Evaluations - Shows student evaluation history
+        4.   Roll calls - Shows the student's roll call history on all activities assigned to the student
+        5.   Training Plan - Shows the student's weekly training plan
+        6.   Notiﬁcations - Shows all occurrences of classes
+        7.   Message Board - Message form that sends and receives messages to / from the administration,
+             teachers, other parents and students by whatsapp message, email and notiﬁcation on the App
+        8.   Emoji - Emoji will improve as the student participation and evaluation improves.
+                   DASHBOARD DO STUDENT/PARENTS/GUARDIANS
+
+                       DLANG OS (reference spec)
+                                            ATHLETES
+           CORE FEATURES                             Future Enhancements & Features
+ 1.   Athlete Proﬁle Management & tracking          13.   Artiﬁcial Intelligence based training
+ 2.   Athletes’ Schedule                            14.   Athlete Evolution Tracking
+ 3.   Training Guide Workﬂows                       15.   One Rep Max Calculator
+ 4.   Workout exercise Plan                         16.   Detailed reports of Athlete
+ 5.   Exercise Video Examples                       17.   Result Based Testing Reports
+ 6.   Athletes’ Feedback management                 18.   Percentage Based Testing Reports
+ 7.   Training Document Viewer                      19.   Wellness Monitoring
+ 8.   Work from Home assignments & training         20.   Heart Rate Tracking
+ 9.   Communication (Notiﬁcations, Email, Chat)     21.   Daily Wellness Questionnaire
+10.   Scholarship Progress reporting                22.   Balance Fluid Levels
+11.   Online Payment(Sessions, Trainings, Events)   23.   Promote Hydration Habits
+12.   Shop N Pay(Online Mobile Shop)                24.   Weight Tracking
+                                                    25.   Load Monitoring
+                                                    26.   External Device integration and Monitoring
+               DLANG OS (reference spec)
+                                     SYSTEM RESOURCES
+
+  Manager Access                           Customer Access                  Employees Access
+
+
+★ Employee login and password
+★ Clock In
+★ Interactive panel showing the schedule of classes, roll calls, space to
+  register lesson plans that are sent to parents, evaluations planner
+  according to the institution's agenda.
+★ Message board that allows sending messages to clients, with total
+  conﬁdentiality of personal contacts of both parties.
+                                  EMPLOYEE DASHBOARD
+
+                    DLANG OS (reference spec)
+LINKS
+
+
+        ROLL CALL           CALENDAR             NOTIFICATIONS          CLOCK IN
+
+
+
+
+              ROLL CALL HISTORY                         EVALUATIONS HISTORY
+
+
+
+
+                                       ONLINE STORE
+                                        EMPLOYEE DASHBOARD
+
+                          DLANG OS (reference spec)
+LINKS
+        1.   Calendar - Development and editing of events related to the employee's classes, and access to
+             the general calendar that will be synchronized with the employee's calendar
+        2.   Roll Calls - History of all calls made by the employee
+        3.   Assessments - Development and editing of assessment forms with speciﬁc items for each sport
+        4.   Evaluation History - History of evaluations performed by employees. Administration and parents
+             will have access to these assessments
+        5.   Training Planner - Development form to create and editing training plans that will be displayed
+             on the manager and client dashboard as well
+        6.   Speciﬁc Items - Development and editing of a variety of items to insert in the evaluation form
+        7.   Notiﬁcations - List of all occurrences that happened during physical activities, where parents will
+             have access
+        8.   Message Board - Message form that sends and receives messages to / from the administration,
+             parents and students by whatsapp message, email and notiﬁcation on the App
+          DLANG OS (reference spec)
+                                               TOOLS
+Personalized training, with videos and classes provided remotely for all managing users.
+
+Full control of teachers' actions within the platform, with daily reports.
+
+Automation of communications with daily tasks, also with daily reports.
+
+Full control of the schedule of classes and events for managers, clients and teachers.
+
+Evaluation through technical and pedagogical performance indicators and alignment of
+pedagogical actions according to beliefs and models proposed by the institution and with
+personalized seasonality in the agenda.
+Easy search engine for functions within the platform in an intuitive and practical way.
+         DLANG OS (reference spec)
+                                           TOOLS
+Complete ﬁnancial control, with payroll and pending reports, such as receivables and payments.
+
+Preparation and customization of plans and services, which can be separated by activities, place
+of operation, etc.
+
+Full integration with the institution website, to automate enrollment registrations and online
+payments, with installment and recurring payments on the credit card.
+

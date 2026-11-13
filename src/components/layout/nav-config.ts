@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -31,6 +31,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Lesson plans", labelKey: "lessonPlans", href: "/admin/lesson-plans", icon: NotebookPen },
     { label: "Invoices", labelKey: "invoices", href: "/admin/invoices", icon: FileText },
     { label: "Payments", labelKey: "payments", href: "/admin/payments", icon: CreditCard },
+    { label: "Finance", labelKey: "finance", href: "/admin/finance", icon: Wallet },
     { label: "Attendance", labelKey: "attendance", href: "/admin/attendance", icon: CheckSquare },
     { label: "Bookings", labelKey: "bookings", href: "/admin/bookings", icon: Dumbbell },
     { label: "Services", labelKey: "services", href: "/admin/services", icon: Dumbbell },
