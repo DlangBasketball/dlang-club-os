@@ -1,0 +1,88 @@
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen } from "lucide-react";
+import type { NamespaceKey } from "@/lib/i18n/translator";
+
+export type NavKey = "admin" | "coach" | "parent";
+
+/**
+ * `labelKey` is the i18n key under "nav." (rendered via t(`nav.${labelKey}`));
+ * `label` is the English fallback kept for non-localised consumers.
+ */
+export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: string; icon: LucideIcon };
+
+/** Admin nav entries that only show when the club enabled the feature. */
+export const ASSISTANT_HREF = "/admin/assistant";
+/** Communication entries only admins use (finance shares the admin app). */
+export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads"];
+
+export const NAV: Record<NavKey, NavItem[]> = {
+  admin: [
+    { label: "Dashboard", labelKey: "dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { label: "Notifications", labelKey: "notifications", href: "/admin/notifications", icon: Bell },
+    { label: "Messages", labelKey: "messages", href: "/admin/messages", icon: MessagesSquare },
+    { label: "Alerts", labelKey: "alerts", href: "/admin/alerts", icon: Megaphone },
+    { label: "New contacts", labelKey: "leads", href: "/admin/leads", icon: Inbox },
+    { label: "Documents", labelKey: "documents", href: "/admin/documents", icon: FolderOpen },
+    { label: "Consents", labelKey: "consents", href: "/admin/consents", icon: ShieldCheck },
+    { label: "Forms", labelKey: "forms", href: "/admin/forms", icon: ClipboardPen },
+    { label: "Contracts", labelKey: "contracts", href: "/admin/contracts", icon: FilePen },
+    { label: "Families", labelKey: "families", href: "/admin/families", icon: Users },
+    { label: "Athletes", labelKey: "athletes", href: "/admin/athletes", icon: UserCircle },
+    { label: "Programs", labelKey: "programs", href: "/admin/programs", icon: CalendarRange },
+    { label: "Registrations", labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList },
+    { label: "Discounts", labelKey: "discounts", href: "/admin/discounts", icon: Percent },
+    { label: "Shop", labelKey: "shop", href: "/admin/shop", icon: ShoppingBag },
+    { label: "Teams", labelKey: "teams", href: "/admin/teams", icon: Shield },
+    { label: "Coaches", labelKey: "coaches", href: "/admin/coaches", icon: UserCog },
+    { label: "Schedule", labelKey: "schedule", href: "/admin/schedule", icon: CalendarDays },
+    { label: "Locations", labelKey: "locations", href: "/admin/locations", icon: MapPin },
+    { label: "Sports", labelKey: "sports", href: "/admin/sports", icon: Trophy },
+    { label: "Calendar", labelKey: "calendar", href: "/admin/calendar", icon: CalendarCheck },
+    { label: "Timesheets", labelKey: "timesheets", href: "/admin/timesheets", icon: Timer },
+    { label: "Lesson plans", labelKey: "lessonPlans", href: "/admin/lesson-plans", icon: NotebookPen },
+    { label: "Invoices", labelKey: "invoices", href: "/admin/invoices", icon: FileText },
+    { label: "Payments", labelKey: "payments", href: "/admin/payments", icon: CreditCard },
+    { label: "Finance", labelKey: "finance", href: "/admin/finance", icon: Wallet },
+    { label: "Attendance", labelKey: "attendance", href: "/admin/attendance", icon: CheckSquare },
+    { label: "Bookings", labelKey: "bookings", href: "/admin/bookings", icon: Dumbbell },
+    { label: "Services", labelKey: "services", href: "/admin/services", icon: Dumbbell },
+    { label: "Training", labelKey: "training", href: "/admin/training", icon: Coins },
+    { label: "Development", labelKey: "development", href: "/admin/development", icon: TrendingUp },
+    { label: "Invitations", labelKey: "invitations", href: "/admin/invitations", icon: Mail },
+    { label: "Import", labelKey: "import", href: "/admin/import", icon: Upload },
+    { label: "Reports", labelKey: "reports", href: "/admin/reports", icon: BarChart3 },
+    { label: "Assistant", labelKey: "assistant", href: "/admin/assistant", icon: Sparkles },
+    { label: "Settings", labelKey: "settings", href: "/admin/settings", icon: Settings },
+  ],
+  coach: [
+    { label: "Home", labelKey: "home", href: "/coach", icon: Home },
+    { label: "Messages", labelKey: "messages", href: "/coach/messages", icon: MessagesSquare },
+    { label: "Time clock", labelKey: "clock", href: "/coach/clock", icon: Timer },
+    { label: "Calendar", labelKey: "calendar", href: "/coach/calendar", icon: CalendarCheck },
+    { label: "Schedule", labelKey: "schedule", href: "/coach/schedule", icon: CalendarClock },
+    { label: "My team", labelKey: "myTeam", href: "/coach/team", icon: Shield },
+    { label: "Attendance", labelKey: "attendance", href: "/coach/attendance", icon: CheckSquare },
+    { label: "Availability", labelKey: "availability", href: "/coach/availability", icon: CalendarClock },
+    { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
+    { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
+    { label: "Roll calls", labelKey: "rollCalls", href: "/coach/roll-calls", icon: ClipboardCheck },
+    { label: "Alerts", labelKey: "alerts", href: "/coach/alerts", icon: Megaphone },
+  ],
+  parent: [
+    { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
+    { label: "Messages", labelKey: "messages", href: "/parent/messages", icon: MessagesSquare },
+    { label: "Children", labelKey: "children", href: "/parent/children", icon: UserCircle },
+    { label: "My training", labelKey: "myTraining", href: "/parent/development", icon: TrendingUp },
+    { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },
+    { label: "Calendar", labelKey: "calendar", href: "/parent/calendar", icon: CalendarCheck },
+    { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
+    { label: "Invoices", labelKey: "invoices", href: "/parent/invoices", icon: Receipt },
+    { label: "Bookings", labelKey: "bookings", href: "/parent/bookings", icon: Dumbbell },
+    { label: "Attendance", labelKey: "attendance", href: "/parent/attendance", icon: CheckSquare },
+    { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },
+    { label: "Account", labelKey: "account", href: "/parent/account", icon: Settings },
+    { label: "Documents", labelKey: "documents", href: "/parent/documents", icon: FolderOpen },
+    { label: "Shop", labelKey: "shop", href: "/shop", icon: ShoppingBag },
+    { label: "Forms", labelKey: "forms", href: "/parent/forms", icon: ClipboardPen },
+    { label: "Contracts", labelKey: "contracts", href: "/parent/contracts", icon: FilePen },
+  ],
+};

@@ -1,0 +1,60 @@
+# Updated business pack — November 2026
+
+This folder holds the **updated (v2) versions** of the founder's August 2026 business materials, re-baselined on 11 November 2026. All dates run from **Monday 16 November 2026** and are shown as **base / downside**. **Updated 12 November 2026** with the founder's 15 decisions (log: [`../11_FOUNDER_DECISIONS_2026-11-12.md`](../11_FOUNDER_DECISIONS_2026-11-12.md)), and the same day with the **round 2** answers: the AI assistant is a **paid add-on** for clubs (CHF 69 per club per month proposed; DLang free), **no free pilots** (the EU and US pilots are discounted paid pilots), and a parent AI add-on is a proposal only.
+
+**The originals are untouched** and live in [`../source/`](../source/) (with plain-text extracts in [`../source/text/`](../source/text/)). Never edit the originals; write new dated versions here.
+
+## What is in this folder
+
+| File | What it is | Replaces (original in `docs/company/source/`) |
+|---|---|---|
+| [`CHANGELOG.md`](CHANGELOG.md) | Every changed file, what changed and why, grouped by area; the **12 Nov 2026 founder decisions** section, figures of record and remaining open items | — |
+| [`DLANG_Sports_OS_Business_Plan_v2.md`](DLANG_Sports_OS_Business_Plan_v2.md) / [`.docx`](DLANG_Sports_OS_Business_Plan_v2.docx) | Updated business plan. Same sections (00–13, appendices) as the original; changed sections marked **[Updated Nov 2026]** | `DLANG_Sports_OS_Business_Plan.docx` (18 Aug 2026) |
+| [`DLANG_Sports_OS_Rollout_v2.md`](DLANG_Sports_OS_Rollout_v2.md) / [`.docx`](DLANG_Sports_OS_Rollout_v2.docx) | Operational rollout: weeks 1–13 (16 Nov 2026 – 14 Feb 2027) with owners, gates and stop rules, then a 12-month roadmap by quarter to Feb 2028 | `DLANG_Sports_OS_90_Day_Rollout.docx` (24 Aug – 22 Nov 2026) |
+| [`DLANG_Sports_OS_Financial_Model_v2.2.xlsx`](DLANG_Sports_OS_Financial_Model_v2.2.xlsx) | **Financial model v2.2 (plan of record after round 2, 12 Nov 2026).** Copy of v2.1 with the AI assistant as a paid add-on (CHF 69, 20% attach from Jun 2027, DLang complimentary inference) and the EU/US pilots as discounted paid pilots (fees in rows 84–86; pilot costs in row 83 unchanged). Shortfalls about 102k / 225k / 326k; Jan–Mar 2027 bridge about CHF 45k. New **Changes_v2.2** sheet. Notes in [`../10_FINANCIAL_MODEL_V2_NOTES.md`](../10_FINANCIAL_MODEL_V2_NOTES.md) §0b | `DLANG_Sports_OS_Financial_Model.xlsx` |
+| [`DLANG_Sports_OS_Financial_Model_v2.1.xlsx`](DLANG_Sports_OS_Financial_Model_v2.1.xlsx) | **Financial model v2.1 (round-1 plan of record, 12 Nov 2026; superseded by v2.2, kept unchanged).** Copy of v2 that opens on the founder's decisions: FIT 0%, EUR 50k cash Mar 2027 (once a CTO is in place), lean costs, AI included in the Club tier, plus an EU/US pilot cost row (CHF 22.5k in 2027 [Est.]). New **Changes_v2.1** sheet lists every changed cell. Notes in [`../10_FINANCIAL_MODEL_V2_NOTES.md`](../10_FINANCIAL_MODEL_V2_NOTES.md) §0 | `DLANG_Sports_OS_Financial_Model.xlsx` |
+| [`DLANG_Sports_OS_Financial_Model_v2.xlsx`](DLANG_Sports_OS_Financial_Model_v2.xlsx) | Financial model v2 (11 Nov 2026 defaults, kept unchanged for reference): Dec 2026 – Nov 2029, Base / Bull / Bear; all original sheets plus **Changes_v2** (93 cell changes) and **Timeline_v2** (25 milestones). Notes in [`../10_FINANCIAL_MODEL_V2_NOTES.md`](../10_FINANCIAL_MODEL_V2_NOTES.md) | `DLANG_Sports_OS_Financial_Model.xlsx` |
+
+Not replaced (still the founder's originals, to be revised by the founder): the **CTO Partnership Proposal** (superseded in practice by the founder's 12 Nov decision for a fractional CTO + AI agent team; see 04, Business Plan v2 §9.2 and `../12_CTO_SOLUTION_AI_PLUS_HUMAN.md`), the **Executive Dashboard** (superseded in practice by the weekly scorecard in Rollout v2 §4.3 and 00 §8), and the **Investor Deck** (the required fixes are listed in CHANGELOG, due 4 Dec 2026).
+
+## The supporting company documents (one level up, `docs/company/`)
+
+| File | Covers |
+|---|---|
+| `00_EXECUTIVE_PLAN.md` | Operating plan: roadmap, launch gates, OKRs, risks, decision log, first 30 days |
+| `01_BUSINESS_MODEL.md` | Segments, pricing, take-rate, unit economics |
+| `02_GO_TO_MARKET.md` | Swiss sales motion and calendar, EUR track, US gate, pilots, partners |
+| `03_CTO_TECHNOLOGY_STRATEGY.md` | Architecture, payments, security, delivery, tech debt |
+| `04_ORG_DESIGN_AND_HR.md` | Org stages, hiring, CTO decision, Swiss employment, equity |
+| `05_LEGAL_CORPORATE_STRUCTURE.md` | Entity, IP, payments/AML, VAT, contracts, insurance |
+| `06_CUSTOMER_SUCCESS_AND_SUPPORT.md` | Onboarding, SLAs, health score, help centre |
+| `07_BRAND_AND_MARKETING.md` | Brand layers, naming, claims policy, launch calendar |
+| `08_AI_AGENT_TEAM.md` | The AI agent team and governance |
+| `09_FOUNDER_PLAN_REVIEW.md` | Line-by-line review of the August plan |
+| `10_FINANCIAL_MODEL_V2_NOTES.md` | How the v2 workbook changed and how to use it |
+| `11_FOUNDER_DECISIONS_2026-11-12.md` | The founder's decisions of 12 Nov 2026: decision log, remaining risks, follow-up dates, figures and dates of record |
+| `12_CTO_SOLUTION_AI_PLUS_HUMAN.md` | Why AI agents engineer but a named human fractional CTO is needed |
+| `13_PARENT_AI_ADDON_SPEC.md` | Proposal (not committed): a paid parent AI add-on |
+
+## How to read it (suggested order)
+
+1. **`../11_FOUNDER_DECISIONS_2026-11-12.md`** — 10 minutes. The founder's answers and what they changed (round 2 in §1a; figures of record in §2.0).
+2. **`CHANGELOG.md`** — what changed in each file, and what is still open.
+3. **`DLANG_Sports_OS_Business_Plan_v2`** — sections 00, 01, 02 and 13 first (the summary, the decision memo, the milestones and gates); the rest as reference.
+4. **`DLANG_Sports_OS_Rollout_v2`** — what happens from Monday 16 November. Start with section 6.1, the week 1 checklist.
+5. **`DLANG_Sports_OS_Financial_Model_v2.2.xlsx`** with `../10_FINANCIAL_MODEL_V2_NOTES.md` §0b — switch scenarios at `Assumptions!B4`; enter actual cash at `B54`; test a bridge at `B72`–`B73`; pilot costs in row 83 and pilot fees in rows 84–86; AI add-on price and attach at `B25`/`B26`, start month `B91`, DLang complimentary inference `B92`/`B93`.
+6. **`../00_EXECUTIVE_PLAN.md`** then 01–07 as needed for detail; `../09_FOUNDER_PLAN_REVIEW.md` for the reasoning behind each re-baselined date.
+
+**Where documents disagree:** financial figures and the break-even and bridge dates follow the v2 workbook (founder decision, 12 Nov 2026). Use **v2.2** (`DLANG_Sports_OS_Financial_Model_v2.2.xlsx`): it opens on the plan of record after round 2 (FIT 0%, EUR 50k released in March 2027 once a CTO is in place: cash negative from January 2027, about –43.5k in February; lean costs; AI as a paid add-on, DLang free; discounted paid EU/US pilots with their costs). Shortfalls about 102k / 225k / 326k; bridge about CHF 45k (Jan–Mar 2027); it matches `../11_FOUNDER_DECISIONS_2026-11-12.md` §2.0. v2.1 (round 1: AI in the Club tier, pilots as cost only; 105k / 236k / 353k) and v2 (11 Nov defaults) are kept unchanged. Operating dates follow `00_EXECUTIVE_PLAN.md`.
+
+## Conventions
+
+- Amounts in CHF unless marked EUR. Model year 1 = Dec 2026 – Nov 2027.
+- Labels: [founder] / [Founder] from the August materials · [Est.] estimate · [Confirm] only the founder knows · [Verify] needs a lawyer, fiduciary or tax adviser.
+- The `.docx` files are generated from the `.md` files with pandoc, using the original business plan `.docx` as the style reference. Edit the `.md`, then regenerate:
+
+```
+cd docs/company/updated
+pandoc DLANG_Sports_OS_Business_Plan_v2.md -o DLANG_Sports_OS_Business_Plan_v2.docx --reference-doc=../source/DLANG_Sports_OS_Business_Plan.docx
+pandoc DLANG_Sports_OS_Rollout_v2.md -o DLANG_Sports_OS_Rollout_v2.docx --reference-doc=../source/DLANG_Sports_OS_Business_Plan.docx
+```

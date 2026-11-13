@@ -1,0 +1,50 @@
+{
+  "name": "dlang-club-os",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "i18n:check": "node scripts/i18n-check.mjs",
+    "test:payments": "node --no-warnings --import ./src/lib/payments/__tests__/register.mjs --test src/lib/payments/__tests__/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:unit && npm run test:payments && npm run test:db",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:db": "bash scripts/db-test.sh",
+    "test:e2e": "playwright test",
+    "types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > src/types/database.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.1",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
+    "lucide-react": "^0.456.0",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8",
+    "stripe": "^17.5.0",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.2.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3",
+    "@types/qrcode": "^1.5.5",
+    "@playwright/test": "^1.56.1",
+    "vitest": "^3.2.4"
+  }
+}
