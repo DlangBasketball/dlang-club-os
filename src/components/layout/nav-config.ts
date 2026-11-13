@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -33,6 +33,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Bookings", labelKey: "bookings", href: "/admin/bookings", icon: Dumbbell },
     { label: "Services", labelKey: "services", href: "/admin/services", icon: Dumbbell },
     { label: "Training", labelKey: "training", href: "/admin/training", icon: Coins },
+    { label: "Development", labelKey: "development", href: "/admin/development", icon: TrendingUp },
     { label: "Invitations", labelKey: "invitations", href: "/admin/invitations", icon: Mail },
     { label: "Import", labelKey: "import", href: "/admin/import", icon: Upload },
     { label: "Reports", labelKey: "reports", href: "/admin/reports", icon: BarChart3 },
@@ -45,10 +46,12 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Attendance", labelKey: "attendance", href: "/coach/attendance", icon: CheckSquare },
     { label: "Availability", labelKey: "availability", href: "/coach/availability", icon: CalendarClock },
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
+    { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
   ],
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
     { label: "Children", labelKey: "children", href: "/parent/children", icon: UserCircle },
+    { label: "My training", labelKey: "myTraining", href: "/parent/development", icon: TrendingUp },
     { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },
     { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
     { label: "Invoices", labelKey: "invoices", href: "/parent/invoices", icon: Receipt },
