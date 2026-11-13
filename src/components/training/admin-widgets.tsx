@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/training";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { sortPackages } from "@/lib/training/pricing";
+import { TrainingPromo } from "./promo-preview";
 import { isWithinCancellationWindow } from "@/lib/training/pricing";
 import type { Slot } from "@/lib/training/slots";
 import type { TrainingService, TrainingWizardData } from "@/lib/training/data";
@@ -40,6 +41,7 @@ export function SellPackageForm({ athletes, services }: { athletes: { id: string
   const [packageId, setPackageId] = React.useState("");
   const [mode, setMode] = React.useState<"invoice" | "paid" | "comp">("invoice");
   const [note, setNote] = React.useState("");
+  const [promo, setPromo] = React.useState("");
   const [msg, setMsg] = React.useState<string | null>(null);
   const service = services.find((s) => s.id === serviceId);
   const packages = service ? sortPackages(service.packages) : [];
@@ -69,8 +71,9 @@ export function SellPackageForm({ athletes, services }: { athletes: { id: string
           </Select></div>
       </div>
       <div><Label htmlFor="sp-note">{t("training.sell.note")}</Label><Input id="sp-note" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></div>
+      {serviceId && mode !== "comp" && <TrainingPromo serviceId={serviceId} packageId={packageId || null} athleteId={athleteId || null} code={promo} onCode={setPromo} />}
       <div className="flex items-center gap-2">
-        <Button size="sm" disabled={busy || !athleteId || !serviceId} onClick={() => { setMsg(null); run(() => purchaseTrainingPackage({ athleteId, serviceId, packageId: packageId || null, mode, note }), () => { setMsg(t("training.sell.done")); setNote(""); }); }}>
+        <Button size="sm" disabled={busy || !athleteId || !serviceId} onClick={() => { setMsg(null); run(() => purchaseTrainingPackage({ athleteId, serviceId, packageId: packageId || null, mode, note, promoCode: mode === "comp" ? "" : promo }), () => { setMsg(t("training.sell.done")); setNote(""); }); }}>
           {busy ? t("common.saving") : t("training.sell.submit")}
         </Button>
         {msg && <span role="status" className="text-sm text-success">{msg}</span>}

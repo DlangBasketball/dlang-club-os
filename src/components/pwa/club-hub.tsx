@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, ChevronRight, Dumbbell, LogIn, MapPin, Tag, Tent } from "lucide-react";
+import { CalendarDays, ChevronRight, Dumbbell, LogIn, MapPin, ShoppingBag, Tag, Tent } from "lucide-react";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { buttonVariants } from "@/components/ui";
@@ -100,6 +100,20 @@ export async function ClubHub({ tenant, signedIn = false }: { tenant: Tenant; si
             <p className="text-sm text-text-muted">{t("pwa.hub.trainingIntro")}</p>
             <Link href={TRAINING_BOOKING_PATH} className={cn(buttonVariants({ variant: "primary", size: "md" }), "shrink-0")}>
               {t("pwa.hub.trainingCta")}
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+        </section>
+
+        <section aria-labelledby="hub-shop" className="space-y-4">
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="h-5 w-5 text-brand-primary" aria-hidden />
+            <h2 id="hub-shop" className="font-display text-xl font-semibold">{t("shop.hub.title")}</h2>
+          </div>
+          <div className="flex flex-col gap-4 rounded-md border border-border bg-surface p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-text-muted">{t("shop.hub.intro")}</p>
+            <Link href="/shop" className={cn(buttonVariants({ variant: "primary", size: "md" }), "shrink-0")}>
+              {t("shop.hub.cta")}
               <ChevronRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>

@@ -17,6 +17,8 @@ import { athleteAttendanceHistory } from "@/lib/data/attendance-admin";
 import { AlertTriangle } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server";
 import { signAthletePhotos } from "@/lib/people/server";
+import { MemberCardPanel } from "@/components/member-card/member-card-panel";
+import { shopDb } from "@/lib/shop/db";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -45,6 +47,9 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
   const emergencyName = medical?.emergencyContactName ?? safety?.emergencyContactName ?? null;
   const emergencyPhone = medical?.emergencyContactPhone ?? safety?.emergencyContactPhone ?? null;
   const attendanceHistory = (await athleteAttendanceHistory(id)).data ?? [];
+  const cardTag = isAdmin
+    ? ((await (await shopDb()).from("member_cards").select("nfc_tag_id").eq("athlete_id", id).maybeSingle()).data?.nfc_tag_id ?? null)
+    : null;
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -146,6 +151,14 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
               <CardHeader><CardTitle>{t("athletePhoto.title")}</CardTitle></CardHeader>
               <CardBody>
                 <PhotoManager athleteId={id} name={fullName} photoUrl={photos.get(id) ?? null} compact />
+              </CardBody>
+            </Card>
+          )}
+          {isAdmin && (
+            <Card>
+              <CardHeader><CardTitle>{t("sports.cards.title")}</CardTitle></CardHeader>
+              <CardBody>
+                <MemberCardPanel athleteId={id} pdfHref={`/admin/athletes/${id}/card`} admin initialTag={cardTag} />
               </CardBody>
             </Card>
           )}

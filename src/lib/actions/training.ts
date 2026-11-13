@@ -20,6 +20,7 @@ import {
   type PurchaseInput, type ServiceInput, type TemplateInput, type TrainingSettingsInput, type WindowInput,
 } from "@/lib/training/validation";
 import { z } from "zod";
+import { promoErrorKey } from "@/lib/shop/validation";
 
 export type TrainingResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 type Me = SessionUser & { orgId: string };
@@ -29,7 +30,7 @@ async function fail(key: string): Promise<{ ok: false; error: string }> {
   const t = await getTranslations();
   return { ok: false, error: t.dynamic(key, undefined, t("training.errors.generic")) };
 }
-const dbFail = (message: string | null | undefined) => fail(trainingErrorKey(message));
+const dbFail = (message: string | null | undefined) => fail(promoErrorKey(message) ?? trainingErrorKey(message));
 
 /** Signed-in user of a club with one of the roles; the org is the profile's (never the client's). */
 async function requireRole(roles: Role[]): Promise<Me | null> {
@@ -307,6 +308,8 @@ export async function purchaseTrainingPackage(input: PurchaseInput): Promise<Tra
   const db = await trainingDb();
   const { data, error } = await db.rpc("purchase_training_package", {
     p_athlete: v.athleteId, p_service: v.serviceId, p_package: v.packageId, p_mode: v.mode, p_note: v.note || null,
+    p_promo_code: v.promoCode || null,
+    p_manual_discounts: me.roles.includes("admin") && v.manualDiscountIds.length ? v.manualDiscountIds : null,
   });
   if (error) return dbFail(error.message);
   const r = (data ?? {}) as { purchase_id?: string; invoice_id?: string | null; status?: string };
@@ -377,7 +380,7 @@ export async function bookTrainingSession(input: BookInput): Promise<TrainingRes
   const { data, error } = await db.rpc("book_training", {
     p_athlete: v.athleteId, p_service: v.serviceId, p_coach: v.coachId, p_start: new Date(v.start).toISOString(),
     p_pay_with: v.payWith, p_purchase: v.purchaseId, p_package: v.packageId, p_mode: v.mode, p_override: isAdmin && v.override,
-    p_notes: v.notes || null,
+    p_notes: v.notes || null, p_promo_code: v.promoCode || null,
   });
   if (error) return dbFail(error.message);
   const r = (data ?? {}) as { booking_id?: string; purchase_id?: string | null; invoice_id?: string | null; price?: number };
@@ -523,7 +526,8 @@ export async function guestCheckout(input: GuestCheckoutInput): Promise<GuestChe
   // 2) Family (non-member), child, consents and the booking, in one transaction.
   const hdrs = await headers();
   const ip = (hdrs.get("x-forwarded-for") ?? "").split(",")[0].trim() || null;
-  const { data: res, error: rpcErr } = await admin.rpc("training_guest_checkout", {
+  // With a promo code the wrapper hands the code to book_training() (same transaction).
+  const { data: res, error: rpcErr } = await admin.rpc(v.promoCode ? "training_guest_checkout_promo" : "training_guest_checkout", {
     p_slug: v.clubSlug,
     p_user: userId,
     p_payload: {
@@ -532,7 +536,7 @@ export async function guestCheckout(input: GuestCheckoutInput): Promise<GuestChe
       consents: v.consents,
       guardian_confirmed: v.guardianConfirmed,
       service_id: v.serviceId, coach_id: v.coachId, start: new Date(v.start).toISOString(),
-      pay_with: v.payWith, package_id: v.packageId, ip,
+      pay_with: v.payWith, package_id: v.packageId, ip, promo_code: v.promoCode || null,
     } as unknown as Json,
   });
   if (rpcErr) {

@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, ShoppingBag, Trophy, MapPin } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -23,9 +23,12 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Programs", labelKey: "programs", href: "/admin/programs", icon: CalendarRange },
     { label: "Registrations", labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList },
     { label: "Discounts", labelKey: "discounts", href: "/admin/discounts", icon: Percent },
+    { label: "Shop", labelKey: "shop", href: "/admin/shop", icon: ShoppingBag },
     { label: "Teams", labelKey: "teams", href: "/admin/teams", icon: Shield },
     { label: "Coaches", labelKey: "coaches", href: "/admin/coaches", icon: UserCog },
     { label: "Schedule", labelKey: "schedule", href: "/admin/schedule", icon: CalendarDays },
+    { label: "Locations", labelKey: "locations", href: "/admin/locations", icon: MapPin },
+    { label: "Sports", labelKey: "sports", href: "/admin/sports", icon: Trophy },
     { label: "Calendar", labelKey: "calendar", href: "/admin/calendar", icon: CalendarCheck },
     { label: "Timesheets", labelKey: "timesheets", href: "/admin/timesheets", icon: Timer },
     { label: "Lesson plans", labelKey: "lessonPlans", href: "/admin/lesson-plans", icon: NotebookPen },
@@ -68,5 +71,6 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },
     { label: "Account", labelKey: "account", href: "/parent/account", icon: Settings },
     { label: "Documents", labelKey: "documents", href: "/parent/documents", icon: FolderOpen },
+    { label: "Shop", labelKey: "shop", href: "/shop", icon: ShoppingBag },
   ],
 };

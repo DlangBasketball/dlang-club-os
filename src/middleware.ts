@@ -26,6 +26,8 @@ const PUBLIC_PREFIXES = [
   "/api/platform/cron",
   // Read-only calendar subscription (ICS); the URL token is the credential.
   "/api/calendar/feed",
+  // Club shop: storefront, guest checkout and the guest order link.
+  "/shop",
 ];
 
 function isPublic(pathname: string) {

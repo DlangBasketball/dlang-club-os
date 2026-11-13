@@ -15,6 +15,7 @@ import { useT } from "@/lib/i18n/client";
 import { useTenant } from "@/lib/tenant/context";
 import { NAV_TERM, termOr } from "@/lib/tenant/terms";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { CommandPalette } from "@/components/search/command-palette";
 
 /** Nav label in the tenant's vocabulary ("Students" for a school that renamed athletes). */
 function useNavLabel() {
@@ -257,6 +258,7 @@ function SidebarShell({
           </button>
           <BrandMark compact className="lg:hidden" />
           <div className="flex-1" />
+          <CommandPalette />
           <LanguageSwitcher variant="compact" />
           {notifications && (
             <NotificationBell initial={notifications.data} viewAllHref={notifications.viewAllHref} />
@@ -299,6 +301,7 @@ function BottomShell({
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-bg-secondary/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-bg-secondary/75">
         <BrandMark compact />
         <div className="flex items-center gap-1.5">
+          <CommandPalette />
           <LanguageSwitcher variant="compact" />
           {notifications && (
             <NotificationBell initial={notifications.data} viewAllHref={notifications.viewAllHref} />

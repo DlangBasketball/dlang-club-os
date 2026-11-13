@@ -7,6 +7,7 @@
  * applies public.training_purchase_discount()); these helpers only explain
  * prices and balances on screen.
  */
+import { computePrice, type DiscountDef } from "@/lib/pricing/discounts";
 
 export type PackageOption = { id: string; sessions: number; price: number; validityDays: number | null; isActive?: boolean };
 export type CreditLot = {
@@ -88,9 +89,10 @@ export function isWithinCancellationWindow(slotStart: string, cancellationHours:
 }
 
 /**
- * DISCOUNT EXTENSION POINT (UI preview only). The shared discounts model
- * plugs in here and in public.training_purchase_discount(); until then no
- * discount applies. Returns the amount to charge and the discount applied.
+ * DISCOUNT EXTENSION POINT (UI preview). The shared discounts model plugs in
+ * through sharedDiscountResolver(); the database applies the same rules in
+ * public.training_purchase_discount(). Returns the amount to charge and the
+ * discount applied.
  */
 export type DiscountPreview = { discountTotal: number; discountIds: string[]; amount: number };
 export type DiscountResolver = (ctx: { serviceId: string; packageId: string | null; listPrice: number; currency: string }) => { total: number; ids: string[] };
@@ -100,4 +102,24 @@ export function applyDiscount(listPrice: number, currency: string, ctx: { servic
   const d = resolver({ ...ctx, listPrice, currency });
   const discountTotal = Math.min(listPrice, Math.max(0, roundMoney(d.total, currency)));
   return { discountTotal, discountIds: d.ids, amount: roundMoney(listPrice - discountTotal, currency) };
+}
+
+/**
+ * Resolver over the club's shared discounts (scope all / training / the
+ * service; early bird, admin-picked manual discounts, promo code). Sibling
+ * discounts belong to registrations and never apply to training.
+ */
+export function sharedDiscountResolver(
+  discounts: DiscountDef[],
+  opts: { now: Date; promoCode?: string | null; startsOn?: string | null; manualDiscountIds?: string[] },
+): DiscountResolver {
+  const usable = discounts.filter((d) => d.rule !== "sibling");
+  return ({ serviceId, listPrice, currency }) => {
+    const q = computePrice(
+      { kind: "training", serviceId, currency, listAmount: listPrice, startsOn: opts.startsOn ?? null },
+      usable,
+      { now: opts.now, promoCode: opts.promoCode ?? null, manualDiscountIds: opts.manualDiscountIds },
+    );
+    return { total: q.discountTotal, ids: q.discounts.map((l) => l.discountId) };
+  };
 }

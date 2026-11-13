@@ -11,6 +11,7 @@ import { packageSavings, perSessionPrice, pickLot, remainingSessions, sortPackag
 import type { Slot } from "@/lib/training/slots";
 import type { TrainingService, TrainingWizardData } from "@/lib/training/data";
 import { ANY_COACH, SlotPicker, slotsFor, venueLine } from "./slot-picker";
+import { TrainingPromo } from "./promo-preview";
 
 type Pay = { kind: "credits"; purchaseId: string | null } | { kind: "package"; packageId: string } | { kind: "invoice" };
 
@@ -34,6 +35,7 @@ export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthle
   const [slot, setSlot] = React.useState<Slot | null>(null);
   const [saleMode, setSaleMode] = React.useState<"invoice" | "paid" | "comp">("invoice");
   const [override, setOverride] = React.useState(false);
+  const [promo, setPromo] = React.useState("");
   const [err, setErr] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState<{ bookingId: string; purchaseId: string | null; invoiceId: string | null; count: number } | null>(null);
@@ -59,6 +61,7 @@ export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthle
       athleteId: athlete.id, serviceId: service.id, coachId: slot.coachId, start: slot.start,
       payWith: pay.kind, purchaseId: pay.kind === "credits" ? pay.purchaseId : null, packageId: pay.kind === "package" ? pay.packageId : null,
       mode: mode === "admin" ? saleMode : "invoice", override: mode === "admin" && override,
+      promoCode: pay.kind !== "credits" && !(mode === "admin" && saleMode === "comp") ? promo : "",
     });
     setPending(false);
     if (!res.ok) { setErr(res.error); return; }
@@ -238,6 +241,9 @@ export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthle
                 <option value="comp">{t("training.sell.modes.comp")}</option>
               </Select>
             </div>
+          )}
+          {pay.kind !== "credits" && !(mode === "admin" && saleMode === "comp") && (
+            <TrainingPromo serviceId={service.id} packageId={pay.kind === "package" ? pay.packageId : null} start={slot.start} athleteId={athlete.id} code={promo} onCode={setPromo} />
           )}
           {pay.kind !== "credits" && <p className="text-xs text-ink-3">{pay.kind === "package" ? t("training.book.packageInvoiceHint") : t("training.book.singleInvoiceHint")}</p>}
           <p className="text-xs text-ink-4">{t("training.book.cancellationRule", { hours: data.settings.cancellationHours })}</p>
