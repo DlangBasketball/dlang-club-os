@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Pencil, ExternalLink } from "lucide-react";
+import { Pencil, ExternalLink, ListChecks } from "lucide-react";
 import { PageHeader, Button, Card, CardBody, Badge, ErrorState } from "@/components/ui";
 import { ProgramActions } from "@/components/admin/program-actions";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -30,7 +30,12 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
       <PageHeader title={p.name} description={t.dynamic(`programKind.${p.kind}`, undefined, p.kind)}
-        actions={isAdmin ? <Link href={`/admin/programs/${p.id}/edit`}><Button size="sm"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button></Link> : undefined} />
+        actions={isAdmin ? (
+          <>
+            <Link href={`/admin/programs/${p.id}/registration-form`}><Button size="sm" variant="secondary"><ListChecks className="h-4 w-4" /> {t("forms.regForm.link")}</Button></Link>
+            <Link href={`/admin/programs/${p.id}/edit`}><Button size="sm"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button></Link>
+          </>
+        ) : undefined} />
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone={TONE[p.status]}>{t.dynamic(`editOps.programs.statuses.${p.status}`, undefined, p.status)}</Badge>
         {p.isPublic && <Badge tone="maroon">{t("editOps.programs.publicBadge")}</Badge>}

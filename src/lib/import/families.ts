@@ -1,5 +1,6 @@
 /**
- * CSV import — parsing, validation and planning (pure; no I/O).
+ * Families & athletes import — parsing, validation and planning (pure; no I/O).
+ * Used for CSV and .xlsx files (see ./xlsx.ts and ./mapping.ts).
  *
  * One row = one athlete. Family and guardian columns repeat on every row of
  * the same household; rows are grouped into families by `family_ref` (if the
@@ -43,7 +44,8 @@ export const TEMPLATE_CSV =
   "\n";
 
 export type DateOrder = "DMY" | "MDY";
-export type Issue = { row: number; field?: string; message: string };
+/** A row-numbered problem; `key` is an i18n key under forms.import.issues.* */
+export type Issue = { row: number; field?: string; key: string; values?: Record<string, string | number> };
 
 /* -------------------------------------------------------------------------- */
 /* CSV parsing                                                                */
@@ -219,6 +221,22 @@ function opt(v: string | undefined): string | null {
  * header = line 1).
  */
 export function buildImportPlan(text: string, order: DateOrder, existing?: ExistingData): ImportPlan {
+  if (text.length > MAX_BYTES) {
+    return {
+      families: [],
+      errors: [{ row: 0, key: "fileTooLarge", values: { mb: MAX_BYTES / 1_000_000 } }],
+      warnings: [],
+      totals: { rows: 0, familiesNew: 0, familiesExisting: 0, athletes: 0, athletesSkipped: 0, invitations: 0 },
+    };
+  }
+  return buildImportPlanFromTable(parseCsv(text), order, existing);
+}
+
+/**
+ * Same as buildImportPlan for an already parsed table (CSV or .xlsx, after
+ * column mapping): row 0 is the header row.
+ */
+export function buildImportPlanFromTable(table: string[][], order: DateOrder, existing?: ExistingData): ImportPlan {
   const errors: Issue[] = [];
   const warnings: Issue[] = [];
   const empty: ImportPlan = {
@@ -228,28 +246,23 @@ export function buildImportPlan(text: string, order: DateOrder, existing?: Exist
     totals: { rows: 0, familiesNew: 0, familiesExisting: 0, athletes: 0, athletesSkipped: 0, invitations: 0 },
   };
 
-  if (text.length > MAX_BYTES) {
-    errors.push({ row: 0, message: `File is larger than ${MAX_BYTES / 1_000_000} MB. Split it into several files.` });
-    return empty;
-  }
-  const table = parseCsv(text);
   if (table.length < 2) {
-    errors.push({ row: 0, message: "The file has no data rows (a header line plus at least one athlete is required)." });
+    errors.push({ row: 0, key: "noRows" });
     return empty;
   }
   const headers = table[0].map(normaliseHeader);
   const required = ["athlete_first_name", "athlete_last_name", "athlete_dob"];
   const missingCols = required.filter((c) => !headers.includes(c));
   if (missingCols.length) {
-    errors.push({ row: 1, message: `Missing required column(s): ${missingCols.join(", ")}. Download the template to see the expected headers.` });
+    errors.push({ row: 1, key: "missingColumns", values: { columns: missingCols.join(", ") } });
     return empty;
   }
   const unknown = headers.filter((h) => h && !(TEMPLATE_COLUMNS as readonly string[]).includes(h));
-  if (unknown.length) warnings.push({ row: 1, message: `Ignored unknown column(s): ${unknown.join(", ")}` });
+  if (unknown.length) warnings.push({ row: 1, key: "unknownColumns", values: { columns: unknown.join(", ") } });
 
   const dataRows = table.slice(1);
   if (dataRows.length > MAX_ROWS) {
-    errors.push({ row: 0, message: `Too many rows (${dataRows.length}). The limit is ${MAX_ROWS} per file.` });
+    errors.push({ row: 0, key: "tooManyRows", values: { count: dataRows.length, max: MAX_ROWS } });
     return empty;
   }
 
@@ -263,25 +276,25 @@ export function buildImportPlan(text: string, order: DateOrder, existing?: Exist
     const r: RowInput = {};
     headers.forEach((h, i) => (r[h] = (cells[i] ?? "").trim()));
     let rowOk = true;
-    const fail = (field: string, message: string) => {
-      errors.push({ row: line, field, message });
+    const fail = (field: string, key: string, values?: Issue["values"]) => {
+      errors.push({ row: line, field, key, values });
       rowOk = false;
     };
 
     const first = opt(r.athlete_first_name);
     const last = opt(r.athlete_last_name);
-    if (!first) fail("athlete_first_name", "Athlete first name is required");
-    if (!last) fail("athlete_last_name", "Athlete last name is required");
+    if (!first) fail("athlete_first_name", "firstNameRequired");
+    if (!last) fail("athlete_last_name", "lastNameRequired");
     const dob = r.athlete_dob ? parseDate(r.athlete_dob, order) : null;
-    if (!r.athlete_dob) fail("athlete_dob", "Date of birth is required");
-    else if (!dob) fail("athlete_dob", `Unreadable date "${r.athlete_dob}" (use YYYY-MM-DD or DD.MM.YYYY)`);
-    else if (dob > todayIso) fail("athlete_dob", "Date of birth is in the future");
-    else if (+dob.slice(0, 4) < new Date().getUTCFullYear() - 100) fail("athlete_dob", "Date of birth is more than 100 years ago");
+    if (!r.athlete_dob) fail("athlete_dob", "dobRequired");
+    else if (!dob) fail("athlete_dob", "dobUnreadable", { value: r.athlete_dob });
+    else if (dob > todayIso) fail("athlete_dob", "dobFuture");
+    else if (+dob.slice(0, 4) < new Date().getUTCFullYear() - 100) fail("athlete_dob", "dobTooOld");
 
     let gender: string | null = null;
     if (r.athlete_gender) {
       gender = GENDERS[r.athlete_gender.toLowerCase()] ?? null;
-      if (!gender) warnings.push({ row: line, field: "athlete_gender", message: `Unrecognised gender "${r.athlete_gender}" — left empty` });
+      if (!gender) warnings.push({ row: line, field: "athlete_gender", key: "genderUnknown", values: { value: r.athlete_gender } });
     }
 
     const guardians: PlannedGuardian[] = [];
@@ -290,29 +303,29 @@ export function buildImportPlan(text: string, order: DateOrder, existing?: Exist
       if (!rawEmail) continue;
       const e = email.safeParse(rawEmail);
       if (!e.success) {
-        fail(`guardian${n}_email`, `Invalid email "${rawEmail}"`);
+        fail(`guardian${n}_email`, "emailInvalid", { value: rawEmail });
         continue;
       }
       const rawRel = (r[`guardian${n}_relation`] ?? "").toLowerCase();
       const relation = rawRel ? RELATIONS[rawRel] ?? "guardian" : "guardian";
       if (rawRel && !RELATIONS[rawRel])
-        warnings.push({ row: line, field: `guardian${n}_relation`, message: `Unrecognised relation "${rawRel}" — saved as guardian` });
+        warnings.push({ row: line, field: `guardian${n}_relation`, key: "relationUnknown", values: { value: rawRel } });
       guardians.push({ email: e.data, name: opt(r[`guardian${n}_name`]), relation });
     }
     if (!r.guardian1_email && !r.guardian2_email)
-      warnings.push({ row: line, message: "No guardian email — the family will have no parent login until you invite one" });
+      warnings.push({ row: line, key: "noGuardian" });
 
     if (!rowOk || !first || !last || !dob) return;
 
     const familyName = opt(r.family_name) ?? `${last} family`;
-    if (!r.family_name) warnings.push({ row: line, field: "family_name", message: `No family name — using "${familyName}"` });
+    if (!r.family_name) warnings.push({ row: line, field: "family_name", key: "noFamilyName", values: { name: familyName } });
     const key = opt(r.family_ref)
       ? `ref:${r.family_ref.toLowerCase()}`
       : `name:${familyName.toLowerCase()}|${guardians[0]?.email ?? ""}`;
 
     const athleteKey = `${first.toLowerCase()}|${last.toLowerCase()}|${dob}`;
     if (seenAthletes.has(athleteKey)) {
-      errors.push({ row: line, message: `Duplicate athlete — same name and date of birth as line ${seenAthletes.get(athleteKey)}` });
+      errors.push({ row: line, key: "duplicateAthlete", values: { line: seenAthletes.get(athleteKey) ?? 0 } });
       return;
     }
     seenAthletes.set(athleteKey, line);
@@ -330,17 +343,17 @@ export function buildImportPlan(text: string, order: DateOrder, existing?: Exist
         existingFamilyId: matches.length === 1 ? matches[0] : null,
       };
       if (matches.length > 1)
-        warnings.push({ row: line, field: "family_name", message: `Several existing families are named "${familyName}" — a new family will be created` });
+        warnings.push({ row: line, field: "family_name", key: "ambiguousFamily", values: { name: familyName } });
       families.set(key, fam);
     } else {
       if (fam.name !== familyName || (opt(r.family_address) && fam.address && fam.address !== opt(r.family_address)))
-        warnings.push({ row: line, message: `Family details differ from an earlier row of the same household — the first row's values are used` });
+        warnings.push({ row: line, key: "familyDiffers" });
     }
     for (const g of guardians) if (!fam.guardians.some((x) => x.email === g.email)) fam.guardians.push(g);
 
     if (existing?.athleteKeys.has(athleteKey)) {
       skipped++;
-      warnings.push({ row: line, message: `${first} ${last} (${dob}) already exists in the club — skipped` });
+      warnings.push({ row: line, key: "athleteExists", values: { name: `${first} ${last}`, dob } });
       return;
     }
     fam.athletes.push({
@@ -362,12 +375,12 @@ export function buildImportPlan(text: string, order: DateOrder, existing?: Exist
     fam.guardians = fam.guardians.filter((g) => {
       const owner = emailOwner.get(g.email);
       if (owner && owner !== fam.key) {
-        warnings.push({ row: 0, message: `${g.email} is a guardian in more than one household — only invited for the first one; link the others manually` });
+        warnings.push({ row: 0, key: "guardianMultiple", values: { email: g.email } });
         return false;
       }
       emailOwner.set(g.email, fam.key);
       if (existing?.knownEmails.has(g.email)) {
-        warnings.push({ row: 0, message: `${g.email} is already invited or registered in this club — no new invitation` });
+        warnings.push({ row: 0, key: "guardianKnown", values: { email: g.email } });
         return false;
       }
       return true;

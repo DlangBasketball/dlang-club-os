@@ -1,0 +1,9 @@
+import { renderSubmissionPdf } from "@/lib/forms/submission-pdf";
+
+export const dynamic = "force-dynamic";
+
+/** RLS: a guardian only ever gets PDFs of their own children's submissions. */
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return renderSubmissionPdf(id);
+}

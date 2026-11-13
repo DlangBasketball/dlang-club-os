@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, ClipboardPen, FilePen } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -18,6 +18,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Notifications", labelKey: "notifications", href: "/admin/notifications", icon: Bell },
     { label: "Documents", labelKey: "documents", href: "/admin/documents", icon: FolderOpen },
     { label: "Consents", labelKey: "consents", href: "/admin/consents", icon: ShieldCheck },
+    { label: "Forms", labelKey: "forms", href: "/admin/forms", icon: ClipboardPen },
+    { label: "Contracts", labelKey: "contracts", href: "/admin/contracts", icon: FilePen },
     { label: "Families", labelKey: "families", href: "/admin/families", icon: Users },
     { label: "Athletes", labelKey: "athletes", href: "/admin/athletes", icon: UserCircle },
     { label: "Programs", labelKey: "programs", href: "/admin/programs", icon: CalendarRange },
@@ -68,5 +70,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },
     { label: "Account", labelKey: "account", href: "/parent/account", icon: Settings },
     { label: "Documents", labelKey: "documents", href: "/parent/documents", icon: FolderOpen },
+    { label: "Forms", labelKey: "forms", href: "/parent/forms", icon: ClipboardPen },
+    { label: "Contracts", labelKey: "contracts", href: "/parent/contracts", icon: FilePen },
   ],
 };

@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getMemberCamp } from "@/lib/camps/data";
 import { createClient } from "@/lib/supabase/server";
 import { getI18n } from "@/lib/i18n/server";
+import { getRegistrationConfig } from "@/lib/registration-form/server";
 
 export default async function ParentCampPage({ params }: { params: Promise<{ programId: string }> }) {
   const { programId } = await params;
@@ -25,7 +26,7 @@ export default async function ParentCampPage({ params }: { params: Promise<{ pro
     <div className="animate-fade-up max-w-3xl space-y-5">
       <PageHeader title={camp.program.name} description={t("camps.parent.registerDescription")} />
       {camp.program.description && <p className="whitespace-pre-wrap text-sm text-ink-2">{camp.program.description}</p>}
-      <CampRegister mode="parent" camp={camp}
+      <CampRegister mode="parent" camp={camp} config={await getRegistrationConfig(me.orgId, camp.program.id)}
         kids={(kids ?? []).filter((k) => k.status !== "inactive").map((k) => ({ id: k.id, name: `${k.first_name} ${k.last_name}`, dob: k.dob }))} />
     </div>
   );

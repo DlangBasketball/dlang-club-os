@@ -7,6 +7,7 @@ import { I18nProvider } from "@/lib/i18n/client";
 import { getPublicCamp } from "@/lib/camps/data";
 import { CampRegister } from "@/components/camps/camp-register";
 import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
+import { getRegistrationConfig } from "@/lib/registration-form/server";
 
 export default async function PublicProgramPage({ params }: { params: Promise<{ programSlug: string }> }) {
   const { programSlug } = await params;
@@ -23,7 +24,7 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
           {camp.program.description && <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-ink-2">{camp.program.description}</p>}
         </section>
         <I18nProvider ctx={i18n.ctx} messages={i18n.messages}>
-          <CampRegister mode="public" camp={camp} slug={programSlug} />
+          <CampRegister mode="public" camp={camp} slug={programSlug} config={await getRegistrationConfig(camp.program.orgId, camp.program.id)} />
         </I18nProvider>
       </div>
     );
@@ -32,7 +33,7 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
   if (!data) notFound();
   const { program, consents, siblingDiscountPct } = data;
   // Public page: no user, so localise with the club's own defaults (language, currency, time zone).
-  const { t, f, ctx, messages } = await getI18n(program.orgId);
+  const [{ t, f, ctx, messages }, config] = await Promise.all([getI18n(program.orgId), getRegistrationConfig(program.orgId, program.id)]);
 
   return (
     <div className="animate-fade-up space-y-8">
@@ -57,6 +58,7 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
           priceChf={program.priceChf}
           siblingDiscountPct={siblingDiscountPct}
           consents={consents}
+          config={config}
         />
       </I18nProvider>
     </div>

@@ -20,6 +20,7 @@ import {
   type PurchaseInput, type ServiceInput, type TemplateInput, type TrainingSettingsInput, type WindowInput,
 } from "@/lib/training/validation";
 import { z } from "zod";
+import { issueContractForPurchase } from "@/lib/contracts/server";
 
 export type TrainingResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 type Me = SessionUser & { orgId: string };
@@ -310,6 +311,8 @@ export async function purchaseTrainingPackage(input: PurchaseInput): Promise<Tra
   });
   if (error) return dbFail(error.message);
   const r = (data ?? {}) as { purchase_id?: string; invoice_id?: string | null; status?: string };
+  // Participation contract for the package (auto-issue template), never fatal.
+  if (r.purchase_id) await issueContractForPurchase(me.orgId, r.purchase_id, me.id);
   revalidateTraining(["/parent/invoices", "/admin/invoices", `/admin/athletes/${v.athleteId}/training`]);
   return { ok: true, data: { purchaseId: r.purchase_id ?? "", invoiceId: r.invoice_id ?? null, status: r.status ?? "" } };
 }

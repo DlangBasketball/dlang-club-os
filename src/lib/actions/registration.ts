@@ -23,6 +23,9 @@ import {
   type RegistrationCreateInput,
 } from "@/lib/people/validation";
 import { logError } from "@/lib/log";
+import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } from "@/lib/registration-form/server";
+import { validateRegistrationExtras, type BuiltinField, type ChildExtras } from "@/lib/registration-form/config";
+import { issueContractsForRegistrations } from "@/lib/contracts/server";
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -38,6 +41,10 @@ const childSchema = z.object({
   allergies: z.string().optional().default(""),
   conditions: z.string().optional().default(""),
   medicalNotes: z.string().optional().default(""),
+  /** Configured extra built-ins (school, nationality, ...) — see the registration form editor. */
+  extras: z.record(z.string(), z.string().max(2000)).optional().default({}),
+  /** Answers to the programme's custom questions, by question id. */
+  answers: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
 const schema = z.object({
@@ -96,6 +103,23 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
     return { ok: false, formError: `Please accept all required agreements: ${missing.join(", ")}.` };
   }
 
+  // Registration form editor: configured built-ins and custom questions
+  // (the default config reproduces the original form).
+  const config = await getRegistrationConfig(program.org_id, program.id);
+  const tCfg = await getTranslations(program.org_id);
+  const extraErrors: Record<string, string> = {};
+  const parentCheck = validateRegistrationExtras(config, { address: data.parent.address }, {}, "parent");
+  for (const [k, key] of Object.entries(parentCheck.errors)) extraErrors[`parent.${k}`] = tCfg.dynamic(key);
+  const perChild = data.children.map((c, i) => {
+    const values: ChildExtras = { ...(c.extras as ChildExtras), gender: c.gender, allergies: c.allergies, conditions: c.conditions, medicalNotes: c.medicalNotes };
+    const r = validateRegistrationExtras(config, values, c.answers, "child");
+    for (const [k, key] of Object.entries(r.errors)) extraErrors[`children.${i}.${k}`] = tCfg.dynamic(key);
+    return r;
+  });
+  if (Object.keys(extraErrors).length) return { ok: false, errors: extraErrors };
+  // A field the club hid is never stored, whatever the client sent.
+  const keep = (k: BuiltinField, v: string) => (config.builtin[k].shown ? v : "");
+
   // Client IP for the consent/waiver audit trail.
   const hdrs = await headers();
   const ip = (hdrs.get("x-forwarded-for") ?? "").split(",")[0].trim() || null;
@@ -106,7 +130,7 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
       name: data.parent.name,
       email: data.parent.email,
       phone: data.parent.phone,
-      address: data.parent.address,
+      address: keep("address", data.parent.address),
       emergency_name: data.parent.emergencyName,
       emergency_phone: data.parent.emergencyPhone,
     },
@@ -114,10 +138,10 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
       first_name: c.firstName,
       last_name: c.lastName,
       dob: c.dob,
-      gender: c.gender,
-      allergies: c.allergies,
-      conditions: c.conditions,
-      medical_notes: c.medicalNotes,
+      gender: keep("gender", c.gender),
+      allergies: keep("allergies", c.allergies),
+      conditions: keep("conditions", c.conditions),
+      medical_notes: keep("medicalNotes", c.medicalNotes),
     })),
     consents: data.consents,
     ip,
@@ -146,7 +170,18 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
     invoice_number?: string;
     total_chf?: number;
     family_id?: string;
+    registration_ids?: string[];
+    athlete_ids?: string[];
   };
+  // Custom answers + athlete built-ins, then the participation contracts.
+  // Neither may undo the committed registration (both log and continue).
+  const regIds = r.registration_ids ?? [];
+  const athIds = r.athlete_ids ?? [];
+  const rows: ChildAnswers[] = perChild
+    .map((pc, i) => ({ athleteId: athIds[i], registrationId: regIds[i], extras: pc.extras, answers: pc.answers }))
+    .filter((x) => x.athleteId && x.registrationId);
+  await storeRegistrationExtras(program.org_id, program.id, config, rows);
+  await issueContractsForRegistrations(program.org_id, regIds);
   const invoiceNumber = r.invoice_number ?? "";
   const total = Number(r.total_chf ?? 0);
 
