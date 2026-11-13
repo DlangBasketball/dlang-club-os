@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -11,11 +11,16 @@ export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: stri
 
 /** Admin nav entries that only show when the club enabled the feature. */
 export const ASSISTANT_HREF = "/admin/assistant";
+/** Communication entries only admins use (finance shares the admin app). */
+export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads"];
 
 export const NAV: Record<NavKey, NavItem[]> = {
   admin: [
     { label: "Dashboard", labelKey: "dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { label: "Notifications", labelKey: "notifications", href: "/admin/notifications", icon: Bell },
+    { label: "Messages", labelKey: "messages", href: "/admin/messages", icon: MessagesSquare },
+    { label: "Alerts", labelKey: "alerts", href: "/admin/alerts", icon: Megaphone },
+    { label: "New contacts", labelKey: "leads", href: "/admin/leads", icon: Inbox },
     { label: "Documents", labelKey: "documents", href: "/admin/documents", icon: FolderOpen },
     { label: "Consents", labelKey: "consents", href: "/admin/consents", icon: ShieldCheck },
     { label: "Families", labelKey: "families", href: "/admin/families", icon: Users },
@@ -45,6 +50,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
   ],
   coach: [
     { label: "Home", labelKey: "home", href: "/coach", icon: Home },
+    { label: "Messages", labelKey: "messages", href: "/coach/messages", icon: MessagesSquare },
     { label: "Time clock", labelKey: "clock", href: "/coach/clock", icon: Timer },
     { label: "Calendar", labelKey: "calendar", href: "/coach/calendar", icon: CalendarCheck },
     { label: "Schedule", labelKey: "schedule", href: "/coach/schedule", icon: CalendarClock },
@@ -54,9 +60,11 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
     { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
     { label: "Roll calls", labelKey: "rollCalls", href: "/coach/roll-calls", icon: ClipboardCheck },
+    { label: "Alerts", labelKey: "alerts", href: "/coach/alerts", icon: Megaphone },
   ],
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
+    { label: "Messages", labelKey: "messages", href: "/parent/messages", icon: MessagesSquare },
     { label: "Children", labelKey: "children", href: "/parent/children", icon: UserCircle },
     { label: "My training", labelKey: "myTraining", href: "/parent/development", icon: TrendingUp },
     { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },

@@ -24,6 +24,8 @@ const PUBLIC_PREFIXES = [
   "/signup",
   "/api/billing/webhook",
   "/api/platform/cron",
+  // Scheduled alerts dispatch (cron bearer secret).
+  "/api/messaging/cron",
   // Read-only calendar subscription (ICS); the URL token is the credential.
   "/api/calendar/feed",
 ];

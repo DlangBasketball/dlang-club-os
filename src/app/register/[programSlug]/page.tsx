@@ -7,6 +7,7 @@ import { I18nProvider } from "@/lib/i18n/client";
 import { getPublicCamp } from "@/lib/camps/data";
 import { CampRegister } from "@/components/camps/camp-register";
 import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
+import { ContactForm } from "@/components/messaging/leads";
 
 export default async function PublicProgramPage({ params }: { params: Promise<{ programSlug: string }> }) {
   const { programSlug } = await params;
@@ -24,6 +25,7 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
         </section>
         <I18nProvider ctx={i18n.ctx} messages={i18n.messages}>
           <CampRegister mode="public" camp={camp} slug={programSlug} />
+          <ContactForm compact defaultInterest="camp" programId={camp.program.id} source={`/register/${programSlug}`} />
         </I18nProvider>
       </div>
     );
@@ -58,6 +60,7 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
           siblingDiscountPct={siblingDiscountPct}
           consents={consents}
         />
+        <ContactForm compact defaultInterest={program.kind === "camp" ? "camp" : "team"} programId={program.id} source={`/register/${programSlug}`} />
       </I18nProvider>
     </div>
   );

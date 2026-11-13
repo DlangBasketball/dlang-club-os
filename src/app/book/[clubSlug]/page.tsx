@@ -9,6 +9,7 @@ import { getTenant } from "@/lib/tenant/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { I18nProvider } from "@/lib/i18n/client";
+import { ContactForm } from "@/components/messaging/leads";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +54,11 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
       ) : (
         <I18nProvider ctx={{ ...ctx, timeZone: catalog.org.timezone, currency: catalog.org.currency }} messages={messages}>
           <PublicBookingFlow catalog={catalog} />
+        </I18nProvider>
+      )}
+      {!me && (
+        <I18nProvider ctx={{ ...ctx, timeZone: catalog.org.timezone, currency: catalog.org.currency }} messages={messages}>
+          <ContactForm compact clubSlug={slug} defaultInterest="training" source={`/book/${slug}`} />
         </I18nProvider>
       )}
     </div>

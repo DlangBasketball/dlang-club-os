@@ -3,6 +3,7 @@ import { PageHeader, Card, CardHeader, CardTitle, CardBody, StatCard, Badge } fr
 import { listEmailLogs, emailStats, listRecentNotifications, reminderTargets } from "@/lib/data/notifications-admin";
 import { ReminderPanel, BroadcastForm, EmailLogTable } from "@/components/admin/notifications-admin-client";
 import { timeAgo } from "@/lib/utils";
+import { CommunicationInbox } from "@/components/messaging/communication-inbox";
 
 export default async function AdminNotificationsPage() {
   const [targets, stats, logs, recent] = await Promise.all([
@@ -15,6 +16,8 @@ export default async function AdminNotificationsPage() {
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title="Notifications" description="Send reminders and broadcasts, and monitor email delivery." />
+
+      <CommunicationInbox />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Emails sent" value={String(stats.sent)} />
