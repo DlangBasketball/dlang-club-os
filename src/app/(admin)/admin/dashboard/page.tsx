@@ -11,6 +11,7 @@ import { TodaysAttendance, TodaysAttendanceSkeleton } from "@/components/dashboa
 import { UpcomingSessions, UpcomingSessionsSkeleton } from "@/components/dashboard/upcoming-sessions";
 import { RegistrationSummary, RegistrationSummarySkeleton } from "@/components/dashboard/registration-summary";
 import { RecentPayments, RecentPaymentsSkeleton } from "@/components/dashboard/recent-payments";
+import { FinanceOverview, FinanceOverviewSkeleton } from "@/components/dashboard/finance-overview";
 
 export default async function DashboardPage() {
   const user = await getSessionUser();
@@ -25,6 +26,11 @@ export default async function DashboardPage() {
         </div>
         <Link href="/admin/families"><Button><Plus className="h-4 w-4" /> Add family</Button></Link>
       </div>
+
+      {/* Students & money: KPI tiles + charts */}
+      <Suspense fallback={<FinanceOverviewSkeleton />}>
+        <FinanceOverview />
+      </Suspense>
 
       {/* KPIs */}
       <Suspense fallback={<KpiCardsSkeleton />}>
