@@ -152,7 +152,10 @@
     "timesheets": "Timesheets",
     "lessonPlans": "Lesson plans",
     "clock": "Time clock",
-    "rollCalls": "Roll calls"
+    "rollCalls": "Roll calls",
+    "messages": "Messages",
+    "alerts": "Alerts",
+    "leads": "New contacts"
   },
   "shell": {
     "openMenu": "Open menu",
@@ -3243,6 +3246,310 @@
         "save": "Save",
         "notSet": "Not set"
       }
+    }
+  },
+  "messaging": {
+    "common": {
+      "someone": "A club member"
+    },
+    "safeguarding": {
+      "oversight": "Club administrators can read all conversations between staff and families.",
+      "privacy": "Email addresses and phone numbers are never shown to the other person.",
+      "athletes": "Messages about a child always go through the child's parents or guardians."
+    },
+    "inbox": {
+      "title": "Messages",
+      "descriptionStaff": "Conversations with families and colleagues, and team channels.",
+      "descriptionFamily": "Write to the club office or your child's coach, and follow your team channels.",
+      "empty": "No conversations yet.",
+      "channel": "Channel",
+      "office": "Club office",
+      "toOffice": "Message to the club office",
+      "untitled": "Conversation",
+      "unreadCount": "{count, plural, one {# unread message} other {# unread messages}}",
+      "views": "Conversation views",
+      "mine": "My conversations",
+      "all": "All club conversations"
+    },
+    "thread": {
+      "title": "Conversation",
+      "closed": "Closed",
+      "close": "Close conversation",
+      "reopen": "Reopen",
+      "sensitive": "Private: email alerts never include the text",
+      "you": "You",
+      "staff": "Club staff",
+      "family": "Family",
+      "seen": "Seen",
+      "closedNote": "This conversation is closed. Start a new message if you need anything else.",
+      "readOnly": "Replies are turned off for this channel.",
+      "messageLabel": "Your message",
+      "placeholder": "Write a message…",
+      "attach": "Attach a file",
+      "attachHint": "PDF or image, up to 2 MB. Do not share medical documents here.",
+      "attachmentOnly": "(attachment)",
+      "send": "Send",
+      "mute": "Mute",
+      "unmute": "Unmute"
+    },
+    "compose": {
+      "title": "New message",
+      "newMessage": "New message",
+      "newChannel": "Post to a team channel",
+      "to": "To",
+      "toHint": "Only people you are allowed to contact are listed. Their contact details stay private.",
+      "choose": "Choose…",
+      "clubOffice": "Club office",
+      "groupOffice": "Office",
+      "groupCoaches": "Coaches and staff",
+      "groupFamilies": "Families",
+      "family": "About which family",
+      "anyFamily": "My family",
+      "subject": "Subject (optional)",
+      "message": "Message",
+      "sensitive": "Keep the text out of email notifications",
+      "sensitiveHint": "Recipients get \"You have a new message\" and read it in the app.",
+      "audience": "Audience",
+      "allowReplies": "Parents may reply in this channel",
+      "post": "Post",
+      "noScopes": "You have no team, programme or camp to address yet.",
+      "nobody": "There is nobody you can message yet. The club office can reach you here."
+    },
+    "scope": {
+      "team": "Team",
+      "program": "Programme",
+      "camp_edition": "Camp session"
+    },
+    "moderation": {
+      "report": "Report",
+      "reportReason": "What is wrong with this message?",
+      "sendReport": "Send report",
+      "reported": "{count, plural, one {# report} other {# reports}}",
+      "hide": "Hide",
+      "unhide": "Show again",
+      "hiddenNote": "Hidden by a moderator",
+      "reportsTitle": "Reported messages",
+      "noReports": "No open reports.",
+      "openThread": "Open conversation",
+      "dismiss": "Dismiss"
+    },
+    "settings": {
+      "title": "Messaging settings",
+      "short": "Settings",
+      "description": "Rules for the club's message board, plus reported messages.",
+      "parentsCanStart": "Parents can start conversations",
+      "parentsCanStartHint": "With the office and their children's coaches. They can always reply.",
+      "parentReplies": "Parents may reply in team channels",
+      "readReceipts": "Show read receipts",
+      "readReceiptsHint": "People in a conversation see when the others have read it.",
+      "emailNotifications": "Email people about new messages",
+      "emailNotificationsHint": "Each person can still turn this off for themselves.",
+      "quietHours": "Quiet hours",
+      "quietFrom": "From",
+      "quietTo": "To",
+      "quietClear": "No quiet hours",
+      "quietHoursHint": "Club default: no emails in this window (in-app notifications still appear). Urgent alerts are always sent."
+    },
+    "preferences": {
+      "title": "Notification preferences",
+      "short": "Notifications",
+      "description": "Choose how you hear about messages, alerts and club news.",
+      "category": "Category",
+      "inApp": "In the app",
+      "email": "Email",
+      "inAppLocked": "Always shown in the app",
+      "quietHint": "No emails during these hours (urgent alerts excepted). Leave empty to use the club's setting.",
+      "categories": {
+        "messages": "Messages",
+        "alerts": "Alerts",
+        "leads": "New contacts",
+        "announcements": "Club announcements"
+      }
+    },
+    "alerts": {
+      "pageTitle": "Alerts",
+      "descriptionAdmin": "Send a banner and notification to the whole club, staff, parents, a team, a programme or a camp session.",
+      "descriptionCoach": "Send a banner and notification to your teams, programmes and camps.",
+      "new": "New alert",
+      "audience": "Audience",
+      "audiences": {
+        "all": "Everyone",
+        "staff": "Staff",
+        "parents": "Parents",
+        "team": "A team",
+        "program": "A programme",
+        "camp_edition": "A camp session"
+      },
+      "severityLabel": "Severity",
+      "severity": {
+        "info": "Information",
+        "warning": "Important",
+        "urgent": "Urgent"
+      },
+      "title": "Title",
+      "body": "Details (optional)",
+      "schedule": "When",
+      "sendNow": "Send now",
+      "sendLater": "Schedule",
+      "scheduleButton": "Schedule alert",
+      "startsAt": "Send at",
+      "expiresAt": "Hide the banner after (optional)",
+      "expiresHint": "Times are in the club's time zone.",
+      "alsoEmail": "Also send by email (per each person's preferences)",
+      "recent": "Alerts",
+      "none": "No alerts yet.",
+      "cancel": "Withdraw",
+      "dismiss": "Dismiss alert",
+      "bannerLabel": "Club alerts",
+      "state": {
+        "live": "Live",
+        "scheduled": "Scheduled",
+        "expired": "Expired",
+        "cancelled": "Withdrawn"
+      }
+    },
+    "contact": {
+      "title": "Questions? Contact us",
+      "intro": "Send the club a message and we will get back to you by email.",
+      "open": "Ask a question",
+      "name": "Your name",
+      "email": "Email",
+      "phone": "Phone",
+      "phoneOptional": "Phone (optional)",
+      "interest": "I am interested in",
+      "message": "Your message",
+      "consent": "I agree that the club may contact me about my request and store these details for that purpose.",
+      "noChildData": "Please do not include your child's health information here.",
+      "submit": "Send",
+      "thanks": "Thank you! The club has received your message and will reply by email.",
+      "honeypot": "Leave this field empty"
+    },
+    "leads": {
+      "title": "New contacts",
+      "description": "Questions sent from the public club pages. Reply by email or turn them into a family.",
+      "empty": "No contacts here.",
+      "filterOpen": "To handle",
+      "status": "Progress",
+      "statuses": {
+        "new": "New",
+        "replied": "Replied",
+        "converted": "Became a family",
+        "closed": "Closed"
+      },
+      "interest": {
+        "camp": "Camps",
+        "training": "Personal training",
+        "team": "Joining a team",
+        "other": "Something else"
+      },
+      "details": "Contact",
+      "source": "Sent from",
+      "consent": "Consent",
+      "consentGiven": "Agreed to be contacted on {date}",
+      "replies": "Replies",
+      "replyTitle": "Reply by email",
+      "replyLabel": "Your reply",
+      "replyHint": "Sent from the club's address; your personal email is not shown.",
+      "sendReply": "Send reply",
+      "emailSent": "emailed",
+      "emailNotSent": "not emailed",
+      "convert": "Create family",
+      "openFamily": "Open family",
+      "familyName": "{name} family"
+    },
+    "overview": {
+      "title": "Communication inbox",
+      "parents": "Parent messages",
+      "staff": "Employee messages",
+      "leads": "New contacts",
+      "noParents": "No parent messages waiting.",
+      "noStaff": "No unread employee messages.",
+      "noLeads": "No new contacts.",
+      "viewAll": "View all",
+      "reports": "{count, plural, one {# reported message} other {# reported messages}}"
+    },
+    "whatsapp": {
+      "title": "WhatsApp",
+      "share": "Open in WhatsApp",
+      "hint": "WhatsApp opens with the text ready; you choose the group. No phone numbers are shared from the app.",
+      "phase1": "Staff can share posts and alerts to their own WhatsApp groups with \"Open in WhatsApp\". Parents' numbers are never shown to coaches. A direct WhatsApp Business integration is planned."
+    },
+    "notify": {
+      "newMessageTitle": "New message from {name}",
+      "newMessageTitleGeneric": "You have a new message",
+      "newMessageBodySensitive": "Open the app to read it.",
+      "alertTitle": "Alert: {title}",
+      "leadTitle": "New contact request",
+      "leadBody": "Someone asked about: {interest}"
+    },
+    "email": {
+      "footer": "You can change these emails in your notification preferences.",
+      "newMessage": {
+        "subject": "New message · {club}",
+        "heading": "You have a new message",
+        "sensitive": "Sign in to the club app to read it.",
+        "from": "{name} wrote to you:",
+        "cta": "Open the conversation"
+      },
+      "alert": {
+        "subject": "Club alert: {title}",
+        "cta": "Open the app"
+      },
+      "lead": {
+        "subject": "New contact request ({interest})",
+        "heading": "Someone contacted the club",
+        "cta": "Open new contacts"
+      },
+      "leadReply": {
+        "subject": "Your question to {club}",
+        "heading": "Thank you for your message",
+        "greeting": "Hello {name},",
+        "footer": "This is a reply to the question you sent through the club's website."
+      }
+    },
+    "messages": {
+      "sent": "Message sent.",
+      "channelCreated": "Posted to the channel.",
+      "closed": "Conversation closed.",
+      "reopened": "Conversation reopened.",
+      "hidden": "Message hidden.",
+      "unhidden": "Message visible again.",
+      "reported": "Thank you. An administrator will review this message.",
+      "reportUpdated": "Report updated.",
+      "muted": "You will not be notified about this conversation.",
+      "unmuted": "Notifications turned back on.",
+      "settingsSaved": "Messaging settings saved.",
+      "preferencesSaved": "Preferences saved.",
+      "alertSent": "Alert sent.",
+      "alertScheduled": "Alert scheduled.",
+      "alertCancelled": "Alert withdrawn.",
+      "leadUpdated": "Contact updated.",
+      "replySent": "Reply sent by email.",
+      "replySavedNotSent": "Reply saved, but email is not configured, so it was not sent.",
+      "leadConverted": "Family created from this contact."
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "forbidden": "You are not allowed to do this.",
+      "invalid": "Please check the form.",
+      "notFound": "Not found.",
+      "notMember": "You are not part of this conversation.",
+      "emptyMessage": "Write a message first.",
+      "cannotPost": "You cannot write in this conversation.",
+      "fileTooLarge": "The file is larger than 2 MB.",
+      "fileType": "Only PDF, JPEG, PNG or WebP files.",
+      "uploadFailed": "The file could not be uploaded.",
+      "reasonRequired": "Please say briefly what is wrong.",
+      "parentStartDisabled": "The club has turned off new conversations from parents. You can still reply.",
+      "familyNotFound": "No matching family for this conversation.",
+      "scopeNotFound": "This team, programme or camp was not found.",
+      "scopeRequired": "Choose who should receive the alert.",
+      "coachAudience": "Coaches can send alerts to their own teams, programmes and camps.",
+      "expiry": "The end must be after the start.",
+      "quietHours": "Quiet hours need a start and a different end.",
+      "rateLimited": "Too many messages from this connection. Please try again later.",
+      "consentRequired": "Please agree to be contacted so the club can reply.",
+      "contactInvalid": "Please enter your name, a valid email and a message."
     }
   }
 }

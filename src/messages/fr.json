@@ -152,7 +152,10 @@
     "timesheets": "Feuilles de temps",
     "lessonPlans": "Plans de cours",
     "clock": "Pointage",
-    "rollCalls": "Appels"
+    "rollCalls": "Appels",
+    "messages": "Messagerie",
+    "alerts": "Alertes",
+    "leads": "Nouveaux contacts"
   },
   "shell": {
     "openMenu": "Ouvrir le menu",
@@ -3243,6 +3246,310 @@
         "save": "Enregistrer",
         "notSet": "Non défini"
       }
+    }
+  },
+  "messaging": {
+    "common": {
+      "someone": "Un membre du club"
+    },
+    "safeguarding": {
+      "oversight": "Les administrateurs du club peuvent lire toutes les conversations entre l'équipe et les familles.",
+      "privacy": "Les adresses e-mail et numéros de téléphone ne sont jamais montrés à l'autre personne.",
+      "athletes": "Les messages concernant un enfant passent toujours par ses parents ou représentants légaux."
+    },
+    "inbox": {
+      "title": "Messagerie",
+      "descriptionStaff": "Conversations avec les familles et les collègues, et canaux d'équipe.",
+      "descriptionFamily": "Écrivez au secrétariat du club ou à l'entraîneur de votre enfant et suivez les canaux de l'équipe.",
+      "empty": "Aucune conversation pour l'instant.",
+      "channel": "Canal",
+      "office": "Secrétariat du club",
+      "toOffice": "Message au secrétariat du club",
+      "untitled": "Conversation privée",
+      "unreadCount": "{count, plural, one {# message non lu} other {# messages non lus}}",
+      "views": "Vues des conversations",
+      "mine": "Mes conversations",
+      "all": "Toutes les conversations du club"
+    },
+    "thread": {
+      "title": "Conversation privée",
+      "closed": "Fermée",
+      "close": "Fermer la conversation",
+      "reopen": "Rouvrir",
+      "sensitive": "Confidentiel : les e-mails n'incluent jamais le texte",
+      "you": "Vous",
+      "staff": "Équipe du club",
+      "family": "Famille",
+      "seen": "Vu",
+      "closedNote": "Cette conversation est fermée. Écrivez un nouveau message si vous avez besoin d'autre chose.",
+      "readOnly": "Les réponses sont désactivées pour ce canal.",
+      "messageLabel": "Votre message",
+      "placeholder": "Écrire un message…",
+      "attach": "Joindre un fichier",
+      "attachHint": "PDF ou image, 2 Mo maximum. Ne partagez pas de documents médicaux ici.",
+      "attachmentOnly": "(pièce jointe)",
+      "send": "Envoyer",
+      "mute": "Mettre en sourdine",
+      "unmute": "Réactiver les notifications"
+    },
+    "compose": {
+      "title": "Nouveau message",
+      "newMessage": "Nouveau message",
+      "newChannel": "Publier dans un canal d'équipe",
+      "to": "À",
+      "toHint": "Seules les personnes que vous pouvez contacter sont listées. Leurs coordonnées restent privées.",
+      "choose": "Choisir…",
+      "clubOffice": "Secrétariat du club",
+      "groupOffice": "Secrétariat",
+      "groupCoaches": "Entraîneurs et équipe",
+      "groupFamilies": "Familles",
+      "family": "Famille concernée",
+      "anyFamily": "Ma famille",
+      "subject": "Objet (facultatif)",
+      "message": "Texte du message",
+      "sensitive": "Ne pas inclure le texte dans les e-mails",
+      "sensitiveHint": "Les destinataires reçoivent « Vous avez un nouveau message » et le lisent dans l'app.",
+      "audience": "Destinataires",
+      "allowReplies": "Les parents peuvent répondre dans ce canal",
+      "post": "Publier",
+      "noScopes": "Vous n'avez encore aucune équipe, formule ou stage à contacter.",
+      "nobody": "Il n'y a encore personne à qui écrire. Le secrétariat du club peut vous joindre ici."
+    },
+    "scope": {
+      "team": "Équipe",
+      "program": "Formule d'entraînement",
+      "camp_edition": "Session de stage"
+    },
+    "moderation": {
+      "report": "Signaler",
+      "reportReason": "Quel est le problème avec ce message ?",
+      "sendReport": "Envoyer le signalement",
+      "reported": "{count, plural, one {# signalement} other {# signalements}}",
+      "hide": "Masquer",
+      "unhide": "Réafficher",
+      "hiddenNote": "Masqué par un modérateur",
+      "reportsTitle": "Messages signalés",
+      "noReports": "Aucun signalement ouvert.",
+      "openThread": "Ouvrir la conversation",
+      "dismiss": "Classer"
+    },
+    "settings": {
+      "title": "Paramètres de la messagerie",
+      "short": "Paramètres",
+      "description": "Règles de la messagerie du club et messages signalés.",
+      "parentsCanStart": "Les parents peuvent lancer des conversations",
+      "parentsCanStartHint": "Avec le secrétariat et les entraîneurs de leurs enfants. Ils peuvent toujours répondre.",
+      "parentReplies": "Les parents peuvent répondre dans les canaux d'équipe",
+      "readReceipts": "Afficher les confirmations de lecture",
+      "readReceiptsHint": "Les participants voient quand les autres ont lu.",
+      "emailNotifications": "Prévenir par e-mail des nouveaux messages",
+      "emailNotificationsHint": "Chacun peut le désactiver pour lui-même.",
+      "quietHours": "Heures calmes",
+      "quietFrom": "De",
+      "quietTo": "À",
+      "quietClear": "Pas d'heures calmes",
+      "quietHoursHint": "Par défaut pour le club : pas d'e-mail pendant cette plage (les notifications dans l'app restent). Les alertes critiques partent toujours."
+    },
+    "preferences": {
+      "title": "Préférences de notification",
+      "short": "Notifications reçues",
+      "description": "Choisissez comment être prévenu des messages, alertes et nouvelles du club.",
+      "category": "Catégorie",
+      "inApp": "Dans l'app",
+      "email": "E-mail",
+      "inAppLocked": "Toujours visible dans l'app",
+      "quietHint": "Pas d'e-mail pendant ces heures (sauf alertes critiques). Laissez vide pour le réglage du club.",
+      "categories": {
+        "messages": "Messagerie",
+        "alerts": "Alertes",
+        "leads": "Nouveaux contacts",
+        "announcements": "Annonces du club"
+      }
+    },
+    "alerts": {
+      "pageTitle": "Alertes",
+      "descriptionAdmin": "Envoyez une bannière et une notification à tout le club, à l'équipe, aux parents, à une équipe, une formule ou une session de stage.",
+      "descriptionCoach": "Envoyez une bannière et une notification à vos équipes, formules et stages.",
+      "new": "Nouvelle alerte",
+      "audience": "Destinataires",
+      "audiences": {
+        "all": "Tout le monde",
+        "staff": "Équipe du club",
+        "parents": "Parents et tuteurs",
+        "team": "Une équipe",
+        "program": "Une formule",
+        "camp_edition": "Une session de stage"
+      },
+      "severityLabel": "Gravité",
+      "severity": {
+        "info": "Pour information",
+        "warning": "Important à lire",
+        "urgent": "Critique"
+      },
+      "title": "Titre",
+      "body": "Détails (facultatif)",
+      "schedule": "Quand",
+      "sendNow": "Envoyer maintenant",
+      "sendLater": "Programmer",
+      "scheduleButton": "Programmer l'alerte",
+      "startsAt": "Envoyer le",
+      "expiresAt": "Masquer la bannière après (facultatif)",
+      "expiresHint": "Heures dans le fuseau horaire du club.",
+      "alsoEmail": "Envoyer aussi par e-mail (selon les préférences de chacun)",
+      "recent": "Alertes",
+      "none": "Aucune alerte pour l'instant.",
+      "cancel": "Retirer",
+      "dismiss": "Masquer l'alerte",
+      "bannerLabel": "Alertes du club",
+      "state": {
+        "live": "En ligne",
+        "scheduled": "Programmée",
+        "expired": "Expirée",
+        "cancelled": "Retirée"
+      }
+    },
+    "contact": {
+      "title": "Des questions ? Contactez-nous",
+      "intro": "Écrivez au club, nous vous répondrons par e-mail.",
+      "open": "Poser une question",
+      "name": "Votre nom",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "phoneOptional": "Téléphone (facultatif)",
+      "interest": "Je suis intéressé par",
+      "message": "Votre message",
+      "consent": "J'accepte que le club me contacte au sujet de ma demande et conserve ces informations à cette fin.",
+      "noChildData": "Merci de ne pas indiquer ici d'informations de santé sur votre enfant.",
+      "submit": "Envoyer",
+      "thanks": "Merci ! Le club a bien reçu votre message et vous répondra par e-mail.",
+      "honeypot": "Laissez ce champ vide"
+    },
+    "leads": {
+      "title": "Nouveaux contacts",
+      "description": "Questions envoyées depuis les pages publiques du club. Répondez par e-mail ou créez une famille.",
+      "empty": "Aucun contact ici.",
+      "filterOpen": "À traiter",
+      "status": "Statut",
+      "statuses": {
+        "new": "Nouveau",
+        "replied": "Répondu",
+        "converted": "Devenu une famille",
+        "closed": "Clôturé"
+      },
+      "interest": {
+        "camp": "Stages",
+        "training": "Entraînement individuel",
+        "team": "Rejoindre une équipe",
+        "other": "Autre chose"
+      },
+      "details": "Coordonnées",
+      "source": "Envoyé depuis",
+      "consent": "Consentement",
+      "consentGiven": "A accepté d'être contacté le {date}",
+      "replies": "Réponses",
+      "replyTitle": "Répondre par e-mail",
+      "replyLabel": "Votre réponse",
+      "replyHint": "Envoyé depuis l'adresse du club ; votre e-mail personnel n'est pas montré.",
+      "sendReply": "Envoyer la réponse",
+      "emailSent": "envoyée par e-mail",
+      "emailNotSent": "non envoyée par e-mail",
+      "convert": "Créer une famille",
+      "openFamily": "Ouvrir la famille",
+      "familyName": "Famille {name}"
+    },
+    "overview": {
+      "title": "Boîte de réception",
+      "parents": "Messages des parents",
+      "staff": "Messages des employés",
+      "leads": "Nouveaux contacts",
+      "noParents": "Aucun message de parent en attente.",
+      "noStaff": "Aucun message d'employé non lu.",
+      "noLeads": "Aucun nouveau contact.",
+      "viewAll": "Tout voir",
+      "reports": "{count, plural, one {# message signalé} other {# messages signalés}}"
+    },
+    "whatsapp": {
+      "title": "Partage WhatsApp",
+      "share": "Ouvrir dans WhatsApp",
+      "hint": "WhatsApp s'ouvre avec le texte prêt ; vous choisissez le groupe. Aucun numéro n'est transmis par l'app.",
+      "phase1": "L'équipe peut partager publications et alertes dans ses propres groupes WhatsApp avec « Ouvrir dans WhatsApp ». Les numéros des parents ne sont jamais montrés aux entraîneurs. Une intégration directe WhatsApp Business est prévue."
+    },
+    "notify": {
+      "newMessageTitle": "Nouveau message de {name}",
+      "newMessageTitleGeneric": "Vous avez un nouveau message",
+      "newMessageBodySensitive": "Ouvrez l'app pour le lire.",
+      "alertTitle": "Alerte : {title}",
+      "leadTitle": "Nouvelle demande de contact",
+      "leadBody": "Quelqu'un demande : {interest}"
+    },
+    "email": {
+      "footer": "Vous pouvez modifier ces e-mails dans vos préférences de notification.",
+      "newMessage": {
+        "subject": "Nouveau message · {club}",
+        "heading": "Vous avez un nouveau message",
+        "sensitive": "Connectez-vous à l'app du club pour le lire.",
+        "from": "{name} vous a écrit :",
+        "cta": "Ouvrir la conversation"
+      },
+      "alert": {
+        "subject": "Alerte du club : {title}",
+        "cta": "Ouvrir l'app"
+      },
+      "lead": {
+        "subject": "Nouvelle demande de contact ({interest})",
+        "heading": "Quelqu'un a contacté le club",
+        "cta": "Ouvrir les nouveaux contacts"
+      },
+      "leadReply": {
+        "subject": "Votre question à {club}",
+        "heading": "Merci pour votre message",
+        "greeting": "Bonjour {name},",
+        "footer": "Ceci est une réponse à la question envoyée via le site du club."
+      }
+    },
+    "messages": {
+      "sent": "Message envoyé.",
+      "channelCreated": "Publié dans le canal.",
+      "closed": "Conversation fermée.",
+      "reopened": "Conversation rouverte.",
+      "hidden": "Message masqué.",
+      "unhidden": "Message de nouveau visible.",
+      "reported": "Merci. Un administrateur va examiner ce message.",
+      "reportUpdated": "Signalement mis à jour.",
+      "muted": "Vous ne serez plus prévenu pour cette conversation.",
+      "unmuted": "Notifications réactivées.",
+      "settingsSaved": "Paramètres de la messagerie enregistrés.",
+      "preferencesSaved": "Préférences enregistrées.",
+      "alertSent": "Alerte envoyée.",
+      "alertScheduled": "Alerte programmée.",
+      "alertCancelled": "Alerte retirée.",
+      "leadUpdated": "Contact mis à jour.",
+      "replySent": "Réponse envoyée par e-mail.",
+      "replySavedNotSent": "Réponse enregistrée, mais l'e-mail n'est pas configuré : elle n'a pas été envoyée.",
+      "leadConverted": "Famille créée à partir de ce contact."
+    },
+    "errors": {
+      "generic": "Une erreur est survenue. Veuillez réessayer.",
+      "forbidden": "Vous n'êtes pas autorisé à faire cela.",
+      "invalid": "Veuillez vérifier le formulaire.",
+      "notFound": "Introuvable.",
+      "notMember": "Vous ne faites pas partie de cette conversation.",
+      "emptyMessage": "Écrivez d'abord un message.",
+      "cannotPost": "Vous ne pouvez pas écrire dans cette conversation.",
+      "fileTooLarge": "Le fichier dépasse 2 Mo.",
+      "fileType": "Fichiers PDF, JPEG, PNG ou WebP uniquement.",
+      "uploadFailed": "Le fichier n'a pas pu être envoyé.",
+      "reasonRequired": "Indiquez brièvement le problème.",
+      "parentStartDisabled": "Le club a désactivé les nouvelles conversations des parents. Vous pouvez toujours répondre.",
+      "familyNotFound": "Aucune famille correspondante pour cette conversation.",
+      "scopeNotFound": "Cette équipe, formule ou ce stage est introuvable.",
+      "scopeRequired": "Choisissez les destinataires de l'alerte.",
+      "coachAudience": "Les entraîneurs peuvent alerter leurs propres équipes, formules et stages.",
+      "expiry": "La fin doit être après le début.",
+      "quietHours": "Les heures calmes nécessitent un début et une fin différente.",
+      "rateLimited": "Trop de messages depuis cette connexion. Réessayez plus tard.",
+      "consentRequired": "Veuillez accepter d'être contacté pour que le club puisse répondre.",
+      "contactInvalid": "Indiquez votre nom, un e-mail valide et un message."
     }
   }
 }

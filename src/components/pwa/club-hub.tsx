@@ -8,6 +8,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { getHubCamps } from "@/lib/data/club-hub";
 import type { Tenant } from "@/lib/tenant/types";
 import { InstallAppPrompt } from "./install-app-prompt";
+import { ContactForm } from "@/components/messaging/leads";
 
 /** Public booking page for personal training (built by the training module). */
 export const TRAINING_BOOKING_PATH = "/book";
@@ -103,6 +104,10 @@ export async function ClubHub({ tenant, signedIn = false }: { tenant: Tenant; si
               <ChevronRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
+        </section>
+
+        <section aria-label={t("messaging.contact.title")}>
+          <ContactForm clubSlug={tenant.slug} source="/club" compact={signedIn} />
         </section>
 
         {!signedIn && (
