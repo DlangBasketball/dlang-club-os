@@ -103,6 +103,12 @@ const SAME_AS_EN_OK = new Set([
   "common.subtotal",
   "registration.consents.optional",
   "nav.invitations",
+  "finance.common.date",
+  "finance.common.actions",
+  "finance.methods.twint",
+  "finance.expenses.program",
+  "finance.payouts.minutes",
+  "finance.reports.total",
 ]);
 
 /** Flatten nested JSON into { "a.b.c": value }. */

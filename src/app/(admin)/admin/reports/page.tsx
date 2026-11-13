@@ -5,12 +5,12 @@ import { RateBar, ReportCard } from "@/components/reports/report-card";
 import { attendanceReport, defaultRange, outstandingReceivables, registrationsByProgram, revenueByProgram, type Range } from "@/lib/sportsops/reports";
 import { isDayKey } from "@/lib/sportsops/time";
 import { formatCHF } from "@/lib/utils";
-import { getFormatter } from "@/lib/i18n/server";
+import { getFormatter, getTranslations } from "@/lib/i18n/server";
 
 export const metadata = { title: "Reports" };
 
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
-  const f = await getFormatter();
+  const [f, t] = await Promise.all([getFormatter(), getTranslations()]);
   const sp = await searchParams;
   const def = await defaultRange();
   const range: Range = {
@@ -39,7 +39,8 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="animate-fade-up space-y-6">
-      <PageHeader title="Reports" description={`${f.date(range.from)} – ${f.date(range.to)}. Receivables are as of today.`} />
+      <PageHeader title="Reports" description={`${f.date(range.from)} – ${f.date(range.to)}. Receivables are as of today.`}
+        actions={<Link href={`/admin/finance/reports?from=${range.from}&to=${range.to}`}><Button size="sm" variant="secondary">{t("finance.reports.title")}</Button></Link>} />
 
       <form method="get" className="flex flex-wrap items-end gap-3">
         <div><label htmlFor="from" className="mb-1.5 block text-xs font-medium text-ink-2">From</label><Input id="from" name="from" type="date" defaultValue={range.from} className="w-44" /></div>
