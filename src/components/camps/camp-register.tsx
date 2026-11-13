@@ -8,15 +8,18 @@ import { ageFits, ageOn, defaultDays, editionDays, rowsForEdition } from "@/lib/
 import { mapsUrl } from "@/lib/sportsops/location";
 import { useFormat, useT } from "@/lib/i18n/client";
 import type { Translator } from "@/lib/i18n/translator";
+import { ChildExtrasFields, requiredMark, shows } from "@/components/forms/registration-extras";
+import { resolveConfig, validateRegistrationExtras, type BuiltinField, type RegistrationConfig } from "@/lib/registration-form/config";
 
 type Choice = { ageGroupId: string; daysCount: string; lunch: "" | "yes" | "no"; days: string[] };
-type PublicChild = Choice & { firstName: string; lastName: string; dob: string; gender: string; allergies: string; conditions: string; medicalNotes: string };
-type ParentChild = Choice & { athleteId: string };
+type Extras = { extras: Partial<Record<BuiltinField, string>>; answers: Record<string, unknown> };
+type PublicChild = Choice & Extras & { firstName: string; lastName: string; dob: string; gender: string; allergies: string; conditions: string; medicalNotes: string };
+type ParentChild = Choice & { athleteId: string; answers: Record<string, unknown> };
 type Parent = { name: string; email: string; phone: string; address: string; emergencyName: string; emergencyPhone: string };
 type Edition = PublicCamp["editions"][number];
 
 const emptyChoice = (): Choice => ({ ageGroupId: "", daysCount: "", lunch: "", days: [] });
-const emptyChild = (): PublicChild => ({ ...emptyChoice(), firstName: "", lastName: "", dob: "", gender: "", allergies: "", conditions: "", medicalNotes: "" });
+const emptyChild = (): PublicChild => ({ ...emptyChoice(), firstName: "", lastName: "", dob: "", gender: "", allergies: "", conditions: "", medicalNotes: "", extras: {}, answers: {} });
 
 const consentCopy = (t: Translator, key: string) => t.dynamic(`registration.consents.${key}`, undefined, t("registration.consents.default"));
 
@@ -28,9 +31,12 @@ function placeOf(e: Edition): { label: string; query: string } {
 }
 
 export function CampRegister(props:
-  | { mode: "public"; camp: PublicCamp; slug: string }
-  | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[] }) {
+  | { mode: "public"; camp: PublicCamp; slug: string; config?: RegistrationConfig }
+  | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[]; config?: RegistrationConfig }) {
   const { camp } = props;
+  // Registration form editor config (omitted = the default form).
+  const config = React.useMemo(() => props.config ?? resolveConfig(null), [props.config]);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const t = useT();
   const f = useFormat();
   const money = (n: number) => f.money(n, camp.program.currency);
@@ -116,6 +122,22 @@ export function CampRegister(props:
     const missing = camp.consents.filter((c) => c.required && !accepted.has(c.key));
     if (missing.length) return t("registration.consents.missing");
     if (props.mode === "public" && account === "password" && password.length < 10) return t("camps.errors.password");
+    const fe: Record<string, string> = {};
+    if (props.mode === "public") {
+      const pc = validateRegistrationExtras(config, { address: parent.address }, {}, "parent");
+      for (const [k, key] of Object.entries(pc.errors)) fe[`parent.${k}`] = t.dynamic(key);
+      pubKids.forEach((c, i) => {
+        const r = validateRegistrationExtras(config, { ...c.extras, gender: c.gender, allergies: c.allergies, conditions: c.conditions, medicalNotes: c.medicalNotes }, c.answers, "child");
+        for (const [k, key] of Object.entries(r.errors)) fe[`${i}.${k}`] = t.dynamic(key);
+      });
+    } else {
+      for (const c of parKids) {
+        const r = validateRegistrationExtras({ ...config, builtin: resolveConfig(null).builtin }, {}, c.answers, "child");
+        for (const [k, key] of Object.entries(r.errors)) if (k.startsWith("q.")) fe[`${c.athleteId}.${k}`] = t.dynamic(key);
+      }
+    }
+    setFieldErrors(fe);
+    if (Object.keys(fe).length) return t("forms.errors.fixFields");
     return null;
   }
 
@@ -131,11 +153,23 @@ export function CampRegister(props:
         }, account === "password" ? { mode: "password", password } : { mode: account })
       : await submitCampParent({
           programId: camp.program.id, editionId, promoCode: promo, consents,
-          children: parKids.map((c) => ({ athleteId: c.athleteId, priceOptionId: optionFor(c)?.id ?? "", ageGroupId: c.ageGroupId, days: c.days })),
+          children: parKids.map((c) => ({ athleteId: c.athleteId, priceOptionId: optionFor(c)?.id ?? "", ageGroupId: c.ageGroupId, days: c.days, answers: c.answers })),
         });
     // Success redirects server-side; only failures come back.
-    if (res && !res.ok) { setSubmitting(false); setError(res.error); }
+    if (res && !res.ok) {
+      setSubmitting(false);
+      setError(res.error);
+      if (res.errors) setFieldErrors(res.errors);
+    }
   }
+  const errorsFor = (prefix: string) =>
+    Object.fromEntries(Object.entries(fieldErrors).filter(([k]) => k.startsWith(prefix)).map(([k, v]) => [k.slice(prefix.length), v]));
+  const setExtra = (i: number) => (k: BuiltinField, v: string) =>
+    setPubKids((arr) => arr.map((c, idx) => (idx === i ? { ...c, extras: { ...c.extras, [k]: v } } : c)));
+  const setAnswer = (i: number) => (id: string, v: unknown) =>
+    setPubKids((arr) => arr.map((c, idx) => (idx === i ? { ...c, answers: { ...c.answers, [id]: v } } : c)));
+  const setParentAnswer = (athleteId: string) => (id: string, v: unknown) =>
+    setParKids((arr) => arr.map((c) => (c.athleteId === athleteId ? { ...c, answers: { ...c.answers, [id]: v } } : c)));
 
   const setP = (k: keyof Parent) => (e: React.ChangeEvent<HTMLInputElement>) => setParent((s) => ({ ...s, [k]: e.target.value }));
   const setC = (i: number, k: keyof PublicChild) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -257,7 +291,7 @@ export function CampRegister(props:
             <div><Label htmlFor="p-name">{t("registration.parent.fullName")}</Label><Input id="p-name" autoComplete="name" value={parent.name} onChange={setP("name")} /></div>
             <div><Label htmlFor="p-email">{t("registration.parent.email")}</Label><Input id="p-email" type="email" autoComplete="email" value={parent.email} onChange={setP("email")} /></div>
             <div><Label htmlFor="p-phone">{t("registration.parent.phone")}</Label><Input id="p-phone" autoComplete="tel" value={parent.phone} onChange={setP("phone")} /></div>
-            <div><Label htmlFor="p-addr">{t("registration.parent.address")}</Label><Input id="p-addr" autoComplete="street-address" value={parent.address} onChange={setP("address")} /></div>
+            {shows(config, "address") && <div><Label htmlFor="p-addr">{t("registration.parent.address")}{requiredMark(config, "address")}</Label><Input id="p-addr" autoComplete="street-address" value={parent.address} onChange={setP("address")} />{fieldErrors["parent.address"] && <p className="mt-1 text-xs text-danger">{fieldErrors["parent.address"]}</p>}</div>}
             <div><Label htmlFor="p-en">{t("registration.parent.emergencyName")}</Label><Input id="p-en" value={parent.emergencyName} onChange={setP("emergencyName")} /></div>
             <div><Label htmlFor="p-ep">{t("registration.parent.emergencyPhone")}</Label><Input id="p-ep" value={parent.emergencyPhone} onChange={setP("emergencyPhone")} /></div>
           </div>
@@ -278,14 +312,17 @@ export function CampRegister(props:
             <div><Label htmlFor={`c-fn-${i}`}>{t("registration.child.firstName")}</Label><Input id={`c-fn-${i}`} value={c.firstName} onChange={setC(i, "firstName")} /></div>
             <div><Label htmlFor={`c-ln-${i}`}>{t("registration.child.lastName")}</Label><Input id={`c-ln-${i}`} value={c.lastName} onChange={setC(i, "lastName")} /></div>
             <div><Label htmlFor={`c-dob-${i}`}>{t("registration.child.dob")}</Label><Input id={`c-dob-${i}`} type="date" value={c.dob} onChange={setC(i, "dob")} /></div>
-            <div><Label htmlFor={`c-g-${i}`}>{t("registration.child.gender")}</Label>
+            {shows(config, "gender") && <div><Label htmlFor={`c-g-${i}`}>{t("registration.child.gender")}{requiredMark(config, "gender")}</Label>
               <Select id={`c-g-${i}`} value={c.gender} onChange={setC(i, "gender")}>
                 <option value="">{t("common.select")}</option><option value="Male">{t("registration.child.genderMale")}</option><option value="Female">{t("registration.child.genderFemale")}</option><option value="Other">{t("registration.child.genderOther")}</option>
               </Select>
-            </div>
-            <div><Label htmlFor={`c-al-${i}`}>{t("registration.child.allergies")}</Label><Input id={`c-al-${i}`} value={c.allergies} placeholder={t("registration.child.allergiesPlaceholder")} onChange={setC(i, "allergies")} /></div>
-            <div><Label htmlFor={`c-co-${i}`}>{t("registration.child.conditions")}</Label><Input id={`c-co-${i}`} value={c.conditions} placeholder={t("registration.child.conditionsPlaceholder")} onChange={setC(i, "conditions")} /></div>
+              {fieldErrors[`${i}.gender`] && <p className="mt-1 text-xs text-danger">{fieldErrors[`${i}.gender`]}</p>}
+            </div>}
+            {shows(config, "allergies") && <div><Label htmlFor={`c-al-${i}`}>{t("registration.child.allergies")}{requiredMark(config, "allergies")}</Label><Input id={`c-al-${i}`} value={c.allergies} placeholder={t("registration.child.allergiesPlaceholder")} onChange={setC(i, "allergies")} />{fieldErrors[`${i}.allergies`] && <p className="mt-1 text-xs text-danger">{fieldErrors[`${i}.allergies`]}</p>}</div>}
+            {shows(config, "conditions") && <div><Label htmlFor={`c-co-${i}`}>{t("registration.child.conditions")}{requiredMark(config, "conditions")}</Label><Input id={`c-co-${i}`} value={c.conditions} placeholder={t("registration.child.conditionsPlaceholder")} onChange={setC(i, "conditions")} />{fieldErrors[`${i}.conditions`] && <p className="mt-1 text-xs text-danger">{fieldErrors[`${i}.conditions`]}</p>}</div>}
+            {config.builtin.medicalNotes.required && <div><Label htmlFor={`c-mn-${i}`}>{t("registration.child.otherNotes")}{requiredMark(config, "medicalNotes")}</Label><Input id={`c-mn-${i}`} value={c.medicalNotes} onChange={setC(i, "medicalNotes")} />{fieldErrors[`${i}.medicalNotes`] && <p className="mt-1 text-xs text-danger">{fieldErrors[`${i}.medicalNotes`]}</p>}</div>}
           </div>
+          <ChildExtrasFields config={config} extras={c.extras} answers={c.answers} onExtras={setExtra(i)} onAnswers={setAnswer(i)} errors={errorsFor(`${i}.`)} idPrefix={`camp-c${i}`} />
           {renderChoice(kids[i], t("camps.register.choicesTitle"))}
         </CardBody></Card>
       ))}
@@ -303,10 +340,14 @@ export function CampRegister(props:
               <div key={k.id} className="space-y-2">
                 <label className="flex items-center gap-2 text-sm text-ink">
                   <input type="checkbox" checked={on} className="h-4 w-4 accent-[var(--red-primary)]"
-                    onChange={() => setParKids((arr) => (on ? arr.filter((c) => c.athleteId !== k.id) : [...arr, { ...emptyChoice(), athleteId: k.id }]))} />
+                    onChange={() => setParKids((arr) => (on ? arr.filter((c) => c.athleteId !== k.id) : [...arr, { ...emptyChoice(), athleteId: k.id, answers: {} }]))} />
                   {k.name}
                 </label>
                 {on && renderChoice(kids.find((x) => x.key === k.id)!, k.name)}
+                {on && (
+                  <ChildExtrasFields config={config} extras={{}} builtins={false} answers={parKids.find((c) => c.athleteId === k.id)?.answers ?? {}}
+                    onExtras={() => undefined} onAnswers={setParentAnswer(k.id)} errors={errorsFor(`${k.id}.`)} idPrefix={`camp-k${k.id.slice(0, 8)}`} />
+                )}
               </div>
             );
           })}

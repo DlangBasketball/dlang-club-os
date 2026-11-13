@@ -22,6 +22,9 @@ import { sendEmail } from "@/lib/email/resend";
 import { adminRegistrationAlert, registrationConfirmation } from "@/lib/email/templates";
 import type { Json } from "@/types/database";
 import { logError } from "@/lib/log";
+import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } from "@/lib/registration-form/server";
+import { resolveConfig, validateRegistrationExtras, type BuiltinField, type ChildExtras } from "@/lib/registration-form/config";
+import { issueContractsForRegistrations } from "@/lib/contracts/server";
 
 /**
  * Camp registration (public camp page + parent app).
@@ -254,6 +257,18 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
   const missing = camp.consents.filter((c) => c.required && !v.consents.includes(c.key));
   if (missing.length) return { ok: false, error: t("registration.consents.missing") };
 
+  // Registration form editor (default config = the original form).
+  const config = await getRegistrationConfig(orgId, camp.program.id);
+  const extraErrors: Record<string, string> = {};
+  for (const [k, key] of Object.entries(validateRegistrationExtras(config, { address: v.parent.address }, {}, "parent").errors)) extraErrors[`parent.${k}`] = t.dynamic(key);
+  const perChild = v.children.map((c, i) => {
+    const r = validateRegistrationExtras(config, { ...(c.extras as ChildExtras), gender: c.gender, allergies: c.allergies, conditions: c.conditions, medicalNotes: c.medicalNotes }, c.answers, "child");
+    for (const [k, key] of Object.entries(r.errors)) extraErrors[`${i}.${k}`] = t.dynamic(key);
+    return r;
+  });
+  if (Object.keys(extraErrors).length) return { ok: false, error: t("forms.errors.fixFields"), errors: extraErrors };
+  const keep = (k: BuiltinField, val: string) => (config.builtin[k].shown ? val : "");
+
   const discounts = await loadPricingDiscounts(orgId, null);
   const q = buildCampQuote({
     camp, editionId: v.editionId, discounts, promoCode: v.promoCode,
@@ -269,12 +284,12 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
     program_id: camp.program.id,
     edition_id: v.editionId,
     parent: {
-      name: v.parent.name, email: v.parent.email, phone: v.parent.phone, address: v.parent.address,
+      name: v.parent.name, email: v.parent.email, phone: v.parent.phone, address: keep("address", v.parent.address),
       emergency_name: v.parent.emergencyName, emergency_phone: v.parent.emergencyPhone,
     },
     children: v.children.map((c, i) => ({
-      first_name: c.firstName, last_name: c.lastName, dob: c.dob, gender: c.gender,
-      allergies: c.allergies, conditions: c.conditions, medical_notes: c.medicalNotes,
+      first_name: c.firstName, last_name: c.lastName, dob: c.dob, gender: keep("gender", c.gender),
+      allergies: keep("allergies", c.allergies), conditions: keep("conditions", c.conditions), medical_notes: keep("medicalNotes", c.medicalNotes),
       age_group_id: c.ageGroupId, price_option_id: c.priceOptionId, days: c.days,
       list_amount: q.quote.items[i].listAmount,
       discounts: payloadDiscounts(q.quote, String(i), v.promoCode),
@@ -287,7 +302,13 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
     logError("camp.registerPublic", error);
     return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
   }
-  const r = (data ?? {}) as { invoice_number?: string; total?: number };
+  const r = (data ?? {}) as { invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
+  const regIds = r.registration_ids ?? [];
+  const athIds = r.athlete_ids ?? [];
+  await storeRegistrationExtras(orgId, camp.program.id, config, perChild
+    .map((pc, i): ChildAnswers => ({ athleteId: athIds[i], registrationId: regIds[i], extras: pc.extras, answers: pc.answers }))
+    .filter((x) => x.athleteId && x.registrationId));
+  await issueContractsForRegistrations(orgId, regIds);
   await createGuestAccount(orgId, v.parent.email, v.parent.name, acc.data, t.locale);
   await notify(orgId, camp.program.name, v.parent.name, v.parent.email, v.children.map((c) => `${c.firstName} ${c.lastName}`), r.invoice_number ?? "", Number(r.total ?? 0));
   const qs = new URLSearchParams({ ref: r.invoice_number ?? "", account: acc.data.mode });
@@ -310,6 +331,17 @@ export async function submitCampParent(input: CampParentRegistrationInput): Prom
 
   const missing = camp.consents.filter((c) => c.required && !v.consents.includes(c.key));
   if (missing.length) return { ok: false, error: t("registration.consents.missing") };
+
+  // Custom questions only: the children's records already exist.
+  const config = await getRegistrationConfig(ctx.orgId, camp.program.id);
+  const questionsOnly = { ...config, builtin: resolveConfig(null).builtin };
+  const extraErrors: Record<string, string> = {};
+  const perChild = v.children.map((c) => {
+    const r = validateRegistrationExtras(questionsOnly, {}, c.answers, "child");
+    for (const [k, key] of Object.entries(r.errors)) if (k.startsWith("q.")) extraErrors[`${c.athleteId}.${k}`] = t.dynamic(key);
+    return { athleteId: c.athleteId, answers: r.answers };
+  });
+  if (Object.keys(extraErrors).length) return { ok: false, error: t("forms.errors.fixFields"), errors: extraErrors };
 
   const discounts = await loadPricingDiscounts(ctx.orgId, ctx.familyId);
   const q = buildCampQuote({
@@ -340,7 +372,13 @@ export async function submitCampParent(input: CampParentRegistrationInput): Prom
     logError("camp.registerParent", error);
     return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
   }
-  const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number };
+  const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
+  const regIds = r.registration_ids ?? [];
+  const athIds = r.athlete_ids ?? [];
+  await storeRegistrationExtras(ctx.orgId, camp.program.id, config, athIds
+    .map((athleteId, i): ChildAnswers => ({ athleteId, registrationId: regIds[i], extras: {}, answers: perChild.find((p) => p.athleteId === athleteId)?.answers ?? {} }))
+    .filter((x) => x.athleteId && x.registrationId));
+  await issueContractsForRegistrations(ctx.orgId, regIds, ctx.profileId);
   await notify(ctx.orgId, camp.program.name, me.fullName ?? me.email ?? "", null, Array.from(ctx.athletes.values()).map((a) => a.name), r.invoice_number ?? "", Number(r.total ?? 0));
   revalidatePath("/parent/invoices");
   redirect(r.invoice_id ? `/parent/invoices/${r.invoice_id}` : "/parent/invoices");

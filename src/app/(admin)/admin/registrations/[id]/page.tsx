@@ -10,6 +10,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { listProgramOptions } from "@/lib/data/people-edit";
 import { CampRegistrationPanel } from "@/components/camps/camp-registration-panel";
+import { RegistrationFormsPanels } from "@/components/forms/registration-panels";
 
 export default async function RegistrationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { t, f } = await getI18n();
@@ -57,6 +58,8 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
           </CardBody>
         </Card>
       )}
+
+      {isAdmin && <RegistrationFormsPanels registrationId={data.id} />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>

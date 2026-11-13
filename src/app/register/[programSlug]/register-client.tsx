@@ -7,11 +7,16 @@ import { submitRegistration, type SubmitResult } from "@/lib/actions/registratio
 import { useFormat, useT } from "@/lib/i18n/client";
 import type { Translator } from "@/lib/i18n/translator";
 import type { PublicConsent } from "@/lib/data/public-registration";
+import { ChildExtrasFields, requiredMark, shows } from "@/components/forms/registration-extras";
+import { resolveConfig, validateRegistrationExtras, type BuiltinField, type RegistrationConfig } from "@/lib/registration-form/config";
 
 type Parent = { name: string; email: string; phone: string; address: string; emergencyName: string; emergencyPhone: string };
-type Child = { firstName: string; lastName: string; dob: string; gender: string; allergies: string; conditions: string; medicalNotes: string };
+type Child = {
+  firstName: string; lastName: string; dob: string; gender: string; allergies: string; conditions: string; medicalNotes: string;
+  extras: Partial<Record<BuiltinField, string>>; answers: Record<string, unknown>;
+};
 
-const emptyChild = (): Child => ({ firstName: "", lastName: "", dob: "", gender: "", allergies: "", conditions: "", medicalNotes: "" });
+const emptyChild = (): Child => ({ firstName: "", lastName: "", dob: "", gender: "", allergies: "", conditions: "", medicalNotes: "", extras: {}, answers: {} });
 
 /** Consent copy lives in the catalog under registration.consents.<key>. */
 const consentCopy = (t: Translator, key: string) =>
@@ -20,14 +25,17 @@ const consentCopy = (t: Translator, key: string) =>
 const STEP_KEYS = ["details", "children", "agreements", "review"] as const;
 
 export function RegisterStepper({
-  programSlug, programName, priceChf, siblingDiscountPct, consents,
+  programSlug, programName, priceChf, siblingDiscountPct, consents, config: configIn,
 }: {
   programSlug: string;
   programName: string;
   priceChf: number;
   siblingDiscountPct: number;
   consents: PublicConsent[];
+  /** Registration form editor config; omitted = the default form. */
+  config?: RegistrationConfig;
 }) {
+  const config = React.useMemo(() => configIn ?? resolveConfig(null), [configIn]);
   const t = useT();
   const f = useFormat();
   const STEPS = STEP_KEYS.map((k) => t(`registration.steps.${k}`));
@@ -41,8 +49,12 @@ export function RegisterStepper({
 
   const requiredKeys = consents.filter((c) => c.required).map((c) => c.key);
   const setP = (k: keyof Parent) => (v: string) => setParent((s) => ({ ...s, [k]: v }));
-  const setC = (i: number, k: keyof Child) => (v: string) =>
+  const setC = (i: number, k: Exclude<keyof Child, "extras" | "answers">) => (v: string) =>
     setChildren((arr) => arr.map((c, idx) => (idx === i ? { ...c, [k]: v } : c)));
+  const setExtra = (i: number) => (k: BuiltinField, v: string) =>
+    setChildren((arr) => arr.map((c, idx) => (idx === i ? { ...c, extras: { ...c.extras, [k]: v } } : c)));
+  const setAnswer = (i: number) => (id: string, v: unknown) =>
+    setChildren((arr) => arr.map((c, idx) => (idx === i ? { ...c, answers: { ...c.answers, [id]: v } } : c)));
   const toggleConsent = (key: string) =>
     setAccepted((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
 
@@ -60,6 +72,8 @@ export function RegisterStepper({
       if (parent.phone.trim().length < 3) e["parent.phone"] = req;
       if (!parent.emergencyName.trim()) e["parent.emergencyName"] = req;
       if (parent.emergencyPhone.trim().length < 3) e["parent.emergencyPhone"] = req;
+      const pc = validateRegistrationExtras(config, { address: parent.address }, {}, "parent");
+      for (const [k, key] of Object.entries(pc.errors)) e[`parent.${k}`] = t.dynamic(key);
     }
     if (s === 1) {
       children.forEach((c, i) => {
@@ -67,6 +81,13 @@ export function RegisterStepper({
         if (!c.firstName.trim()) e[`children.${i}.firstName`] = req;
         if (!c.lastName.trim()) e[`children.${i}.lastName`] = req;
         if (!c.dob.trim()) e[`children.${i}.dob`] = req;
+        const r = validateRegistrationExtras(
+          config,
+          { ...c.extras, gender: c.gender, allergies: c.allergies, conditions: c.conditions, medicalNotes: c.medicalNotes },
+          c.answers,
+          "child",
+        );
+        for (const [k, key] of Object.entries(r.errors)) e[`children.${i}.${k}`] = t.dynamic(key);
       });
     }
     if (s === 2) {
@@ -132,7 +153,7 @@ export function RegisterStepper({
             <Field label={t("registration.parent.fullName")} error={err("parent.name")}><Input value={parent.name} onChange={(e) => setP("name")(e.target.value)} /></Field>
             <Field label={t("registration.parent.email")} error={err("parent.email")}><Input type="email" value={parent.email} onChange={(e) => setP("email")(e.target.value)} /></Field>
             <Field label={t("registration.parent.phone")} error={err("parent.phone")}><Input value={parent.phone} onChange={(e) => setP("phone")(e.target.value)} /></Field>
-            <Field label={t("registration.parent.address")}><Input value={parent.address} onChange={(e) => setP("address")(e.target.value)} /></Field>
+            {shows(config, "address") && <Field label={t("registration.parent.address") + requiredMark(config, "address")} error={err("parent.address")}><Input value={parent.address} onChange={(e) => setP("address")(e.target.value)} /></Field>}
           </div>
           <div className="rounded-md border border-line bg-surface-elevated/50 p-4">
             <div className="mb-3 text-sm font-medium text-ink">{t("registration.parent.emergencyContact")}</div>
@@ -161,15 +182,24 @@ export function RegisterStepper({
                 <Field label={t("registration.child.firstName")} error={err(`children.${i}.firstName`)}><Input value={c.firstName} onChange={(e) => setC(i, "firstName")(e.target.value)} /></Field>
                 <Field label={t("registration.child.lastName")} error={err(`children.${i}.lastName`)}><Input value={c.lastName} onChange={(e) => setC(i, "lastName")(e.target.value)} /></Field>
                 <Field label={t("registration.child.dob")} error={err(`children.${i}.dob`)}><Input type="date" value={c.dob} onChange={(e) => setC(i, "dob")(e.target.value)} /></Field>
-                <Field label={t("registration.child.gender")}>
+                {shows(config, "gender") && <Field label={t("registration.child.gender") + requiredMark(config, "gender")} error={err(`children.${i}.gender`)}>
                   <select value={c.gender} onChange={(e) => setC(i, "gender")(e.target.value)} className="h-10 w-full rounded border border-line bg-surface-input px-3 text-sm text-ink">
                     <option value="">{t("common.select")}</option><option value="Male">{t("registration.child.genderMale")}</option><option value="Female">{t("registration.child.genderFemale")}</option><option value="Other">{t("registration.child.genderOther")}</option>
                   </select>
-                </Field>
+                </Field>}
               </div>
-              <Field label={t("registration.child.allergies")}><Input value={c.allergies} onChange={(e) => setC(i, "allergies")(e.target.value)} placeholder={t("registration.child.allergiesPlaceholder")} /></Field>
-              <Field label={t("registration.child.conditions")}><Input value={c.conditions} onChange={(e) => setC(i, "conditions")(e.target.value)} placeholder={t("registration.child.conditionsPlaceholder")} /></Field>
-              <Field label={t("registration.child.otherNotes")}><Input value={c.medicalNotes} onChange={(e) => setC(i, "medicalNotes")(e.target.value)} /></Field>
+              {shows(config, "allergies") && <Field label={t("registration.child.allergies") + requiredMark(config, "allergies")} error={err(`children.${i}.allergies`)}><Input value={c.allergies} onChange={(e) => setC(i, "allergies")(e.target.value)} placeholder={t("registration.child.allergiesPlaceholder")} /></Field>}
+              {shows(config, "conditions") && <Field label={t("registration.child.conditions") + requiredMark(config, "conditions")} error={err(`children.${i}.conditions`)}><Input value={c.conditions} onChange={(e) => setC(i, "conditions")(e.target.value)} placeholder={t("registration.child.conditionsPlaceholder")} /></Field>}
+              {shows(config, "medicalNotes") && <Field label={t("registration.child.otherNotes") + requiredMark(config, "medicalNotes")} error={err(`children.${i}.medicalNotes`)}><Input value={c.medicalNotes} onChange={(e) => setC(i, "medicalNotes")(e.target.value)} /></Field>}
+              <ChildExtrasFields
+                config={config}
+                extras={c.extras}
+                answers={c.answers}
+                onExtras={setExtra(i)}
+                onAnswers={setAnswer(i)}
+                errors={Object.fromEntries(Object.entries(errors).filter(([k]) => k.startsWith(`children.${i}.`)).map(([k, v]) => [k.slice(`children.${i}.`.length), v]))}
+                idPrefix={`reg-c${i}`}
+              />
             </CardBody></Card>
           ))}
           <Button variant="secondary" onClick={() => setChildren((arr) => [...arr, emptyChild()])}>

@@ -160,9 +160,15 @@ export const campPublicChildSchema = campChoiceSchema.extend({
   allergies: z.string().max(1000, E("tooLong")).optional().default(""),
   conditions: z.string().max(1000, E("tooLong")).optional().default(""),
   medicalNotes: z.string().max(2000, E("tooLong")).optional().default(""),
+  /** Registration form editor: configured extra built-ins and custom answers. */
+  extras: z.record(z.string(), z.string().max(2000, E("tooLong"))).optional().default({}),
+  answers: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
-export const campParentChildSchema = campChoiceSchema.extend({ athleteId: uuid });
+export const campParentChildSchema = campChoiceSchema.extend({
+  athleteId: uuid,
+  answers: z.record(z.string(), z.unknown()).optional().default({}),
+});
 
 const parentSchema = z.object({
   name: z.string().trim().min(1, "registration.errors.required").max(120, E("tooLong")),
