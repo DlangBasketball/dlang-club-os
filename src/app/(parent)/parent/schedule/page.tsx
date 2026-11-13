@@ -5,6 +5,10 @@ import { RsvpButtons } from "@/components/schedule/event-controls";
 import { getChildrenSchedule } from "@/lib/sportsops/data";
 import { eventTitle, eventTone, eventTypeLabel } from "@/lib/sportsops/labels";
 import { dayKey, fmtDayKey, fmtTime } from "@/lib/sportsops/time";
+import { LessonPlanReadOnly } from "@/components/staff/lesson-plan";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { getTranslations } from "@/lib/i18n/server";
+import { lessonPlanAttachmentUrls, lessonPlansFor, type LessonPlanView } from "@/lib/staff/data";
 
 export const metadata = { title: "Schedule" };
 
@@ -12,6 +16,10 @@ export default async function ParentSchedulePage() {
   const res = await getChildrenSchedule();
   if (res.error !== null) return <div className="animate-fade-up"><PageHeader title="Schedule" /><ErrorState message={res.error} /></div>;
   const { events, hasTeams } = res.data;
+  // Lesson plans the coaches shared with parents (RLS: own children's events only).
+  const [me, t] = await Promise.all([getSessionUser(), getTranslations()]);
+  const plans: Map<string, LessonPlanView> = me?.orgId ? await lessonPlansFor(me.orgId, { eventIds: events.map((e) => e.id) }) : new Map();
+  const planUrls = await lessonPlanAttachmentUrls(Array.from(plans.values()).map((p) => p.attachmentPath));
   const needsReply = events.filter((e) => e.status === "scheduled" && e.children.some((c) => !c.rsvp)).length;
 
   return (
@@ -40,6 +48,18 @@ export default async function ParentSchedulePage() {
                   </div>
                   {e.status === "cancelled" && <EventCancelNote reason={e.cancelReason} />}
                   {e.notes && <p className="whitespace-pre-wrap text-sm text-ink-2">{e.notes}</p>}
+                  {(() => {
+                    const plan = plans.get(e.id);
+                    if (!plan?.sharedWithParents) return null;
+                    return (
+                      <details className="rounded border border-line-soft p-3">
+                        <summary className="cursor-pointer text-sm font-medium text-ink">{t("staff.lessonPlans.sharedPlan")}</summary>
+                        <div className="mt-2">
+                          <LessonPlanReadOnly plan={plan} attachmentUrl={plan.attachmentPath ? planUrls.get(plan.attachmentPath) ?? null : null} />
+                        </div>
+                      </details>
+                    );
+                  })()}
                   {!closed && (
                     <div className="space-y-2 border-t border-line-soft pt-3">
                       {e.children.map((c) => <RsvpButtons key={c.athleteId} eventId={e.id} athleteId={c.athleteId} current={c.rsvp} label={c.name} />)}

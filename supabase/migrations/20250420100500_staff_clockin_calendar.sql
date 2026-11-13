@@ -43,6 +43,20 @@ $$;
 revoke all on function public.is_staff() from public, anon;
 grant execute on function public.is_staff() to authenticated, service_role;
 
+-- Club time zone, resolved like the app does (app_settings first, then the
+-- organization), so hours and planned shifts match what staff see.
+create or replace function public.staff_org_tz(p_org uuid)
+returns text language sql stable security definer set search_path = public as $$
+  select coalesce(
+    (select nullif(btrim(s.timezone), '') from public.app_settings s
+      where s.org_id = p_org and exists (select 1 from pg_timezone_names z where z.name = s.timezone)),
+    (select nullif(btrim(o.timezone), '') from public.organizations o
+      where o.id = p_org and exists (select 1 from pg_timezone_names z where z.name = o.timezone)),
+    'UTC');
+$$;
+revoke all on function public.staff_org_tz(uuid) from public, anon;
+grant execute on function public.staff_org_tz(uuid) to authenticated, service_role;
+
 -- Longest a shift may stay open before it counts as a missed clock-out.
 create or replace function public.staff_max_shift()
 returns interval language sql immutable as $$ select interval '16 hours' $$;
@@ -594,7 +608,7 @@ returns boolean language sql stable security definer set search_path = public as
   select exists (
     select 1 from public.staff_timesheets ts
      where ts.org_id = p_org and ts.profile_id = p_profile and ts.status = 'approved'
-       and (p_at at time zone public.training_org_tz(p_org))::date between ts.period_start and ts.period_end
+       and (p_at at time zone public.staff_org_tz(p_org))::date between ts.period_start and ts.period_end
   );
 $$;
 revoke all on function public.staff_period_locked(uuid, uuid, timestamptz) from public, anon;
@@ -991,7 +1005,7 @@ begin
   if not (public.staff_is_service_caller() or (p_org = public.current_org_id() and public.is_finance())) then
     raise exception 'NOT_AUTHORIZED' using errcode = '42501';
   end if;
-  v_tz := public.training_org_tz(p_org);
+  v_tz := public.staff_org_tz(p_org);
   v_ws := (p_from::timestamp) at time zone v_tz;
   v_we := ((p_to + 1)::timestamp) at time zone v_tz;
 
