@@ -102,6 +102,8 @@ After setting them: `APP_ENV=production node scripts/deploy/check-env.mjs <file>
 
 ## 6. Webhook endpoints (test mode first)
 
+> **Order matters (learned on staging, 17 Nov 2026):** activate **Connect** on the platform account (Dashboard → Connect → Get started) *before* creating the "connected accounts" webhook endpoint. An endpoint created earlier with `connect=true` stayed enabled but received no connected-account events (Stripe showed `pending_webhooks: 0` while nothing arrived). If club payments succeed in Stripe but invoices stay unpaid and `stripe_events` is empty, delete and recreate the Connect endpoint and update `STRIPE_CONNECT_WEBHOOK_SECRET`.
+
 Create **two** endpoints, both pointing to the same URL: `https://<NEXT_PUBLIC_SITE_URL host>/api/stripe/webhook`. The route is excluded from the auth middleware [Repo].
 
 | Endpoint | "Listen to" | Signing secret goes into |
