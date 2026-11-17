@@ -34,7 +34,7 @@ export function buildFinancialReport(facts: FinanceFacts, range: Range, currency
     expensesTotal: sumMoney(rangeExpenses.map((e) => e.amount), currency),
     expensesUnpaid: sumMoney(rangeExpenses.filter((e) => e.status === "unpaid").map((e) => e.amount), currency),
     profit: profitTotals(byMonth, currency),
-    projection: projectedEarnings({ invoices: facts.invoices, payments: facts.payments, upcoming: facts.upcoming }, today, projectionUntil, currency),
+    projection: projectedEarnings({ invoices: facts.invoices, payments: facts.payments, upcoming: facts.upcoming, schedules: facts.schedules }, today, projectionUntil, currency),
     projectionUntil,
     categories: expensesByCategory(facts.expenses, range, currency).map((c) => ({ ...c, label: c.categoryId ? cat.get(c.categoryId) ?? null : null })),
     byMonth,

@@ -177,3 +177,29 @@ export function coachBookingAlert(d: ({ coachName: string; athleteName: string; 
     </div>`;
   return { subject: `New booking — ${d.athleteName}`, html: shell("New booking", inner, d) };
 }
+
+/**
+ * Generic, already-translated message in the club's email shell (instalment
+ * reminders, autopay notices …). Every string comes from the caller's
+ * translator; values are HTML-escaped here.
+ */
+export function brandedMessage(d: {
+  title: string;
+  intro: string;
+  rows?: { label: string; value: string }[];
+  note?: string | null;
+  cta?: { label: string; url: string } | null;
+  footer?: string | null;
+} & ClubBrand): { subject: string; html: string } {
+  const { brand } = brandStyle(d);
+  const rows = (d.rows ?? [])
+    .map((r) => `<div style="display:flex;justify-content:space-between;gap:12px;margin:4px 0;"><span style="color:#8A8A8A;">${esc(r.label)}</span><span style="color:#fff;font-weight:600;">${esc(r.value)}</span></div>`)
+    .join("");
+  const inner = `
+    <p style="font-size:15px;line-height:1.7;color:#D8D8D8;">${esc(d.intro)}</p>
+    ${rows ? `<div style="background:#1A1A1A;border:1px solid #2A2A2A;border-radius:12px;padding:18px 20px;margin:18px 0;">${rows}</div>` : ""}
+    ${d.note ? `<p style="font-size:13px;color:#D8D8D8;line-height:1.6;">${esc(d.note)}</p>` : ""}
+    ${d.cta && /^https?:\/\//.test(d.cta.url) ? `<a href="${esc(d.cta.url)}" style="display:inline-block;background:${brand};color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;">${esc(d.cta.label)}</a>` : ""}
+    ${d.footer ? `<p style="font-size:13px;color:#8A8A8A;margin-top:18px;">${esc(d.footer)}</p>` : ""}`;
+  return { subject: d.title, html: shell(esc(d.title), inner, d) };
+}

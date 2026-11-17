@@ -71,7 +71,9 @@ export type ExpenseFact = {
   id: string; date: string; amount: number; currency: string; status: "paid" | "unpaid";
   categoryId: string | null; programId: string | null; campEditionId: string | null; location: string | null;
 };
-export type UpcomingFact = { date: string; amount: number; currency: string; source: "training" | "camp" };
+export type UpcomingFact = { date: string; amount: number; currency: string; source: "training" | "camp" | "recurring" };
+/** Unpaid instalment of an active payment plan (open part, by its own due date). */
+export type ScheduleFact = { invoiceId: string; dueDate: string; amount: number; currency: string };
 
 /** Rows that count towards settled money (mirrors public.invoice_net_paid). */
 export function isSettled(p: Pick<PaymentFact, "status" | "amount">): boolean {
@@ -220,24 +222,32 @@ export function paidByInvoice(payments: PaymentFact[]): Map<string, number> {
   return out;
 }
 
-export type ProjectionRow = { month: string; invoices: number; training: number; camps: number; total: number };
+export type ProjectionRow = { month: string; invoices: number; training: number; camps: number; recurring: number; total: number };
 export type Projection = { overdue: number; rows: ProjectionRow[]; total: number; openInvoices: number };
 
 /**
  * Money expected in [today .. r.to]: open invoice balances by due date (no due
  * date = due today; past due = "overdue", reported separately and included in
  * the total), plus upcoming not-yet-invoiced bookings / camp places by date.
+ * Invoices on an instalment plan are spread over their unpaid instalments'
+ * due dates (earliest first, capped at the open amount); recurring club fees
+ * not invoiced yet appear in their own column.
  */
 export function projectedEarnings(
-  input: { invoices: InvoiceFact[]; payments: PaymentFact[]; upcoming: UpcomingFact[] },
+  input: { invoices: InvoiceFact[]; payments: PaymentFact[]; upcoming: UpcomingFact[]; schedules?: ScheduleFact[] },
   today: string,
   until: string,
   currency: string,
 ): Projection {
   const paid = paidByInvoice(input.payments);
-  const months = new Map<string, { inv: Sum; tr: Sum; camp: Sum }>();
+  const months = new Map<string, { inv: Sum; tr: Sum; camp: Sum; rec: Sum }>();
   for (const m of monthsBetween({ from: today, to: until < today ? today : until })) {
-    months.set(m, { inv: new Sum(currency), tr: new Sum(currency), camp: new Sum(currency) });
+    months.set(m, { inv: new Sum(currency), tr: new Sum(currency), camp: new Sum(currency), rec: new Sum(currency) });
+  }
+  const sched = new Map<string, ScheduleFact[]>();
+  for (const s of input.schedules ?? []) {
+    if (s.currency !== currency) continue;
+    sched.set(s.invoiceId, [...(sched.get(s.invoiceId) ?? []), s]);
   }
   const overdue = new Sum(currency);
   let openInvoices = 0;
@@ -245,6 +255,27 @@ export function projectedEarnings(
     if (i.currency !== currency) continue;
     const open = invoiceOutstanding(i, paid.get(i.id) ?? 0);
     if (open <= 0) continue;
+    const parts = sched.get(i.id);
+    if (parts?.length) {
+      let left = toMinorUnits(open, currency);
+      let counted = false;
+      for (const s of [...parts].sort((a, b) => a.dueDate.localeCompare(b.dueDate))) {
+        const take = Math.min(left, toMinorUnits(s.amount, currency));
+        if (take <= 0) continue;
+        left -= take;
+        const amt = fromMinorUnits(take, currency);
+        if (s.dueDate < today) { overdue.add(amt); counted = true; continue; }
+        const b = months.get(monthKey(s.dueDate));
+        if (b) { b.inv.add(amt); counted = true; }
+      }
+      if (left > 0) {
+        const due = i.dueDate ?? today;
+        if (due < today) { overdue.add(fromMinorUnits(left, currency)); counted = true; }
+        else { const b = months.get(monthKey(due)); if (b) { b.inv.add(fromMinorUnits(left, currency)); counted = true; } }
+      }
+      if (counted) openInvoices += 1;
+      continue;
+    }
     const due = i.dueDate ?? today;
     if (due < today) { overdue.add(open); openInvoices += 1; continue; }
     const b = months.get(monthKey(due));
@@ -255,11 +286,11 @@ export function projectedEarnings(
     if (u.currency !== currency || u.date < today) continue;
     const b = months.get(monthKey(u.date));
     if (!b) continue;
-    (u.source === "training" ? b.tr : b.camp).add(u.amount);
+    (u.source === "training" ? b.tr : u.source === "recurring" ? b.rec : b.camp).add(u.amount);
   }
   const rows = Array.from(months.entries()).map(([month, b]) => ({
-    month, invoices: b.inv.value, training: b.tr.value, camps: b.camp.value,
-    total: sumMoney([b.inv.value, b.tr.value, b.camp.value], currency),
+    month, invoices: b.inv.value, training: b.tr.value, camps: b.camp.value, recurring: b.rec.value,
+    total: sumMoney([b.inv.value, b.tr.value, b.camp.value, b.rec.value], currency),
   }));
   const total = sumMoney([overdue.value, ...rows.map((x) => x.total)], currency);
   return { overdue: overdue.value, rows, total, openInvoices };

@@ -118,6 +118,8 @@ export const purchaseSchema = z.object({
   note: z.string().trim().max(2000, E("tooLong")).optional().default(""),
   promoCode: z.string().trim().max(40, E("tooLong")).regex(/^[A-Za-z0-9_-]*$/, E("invalidRequest")).optional().default(""),
   manualDiscountIds: z.array(uuid).max(10).optional().default([]),
+  /** 0 = pay in full; 2–24 = instalments (club rules re-checked in SQL). */
+  instalments: z.coerce.number().int().min(0).max(24).optional().default(0),
 });
 export type PurchaseInput = z.input<typeof purchaseSchema>;
 

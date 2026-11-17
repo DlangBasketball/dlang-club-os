@@ -1,10 +1,11 @@
 import "server-only";
 import { financeDb, type FinanceClient } from "./db";
 import { clockMinutesForPayouts } from "./clock-hook";
+import { loadPlanForecast } from "@/lib/plans/data";
 import {
   computeCoachPayout, familyBalances, inRange, isSettled, monthBounds, sumMoney,
   type CoachActivity, type CreditFact, type ExpenseFact, type FamilyBalance, type InvoiceFact, type PaymentFact,
-  type PayoutCalc, type Range, type RateType, type UpcomingFact,
+  type PayoutCalc, type Range, type RateType, type ScheduleFact, type UpcomingFact,
 } from "./math";
 
 /**
@@ -155,6 +156,8 @@ export type FinanceFacts = {
   adjustments: { id: string; invoiceId: string; number: string; kind: string; amount: number; currency: string; date: string; reason: string }[];
   credits: (CreditFact & { kind: string; date: string; reason: string })[];
   upcoming: UpcomingFact[];
+  /** Unpaid instalments of active payment plans (projection by instalment due date). */
+  schedules: ScheduleFact[];
   refs: FinanceRefs;
   families: Map<string, string>;
 };
@@ -230,8 +233,17 @@ export async function loadFacts(orgId: string, orgCurrency: string): Promise<Res
         .map((r) => ({ date: camp.get(r.camp_edition_id!)?.startsOn ?? today, amount: num(r.price_amount), currency: r.price_currency ?? orgCurrency, source: "camp" as const }))
         .filter((u) => u.date >= today),
     ];
+    // Payment plans: instalment due dates + recurring fees not invoiced yet (never fatal).
+    let schedules: ScheduleFact[] = [];
+    try {
+      const forecast = await loadPlanForecast(orgId, today, new Date(Date.parse(`${today}T00:00:00Z`) + 400 * 864e5).toISOString().slice(0, 10));
+      schedules = forecast.instalments;
+      upcoming.push(...forecast.recurring.map((r) => ({ date: r.date, amount: r.amount, currency: r.currency, source: "recurring" as const })));
+    } catch {
+      schedules = [];
+    }
     return ok({
-      payments: pays, invoices: inv, expenses: exps,
+      payments: pays, invoices: inv, expenses: exps, schedules,
       adjustments: adjustments.map((a) => ({ id: a.id, invoiceId: a.invoice_id, number: a.number, kind: a.kind, amount: num(a.amount), currency: a.currency, date: day(a.created_at), reason: a.reason })),
       credits: credits.map((c) => ({ familyId: c.family_id, amount: num(c.amount), currency: c.currency, kind: c.kind, date: day(c.created_at), reason: c.reason })),
       upcoming, refs, families: famName,

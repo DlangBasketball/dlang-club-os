@@ -22,6 +22,7 @@ import {
 import { z } from "zod";
 import { promoErrorKey } from "@/lib/shop/validation";
 import { issueContractForPurchase } from "@/lib/contracts/server";
+import { attachPlanAtCheckout } from "@/lib/plans/checkout";
 
 export type TrainingResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 type Me = SessionUser & { orgId: string };
@@ -316,6 +317,8 @@ export async function purchaseTrainingPackage(input: PurchaseInput): Promise<Tra
   const r = (data ?? {}) as { purchase_id?: string; invoice_id?: string | null; status?: string };
   // Participation contract for the package (auto-issue template), never fatal.
   if (r.purchase_id) await issueContractForPurchase(me.orgId, r.purchase_id, me.id);
+  // Instalments for an invoiced package (never fatal: the invoice stays payable in full).
+  if (v.mode === "invoice" && v.instalments >= 2) await attachPlanAtCheckout(me.orgId, r.invoice_id, v.instalments, "training_package");
   revalidateTraining(["/parent/invoices", "/admin/invoices", `/admin/athletes/${v.athleteId}/training`]);
   return { ok: true, data: { purchaseId: r.purchase_id ?? "", invoiceId: r.invoice_id ?? null, status: r.status ?? "" } };
 }

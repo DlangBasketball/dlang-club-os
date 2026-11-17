@@ -32,7 +32,7 @@ function useAction() {
 }
 
 /** Admin: sell or grant a package (or a single session credit) to an athlete. */
-export function SellPackageForm({ athletes, services }: { athletes: { id: string; name: string }[]; services: TrainingService[] }) {
+export function SellPackageForm({ athletes, services, instalmentCounts = [] }: { athletes: { id: string; name: string }[]; services: TrainingService[]; instalmentCounts?: number[] }) {
   const t = useT();
   const f = useFormat();
   const { err, busy, run } = useAction();
@@ -40,6 +40,7 @@ export function SellPackageForm({ athletes, services }: { athletes: { id: string
   const [serviceId, setServiceId] = React.useState(services[0]?.id ?? "");
   const [packageId, setPackageId] = React.useState("");
   const [mode, setMode] = React.useState<"invoice" | "paid" | "comp">("invoice");
+  const [instalments, setInstalments] = React.useState(0);
   const [note, setNote] = React.useState("");
   const [promo, setPromo] = React.useState("");
   const [msg, setMsg] = React.useState<string | null>(null);
@@ -70,10 +71,17 @@ export function SellPackageForm({ athletes, services }: { athletes: { id: string
             <option value="comp">{t("training.sell.modes.comp")}</option>
           </Select></div>
       </div>
+      {mode === "invoice" && instalmentCounts.length > 0 && (
+        <div className="max-w-xs"><Label htmlFor="sp-inst">{t("plans.choose.title")}</Label>
+          <Select id="sp-inst" value={String(instalments)} onChange={(e) => setInstalments(Number(e.target.value))}>
+            <option value="0">{t("plans.choose.inFull")}</option>
+            {instalmentCounts.map((n) => <option key={n} value={n}>{t("plans.choose.countOnly", { count: n })}</option>)}
+          </Select></div>
+      )}
       <div><Label htmlFor="sp-note">{t("training.sell.note")}</Label><Input id="sp-note" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></div>
       {serviceId && mode !== "comp" && <TrainingPromo serviceId={serviceId} packageId={packageId || null} athleteId={athleteId || null} code={promo} onCode={setPromo} />}
       <div className="flex items-center gap-2">
-        <Button size="sm" disabled={busy || !athleteId || !serviceId} onClick={() => { setMsg(null); run(() => purchaseTrainingPackage({ athleteId, serviceId, packageId: packageId || null, mode, note, promoCode: mode === "comp" ? "" : promo }), () => { setMsg(t("training.sell.done")); setNote(""); }); }}>
+        <Button size="sm" disabled={busy || !athleteId || !serviceId} onClick={() => { setMsg(null); run(() => purchaseTrainingPackage({ athleteId, serviceId, packageId: packageId || null, mode, note, promoCode: mode === "comp" ? "" : promo, instalments: mode === "invoice" ? instalments : 0 }), () => { setMsg(t("training.sell.done")); setNote(""); }); }}>
           {busy ? t("common.saving") : t("training.sell.submit")}
         </Button>
         {msg && <span role="status" className="text-sm text-success">{msg}</span>}

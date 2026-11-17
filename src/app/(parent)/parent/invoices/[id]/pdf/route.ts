@@ -1,7 +1,9 @@
 import { renderInvoicePdf } from "@/lib/invoice-pdf-response";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+/** Invoice PDF; `?installment=<id>` renders the QR-bill for one instalment of its plan. */
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return renderInvoicePdf(id);
+  const installmentId = new URL(req.url).searchParams.get("installment");
+  return renderInvoicePdf(id, { installmentId });
 }

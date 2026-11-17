@@ -11,6 +11,8 @@ import {
   type CartLine, type CatalogVariant,
 } from "@/lib/shop/cart";
 import type { ShopProduct } from "@/lib/shop/data";
+import { InstalmentChooser } from "@/components/plans/instalment-chooser";
+import type { PlanSettings } from "@/lib/payments/plans";
 
 type Buyer = { name: string; email: string; phone: string };
 
@@ -35,10 +37,12 @@ function writeCart(key: string, cart: CartLine[]) {
  * as a signed-in member or as a guest (name + email, no account needed).
  * Prices shown here are a preview; the order is priced by the database.
  */
-export function Storefront({ orgId, products, catalog, currency, venues, member }: {
+export function Storefront({ orgId, products, catalog, currency, venues, member, planRules }: {
   orgId: string; products: ShopProduct[]; catalog: CatalogVariant[]; currency: string;
   venues: { id: string; name: string; address: string | null }[];
   member: { name: string; email: string } | null;
+  /** Club instalment rules (members only: the plan lives on their invoice). */
+  planRules?: { settings: PlanSettings; today: string } | null;
 }) {
   const t = useT();
   const f = useFormat();
@@ -56,6 +60,7 @@ export function Storefront({ orgId, products, catalog, currency, venues, member 
   const [quote, setQuote] = React.useState<CartQuote | null>(null);
   const [buyer, setBuyer] = React.useState<Buyer>({ name: member?.name ?? "", email: member?.email ?? "", phone: "" });
   const [busy, setBusy] = React.useState(false);
+  const [instalments, setInstalments] = React.useState(0);
   const [err, setErr] = React.useState<string | null>(null);
 
   React.useEffect(() => { setCart(readCart(key)); setLoaded(true); }, [key]);
@@ -94,7 +99,7 @@ export function Storefront({ orgId, products, catalog, currency, venues, member 
     const res = await placeOrder({
       items: cart, buyer, fulfillment, pickupVenueId: fulfillment === "pickup" ? venueId || null : null,
       shippingAddress: fulfillment === "shipping" ? address : "", promoCode: promo, notes,
-    });
+    }, member ? instalments : 0);
     setBusy(false);
     if (!res.ok) return setErr(res.error);
     setCart([]);
@@ -245,6 +250,10 @@ export function Storefront({ orgId, products, catalog, currency, venues, member 
                   {!member && <p className="text-xs text-text-muted">{t("shop.checkout.guestHint")}</p>}
                 </fieldset>
 
+                {member && total > 0 && (
+                  <InstalmentChooser rules={planRules} productType="shop" total={total} currency={currency}
+                    value={instalments} onChange={setInstalments} idPrefix="shop-inst" />
+                )}
                 {err && <p role="alert" className="text-sm text-danger">{err}</p>}
                 <Button type="submit" className="w-full" loading={busy} disabled={totals.problems.length > 0 || (!options.pickup && !options.shipping)}>
                   {t("shop.checkout.placeOrder")}

@@ -8,10 +8,11 @@ export default async function RegistrationSuccessPage({
   params, searchParams,
 }: {
   params: Promise<{ programSlug: string }>;
-  searchParams: Promise<{ ref?: string; account?: string }>;
+  searchParams: Promise<{ ref?: string; account?: string; plan?: string }>;
 }) {
   const { programSlug } = await params;
-  const { ref, account } = await searchParams;
+  const { ref, account, plan } = await searchParams;
+  const planCount = /^\d{1,2}$/.test(plan ?? "") ? Number(plan) : 0;
   const data = await getPublicProgram(programSlug);
   const t = await getTranslations(data?.program.orgId);
   const programName = data?.program.name ?? t("registration.success.theProgram");
@@ -31,6 +32,7 @@ export default async function RegistrationSuccessPage({
                 : t("registration.success.thanks", { program: programName })}
             </p>
           </div>
+          {planCount > 1 && <p className="text-sm text-ink-2">{t("plans.choose.successNote", { count: planCount })}</p>}
           {(account === "password" || account === "link") && (
             <p className="text-sm text-ink-2">{t(account === "password" ? "camps.account.confirmEmailSent" : "camps.account.linkSent")}</p>
           )}

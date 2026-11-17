@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { syncAccount } from "@/lib/stripe-connect";
 import { fromMinorUnits } from "./currency";
 import { methodFromStripe } from "./methods";
+import { onAutopayIntent, onAutopaySetupSession, onPaymentMethodEvent, onSetupIntentSucceeded } from "@/lib/plans/webhook";
 
 /**
  * Club-payments webhook logic (Stripe Connect aware).
@@ -81,7 +82,8 @@ async function applyPaymentIntent(ctx: Ctx, pi: Stripe.PaymentIntent): Promise<W
 }
 
 async function onCheckoutSession(ctx: Ctx, session: Stripe.Checkout.Session): Promise<WebhookOutcome> {
-  // Subscription / setup sessions belong to SaaS billing, not club fees.
+  // Subscription / other setup sessions belong to SaaS billing, not club fees
+  // (autopay setup sessions are routed before this, by metadata.purpose).
   if (session.mode !== "payment" || !session.metadata?.invoice_id) return { status: "ignored", retry: false };
   // Delayed methods (SEPA / ACH) complete as "unpaid"; we wait for async_payment_succeeded.
   if (session.payment_status !== "paid") return { status: "ignored", retry: false, detail: "awaiting async payment" };
@@ -180,12 +182,33 @@ async function dispatch(ctx: Ctx): Promise<WebhookOutcome> {
   const { event } = ctx;
   switch (event.type) {
     case "checkout.session.completed":
-    case "checkout.session.async_payment_succeeded":
-      return onCheckoutSession(ctx, event.data.object as Stripe.Checkout.Session);
-    case "payment_intent.succeeded":
-      return applyPaymentIntent(ctx, event.data.object as Stripe.PaymentIntent);
-    case "payment_intent.payment_failed":
-      return onPaymentFailed(ctx, event.data.object as Stripe.PaymentIntent);
+    case "checkout.session.async_payment_succeeded": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      // Saved card for autopay (setup mode on the club's account).
+      if (session.mode === "setup" && session.metadata?.purpose === "autopay_setup") return onAutopaySetupSession(ctx, session);
+      return onCheckoutSession(ctx, session);
+    }
+    case "setup_intent.succeeded":
+      return onSetupIntentSucceeded(ctx, event.data.object as Stripe.SetupIntent);
+    case "payment_intent.succeeded": {
+      const pi = event.data.object as Stripe.PaymentIntent;
+      const applied = await applyPaymentIntent(ctx, pi);
+      if (applied.status === "failed" || !pi.metadata?.autopay_charge_id) return applied;
+      const autopay = await onAutopayIntent(ctx, pi, "succeeded");
+      return autopay.status === "failed" ? autopay : applied;
+    }
+    case "payment_intent.payment_failed": {
+      const pi = event.data.object as Stripe.PaymentIntent;
+      const logged = await onPaymentFailed(ctx, pi);
+      return pi.metadata?.autopay_charge_id ? onAutopayIntent(ctx, pi, "failed") : logged;
+    }
+    case "payment_intent.requires_action":
+      return onAutopayIntent(ctx, event.data.object as Stripe.PaymentIntent, "requires_action");
+    case "payment_method.detached":
+      return onPaymentMethodEvent(ctx, event.data.object as Stripe.PaymentMethod, true);
+    case "payment_method.updated":
+    case "payment_method.automatically_updated":
+      return onPaymentMethodEvent(ctx, event.data.object as Stripe.PaymentMethod, false);
     case "charge.refunded":
       return onChargeRefunded(ctx, event.data.object as Stripe.Charge);
     case "charge.refund.updated":

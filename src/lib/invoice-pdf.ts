@@ -36,6 +36,8 @@ export type InvoicePdfData = {
   platformName?: string | null;
   /** Footer line on how to pay, built from the club's enabled methods (paymentFooterText). */
   paymentNote?: string | null;
+  /** Instalment slip: translated line such as "Instalment 2 of 4 · due 1 May 2027 · CHF 250.00". */
+  instalmentNote?: string | null;
 };
 
 const DEFAULT_BRAND = rgb(0.855, 0.149, 0.153); // #DA2627
@@ -169,6 +171,11 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
   y -= 4;
   text(page, "Balance due", totalsX, y, bold, 12, MAROON);
   right(chf(d.balance), width - M - 8, y, bold, 12, MAROON);
+  if (d.instalmentNote) {
+    y -= 24;
+    page.drawRectangle({ x: M, y: y - 6, width: width - 2 * M, height: 22, color: rgb(0.96, 0.96, 0.96) });
+    text(page, d.instalmentNote.slice(0, 110), M + 8, y, bold, 10, MAROON);
+  }
 
   // Footer
   if (d.paymentNote) text(page, d.paymentNote, M, M + 16, font, 9, MUTE);

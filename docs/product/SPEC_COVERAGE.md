@@ -1,6 +1,6 @@
 # DLang OS: coverage of the founder's reference spec
 
-Reference: `docs/product/reference-spec-sports-app.txt`, the founder's product spec saved under the DLang OS name. Status as of 13 Nov 2026, on branch `claude/ultracode-kfui6x` and the staging demo `https://dlang-staging.vercel.app`.
+Reference: `docs/product/reference-spec-sports-app.txt`, the founder's product spec saved under the DLang OS name. Status as of 17 Nov 2026, on branch `claude/ultracode-kfui6x` and the staging demo `https://dlang-staging.vercel.app`.
 
 Legend: **Built** = in the app and tested · **Partial** = core built, with gaps noted · **Planned** = listed for later.
 
@@ -116,13 +116,13 @@ Legend: **Built** = in the app and tested · **Partial** = core built, with gaps
 |---|---|
 | Web access with the club's own brand and domain | Built (custom domains need DNS set-up per club) |
 | Publishing on iOS and Android | Partial: installable app (PWA) now; App Store / Google Play builds are planned |
-| Installments and recurring card payments | Partial: Stripe one-off payments are built; installments and autopay are planned |
+| Installments and recurring card payments | Built (17 Nov 2026): instalment plans on camps, training packages, shop orders, season fees and any open invoice (club rules: products, counts, minimum, fee, schedule, camp deadline); one QR-bill and one card/TWINT payment per instalment; recurring club fees (monthly / quarterly / yearly templates, team enrolment, proration, pauses, skips, sibling and manual discounts) issued daily by `/api/billing/cron`; card autopay on the club's Stripe account with retries, 3-D Secure links and QR-bill fallback. Admin: Payment plans, Recurring fees. Parent: Payment plans & autopay. Limits below |
 | Payroll and receivables/payables reports | Partial: coach pay and receivables are built; full payroll (social charges) is out of scope; use a payroll provider |
 
 ## Still to do (consolidated)
 
 1. App Store / Google Play builds (wrap the existing app).
-2. Installments and recurring card payments (Stripe Billing).
+2. Instalments and autopay, remaining limits: autopay is card-only (TWINT and SEPA/ACH direct debit are not charged off-session; TWINT stays available per instalment); the public team-season registration form has no instalment chooser yet (families use "Pay in instalments" on the invoice, or the club splits it); guest shop orders pay in full (members can choose instalments); proration applies to joining mid-period, not to leaving mid-period; Stripe test-mode run and live keys still to do (see `docs/ops/STRIPE_CONNECT_TWINT_SETUP.md` §6.1).
 3. "International" and "online" programme types.
 4. A combined per-session performance report.
 5. Scholarship progress tracking; one-rep-max and testing reports.

@@ -8,6 +8,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getTranslations } from "@/lib/i18n/server";
 import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
 import { getPickupVenues, getStorefront, toCatalog } from "@/lib/shop/data";
+import { getCheckoutPlanOffer } from "@/lib/plans/data";
 
 export async function generateMetadata(): Promise<Metadata> {
   const tenant = await getTenant();
@@ -28,6 +29,7 @@ export default async function ShopPage() {
   const t = await getTranslations(orgId);
   const [products, venues] = await Promise.all([getStorefront(orgId, member), getPickupVenues(orgId)]);
   const currency = products[0]?.currency ?? tenant.currency;
+  const planRules = member ? await getCheckoutPlanOffer(orgId, "shop", currency) : null;
   return (
     <div className="animate-fade-up space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -43,7 +45,7 @@ export default async function ShopPage() {
         )}
       </div>
       <Storefront orgId={orgId} products={products} catalog={toCatalog(products)} currency={currency} venues={venues}
-        member={member ? { name: me?.fullName ?? "", email: me?.email ?? "" } : null} />
+        member={member ? { name: me?.fullName ?? "", email: me?.email ?? "" } : null} planRules={planRules} />
     </div>
   );
 }

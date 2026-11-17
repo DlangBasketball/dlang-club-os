@@ -33,6 +33,9 @@
 | Application fee | From `public.resolve_application_fee()` per plan. Defaults: founding 0%, starter 1.5%, club 1%, pro/academy/federation 0.5% | `src/lib/payments/fees.ts` |
 | TWINT online | Offered only when the club has a connected account with `charges_enabled`; otherwise TWINT shows as "manual to the club's number" | `src/lib/payments/settings.ts` |
 | Webhook | One route, `/api/stripe/webhook`, verifies against `STRIPE_WEBHOOK_SECRET` **or** `STRIPE_CONNECT_WEBHOOK_SECRET`; deduplicates in `stripe_events`; idempotent payment/refund application | `src/app/api/stripe/webhook/route.ts`, `src/lib/payments/stripe-webhook.ts` |
+| Instalments | An open invoice split into instalments (club rules in Admin → Payment plans → Settings). One structured reference (QRR/SCOR) per invoice; one QR-bill per instalment with that instalment's amount; per-instalment hosted Checkout (card / TWINT) with `metadata.installment_id`. Payments always land on the invoice and are allocated to the earliest open instalment in SQL | `src/lib/actions/plans.ts`, `src/lib/plans/*`, migration `20250420101000_instalments_recurring_autopay.sql` |
+| Recurring fees | Templates + enrolments; the daily cron `/api/billing/cron` issues one invoice per period (idempotent per period) | `src/lib/plans/cron.ts`, `src/app/api/billing/cron/route.ts` |
+| Card autopay | Parent saves a card through Stripe Checkout in **setup mode** for a Customer created **on the club's connected account**; we store only `cus_…`, `pm_…`, brand, last 4, expiry and the consent (wording, version, timestamp, who). Due instalments / period invoices are charged with an **off-session PaymentIntent on the connected account** + `application_fee_amount`, idempotency key `autopay:<instalment>:<attempt>`. Declines retry after +3 / +7 days (club setting), then fall back to QR-bill + reminder; 3-D Secure (`authentication_required`) emails the parent a pay link. TWINT cannot be charged off-session | `src/lib/plans/autopay.ts`, `src/lib/plans/webhook.ts` |
 | DLANG billing of clubs (SaaS plans) | Separate key and webhook (`STRIPE_BILLING_*`, `/api/billing/webhook`) | `src/lib/platform/billing.ts` — **not needed for Gate 2** |
 
 **Recommendation: Standard accounts with direct charges + application fee** (the code's default). The club has its own full Stripe dashboard, activates TWINT itself, handles its own refunds and disputes, and carries Stripe's fees. DLANG never holds funds. This matches `03_CTO_TECHNOLOGY_STRATEGY.md` §5.
@@ -91,6 +94,7 @@ Set these in **Vercel → Project → Settings → Environment Variables**, sepa
 | `NEXT_PUBLIC_SITE_URL` | staging URL | `https://app.<your root domain>` | Platform host. Stripe return URLs use it only when the user is on this host; club hosts come from the org (custom domain / `<slug>.PLATFORM_ROOT_DOMAIN`) |
 | `PLATFORM_ROOT_DOMAIN` | staging root domain | your root domain | Needed so return URLs can target `<slug>.<root>` |
 | `STRIPE_BILLING_SECRET_KEY`, `STRIPE_BILLING_WEBHOOK_SECRET` | optional | leave unset until DLANG bills clubs (Q2 2027) | DLang is on the founding deal |
+| `CRON_SECRET` | random 32+ chars | different random value | Vercel Cron sends it as `Authorization: Bearer …` to `/api/billing/cron` (recurring invoices, reminders, autopay). Without it the route answers 401 and nothing is billed automatically |
 
 After setting them: `APP_ENV=production node scripts/deploy/check-env.mjs <file>` (see `docs/ops/DEPLOY.md`) and check `/api/health` with the health token. Redeploy so the new values are used.
 
@@ -112,6 +116,11 @@ checkout.session.completed
 checkout.session.async_payment_succeeded
 payment_intent.succeeded
 payment_intent.payment_failed
+payment_intent.requires_action
+setup_intent.succeeded
+payment_method.detached
+payment_method.updated
+payment_method.automatically_updated
 charge.refunded
 charge.refund.updated
 refund.updated
@@ -120,7 +129,31 @@ account.updated
 account.application.deauthorized
 ```
 
+The five events added for instalments and autopay (2026-11):
+
+| Event | What the code does |
+|---|---|
+| `checkout.session.completed` (mode `setup`, `metadata.purpose=autopay_setup`) / `setup_intent.succeeded` | Reads the card's brand / last 4 / expiry from the SetupIntent's payment method on the club's account and activates the family's mandate (`autopay_activate`, checks the connected account); a replaced card is detached in Stripe |
+| `payment_intent.succeeded` with `metadata.autopay_charge_id` | Records the payment on the invoice (same path as any card payment) and closes the autopay attempt |
+| `payment_intent.payment_failed` with `metadata.autopay_charge_id` | Records the decline, schedules the retry (or the QR-bill fallback) and emails the family |
+| `payment_intent.requires_action` | 3-D Secure needed: emails the parent a link to pay that instalment on-session |
+| `payment_method.detached` / `payment_method.updated` / `payment_method.automatically_updated` | Deactivates the mandate / refreshes the card expiry (card updater) |
+
 Other events are acknowledged and ignored. Later, for DLANG's own SaaS billing: a third endpoint at `/api/billing/webhook` for `checkout.session.*`, `customer.subscription.*`, `invoice.*` (not needed for Gate 2).
+
+---
+
+### 6.1 Saved cards and autopay on connected accounts
+
+Nothing extra is needed on the club's side beyond card payments being active; on the platform:
+
+1. **Connect → Settings → Payment methods (for connected accounts):** keep **Cards** enabled. Autopay is card-only (TWINT, being approved in the app for each payment, cannot be charged off-session; it stays available per instalment).
+2. **Settings → Payments → Checkout:** Checkout in `setup` mode is used to save the card; no "save payment details" toggle is needed because the session is created in setup mode for a Customer on the connected account.
+3. **Card updater / 3-D Secure:** nothing to switch on. Stripe updates expiring cards automatically where the issuer supports it (`payment_method.automatically_updated`); SCA exemptions for merchant-initiated transactions are requested by Stripe because the PaymentIntent is created with `off_session: true` and the card was saved with a setup intent (mandate). When the bank still asks for authentication the app emails the parent a pay link.
+4. **Webhooks:** add the five events above to **both** endpoints (the Connect endpoint is the one that receives them for club accounts).
+5. **Cron:** `vercel.json` schedules `GET /api/billing/cron` daily at 05:00 UTC (06:00/07:00 Zurich). Set `CRON_SECRET` in Vercel (§5). Running it more than once a day is safe (every step is claimed in SQL).
+6. **Club settings:** Admin → Payment plans → Settings: turn on *instalments* (products, counts, minimum, fee, schedule) and *card autopay* (retry days, consent wording version).
+7. **Test (test mode):** save card `4242 4242 4242 4242` as a parent (Payment plans & autopay), split an invoice in 3 with the first instalment due today, run the cron with `curl -H "Authorization: Bearer $CRON_SECRET" https://<staging>/api/billing/cron`; the instalment is paid. Then repeat with `4000 0000 0000 9995` (insufficient funds: retry scheduled, family emailed), `4000 0027 6000 3184` (3-D Secure required: pay-link email) and `4000 0000 0000 0069` (expired: immediate QR-bill fallback).
 
 ---
 
@@ -188,7 +221,8 @@ A Swiss platform with a **US connected account** (a US club paid in USD) is a di
 - [ ] Written AML / fund-holding view (counsel), due 27 Nov (§3.6)
 - [ ] TWINT checked for CH accounts and pricing [Verify] (§4)
 - [ ] Staging env vars set (test keys), env check green (§5)
-- [ ] Two test webhook endpoints with the 10 events (§6)
+- [ ] Two test webhook endpoints with the 15 events (§6)
+- [ ] `CRON_SECRET` set; Vercel Cron enabled for `/api/billing/cron`; autopay test cards pass (§6.1)
 - [ ] Test run passes incl. decline, duplicate, refund (§7.1); return to the club host after Stripe checked on staging
 - [ ] CTO sign-off; live keys and live webhooks in Production only; `STRIPE_CONNECT_REQUIRED=true` (§7.2)
 - [ ] DLang connected, TWINT active, CHF 1 TWINT paid, reconciled and refunded (§8)

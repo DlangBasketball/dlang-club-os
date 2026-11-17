@@ -26,6 +26,8 @@ const PUBLIC_PREFIXES = [
   "/api/platform/cron",
   // Scheduled alerts dispatch (cron bearer secret).
   "/api/messaging/cron",
+  // Daily club billing: recurring invoices, reminders, autopay (cron bearer secret).
+  "/api/billing/cron",
   // Read-only calendar subscription (ICS); the URL token is the credential.
   "/api/calendar/feed",
   // Club shop: storefront, guest checkout and the guest order link.

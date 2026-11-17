@@ -5,10 +5,14 @@ import { CancelPurchaseButton, GroupSlotActions, SellPackageForm } from "@/compo
 import { listPurchases, listTrainingCatalog, listUpcomingGroupSlots, type GroupSlot, type PurchaseView } from "@/lib/training/data";
 import { trainingDb } from "@/lib/training/db";
 import { getI18n } from "@/lib/i18n/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { getCheckoutPlanOffer } from "@/lib/plans/data";
 
 export default async function AdminTrainingPage() {
   const { t, f } = await getI18n();
   const db = await trainingDb();
+  const me = await getSessionUser();
+  const planRules = me?.orgId ? await getCheckoutPlanOffer(me.orgId, "training_package", "") : null;
   const [catalog, purchases, groups, athletes] = await Promise.all([
     listTrainingCatalog({ activeOnly: true }),
     listPurchases({ limit: 200 }),
@@ -56,7 +60,7 @@ export default async function AdminTrainingPage() {
       <Card>
         <CardHeader><CardTitle>{t("training.sell.title")}</CardTitle></CardHeader>
         <CardBody>
-          <SellPackageForm athletes={(athletes.data ?? []).map((a) => ({ id: a.id, name: `${a.first_name} ${a.last_name}` }))} services={catalog.data.services} />
+          <SellPackageForm athletes={(athletes.data ?? []).map((a) => ({ id: a.id, name: `${a.first_name} ${a.last_name}` }))} services={catalog.data.services} instalmentCounts={planRules?.settings.allowedCounts ?? []} />
         </CardBody>
       </Card>
       <Card>

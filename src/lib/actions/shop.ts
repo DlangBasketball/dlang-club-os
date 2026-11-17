@@ -18,6 +18,7 @@ import type { Json } from "@/types/database";
 import { CLUB_MEDIA_BUCKET, shopAdminDb, shopDb } from "@/lib/shop/db";
 import { cartTotals } from "@/lib/shop/cart";
 import { getOrderByToken, getStorefront, hashOrderToken, toCatalog } from "@/lib/shop/data";
+import { attachPlanAtCheckout } from "@/lib/plans/checkout";
 import {
   checkoutSchema, productSchema, shopErrorKey, shopZodKey, statusSchema, stockSchema, variantSchema,
   type CheckoutInput, type ProductInput, type StatusInput, type StockInput, type VariantInput,
@@ -291,7 +292,7 @@ export async function quoteCart(input: { items: { variantId: string; quantity: n
 
 export type PlacedOrder = { orderId: string; number: string; token: string | null; member: boolean; invoiceId: string | null };
 
-export async function placeOrder(input: CheckoutInput): Promise<ShopResult<PlacedOrder>> {
+export async function placeOrder(input: CheckoutInput, instalments = 0): Promise<ShopResult<PlacedOrder>> {
   const ctx = await shopContext();
   if (!ctx) return fail("shop.errors.notFound");
   const p = checkoutSchema.safeParse(input);
@@ -321,6 +322,9 @@ export async function placeOrder(input: CheckoutInput): Promise<ShopResult<Place
     return fail(shopErrorKey(error.message), ctx.orgId);
   }
   const r = (data ?? {}) as { order_id?: string; number?: string; invoice_id?: string | null };
+  // Members may split the order invoice into instalments (club rules re-checked in SQL; never fatal).
+  const n = Number(instalments);
+  if (ctx.member && Number.isInteger(n) && n >= 2 && n <= 24) await attachPlanAtCheckout(ctx.orgId, r.invoice_id, n, "shop");
   revalidatePath("/admin/shop/orders");
   revalidatePath("/parent/invoices");
   revalidatePath("/shop");

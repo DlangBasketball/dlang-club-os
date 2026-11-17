@@ -127,11 +127,30 @@ describe("balances and projections", () => {
     }, "2026-02-01", "2026-03-31", "CHF");
     expect(p.overdue).toBe(100);
     expect(p.rows).toEqual([
-      { month: "2026-02", invoices: 40, training: 75, camps: 0, total: 115 },
-      { month: "2026-03", invoices: 200, training: 0, camps: 490, total: 690 },
+      { month: "2026-02", invoices: 40, training: 75, camps: 0, recurring: 0, total: 115 },
+      { month: "2026-03", invoices: 200, training: 0, camps: 490, recurring: 0, total: 690 },
     ]);
     expect(p.total).toBe(905);
     expect(p.openInvoices).toBe(3);
+  });
+  it("spreads instalment-plan invoices over their instalments and adds recurring fees", () => {
+    const p = projectedEarnings({
+      invoices: [inv({ id: "i1", dueDate: "2026-04-01", total: 900 })],
+      payments: [pay({ id: "p1", amount: 300, invoiceId: "i1" })],
+      upcoming: [{ date: "2026-03-01", amount: 120, currency: "CHF", source: "recurring" }],
+      schedules: [
+        { invoiceId: "i1", dueDate: "2026-01-15", amount: 100, currency: "CHF" },
+        { invoiceId: "i1", dueDate: "2026-03-01", amount: 300, currency: "CHF" },
+        { invoiceId: "i1", dueDate: "2026-04-01", amount: 300, currency: "CHF" },
+      ],
+    }, "2026-02-01", "2026-04-30", "CHF");
+    expect(p.overdue).toBe(100);
+    expect(p.rows).toEqual([
+      { month: "2026-02", invoices: 0, training: 0, camps: 0, recurring: 0, total: 0 },
+      { month: "2026-03", invoices: 300, training: 0, camps: 0, recurring: 120, total: 420 },
+      { month: "2026-04", invoices: 200, training: 0, camps: 0, recurring: 0, total: 200 },
+    ]);
+    expect(p.total).toBe(720);
   });
 });
 

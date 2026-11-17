@@ -111,9 +111,9 @@ export async function GET(request: Request) {
             break;
           case "report-projection":
             filename = `projected-earnings_${today}.csv`;
-            headers = [t("finance.reports.month"), t("finance.reports.openInvoices"), t("finance.reports.upcomingTraining"), t("finance.reports.upcomingCamps"), t("finance.reports.total"), t("finance.filters.currency")];
-            rows = [[t("finance.reports.overdue"), dec(rep.projection.overdue), "", "", dec(rep.projection.overdue), currency],
-              ...rep.projection.rows.map((r) => [r.month, dec(r.invoices), dec(r.training), dec(r.camps), dec(r.total), currency])];
+            headers = [t("finance.reports.month"), t("finance.reports.openInvoices"), t("finance.reports.upcomingTraining"), t("finance.reports.upcomingCamps"), t("plans.forecast.recurring"), t("finance.reports.total"), t("finance.filters.currency")];
+            rows = [[t("finance.reports.overdue"), dec(rep.projection.overdue), "", "", "", dec(rep.projection.overdue), currency],
+              ...rep.projection.rows.map((r) => [r.month, dec(r.invoices), dec(r.training), dec(r.camps), dec(r.recurring), dec(r.total), currency])];
             break;
           default:
             return NextResponse.json({ error: "Unknown export" }, { status: 400 });

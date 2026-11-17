@@ -9,6 +9,7 @@ import { CampRegister } from "@/components/camps/camp-register";
 import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
 import { ContactForm } from "@/components/messaging/leads";
 import { getRegistrationConfig } from "@/lib/registration-form/server";
+import { getCheckoutPlanOffer } from "@/lib/plans/data";
 
 export default async function PublicProgramPage({ params }: { params: Promise<{ programSlug: string }> }) {
   const { programSlug } = await params;
@@ -25,7 +26,8 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
           {camp.program.description && <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-ink-2">{camp.program.description}</p>}
         </section>
         <I18nProvider ctx={i18n.ctx} messages={i18n.messages}>
-          <CampRegister mode="public" camp={camp} slug={programSlug} config={await getRegistrationConfig(camp.program.orgId, camp.program.id)} />
+          <CampRegister mode="public" camp={camp} slug={programSlug} config={await getRegistrationConfig(camp.program.orgId, camp.program.id)}
+            planRules={await getCheckoutPlanOffer(camp.program.orgId, "camp", camp.program.currency)} />
           <ContactForm compact defaultInterest="camp" programId={camp.program.id} source={`/register/${programSlug}`} />
         </I18nProvider>
       </div>

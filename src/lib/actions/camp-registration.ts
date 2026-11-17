@@ -25,6 +25,7 @@ import { logError } from "@/lib/log";
 import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } from "@/lib/registration-form/server";
 import { resolveConfig, validateRegistrationExtras, type BuiltinField, type ChildExtras } from "@/lib/registration-form/config";
 import { issueContractsForRegistrations } from "@/lib/contracts/server";
+import { attachPlanAtCheckout } from "@/lib/plans/checkout";
 
 /**
  * Camp registration (public camp page + parent app).
@@ -241,7 +242,7 @@ function flatten(err: z.ZodError, t: Awaited<ReturnType<typeof getTranslations>>
 }
 
 /** Public camp page submission (guests and members alike). Redirects on success. */
-export async function submitCampPublic(input: CampPublicRegistrationInput, accountInput: GuestAccountInput = { mode: "none" }): Promise<CampSubmitResult> {
+export async function submitCampPublic(input: CampPublicRegistrationInput, accountInput: GuestAccountInput = { mode: "none" }, instalments = 0): Promise<CampSubmitResult> {
   const t0 = await getTranslations();
   const p = campPublicRegistrationSchema.safeParse(input);
   if (!p.success) return { ok: false, error: t0.dynamic(firstIssueKey(p.error), undefined, t0("camps.errors.generic")), errors: flatten(p.error, t0) };
@@ -302,9 +303,11 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
     logError("camp.registerPublic", error);
     return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
   }
-  const r = (data ?? {}) as { invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
+  const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
   const regIds = r.registration_ids ?? [];
   const athIds = r.athlete_ids ?? [];
+  // Instalments chosen at checkout (club rules re-checked in SQL; never fatal).
+  const plan = await attachPlanAtCheckout(orgId, r.invoice_id, safeCount(instalments), "camp");
   await storeRegistrationExtras(orgId, camp.program.id, config, perChild
     .map((pc, i): ChildAnswers => ({ athleteId: athIds[i], registrationId: regIds[i], extras: pc.extras, answers: pc.answers }))
     .filter((x) => x.athleteId && x.registrationId));
@@ -312,11 +315,18 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
   await createGuestAccount(orgId, v.parent.email, v.parent.name, acc.data, t.locale);
   await notify(orgId, camp.program.name, v.parent.name, v.parent.email, v.children.map((c) => `${c.firstName} ${c.lastName}`), r.invoice_number ?? "", Number(r.total ?? 0));
   const qs = new URLSearchParams({ ref: r.invoice_number ?? "", account: acc.data.mode });
+  if (plan.ok && plan.planId) qs.set("plan", String(safeCount(instalments)));
   redirect(`/register/${v.programSlug}/success?${qs.toString()}`);
 }
 
 /** Parent app submission: existing children of the signed-in guardian's family. */
-export async function submitCampParent(input: CampParentRegistrationInput): Promise<CampSubmitResult> {
+/** Instalment count from the client: 0 (pay in full) or 2–24; the database decides what is allowed. */
+function safeCount(n: unknown): number {
+  const v = Number(n);
+  return Number.isInteger(v) && v >= 2 && v <= 24 ? v : 0;
+}
+
+export async function submitCampParent(input: CampParentRegistrationInput, instalments = 0): Promise<CampSubmitResult> {
   const t0 = await getTranslations();
   const p = campParentRegistrationSchema.safeParse(input);
   if (!p.success) return { ok: false, error: t0.dynamic(firstIssueKey(p.error), undefined, t0("camps.errors.generic")), errors: flatten(p.error, t0) };
@@ -379,6 +389,7 @@ export async function submitCampParent(input: CampParentRegistrationInput): Prom
     .map((athleteId, i): ChildAnswers => ({ athleteId, registrationId: regIds[i], extras: {}, answers: perChild.find((p) => p.athleteId === athleteId)?.answers ?? {} }))
     .filter((x) => x.athleteId && x.registrationId));
   await issueContractsForRegistrations(ctx.orgId, regIds, ctx.profileId);
+  await attachPlanAtCheckout(ctx.orgId, r.invoice_id, safeCount(instalments), "camp");
   await notify(ctx.orgId, camp.program.name, me.fullName ?? me.email ?? "", null, Array.from(ctx.athletes.values()).map((a) => a.name), r.invoice_number ?? "", Number(r.total ?? 0));
   revalidatePath("/parent/invoices");
   redirect(r.invoice_id ? `/parent/invoices/${r.invoice_id}` : "/parent/invoices");

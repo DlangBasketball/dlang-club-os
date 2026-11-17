@@ -105,6 +105,7 @@ export default async function FinancialReportsPage({ searchParams }: { searchPar
           { key: "i", header: t("finance.reports.openInvoices"), align: "right", cell: (r) => money(r.invoices) },
           { key: "tr", header: t("finance.reports.upcomingTraining"), align: "right", cell: (r) => money(r.training) },
           { key: "c", header: t("finance.reports.upcomingCamps"), align: "right", cell: (r) => money(r.camps) },
+          { key: "rc", header: t("plans.forecast.recurring"), align: "right", cell: (r) => money(r.recurring) },
           { key: "t", header: t("finance.reports.total"), align: "right", cell: (r) => <span className="text-ink">{money(r.total)}</span> },
         ]}
       />

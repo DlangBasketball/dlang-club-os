@@ -9,15 +9,18 @@ import { formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
 import { PaymentMethods } from "@/components/invoice/payment-methods";
 import { PayButton } from "../pay-button";
 import { getI18n } from "@/lib/i18n/server";
+import { getInvoicePlan, getInvoicePlanOffer } from "@/lib/plans/data";
+import { InstalmentTable } from "@/components/plans/instalment-table";
+import { ChoosePlanForm } from "@/components/plans/plan-widgets";
 
 export default async function ParentInvoiceDetailPage({
   params, searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ paid?: string }>;
+  searchParams: Promise<{ paid?: string; installment?: string }>;
 }) {
   const { id } = await params;
-  const { paid } = await searchParams;
+  const { paid, installment } = await searchParams;
   const [{ data, error }, { t, f }] = await Promise.all([getInvoiceDetail(id), getI18n()]); // RLS: parent only sees their own
   if (error) return <ErrorState title={t("invoices.loadOneError")} message={error} />;
   if (!data) notFound();
@@ -77,6 +80,10 @@ export default async function ParentInvoiceDetailPage({
   }
   const onlineLabel = online.length ? t("payments.payWith", { methods: methodList }) : t("payments.payOnline");
 
+  // Instalment plan on this invoice (RLS: own family only), or the choice to start one.
+  const plan = await getInvoicePlan(data.id, data.orgId);
+  const offer = !plan && payable ? await getInvoicePlanOffer(data.id, data.orgId) : null;
+
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title={<span className="tnum">{data.number}</span>} description={data.description ?? t("invoices.invoice")}
@@ -122,6 +129,28 @@ export default async function ParentInvoiceDetailPage({
           <div className="pt-2"><PaymentMethods methods={methods} /></div>
         </CardBody>
       </Card>
+
+      {plan && (
+        <Card>
+          <CardHeader><CardTitle>{t("plans.invoice.planTitle")}</CardTitle></CardHeader>
+          <CardBody className="space-y-3">
+            {installment && <p className="rounded-md border border-warning/40 bg-warning-soft px-3 py-2 text-sm text-warning">{t("plans.invoice.highlightHint")}</p>}
+            <p className="text-sm text-ink-2">{t("plans.invoice.planSummary", { count: plan.count, total: money(plan.total), outstanding: money(plan.outstanding) })}</p>
+            <InstalmentTable plan={plan} pdfBase={isSwiss ? `/parent/invoices/${data.id}/pdf` : null} canPayOnline={online.length > 0 && payable} showQr={isSwiss && payable} highlight={installment ?? null} />
+            <p className="text-xs text-ink-3">{t("plans.invoice.allocationHint")}</p>
+          </CardBody>
+        </Card>
+      )}
+
+      {offer?.offer.eligible && (
+        <Card>
+          <CardHeader><CardTitle>{t("plans.choose.title")}</CardTitle></CardHeader>
+          <CardBody className="space-y-2">
+            <p className="text-sm text-ink-2">{t("plans.choose.intro")}</p>
+            <ChoosePlanForm invoiceId={data.id} options={offer.offer.options} currency={data.currency} />
+          </CardBody>
+        </Card>
+      )}
 
       {payable && (
         <>

@@ -112,7 +112,8 @@ export async function syncAccount(account: Stripe.Account): Promise<string | nul
   return orgId;
 }
 
-async function applicationFee(orgId: string, amountMinor: number): Promise<number> {
+/** Platform application fee (minor units) for a charge on the club's account. */
+export async function applicationFee(orgId: string, amountMinor: number): Promise<number> {
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("resolve_application_fee", { p_org: orgId, p_amount_minor: amountMinor });
   if (error) return 0;
@@ -131,9 +132,14 @@ export type InvoiceChargeInput = {
   locale?: string;
   /** Path on the club's site to come back to (default: the parent app invoice page). */
   returnPath?: string;
+  /** Paying one instalment of a plan: recorded in metadata; the payment still lands on the invoice. */
+  installmentId?: string;
+  /** Line label shown in Checkout (default: "<club> — Invoice <number>"). */
+  label?: string;
 };
 
-function connectOptions(profile: OrgPaymentProfile, idempotencyKey?: string): Stripe.RequestOptions {
+/** Request options for the club's connected account (+ idempotency key). */
+export function connectOptions(profile: OrgPaymentProfile, idempotencyKey?: string): Stripe.RequestOptions {
   return {
     ...(profile.stripeAccountId ? { stripeAccount: profile.stripeAccountId } : {}),
     ...(idempotencyKey ? { idempotencyKey } : {}),
@@ -151,7 +157,9 @@ export async function createInvoiceCheckout(input: InvoiceChargeInput): Promise<
   const { profile } = input;
   const amountMinor = toMinorUnits(input.amount, input.currency);
   const fee = profile.stripeAccountId ? await applicationFee(profile.orgId, amountMinor) : 0;
-  const metadata = { invoice_id: input.invoiceId, org_id: profile.orgId };
+  const metadata: Record<string, string> = { invoice_id: input.invoiceId, org_id: profile.orgId };
+  if (input.installmentId) metadata.installment_id = input.installmentId;
+  const label = input.label ?? `${profile.name} — Invoice ${input.invoiceNumber}`;
   const path = input.returnPath && /^\/[A-Za-z0-9/_-]*$/.test(input.returnPath) ? input.returnPath : `/parent/invoices/${input.invoiceId}`;
   const back = `${await orgReturnOrigin(profile.orgId)}${path}`;
 
@@ -163,7 +171,7 @@ export async function createInvoiceCheckout(input: InvoiceChargeInput): Promise<
         price_data: {
           currency: input.currency.toLowerCase(),
           unit_amount: amountMinor,
-          product_data: { name: `${profile.name} — Invoice ${input.invoiceNumber}` },
+          product_data: { name: label },
         },
       },
     ],
@@ -172,7 +180,7 @@ export async function createInvoiceCheckout(input: InvoiceChargeInput): Promise<
     metadata,
     payment_intent_data: {
       metadata,
-      description: `${profile.name} — Invoice ${input.invoiceNumber}`,
+      description: label,
       ...(fee > 0 ? { application_fee_amount: fee } : {}),
     },
     success_url: `${back}?paid=1`,

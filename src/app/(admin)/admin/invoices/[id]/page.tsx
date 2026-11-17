@@ -14,6 +14,9 @@ import { getPaymentSettings, getAcceptedMethods } from "@/lib/data/payment-setti
 import { formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
 import { timeAgo } from "@/lib/utils";
 import { getFormatter, getTranslations } from "@/lib/i18n/server";
+import { clubToday, getInvoicePlan, getInvoicePlanOffer } from "@/lib/plans/data";
+import { InstalmentTable } from "@/components/plans/instalment-table";
+import { AdminCreatePlan } from "@/components/plans/plan-widgets";
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [f, t] = await Promise.all([getFormatter(), getTranslations()]);
@@ -38,6 +41,9 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const closed = ["cancelled", "void", "written_off"].includes(data.status);
   const hasAdjustments = data.adjustments.length > 0;
   const activeAdjustments = data.adjustments.filter((a) => !a.voidedAt);
+  const plan = await getInvoicePlan(data.id, data.orgId);
+  const canPlan = !plan && outstanding > 0 && !closed && !["draft", "paid"].includes(data.status);
+  const [planOffer, today] = canPlan ? await Promise.all([getInvoicePlanOffer(data.id, data.orgId), clubToday(data.orgId)]) : [null, ""];
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -67,6 +73,27 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <OverpaymentPanel invoiceId={data.id} overpaid={data.overpaid} currency={cur} familyName={data.family.name} />
+
+      {plan && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <CardTitle>{t("plans.invoice.planTitle")}</CardTitle>
+            <Link href={`/admin/payment-plans/${plan.id}`} className="text-sm text-maroon hover:underline">{t("plans.invoice.managePlan")}</Link>
+          </CardHeader>
+          <CardBody className="space-y-3">
+            <p className="text-sm text-ink-2">{t("plans.invoice.planSummary", { count: plan.count, total: money(plan.total), outstanding: money(plan.outstanding) })}</p>
+            <InstalmentTable plan={plan} pdfBase={`/admin/invoices/${data.id}/pdf`} canPayOnline={false} showQr={!closed} />
+          </CardBody>
+        </Card>
+      )}
+      {canPlan && (
+        <Card>
+          <CardHeader><CardTitle>{t("plans.admin.createTitle")}</CardTitle></CardHeader>
+          <CardBody>
+            <AdminCreatePlan invoiceId={data.id} balance={outstanding} currency={cur} options={planOffer?.offer.eligible ? planOffer.offer.options : []} today={today} />
+          </CardBody>
+        </Card>
+      )}
 
       <div className={`grid grid-cols-1 gap-4 ${hasAdjustments ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
         <StatCard label={t("editMoney.invoice.originalTotal")} value={money(data.total)} />

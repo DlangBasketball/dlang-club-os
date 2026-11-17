@@ -10,6 +10,8 @@ import { useFormat, useT } from "@/lib/i18n/client";
 import type { Translator } from "@/lib/i18n/translator";
 import { ChildExtrasFields, requiredMark, shows } from "@/components/forms/registration-extras";
 import { resolveConfig, validateRegistrationExtras, type BuiltinField, type RegistrationConfig } from "@/lib/registration-form/config";
+import { InstalmentChooser } from "@/components/plans/instalment-chooser";
+import type { PlanSettings } from "@/lib/payments/plans";
 
 type Choice = { ageGroupId: string; daysCount: string; lunch: "" | "yes" | "no"; days: string[] };
 type Extras = { extras: Partial<Record<BuiltinField, string>>; answers: Record<string, unknown> };
@@ -30,9 +32,11 @@ function placeOf(e: Edition): { label: string; query: string } {
   return { label, query: label };
 }
 
+type PlanRules = { settings: PlanSettings; today: string } | null;
+
 export function CampRegister(props:
-  | { mode: "public"; camp: PublicCamp; slug: string; config?: RegistrationConfig }
-  | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[]; config?: RegistrationConfig }) {
+  | { mode: "public"; camp: PublicCamp; slug: string; config?: RegistrationConfig; planRules?: PlanRules }
+  | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[]; config?: RegistrationConfig; planRules?: PlanRules }) {
   const { camp } = props;
   // Registration form editor config (omitted = the default form).
   const config = React.useMemo(() => props.config ?? resolveConfig(null), [props.config]);
@@ -57,6 +61,7 @@ export function CampRegister(props:
   const [quote, setQuote] = React.useState<QuoteView | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
+  const [instalments, setInstalments] = React.useState(0);
 
   const optionFor = (c: Choice) => {
     const n = Number(c.daysCount);
@@ -150,11 +155,11 @@ export function CampRegister(props:
       ? await submitCampPublic({
           programSlug: props.slug, editionId, promoCode: promo, consents, parent,
           children: pubKids.map((c) => ({ ...c, priceOptionId: optionFor(c)?.id ?? "", ageGroupId: c.ageGroupId, days: c.days })),
-        }, account === "password" ? { mode: "password", password } : { mode: account })
+        }, account === "password" ? { mode: "password", password } : { mode: account }, instalments)
       : await submitCampParent({
           programId: camp.program.id, editionId, promoCode: promo, consents,
           children: parKids.map((c) => ({ athleteId: c.athleteId, priceOptionId: optionFor(c)?.id ?? "", ageGroupId: c.ageGroupId, days: c.days, answers: c.answers })),
-        });
+        }, instalments);
     // Success redirects server-side; only failures come back.
     if (res && !res.ok) {
       setSubmitting(false);
@@ -405,6 +410,10 @@ export function CampRegister(props:
             </div>
           )}
           {quote && !quote.ok && quote.error && <p className="text-sm text-danger">{quote.error}</p>}
+          {quote && quote.ok && quote.total > 0 && (
+            <InstalmentChooser rules={props.planRules} productType="camp" total={quote.total} currency={quote.currency || camp.program.currency}
+              activityStart={edition.startsOn} value={instalments} onChange={setInstalments} idPrefix="camp-inst" />
+          )}
           <p className="flex items-center gap-2 text-xs text-ink-3"><ShieldCheck className="h-4 w-4 shrink-0 text-success" />{t("camps.register.privacy")}</p>
           {error && <div role="alert" className="rounded-md border border-danger/40 bg-danger-soft px-4 py-3 text-sm text-danger">{error}</div>}
           <Button onClick={submit} disabled={submitting || !edition.open}>{submitting ? t("registration.submitting") : t("camps.register.submit")}</Button>
