@@ -2,7 +2,7 @@ import { Badge, type BadgeProps } from "@/components/ui";
 import { getI18n } from "@/lib/i18n/server";
 import type { InstalmentStatus } from "@/lib/payments/plans";
 import type { PlanView } from "@/lib/plans/data";
-import { PayInstalmentButton, QrBillLink } from "./plan-widgets";
+import { PayInstalmentButton, PayPlanBalanceButton, QrBillLink } from "./plan-widgets";
 
 export function instalmentTone(s: InstalmentStatus | string): BadgeProps["tone"] {
   if (s === "paid") return "success";
@@ -21,7 +21,10 @@ export async function InstalmentTable({ plan, pdfBase, canPayOnline, showQr, hig
 }) {
   const { t, f } = await getI18n();
   const money = (n: number) => f.money(n, plan.currency);
+  const openCount = plan.instalments.filter((i) => i.outstanding > 0 && i.status !== "cancelled" && i.status !== "skipped").length;
+  const showPayAll = plan.kind === "installments" && plan.outstanding > 0 && openCount > 1;
   return (
+    <div className="space-y-3">
     <div className="overflow-x-auto" role="region" aria-label={t("plans.common.schedule")} tabIndex={0}>
       <table className="w-full text-sm">
         <caption className="sr-only">{t("plans.common.schedule")}</caption>
@@ -66,6 +69,16 @@ export async function InstalmentTable({ plan, pdfBase, canPayOnline, showQr, hig
           })}
         </tbody>
       </table>
+    </div>
+    {showPayAll && (
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-surface p-3">
+        <p className="text-sm text-ink-2">{t("plans.common.payAllHint", { amount: money(plan.outstanding), count: openCount })}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          {showQr && pdfBase && <QrBillLink href={pdfBase} label={t("plans.common.qrBillFull")} />}
+          {canPayOnline && <PayPlanBalanceButton planId={plan.id} label={t("plans.common.payAll", { amount: money(plan.outstanding) })} />}
+        </div>
+      </div>
+    )}
     </div>
   );
 }

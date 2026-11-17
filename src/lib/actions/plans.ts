@@ -251,6 +251,43 @@ export async function payInstalment(installmentId: string): Promise<{ ok: true; 
   }
 }
 
+/** Pay everything still open on an instalment plan in one Stripe Checkout
+ *  (card / TWINT). The payment is applied to the earliest open instalments
+ *  first, so the remaining instalments close and autopay won't charge them. */
+export async function payPlanBalance(planId: string): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  const { me, t } = await member();
+  if (!me) return denied(t);
+  const id = uuid.safeParse(planId);
+  if (!id.success) return invalid(t);
+  const db = await plansDb();
+  // RLS: only the family's guardians and the club's finance/admin see the plan.
+  const { data: plan } = await db.from("payment_plans").select("id,invoice_id,kind,status").eq("id", id.data).maybeSingle();
+  if (!plan?.invoice_id || plan.kind !== "installments" || plan.status === "cancelled") return fail(t, "INSTALMENT_NOT_FOUND");
+  const [{ data: inv }, { data: outstanding }] = await Promise.all([
+    db.from("invoices").select("id,org_id,number,currency,status").eq("id", plan.invoice_id).maybeSingle(),
+    db.rpc("plan_invoice_context", { p_invoice: plan.invoice_id }),
+  ]);
+  if (!inv || inv.org_id !== me.orgId) return fail(t, "INSTALMENT_NOT_FOUND");
+  const balance = Number((outstanding as { balance?: number } | null)?.balance ?? 0);
+  if (!(balance > 0)) return fail(t, "NOTHING_OUTSTANDING");
+  if (!getStripe()) return fail(t, "ONLINE_UNAVAILABLE");
+  const profile = await getOrgPaymentProfile(inv.org_id);
+  const methods = methodsForInvoice(profile, inv.currency ?? profile.currency).filter((m) => m.via === "stripe");
+  if (!profile.stripeReady || !methods.length) return fail(t, "ONLINE_UNAVAILABLE");
+  try {
+    const url = await createInvoiceCheckout({
+      profile, invoiceId: inv.id, invoiceNumber: inv.number, currency: inv.currency ?? profile.currency, amount: balance, methods,
+      customerEmail: me.email,
+      label: t("plans.checkout.balanceLabel", { club: profile.name, invoice: inv.number }),
+      returnPath: me.roles.includes("parent") ? `/parent/invoices/${inv.id}` : `/admin/invoices/${inv.id}`,
+    });
+    return { ok: true, url };
+  } catch (e) {
+    logError("plans.payPlanBalance", e);
+    return fail(t, "ONLINE_UNAVAILABLE");
+  }
+}
+
 // ===========================================================================
 // Recurring fees (admin / finance)
 // ===========================================================================

@@ -4511,7 +4511,10 @@
       "schedule": "Zahlungsplan",
       "status": "Stand",
       "total": "Plan gesamt",
-      "date": "Versucht am"
+      "date": "Versucht am",
+      "payAll": "Restbetrag {amount} bezahlen",
+      "payAllHint": "Noch {count} Raten offen ({amount}). Sie können alles auf einmal bezahlen.",
+      "qrBillFull": "QR-Rechnung für den Restbetrag"
     },
     "status": {
       "upcoming": "Bevorstehend",
@@ -4792,7 +4795,8 @@
     },
     "checkout": {
       "label": "{club} — Rechnung {invoice} · Rate {seq} von {count}",
-      "periodLabel": "{club} — Rechnung {invoice}"
+      "periodLabel": "{club} — Rechnung {invoice}",
+      "balanceLabel": "{club} · Rechnung {invoice} · Restbetrag"
     },
     "pdf": {
       "note": "Rate {seq} von {count} · fällig am {date} · Betrag auf diesem Schein {amount}"

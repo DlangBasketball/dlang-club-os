@@ -6,7 +6,7 @@ import { CreditCard, FileDown, Pause, Play, Plus, Trash2, X } from "lucide-react
 import { Button, Input, Label, Select } from "@/components/ui";
 import { useFormat, useT } from "@/lib/i18n/client";
 import {
-  addPause, adminCreatePlan, cancelPlan, choosePlan, endEnrolment, payInstalment, removePause, reschedulePlan,
+  addPause, adminCreatePlan, cancelPlan, choosePlan, endEnrolment, payInstalment, payPlanBalance, removePause, reschedulePlan,
   retryCharge, setPlanPaused, skipPeriod,
 } from "@/lib/actions/plans";
 import type { PlanOption } from "@/lib/payments/plans";
@@ -81,6 +81,23 @@ export function PayInstalmentButton({ installmentId, label }: { installmentId: s
       <Button size="sm" disabled={busy} onClick={async () => {
         setBusy(true); setErr(null);
         const r = await payInstalment(installmentId);
+        if (r.ok) window.location.href = r.url; else { setErr(r.error); setBusy(false); }
+      }}><CreditCard className="h-3.5 w-3.5" /> {busy ? t("payments.redirecting") : label}</Button>
+      {err && <span role="alert" className="mt-1 text-xs text-danger">{err}</span>}
+    </span>
+  );
+}
+
+/** Pay the whole remaining balance of an instalment plan at once. */
+export function PayPlanBalanceButton({ planId, label }: { planId: string; label: string }) {
+  const t = useT();
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState<string | null>(null);
+  return (
+    <span className="inline-flex flex-col items-start">
+      <Button size="sm" variant="secondary" disabled={busy} onClick={async () => {
+        setBusy(true); setErr(null);
+        const r = await payPlanBalance(planId);
         if (r.ok) window.location.href = r.url; else { setErr(r.error); setBusy(false); }
       }}><CreditCard className="h-3.5 w-3.5" /> {busy ? t("payments.redirecting") : label}</Button>
       {err && <span role="alert" className="mt-1 text-xs text-danger">{err}</span>}

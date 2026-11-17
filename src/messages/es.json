@@ -4511,7 +4511,10 @@
       "schedule": "Calendario de pagos",
       "status": "Estado",
       "total": "Total del plan",
-      "date": "Intentado el"
+      "date": "Intentado el",
+      "payAll": "Pagar el saldo de {amount}",
+      "payAllHint": "Quedan {count} cuotas abiertas ({amount}). Puedes pagarlo todo de una vez.",
+      "qrBillFull": "Factura QR por el saldo"
     },
     "status": {
       "upcoming": "Próximo",
@@ -4792,7 +4795,8 @@
     },
     "checkout": {
       "label": "{club} — Factura {invoice} · plazo {seq} de {count}",
-      "periodLabel": "{club} — Factura {invoice}"
+      "periodLabel": "{club} — Factura {invoice}",
+      "balanceLabel": "{club} · factura {invoice} · saldo pendiente"
     },
     "pdf": {
       "note": "Plazo {seq} de {count} · vence el {date} · importe de este recibo {amount}"

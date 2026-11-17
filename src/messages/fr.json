@@ -4511,7 +4511,10 @@
       "schedule": "Calendrier de paiement",
       "status": "Statut",
       "total": "Total du plan",
-      "date": "Tentative le"
+      "date": "Tentative le",
+      "payAll": "Payer le solde de {amount}",
+      "payAllHint": "Encore {count} échéances ouvertes ({amount}). Vous pouvez tout payer en une fois.",
+      "qrBillFull": "QR-facture pour le solde"
     },
     "status": {
       "upcoming": "À venir",
@@ -4792,7 +4795,8 @@
     },
     "checkout": {
       "label": "{club} — Facture {invoice} · échéance {seq} sur {count}",
-      "periodLabel": "{club} — Facture {invoice}"
+      "periodLabel": "{club} — Facture {invoice}",
+      "balanceLabel": "{club} · facture {invoice} · solde restant"
     },
     "pdf": {
       "note": "Échéance {seq} sur {count} · à payer le {date} · montant de ce bulletin {amount}"

@@ -4511,7 +4511,10 @@
       "schedule": "Piano dei pagamenti",
       "status": "Stato",
       "total": "Totale del piano",
-      "date": "Tentato il"
+      "date": "Tentato il",
+      "payAll": "Paga il saldo di {amount}",
+      "payAllHint": "Ancora {count} rate aperte ({amount}). Puoi pagare tutto in una volta.",
+      "qrBillFull": "QR-fattura per il saldo"
     },
     "status": {
       "upcoming": "In arrivo",
@@ -4792,7 +4795,8 @@
     },
     "checkout": {
       "label": "{club} — Fattura {invoice} · rata {seq} di {count}",
-      "periodLabel": "{club} — Fattura {invoice}"
+      "periodLabel": "{club} — Fattura {invoice}",
+      "balanceLabel": "{club} · fattura {invoice} · saldo residuo"
     },
     "pdf": {
       "note": "Rata {seq} di {count} · scadenza {date} · importo di questa polizza {amount}"
