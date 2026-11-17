@@ -65,7 +65,10 @@ export async function ensureConnectAccount(profile: OrgPaymentProfile, email?: s
         ? { capabilities: expressCapabilitiesFor(profile.country) }
         : {}),
     },
-    { idempotencyKey: `connect-account-${profile.orgId}` },
+    // Ten-minute window: still blocks a double click from creating two accounts,
+    // but a retry after a failed attempt (e.g. Connect not yet enabled on the
+    // platform) is a new request instead of a replay of the stored error.
+    { idempotencyKey: `connect-account-${profile.orgId}-${Math.floor(Date.now() / 600_000)}` },
   );
   await persistAccount(profile.orgId, account);
   return account.id;
