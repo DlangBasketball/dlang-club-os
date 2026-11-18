@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, Car, GraduationCap, Lock, Split } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -50,6 +50,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Payments", labelKey: "payments", href: "/admin/payments", icon: CreditCard },
     { label: "Payment plans", labelKey: "paymentPlans", href: "/admin/payment-plans", icon: ListOrdered },
     { label: "Recurring fees", labelKey: "recurringFees", href: "/admin/recurring-fees", icon: Repeat },
+    { label: "Split billing", labelKey: "familyBilling", href: "/admin/family-billing", icon: Split },
     { label: "Finance", labelKey: "finance", href: "/admin/finance", icon: Wallet },
     { label: "Attendance", labelKey: "attendance", href: "/admin/attendance", icon: CheckSquare },
     { label: "J+S", labelKey: "js", href: "/admin/js", icon: Award },
@@ -58,6 +59,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Services", labelKey: "services", href: "/admin/services", icon: Dumbbell },
     { label: "Training", labelKey: "training", href: "/admin/training", icon: Coins },
     { label: "Development", labelKey: "development", href: "/admin/development", icon: TrendingUp },
+    { label: "Player journey", labelKey: "journey", href: "/admin/journey", icon: GraduationCap },
+    { label: "Carpooling", labelKey: "carpool", href: "/admin/carpool", icon: Car },
     { label: "Invitations", labelKey: "invitations", href: "/admin/invitations", icon: Mail },
     { label: "Import", labelKey: "import", href: "/admin/import", icon: Upload },
     { label: "Reports", labelKey: "reports", href: "/admin/reports", icon: BarChart3 },
@@ -75,6 +78,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Availability", labelKey: "availability", href: "/coach/availability", icon: CalendarClock },
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
     { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
+    { label: "Player journey", labelKey: "journey", href: "/coach/journey", icon: GraduationCap },
+    { label: "Carpooling", labelKey: "carpool", href: "/coach/carpool", icon: Car },
     { label: "Roll calls", labelKey: "rollCalls", href: "/coach/roll-calls", icon: ClipboardCheck },
     { label: "Equipment", labelKey: "equipment", href: "/coach/equipment", icon: Boxes },
     { label: "Board", labelKey: "board", href: "/board", icon: Landmark },
@@ -86,8 +91,10 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
     { label: "Messages", labelKey: "messages", href: "/parent/messages", icon: MessagesSquare },
     { label: "Children", labelKey: "children", href: "/parent/children", icon: UserCircle },
+    { label: "Family", labelKey: "family", href: "/parent/family", icon: Users },
     { label: "My training", labelKey: "myTraining", href: "/parent/development", icon: TrendingUp },
     { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },
+    { label: "Carpooling", labelKey: "carpool", href: "/parent/carpool", icon: Car },
     { label: "Calendar", labelKey: "calendar", href: "/parent/calendar", icon: CalendarCheck },
     { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
     { label: "Waiting lists", labelKey: "waitlists", href: "/parent/waitlist", icon: Hourglass },
@@ -99,6 +106,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Incidents", labelKey: "incidents", href: "/parent/incidents", icon: HeartPulse },
     { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },
     { label: "Account", labelKey: "account", href: "/parent/account", icon: Settings },
+    { label: "Privacy & data", labelKey: "privacy", href: "/parent/privacy", icon: Lock },
+    { label: "Player journey", labelKey: "journey", href: "/parent/journey", icon: GraduationCap },
     { label: "Documents", labelKey: "documents", href: "/parent/documents", icon: FolderOpen },
     { label: "Shop", labelKey: "shop", href: "/shop", icon: ShoppingBag },
     { label: "Forms", labelKey: "forms", href: "/parent/forms", icon: ClipboardPen },

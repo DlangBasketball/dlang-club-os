@@ -9,6 +9,8 @@ import { messagingEmailHtml } from "./email";
 import { appFor, threadPath, APP_HOME, type MessagingApp } from "./paths";
 import type { MessagingRole } from "./permissions";
 import { parseChannels, resolveDelivery, type NotificationCategory } from "./preferences";
+import { deliverPush } from "@/lib/push/send";
+import type { FamilyClient } from "@/lib/family/db";
 
 /**
  * Notification delivery for the message board, alerts and new contacts.
@@ -36,9 +38,14 @@ type Built = {
 async function loadRecipients(db: MsgClient, orgId: string, ids: string[]): Promise<Recipient[]> {
   const unique = Array.from(new Set(ids.filter(Boolean)));
   if (!unique.length) return [];
+  // Members of this club (a person may belong to several clubs: org_memberships).
+  const { data: members } = await (db as unknown as FamilyClient)
+    .from("org_memberships").select("profile_id").eq("org_id", orgId).eq("status", "active").in("profile_id", unique);
+  const memberIds = (members ?? []).map((m) => m.profile_id);
+  if (!memberIds.length) return [];
   const [{ data: profs }, { data: roles }] = await Promise.all([
-    db.from("profiles").select("id,email,locale,locale_set_at,is_active,org_id").in("id", unique).eq("org_id", orgId),
-    db.from("staff_roles").select("profile_id,role").in("profile_id", unique).eq("org_id", orgId),
+    db.from("profiles").select("id,email,locale,locale_set_at,is_active,org_id").in("id", memberIds),
+    db.from("staff_roles").select("profile_id,role").in("profile_id", memberIds).eq("org_id", orgId),
   ]);
   const roleMap = new Map<string, MessagingRole[]>();
   for (const r of roles ?? []) {
@@ -67,7 +74,8 @@ async function deliver(opts: {
   if (!opts.recipients.length) return { inApp: 0, emails: 0 };
   const org = await getOrgEmailContext(opts.orgId);
   const [{ data: prefRows }, { data: settings }, { data: orgRow }] = await Promise.all([
-    db.from("notification_preferences").select("profile_id,channels,quiet_start,quiet_end").eq("org_id", opts.orgId).in("profile_id", opts.recipients.map((r) => r.id)),
+    // Preferences belong to the person (one row per profile, whichever club saved it).
+    db.from("notification_preferences").select("profile_id,channels,quiet_start,quiet_end").in("profile_id", opts.recipients.map((r) => r.id)),
     db.from("messaging_settings").select("email_notifications,quiet_start,quiet_end").eq("org_id", opts.orgId).maybeSingle(),
     db.from("organizations").select("default_locale,country,currency,timezone").eq("id", opts.orgId).maybeSingle(),
   ]);
@@ -76,6 +84,7 @@ async function deliver(opts: {
   const now = new Date();
   let inApp = 0;
   let emails = 0;
+  const pushes: { profileId: string; title: string; body: string | null; path: string; urgent?: boolean; tag?: string }[] = [];
 
   for (const r of opts.recipients) {
     const p = prefs.get(r.id);
@@ -120,6 +129,7 @@ async function deliver(opts: {
         notificationId = (data as { id: string } | null)?.id ?? null;
       }
     }
+    if (d.push) pushes.push({ profileId: r.id, title: built.title, body: built.body, path: built.path, urgent: opts.urgent, tag: opts.type });
 
     if ((opts.email ?? true) && d.email && r.email) {
       const html = messagingEmailHtml({
@@ -146,6 +156,7 @@ async function deliver(opts: {
       }
     }
   }
+  await deliverPush(opts.orgId, pushes);
   return { inApp, emails };
 }
 

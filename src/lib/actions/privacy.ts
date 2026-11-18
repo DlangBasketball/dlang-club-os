@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { logError, safeError } from "@/lib/log";
+import type { FamilyClient } from "@/lib/family/db";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -12,7 +13,11 @@ export async function requestDeletion(reason: string): Promise<ActionResult> {
   const me = await getSessionUser();
   if (!me?.orgId) return { ok: false, error: "Not signed in" };
   const admin = createAdminClient();
-  const { data: fm } = await admin.from("family_members").select("family_id").eq("profile_id", me.id).limit(1).maybeSingle();
+  // A family of the CURRENT club (a person may be a guardian in several clubs).
+  const { data: links } = await admin.from("family_members").select("family_id").eq("profile_id", me.id);
+  const ids = (links ?? []).map((l) => l.family_id);
+  const { data: fam } = ids.length ? await admin.from("families").select("id").in("id", ids).eq("org_id", me.orgId).limit(1).maybeSingle() : { data: null };
+  const fm = fam ? { family_id: fam.id } : null;
   if (!fm?.family_id) return { ok: false, error: "No family on record" };
   try {
     const { error } = await admin.from("deletion_requests").insert({ org_id: me.orgId, family_id: fm.family_id, requested_by: me.id, reason: reason.slice(0, 1000) });
@@ -52,9 +57,12 @@ export async function processDeletionRequest(id: string, approve: boolean): Prom
         if (rmErr) logError("processDeletionRequest.photos", rmErr);
       }
       await admin.from("deletion_requests").update({ status: "completed", reviewed_by: me.id, reviewed_at: new Date().toISOString(), completed_at: new Date().toISOString() }).eq("id", id);
+      // The linked rights request (filed from the parent app) is answered too.
+      await (admin as unknown as FamilyClient).from("dsar_requests").update({ status: "completed", handled_by: me.id, response_summary: "erasure completed" } as never).eq("org_id", me.orgId).eq("deletion_request_id", id);
       await admin.from("audit_logs").insert({ org_id: me.orgId, actor_id: me.id, action: "privacy.erasure_completed", target_table: "families", target_id: req.family_id, new_data: { request_id: id } });
     } else {
       await admin.from("deletion_requests").update({ status: "rejected", reviewed_by: me.id, reviewed_at: new Date().toISOString() }).eq("id", id);
+      await (admin as unknown as FamilyClient).from("dsar_requests").update({ status: "rejected", handled_by: me.id, rejection_reason: "rejected by the club" } as never).eq("org_id", me.orgId).eq("deletion_request_id", id);
     }
     revalidatePath("/admin/settings/privacy");
     return { ok: true };

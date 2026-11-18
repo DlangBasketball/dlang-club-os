@@ -135,10 +135,10 @@ describe("notification preference resolution", () => {
   const now = new Date("2026-03-02T22:30:00Z"); // 23:30 in Zurich (CET)
   const tz = "Europe/Zurich";
   it("defaults: in-app and email on", () => {
-    expect(resolveDelivery({ category: "alerts", now, timeZone: tz })).toEqual({ inApp: true, email: true, quietHours: false });
+    expect(resolveDelivery({ category: "alerts", now, timeZone: tz })).toEqual({ inApp: true, email: true, push: true, quietHours: false });
   });
   it("user switches apply", () => {
-    expect(resolveDelivery({ category: "alerts", prefs: { alerts: { in_app: false, email: false } }, now, timeZone: tz })).toEqual({ inApp: false, email: false, quietHours: false });
+    expect(resolveDelivery({ category: "alerts", prefs: { alerts: { in_app: false, email: false, push: false } }, now, timeZone: tz })).toEqual({ inApp: false, email: false, push: false, quietHours: false });
   });
   it("in-app for messages cannot be turned off", () => {
     expect(resolveDelivery({ category: "messages", prefs: { messages: { in_app: false, email: true } }, now, timeZone: tz }).inApp).toBe(true);
@@ -152,7 +152,7 @@ describe("notification preference resolution", () => {
   });
   it("user quiet hours (overnight) suppress email but keep in-app", () => {
     const d = resolveDelivery({ category: "messages", quiet: { start: "22:00", end: "07:00" }, now, timeZone: tz });
-    expect(d).toEqual({ inApp: true, email: false, quietHours: true });
+    expect(d).toEqual({ inApp: true, email: false, push: false, quietHours: true });
   });
   it("club quiet hours apply when the user has none", () => {
     expect(resolveDelivery({ category: "messages", orgQuiet: { start: "23:00", end: "06:00" }, now, timeZone: tz }).quietHours).toBe(true);
@@ -174,8 +174,8 @@ describe("notification preference resolution", () => {
     expect(parseChannels({ messages: { email: false, in_app: "x" }, bogus: { email: true } })).toEqual({ messages: { email: false } });
     expect(parseChannels(null)).toEqual({});
     const eff = effectiveChannels({ messages: { in_app: false, email: false } });
-    expect(eff.messages).toEqual({ in_app: true, email: false });
-    expect(eff.leads).toEqual({ in_app: true, email: true });
+    expect(eff.messages).toEqual({ in_app: true, email: false, push: true });
+    expect(eff.leads).toEqual({ in_app: true, email: true, push: false });
   });
   it("validates the preferences form", () => {
     const ok = { channels: { messages: { in_app: true, email: false } }, quietStart: "22:00", quietEnd: "07:00" };

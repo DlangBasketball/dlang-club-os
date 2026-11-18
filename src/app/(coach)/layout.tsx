@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/auth/get-user";
 import { AppShell } from "@/components/layout/app-shell";
+import { getMyOrgs } from "@/lib/family/orgs";
 import { getNavNotifications } from "@/lib/data/notifications";
 import { getMyCoachPhoto } from "@/lib/data/coaches";
 import { AlertBanner } from "@/components/messaging/alerts";
@@ -12,9 +13,9 @@ export default async function CoachGroupLayout({
   children: React.ReactNode;
 }) {
   const user = await requireRole(["coach", "admin"]);
-  const [notifs, me, alerts, opsHidden] = await Promise.all([getNavNotifications(), getMyCoachPhoto(user.id).catch(() => null), getBannerAlerts(user), operationsHiddenHrefs(user)]);
+  const [notifs, me, alerts, opsHidden, orgs] = await Promise.all([getNavNotifications(), getMyCoachPhoto(user.id).catch(() => null), getBannerAlerts(user), operationsHiddenHrefs(user), getMyOrgs()]);
   return (
-    <AppShell navKey="coach" user={user} notifications={{ data: notifs }} profilePhotoUrl={me ? me.photoUrl : undefined} hiddenHrefs={opsHidden}>
+    <AppShell navKey="coach" user={user} orgs={orgs} notifications={{ data: notifs }} profilePhotoUrl={me ? me.photoUrl : undefined} hiddenHrefs={opsHidden}>
       <AlertBanner alerts={alerts} />
       {children}
     </AppShell>

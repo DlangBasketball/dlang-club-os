@@ -5,6 +5,8 @@ import { getStandaloneI18n } from "@/lib/i18n/messages";
 import { brandedMessage } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/resend";
 import { logError } from "@/lib/log";
+import { billingRecipientFilter } from "@/lib/family/billing";
+import { pushOnly } from "@/lib/family/notify";
 
 /**
  * Family notices for instalments, recurring fees and autopay: one in-app
@@ -68,7 +70,8 @@ export async function notifyFamily(orgId: string, familyId: string, kind: PlanNo
   let sent = 0;
   try {
     const admin = createAdminClient();
-    const people = await recipients(orgId, familyId);
+    // Split invoices: only the responsible payer; else guardians who receive emails.
+    const people = await billingRecipientFilter(orgId, vars.invoiceId ?? null, familyId, await recipients(orgId, familyId));
     for (const r of people) {
       const org = await getOrgEmailContext(orgId, r.locale);
       const { t, f } = getStandaloneI18n({ locale: r.locale ?? undefined, currency: vars.currency ?? org.brand.currency ?? null, timeZone: org.f.timeZone });
@@ -99,6 +102,10 @@ export async function notifyFamily(orgId: string, familyId: string, kind: PlanNo
         await admin.from("notifications").insert({
           org_id: orgId, recipient_id: r.profileId, type: "payment", title, body: intro, link: linkFor(kind, vars),
         });
+        // Payment due / failed reach the payer's devices too (Web Push, if opted in).
+        if (kind === "reminderBefore" || kind === "overdue" || kind === "chargeFailed" || kind === "authRequired" || kind === "fallback") {
+          await pushOnly({ orgId, profileIds: [r.profileId], category: "payments", title, body: intro, path: linkFor(kind, vars), tag: `pay-${vars.invoiceId ?? kind}` });
+        }
       }
       const { data: log } = await admin.from("email_logs")
         .insert({ org_id: orgId, recipient_id: r.profileId, to_email: r.email, subject: msg.subject, template: `plans.${kind}`, html: msg.html, status: "queued", attempts: 0, invoice_id: vars.invoiceId ?? null })

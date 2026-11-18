@@ -174,7 +174,12 @@
     "staffCompliance": "Nachweise Personal",
     "js": "J+S",
     "incidents": "Unfälle & Vorfälle",
-    "myCertificates": "Meine Nachweise"
+    "myCertificates": "Meine Nachweise",
+    "family": "Familie",
+    "privacy": "Datenschutz",
+    "carpool": "Mitfahren",
+    "journey": "Spielerweg",
+    "familyBilling": "Geteilte Rechnungen"
   },
   "shell": {
     "openMenu": "Menü öffnen",
@@ -3506,8 +3511,12 @@
         "messages": "Nachrichten",
         "alerts": "Meldungen",
         "leads": "Neue Kontakte",
-        "announcements": "Vereinsmitteilungen"
-      }
+        "announcements": "Vereinsmitteilungen",
+        "events": "Absagen und Änderungen",
+        "payments": "Fällige oder fehlgeschlagene Zahlungen"
+      },
+      "push": "Push",
+      "pushHint": "Push-Mitteilungen erreichen die Geräte, auf denen Sie sie eingeschaltet haben."
     },
     "alerts": {
       "pageTitle": "Meldungen",
@@ -6292,6 +6301,451 @@
         "subject": "Unfallbericht für {child}",
         "intro": "Der Verein hat am {date} einen Unfallbericht für {child} erfasst. Du kannst ihn in der App lesen.",
         "cta": "Bericht lesen"
+      }
+    }
+  },
+  "family": {
+    "orgSwitcher": {
+      "label": "Verein wechseln"
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "forbidden": "Dazu fehlt Ihnen die Berechtigung.",
+      "invalid": "Bitte prüfen Sie Ihre Angaben.",
+      "noFamily": "In diesem Verein ist keine Familie mit Ihrem Konto verknüpft.",
+      "notOnRoster": "Nur Familien von Spielern im Aufgebot dieses Termins können die Mitfahrbörse nutzen.",
+      "selfInvite": "Sie können sich nicht selbst einladen.",
+      "alreadyGuardian": "Diese Person ist bereits Erziehungsberechtigte der Familie.",
+      "invitePending": "Für diese E-Mail-Adresse ist bereits eine Einladung offen.",
+      "cannotPay": "Ihre Berechtigungen als erziehungsberechtigte Person umfassen keine Zahlungen für diese Familie.",
+      "exportFailed": "Der Export konnte nicht erstellt werden. Bitte später erneut versuchen.",
+      "confirmRequired": "Bitte bestätigen Sie, dass Sie verstehen, was gelöscht wird.",
+      "erasurePending": "Ein Löschantrag liegt dem Verein bereits vor.",
+      "consentRequired": "Für die Veröffentlichung ist Ihre ausdrückliche Einwilligung nötig.",
+      "pushNotConfigured": "Push-Mitteilungen sind für diesen Verein noch nicht verfügbar.",
+      "pushNoDevice": "Noch kein Gerät für Push-Mitteilungen registriert.",
+      "NO_MEMBERSHIP": "Sie sind nicht Mitglied dieses Vereins.",
+      "NOT_FOUND": "Nicht gefunden oder nicht in diesem Verein.",
+      "NOT_ALLOWED": "Nur die hauptverantwortliche Person oder der Verein kann dies tun.",
+      "NOT_A_GUARDIAN": "Diese Person gehört nicht zu den Erziehungsberechtigten der Familie.",
+      "CANNOT_REMOVE_PRIMARY": "Die hauptverantwortliche Person kann nicht entfernt werden. Bitten Sie den Verein, dies zuerst zu ändern.",
+      "SHARES_MUST_TOTAL_100": "Die Anteile müssen zusammen 100 % ergeben.",
+      "SPLIT_NEEDS_TWO_PAYERS": "Eine Aufteilung braucht mindestens zwei zahlende Personen.",
+      "SHARE_NOT_A_PAYER": "Nur zahlungsberechtigte Personen können einen Anteil übernehmen.",
+      "INVALID_SHARES": "Jeder Anteil muss zwischen 0 und 100 % liegen.",
+      "ALREADY_SPLIT": "Diese Rechnung ist bereits aufgeteilt.",
+      "INVOICE_NOT_OPEN": "Nur offene, unbezahlte Rechnungen können aufgeteilt werden.",
+      "INVOICE_NOT_SPLITTABLE": "Rechnungen mit Gut- oder Lastschriften können nicht aufgeteilt werden.",
+      "FAMILY_NOT_SPLIT": "Diese Familie zahlt über eine einzige Person.",
+      "INVOICE_LINKED": "Diese Rechnung ist mit einer Zahlung, einem Plan oder einer Bestellung verknüpft und bleibt unverändert.",
+      "SAME_FAMILY": "Eine Anfrage kann nicht mit dem Angebot der eigenen Familie verbunden werden.",
+      "NOT_OPEN": "Dieses Angebot bzw. diese Anfrage ist nicht mehr offen.",
+      "EVENT_CLOSED": "Dieser Termin ist vorbei oder abgesagt.",
+      "NOT_ENOUGH_SEATS": "Nicht genügend freie Plätze in diesem Auto.",
+      "GUARDIAN_CONSENT_REQUIRED": "Nur eine erziehungsberechtigte Person des Spielers kann dieses Profil veröffentlichen.",
+      "INVALID_EXPIRY": "Wählen Sie eine Gültigkeit zwischen 1 Tag und 1 Jahr.",
+      "NO_FIELDS": "Wählen Sie mindestens eine Angabe aus.",
+      "CROSS_ORG_REFERENCE": "Diese Auswahl gehört zu einem anderen Verein."
+    },
+    "messages": {
+      "consentGiven": "Einwilligung gespeichert.",
+      "consentWithdrawn": "Einwilligung widerrufen.",
+      "correctionSent": "Ihr Berichtigungsantrag wurde an den Verein gesendet.",
+      "deleted": "Gelöscht.",
+      "erasureSent": "Ihr Löschantrag wurde gesendet. Der Verein bestätigt, bevor etwas gelöscht wird.",
+      "exportReady": "Ihr Export ist bereit.",
+      "guardianRemoved": "Person entfernt.",
+      "inviteRevoked": "Einladung zurückgezogen.",
+      "inviteSent": "Einladung gesendet.",
+      "invoicesSplit": "Offene Rechnungen wurden aufgeteilt.",
+      "matchCancelled": "Mitfahrt abgesagt.",
+      "matched": "Mitfahrt vereinbart. Ein privates Gespräch wurde eröffnet.",
+      "offerPosted": "Ihr Angebot ist auf der Börse.",
+      "permissionsSaved": "Berechtigungen gespeichert.",
+      "placementSaved": "Ziel gespeichert.",
+      "postWithdrawn": "Zurückgezogen.",
+      "pushOff": "Push-Mitteilungen sind auf diesem Gerät ausgeschaltet.",
+      "pushOn": "Push-Mitteilungen sind auf diesem Gerät eingeschaltet.",
+      "pushTestSent": "Testmitteilung gesendet.",
+      "requestPosted": "Ihre Anfrage ist auf der Börse.",
+      "reviewSaved": "Rückblick gespeichert.",
+      "scoutPublished": "Profil veröffentlicht. Kopieren Sie den Link jetzt: Er wird nur einmal angezeigt.",
+      "scoutRevoked": "Profil zurückgezogen. Der Link funktioniert nicht mehr.",
+      "splitSaved": "Rechnungsaufteilung gespeichert."
+    },
+    "relations": {
+      "mother": "Mutter",
+      "father": "Vater",
+      "guardian": "Vormund",
+      "partner": "Lebenspartner",
+      "grandparent": "Grosselternteil",
+      "other": "Andere"
+    },
+    "guardians": {
+      "title": "Erziehungsberechtigte · {family}",
+      "children": "Kinder: {names}",
+      "primary": "Hauptperson",
+      "you": "Sie",
+      "leave": "Familie verlassen",
+      "leaveConfirm": "Familie verlassen? Sie verlieren den Zugriff auf die Daten der Kinder.",
+      "remove": "Entfernen",
+      "removeConfirm": "{name} aus der Familie entfernen?",
+      "onlyPrimary": "Nur die Hauptperson kann Berechtigungen ändern und weitere Personen einladen."
+    },
+    "permissions": {
+      "canPay": "Darf Rechnungen bezahlen",
+      "canSeeMedical": "Darf medizinische Angaben sehen",
+      "receivesEmails": "Erhält E-Mails des Vereins"
+    },
+    "invite": {
+      "title": "Zweite erziehungsberechtigte Person einladen",
+      "email": "E-Mail-Adresse",
+      "relation": "Beziehung zu den Kindern",
+      "permissions": "Berechtigungen",
+      "hint": "Die Person erhält ein eigenes Login und sieht dieselben Kinder. Die Berechtigungen können Sie jederzeit ändern.",
+      "send": "Einladung senden",
+      "pending": "Offene Einladungen",
+      "revoke": "Zurückziehen"
+    },
+    "split": {
+      "title": "Wer bezahlt",
+      "intro": "Bei einer Aufteilung wird jede Familienrechnung in eine Rechnung pro zahlende Person aufgeteilt, jeweils mit eigenem QR-Einzahlungsschein und Zahlungslink. Mahnungen gehen an die zuständige Person.",
+      "single": "Eine zahlende Person (keine Aufteilung)",
+      "split": "Zwischen Erziehungsberechtigten aufteilen",
+      "shareOf": "Anteil {name} (%)",
+      "sharePct": "{pct} % der Rechnungen",
+      "even": "Gleichmässig aufteilen",
+      "example": "Beispiel: {amount} wird zu {parts}",
+      "hint": "Gilt für neue Rechnungen. Bereits bezahlte, angepasste oder in Raten laufende Rechnungen bleiben unverändert.",
+      "needTwo": "Für eine Aufteilung braucht es zwei zahlungsberechtigte Personen. Laden Sie zuerst eine zweite Person ein.",
+      "current": "Rechnungen werden aufgeteilt: {shares}",
+      "singleCurrent": "Rechnungen gehen an eine zahlende Person.",
+      "problem": {
+        "TOTAL": "Die Anteile müssen zusammen 100 % ergeben.",
+        "TWO_PAYERS": "Mindestens zwei Personen brauchen einen Anteil.",
+        "RANGE": "Jeder Anteil muss zwischen 0 und 100 % liegen.",
+        "DUPLICATE": "Jede Person kann nur einen Anteil haben."
+      }
+    },
+    "email": {
+      "guardianAdded": {
+        "subject": "Sie wurden bei {club} als erziehungsberechtigte Person hinzugefügt",
+        "intro": "{name} hat Sie bei {club} als erziehungsberechtigte Person der Familie hinzugefügt. Melden Sie sich mit Ihrem bestehenden Konto an, um Kinder, Termine und Rechnungen zu sehen.",
+        "cta": "App öffnen"
+      },
+      "footer": "Sie erhalten diese E-Mail, weil eine erziehungsberechtigte Person Ihrer Familie Sie hinzugefügt hat."
+    },
+    "privacy": {
+      "export": {
+        "title": "Daten meiner Familie herunterladen",
+        "intro": "Eine lesbare Übersicht und eine maschinenlesbare Datei mit allem, was der Verein über Sie und Ihre Kinder speichert und Sie einsehen dürfen.",
+        "button": "Download vorbereiten",
+        "html": "Lesbare Übersicht (HTML)",
+        "json": "Datendatei (JSON)",
+        "expires": "Die Links sind privat und funktionieren bis {time}.",
+        "docTitle": "Daten meiner Familie",
+        "docIntro": "Diese Übersicht zeigt die Daten, die der Verein über Sie und Ihre Kinder speichert. Die JSON-Datei enthält dieselben Daten vollständig.",
+        "generated": "Erstellt",
+        "empty": "Nichts gespeichert.",
+        "sections": {
+          "profile": "Mein Profil",
+          "families": "Familie",
+          "guardians": "Erziehungsberechtigte und Berechtigungen",
+          "children": "Kinder",
+          "medical": "Medizinische Angaben",
+          "registrations": "Anmeldungen",
+          "invoices": "Rechnungen",
+          "consents": "Unterschriebene Einwilligungen",
+          "consentHistory": "Verlauf der Einwilligungen",
+          "documents": "Dokumente",
+          "attendance": "Anwesenheit",
+          "bookings": "Trainingsbuchungen",
+          "seasonReviews": "Saisonrückblicke",
+          "placements": "Platzierungsziele",
+          "carpoolOffers": "Meine Mitfahrangebote",
+          "carpoolRequests": "Meine Mitfahranfragen",
+          "notificationPreferences": "Benachrichtigungseinstellungen",
+          "devices": "Geräte für Push-Mitteilungen",
+          "privacyRequests": "Datenschutzanfragen"
+        }
+      },
+      "consents": {
+        "title": "Einwilligungen",
+        "media": "Fotos und Videos",
+        "mediaHint": "Dem Verein erlauben, Fotos und Videos zu veröffentlichen, auf denen Ihr Kind erkennbar ist (Website, soziale Medien, Druck).",
+        "mediaFor": "Foto- und Videoeinwilligung für {name}",
+        "marketing": "Vereinsnews und Angebote",
+        "marketingHint": "Newsletter, Lagerangebote und Neuigkeiten zur Mittelbeschaffung per E-Mail erhalten.",
+        "notDecided": "Noch nicht entschieden",
+        "givenOn": "Erteilt am {date}",
+        "withdrawnOn": "Widerrufen am {date}",
+        "history": "Verlauf",
+        "given": "erteilt",
+        "withdrawn": "widerrufen",
+        "kinds": {
+          "media": "Fotos und Videos",
+          "marketing": "Vereinsnews",
+          "scout_profile": "Scouting-Profil"
+        }
+      },
+      "correction": {
+        "title": "Berichtigung beantragen",
+        "about": "Betrifft",
+        "aboutFamily": "Unsere Familie",
+        "details": "Was ist falsch und wie sollte es lauten?",
+        "hint": "Bitte hier keine medizinischen Angaben machen; der Verein meldet sich bei Bedarf.",
+        "send": "Antrag senden"
+      },
+      "erasure": {
+        "title": "Löschung unserer Daten beantragen",
+        "intro": "Der Verein prüft den Antrag und löscht oder anonymisiert dann die Personendaten Ihrer Familie, einschliesslich der Daten, Dokumente und Fotos der Kinder.",
+        "retention": "Rechnungen und Zahlungen werden während der gesetzlichen Aufbewahrungsfrist (Buchhaltung) ohne weitere Personendaten aufbewahrt.",
+        "reason": "Grund (optional)",
+        "confirm": "Mir ist bewusst, dass dies die Daten unserer Familie löscht und nicht rückgängig gemacht werden kann.",
+        "send": "Löschung beantragen",
+        "pending": "Löschantrag beim Verein hängig"
+      },
+      "requests": {
+        "title": "Meine Datenschutzanfragen",
+        "due": "Antwort fällig bis {date}",
+        "types": {
+          "access": "Auskunft",
+          "rectification": "Berichtigung",
+          "erasure": "Löschung",
+          "portability": "Datenherausgabe",
+          "restriction": "Einschränkung",
+          "objection": "Widerspruch",
+          "withdraw_consent": "Widerruf der Einwilligung"
+        },
+        "status": {
+          "received": "Eingegangen",
+          "verifying": "In Prüfung",
+          "in_progress": "In Bearbeitung",
+          "extended": "Verlängert",
+          "completed": "Erledigt",
+          "rejected": "Abgelehnt",
+          "withdrawn": "Zurückgezogen"
+        }
+      }
+    },
+    "push": {
+      "optIn": {
+        "title": "Push-Mitteilungen auf diesem Gerät",
+        "intro": "Erhalten Sie dringende Hinweise, Absagen und Änderungen, neue Nachrichten und Zahlungshinweise sofort, auch wenn die App geschlossen ist.",
+        "enable": "Einschalten",
+        "disable": "Auf diesem Gerät ausschalten",
+        "test": "Test senden",
+        "denied": "Mitteilungen wurden nicht erlaubt. Sie können dies in den Browser-Einstellungen ändern.",
+        "blocked": "Mitteilungen sind für diese Seite in den Browser-Einstellungen blockiert.",
+        "unsupported": "Dieser Browser unterstützt keine Push-Mitteilungen.",
+        "iosInstall": "Auf iPhone und iPad (ab iOS 16.4) funktionieren Push-Mitteilungen nur in der installierten App: Tippen Sie auf Teilen, dann „Zum Home-Bildschirm“, öffnen Sie die App vom Home-Bildschirm und schalten Sie sie dort ein.",
+        "platforms": "Funktioniert auf Android und in Desktop-Browsern. Unten wählen Sie, welche Themen eine Push-Mitteilung senden dürfen; während Ihrer Ruhezeiten kommt nichts ausser dringenden Hinweisen."
+      },
+      "test": {
+        "title": "Mitteilungen funktionieren",
+        "body": "Sie erhalten Vereinsmitteilungen auf diesem Gerät."
+      },
+      "event": {
+        "cancelled": {
+          "title": "Abgesagt: {name}",
+          "body": "Der Termin vom {date} ist abgesagt."
+        },
+        "postponed": {
+          "title": "Verschoben: {name}",
+          "body": "Der für {date} geplante Termin ist verschoben. Ein neues Datum folgt."
+        },
+        "changed": {
+          "title": "Geändert: {name}",
+          "body": "Neue Zeit oder neuer Ort: {date}. Bitte Terminplan prüfen."
+        },
+        "types": {
+          "training": "Training",
+          "game": "Spiel",
+          "tournament": "Turnier",
+          "meeting": "Sitzung",
+          "other": "Termin"
+        }
+      },
+      "carpool": {
+        "matched": {
+          "title": "Mitfahrt vereinbart",
+          "body": "{event}, {date}. Öffnen Sie das Gespräch, um die Details abzusprechen."
+        },
+        "cancelled": {
+          "title": "Mitfahrt abgesagt",
+          "body": "Ihre Mitfahrt wurde abgesagt. Auf der Börse finden Sie andere Möglichkeiten."
+        }
+      },
+      "split": {
+        "title": "Ihr Anteil: Rechnung {number}",
+        "body": "Eine Familienrechnung wurde aufgeteilt. Dieser Teil ist von Ihnen zu bezahlen."
+      },
+      "privacy": {
+        "correction": "Neuer Berichtigungsantrag einer Familie",
+        "erasure": "Neuer Löschantrag einer Familie"
+      }
+    },
+    "carpool": {
+      "fromArea": "Abfahrt ab (Gebiet, keine Adresse)",
+      "seats": "Freie Plätze",
+      "seatsNeeded": "Benötigte Plätze",
+      "departsAt": "Abfahrt",
+      "note": "Notiz (optional)",
+      "returnTrip": "Auch Rückfahrt",
+      "privacyHint": "Nur Familien dieses Aufgebots sehen die Börse. Details sprechen Sie im privaten Gespräch ab; Telefonnummern und E-Mail-Adressen werden nie angezeigt.",
+      "offerSeats": "Plätze anbieten",
+      "requestSeat": "Platz anfragen",
+      "offers": "Autos",
+      "requests": "Suchen einen Platz",
+      "noOffers": "Noch keine Autos angeboten.",
+      "noRequests": "Niemand sucht einen Platz.",
+      "someone": "Ein Elternteil",
+      "seatsLeft": "{count, plural, =0 {Voll} one {# von {total} Plätzen frei} other {# von {total} Plätzen frei}}",
+      "fromAt": "Ab {from} · Abfahrt {time}",
+      "needsFrom": "{seats, plural, one {# Platz} other {# Plätze}} ab {from}",
+      "join": "Mitfahren ({seats})",
+      "accept": "Mitnehmen",
+      "withdraw": "Zurückziehen",
+      "match": "Verbinden",
+      "suggestions": "Vorgeschlagene Paare",
+      "suggestion": "{driver} könnte {passenger} ({seats}) ab {from} mitnehmen",
+      "matches": "Vereinbarte Mitfahrten",
+      "matchLine": "{passenger} fährt mit {driver} ({seats})",
+      "openThread": "Gespräch öffnen",
+      "cancelMatch": "Mitfahrt absagen",
+      "requestStatus": {
+        "open": "Sucht",
+        "matched": "Hat Mitfahrt"
+      },
+      "away": "Auswärts",
+      "counts": "{offers, plural, =0 {Keine Autos} one {# Auto} other {# Autos}} · {requests, plural, =0 {niemand sucht} one {# sucht} other {# suchen}}",
+      "cancelledEvent": "Dieser Termin ist abgesagt."
+    },
+    "journey": {
+      "history": "Saison für Saison",
+      "addReview": "Saisonrückblick hinzufügen",
+      "season": "Saison",
+      "otherPeriod": "Anderer Zeitraum",
+      "periodLabel": "Titel",
+      "coachComment": "Kommentar der Trainerin / des Trainers",
+      "awards": "Auszeichnungen",
+      "awardsHint": "Mehrere Auszeichnungen mit Kommas trennen.",
+      "sharedWithFamily": "Für die Familie sichtbar",
+      "notShared": "Nicht mit der Familie geteilt",
+      "noHistory": "Noch keine Saisondaten.",
+      "games": "Spiele",
+      "record": "Teambilanz",
+      "recordValue": "{w} S · {l} N · {d} U",
+      "attendance": "Anwesenheit",
+      "evaluationTrend": "Entwicklung der Bewertungen"
+    },
+    "placement": {
+      "title": "Platzierungs- und Stipendien-Tracker",
+      "add": "Ziel hinzufügen",
+      "pipeline": "Interessiert → kontaktiert → Probetraining → Angebot → platziert",
+      "none": "Noch keine Ziele.",
+      "target": "Schule, Verein oder College",
+      "kind": "Art",
+      "status": "Status",
+      "deadline": "Frist",
+      "deadlineOn": "Frist {date}",
+      "country": "Land",
+      "level": "Niveau",
+      "nextStep": "Nächster Schritt",
+      "nextStepValue": "Als Nächstes: {step}",
+      "notes": "Notizen",
+      "documents": "Dokumente",
+      "documentsValue": "Dokumente: {names}",
+      "kinds": {
+        "school": "Schule",
+        "club": "Verein",
+        "college": "College",
+        "academy": "Akademie",
+        "other": "Andere"
+      },
+      "statuses": {
+        "interested": "Interessiert",
+        "contacted": "Kontaktiert",
+        "trial": "Probetraining",
+        "offer": "Angebot",
+        "placed": "Platziert",
+        "declined": "Abgelehnt",
+        "withdrawn": "Zurückgezogen"
+      }
+    },
+    "scout": {
+      "title": "Profil für Scouts",
+      "intro": "Eine Seite, die Sie mit Scouts, Schulen oder Vereinen teilen können. Sie ist standardmässig aus, zeigt nur, was Sie wählen, läuft ab und kann jederzeit zurückgezogen werden. Medizinische Daten werden nie gezeigt.",
+      "off": "Nicht veröffentlicht",
+      "live": "Veröffentlicht bis {date} · {views, plural, =0 {noch nicht angesehen} one {# Aufruf} other {# Aufrufe}}",
+      "revoked": "Zurückgezogen",
+      "expired": "Abgelaufen",
+      "fields": "Anzeigen",
+      "neverMedical": "Medizinische Angaben, Kontaktdaten und Familiendaten werden nie gezeigt.",
+      "validity": "Link gültig für",
+      "days": "{count, plural, one {# Tag} other {# Tage}}",
+      "headline": "Kurze Überschrift (optional)",
+      "consent": "Als erziehungsberechtigte Person willige ich ein, die ausgewählten Angaben zu meinem Kind über diesen Link zu veröffentlichen, bis er abläuft oder ich ihn zurückziehe.",
+      "publish": "Veröffentlichen und Link erstellen",
+      "republish": "Aktualisieren und neuen Link erstellen",
+      "revoke": "Profil zurückziehen",
+      "linkOnce": "Kopieren Sie diesen Link jetzt. Aus Sicherheitsgründen wird er nur einmal angezeigt; erneutes Veröffentlichen erstellt einen neuen Link, der alte funktioniert dann nicht mehr.",
+      "copy": "Link kopieren",
+      "copied": "Kopiert",
+      "guardianOnly": "Nur die Erziehungsberechtigten können dieses Profil veröffentlichen. Mitarbeitende können es zurückziehen.",
+      "publicTitle": "Spielerprofil",
+      "fieldNames": {
+        "full_name": "Ganzer Nachname (sonst nur Initiale)",
+        "birth_year": "Geburtsjahr",
+        "position": "Position",
+        "dominant_hand": "Starke Hand",
+        "teams": "Teams",
+        "stats": "Spielstatistiken",
+        "attendance": "Anwesenheitsquote",
+        "evaluation_trend": "Entwicklung der Bewertungen",
+        "coach_comments": "Kommentare der Trainer",
+        "awards": "Auszeichnungen",
+        "placements": "Angebote und Platzierungen"
+      },
+      "view": {
+        "born": "Jahrgang {year}",
+        "hand": "Starke Hand: {hand}",
+        "games": "{count, plural, =0 {Keine Spiele erfasst} one {# Spiel erfasst} other {# Spiele erfasst}}",
+        "attendance": "Anwesenheit: {pct}",
+        "seasons": "Saisons",
+        "footer": "Von der Familie des Spielers mit Einwilligung geteilt. Diese Seite funktioniert bis {date} oder bis sie zurückgezogen wird."
+      }
+    },
+    "pages": {
+      "family": {
+        "title": "Familie",
+        "description": "Erziehungsberechtigte, ihre Berechtigungen und wer bezahlt.",
+        "empty": "In diesem Verein ist keine Familie mit Ihrem Konto verknüpft."
+      },
+      "privacy": {
+        "title": "Datenschutz und Daten",
+        "description": "Daten herunterladen, Einwilligungen verwalten, Berichtigung oder Löschung beantragen und Benachrichtigungen wählen.",
+        "notifications": "Benachrichtigungen"
+      },
+      "carpool": {
+        "title": "Mitfahrgelegenheiten",
+        "description": "Fahrten zu Auswärtsspielen und Anlässen mit anderen Familien des Aufgebots teilen.",
+        "staffDescription": "Übersicht über Mitfahrangebote und -anfragen für kommende Termine.",
+        "empty": "Keine kommenden Termine mit Mitfahrbörse."
+      },
+      "journey": {
+        "title": "Spielerweg",
+        "description": "Saisonverlauf, Trainerrückblicke, Platzierungen und Scouting-Profil.",
+        "detailDescription": "Teams, Resultate, Anwesenheit, Bewertungen und Trainerkommentare Saison für Saison.",
+        "empty": "Keine Spieler vorhanden."
+      },
+      "billing": {
+        "title": "Geteilte Rechnungen",
+        "description": "Familien, deren Rechnungen auf mehrere Personen aufgeteilt werden. Neue Rechnungen werden automatisch aufgeteilt; offene können Sie hier sofort aufteilen.",
+        "empty": "Keine Familie nutzt eine Rechnungsaufteilung.",
+        "families": "Familien mit Aufteilung",
+        "openUnsplit": "{count, plural, =0 {Alle offenen Rechnungen aufgeteilt} one {# offene Rechnung noch nicht aufgeteilt} other {# offene Rechnungen noch nicht aufgeteilt}}",
+        "splitNow": "Jetzt aufteilen"
       }
     }
   }

@@ -8,31 +8,34 @@ import { z } from "zod";
  *   2. the user's saved switch for that category
  *   3. in-app for messages is always on (the message board is the record)
  *   4. email off when the club disabled message emails (messages category)
- *   5. email suppressed during quiet hours (the user's, else the club's),
- *      except for urgent alerts; the in-app notification still appears
+ *   5. email and push suppressed during quiet hours (the user's, else the
+ *      club's), except for urgent alerts; the in-app notification still appears
+ *   6. push only reaches devices the user registered (push_subscriptions)
  */
 
-export const NOTIFICATION_CATEGORIES = ["messages", "alerts", "leads", "announcements"] as const;
+export const NOTIFICATION_CATEGORIES = ["messages", "alerts", "leads", "announcements", "events", "payments"] as const;
 export type NotificationCategory = (typeof NOTIFICATION_CATEGORIES)[number];
 
-export type ChannelSwitch = { in_app?: boolean; email?: boolean };
+export type ChannelSwitch = { in_app?: boolean; email?: boolean; push?: boolean };
 export type ChannelPrefs = Partial<Record<NotificationCategory, ChannelSwitch>>;
 
 /** Categories whose in-app channel cannot be turned off. */
 export const IN_APP_LOCKED: readonly NotificationCategory[] = ["messages"];
 
-export const DEFAULT_PREFS: Record<NotificationCategory, { inApp: boolean; email: boolean }> = {
-  messages: { inApp: true, email: true },
-  alerts: { inApp: true, email: true },
-  leads: { inApp: true, email: true },
-  announcements: { inApp: true, email: true },
+export const DEFAULT_PREFS: Record<NotificationCategory, { inApp: boolean; email: boolean; push: boolean }> = {
+  messages: { inApp: true, email: true, push: true },
+  alerts: { inApp: true, email: true, push: true },
+  leads: { inApp: true, email: true, push: false },
+  announcements: { inApp: true, email: true, push: false },
+  events: { inApp: true, email: true, push: true },
+  payments: { inApp: true, email: true, push: true },
 };
 
 const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
 export const preferencesSchema = z
   .object({
-    channels: z.record(z.enum(NOTIFICATION_CATEGORIES), z.object({ in_app: z.boolean(), email: z.boolean() })),
+    channels: z.record(z.enum(NOTIFICATION_CATEGORIES), z.object({ in_app: z.boolean(), email: z.boolean(), push: z.boolean().optional() })),
     quietStart: hhmm.nullable(),
     quietEnd: hhmm.nullable(),
   })
@@ -52,6 +55,7 @@ export function parseChannels(raw: unknown): ChannelPrefs {
     const r = v as Record<string, unknown>;
     if (typeof r.in_app === "boolean") s.in_app = r.in_app;
     if (typeof r.email === "boolean") s.email = r.email;
+    if (typeof r.push === "boolean") s.push = r.push;
     out[c] = s;
   }
   return out;
@@ -101,7 +105,8 @@ export type DeliveryInput = {
   urgent?: boolean;
 };
 
-export type Delivery = { inApp: boolean; email: boolean; quietHours: boolean };
+/** push: Web Push to the user's registered devices (only when they opted in on a device). */
+export type Delivery = { inApp: boolean; email: boolean; push: boolean; quietHours: boolean };
 
 export function resolveDelivery(d: DeliveryInput): Delivery {
   const def = DEFAULT_PREFS[d.category];
@@ -112,18 +117,23 @@ export function resolveDelivery(d: DeliveryInput): Delivery {
   if (d.category === "messages" && d.orgEmailEnabled === false) email = false;
   const window = d.quiet?.start && d.quiet?.end ? d.quiet : d.orgQuiet;
   const quietHours = !d.urgent && !!window && inQuietHours(d.now, d.timeZone, window.start, window.end);
-  if (quietHours) email = false;
-  return { inApp, email, quietHours };
+  let push = saved.push ?? def.push;
+  if (quietHours) {
+    email = false;
+    push = false;
+  }
+  return { inApp, email, push, quietHours };
 }
 
 /** Effective switches for the preferences form (defaults filled in, locks applied). */
-export function effectiveChannels(prefs: ChannelPrefs | null | undefined): Record<NotificationCategory, { in_app: boolean; email: boolean }> {
-  const out = {} as Record<NotificationCategory, { in_app: boolean; email: boolean }>;
+export function effectiveChannels(prefs: ChannelPrefs | null | undefined): Record<NotificationCategory, { in_app: boolean; email: boolean; push: boolean }> {
+  const out = {} as Record<NotificationCategory, { in_app: boolean; email: boolean; push: boolean }>;
   for (const c of NOTIFICATION_CATEGORIES) {
     const s = prefs?.[c] ?? {};
     out[c] = {
       in_app: IN_APP_LOCKED.includes(c) ? true : s.in_app ?? DEFAULT_PREFS[c].inApp,
       email: s.email ?? DEFAULT_PREFS[c].email,
+      push: s.push ?? DEFAULT_PREFS[c].push,
     };
   }
   return out;

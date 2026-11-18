@@ -174,7 +174,12 @@
     "staffCompliance": "Attestati del personale",
     "js": "G+S",
     "incidents": "Infortuni e incidenti",
-    "myCertificates": "I miei attestati"
+    "myCertificates": "I miei attestati",
+    "family": "Famiglia",
+    "privacy": "Privacy e dati",
+    "carpool": "Car pooling",
+    "journey": "Percorso",
+    "familyBilling": "Fatture suddivise"
   },
   "shell": {
     "openMenu": "Apri menu",
@@ -3506,8 +3511,12 @@
         "messages": "Messaggi",
         "alerts": "Avvisi",
         "leads": "Nuovi contatti",
-        "announcements": "Annunci del club"
-      }
+        "announcements": "Annunci del club",
+        "events": "Annullamenti e modifiche",
+        "payments": "Pagamenti in scadenza o non riusciti"
+      },
+      "push": "Push",
+      "pushHint": "Le notifiche push arrivano sui dispositivi su cui le hai attivate."
     },
     "alerts": {
       "pageTitle": "Avvisi",
@@ -6292,6 +6301,451 @@
         "subject": "Rapporto d'incidente per {child}",
         "intro": "Il club ha registrato un rapporto d'incidente per {child} il {date}. Puoi leggerlo nell'app.",
         "cta": "Leggi il rapporto"
+      }
+    }
+  },
+  "family": {
+    "orgSwitcher": {
+      "label": "Cambia club"
+    },
+    "errors": {
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "forbidden": "Non hai l'autorizzazione per farlo.",
+      "invalid": "Controlla i dati inseriti.",
+      "noFamily": "Nessuna famiglia è collegata al tuo account in questo club.",
+      "notOnRoster": "Solo le famiglie dei giocatori convocati per questo evento possono usare il car pooling.",
+      "selfInvite": "Non puoi invitare te stesso.",
+      "alreadyGuardian": "Questa persona è già un tutore della famiglia.",
+      "invitePending": "Un invito per questo indirizzo e-mail è già in sospeso.",
+      "cannotPay": "I tuoi permessi non includono i pagamenti per questa famiglia.",
+      "exportFailed": "Non è stato possibile creare l'esportazione. Riprova più tardi.",
+      "confirmRequired": "Conferma di aver compreso cosa verrà eliminato.",
+      "erasurePending": "Una richiesta di cancellazione è già in attesa presso il club.",
+      "consentRequired": "La pubblicazione richiede il tuo consenso esplicito.",
+      "pushNotConfigured": "Le notifiche push non sono ancora disponibili per questo club.",
+      "pushNoDevice": "Nessun dispositivo è ancora registrato per le notifiche push.",
+      "NO_MEMBERSHIP": "Non sei membro di quel club.",
+      "NOT_FOUND": "Non trovato o non appartiene a questo club.",
+      "NOT_ALLOWED": "Solo il tutore principale o il club può farlo.",
+      "NOT_A_GUARDIAN": "Questa persona non è un tutore della famiglia.",
+      "CANNOT_REMOVE_PRIMARY": "Il tutore principale non può essere rimosso. Chiedi prima al club di cambiarlo.",
+      "SHARES_MUST_TOTAL_100": "Le quote devono sommare 100%.",
+      "SPLIT_NEEDS_TWO_PAYERS": "Una suddivisione richiede almeno due tutori paganti.",
+      "SHARE_NOT_A_PAYER": "Solo i tutori autorizzati a pagare possono avere una quota.",
+      "INVALID_SHARES": "Ogni quota deve essere tra 0 e 100%.",
+      "ALREADY_SPLIT": "Questa fattura è già suddivisa.",
+      "INVOICE_NOT_OPEN": "Solo le fatture aperte e non pagate possono essere suddivise.",
+      "INVOICE_NOT_SPLITTABLE": "Le fatture con note di credito o di debito non possono essere suddivise.",
+      "FAMILY_NOT_SPLIT": "Questa famiglia paga con un solo pagatore.",
+      "INVOICE_LINKED": "Questa fattura è collegata a un pagamento, un piano o un ordine e resta invariata.",
+      "SAME_FAMILY": "Non puoi abbinare una richiesta all'offerta della tua famiglia.",
+      "NOT_OPEN": "Questa offerta o richiesta non è più aperta.",
+      "EVENT_CLOSED": "Questo evento è concluso o annullato.",
+      "NOT_ENOUGH_SEATS": "Non ci sono abbastanza posti liberi in quest'auto.",
+      "GUARDIAN_CONSENT_REQUIRED": "Solo un tutore del giocatore può pubblicare questo profilo.",
+      "INVALID_EXPIRY": "Scegli una validità tra 1 giorno e 1 anno.",
+      "NO_FIELDS": "Scegli almeno un elemento da mostrare.",
+      "CROSS_ORG_REFERENCE": "Questa selezione appartiene a un altro club."
+    },
+    "messages": {
+      "consentGiven": "Consenso registrato.",
+      "consentWithdrawn": "Consenso revocato.",
+      "correctionSent": "La tua richiesta di rettifica è stata inviata al club.",
+      "deleted": "Eliminato.",
+      "erasureSent": "La tua richiesta di cancellazione è stata inviata. Il club confermerà prima di eliminare qualcosa.",
+      "exportReady": "La tua esportazione è pronta.",
+      "guardianRemoved": "Tutore rimosso.",
+      "inviteRevoked": "Invito ritirato.",
+      "inviteSent": "Invito inviato.",
+      "invoicesSplit": "Le fatture aperte sono state suddivise.",
+      "matchCancelled": "Passaggio annullato.",
+      "matched": "Passaggio organizzato. È stata aperta una conversazione privata.",
+      "offerPosted": "La tua offerta è pubblicata.",
+      "permissionsSaved": "Permessi salvati.",
+      "placementSaved": "Obiettivo salvato.",
+      "postWithdrawn": "Ritirato.",
+      "pushOff": "Le notifiche push sono disattivate su questo dispositivo.",
+      "pushOn": "Le notifiche push sono attive su questo dispositivo.",
+      "pushTestSent": "Notifica di prova inviata.",
+      "requestPosted": "La tua richiesta è pubblicata.",
+      "reviewSaved": "Valutazione salvata.",
+      "scoutPublished": "Profilo pubblicato. Copia ora il link: viene mostrato una sola volta.",
+      "scoutRevoked": "Profilo ritirato. Il link non funziona più.",
+      "splitSaved": "Suddivisione della fatturazione salvata."
+    },
+    "relations": {
+      "mother": "Madre",
+      "father": "Padre",
+      "guardian": "Tutore",
+      "partner": "Compagno",
+      "grandparent": "Nonno/a",
+      "other": "Altro"
+    },
+    "guardians": {
+      "title": "Tutori · {family}",
+      "children": "Figli: {names}",
+      "primary": "Principale",
+      "you": "Tu",
+      "leave": "Lascia la famiglia",
+      "leaveConfirm": "Lasciare questa famiglia? Perderai l'accesso ai dati dei figli.",
+      "remove": "Rimuovi",
+      "removeConfirm": "Rimuovere {name} dalla famiglia?",
+      "onlyPrimary": "Solo il tutore principale può modificare i permessi e invitare altre persone."
+    },
+    "permissions": {
+      "canPay": "Può pagare le fatture",
+      "canSeeMedical": "Può vedere le informazioni mediche",
+      "receivesEmails": "Riceve le e-mail del club"
+    },
+    "invite": {
+      "title": "Invita un secondo tutore",
+      "email": "Indirizzo e-mail",
+      "relation": "Relazione con i figli",
+      "permissions": "Permessi",
+      "hint": "Riceve un proprio accesso e vede gli stessi figli. Puoi modificare i permessi in qualsiasi momento.",
+      "send": "Invia invito",
+      "pending": "Inviti in sospeso",
+      "revoke": "Ritira"
+    },
+    "split": {
+      "title": "Chi paga",
+      "intro": "Con una suddivisione, ogni fattura della famiglia diventa una fattura per tutore pagante, ciascuna con la propria QR-fattura e link di pagamento. I promemoria vanno al pagatore responsabile.",
+      "single": "Un solo pagatore (nessuna suddivisione)",
+      "split": "Suddividi tra i tutori",
+      "shareOf": "Quota di {name} (%)",
+      "sharePct": "{pct}% delle fatture",
+      "even": "Suddividi in parti uguali",
+      "example": "Esempio: {amount} diventa {parts}",
+      "hint": "Si applica alle nuove fatture. Le fatture già pagate, rettificate o rateizzate restano invariate.",
+      "needTwo": "Per una suddivisione servono due tutori autorizzati a pagare. Invita prima un secondo tutore.",
+      "current": "Le fatture sono suddivise: {shares}",
+      "singleCurrent": "Le fatture vanno a un solo pagatore.",
+      "problem": {
+        "TOTAL": "Le quote devono sommare 100%.",
+        "TWO_PAYERS": "Almeno due tutori devono avere una quota.",
+        "RANGE": "Ogni quota deve essere tra 0 e 100%.",
+        "DUPLICATE": "Ogni tutore può avere una sola quota."
+      }
+    },
+    "email": {
+      "guardianAdded": {
+        "subject": "Sei stato aggiunto come tutore presso {club}",
+        "intro": "{name} ti ha aggiunto come tutore della sua famiglia presso {club}. Accedi con il tuo account esistente per vedere i figli, il calendario e le fatture.",
+        "cta": "Apri l'app"
+      },
+      "footer": "Ricevi questa e-mail perché un tutore della tua famiglia ti ha aggiunto."
+    },
+    "privacy": {
+      "export": {
+        "title": "Scarica i dati della mia famiglia",
+        "intro": "Un riepilogo leggibile e un file elaborabile con tutto ciò che il club conserva su di te e sui tuoi figli e che puoi vedere.",
+        "button": "Prepara il download",
+        "html": "Riepilogo leggibile (HTML)",
+        "json": "File di dati (JSON)",
+        "expires": "I link sono privati e scadono alle {time}.",
+        "docTitle": "Dati della mia famiglia",
+        "docIntro": "Questo riepilogo elenca i dati che il club conserva su di te e sui tuoi figli. Il file JSON contiene gli stessi dati per intero.",
+        "generated": "Generato il",
+        "empty": "Nessun dato.",
+        "sections": {
+          "profile": "Il mio profilo",
+          "families": "Famiglia",
+          "guardians": "Tutori e permessi",
+          "children": "Figli",
+          "medical": "Informazioni mediche",
+          "registrations": "Iscrizioni",
+          "invoices": "Fatture",
+          "consents": "Consensi firmati",
+          "consentHistory": "Cronologia dei consensi",
+          "documents": "Documenti",
+          "attendance": "Presenze",
+          "bookings": "Prenotazioni di allenamento",
+          "seasonReviews": "Valutazioni di stagione",
+          "placements": "Obiettivi di collocamento",
+          "carpoolOffers": "Le mie offerte di passaggio",
+          "carpoolRequests": "Le mie richieste di passaggio",
+          "notificationPreferences": "Preferenze di notifica",
+          "devices": "Dispositivi per notifiche push",
+          "privacyRequests": "Richieste sulla privacy"
+        }
+      },
+      "consents": {
+        "title": "Consensi",
+        "media": "Foto e video",
+        "mediaHint": "Consenti al club di pubblicare foto e video in cui tuo figlio è riconoscibile (sito, social media, stampa).",
+        "mediaFor": "Consenso foto e video per {name}",
+        "marketing": "Novità e offerte del club",
+        "marketingHint": "Ricevere via e-mail newsletter, offerte di campi e novità sulle raccolte fondi.",
+        "notDecided": "Non ancora deciso",
+        "givenOn": "Dato il {date}",
+        "withdrawnOn": "Revocato il {date}",
+        "history": "Cronologia",
+        "given": "dato",
+        "withdrawn": "revocato",
+        "kinds": {
+          "media": "Foto e video",
+          "marketing": "Novità del club",
+          "scout_profile": "Profilo per osservatori"
+        }
+      },
+      "correction": {
+        "title": "Chiedi una rettifica",
+        "about": "Riguarda",
+        "aboutFamily": "La nostra famiglia",
+        "details": "Cosa è sbagliato e cosa dovrebbe esserci scritto?",
+        "hint": "Non inserire qui informazioni mediche; il club ti contatterà se necessario.",
+        "send": "Invia richiesta"
+      },
+      "erasure": {
+        "title": "Chiedi la cancellazione dei nostri dati",
+        "intro": "Il club esamina la richiesta e poi elimina o anonimizza i dati personali della tua famiglia, compresi dati, documenti e foto dei figli.",
+        "retention": "Fatture e pagamenti sono conservati per il periodo previsto dalla legge (contabilità), senza altri dati personali.",
+        "reason": "Motivo (facoltativo)",
+        "confirm": "Capisco che questo elimina i dati della nostra famiglia e non può essere annullato.",
+        "send": "Richiedi cancellazione",
+        "pending": "Richiesta di cancellazione in attesa presso il club"
+      },
+      "requests": {
+        "title": "Le mie richieste sulla privacy",
+        "due": "Risposta entro il {date}",
+        "types": {
+          "access": "Accesso",
+          "rectification": "Rettifica",
+          "erasure": "Cancellazione",
+          "portability": "Download dei dati",
+          "restriction": "Limitazione",
+          "objection": "Opposizione",
+          "withdraw_consent": "Revoca del consenso"
+        },
+        "status": {
+          "received": "Ricevuta",
+          "verifying": "In verifica",
+          "in_progress": "In corso",
+          "extended": "Prorogata",
+          "completed": "Completata",
+          "rejected": "Respinta",
+          "withdrawn": "Ritirata"
+        }
+      }
+    },
+    "push": {
+      "optIn": {
+        "title": "Notifiche push su questo dispositivo",
+        "intro": "Ricevi subito avvisi urgenti, annullamenti e modifiche, nuovi messaggi e avvisi di pagamento, anche ad app chiusa.",
+        "enable": "Attiva",
+        "disable": "Disattiva su questo dispositivo",
+        "test": "Invia una prova",
+        "denied": "Le notifiche non sono state consentite. Puoi cambiarlo nelle impostazioni del browser.",
+        "blocked": "Le notifiche sono bloccate per questo sito nelle impostazioni del browser.",
+        "unsupported": "Questo browser non supporta le notifiche push.",
+        "iosInstall": "Su iPhone e iPad (iOS 16.4 o successivo) le notifiche push funzionano solo nell'app installata: tocca Condividi, poi “Aggiungi alla schermata Home”, apri l'app dalla schermata Home e attivale lì.",
+        "platforms": "Funziona su Android e nei browser desktop. Scegli sotto quali argomenti possono inviare una notifica; durante le ore di silenzio arrivano solo gli avvisi urgenti."
+      },
+      "test": {
+        "title": "Le notifiche funzionano",
+        "body": "Riceverai gli aggiornamenti del club su questo dispositivo."
+      },
+      "event": {
+        "cancelled": {
+          "title": "Annullato: {name}",
+          "body": "L'evento del {date} è annullato."
+        },
+        "postponed": {
+          "title": "Rinviato: {name}",
+          "body": "L'evento previsto per il {date} è rinviato. Seguirà una nuova data."
+        },
+        "changed": {
+          "title": "Modificato: {name}",
+          "body": "Nuovo orario o luogo: {date}. Controlla il calendario."
+        },
+        "types": {
+          "training": "Allenamento",
+          "game": "Partita",
+          "tournament": "Torneo",
+          "meeting": "Riunione",
+          "other": "Evento"
+        }
+      },
+      "carpool": {
+        "matched": {
+          "title": "Passaggio organizzato",
+          "body": "{event}, {date}. Apri la conversazione per accordarvi sui dettagli."
+        },
+        "cancelled": {
+          "title": "Passaggio annullato",
+          "body": "Il tuo passaggio è stato annullato. La bacheca mostra altre opzioni."
+        }
+      },
+      "split": {
+        "title": "La tua quota: fattura {number}",
+        "body": "Una fattura della famiglia è stata suddivisa. Questa quota è a tuo carico."
+      },
+      "privacy": {
+        "correction": "Nuova richiesta di rettifica da una famiglia",
+        "erasure": "Nuova richiesta di cancellazione da una famiglia"
+      }
+    },
+    "carpool": {
+      "fromArea": "Partenza da (zona, senza indirizzo)",
+      "seats": "Posti liberi",
+      "seatsNeeded": "Posti necessari",
+      "departsAt": "Partenza",
+      "note": "Nota (facoltativa)",
+      "returnTrip": "Anche il ritorno",
+      "privacyHint": "Solo le famiglie convocate vedono la bacheca. Accordatevi nella conversazione privata; numeri ed e-mail non sono mai mostrati.",
+      "offerSeats": "Offri posti",
+      "requestSeat": "Chiedi un posto",
+      "offers": "Auto",
+      "requests": "Cercano un posto",
+      "noOffers": "Ancora nessuna auto offerta.",
+      "noRequests": "Nessuno cerca un posto.",
+      "someone": "Un genitore",
+      "seatsLeft": "{count, plural, =0 {Pieno} one {# posto libero su {total}} other {# posti liberi su {total}}}",
+      "fromAt": "Da {from} · partenza {time}",
+      "needsFrom": "{seats, plural, one {# posto} other {# posti}} da {from}",
+      "join": "Unisciti ({seats})",
+      "accept": "Portali",
+      "withdraw": "Ritira",
+      "match": "Abbina",
+      "suggestions": "Abbinamenti suggeriti",
+      "suggestion": "{driver} potrebbe portare {passenger} ({seats}) da {from}",
+      "matches": "Passaggi organizzati",
+      "matchLine": "{passenger} viaggia con {driver} ({seats})",
+      "openThread": "Apri conversazione",
+      "cancelMatch": "Annulla passaggio",
+      "requestStatus": {
+        "open": "Cerca",
+        "matched": "Ha un passaggio"
+      },
+      "away": "Trasferta",
+      "counts": "{offers, plural, =0 {Nessuna auto} one {# auto} other {# auto}} · {requests, plural, =0 {nessuno cerca} one {# cerca} other {# cercano}}",
+      "cancelledEvent": "Questo evento è annullato."
+    },
+    "journey": {
+      "history": "Stagione per stagione",
+      "addReview": "Aggiungi valutazione di fine stagione",
+      "season": "Stagione",
+      "otherPeriod": "Altro periodo",
+      "periodLabel": "Titolo",
+      "coachComment": "Commento dell'allenatore",
+      "awards": "Riconoscimenti",
+      "awardsHint": "Separa più riconoscimenti con virgole.",
+      "sharedWithFamily": "Visibile alla famiglia",
+      "notShared": "Non condiviso con la famiglia",
+      "noHistory": "Ancora nessuno storico di stagione.",
+      "games": "Partite",
+      "record": "Bilancio squadra",
+      "recordValue": "{w} V · {l} S · {d} P",
+      "attendance": "Presenza",
+      "evaluationTrend": "Andamento delle valutazioni"
+    },
+    "placement": {
+      "title": "Monitoraggio collocamenti e borse di studio",
+      "add": "Aggiungi obiettivo",
+      "pipeline": "Interessato → contattato → prova → offerta → collocato",
+      "none": "Ancora nessun obiettivo.",
+      "target": "Scuola, club o college",
+      "kind": "Tipo",
+      "status": "Stato",
+      "deadline": "Scadenza",
+      "deadlineOn": "Scadenza {date}",
+      "country": "Paese",
+      "level": "Livello",
+      "nextStep": "Prossimo passo",
+      "nextStepValue": "Prossimo: {step}",
+      "notes": "Note",
+      "documents": "Documenti",
+      "documentsValue": "Documenti: {names}",
+      "kinds": {
+        "school": "Scuola",
+        "club": "Club",
+        "college": "College",
+        "academy": "Accademia",
+        "other": "Altro"
+      },
+      "statuses": {
+        "interested": "Interessato",
+        "contacted": "Contattato",
+        "trial": "Prova",
+        "offer": "Offerta",
+        "placed": "Collocato",
+        "declined": "Rifiutato",
+        "withdrawn": "Ritirato"
+      }
+    },
+    "scout": {
+      "title": "Profilo per osservatori",
+      "intro": "Una pagina da condividere con osservatori, scuole o club. È disattivata per impostazione predefinita, mostra solo ciò che scegli, scade e può essere ritirata in qualsiasi momento. I dati medici non vengono mai mostrati.",
+      "off": "Non pubblicato",
+      "live": "Pubblicato fino al {date} · {views, plural, =0 {non ancora visto} one {# visualizzazione} other {# visualizzazioni}}",
+      "revoked": "Ritirato",
+      "expired": "Scaduto",
+      "fields": "Mostra",
+      "neverMedical": "Informazioni mediche, contatti e dati della famiglia non vengono mai mostrati.",
+      "validity": "Link valido per",
+      "days": "{count, plural, one {# giorno} other {# giorni}}",
+      "headline": "Breve titolo (facoltativo)",
+      "consent": "In qualità di tutore acconsento alla pubblicazione delle informazioni selezionate su mio figlio tramite questo link fino alla scadenza o al ritiro.",
+      "publish": "Pubblica e crea il link",
+      "republish": "Aggiorna e crea un nuovo link",
+      "revoke": "Ritira il profilo",
+      "linkOnce": "Copia ora questo link. Per sicurezza viene mostrato una sola volta; una nuova pubblicazione crea un nuovo link e il precedente smette di funzionare.",
+      "copy": "Copia link",
+      "copied": "Copiato",
+      "guardianOnly": "Solo i tutori del giocatore possono pubblicare questo profilo. Lo staff può ritirarlo.",
+      "publicTitle": "Profilo del giocatore",
+      "fieldNames": {
+        "full_name": "Cognome completo (altrimenti solo iniziale)",
+        "birth_year": "Anno di nascita",
+        "position": "Ruolo",
+        "dominant_hand": "Mano dominante",
+        "teams": "Squadre",
+        "stats": "Statistiche di gioco",
+        "attendance": "Tasso di presenza",
+        "evaluation_trend": "Andamento delle valutazioni",
+        "coach_comments": "Commenti degli allenatori",
+        "awards": "Riconoscimenti",
+        "placements": "Offerte e collocamenti"
+      },
+      "view": {
+        "born": "Nato nel {year}",
+        "hand": "Mano dominante: {hand}",
+        "games": "{count, plural, =0 {Nessuna partita registrata} one {# partita registrata} other {# partite registrate}}",
+        "attendance": "Presenza: {pct}",
+        "seasons": "Stagioni",
+        "footer": "Condiviso dalla famiglia del giocatore con il suo consenso. Questa pagina smette di funzionare il {date} o se ritirata."
+      }
+    },
+    "pages": {
+      "family": {
+        "title": "Famiglia",
+        "description": "I tutori, i loro permessi e chi paga.",
+        "empty": "Nessuna famiglia è collegata al tuo account in questo club."
+      },
+      "privacy": {
+        "title": "Privacy e dati",
+        "description": "Scarica i tuoi dati, gestisci i consensi, chiedi rettifiche o cancellazioni e scegli come ricevere le notifiche.",
+        "notifications": "Notifiche"
+      },
+      "carpool": {
+        "title": "Car pooling",
+        "description": "Condividi i passaggi per trasferte ed eventi con le altre famiglie convocate.",
+        "staffDescription": "Panoramica di offerte e richieste di passaggi per i prossimi eventi.",
+        "empty": "Nessun evento in arrivo con car pooling."
+      },
+      "journey": {
+        "title": "Percorso del giocatore",
+        "description": "Storico delle stagioni, valutazioni degli allenatori, collocamenti e profilo per osservatori.",
+        "detailDescription": "Squadre, risultati, presenze, valutazioni e commenti stagione per stagione.",
+        "empty": "Nessun giocatore da mostrare."
+      },
+      "billing": {
+        "title": "Fatturazione suddivisa",
+        "description": "Famiglie le cui fatture sono suddivise tra i tutori. Le nuove fatture vengono suddivise automaticamente; puoi anche suddividere ora quelle aperte.",
+        "empty": "Nessuna famiglia usa la suddivisione delle fatture.",
+        "families": "Famiglie con suddivisione",
+        "openUnsplit": "{count, plural, =0 {Tutte le fatture aperte suddivise} one {# fattura aperta non ancora suddivisa} other {# fatture aperte non ancora suddivise}}",
+        "splitNow": "Suddividi ora"
       }
     }
   }

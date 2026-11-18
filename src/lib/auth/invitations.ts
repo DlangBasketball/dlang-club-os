@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { SITE_URL } from "@/lib/constants";
 import type { AppRole } from "@/lib/auth/roles";
+import type { FamilyClient } from "@/lib/family/db";
 
 export type InviteInput = {
   email: string;
@@ -90,8 +91,23 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
       .select("org_id")
       .eq("id", existing.id)
       .maybeSingle();
+    // A member of another club gets a MEMBERSHIP in this club (one login,
+    // several clubs). Roles and family links are created in this club only,
+    // by consume_invitation(); their current club does not change.
     if (profile?.org_id && profile.org_id !== orgId) {
-      return { ok: false, error: "This email already belongs to another organisation." };
+      const { data: inv } = await admin
+        .from("invitations")
+        .select("id")
+        .eq("org_id", orgId)
+        .eq("email", input.email)
+        .eq("status", "pending")
+        .maybeSingle();
+      if (!inv) return { ok: false, error: "Invitation not found." };
+      const famDb = admin as unknown as FamilyClient;
+      const { data: linked, error: linkErr } = await famDb.rpc("consume_invitation", { p_inv: inv.id, p_profile: existing.id });
+      if (linkErr || !linked) return { ok: false, error: linkErr?.message ?? "Invitation could not be linked." };
+      revalidatePath("/admin/invitations");
+      return { ok: true };
     }
     if (profile && !profile.org_id) {
       const { error: homeError } = await admin

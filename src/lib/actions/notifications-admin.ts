@@ -6,6 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchMany, retryEmailLog } from "@/lib/notifications/dispatch";
 import type { NotifVars } from "@/lib/notifications/templates";
 import { getOrgEmailContext } from "@/lib/email/org-context";
+import { pickBillingRecipients } from "@/lib/family/billing";
+import { familyAdminDb } from "@/lib/family/db";
 
 export type BulkResult = { ok: true; sent: number; failed: number; inApp: number; targets: number } | { ok: false; error: string };
 
@@ -19,12 +21,12 @@ async function getAdmin() {
 export async function sendOverdueReminders(): Promise<BulkResult> {
   const me = await getAdmin();
   if (!me) return { ok: false, error: "Admins only" };
-  const admin = createAdminClient();
+  const admin = familyAdminDb();
 
   // Invoices with reminders paused by finance are skipped.
   const { data: invs } = await admin
     .from("invoices")
-    .select("id,number,family_id,total_chf,adjustments_total,due_date")
+    .select("id,number,family_id,total_chf,adjustments_total,due_date,payer_profile_id")
     .eq("org_id", me.orgId)
     .eq("status", "overdue")
     .eq("reminders_paused", false);
@@ -35,7 +37,7 @@ export async function sendOverdueReminders(): Promise<BulkResult> {
   const [paysRes, membersRes] = await Promise.all([
     // Net paid as public.invoice_net_paid(): succeeded rows + negative refund rows.
     admin.from("payments").select("invoice_id,amount_chf").in("invoice_id", invIds).or("status.eq.succeeded,amount_chf.lt.0"),
-    famIds.length ? admin.from("family_members").select("family_id,profile_id").in("family_id", famIds) : Promise.resolve({ data: [] as { family_id: string; profile_id: string }[] }),
+    famIds.length ? admin.from("family_members").select("family_id,profile_id,receives_emails").in("family_id", famIds) : Promise.resolve({ data: [] as { family_id: string; profile_id: string; receives_emails: boolean }[] }),
   ]);
   const paid = new Map<string, number>();
   for (const p of paysRes.data ?? []) paid.set(p.invoice_id, (paid.get(p.invoice_id) ?? 0) + Number(p.amount_chf));
@@ -61,7 +63,11 @@ export async function sendOverdueReminders(): Promise<BulkResult> {
     // Amount due = issued total + credit / debit notes, minus what was paid.
     const balance = Math.round((Number(inv.total_chf) + Number(inv.adjustments_total ?? 0) - (paid.get(inv.id) ?? 0)) * 100) / 100;
     if (balance <= 0) continue;
-    for (const g of guardiansByFam.get(inv.family_id) ?? []) {
+    // Split invoices go to their responsible payer; otherwise to guardians who receive emails.
+    const fam = (guardiansByFam.get(inv.family_id) ?? []).map((g) => ({ ...g, profileId: g.id as string | null }));
+    const receives = new Set(members.filter((m) => m.family_id === inv.family_id && m.receives_emails !== false).map((m) => m.profile_id));
+    const payerId = inv.payer_profile_id ?? null;
+    for (const g of pickBillingRecipients(fam, { payerId, receivesEmails: receives })) {
       const vars: NotifVars = { parent_name: g.full_name ?? undefined, invoice_number: inv.number, amount_due: balance, due_date: inv.due_date ?? undefined, payment_link: link(`/parent/invoices/${inv.id}`) };
       rows.push({ orgId: me.orgId as string, type: "payment_overdue" as const, recipientProfileId: g.id, toEmail: g.email, invoiceId: inv.id, vars });
     }

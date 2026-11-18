@@ -3,6 +3,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser, postLoginDestination } from "@/lib/auth/get-user";
 import { isSafeNextPath } from "@/lib/auth/safe-next";
+import type { FamilyClient } from "@/lib/family/db";
 
 /**
  * Single callback for every email auth flow:
@@ -23,6 +24,14 @@ export async function GET(request: Request) {
     await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
   } else if (code) {
     await supabase.auth.exchangeCodeForSession(code);
+  }
+
+  // Open invitations to further clubs (guest checkout, second guardian,
+  // staff invite) become memberships; the current club does not change.
+  try {
+    await (supabase as unknown as FamilyClient).rpc("claim_my_invitations");
+  } catch {
+    // Signed out or nothing to claim.
   }
 
   if (next && isSafeNextPath(next)) return NextResponse.redirect(`${origin}${next}`);

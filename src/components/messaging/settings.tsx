@@ -77,7 +77,7 @@ function QuietHours({ start, end, onChange, hint }: { start: string | null; end:
 export function PreferencesForm({
   initial, categories,
 }: {
-  initial: { channels: Record<NotificationCategory, { in_app: boolean; email: boolean }>; quietStart: string | null; quietEnd: string | null };
+  initial: { channels: Record<NotificationCategory, { in_app: boolean; email: boolean; push: boolean }>; quietStart: string | null; quietEnd: string | null };
   categories?: readonly NotificationCategory[];
 }) {
   const t = useT();
@@ -85,7 +85,7 @@ export function PreferencesForm({
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   const shown = categories ?? NOTIFICATION_CATEGORIES;
-  const setCh = (c: NotificationCategory, k: "in_app" | "email", val: boolean) =>
+  const setCh = (c: NotificationCategory, k: "in_app" | "email" | "push", val: boolean) =>
     setV((s) => ({ ...s, channels: { ...s.channels, [c]: { ...s.channels[c], [k]: val } } }));
   return (
     <Card>
@@ -104,6 +104,7 @@ export function PreferencesForm({
                 <th className="py-2 font-medium">{t("messaging.preferences.category")}</th>
                 <th className="py-2 text-center font-medium">{t("messaging.preferences.inApp")}</th>
                 <th className="py-2 text-center font-medium">{t("messaging.preferences.email")}</th>
+                <th className="py-2 text-center font-medium">{t("messaging.preferences.push")}</th>
               </tr>
             </thead>
             <tbody>
@@ -121,10 +122,15 @@ export function PreferencesForm({
                     <input type="checkbox" aria-label={`${t(`messaging.preferences.categories.${c}`)} — ${t("messaging.preferences.email")}`}
                       checked={v.channels[c].email} onChange={(e) => setCh(c, "email", e.target.checked)} />
                   </td>
+                  <td className="py-2.5 text-center">
+                    <input type="checkbox" aria-label={`${t(`messaging.preferences.categories.${c}`)} — ${t("messaging.preferences.push")}`}
+                      checked={v.channels[c].push} onChange={(e) => setCh(c, "push", e.target.checked)} />
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <p className="text-xs text-text-muted">{t("messaging.preferences.pushHint")}</p>
           <QuietHours start={v.quietStart} end={v.quietEnd} onChange={(s, e2) => setV((x) => ({ ...x, quietStart: s, quietEnd: e2 }))} hint={t("messaging.preferences.quietHint")} />
           {msg && <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{msg.text}</p>}
           <Button type="submit" loading={busy} disabled={busy}>{t("common.save")}</Button>

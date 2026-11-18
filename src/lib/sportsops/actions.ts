@@ -7,6 +7,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getTranslations } from "@/lib/i18n/server";
 import { dbErrorKey, eventScopeSchema, reasonSchema, shiftOccurrences, zodErrorKey, type EventScope } from "@/lib/club-ops/validation";
 import { sportsDb, type ConflictRow } from "./db";
+import { notifyEventChange } from "@/lib/family/notify";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -377,10 +378,15 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
   // Which rows get which times.
   let targets: { id: string | null; startsAt: string; endsAt: string }[];
   let seriesId: string | null = null;
+  let changedForFamilies = false;
   if (id) {
-    const { data: cur, error: cErr } = await db.from("events").select("id,starts_at,series_id").eq("id", id).eq("org_id", me.orgId!).maybeSingle();
+    const { data: cur, error: cErr } = await db.from("events").select("id,starts_at,ends_at,series_id,venue_id,location_text,status").eq("id", id).eq("org_id", me.orgId!).maybeSingle();
     if (cErr) return { ok: false, error: friendly(cErr.message) };
     if (!cur) return { ok: false, error: ERR.EVENT_NOT_FOUND };
+    // Time or venue moved on a live event: families get an in-app + push notice.
+    changedForFamilies = cur.status !== "cancelled" && (
+      Date.parse(cur.starts_at) !== Date.parse(e.startsAt) || Date.parse(cur.ends_at) !== Date.parse(e.endsAt)
+      || (cur.venue_id ?? null) !== (venueId ?? null) || (!venueId && (cur.location_text ?? null) !== (e.locationText ?? null)));
     targets = [{ id, startsAt: e.startsAt, endsAt: e.endsAt }];
     if (sc.data === "following" && cur.series_id) {
       const { data: later, error: lErr } = await db.from("events").select("id,starts_at")
@@ -421,6 +427,7 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
       revalidatePath(`/admin/schedule/${o.id}`);
     }
     revalidateAll(e.teamId);
+    if (changedForFamilies && e.status !== "cancelled") await notifyEventChange(me.orgId!, targets.map((o) => o.id!), "changed");
     return { ok: true, data: { ids: targets.map((o) => o.id!) } };
   }
   const { data, error } = await db.from("events")
@@ -462,6 +469,7 @@ export async function setEventStatus(
   revalidateAll();
   for (const x of ids) revalidatePath(`/admin/schedule/${x}`);
   revalidatePath(`/coach/team/events/${id}`);
+  if (status === "cancelled" || status === "postponed") await notifyEventChange(me.orgId!, ids, status);
   return { ok: true };
 }
 

@@ -38,6 +38,10 @@ const PUBLIC_PREFIXES = [
   "/api/club-admin/cron",
   // Waiting-list offer link (accept / decline); the URL token is the credential.
   "/waitlist",
+  // Scout profile shared by a guardian (hashed link token; off by default).
+  "/scout",
+  // Family billing split run (cron bearer secret).
+  "/api/family/cron",
 ];
 
 function isPublic(pathname: string) {
