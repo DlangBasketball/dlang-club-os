@@ -5,10 +5,12 @@
   "functions": {
     "src/app/api/stripe/webhook/route.ts": { "maxDuration": 30 },
     "src/app/api/health/route.ts": { "maxDuration": 10 },
-    "src/app/api/billing/cron/route.ts": { "maxDuration": 300 }
+    "src/app/api/billing/cron/route.ts": { "maxDuration": 300 },
+    "src/app/api/club-admin/cron/route.ts": { "maxDuration": 300 }
   },
   "crons": [
-    { "path": "/api/billing/cron", "schedule": "0 5 * * *" }
+    { "path": "/api/billing/cron", "schedule": "0 5 * * *" },
+    { "path": "/api/club-admin/cron", "schedule": "15 * * * *" }
   ],
   "headers": [
     {

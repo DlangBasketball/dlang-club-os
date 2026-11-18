@@ -178,13 +178,27 @@ const TeamInput = z.object({
 });
 export type TeamInput = z.input<typeof TeamInput>;
 
+// Diff-based: unchanged assignments are kept, so the youth-team compliance
+// check (team_coaches insert trigger) only runs for newly added coaches.
 async function syncCoaches(teamId: string, orgId: string, coaches: { coachId: string; role: string }[]) {
   const db = await sportsDb();
-  const { error: dErr } = await db.from("team_coaches").delete().eq("team_id", teamId);
-  if (dErr) return dErr.message;
   const unique = Array.from(new Map(coaches.map((c) => [c.coachId, c])).values());
-  if (!unique.length) return null;
-  const { error } = await db.from("team_coaches").insert(unique.map((c) => ({ team_id: teamId, coach_id: c.coachId, org_id: orgId, role: c.role })));
+  const { data: current, error: rErr } = await db.from("team_coaches").select("coach_id,role").eq("team_id", teamId);
+  if (rErr) return rErr.message;
+  const cur = new Map(((current ?? []) as { coach_id: string; role: string }[]).map((c) => [c.coach_id, c.role]));
+  const keep = new Set(unique.map((c) => c.coachId));
+  const removed = [...cur.keys()].filter((id) => !keep.has(id));
+  if (removed.length) {
+    const { error } = await db.from("team_coaches").delete().eq("team_id", teamId).in("coach_id", removed);
+    if (error) return error.message;
+  }
+  for (const c of unique.filter((c) => cur.has(c.coachId) && cur.get(c.coachId) !== c.role)) {
+    const { error } = await db.from("team_coaches").update({ role: c.role }).eq("team_id", teamId).eq("coach_id", c.coachId);
+    if (error) return error.message;
+  }
+  const added = unique.filter((c) => !cur.has(c.coachId));
+  if (!added.length) return null;
+  const { error } = await db.from("team_coaches").insert(added.map((c) => ({ team_id: teamId, coach_id: c.coachId, org_id: orgId, role: c.role })));
   return error?.message ?? null;
 }
 
@@ -209,6 +223,10 @@ export async function saveTeam(id: string | null, input: TeamInput): Promise<Act
     teamId = data.id;
   }
   const cErr = await syncCoaches(teamId!, me.orgId!, t.coaches);
+  if (cErr && cErr.includes("COACH_COMPLIANCE_MISSING")) {
+    // Youth team + club setting: mandatory checks missing (admin override on the staff compliance page).
+    return { ok: false, error: (await getTranslations())("clubadmin.errors.codes.COACH_COMPLIANCE_MISSING") };
+  }
   if (cErr) return { ok: false, error: friendly(cErr) };
   revalidateAll(teamId);
   return { ok: true, data: { id: teamId! } };

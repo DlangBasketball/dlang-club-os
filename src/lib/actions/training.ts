@@ -1,5 +1,6 @@
 "use server";
 
+import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getSessionUser, type SessionUser } from "@/lib/auth/get-user";
@@ -315,6 +316,8 @@ export async function purchaseTrainingPackage(input: PurchaseInput): Promise<Tra
   });
   if (error) return dbFail(error.message);
   const r = (data ?? {}) as { purchase_id?: string; invoice_id?: string | null; status?: string };
+  // Member families pay the package's optional member price (never fatal).
+  if (v.mode === "invoice") await applyMemberPrices(me.orgId, "training_purchase", [r.purchase_id]);
   // Participation contract for the package (auto-issue template), never fatal.
   if (r.purchase_id) await issueContractForPurchase(me.orgId, r.purchase_id, me.id);
   // Instalments for an invoiced package (never fatal: the invoice stays payable in full).
@@ -390,6 +393,7 @@ export async function bookTrainingSession(input: BookInput): Promise<TrainingRes
   });
   if (error) return dbFail(error.message);
   const r = (data ?? {}) as { booking_id?: string; purchase_id?: string | null; invoice_id?: string | null; price?: number };
+  if (v.mode === "invoice" && r.purchase_id) await applyMemberPrices(me.orgId, "training_purchase", [r.purchase_id]);
   if (r.booking_id) await notifyBooking(me, r.booking_id, v.payWith, r.price ?? null);
   revalidateTraining(["/parent/invoices", `/admin/athletes/${v.athleteId}/training`]);
   return { ok: true, data: { bookingId: r.booking_id ?? "", purchaseId: r.purchase_id ?? null, invoiceId: r.invoice_id ?? null } };

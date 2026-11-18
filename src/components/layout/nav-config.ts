@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, IdCard, Hourglass, Award, BadgeCheck, HeartPulse } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -12,7 +12,8 @@ export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: stri
 /** Admin nav entries that only show when the club enabled the feature. */
 export const ASSISTANT_HREF = "/admin/assistant";
 /** Communication entries only admins use (finance shares the admin app). */
-export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads", "/admin/media"];
+/** Also: club-admin pages with minors' or staff data that finance must not open. */
+export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads", "/admin/media", "/admin/waitlists", "/admin/js", "/admin/staff-compliance", "/admin/incidents"];
 
 export const NAV: Record<NavKey, NavItem[]> = {
   admin: [
@@ -29,10 +30,13 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", labelKey: "athletes", href: "/admin/athletes", icon: UserCircle },
     { label: "Programs", labelKey: "programs", href: "/admin/programs", icon: CalendarRange },
     { label: "Registrations", labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList },
+    { label: "Waiting lists", labelKey: "waitlists", href: "/admin/waitlists", icon: Hourglass },
+    { label: "Memberships", labelKey: "memberships", href: "/admin/memberships", icon: IdCard },
     { label: "Discounts", labelKey: "discounts", href: "/admin/discounts", icon: Percent },
     { label: "Shop", labelKey: "shop", href: "/admin/shop", icon: ShoppingBag },
     { label: "Teams", labelKey: "teams", href: "/admin/teams", icon: Shield },
     { label: "Coaches", labelKey: "coaches", href: "/admin/coaches", icon: UserCog },
+    { label: "Staff compliance", labelKey: "staffCompliance", href: "/admin/staff-compliance", icon: BadgeCheck },
     { label: "Schedule", labelKey: "schedule", href: "/admin/schedule", icon: CalendarDays },
     { label: "Locations", labelKey: "locations", href: "/admin/locations", icon: MapPin },
     { label: "Sports", labelKey: "sports", href: "/admin/sports", icon: Trophy },
@@ -46,6 +50,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Recurring fees", labelKey: "recurringFees", href: "/admin/recurring-fees", icon: Repeat },
     { label: "Finance", labelKey: "finance", href: "/admin/finance", icon: Wallet },
     { label: "Attendance", labelKey: "attendance", href: "/admin/attendance", icon: CheckSquare },
+    { label: "J+S", labelKey: "js", href: "/admin/js", icon: Award },
+    { label: "Incidents", labelKey: "incidents", href: "/admin/incidents", icon: HeartPulse },
     { label: "Bookings", labelKey: "bookings", href: "/admin/bookings", icon: Dumbbell },
     { label: "Services", labelKey: "services", href: "/admin/services", icon: Dumbbell },
     { label: "Training", labelKey: "training", href: "/admin/training", icon: Coins },
@@ -68,6 +74,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
     { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
     { label: "Roll calls", labelKey: "rollCalls", href: "/coach/roll-calls", icon: ClipboardCheck },
+    { label: "Incidents", labelKey: "incidents", href: "/coach/incidents", icon: HeartPulse },
+    { label: "My certificates", labelKey: "myCertificates", href: "/coach/compliance", icon: BadgeCheck },
     { label: "Alerts", labelKey: "alerts", href: "/coach/alerts", icon: Megaphone },
   ],
   parent: [
@@ -78,10 +86,13 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },
     { label: "Calendar", labelKey: "calendar", href: "/parent/calendar", icon: CalendarCheck },
     { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
+    { label: "Waiting lists", labelKey: "waitlists", href: "/parent/waitlist", icon: Hourglass },
+    { label: "Membership", labelKey: "membership", href: "/parent/membership", icon: IdCard },
     { label: "Invoices", labelKey: "invoices", href: "/parent/invoices", icon: Receipt },
     { label: "Payment plans & autopay", labelKey: "paymentPlans", href: "/parent/payment-plans", icon: ListOrdered },
     { label: "Bookings", labelKey: "bookings", href: "/parent/bookings", icon: Dumbbell },
     { label: "Attendance", labelKey: "attendance", href: "/parent/attendance", icon: CheckSquare },
+    { label: "Incidents", labelKey: "incidents", href: "/parent/incidents", icon: HeartPulse },
     { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },
     { label: "Account", labelKey: "account", href: "/parent/account", icon: Settings },
     { label: "Documents", labelKey: "documents", href: "/parent/documents", icon: FolderOpen },

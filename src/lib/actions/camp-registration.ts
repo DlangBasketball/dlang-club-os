@@ -1,5 +1,6 @@
 "use server";
 
+import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -253,6 +254,8 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
   const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
   const regIds = r.registration_ids ?? [];
   const athIds = r.athlete_ids ?? [];
+  // Member families pay the optional member price (never fatal).
+  if (await applyMemberPrices(orgId, "camp_registration", regIds)) r.total = await invoiceTotal(orgId, r.invoice_id, r.total);
   // Instalments chosen at checkout (club rules re-checked in SQL; never fatal).
   const plan = await attachPlanAtCheckout(orgId, r.invoice_id, safeCount(instalments), "camp");
   await storeRegistrationExtras(orgId, camp.program.id, config, perChild
@@ -332,6 +335,7 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
   const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
   const regIds = r.registration_ids ?? [];
   const athIds = r.athlete_ids ?? [];
+  if (await applyMemberPrices(ctx.orgId, "camp_registration", regIds)) r.total = await invoiceTotal(ctx.orgId, r.invoice_id, r.total);
   await storeRegistrationExtras(ctx.orgId, camp.program.id, config, athIds
     .map((athleteId, i): ChildAnswers => ({ athleteId, registrationId: regIds[i], extras: {}, answers: perChild.find((p) => p.athleteId === athleteId)?.answers ?? {} }))
     .filter((x) => x.athleteId && x.registrationId));
@@ -340,4 +344,11 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
   await notify(ctx.orgId, camp.program.name, me.fullName ?? me.email ?? "", null, Array.from(ctx.athletes.values()).map((a) => a.name), r.invoice_number ?? "", Number(r.total ?? 0));
   revalidatePath("/parent/invoices");
   redirect(r.invoice_id ? `/parent/invoices/${r.invoice_id}` : "/parent/invoices");
+}
+
+/** Invoice total after the member price hook (falls back to the RPC total). */
+async function invoiceTotal(orgId: string, invoiceId: string | undefined, fallback: number | undefined): Promise<number | undefined> {
+  if (!invoiceId) return fallback;
+  const { data } = await campsAdminDb().from("invoices").select("total_chf").eq("id", invoiceId).eq("org_id", orgId).maybeSingle();
+  return data ? Number((data as { total_chf: number | string }).total_chf) : fallback;
 }
