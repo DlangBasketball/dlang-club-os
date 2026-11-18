@@ -1665,7 +1665,8 @@
         "promo_code": "Promo code",
         "sibling": "Sibling",
         "early_bird": "Early bird",
-        "manual": "Manual (admin)"
+        "manual": "Manual (admin)",
+        "multi_week": "Multi-week"
       },
       "kinds": {
         "percent": "Percentage",
@@ -1683,8 +1684,11 @@
         "promo_code": "Applies when the family enters the code. Codes: 3–40 letters, digits, - or _.",
         "sibling": "Applied automatically from the chosen child of the same family (counted per camp).",
         "early_bird": "Applied automatically until the valid-until date and/or up to N days before the start.",
-        "manual": "Only applied by an admin or finance user on a registration."
-      }
+        "manual": "Only applied by an admin or finance user on a registration.",
+        "multi_week": "Applied automatically from the chosen week of the same child (camp weeks starting in the same calendar year, booked or in the basket)."
+      },
+      "weekFrom": "From the nth week (2 = 2nd week)",
+      "multiWeekLine": "From week no. {n} of the same child"
     },
     "manual": {
       "title": "Apply a discount",
@@ -1772,7 +1776,8 @@
       "empty": "No camps open for registration right now.",
       "editions": "{count, plural, one {# edition} other {# editions}}",
       "nextStart": "next from {date}",
-      "registerDescription": "Choose the week, the children and their options. The invoice is created right away."
+      "registerDescription": "Choose the week, the children and their options. The invoice is created right away.",
+      "seasonsDescription": "Holiday camps of your club by season. Add several weeks for your children to the basket and book them in one go."
     },
     "promo": {
       "UNKNOWN_CODE": "This promo code is not valid.",
@@ -1786,7 +1791,8 @@
       "FAMILY_LIMIT_REACHED": "You have already used this promo code.",
       "NOT_A_SIBLING": "This promo code does not apply.",
       "NOT_SELECTED": "This promo code does not apply.",
-      "NOT_COMBINABLE": "A better discount already applies; the promo code is not combined with it."
+      "NOT_COMBINABLE": "A better discount already applies; the promo code is not combined with it.",
+      "NOT_A_REPEAT_WEEK": "This promo code does not apply."
     },
     "errors": {
       "generic": "Something went wrong. Please try again.",
@@ -1846,7 +1852,123 @@
         "USE_CANCEL": "This would credit the whole invoice: cancel the invoice instead.",
         "CREDIT_EXCEEDS_AMOUNT_DUE": "The discount is larger than the amount still due.",
         "INVOICE_CANCELLED": "The invoice is cancelled.",
-        "INVOICE_WRITTEN_OFF": "The invoice was written off."
+        "INVOICE_WRITTEN_OFF": "The invoice was written off.",
+        "NOTHING_TO_SPLIT": "All weeks of this camp are in one season: nothing to split.",
+        "SAME_CAMP": "Choose another camp.",
+        "NOT_A_CAMP": "The target must be a camp.",
+        "SLUG_IN_USE": "This web address is already used by another programme.",
+        "DUPLICATE_LINE": "This child already has this week in the basket.",
+        "CHILD_NOT_FOUND": "Choose a child for this week.",
+        "PROGRAM_NOT_FOUND": "This camp is not available.",
+        "DISCOUNT_AMOUNT_INVALID": "A discount has just changed. Please check and submit again.",
+        "BASKET_INVALID": "Some weeks need your attention."
+      },
+      "weekPosition": "Enter a week number between 2 and 20.",
+      "seasonYear": "Enter a year between 2000 and 2100."
+    },
+    "seasons": {
+      "names": {
+        "spring": "Spring",
+        "summer": "Summer",
+        "fall": "Fall",
+        "winter": "Winter",
+        "other": "Other"
+      },
+      "label": "{season} {year}",
+      "campNames": {
+        "spring": "Spring Camp {year}",
+        "summer": "Summer Camp {year}",
+        "fall": "Fall Camp {year}",
+        "winter": "Winter Camp {year}",
+        "other": "Camp {year}"
+      },
+      "unscheduled": "No dates yet",
+      "allSeasons": "All seasons",
+      "filter": "Filter by season",
+      "openWeeks": "{count, plural, =0 {No week open} one {# week open} other {# weeks open}}",
+      "priceFrom": "from {price}",
+      "publicTitle": "Camps by season",
+      "publicIntro": "Each season has its own camp. Open a camp to see its weeks, or add several weeks to the basket and book them in one go.",
+      "toolsTitle": "Seasons and weeks",
+      "seasonOfCamp": "Season of this camp",
+      "season": "Season",
+      "year": "Year",
+      "auto": "Automatic ({season})",
+      "autoNone": "Automatic (from the weeks)",
+      "saved": "Season saved.",
+      "splitTitle": "Split by season",
+      "splitIntro": "Creates one camp per season, each with its own registration page, the same prices, age groups, times and description. Registrations move with their week. This camp keeps its link.",
+      "splitKeep": "This camp keeps {season} ({count, plural, one {# week} other {# weeks}})",
+      "splitNew": "New camp: {season} ({count, plural, one {# week} other {# weeks}})",
+      "splitConfirm": "Split this camp by season? Weeks and their registrations move to the new camps.",
+      "splitButton": "Split by season",
+      "splitDone": "{count, plural, one {# new camp created.} other {# new camps created.}}",
+      "splitNothing": "All weeks are in one season.",
+      "duplicateTitle": "Duplicate for next year",
+      "duplicateIntro": "Creates a draft copy with every week 52 weeks later (same weekdays), the same prices, age groups and times. No registrations are copied.",
+      "duplicateButton": "Duplicate for next year",
+      "duplicated": "Draft camp for next year created.",
+      "moveTitle": "Move week to another camp",
+      "moveIntro": "The week keeps its dates, place, capacity and prices (copied to the other camp when they differ).",
+      "moveNothing": "Create another camp first to move weeks to it.",
+      "week": "Week",
+      "targetCamp": "Move to camp",
+      "moveWithRegistrations": "Also move its {count, plural, one {# registration} other {# registrations}} (families keep their invoice).",
+      "moveButton": "Move week",
+      "moved": "{count, plural, =0 {Week moved.} one {Week moved with # registration.} other {Week moved with # registrations.}}"
+    },
+    "basket": {
+      "title": "Camp basket",
+      "description": "Your chosen weeks for your children. Check the details and book them all in one go.",
+      "publicDescription": "Choose weeks for one or more children across our camps, then book them in one go: one invoice for everything.",
+      "adminTitle": "Book camp weeks for a family",
+      "adminDescription": "Several weeks and children in one booking: one invoice, one registration per child and week.",
+      "adminLink": "Book several weeks for a family",
+      "family": "Family",
+      "chooseFamily": "Choose",
+      "adminDone": "Booked. Invoice {invoice} was created.",
+      "openInvoice": "Open the invoice",
+      "empty": "Your basket is empty. Add weeks from any camp.",
+      "browse": "Browse the camps",
+      "otherCamps": "All camps by season",
+      "viewBasket": "{count, plural, =0 {Basket} one {Basket (# week)} other {Basket (# weeks)}}",
+      "checkoutCta": "{count, plural, one {Go to basket (# week)} other {Go to basket (# weeks)}}",
+      "inBasket": "In basket",
+      "withLunch": "With lunch",
+      "withoutLunch": "Without lunch",
+      "child": "Child",
+      "childDetails": "Child details (health information)",
+      "healthNotStored": "Health notes are sent with the booking only; they are not saved on this device.",
+      "addSameChild": "Add same child to another week",
+      "addWeeks": "Add weeks",
+      "copyToSibling": "Copy to sibling…",
+      "unavailable": "This week is no longer available.",
+      "weekPrice": "Week price",
+      "weeksCount": "{count, plural, one {# week} other {# weeks}}",
+      "summary": "Summary and payment",
+      "checkout": "{count, plural, one {Book # week} other {Book # weeks}}",
+      "clear": "Empty the basket",
+      "confirmClear": "Remove every week from the basket?",
+      "adder": {
+        "title": "Add weeks to the basket",
+        "titleSeveral": "Book several weeks at once",
+        "intro": "Pick a child and one or more weeks; repeat for brothers and sisters. You choose the days and pay once in the basket.",
+        "who": "Which child?",
+        "newChild": "New child",
+        "weeks": "Which weeks?",
+        "add": "{count, plural, =0 {Add to basket} one {Add # week to basket} other {Add # weeks to basket}}",
+        "added": "{count, plural, one {# week added to the basket.} other {# weeks added to the basket.}}",
+        "nothingAdded": "These weeks are already in the basket for this child.",
+        "childRequired": "Enter the child’s first name, last name and date of birth.",
+        "pickChild": "Choose a child.",
+        "pickWeeks": "Choose at least one week."
+      },
+      "errors": {
+        "empty": "Add at least one week.",
+        "tooManyLines": "At most 40 weeks per booking.",
+        "fixLines": "Some weeks need your attention (see the messages below each week).",
+        "childDetails": "Enter the first name, last name and date of birth of every child.",
+        "needsForm": "“{camp}” asks extra questions: please register for it from its own page."
       }
     }
   },

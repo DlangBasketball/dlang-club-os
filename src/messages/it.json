@@ -1665,7 +1665,8 @@
         "promo_code": "Codice promozionale",
         "sibling": "Fratelli",
         "early_bird": "Prenotazione anticipata",
-        "manual": "Manuale (admin)"
+        "manual": "Manuale (admin)",
+        "multi_week": "Più settimane"
       },
       "kinds": {
         "percent": "Percentuale",
@@ -1683,8 +1684,11 @@
         "promo_code": "Si applica quando la famiglia inserisce il codice. Codici: 3–40 lettere, cifre, - o _.",
         "sibling": "Applicato automaticamente dal figlio scelto della stessa famiglia (conteggio per camp).",
         "early_bird": "Applicato automaticamente fino alla data di validità e/o fino a N giorni prima dell'inizio.",
-        "manual": "Applicato solo da un admin o dalla finanza su un'iscrizione."
-      }
+        "manual": "Applicato solo da un admin o dalla finanza su un'iscrizione.",
+        "multi_week": "Applicato automaticamente dalla settimana scelta dello stesso bambino (settimane di campo che iniziano nello stesso anno civile, prenotate o nel carrello)."
+      },
+      "weekFrom": "Dalla n-esima settimana (2 = 2ª settimana)",
+      "multiWeekLine": "Dalla settimana n. {n} dello stesso bambino"
     },
     "manual": {
       "title": "Applica uno sconto",
@@ -1772,7 +1776,8 @@
       "empty": "Al momento nessun camp è aperto alle iscrizioni.",
       "editions": "{count, plural, one {# edizione} other {# edizioni}}",
       "nextStart": "prossima dal {date}",
-      "registerDescription": "Scegli la settimana, i figli e le opzioni. La fattura viene creata subito."
+      "registerDescription": "Scegli la settimana, i figli e le opzioni. La fattura viene creata subito.",
+      "seasonsDescription": "I campi vacanze del tuo club per stagione. Aggiungi più settimane per i tuoi figli al carrello e prenota tutto in una volta."
     },
     "promo": {
       "UNKNOWN_CODE": "Questo codice promozionale non è valido.",
@@ -1786,7 +1791,8 @@
       "FAMILY_LIMIT_REACHED": "Hai già usato questo codice.",
       "NOT_A_SIBLING": "Questo codice non si applica.",
       "NOT_SELECTED": "Questo codice non si applica.",
-      "NOT_COMBINABLE": "Si applica già uno sconto migliore; il codice non è cumulabile."
+      "NOT_COMBINABLE": "Si applica già uno sconto migliore; il codice non è cumulabile.",
+      "NOT_A_REPEAT_WEEK": "Questo codice promo non si applica."
     },
     "errors": {
       "generic": "Si è verificato un errore. Riprova.",
@@ -1846,7 +1852,123 @@
         "USE_CANCEL": "Così si accrediterebbe l'intera fattura: annulla invece la fattura.",
         "CREDIT_EXCEEDS_AMOUNT_DUE": "Lo sconto supera l'importo ancora dovuto.",
         "INVOICE_CANCELLED": "La fattura è annullata.",
-        "INVOICE_WRITTEN_OFF": "La fattura è stata stralciata."
+        "INVOICE_WRITTEN_OFF": "La fattura è stata stralciata.",
+        "NOTHING_TO_SPLIT": "Tutte le settimane di questo campo sono nella stessa stagione: niente da dividere.",
+        "SAME_CAMP": "Scegli un altro campo.",
+        "NOT_A_CAMP": "La destinazione deve essere un campo.",
+        "SLUG_IN_USE": "Questo indirizzo web è già usato da un altro programma.",
+        "DUPLICATE_LINE": "Questo bambino ha già questa settimana nel carrello.",
+        "CHILD_NOT_FOUND": "Scegli un bambino per questa settimana.",
+        "PROGRAM_NOT_FOUND": "Questo campo non è disponibile.",
+        "DISCOUNT_AMOUNT_INVALID": "Uno sconto è appena cambiato. Controlla e invia di nuovo.",
+        "BASKET_INVALID": "Alcune settimane richiedono la tua attenzione."
+      },
+      "weekPosition": "Inserisci un numero di settimana tra 2 e 20.",
+      "seasonYear": "Inserisci un anno tra 2000 e 2100."
+    },
+    "seasons": {
+      "names": {
+        "spring": "Primavera",
+        "summer": "Estate",
+        "fall": "Autunno",
+        "winter": "Inverno",
+        "other": "Altro"
+      },
+      "label": "{season} {year}",
+      "campNames": {
+        "spring": "Campo di primavera {year}",
+        "summer": "Campo estivo {year}",
+        "fall": "Campo autunnale {year}",
+        "winter": "Campo invernale {year}",
+        "other": "Campo {year}"
+      },
+      "unscheduled": "Ancora senza date",
+      "allSeasons": "Tutte le stagioni",
+      "filter": "Filtra per stagione",
+      "openWeeks": "{count, plural, =0 {Nessuna settimana aperta} one {# settimana aperta} other {# settimane aperte}}",
+      "priceFrom": "da {price}",
+      "publicTitle": "Campi per stagione",
+      "publicIntro": "Ogni stagione ha il suo campo. Apri un campo per vederne le settimane, oppure aggiungi più settimane al carrello e prenota tutto in una volta.",
+      "toolsTitle": "Stagioni e settimane",
+      "seasonOfCamp": "Stagione di questo campo",
+      "season": "Stagione",
+      "year": "Anno",
+      "auto": "Automatica ({season})",
+      "autoNone": "Automatica (dalle settimane)",
+      "saved": "Stagione salvata.",
+      "splitTitle": "Dividi per stagione",
+      "splitIntro": "Crea un campo per stagione, ognuno con la propria pagina d’iscrizione, gli stessi prezzi, fasce d’età, orari e descrizione. Le iscrizioni seguono la loro settimana. Questo campo mantiene il suo link.",
+      "splitKeep": "Questo campo mantiene {season} ({count, plural, one {# settimana} other {# settimane}})",
+      "splitNew": "Nuovo campo: {season} ({count, plural, one {# settimana} other {# settimane}})",
+      "splitConfirm": "Dividere questo campo per stagione? Le settimane e le loro iscrizioni passano ai nuovi campi.",
+      "splitButton": "Dividi per stagione",
+      "splitDone": "{count, plural, one {# nuovo campo creato.} other {# nuovi campi creati.}}",
+      "splitNothing": "Tutte le settimane sono nella stessa stagione.",
+      "duplicateTitle": "Duplica per l’anno prossimo",
+      "duplicateIntro": "Crea una copia in bozza con ogni settimana 52 settimane dopo (stessi giorni), gli stessi prezzi, fasce d’età e orari. Le iscrizioni non vengono copiate.",
+      "duplicateButton": "Duplica per l’anno prossimo",
+      "duplicated": "Campo in bozza per l’anno prossimo creato.",
+      "moveTitle": "Sposta una settimana in un altro campo",
+      "moveIntro": "La settimana mantiene date, luogo, capienza e prezzi (copiati nell’altro campo se sono diversi).",
+      "moveNothing": "Crea prima un altro campo per spostarvi delle settimane.",
+      "week": "Settimana",
+      "targetCamp": "Nel campo",
+      "moveWithRegistrations": "Sposta anche {count, plural, one {# iscrizione} other {# iscrizioni}} (le famiglie mantengono la fattura).",
+      "moveButton": "Sposta la settimana",
+      "moved": "{count, plural, =0 {Settimana spostata.} one {Settimana spostata con # iscrizione.} other {Settimana spostata con # iscrizioni.}}"
+    },
+    "basket": {
+      "title": "Carrello campi",
+      "description": "Le settimane scelte per i tuoi figli. Controlla i dettagli e prenota tutto in una volta.",
+      "publicDescription": "Scegli le settimane per uno o più bambini nei nostri campi e prenota tutto in una volta: una sola fattura.",
+      "adminTitle": "Prenota settimane di campo per una famiglia",
+      "adminDescription": "Più settimane e bambini in una prenotazione: una fattura, un’iscrizione per bambino e settimana.",
+      "adminLink": "Prenota più settimane per una famiglia",
+      "family": "Famiglia",
+      "chooseFamily": "Scegli",
+      "adminDone": "Prenotato. La fattura {invoice} è stata creata.",
+      "openInvoice": "Apri la fattura",
+      "empty": "Il carrello è vuoto. Aggiungi settimane da qualsiasi campo.",
+      "browse": "Vedi i campi",
+      "otherCamps": "Tutti i campi per stagione",
+      "viewBasket": "{count, plural, =0 {Carrello} one {Carrello (# settimana)} other {Carrello (# settimane)}}",
+      "checkoutCta": "{count, plural, one {Vai al carrello (# settimana)} other {Vai al carrello (# settimane)}}",
+      "inBasket": "Nel carrello",
+      "withLunch": "Con pranzo",
+      "withoutLunch": "Senza pranzo",
+      "child": "Bambino",
+      "childDetails": "Dettagli del bambino (salute)",
+      "healthNotStored": "Le informazioni sanitarie sono inviate solo con la prenotazione; non vengono salvate su questo dispositivo.",
+      "addSameChild": "Stesso bambino, altra settimana",
+      "addWeeks": "Aggiungi settimane",
+      "copyToSibling": "Copia per fratello o sorella…",
+      "unavailable": "Questa settimana non è più disponibile.",
+      "weekPrice": "Prezzo della settimana",
+      "weeksCount": "{count, plural, one {# settimana} other {# settimane}}",
+      "summary": "Riepilogo e pagamento",
+      "checkout": "{count, plural, one {Prenota # settimana} other {Prenota # settimane}}",
+      "clear": "Svuota il carrello",
+      "confirmClear": "Rimuovere tutte le settimane dal carrello?",
+      "adder": {
+        "title": "Aggiungi settimane al carrello",
+        "titleSeveral": "Prenota più settimane in una volta",
+        "intro": "Scegli un bambino e una o più settimane; ripeti per fratelli e sorelle. I giorni si scelgono e si paga una volta nel carrello.",
+        "who": "Quale bambino?",
+        "newChild": "Nuovo bambino",
+        "weeks": "Quali settimane?",
+        "add": "{count, plural, =0 {Aggiungi al carrello} one {Aggiungi # settimana al carrello} other {Aggiungi # settimane al carrello}}",
+        "added": "{count, plural, one {# settimana aggiunta al carrello.} other {# settimane aggiunte al carrello.}}",
+        "nothingAdded": "Queste settimane sono già nel carrello per questo bambino.",
+        "childRequired": "Inserisci nome, cognome e data di nascita del bambino.",
+        "pickChild": "Scegli un bambino.",
+        "pickWeeks": "Scegli almeno una settimana."
+      },
+      "errors": {
+        "empty": "Aggiungi almeno una settimana.",
+        "tooManyLines": "Al massimo 40 settimane per prenotazione.",
+        "fixLines": "Alcune settimane richiedono attenzione (vedi i messaggi sotto ogni settimana).",
+        "childDetails": "Inserisci nome, cognome e data di nascita di ogni bambino.",
+        "needsForm": "«{camp}» pone domande aggiuntive: iscriviti dalla sua pagina."
       }
     }
   },

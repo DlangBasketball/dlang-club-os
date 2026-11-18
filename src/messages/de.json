@@ -1665,7 +1665,8 @@
         "promo_code": "Promo-Code",
         "sibling": "Geschwister",
         "early_bird": "Frühbucher",
-        "manual": "Manuell (Admin)"
+        "manual": "Manuell (Admin)",
+        "multi_week": "Mehrere Wochen"
       },
       "kinds": {
         "percent": "Prozent",
@@ -1683,8 +1684,11 @@
         "promo_code": "Gilt, wenn die Familie den Code eingibt. Codes: 3–40 Buchstaben, Ziffern, - oder _.",
         "sibling": "Wird automatisch ab dem gewählten Kind derselben Familie gewährt (pro Camp gezählt).",
         "early_bird": "Wird automatisch bis zum Gültig-bis-Datum und/oder bis N Tage vor Beginn gewährt.",
-        "manual": "Wird nur von Admin oder Finanzen auf einer Anmeldung angewendet."
-      }
+        "manual": "Wird nur von Admin oder Finanzen auf einer Anmeldung angewendet.",
+        "multi_week": "Wird automatisch ab der gewählten Woche desselben Kindes angewendet (Camp-Wochen, die im selben Kalenderjahr beginnen, gebucht oder im Warenkorb)."
+      },
+      "weekFrom": "Ab der n-ten Woche (2 = 2. Woche)",
+      "multiWeekLine": "Ab Woche Nr. {n} desselben Kindes"
     },
     "manual": {
       "title": "Rabatt gewähren",
@@ -1772,7 +1776,8 @@
       "empty": "Zurzeit sind keine Camps zur Anmeldung offen.",
       "editions": "{count, plural, one {# Durchführung} other {# Durchführungen}}",
       "nextStart": "nächste ab {date}",
-      "registerDescription": "Woche, Kinder und Optionen wählen. Die Rechnung wird sofort erstellt."
+      "registerDescription": "Woche, Kinder und Optionen wählen. Die Rechnung wird sofort erstellt.",
+      "seasonsDescription": "Ferien-Camps Ihres Clubs nach Saison. Legen Sie mehrere Wochen für Ihre Kinder in den Warenkorb und buchen Sie alles auf einmal."
     },
     "promo": {
       "UNKNOWN_CODE": "Dieser Promo-Code ist ungültig.",
@@ -1786,7 +1791,8 @@
       "FAMILY_LIMIT_REACHED": "Du hast diesen Promo-Code bereits verwendet.",
       "NOT_A_SIBLING": "Dieser Promo-Code gilt hier nicht.",
       "NOT_SELECTED": "Dieser Promo-Code gilt hier nicht.",
-      "NOT_COMBINABLE": "Ein besserer Rabatt gilt bereits; der Promo-Code ist damit nicht kombinierbar."
+      "NOT_COMBINABLE": "Ein besserer Rabatt gilt bereits; der Promo-Code ist damit nicht kombinierbar.",
+      "NOT_A_REPEAT_WEEK": "Dieser Promo-Code gilt hier nicht."
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
@@ -1846,7 +1852,123 @@
         "USE_CANCEL": "Damit würde die ganze Rechnung gutgeschrieben: storniere stattdessen die Rechnung.",
         "CREDIT_EXCEEDS_AMOUNT_DUE": "Der Rabatt ist grösser als der offene Betrag.",
         "INVOICE_CANCELLED": "Die Rechnung ist storniert.",
-        "INVOICE_WRITTEN_OFF": "Die Rechnung wurde abgeschrieben."
+        "INVOICE_WRITTEN_OFF": "Die Rechnung wurde abgeschrieben.",
+        "NOTHING_TO_SPLIT": "Alle Wochen dieses Camps liegen in einer Saison: nichts aufzuteilen.",
+        "SAME_CAMP": "Wählen Sie ein anderes Camp.",
+        "NOT_A_CAMP": "Das Ziel muss ein Camp sein.",
+        "SLUG_IN_USE": "Diese Webadresse wird bereits von einem anderen Programm verwendet.",
+        "DUPLICATE_LINE": "Dieses Kind hat diese Woche bereits im Warenkorb.",
+        "CHILD_NOT_FOUND": "Wählen Sie ein Kind für diese Woche.",
+        "PROGRAM_NOT_FOUND": "Dieses Camp ist nicht verfügbar.",
+        "DISCOUNT_AMOUNT_INVALID": "Ein Rabatt hat sich gerade geändert. Bitte prüfen und erneut absenden.",
+        "BASKET_INVALID": "Einige Wochen benötigen Ihre Aufmerksamkeit."
+      },
+      "weekPosition": "Geben Sie eine Wochennummer zwischen 2 und 20 ein.",
+      "seasonYear": "Geben Sie ein Jahr zwischen 2000 und 2100 ein."
+    },
+    "seasons": {
+      "names": {
+        "spring": "Frühling",
+        "summer": "Sommer",
+        "fall": "Herbst",
+        "winter": "Winter",
+        "other": "Andere"
+      },
+      "label": "{season} {year}",
+      "campNames": {
+        "spring": "Frühlingscamp {year}",
+        "summer": "Sommercamp {year}",
+        "fall": "Herbstcamp {year}",
+        "winter": "Wintercamp {year}",
+        "other": "Camp {year}"
+      },
+      "unscheduled": "Noch ohne Daten",
+      "allSeasons": "Alle Saisons",
+      "filter": "Nach Saison filtern",
+      "openWeeks": "{count, plural, =0 {Keine Woche offen} one {# Woche offen} other {# Wochen offen}}",
+      "priceFrom": "ab {price}",
+      "publicTitle": "Camps nach Saison",
+      "publicIntro": "Jede Saison hat ihr eigenes Camp. Öffnen Sie ein Camp für seine Wochen oder legen Sie mehrere Wochen in den Warenkorb und buchen Sie alles auf einmal.",
+      "toolsTitle": "Saisons und Wochen",
+      "seasonOfCamp": "Saison dieses Camps",
+      "season": "Saison",
+      "year": "Jahr",
+      "auto": "Automatisch ({season})",
+      "autoNone": "Automatisch (aus den Wochen)",
+      "saved": "Saison gespeichert.",
+      "splitTitle": "Nach Saison aufteilen",
+      "splitIntro": "Erstellt ein Camp pro Saison, jedes mit eigener Anmeldeseite, denselben Preisen, Altersgruppen, Zeiten und derselben Beschreibung. Anmeldungen ziehen mit ihrer Woche um. Dieses Camp behält seinen Link.",
+      "splitKeep": "Dieses Camp behält {season} ({count, plural, one {# Woche} other {# Wochen}})",
+      "splitNew": "Neues Camp: {season} ({count, plural, one {# Woche} other {# Wochen}})",
+      "splitConfirm": "Dieses Camp nach Saison aufteilen? Wochen und ihre Anmeldungen ziehen in die neuen Camps um.",
+      "splitButton": "Nach Saison aufteilen",
+      "splitDone": "{count, plural, one {# neues Camp erstellt.} other {# neue Camps erstellt.}}",
+      "splitNothing": "Alle Wochen liegen in einer Saison.",
+      "duplicateTitle": "Für nächstes Jahr duplizieren",
+      "duplicateIntro": "Erstellt eine Entwurfskopie mit jeder Woche 52 Wochen später (gleiche Wochentage), denselben Preisen, Altersgruppen und Zeiten. Anmeldungen werden nicht kopiert.",
+      "duplicateButton": "Für nächstes Jahr duplizieren",
+      "duplicated": "Entwurf für nächstes Jahr erstellt.",
+      "moveTitle": "Woche in ein anderes Camp verschieben",
+      "moveIntro": "Die Woche behält Daten, Ort, Kapazität und Preise (sie werden ins andere Camp kopiert, wenn sie abweichen).",
+      "moveNothing": "Erstellen Sie zuerst ein anderes Camp, um Wochen dorthin zu verschieben.",
+      "week": "Woche",
+      "targetCamp": "In Camp verschieben",
+      "moveWithRegistrations": "Auch {count, plural, one {# Anmeldung} other {# Anmeldungen}} verschieben (Familien behalten ihre Rechnung).",
+      "moveButton": "Woche verschieben",
+      "moved": "{count, plural, =0 {Woche verschoben.} one {Woche mit # Anmeldung verschoben.} other {Woche mit # Anmeldungen verschoben.}}"
+    },
+    "basket": {
+      "title": "Camp-Warenkorb",
+      "description": "Die gewählten Wochen für Ihre Kinder. Prüfen Sie die Angaben und buchen Sie alles auf einmal.",
+      "publicDescription": "Wählen Sie Wochen für ein oder mehrere Kinder in unseren Camps und buchen Sie alles auf einmal: eine Rechnung für alles.",
+      "adminTitle": "Camp-Wochen für eine Familie buchen",
+      "adminDescription": "Mehrere Wochen und Kinder in einer Buchung: eine Rechnung, eine Anmeldung pro Kind und Woche.",
+      "adminLink": "Mehrere Wochen für eine Familie buchen",
+      "family": "Familie",
+      "chooseFamily": "Auswählen",
+      "adminDone": "Gebucht. Rechnung {invoice} wurde erstellt.",
+      "openInvoice": "Rechnung öffnen",
+      "empty": "Ihr Warenkorb ist leer. Fügen Sie Wochen aus einem Camp hinzu.",
+      "browse": "Camps ansehen",
+      "otherCamps": "Alle Camps nach Saison",
+      "viewBasket": "{count, plural, =0 {Warenkorb} one {Warenkorb (# Woche)} other {Warenkorb (# Wochen)}}",
+      "checkoutCta": "{count, plural, one {Zum Warenkorb (# Woche)} other {Zum Warenkorb (# Wochen)}}",
+      "inBasket": "Im Warenkorb",
+      "withLunch": "Mit Mittagessen",
+      "withoutLunch": "Ohne Mittagessen",
+      "child": "Kind",
+      "childDetails": "Angaben zum Kind (Gesundheit)",
+      "healthNotStored": "Gesundheitsangaben werden nur mit der Buchung gesendet und nicht auf diesem Gerät gespeichert.",
+      "addSameChild": "Gleiches Kind für weitere Woche",
+      "addWeeks": "Wochen hinzufügen",
+      "copyToSibling": "Für Geschwister kopieren…",
+      "unavailable": "Diese Woche ist nicht mehr verfügbar.",
+      "weekPrice": "Wochenpreis",
+      "weeksCount": "{count, plural, one {# Woche} other {# Wochen}}",
+      "summary": "Übersicht und Zahlung",
+      "checkout": "{count, plural, one {# Woche buchen} other {# Wochen buchen}}",
+      "clear": "Warenkorb leeren",
+      "confirmClear": "Alle Wochen aus dem Warenkorb entfernen?",
+      "adder": {
+        "title": "Wochen in den Warenkorb",
+        "titleSeveral": "Mehrere Wochen auf einmal buchen",
+        "intro": "Wählen Sie ein Kind und eine oder mehrere Wochen; wiederholen Sie es für Geschwister. Tage wählen und einmal bezahlen im Warenkorb.",
+        "who": "Welches Kind?",
+        "newChild": "Neues Kind",
+        "weeks": "Welche Wochen?",
+        "add": "{count, plural, =0 {In den Warenkorb} one {# Woche in den Warenkorb} other {# Wochen in den Warenkorb}}",
+        "added": "{count, plural, one {# Woche im Warenkorb.} other {# Wochen im Warenkorb.}}",
+        "nothingAdded": "Diese Wochen sind für dieses Kind bereits im Warenkorb.",
+        "childRequired": "Geben Sie Vorname, Nachname und Geburtsdatum des Kindes ein.",
+        "pickChild": "Wählen Sie ein Kind.",
+        "pickWeeks": "Wählen Sie mindestens eine Woche."
+      },
+      "errors": {
+        "empty": "Fügen Sie mindestens eine Woche hinzu.",
+        "tooManyLines": "Höchstens 40 Wochen pro Buchung.",
+        "fixLines": "Einige Wochen benötigen Ihre Aufmerksamkeit (siehe Hinweise unter jeder Woche).",
+        "childDetails": "Geben Sie Vorname, Nachname und Geburtsdatum jedes Kindes ein.",
+        "needsForm": "„{camp}“ stellt zusätzliche Fragen: Bitte melden Sie sich auf seiner eigenen Seite an."
       }
     }
   },

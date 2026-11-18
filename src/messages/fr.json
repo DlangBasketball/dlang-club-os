@@ -1665,7 +1665,8 @@
         "promo_code": "Code promo",
         "sibling": "Fratrie",
         "early_bird": "Lève-tôt",
-        "manual": "Manuelle (admin)"
+        "manual": "Manuelle (admin)",
+        "multi_week": "Plusieurs semaines"
       },
       "kinds": {
         "percent": "Pourcentage",
@@ -1683,8 +1684,11 @@
         "promo_code": "S'applique quand la famille saisit le code. Codes : 3 à 40 lettres, chiffres, - ou _.",
         "sibling": "Appliquée automatiquement à partir de l'enfant choisi de la même famille (compté par camp).",
         "early_bird": "Appliquée automatiquement jusqu'à la date de fin de validité et/ou jusqu'à N jours avant le début.",
-        "manual": "Appliquée uniquement par un admin ou la finance sur une inscription."
-      }
+        "manual": "Appliquée uniquement par un admin ou la finance sur une inscription.",
+        "multi_week": "Appliquée automatiquement à partir de la semaine choisie du même enfant (semaines de camp qui commencent la même année civile, réservées ou dans le panier)."
+      },
+      "weekFrom": "À partir de la n-ième semaine (2 = 2e semaine)",
+      "multiWeekLine": "À partir de la semaine n° {n} du même enfant"
     },
     "manual": {
       "title": "Appliquer une réduction",
@@ -1772,7 +1776,8 @@
       "empty": "Aucun camp ouvert aux inscriptions pour le moment.",
       "editions": "{count, plural, one {# session} other {# sessions}}",
       "nextStart": "prochaine dès le {date}",
-      "registerDescription": "Choisissez la semaine, les enfants et leurs options. La facture est créée immédiatement."
+      "registerDescription": "Choisissez la semaine, les enfants et leurs options. La facture est créée immédiatement.",
+      "seasonsDescription": "Les camps de vacances de votre club par saison. Ajoutez plusieurs semaines pour vos enfants au panier et réservez tout en une fois."
     },
     "promo": {
       "UNKNOWN_CODE": "Ce code promo n'est pas valable.",
@@ -1786,7 +1791,8 @@
       "FAMILY_LIMIT_REACHED": "Vous avez déjà utilisé ce code promo.",
       "NOT_A_SIBLING": "Ce code promo ne s'applique pas.",
       "NOT_SELECTED": "Ce code promo ne s'applique pas.",
-      "NOT_COMBINABLE": "Une meilleure réduction s'applique déjà ; le code promo n'est pas cumulable."
+      "NOT_COMBINABLE": "Une meilleure réduction s'applique déjà ; le code promo n'est pas cumulable.",
+      "NOT_A_REPEAT_WEEK": "Ce code promo ne s’applique pas."
     },
     "errors": {
       "generic": "Une erreur s'est produite. Veuillez réessayer.",
@@ -1846,7 +1852,123 @@
         "USE_CANCEL": "Cela créditerait toute la facture : annulez plutôt la facture.",
         "CREDIT_EXCEEDS_AMOUNT_DUE": "La réduction dépasse le montant restant dû.",
         "INVOICE_CANCELLED": "La facture est annulée.",
-        "INVOICE_WRITTEN_OFF": "La facture a été passée en perte."
+        "INVOICE_WRITTEN_OFF": "La facture a été passée en perte.",
+        "NOTHING_TO_SPLIT": "Toutes les semaines de ce camp sont dans la même saison : rien à séparer.",
+        "SAME_CAMP": "Choisissez un autre camp.",
+        "NOT_A_CAMP": "La cible doit être un camp.",
+        "SLUG_IN_USE": "Cette adresse web est déjà utilisée par un autre programme.",
+        "DUPLICATE_LINE": "Cet enfant a déjà cette semaine dans le panier.",
+        "CHILD_NOT_FOUND": "Choisissez un enfant pour cette semaine.",
+        "PROGRAM_NOT_FOUND": "Ce camp n’est pas disponible.",
+        "DISCOUNT_AMOUNT_INVALID": "Une réduction vient de changer. Vérifiez et envoyez à nouveau.",
+        "BASKET_INVALID": "Certaines semaines demandent votre attention."
+      },
+      "weekPosition": "Saisissez un numéro de semaine entre 2 et 20.",
+      "seasonYear": "Saisissez une année entre 2000 et 2100."
+    },
+    "seasons": {
+      "names": {
+        "spring": "Printemps",
+        "summer": "Été",
+        "fall": "Automne",
+        "winter": "Hiver",
+        "other": "Autre"
+      },
+      "label": "{season} {year}",
+      "campNames": {
+        "spring": "Camp de printemps {year}",
+        "summer": "Camp d’été {year}",
+        "fall": "Camp d’automne {year}",
+        "winter": "Camp d’hiver {year}",
+        "other": "Camp {year}"
+      },
+      "unscheduled": "Pas encore de dates",
+      "allSeasons": "Toutes les saisons",
+      "filter": "Filtrer par saison",
+      "openWeeks": "{count, plural, =0 {Aucune semaine ouverte} one {# semaine ouverte} other {# semaines ouvertes}}",
+      "priceFrom": "dès {price}",
+      "publicTitle": "Camps par saison",
+      "publicIntro": "Chaque saison a son propre camp. Ouvrez un camp pour voir ses semaines, ou ajoutez plusieurs semaines au panier et réservez tout en une fois.",
+      "toolsTitle": "Saisons et semaines",
+      "seasonOfCamp": "Saison de ce camp",
+      "season": "Saison",
+      "year": "Année",
+      "auto": "Automatique ({season})",
+      "autoNone": "Automatique (selon les semaines)",
+      "saved": "Saison enregistrée.",
+      "splitTitle": "Séparer par saison",
+      "splitIntro": "Crée un camp par saison, chacun avec sa propre page d’inscription, les mêmes prix, groupes d’âge, horaires et description. Les inscriptions suivent leur semaine. Ce camp garde son lien.",
+      "splitKeep": "Ce camp garde {season} ({count, plural, one {# semaine} other {# semaines}})",
+      "splitNew": "Nouveau camp : {season} ({count, plural, one {# semaine} other {# semaines}})",
+      "splitConfirm": "Séparer ce camp par saison ? Les semaines et leurs inscriptions passent dans les nouveaux camps.",
+      "splitButton": "Séparer par saison",
+      "splitDone": "{count, plural, one {# nouveau camp créé.} other {# nouveaux camps créés.}}",
+      "splitNothing": "Toutes les semaines sont dans la même saison.",
+      "duplicateTitle": "Dupliquer pour l’année prochaine",
+      "duplicateIntro": "Crée une copie en brouillon avec chaque semaine 52 semaines plus tard (mêmes jours), les mêmes prix, groupes d’âge et horaires. Aucune inscription n’est copiée.",
+      "duplicateButton": "Dupliquer pour l’année prochaine",
+      "duplicated": "Camp en brouillon pour l’année prochaine créé.",
+      "moveTitle": "Déplacer une semaine vers un autre camp",
+      "moveIntro": "La semaine garde ses dates, son lieu, sa capacité et ses prix (copiés dans l’autre camp s’ils diffèrent).",
+      "moveNothing": "Créez d’abord un autre camp pour y déplacer des semaines.",
+      "week": "Semaine",
+      "targetCamp": "Vers le camp",
+      "moveWithRegistrations": "Déplacer aussi {count, plural, one {# inscription} other {# inscriptions}} (les familles gardent leur facture).",
+      "moveButton": "Déplacer la semaine",
+      "moved": "{count, plural, =0 {Semaine déplacée.} one {Semaine déplacée avec # inscription.} other {Semaine déplacée avec # inscriptions.}}"
+    },
+    "basket": {
+      "title": "Panier des camps",
+      "description": "Les semaines choisies pour vos enfants. Vérifiez les détails et réservez tout en une fois.",
+      "publicDescription": "Choisissez des semaines pour un ou plusieurs enfants dans nos camps, puis réservez tout en une fois : une seule facture.",
+      "adminTitle": "Réserver des semaines de camp pour une famille",
+      "adminDescription": "Plusieurs semaines et enfants en une réservation : une facture, une inscription par enfant et par semaine.",
+      "adminLink": "Réserver plusieurs semaines pour une famille",
+      "family": "Famille",
+      "chooseFamily": "Choisir",
+      "adminDone": "Réservé. La facture {invoice} a été créée.",
+      "openInvoice": "Ouvrir la facture",
+      "empty": "Votre panier est vide. Ajoutez des semaines depuis n’importe quel camp.",
+      "browse": "Voir les camps",
+      "otherCamps": "Tous les camps par saison",
+      "viewBasket": "{count, plural, =0 {Panier} one {Panier (# semaine)} other {Panier (# semaines)}}",
+      "checkoutCta": "{count, plural, one {Voir le panier (# semaine)} other {Voir le panier (# semaines)}}",
+      "inBasket": "Dans le panier",
+      "withLunch": "Avec repas de midi",
+      "withoutLunch": "Sans repas de midi",
+      "child": "Enfant",
+      "childDetails": "Détails de l’enfant (santé)",
+      "healthNotStored": "Les informations de santé sont envoyées avec la réservation uniquement ; elles ne sont pas enregistrées sur cet appareil.",
+      "addSameChild": "Même enfant, autre semaine",
+      "addWeeks": "Ajouter des semaines",
+      "copyToSibling": "Copier pour un frère ou une sœur…",
+      "unavailable": "Cette semaine n’est plus disponible.",
+      "weekPrice": "Prix de la semaine",
+      "weeksCount": "{count, plural, one {# semaine} other {# semaines}}",
+      "summary": "Récapitulatif et paiement",
+      "checkout": "{count, plural, one {Réserver # semaine} other {Réserver # semaines}}",
+      "clear": "Vider le panier",
+      "confirmClear": "Retirer toutes les semaines du panier ?",
+      "adder": {
+        "title": "Ajouter des semaines au panier",
+        "titleSeveral": "Réserver plusieurs semaines d’un coup",
+        "intro": "Choisissez un enfant et une ou plusieurs semaines ; recommencez pour les frères et sœurs. Les jours se choisissent et se paient une fois dans le panier.",
+        "who": "Quel enfant ?",
+        "newChild": "Nouvel enfant",
+        "weeks": "Quelles semaines ?",
+        "add": "{count, plural, =0 {Ajouter au panier} one {Ajouter # semaine au panier} other {Ajouter # semaines au panier}}",
+        "added": "{count, plural, one {# semaine ajoutée au panier.} other {# semaines ajoutées au panier.}}",
+        "nothingAdded": "Ces semaines sont déjà dans le panier pour cet enfant.",
+        "childRequired": "Saisissez le prénom, le nom et la date de naissance de l’enfant.",
+        "pickChild": "Choisissez un enfant.",
+        "pickWeeks": "Choisissez au moins une semaine."
+      },
+      "errors": {
+        "empty": "Ajoutez au moins une semaine.",
+        "tooManyLines": "40 semaines au maximum par réservation.",
+        "fixLines": "Certaines semaines demandent votre attention (voir les messages sous chaque semaine).",
+        "childDetails": "Saisissez le prénom, le nom et la date de naissance de chaque enfant.",
+        "needsForm": "« {camp} » pose des questions supplémentaires : inscrivez-vous depuis sa propre page."
       }
     }
   },

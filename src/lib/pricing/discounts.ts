@@ -13,6 +13,8 @@
  *       promo_code  the entered code equals the discount code (case-insensitive)
  *                   and the total / per-family usage limits are not reached
  *       sibling     the child is the nth child (siblingPosition >= sibling_min_position)
+ *       multi_week  the line is the child's nth week (weekPosition >= multi_week_min_position),
+ *                   e.g. 10% from the 2nd camp week of the same child in a year
  *       early_bird  now <= valid_until and (if set) now <= start - N days
  *       manual      only when an admin picks it (manualDiscountIds)
  *   - fixed amounts only apply in their own currency
@@ -24,7 +26,7 @@
 import { fromMinorUnits, normalizeCurrency, toMinorUnits } from "@/lib/payments/currency";
 
 export const DISCOUNT_KINDS = ["percent", "fixed_amount"] as const;
-export const DISCOUNT_RULES = ["promo_code", "sibling", "early_bird", "manual"] as const;
+export const DISCOUNT_RULES = ["promo_code", "sibling", "early_bird", "manual", "multi_week"] as const;
 export const DISCOUNT_SCOPES = ["all", "camps", "training", "program", "service", "shop"] as const;
 
 export type DiscountKind = (typeof DISCOUNT_KINDS)[number];
@@ -45,6 +47,8 @@ export type DiscountDef = {
   validFrom?: string | null;
   validUntil?: string | null;
   siblingMinPosition?: number | null;
+  /** multi_week: applies from the child's nth week (2 = 2nd week on). */
+  multiWeekMinPosition?: number | null;
   earlyBirdDaysBefore?: number | null;
   maxRedemptions?: number | null;
   maxRedemptionsPerFamily?: number | null;
@@ -67,6 +71,8 @@ export type PricingSubject = {
   startsOn?: string | null;
   /** 1-based position of this child among the family's children (sibling rule). */
   siblingPosition?: number;
+  /** 1-based position of this week among the child's camp weeks (multi_week rule). */
+  weekPosition?: number;
 };
 
 export type PricingContext = {
@@ -80,7 +86,7 @@ export type PricingContext = {
 
 export type DiscountRejection =
   | "INACTIVE" | "NOT_YET_VALID" | "EXPIRED" | "OUT_OF_SCOPE" | "CURRENCY_MISMATCH"
-  | "CODE_MISMATCH" | "LIMIT_REACHED" | "FAMILY_LIMIT_REACHED" | "NOT_A_SIBLING" | "NOT_SELECTED" | "NOT_COMBINABLE";
+  | "CODE_MISMATCH" | "LIMIT_REACHED" | "FAMILY_LIMIT_REACHED" | "NOT_A_SIBLING" | "NOT_A_REPEAT_WEEK" | "NOT_SELECTED" | "NOT_COMBINABLE";
 
 export type AppliedDiscountLine = {
   discountId: string;
@@ -104,7 +110,7 @@ export type PriceQuote = {
   promoRejection: DiscountRejection | "UNKNOWN_CODE" | null;
 };
 
-const RULE_ORDER: Record<DiscountRule, number> = { early_bird: 0, sibling: 1, promo_code: 2, manual: 3 };
+const RULE_ORDER: Record<DiscountRule, number> = { early_bird: 0, sibling: 1, multi_week: 2, promo_code: 3, manual: 4 };
 
 export function normalizePromoCode(code: string | null | undefined): string {
   return (code ?? "").trim().toUpperCase();
@@ -164,6 +170,10 @@ export function discountRejection(d: DiscountDef, s: PricingSubject, ctx: Pricin
     case "sibling": {
       const min = Math.max(2, d.siblingMinPosition ?? 2);
       return (s.siblingPosition ?? 1) >= min ? null : "NOT_A_SIBLING";
+    }
+    case "multi_week": {
+      const min = Math.max(2, d.multiWeekMinPosition ?? 2);
+      return (s.weekPosition ?? 1) >= min ? null : "NOT_A_REPEAT_WEEK";
     }
     case "early_bird": {
       if (d.earlyBirdDaysBefore != null) {

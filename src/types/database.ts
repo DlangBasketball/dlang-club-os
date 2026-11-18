@@ -168,6 +168,9 @@ export type Database = {
           schedule: Json | null; status: "draft" | "published" | "archived"; currency: string | null;
           min_age: number | null; max_age: number | null; registration_opens_at: string | null;
           registration_closes_at: string | null; archived_at: string | null; updated_at: string;
+          // camp seasons + cover image (20250420101200)
+          season: "spring" | "summer" | "fall" | "winter" | "other" | null; season_year: number | null;
+          cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;

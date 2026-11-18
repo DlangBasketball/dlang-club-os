@@ -26,7 +26,7 @@ export default async function DiscountsPage() {
           discounts={(data ?? []).map((d) => ({
             id: d.id, name: d.name, description: d.description, kind: d.kind, value: d.value, currency: d.currency, scope: d.scope,
             scopeProgramId: d.scopeProgramId ?? null, scopeServiceId: d.scopeServiceId ?? null, rule: d.rule, code: d.code ?? null,
-            validFrom: d.validFrom ?? null, validUntil: d.validUntil ?? null, siblingMinPosition: d.siblingMinPosition ?? null,
+            validFrom: d.validFrom ?? null, validUntil: d.validUntil ?? null, siblingMinPosition: d.siblingMinPosition ?? null, multiWeekMinPosition: d.multiWeekMinPosition ?? null,
             earlyBirdDaysBefore: d.earlyBirdDaysBefore ?? null, maxRedemptions: d.maxRedemptions ?? null,
             maxRedemptionsPerFamily: d.maxRedemptionsPerFamily ?? null, stackable: d.stackable !== false, active: d.active, uses: d.uses,
           }))}
