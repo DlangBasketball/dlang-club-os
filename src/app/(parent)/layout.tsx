@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { getNavNotifications } from "@/lib/data/notifications";
 import { AlertBanner } from "@/components/messaging/alerts";
 import { getBannerAlerts } from "@/lib/messaging/data";
+import { operationsHiddenHrefs } from "@/lib/operations/nav";
 
 export default async function ParentGroupLayout({
   children,
@@ -19,9 +20,9 @@ export default async function ParentGroupLayout({
   ) {
     redirect("/onboarding");
   }
-  const [notifs, alerts] = await Promise.all([getNavNotifications(), getBannerAlerts(user)]);
+  const [notifs, alerts, opsHidden] = await Promise.all([getNavNotifications(), getBannerAlerts(user), operationsHiddenHrefs(user)]);
   return (
-    <AppShell navKey="parent" user={user} notifications={{ data: notifs, viewAllHref: "/parent/notifications" }}>
+    <AppShell navKey="parent" user={user} notifications={{ data: notifs, viewAllHref: "/parent/notifications" }} hiddenHrefs={opsHidden}>
       <AlertBanner alerts={alerts} />
       {children}
     </AppShell>

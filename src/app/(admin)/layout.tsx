@@ -5,6 +5,7 @@ import { getNavNotifications } from "@/lib/data/notifications";
 import { getAssistantAccess } from "@/lib/ai/settings";
 import { AlertBanner } from "@/components/messaging/alerts";
 import { getBannerAlerts } from "@/lib/messaging/data";
+import { operationsHiddenHrefs } from "@/lib/operations/nav";
 
 export default async function AdminGroupLayout({
   children,
@@ -12,7 +13,7 @@ export default async function AdminGroupLayout({
   children: React.ReactNode;
 }) {
   const user = await requireRole(["admin", "finance"]);
-  const [notifs, assistant, alerts] = await Promise.all([getNavNotifications(), getAssistantAccess(user), getBannerAlerts(user)]);
+  const [notifs, assistant, alerts, opsHidden] = await Promise.all([getNavNotifications(), getAssistantAccess(user), getBannerAlerts(user), operationsHiddenHrefs(user)]);
   // The assistant entry shows for admins even without the paid add-on (so
   // they can discover it and find the switch), and for everyone once it is on.
   const showAssistant =
@@ -23,7 +24,7 @@ export default async function AdminGroupLayout({
       navKey="admin"
       user={user}
       notifications={{ data: notifs, viewAllHref: "/admin/notifications" }}
-      hiddenHrefs={[...(showAssistant ? [] : [ASSISTANT_HREF]), ...(user.roles.includes("admin") ? [] : ADMIN_ONLY_COMMS)]}
+      hiddenHrefs={[...(showAssistant ? [] : [ASSISTANT_HREF]), ...(user.roles.includes("admin") ? [] : ADMIN_ONLY_COMMS), ...opsHidden]}
     >
       <AlertBanner alerts={alerts} />
       {children}
