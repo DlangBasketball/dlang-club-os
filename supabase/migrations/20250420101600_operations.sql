@@ -709,7 +709,7 @@ returns boolean language sql stable security definer set search_path = public as
 $$;
 
 revoke all on function public.is_committee_member(uuid), public.can_access_committee(uuid), public.can_access_meeting(uuid),
-  public.is_any_committee_member(), public.coach_holds_checkout(uuid, uuid) from public;
+  public.is_any_committee_member(), public.coach_holds_checkout(uuid, uuid) from public, anon;
 grant execute on function public.is_committee_member(uuid), public.can_access_committee(uuid), public.can_access_meeting(uuid),
   public.is_any_committee_member(), public.coach_holds_checkout(uuid, uuid) to authenticated, service_role;
 
