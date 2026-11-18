@@ -90,6 +90,10 @@ export type Database = {
           notes: string | null;
           photo_path: string | null;
           photo_updated_at: string | null;
+          // covers (20250420101100): private athlete-covers key or a club library path
+          cover_path: string | null;
+          cover_focal_x: number;
+          cover_focal_y: number;
           created_at: string;
           updated_at: string;
         };
@@ -564,6 +568,19 @@ export type Database = {
           custom_domain: string | null; branding: Json; terminology: Json; sport: string | null;
           default_locale: string; supported_locales: string[]; timezone: string;
           plan: string; status: string; data_region: string;
+          // club hub hero (20250420101100)
+          cover_path: string | null; cover_focal_x: number; cover_focal_y: number;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      // --- media library (migration 20250420101100) -------------------------
+      media_assets: {
+        Row: {
+          id: string; org_id: string; path: string; kind: "cover" | "banner" | "gallery";
+          width: number | null; height: number | null; size_bytes: number | null; mime_type: string | null;
+          alt_text: string | null; consent_note: string | null;
+          public_use_confirmed_at: string | null; public_use_confirmed_by: string | null;
+          uploaded_by: string | null; created_at: string; updated_at: string;
         };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
@@ -803,6 +820,12 @@ export type Database = {
         Args: { p_athlete: string };
         Returns: { session_date: string; program_name: string | null; status: "present" | "late" | "absent" | "excused" }[];
       };
+      set_cover: {
+        Args: { p_target: string; p_id: string; p_path: string | null; p_focal_x?: number; p_focal_y?: number; p_public_consent?: boolean };
+        Returns: Json;
+      };
+      media_cover_targets: { Args: Record<string, never>; Returns: string[] };
+      media_asset_usage: { Args: { p_ids: string[] }; Returns: { asset_id: string; uses: number }[] };
       qrr_check_digit: { Args: { p_ref: string }; Returns: string };
       gen_qr_reference: { Args: { p_org: string; p_seed: string }; Returns: string };
       find_invoice_by_reference: { Args: { p_org: string; p_reference: string }; Returns: string };

@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -12,7 +12,7 @@ export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: stri
 /** Admin nav entries that only show when the club enabled the feature. */
 export const ASSISTANT_HREF = "/admin/assistant";
 /** Communication entries only admins use (finance shares the admin app). */
-export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads"];
+export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads", "/admin/media"];
 
 export const NAV: Record<NavKey, NavItem[]> = {
   admin: [
@@ -36,6 +36,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Schedule", labelKey: "schedule", href: "/admin/schedule", icon: CalendarDays },
     { label: "Locations", labelKey: "locations", href: "/admin/locations", icon: MapPin },
     { label: "Sports", labelKey: "sports", href: "/admin/sports", icon: Trophy },
+    { label: "Media", labelKey: "media", href: "/admin/media", icon: Images },
     { label: "Calendar", labelKey: "calendar", href: "/admin/calendar", icon: CalendarCheck },
     { label: "Timesheets", labelKey: "timesheets", href: "/admin/timesheets", icon: Timer },
     { label: "Lesson plans", labelKey: "lessonPlans", href: "/admin/lesson-plans", icon: NotebookPen },

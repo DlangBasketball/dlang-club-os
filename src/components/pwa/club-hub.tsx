@@ -9,6 +9,8 @@ import { getHubCamps } from "@/lib/data/club-hub";
 import type { Tenant } from "@/lib/tenant/types";
 import { InstallAppPrompt } from "./install-app-prompt";
 import { ContactForm } from "@/components/messaging/leads";
+import { CoverImage } from "@/components/media/cover-image";
+import { getOrgCover } from "@/lib/media/server";
 
 /** Public booking page for personal training (built by the training module). */
 export const TRAINING_BOOKING_PATH = "/book";
@@ -18,8 +20,12 @@ export const TRAINING_BOOKING_PATH = "/book";
  * training booking, member sign-in and the "Install app" card. Reachable
  * signed out; shows only public programme data.
  */
-export async function ClubHub({ tenant, signedIn = false }: { tenant: Tenant; signedIn?: boolean }) {
-  const [{ t, f }, camps] = await Promise.all([getI18n(tenant.id), tenant.id ? getHubCamps(tenant.id) : Promise.resolve([])]);
+export async function ClubHub({ tenant, signedIn = false, canEditCover = false }: { tenant: Tenant; signedIn?: boolean; canEditCover?: boolean }) {
+  const [{ t, f }, camps, cover] = await Promise.all([
+    getI18n(tenant.id),
+    tenant.id ? getHubCamps(tenant.id) : Promise.resolve([]),
+    getOrgCover(tenant.id),
+  ]);
 
   return (
     <div className="grain min-h-dvh bg-bg text-text">
@@ -37,11 +43,16 @@ export async function ClubHub({ tenant, signedIn = false }: { tenant: Tenant; si
       </header>
 
       <main className="mx-auto max-w-5xl space-y-10 px-4 py-8">
-        <section className="animate-fade-up">
-          <p className="text-xs uppercase tracking-[0.18em] text-brand-primary">{t("pwa.hub.eyebrow")}</p>
-          <h1 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">{tenant.name}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-muted">{t("pwa.hub.intro")}</p>
-        </section>
+        <CoverImage
+          cover={cover}
+          variant="hero"
+          className="animate-fade-up"
+          eyebrow={t("pwa.hub.eyebrow")}
+          title={tenant.name}
+          subtitle={t("pwa.hub.intro")}
+          edit={canEditCover && tenant.id ? { target: "org", id: tenant.id, canUseLibrary: true } : null}
+          priority
+        />
 
         <InstallAppPrompt />
 

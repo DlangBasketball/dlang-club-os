@@ -12,20 +12,27 @@ import { UpcomingSessions, UpcomingSessionsSkeleton } from "@/components/dashboa
 import { RegistrationSummary, RegistrationSummarySkeleton } from "@/components/dashboard/registration-summary";
 import { RecentPayments, RecentPaymentsSkeleton } from "@/components/dashboard/recent-payments";
 import { FinanceOverview, FinanceOverviewSkeleton } from "@/components/dashboard/finance-overview";
+import { CoverImage } from "@/components/media/cover-image";
+import { getOrgCover } from "@/lib/media/server";
+import { getTranslations } from "@/lib/i18n/server";
 
 export default async function DashboardPage() {
-  const user = await getSessionUser();
-  const firstName = user?.fullName?.split(" ")[0] ?? "there";
+  const [user, t] = await Promise.all([getSessionUser(), getTranslations()]);
+  const firstName = user?.fullName?.split(" ")[0] ?? null;
+  const cover = await getOrgCover(user?.orgId);
+  const isAdmin = !!user?.roles.includes("admin");
 
   return (
     <div className="animate-fade-up space-y-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm text-ink-3">Welcome back</p>
-          <h1 className="text-3xl font-semibold">Good to see you, {firstName}</h1>
-        </div>
-        <Link href="/admin/families"><Button><Plus className="h-4 w-4" /> Add family</Button></Link>
-      </div>
+      <CoverImage
+        cover={cover}
+        variant="subtle"
+        eyebrow={t("media.dashboard.welcomeBack")}
+        title={firstName ? t("media.dashboard.greeting", { name: firstName }) : t("media.dashboard.greetingAnonymous")}
+        edit={isAdmin && user?.orgId ? { target: "org", id: user.orgId, canUseLibrary: true } : null}
+      >
+        <Link href="/admin/families"><Button><Plus className="h-4 w-4" /> {t("media.dashboard.addFamily")}</Button></Link>
+      </CoverImage>
 
       {/* Students & money: KPI tiles + charts */}
       <Suspense fallback={<FinanceOverviewSkeleton />}>

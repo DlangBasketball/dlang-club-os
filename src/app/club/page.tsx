@@ -16,5 +16,7 @@ export default async function ClubHubPage() {
   const tenant = await getTenant();
   if (!tenant.id) notFound();
   const user = await getSessionUser();
-  return <ClubHub tenant={tenant} signedIn={Boolean(user)} />;
+  // The club's own admins get the "Edit cover" button on the hero.
+  const canEditCover = !!user && user.roles.includes("admin") && user.orgId === tenant.id;
+  return <ClubHub tenant={tenant} signedIn={Boolean(user)} canEditCover={canEditCover} />;
 }

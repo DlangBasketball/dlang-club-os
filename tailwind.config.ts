@@ -82,6 +82,17 @@ const config: Config = {
         "gold-soft": token("brand-accent-soft"),
         accent: token("brand-accent"),
         "accent-soft": token("brand-accent-soft"),
+        // ---- Covers / banners (text on a photo scrim) ---------------------
+        "cover-text": token("cover-text"),
+        "cover-text-muted": token("cover-text-muted"),
+        "cover-chip": token("cover-chip-bg"),
+        "cover-chip-border": token("cover-chip-border"),
+      },
+      backgroundImage: {
+        "cover-scrim": "var(--cover-scrim)",
+        "cover-scrim-subtle": "var(--cover-scrim-subtle)",
+        "cover-fallback": "var(--cover-fallback)",
+        "cover-pattern": "var(--cover-pattern)",
       },
       // Brand / status colours used AS TEXT switch to their AA-contrast
       // "-text" variants (a pure #DA2627 on #0A0A0A is only ~4:1).
