@@ -5,6 +5,7 @@ import { syncAccount } from "@/lib/stripe-connect";
 import { fromMinorUnits } from "./currency";
 import { methodFromStripe } from "./methods";
 import { onAutopayIntent, onAutopaySetupSession, onPaymentMethodEvent, onSetupIntentSucceeded } from "@/lib/plans/webhook";
+import { onDonationSession } from "@/lib/operations/donation-webhook";
 
 /**
  * Club-payments webhook logic (Stripe Connect aware).
@@ -186,6 +187,8 @@ async function dispatch(ctx: Ctx): Promise<WebhookOutcome> {
       const session = event.data.object as Stripe.Checkout.Session;
       // Saved card for autopay (setup mode on the club's account).
       if (session.mode === "setup" && session.metadata?.purpose === "autopay_setup") return onAutopaySetupSession(ctx, session);
+      // Public campaign donation (operations module).
+      if (session.metadata?.purpose === "donation") return onDonationSession(session, ctx.event.account);
       return onCheckoutSession(ctx, session);
     }
     case "setup_intent.succeeded":

@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -35,6 +35,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Coaches", labelKey: "coaches", href: "/admin/coaches", icon: UserCog },
     { label: "Schedule", labelKey: "schedule", href: "/admin/schedule", icon: CalendarDays },
     { label: "Locations", labelKey: "locations", href: "/admin/locations", icon: MapPin },
+    { label: "Operations", labelKey: "operations", href: "/admin/operations", icon: Boxes },
+    { label: "Board", labelKey: "board", href: "/board", icon: Landmark },
     { label: "Sports", labelKey: "sports", href: "/admin/sports", icon: Trophy },
     { label: "Media", labelKey: "media", href: "/admin/media", icon: Images },
     { label: "Calendar", labelKey: "calendar", href: "/admin/calendar", icon: CalendarCheck },
@@ -68,6 +70,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
     { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
     { label: "Roll calls", labelKey: "rollCalls", href: "/coach/roll-calls", icon: ClipboardCheck },
+    { label: "Equipment", labelKey: "equipment", href: "/coach/equipment", icon: Boxes },
+    { label: "Board", labelKey: "board", href: "/board", icon: Landmark },
     { label: "Alerts", labelKey: "alerts", href: "/coach/alerts", icon: Megaphone },
   ],
   parent: [
@@ -87,6 +91,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Documents", labelKey: "documents", href: "/parent/documents", icon: FolderOpen },
     { label: "Shop", labelKey: "shop", href: "/shop", icon: ShoppingBag },
     { label: "Forms", labelKey: "forms", href: "/parent/forms", icon: ClipboardPen },
+    { label: "Kit", labelKey: "kit", href: "/parent/kit", icon: Shirt },
+    { label: "Board", labelKey: "board", href: "/board", icon: Landmark },
     { label: "Contracts", labelKey: "contracts", href: "/parent/contracts", icon: FilePen },
   ],
 };
