@@ -30,6 +30,9 @@ const JSON_OUT = args.has("--json");
 
 // Strings that are legitimately the same across languages.
 const SAME_AS_EN_OK = new Set([
+  // accounting: French "Date" and "Canton" are the correct words
+  "accounting.common.date",
+  "accounting.support.funders.canton",
   // camp seasons: "{season} {year}", German "Winter", "Camp {year}" (fr/de) are correct as is
   "camps.seasons.label",
   "camps.seasons.names.winter",

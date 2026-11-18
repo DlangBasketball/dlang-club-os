@@ -17,6 +17,12 @@
  *                   e.g. 10% from the 2nd camp week of the same child in a year
  *       early_bird  now <= valid_until and (if set) now <= start - N days
  *       manual      only when an admin picks it (manualDiscountIds)
+ *       family_support  support for one family (scholarship, municipal subsidy,
+ *                   J+S-financed reduction ...): only that family
+ *                   (subject.familyId), only where the caller opts in
+ *                   (ctx.includeFamilySupport; invoices get it as a credit note
+ *                   from public.family_support_apply), capped by maxAmount
+ *                   minus what was already granted (usedAmount)
  *   - fixed amounts only apply in their own currency
  *   - every amount is computed on the LIST price (no compounding)
  *   - stackable discounts add up; a non-stackable one is used alone, and only
@@ -27,10 +33,16 @@ import { fromMinorUnits, normalizeCurrency, toMinorUnits } from "@/lib/payments/
 
 export const DISCOUNT_KINDS = ["percent", "fixed_amount"] as const;
 export const DISCOUNT_RULES = ["promo_code", "sibling", "early_bird", "manual", "multi_week"] as const;
+/** Family support is managed in Accounting (per family), not in the general discount editor. */
+export const FAMILY_SUPPORT_RULE = "family_support" as const;
+export const SUPPORT_REASONS = ["scholarship", "municipal_subsidy", "js_reduction", "foundation", "hardship", "other"] as const;
+export type SupportReason = (typeof SUPPORT_REASONS)[number];
 export const DISCOUNT_SCOPES = ["all", "camps", "training", "program", "service", "shop"] as const;
 
 export type DiscountKind = (typeof DISCOUNT_KINDS)[number];
 export type DiscountRule = (typeof DISCOUNT_RULES)[number];
+/** Every rule a stored discount can have (the general editor lists DISCOUNT_RULES only). */
+export type AnyDiscountRule = DiscountRule | typeof FAMILY_SUPPORT_RULE;
 export type DiscountScope = (typeof DISCOUNT_SCOPES)[number];
 
 export type DiscountDef = {
@@ -42,7 +54,7 @@ export type DiscountDef = {
   scope: DiscountScope;
   scopeProgramId?: string | null;
   scopeServiceId?: string | null;
-  rule: DiscountRule;
+  rule: AnyDiscountRule;
   code?: string | null;
   validFrom?: string | null;
   validUntil?: string | null;
@@ -50,6 +62,13 @@ export type DiscountDef = {
   /** multi_week: applies from the child's nth week (2 = 2nd week on). */
   multiWeekMinPosition?: number | null;
   earlyBirdDaysBefore?: number | null;
+  /** family_support: the one family it is for. */
+  scopeFamilyId?: string | null;
+  /** family_support: total cap across all uses (null = no cap). */
+  maxAmount?: number | null;
+  /** family_support: amount already granted (non-voided uses). */
+  usedAmount?: number;
+  supportReason?: SupportReason | null;
   maxRedemptions?: number | null;
   maxRedemptionsPerFamily?: number | null;
   stackable?: boolean;
@@ -73,6 +92,8 @@ export type PricingSubject = {
   siblingPosition?: number;
   /** 1-based position of this week among the child's camp weeks (multi_week rule). */
   weekPosition?: number;
+  /** Paying family (family_support rule). */
+  familyId?: string | null;
 };
 
 export type PricingContext = {
@@ -82,16 +103,19 @@ export type PricingContext = {
   manualDiscountIds?: string[];
   /** Promo uses already taken by earlier items of the same batch: discountId -> count. */
   batchUses?: Record<string, number>;
+  /** Apply family_support discounts (only flows that book them, e.g. invoice support previews). */
+  includeFamilySupport?: boolean;
 };
 
 export type DiscountRejection =
   | "INACTIVE" | "NOT_YET_VALID" | "EXPIRED" | "OUT_OF_SCOPE" | "CURRENCY_MISMATCH"
-  | "CODE_MISMATCH" | "LIMIT_REACHED" | "FAMILY_LIMIT_REACHED" | "NOT_A_SIBLING" | "NOT_A_REPEAT_WEEK" | "NOT_SELECTED" | "NOT_COMBINABLE";
+  | "CODE_MISMATCH" | "LIMIT_REACHED" | "FAMILY_LIMIT_REACHED" | "NOT_A_SIBLING" | "NOT_A_REPEAT_WEEK" | "NOT_SELECTED" | "NOT_COMBINABLE"
+  | "NOT_THIS_FAMILY" | "CAP_REACHED";
 
 export type AppliedDiscountLine = {
   discountId: string;
   name: string;
-  rule: DiscountRule;
+  rule: AnyDiscountRule;
   code: string | null;
   kind: DiscountKind;
   value: number;
@@ -110,7 +134,7 @@ export type PriceQuote = {
   promoRejection: DiscountRejection | "UNKNOWN_CODE" | null;
 };
 
-const RULE_ORDER: Record<DiscountRule, number> = { early_bird: 0, sibling: 1, multi_week: 2, promo_code: 3, manual: 4 };
+const RULE_ORDER: Record<AnyDiscountRule, number> = { early_bird: 0, sibling: 1, multi_week: 2, promo_code: 3, manual: 4, family_support: 5 };
 
 export function normalizePromoCode(code: string | null | undefined): string {
   return (code ?? "").trim().toUpperCase();
@@ -185,6 +209,11 @@ export function discountRejection(d: DiscountDef, s: PricingSubject, ctx: Pricin
     }
     case "manual":
       return ctx.manualDiscountIds?.includes(d.id) ? null : "NOT_SELECTED";
+    case "family_support":
+      if (!ctx.includeFamilySupport) return "NOT_SELECTED";
+      if (!d.scopeFamilyId || d.scopeFamilyId !== s.familyId) return "NOT_THIS_FAMILY";
+      if (d.maxAmount != null && (d.usedAmount ?? 0) >= d.maxAmount) return "CAP_REACHED";
+      return null;
     default:
       return "OUT_OF_SCOPE";
   }
@@ -225,7 +254,10 @@ export function computePrice(subject: PricingSubject, discounts: DiscountDef[], 
       continue;
     }
     if (isEnteredPromo) promoRejection = null;
-    const minor = discountAmountMinor(d, listMinor, currency);
+    let minor = discountAmountMinor(d, listMinor, currency);
+    if (d.rule === "family_support" && d.maxAmount != null) {
+      minor = Math.min(minor, Math.max(0, toMinorUnits(d.maxAmount, currency) - toMinorUnits(d.usedAmount ?? 0, currency)));
+    }
     if (minor > 0) cands.push({ d, minor });
   }
 

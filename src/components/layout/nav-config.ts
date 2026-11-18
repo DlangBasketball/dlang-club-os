@@ -1,4 +1,4 @@
-import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, BookOpenCheck, Undo2 } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -45,6 +45,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Payment plans", labelKey: "paymentPlans", href: "/admin/payment-plans", icon: ListOrdered },
     { label: "Recurring fees", labelKey: "recurringFees", href: "/admin/recurring-fees", icon: Repeat },
     { label: "Finance", labelKey: "finance", href: "/admin/finance", icon: Wallet },
+    { label: "Accounting", labelKey: "accounting", href: "/admin/accounting", icon: BookOpenCheck },
     { label: "Attendance", labelKey: "attendance", href: "/admin/attendance", icon: CheckSquare },
     { label: "Bookings", labelKey: "bookings", href: "/admin/bookings", icon: Dumbbell },
     { label: "Services", labelKey: "services", href: "/admin/services", icon: Dumbbell },
@@ -80,6 +81,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
     { label: "Invoices", labelKey: "invoices", href: "/parent/invoices", icon: Receipt },
     { label: "Payment plans & autopay", labelKey: "paymentPlans", href: "/parent/payment-plans", icon: ListOrdered },
+    { label: "Cancellations & refunds", labelKey: "refunds", href: "/parent/refunds", icon: Undo2 },
     { label: "Bookings", labelKey: "bookings", href: "/parent/bookings", icon: Dumbbell },
     { label: "Attendance", labelKey: "attendance", href: "/parent/attendance", icon: CheckSquare },
     { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },

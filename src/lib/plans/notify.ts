@@ -36,9 +36,9 @@ export type PlanNoticeVars = {
   installmentId?: string | null;
 };
 
-type Recipient = { profileId: string | null; email: string; locale: string | null };
+export type Recipient = { profileId: string | null; email: string; locale: string | null };
 
-async function recipients(orgId: string, familyId: string): Promise<Recipient[]> {
+export async function recipients(orgId: string, familyId: string): Promise<Recipient[]> {
   const admin = createAdminClient();
   const { data: links } = await admin.from("family_members").select("profile_id").eq("family_id", familyId);
   const ids = (links ?? []).map((l) => l.profile_id);
