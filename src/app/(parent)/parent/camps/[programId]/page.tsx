@@ -24,7 +24,6 @@ export default async function ParentCampPage({ params }: { params: Promise<{ pro
   const season = camp.program.season;
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
-      {/* HERO AREA — swap for <CoverImage> (src/components/media/cover-image.tsx) after merge */}
       <CampHero coverUrl={camp.program.coverUrl} focalX={camp.program.coverFocalX} focalY={camp.program.coverFocalY}
         kicker={season ? t("camps.seasons.label", { season: t(`camps.seasons.names.${season.season}`), year: season.year }) : t("programKind.camp")}
         title={camp.program.name}>

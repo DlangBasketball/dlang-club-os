@@ -37,7 +37,7 @@ export function SeasonCampList({ camps, linkTo }: { camps: SeasonCampCard[]; lin
               return (
                 <Link key={c.id} href={href(c)} className="group block">
                   <Card className="h-full overflow-hidden transition group-hover:border-maroon/40">
-                    {/* CAMP CARD COVER (placeholder until <CoverImage> lands): programs.cover_path */}
+                    {/* Camp card cover: programs.cover_path */}
                     {c.coverUrl && (
                       <div aria-hidden className="h-28 w-full bg-surface"
                         style={{ backgroundImage: `url("${c.coverUrl.replace(/"/g, "%22")}")`, backgroundSize: "cover", backgroundPosition: `${c.coverFocalX}% ${c.coverFocalY}%` }} />

@@ -61,7 +61,13 @@ export async function ClubHub({ tenant, signedIn = false, canEditCover = false }
             <Tent className="h-5 w-5 text-brand-primary" aria-hidden />
             <h2 id="hub-camps" className="font-display text-xl font-semibold">{t("pwa.hub.campsTitle")}</h2>
           </div>
-          <p className="text-sm text-text-muted">{t("pwa.hub.campsIntro")}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-text-muted">{t("pwa.hub.campsIntro")}</p>
+            <Link href="/register/camps" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "shrink-0")}>
+              {t("pwa.hub.campsBySeason")}
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
           {camps.length === 0 ? (
             <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-text-muted">{t("pwa.hub.campsEmpty")}</p>
           ) : (

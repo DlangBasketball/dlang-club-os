@@ -1547,7 +1547,8 @@
       "trainingIntro": "Séances individuelles ou en petit groupe avec nos coachs. Choisissez le créneau qui vous convient.",
       "trainingCta": "Réserver une séance",
       "membersTitle": "Déjà membre ?",
-      "signInHint": "Connectez-vous pour voir vos enfants, factures, réservations et documents."
+      "signInHint": "Connectez-vous pour voir vos enfants, factures, réservations et documents.",
+      "campsBySeason": "Tous les camps par saison · réserver plusieurs semaines"
     }
   },
   "camps": {

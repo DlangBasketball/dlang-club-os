@@ -25,7 +25,6 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
     const q = `?camp=${encodeURIComponent(programSlug)}`;
     return (
       <div className="animate-fade-up space-y-8">
-        {/* HERO AREA — swap for <CoverImage> (src/components/media/cover-image.tsx) after merge */}
         <CampHero coverUrl={camp.program.coverUrl} focalX={camp.program.coverFocalX} focalY={camp.program.coverFocalY}
           kicker={season ? i18n.t("camps.seasons.label", { season: i18n.t(`camps.seasons.names.${season.season}`), year: season.year }) : i18n.t("programKind.camp")}
           title={camp.program.name} />

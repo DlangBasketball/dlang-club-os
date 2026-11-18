@@ -48,8 +48,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
       {p.kind === "camp" && (
-        /* HERO AREA — swap for <CoverImage> (src/components/media/cover-image.tsx, "Edit cover") after merge */
-        <CampHero coverUrl={coverUrlOf(extra?.cover_path)} focalX={extra?.cover_focal_x ?? 50} focalY={extra?.cover_focal_y ?? 50}
+        <CampHero coverUrl={coverUrlOf(extra?.cover_path)} coverPath={extra?.cover_path ?? null} editProgramId={isAdmin ? p.id : null} focalX={extra?.cover_focal_x ?? 50} focalY={extra?.cover_focal_y ?? 50}
           kicker={shownSeason ? t("camps.seasons.label", { season: t(`camps.seasons.names.${shownSeason.season}`), year: shownSeason.year }) : t("programKind.camp")}
           title={p.name} />
       )}

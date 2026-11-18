@@ -1547,7 +1547,8 @@
       "trainingIntro": "Sessioni individuali e in piccoli gruppi con i nostri allenatori. Scegli l’orario che preferisci.",
       "trainingCta": "Prenota una sessione",
       "membersTitle": "Sei già socio?",
-      "signInHint": "Accedi per vedere i tuoi figli, le fatture, le prenotazioni e i documenti."
+      "signInHint": "Accedi per vedere i tuoi figli, le fatture, le prenotazioni e i documenti.",
+      "campsBySeason": "Tutti i camp per stagione · prenota più settimane"
     }
   },
   "camps": {

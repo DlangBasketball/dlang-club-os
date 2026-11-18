@@ -1547,7 +1547,8 @@
       "trainingIntro": "One-to-one and small-group sessions with our coaches. Pick a time that suits you.",
       "trainingCta": "Book a session",
       "membersTitle": "Already a member?",
-      "signInHint": "Sign in to see your children, invoices, bookings and documents."
+      "signInHint": "Sign in to see your children, invoices, bookings and documents.",
+      "campsBySeason": "All camps by season · book several weeks"
     }
   },
   "camps": {
