@@ -11,6 +11,10 @@ import { getAthleteEditContext } from "@/lib/data/people-edit";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getTranslations } from "@/lib/i18n/server";
 import { signAthletePhotos } from "@/lib/people/server";
+import { PlayerTeamsCard } from "@/components/teams/player-teams-card";
+import { CoverImage } from "@/components/media/cover-image";
+import { getAthleteCover } from "@/lib/media/server";
+import { getPlayerTeams, getTeamPickerOptions } from "@/lib/data/player-profile";
 
 export default async function EditAthletePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,9 +28,12 @@ export default async function EditAthletePage({ params }: { params: Promise<{ id
     return <ErrorState title={t("editPeople.errors.forbidden")} message={t("editPeople.readOnly")} />;
   }
 
-  const [ctx, photos] = await Promise.all([
+  const [ctx, photos, cover, teams, teamOptions] = await Promise.all([
     getAthleteEditContext(id, a.familyId),
     signAthletePhotos([{ id: a.id, photoPath: a.photoPath }], a.orgId),
+    getAthleteCover(a.id),
+    getPlayerTeams(a.id),
+    getTeamPickerOptions(),
   ]);
 
   return (
@@ -45,6 +52,12 @@ export default async function EditAthletePage({ params }: { params: Promise<{ id
         </CardBody>
       </Card>
 
+      <section className="max-w-2xl space-y-2">
+        <h2 className="text-lg font-semibold">{t("media.profile.coverTitle")}</h2>
+        <CoverImage cover={cover} variant="compact" edit={{ target: "athlete", id, canUseLibrary: true }} />
+        <p className="text-xs text-text-muted">{t("media.cover.athletePrivacy")}</p>
+      </section>
+
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">{t("editPeople.athlete.sectionProfile")}</h2>
         <AthleteForm
@@ -60,7 +73,9 @@ export default async function EditAthletePage({ params }: { params: Promise<{ id
         />
       </section>
 
-      <AthleteProgrammes athleteId={id} registrations={ctx.registrations} teams={ctx.teams} programs={ctx.programs} />
+      <PlayerTeamsCard athleteId={id} teams={teams} options={teamOptions} editable className="max-w-2xl" />
+
+      <AthleteProgrammes athleteId={id} registrations={ctx.registrations} teams={ctx.teams} programs={ctx.programs} showTeams={false} />
 
       <div id="medical" className="scroll-mt-6">
         <MedicalForm

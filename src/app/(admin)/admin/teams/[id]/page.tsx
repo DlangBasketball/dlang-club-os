@@ -11,6 +11,8 @@ import { getTenant } from "@/lib/tenant/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { SportTagPicker } from "@/components/sports/sports-manager";
 import { currentSportId, sportOptions } from "@/lib/sports/data";
+import { CoverImage } from "@/components/media/cover-image";
+import { getTeamCover } from "@/lib/media/server";
 
 export const metadata = { title: "Team" };
 
@@ -24,19 +26,27 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
   const t = team.data;
   if (!t) notFound();
   const counts = await rsvpCounts(upcoming.data!.map((e) => e.id));
-  const me = await getSessionUser();
-  const [sports, sportId] = me?.orgId && me.roles.includes("admin")
+  const [me, cover] = await Promise.all([getSessionUser(), getTeamCover(t.id)]);
+  const isAdmin = !!me?.roles.includes("admin");
+  const [sports, sportId] = me?.orgId && isAdmin
     ? await Promise.all([sportOptions(me.orgId), currentSportId("teams", t.id)])
     : [[], null];
 
   return (
     <div className="animate-fade-up space-y-6">
-      <PageHeader title={t.name}
-        description={[t.sport, t.ageGroup, t.gender, t.level, t.seasonName].filter(Boolean).join(" · ") || undefined}
-        actions={<>
-          <Link href={`/admin/schedule/new?team=${t.id}`}><Button size="sm" variant="secondary"><CalendarPlus className="h-4 w-4" /> Add event</Button></Link>
-          <Link href={`/admin/teams/${t.id}/edit`}><Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> Edit</Button></Link>
-        </>} />
+      <CoverImage
+        cover={cover}
+        variant="banner"
+        eyebrow={t.seasonName ?? undefined}
+        title={t.name}
+        subtitle={[t.sport, t.ageGroup, t.gender, t.level].filter(Boolean).join(" · ") || undefined}
+        edit={isAdmin ? { target: "team", id: t.id, canUseLibrary: true } : null}
+        priority
+      />
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Link href={`/admin/schedule/new?team=${t.id}`}><Button size="sm" variant="secondary"><CalendarPlus className="h-4 w-4" /> {tr("media.team.addEvent")}</Button></Link>
+        <Link href={`/admin/teams/${t.id}/edit`}><Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> {tr("common.edit")}</Button></Link>
+      </div>
 
       <SportTagPicker kind="team" recordId={t.id} value={sportId} sports={sports} />
 
@@ -58,7 +68,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">{LABELS.roster} <span className="text-sm font-normal text-ink-3">({t.roster.filter((r) => r.status !== "inactive").length})</span></h2>
-        <RosterManager teamId={t.id} roster={t.roster} athletes={athletes.data!} />
+        <RosterManager teamId={t.id} roster={t.roster} athletes={athletes.data!} linkPlayers canAdd={isAdmin} />
       </section>
 
       <Card>

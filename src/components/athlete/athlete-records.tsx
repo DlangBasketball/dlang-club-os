@@ -24,11 +24,14 @@ export function AthleteProgrammes({
   registrations,
   teams,
   programs,
+  showTeams = true,
 }: {
   athleteId: string;
   registrations: AthleteRegistrationRow[];
   teams: AthleteTeamRow[];
   programs: Opt[];
+  /** Hide the read-only team list (the page shows the editable Teams card instead). */
+  showTeams?: boolean;
 }) {
   const t = useT();
   const router = useRouter();
@@ -98,7 +101,7 @@ export function AthleteProgrammes({
         )}
         <Status msg={msg} />
 
-        <div>
+        {showTeams && <div>
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-ink"><Shield className="h-4 w-4" /> {t("editPeople.programmes.teams")}</div>
           {teams.length === 0 ? (
             <p className="text-sm text-ink-3">{t("editPeople.programmes.noTeams")}</p>
@@ -119,7 +122,7 @@ export function AthleteProgrammes({
               ))}
             </ul>
           )}
-        </div>
+        </div>}
       </CardBody>
     </Card>
   );
