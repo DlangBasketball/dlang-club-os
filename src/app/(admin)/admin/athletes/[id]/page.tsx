@@ -276,7 +276,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
         cover={cover}
         coverEdit={isAdmin ? { target: "athlete", id: a.id, canUseLibrary: true } : null}
         teams={teams.map((m) => ({ teamId: m.teamId, teamName: m.teamName, color: m.color, jerseyNumber: m.jerseyNumber, position: m.position }))}
-        teamHref={(teamId) => `/admin/teams/${teamId}`}
+        teamHrefBase="/admin/teams/"
         positionPref={a.positionPref}
         age={ageOn(a.dob, today)}
         status={a.status}

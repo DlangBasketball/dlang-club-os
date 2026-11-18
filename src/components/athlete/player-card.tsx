@@ -36,7 +36,7 @@ export function PlayerCard({
   status,
   familyName,
   familyHref,
-  teamHref,
+  teamHrefBase,
   actions,
   stats,
   showCredits = false,
@@ -52,7 +52,8 @@ export function PlayerCard({
   familyName?: string | null;
   familyHref?: string | null;
   /** Build a link for a team chip (admins); omit for plain chips. */
-  teamHref?: (teamId: string) => string;
+  /** Link prefix for team chips, e.g. "/admin/teams/" (strings only: this is a client component). */
+  teamHrefBase?: string | null;
   actions?: React.ReactNode;
   stats?: PlayerCardStats | null;
   showCredits?: boolean;
@@ -103,13 +104,13 @@ export function PlayerCard({
               <ul className="mt-2 flex flex-wrap gap-1.5" aria-label={t("media.roster.teamsTitle")}>
                 {teams.map((tm) => {
                   const chip = (
-                    <span className={cn("inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-elevated px-2.5 py-0.5 text-xs text-text", teamHref && "hover:border-brand-primary")}>
+                    <span className={cn("inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-elevated px-2.5 py-0.5 text-xs text-text", teamHrefBase && "hover:border-brand-primary")}>
                       <span aria-hidden className="h-2 w-2 rounded-full bg-brand-primary" style={tm.color ? { backgroundColor: tm.color } : undefined} />
                       {tm.teamName}
                       {tm.jerseyNumber !== null && <span className="tnum text-text-muted">#{tm.jerseyNumber}</span>}
                     </span>
                   );
-                  return <li key={tm.teamId}>{teamHref ? <Link href={teamHref(tm.teamId)}>{chip}</Link> : chip}</li>;
+                  return <li key={tm.teamId}>{teamHrefBase ? <Link href={`${teamHrefBase}${tm.teamId}`}>{chip}</Link> : chip}</li>;
                 })}
               </ul>
             )}
