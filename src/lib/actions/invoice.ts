@@ -17,6 +17,8 @@ import { invoiceIssued, overdueReminder } from "@/lib/email/templates";
 import type { Json } from "@/types/database";
 import { moneyFail, moneyT, notPermitted, invalidInput, requireMoneyStaff, revalidateMoney } from "@/lib/money/action-helpers";
 import { invoiceMoney } from "@/lib/payments/adjustments";
+import { guardianMayPay } from "@/lib/family/billing";
+import { getTranslations } from "@/lib/i18n/server";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -194,6 +196,13 @@ export async function createCheckoutSession(invoiceId: string): Promise<{ ok: tr
   // RLS ensures the caller may only read an invoice they're entitled to.
   const inv = await loadPayableInvoice(invoiceId);
   if (!inv.ok) return inv;
+  // A second guardian without the "can pay" permission cannot start a payment.
+  if (!me.roles.includes("admin") && !me.roles.includes("finance")) {
+    const { data: famRow } = await (await createClient()).from("invoices").select("family_id").eq("id", inv.id).maybeSingle();
+    if (famRow?.family_id && !(await guardianMayPay(inv.orgId, famRow.family_id, me.id))) {
+      return { ok: false, error: (await getTranslations())("family.errors.cannotPay") };
+    }
+  }
 
   if (!getStripe()) return { ok: false, error: "Online payments aren't configured yet" };
   const profile = await getOrgPaymentProfile(inv.orgId);

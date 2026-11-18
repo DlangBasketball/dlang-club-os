@@ -15,6 +15,7 @@ import { InboxList } from "./inbox-list";
 import { threadTitle } from "@/lib/messaging/format";
 import { NewChannelForm, NewThreadForm } from "./compose-forms";
 import { PreferencesForm } from "./settings";
+import { PushOptIn } from "@/components/family/push-opt-in";
 import { ThreadView } from "./thread-view";
 
 /**
@@ -137,7 +138,11 @@ export async function NotificationPreferencesPage({ app }: { app: MessagingApp }
   const me = await requireRole(ROLES[app]);
   const { t } = await getI18n();
   const prefs = await getMyPreferences(me);
-  const categories: NotificationCategory[] = me.roles.includes("admin") ? ["messages", "alerts", "leads", "announcements"] : ["messages", "alerts", "announcements"];
+  const categories: NotificationCategory[] = me.roles.includes("admin")
+    ? ["messages", "alerts", "leads", "announcements", "events", "payments"]
+    : me.roles.includes("parent")
+      ? ["messages", "alerts", "announcements", "events", "payments"]
+      : ["messages", "alerts", "announcements", "events"];
   return (
     <div className="animate-fade-up max-w-2xl space-y-5">
       <PageHeader
@@ -145,6 +150,7 @@ export async function NotificationPreferencesPage({ app }: { app: MessagingApp }
         title={t("messaging.preferences.title")}
         description={t("messaging.preferences.description")}
       />
+      {app !== "admin" && <PushOptIn />}
       <PreferencesForm initial={{ channels: effectiveChannels(prefs.channels), quietStart: prefs.quietStart, quietEnd: prefs.quietEnd }} categories={categories} />
     </div>
   );

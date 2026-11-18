@@ -30,6 +30,18 @@ const JSON_OUT = args.has("--json");
 
 // Strings that are legitimately the same across languages.
 const SAME_AS_EN_OK = new Set([
+  // family & multi-club: international words ("Push", "Club", "College", "Status", "Teams", "Training", "Documents", "Notifications", "Type", "Position")
+  "messaging.preferences.push",
+  "family.push.event.types.training",
+  "family.placement.status",
+  "family.placement.kind",
+  "family.placement.kinds.club",
+  "family.placement.kinds.college",
+  "family.placement.documents",
+  "family.scout.fieldNames.position",
+  "family.scout.fieldNames.teams",
+  "family.privacy.export.sections.documents",
+  "family.pages.privacy.notifications",
   // camp seasons: "{season} {year}", German "Winter", "Camp {year}" (fr/de) are correct as is
   "camps.seasons.label",
   "camps.seasons.names.winter",

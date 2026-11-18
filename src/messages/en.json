@@ -163,7 +163,12 @@
     "contracts": "Contracts",
     "paymentPlans": "Payment plans",
     "recurringFees": "Recurring fees",
-    "media": "Media"
+    "media": "Media",
+    "family": "Family",
+    "privacy": "Privacy & data",
+    "carpool": "Carpooling",
+    "journey": "Player journey",
+    "familyBilling": "Split billing"
   },
   "shell": {
     "openMenu": "Open menu",
@@ -3495,8 +3500,12 @@
         "messages": "Messages",
         "alerts": "Alerts",
         "leads": "New contacts",
-        "announcements": "Club announcements"
-      }
+        "announcements": "Club announcements",
+        "events": "Cancellations and changes",
+        "payments": "Payments due or failed"
+      },
+      "push": "Push",
+      "pushHint": "Push notifications reach the devices where you turned them on."
     },
     "alerts": {
       "pageTitle": "Alerts",
@@ -5234,6 +5243,451 @@
       "invalidPath": "That image can't be used here.",
       "inUse": "This image is still used as a cover. Replace it there first.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "family": {
+    "orgSwitcher": {
+      "label": "Switch club"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "forbidden": "You don't have permission to do that.",
+      "invalid": "Please check the highlighted fields.",
+      "noFamily": "No family is linked to your account in this club.",
+      "notOnRoster": "Only families of players on this event's roster can use its carpool board.",
+      "selfInvite": "You can't invite yourself.",
+      "alreadyGuardian": "This person is already a guardian of the family.",
+      "invitePending": "An invitation to this email address is already pending.",
+      "cannotPay": "Your guardian permissions don't include payments for this family.",
+      "exportFailed": "The export could not be created. Please try again later.",
+      "confirmRequired": "Please confirm that you understand what will be deleted.",
+      "erasurePending": "A deletion request is already waiting for the club.",
+      "consentRequired": "Publishing needs your explicit consent.",
+      "pushNotConfigured": "Push notifications are not available for this club yet.",
+      "pushNoDevice": "No device is registered for push notifications yet.",
+      "NO_MEMBERSHIP": "You are not a member of that club.",
+      "NOT_FOUND": "Not found, or not in this club.",
+      "NOT_ALLOWED": "Only the primary guardian or the club can do this.",
+      "NOT_A_GUARDIAN": "This person is not a guardian of the family.",
+      "CANNOT_REMOVE_PRIMARY": "The primary guardian can't be removed. Ask the club to change it first.",
+      "SHARES_MUST_TOTAL_100": "The shares must add up to 100%.",
+      "SPLIT_NEEDS_TWO_PAYERS": "A split needs at least two paying guardians.",
+      "SHARE_NOT_A_PAYER": "Only guardians who may pay can take a share.",
+      "INVALID_SHARES": "Each share must be between 0 and 100%.",
+      "ALREADY_SPLIT": "This invoice is already split.",
+      "INVOICE_NOT_OPEN": "Only open, unpaid invoices can be split.",
+      "INVOICE_NOT_SPLITTABLE": "Invoices with credit or debit notes can't be split.",
+      "FAMILY_NOT_SPLIT": "This family pays with a single payer.",
+      "INVOICE_LINKED": "This invoice is linked to a payment, plan or order and stays as issued.",
+      "SAME_FAMILY": "You can't match a request with your own family's offer.",
+      "NOT_OPEN": "This offer or request is no longer open.",
+      "EVENT_CLOSED": "This event is over or cancelled.",
+      "NOT_ENOUGH_SEATS": "Not enough free seats in this car.",
+      "GUARDIAN_CONSENT_REQUIRED": "Only a guardian of the player can publish this profile.",
+      "INVALID_EXPIRY": "Choose a validity between 1 day and 1 year.",
+      "NO_FIELDS": "Choose at least one item to show.",
+      "CROSS_ORG_REFERENCE": "That selection belongs to another club."
+    },
+    "messages": {
+      "consentGiven": "Consent recorded.",
+      "consentWithdrawn": "Consent withdrawn.",
+      "correctionSent": "Your correction request was sent to the club.",
+      "deleted": "Deleted.",
+      "erasureSent": "Your deletion request was sent. The club will confirm before anything is deleted.",
+      "exportReady": "Your export is ready.",
+      "guardianRemoved": "Guardian removed.",
+      "inviteRevoked": "Invitation withdrawn.",
+      "inviteSent": "Invitation sent.",
+      "invoicesSplit": "Open invoices were split.",
+      "matchCancelled": "Ride cancelled.",
+      "matched": "Ride arranged. A private conversation was opened.",
+      "offerPosted": "Your offer is on the board.",
+      "permissionsSaved": "Permissions saved.",
+      "placementSaved": "Target saved.",
+      "postWithdrawn": "Withdrawn.",
+      "pushOff": "Push notifications are off on this device.",
+      "pushOn": "Push notifications are on for this device.",
+      "pushTestSent": "Test notification sent.",
+      "requestPosted": "Your request is on the board.",
+      "reviewSaved": "Review saved.",
+      "scoutPublished": "Profile published. Copy the link now: it is shown only once.",
+      "scoutRevoked": "Profile unpublished. The link no longer works.",
+      "splitSaved": "Billing split saved."
+    },
+    "relations": {
+      "mother": "Mother",
+      "father": "Father",
+      "guardian": "Guardian",
+      "partner": "Partner",
+      "grandparent": "Grandparent",
+      "other": "Other"
+    },
+    "guardians": {
+      "title": "Guardians · {family}",
+      "children": "Children: {names}",
+      "primary": "Primary",
+      "you": "You",
+      "leave": "Leave family",
+      "leaveConfirm": "Leave this family? You will lose access to the children's records.",
+      "remove": "Remove",
+      "removeConfirm": "Remove {name} from the family?",
+      "onlyPrimary": "Only the primary guardian can change permissions and invite others."
+    },
+    "permissions": {
+      "canPay": "Can pay invoices",
+      "canSeeMedical": "Can see medical information",
+      "receivesEmails": "Receives club emails"
+    },
+    "invite": {
+      "title": "Invite a second guardian",
+      "email": "Email address",
+      "relation": "Relationship to the children",
+      "permissions": "Permissions",
+      "hint": "They get their own login and see the same children. You can change the permissions at any time.",
+      "send": "Send invitation",
+      "pending": "Pending invitations",
+      "revoke": "Withdraw"
+    },
+    "split": {
+      "title": "Who pays",
+      "intro": "With a split, each family invoice becomes one invoice per paying guardian, each with its own QR bill and payment link. Reminders go to the responsible payer.",
+      "single": "One payer (no split)",
+      "split": "Split between guardians",
+      "shareOf": "Share for {name} (%)",
+      "sharePct": "{pct}% of invoices",
+      "even": "Split evenly",
+      "example": "Example: {amount} becomes {parts}",
+      "hint": "Applies to new invoices. Invoices that are already paid, adjusted or on a payment plan stay as they are.",
+      "needTwo": "A split needs two guardians who may pay. Invite a second guardian first.",
+      "current": "Invoices are split: {shares}",
+      "singleCurrent": "Invoices go to one payer.",
+      "problem": {
+        "TOTAL": "The shares must add up to 100%.",
+        "TWO_PAYERS": "At least two guardians need a share.",
+        "RANGE": "Each share must be between 0 and 100%.",
+        "DUPLICATE": "Each guardian can have one share only."
+      }
+    },
+    "email": {
+      "guardianAdded": {
+        "subject": "You were added as a guardian at {club}",
+        "intro": "{name} added you as a guardian of their family at {club}. Sign in with your existing account to see the children, the schedule and invoices.",
+        "cta": "Open the app"
+      },
+      "footer": "You receive this email because a guardian of your family added you."
+    },
+    "privacy": {
+      "export": {
+        "title": "Download my family's data",
+        "intro": "A readable summary and a machine-readable file with everything the club stores about you and your children that you can see.",
+        "button": "Prepare download",
+        "html": "Readable summary (HTML)",
+        "json": "Data file (JSON)",
+        "expires": "Links are private and stop working at {time}.",
+        "docTitle": "My family's data",
+        "docIntro": "This summary lists the data the club holds about you and your children. The JSON file contains the same data in full.",
+        "generated": "Generated",
+        "empty": "Nothing stored.",
+        "sections": {
+          "profile": "My profile",
+          "families": "Family",
+          "guardians": "Guardians and permissions",
+          "children": "Children",
+          "medical": "Medical information",
+          "registrations": "Registrations",
+          "invoices": "Invoices",
+          "consents": "Signed consents",
+          "consentHistory": "Consent history",
+          "documents": "Documents",
+          "attendance": "Attendance",
+          "bookings": "Training bookings",
+          "seasonReviews": "Season reviews",
+          "placements": "Placement targets",
+          "carpoolOffers": "My carpool offers",
+          "carpoolRequests": "My carpool requests",
+          "notificationPreferences": "Notification preferences",
+          "devices": "Devices for push notifications",
+          "privacyRequests": "Privacy requests"
+        }
+      },
+      "consents": {
+        "title": "Consents",
+        "media": "Photos and videos",
+        "mediaHint": "Allow the club to publish photos and videos in which your child can be recognized (website, social media, print).",
+        "mediaFor": "Photo and video consent for {name}",
+        "marketing": "Club news and offers",
+        "marketingHint": "Receive newsletters, camp offers and fundraising news by email.",
+        "notDecided": "Not decided yet",
+        "givenOn": "Given on {date}",
+        "withdrawnOn": "Withdrawn on {date}",
+        "history": "History",
+        "given": "given",
+        "withdrawn": "withdrawn",
+        "kinds": {
+          "media": "Photos and videos",
+          "marketing": "Club news",
+          "scout_profile": "Scout profile"
+        }
+      },
+      "correction": {
+        "title": "Ask for a correction",
+        "about": "About",
+        "aboutFamily": "Our family",
+        "details": "What is wrong and what should it say?",
+        "hint": "Please don't include medical details here; the club will contact you if needed.",
+        "send": "Send request"
+      },
+      "erasure": {
+        "title": "Ask to delete our data",
+        "intro": "The club reviews the request and then removes or anonymizes your family's personal data, including the children's records, documents and photos.",
+        "retention": "Invoices and payments are kept for the legally required period (accounting records), without other personal details.",
+        "reason": "Reason (optional)",
+        "confirm": "I understand that this deletes our family's records and cannot be undone.",
+        "send": "Request deletion",
+        "pending": "Deletion request pending with the club"
+      },
+      "requests": {
+        "title": "My privacy requests",
+        "due": "Answer due by {date}",
+        "types": {
+          "access": "Access",
+          "rectification": "Correction",
+          "erasure": "Deletion",
+          "portability": "Data download",
+          "restriction": "Restriction",
+          "objection": "Objection",
+          "withdraw_consent": "Consent withdrawal"
+        },
+        "status": {
+          "received": "Received",
+          "verifying": "Verifying",
+          "in_progress": "In progress",
+          "extended": "Extended",
+          "completed": "Completed",
+          "rejected": "Rejected",
+          "withdrawn": "Withdrawn"
+        }
+      }
+    },
+    "push": {
+      "optIn": {
+        "title": "Push notifications on this device",
+        "intro": "Get urgent alerts, cancellations and changes, new messages and payment notices right away, even when the app is closed.",
+        "enable": "Turn on",
+        "disable": "Turn off on this device",
+        "test": "Send a test",
+        "denied": "Notifications were not allowed. You can change this in your browser settings.",
+        "blocked": "Notifications are blocked for this site in your browser settings.",
+        "unsupported": "This browser does not support push notifications.",
+        "iosInstall": "On iPhone and iPad (iOS 16.4 or later), push notifications only work for the installed app: tap Share, then “Add to Home Screen”, open the app from your home screen and turn them on there.",
+        "platforms": "Works on Android and desktop browsers. Choose below which topics may send a push; nothing is sent during your quiet hours except urgent alerts."
+      },
+      "test": {
+        "title": "Notifications are working",
+        "body": "You will get club updates on this device."
+      },
+      "event": {
+        "cancelled": {
+          "title": "Cancelled: {name}",
+          "body": "The event on {date} is cancelled."
+        },
+        "postponed": {
+          "title": "Postponed: {name}",
+          "body": "The event planned for {date} is postponed. A new date follows."
+        },
+        "changed": {
+          "title": "Changed: {name}",
+          "body": "New time or place: {date}. Check the schedule."
+        },
+        "types": {
+          "training": "Training",
+          "game": "Game",
+          "tournament": "Tournament",
+          "meeting": "Meeting",
+          "other": "Event"
+        }
+      },
+      "carpool": {
+        "matched": {
+          "title": "Carpool arranged",
+          "body": "{event}, {date}. Open the conversation to agree on the details."
+        },
+        "cancelled": {
+          "title": "Carpool cancelled",
+          "body": "Your ride was cancelled. The board shows other options."
+        }
+      },
+      "split": {
+        "title": "Your share: invoice {number}",
+        "body": "A family invoice was split between guardians. This part is yours to pay."
+      },
+      "privacy": {
+        "correction": "New correction request from a family",
+        "erasure": "New deletion request from a family"
+      }
+    },
+    "carpool": {
+      "fromArea": "Leaving from (area, no street address)",
+      "seats": "Free seats",
+      "seatsNeeded": "Seats needed",
+      "departsAt": "Departure",
+      "note": "Note (optional)",
+      "returnTrip": "Return trip too",
+      "privacyHint": "Only families on this roster see the board. Agree on details in the private conversation; phone numbers and emails are never shown.",
+      "offerSeats": "Offer seats",
+      "requestSeat": "Ask for a seat",
+      "offers": "Cars",
+      "requests": "Looking for a seat",
+      "noOffers": "No cars offered yet.",
+      "noRequests": "Nobody is looking for a seat.",
+      "someone": "A parent",
+      "seatsLeft": "{count, plural, =0 {Full} one {# of {total} seats free} other {# of {total} seats free}}",
+      "fromAt": "From {from} · leaves {time}",
+      "needsFrom": "{seats, plural, one {# seat} other {# seats}} from {from}",
+      "join": "Join ({seats})",
+      "accept": "Take them",
+      "withdraw": "Withdraw",
+      "match": "Pair",
+      "suggestions": "Suggested pairs",
+      "suggestion": "{driver} could take {passenger} ({seats}) from {from}",
+      "matches": "Arranged rides",
+      "matchLine": "{passenger} rides with {driver} ({seats})",
+      "openThread": "Open conversation",
+      "cancelMatch": "Cancel ride",
+      "requestStatus": {
+        "open": "Looking",
+        "matched": "Has a ride"
+      },
+      "away": "Away",
+      "counts": "{offers, plural, =0 {No cars} one {# car} other {# cars}} · {requests, plural, =0 {nobody looking} one {# looking} other {# looking}}",
+      "cancelledEvent": "This event is cancelled."
+    },
+    "journey": {
+      "history": "Season by season",
+      "addReview": "Add end-of-season review",
+      "season": "Season",
+      "otherPeriod": "Other period",
+      "periodLabel": "Title",
+      "coachComment": "Coach's comment",
+      "awards": "Awards",
+      "awardsHint": "Separate several awards with commas.",
+      "sharedWithFamily": "Visible to the family",
+      "notShared": "Not shared with the family",
+      "noHistory": "No season history yet.",
+      "games": "Games",
+      "record": "Team record",
+      "recordValue": "{w} W · {l} L · {d} D",
+      "attendance": "Attendance",
+      "evaluationTrend": "Evaluation trend"
+    },
+    "placement": {
+      "title": "Placement and scholarship tracker",
+      "add": "Add target",
+      "pipeline": "Interested → contacted → trial → offer → placed",
+      "none": "No targets yet.",
+      "target": "School, club or college",
+      "kind": "Type",
+      "status": "Status",
+      "deadline": "Deadline",
+      "deadlineOn": "Deadline {date}",
+      "country": "Country",
+      "level": "Level",
+      "nextStep": "Next step",
+      "nextStepValue": "Next: {step}",
+      "notes": "Notes",
+      "documents": "Documents",
+      "documentsValue": "Documents: {names}",
+      "kinds": {
+        "school": "School",
+        "club": "Club",
+        "college": "College",
+        "academy": "Academy",
+        "other": "Other"
+      },
+      "statuses": {
+        "interested": "Interested",
+        "contacted": "Contacted",
+        "trial": "Trial",
+        "offer": "Offer",
+        "placed": "Placed",
+        "declined": "Declined",
+        "withdrawn": "Withdrawn"
+      }
+    },
+    "scout": {
+      "title": "Profile for scouts",
+      "intro": "A page you can share with scouts, schools or clubs. It is off by default, shows only what you choose, expires and can be withdrawn at any time. Medical data is never shown.",
+      "off": "Not published",
+      "live": "Published until {date} · {views, plural, =0 {not viewed yet} one {# view} other {# views}}",
+      "revoked": "Withdrawn",
+      "expired": "Expired",
+      "fields": "Show",
+      "neverMedical": "Medical information, contact details and family data are never shown.",
+      "validity": "Link valid for",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "headline": "Short headline (optional)",
+      "consent": "As a guardian, I consent to publishing the selected information about my child through this link until it expires or I withdraw it.",
+      "publish": "Publish and create link",
+      "republish": "Update and create a new link",
+      "revoke": "Withdraw profile",
+      "linkOnce": "Copy this link now. For security it is shown only once; publishing again creates a new link and the old one stops working.",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "guardianOnly": "Only the player's guardians can publish this profile. Staff can withdraw it.",
+      "publicTitle": "Player profile",
+      "fieldNames": {
+        "full_name": "Full last name (otherwise initial only)",
+        "birth_year": "Year of birth",
+        "position": "Position",
+        "dominant_hand": "Strong hand",
+        "teams": "Teams",
+        "stats": "Game statistics",
+        "attendance": "Attendance rate",
+        "evaluation_trend": "Evaluation trend",
+        "coach_comments": "Coach comments",
+        "awards": "Awards",
+        "placements": "Offers and placements"
+      },
+      "view": {
+        "born": "Born {year}",
+        "hand": "Strong hand: {hand}",
+        "games": "{count, plural, =0 {No games recorded} one {# game recorded} other {# games recorded}}",
+        "attendance": "Attendance: {pct}",
+        "seasons": "Seasons",
+        "footer": "Shared by the player's family with consent. This page stops working on {date} or when withdrawn."
+      }
+    },
+    "pages": {
+      "family": {
+        "title": "Family",
+        "description": "Guardians, their permissions and who pays.",
+        "empty": "No family is linked to your account in this club."
+      },
+      "privacy": {
+        "title": "Privacy and data",
+        "description": "Download your data, manage consents, ask for corrections or deletion, and choose how we notify you.",
+        "notifications": "Notifications"
+      },
+      "carpool": {
+        "title": "Carpooling",
+        "description": "Share rides to away games and events with other families on the roster.",
+        "staffDescription": "Overview of ride offers and requests for upcoming events.",
+        "empty": "No upcoming events with a carpool board."
+      },
+      "journey": {
+        "title": "Player journey",
+        "description": "Season history, coach reviews, placements and the scout profile.",
+        "detailDescription": "Teams, results, attendance, evaluations and coach comments season by season.",
+        "empty": "No players to show."
+      },
+      "billing": {
+        "title": "Split billing",
+        "description": "Families whose invoices are split between guardians. New invoices are split automatically; you can also split open ones now.",
+        "empty": "No family uses a billing split.",
+        "families": "Families with a split",
+        "openUnsplit": "{count, plural, =0 {All open invoices split} one {# open invoice not split yet} other {# open invoices not split yet}}",
+        "splitNow": "Split now"
+      }
     }
   }
 }

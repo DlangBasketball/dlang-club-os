@@ -34,6 +34,10 @@ export const envSchema = z.object({
   // --- Email ---
   RESEND_API_KEY: z.string().trim().regex(/^re_/, "must start with re_").optional(),
   RESEND_FROM: optionalStr,
+  // --- Web Push (optional; push is a no-op when unset) ---
+  VAPID_PUBLIC_KEY: z.string().trim().regex(/^[A-Za-z0-9_-]{86,88}$/, "base64url P-256 public key").optional(),
+  VAPID_PRIVATE_KEY: z.string().trim().regex(/^[A-Za-z0-9_-]{42,44}$/, "base64url P-256 private key").optional(),
+  VAPID_SUBJECT: z.string().trim().regex(/^(mailto:|https:)/, "must start with mailto: or https:").optional(),
   // --- AI assistant (optional) ---
   ANTHROPIC_API_KEY: optionalStr,
   ANTHROPIC_MODEL: optionalStr,

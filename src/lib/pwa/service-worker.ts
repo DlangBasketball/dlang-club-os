@@ -146,5 +146,41 @@ self.addEventListener("fetch", (event) => {
   else if (strategy === "static") event.respondWith(cacheFirst(request));
   // "bypass": no respondWith -> the browser handles the request normally.
 });
+
+// Web Push: payloads are { title, body, url, tag, urgent } (already translated,
+// no personal details beyond what the in-app notification shows).
+self.addEventListener("push", (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch (e) { data = {}; }
+  const title = typeof data.title === "string" && data.title ? data.title : self.registration.scope;
+  const url = typeof data.url === "string" && data.url.charAt(0) === "/" && data.url.charAt(1) !== "/" ? data.url : "/";
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: typeof data.body === "string" ? data.body : "",
+      tag: typeof data.tag === "string" ? data.tag : undefined,
+      renotify: Boolean(data.tag),
+      requireInteraction: Boolean(data.urgent),
+      icon: "/pwa/icon/192",
+      badge: "/pwa/icon/192",
+      data: { url: url },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || "/", self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) {
+        if (c.url.indexOf(self.location.origin) === 0 && "focus" in c) {
+          c.navigate(target).catch(() => undefined);
+          return c.focus();
+        }
+      }
+      return self.clients.openWindow(target);
+    }),
+  );
+});
 `;
 }

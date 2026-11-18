@@ -32,6 +32,10 @@ const PUBLIC_PREFIXES = [
   "/api/calendar/feed",
   // Club shop: storefront, guest checkout and the guest order link.
   "/shop",
+  // Scout profile shared by a guardian (hashed link token; off by default).
+  "/scout",
+  // Family billing split run (cron bearer secret).
+  "/api/family/cron",
 ];
 
 function isPublic(pathname: string) {

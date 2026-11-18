@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { getOrgEmailContext } from "@/lib/email/org-context";
 import { render, ENUM_FOR, type NotifType, type NotifVars } from "./templates";
+import { pushOnly } from "@/lib/family/notify";
 
 export type DispatchResult = { notificationId: string | null; emailLogId: string | null; emailOk: boolean };
 
@@ -36,6 +37,10 @@ export async function dispatchNotification(opts: {
       .select("id")
       .single();
     result.notificationId = (data as { id: string } | null)?.id ?? null;
+    // Payment due / overdue also reach the payer's opted-in devices (Web Push).
+    if (opts.type === "payment_overdue" || opts.type === "invoice_sent") {
+      await pushOnly({ orgId: opts.orgId, profileIds: [opts.recipientProfileId], category: "payments", title: r.title, body: r.body, path: r.link ?? "/parent/invoices", tag: `pay-${opts.invoiceId ?? opts.type}` });
+    }
   }
 
   // 2. Email (logged, then sent)

@@ -16,6 +16,7 @@ import { useTenant } from "@/lib/tenant/context";
 import { NAV_TERM, termOr } from "@/lib/tenant/terms";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { CommandPalette } from "@/components/search/command-palette";
+import { OrgSwitcher, type SwitcherOrg } from "@/components/family/org-switcher";
 
 /** Nav label in the tenant's vocabulary ("Students" for a school that renamed athletes). */
 function useNavLabel() {
@@ -44,6 +45,7 @@ export function AppShell({
   notifications,
   hiddenHrefs,
   profilePhotoUrl,
+  orgs,
   children,
 }: {
   navKey: NavKey;
@@ -51,6 +53,8 @@ export function AppShell({
   notifications?: NotifProp;
   /** Nav destinations to hide for this user/club (e.g. a feature the club has not enabled). */
   hiddenHrefs?: string[];
+  /** The person's clubs (one login, several clubs); a switcher shows when there are 2+. */
+  orgs?: SwitcherOrg[];
   /**
    * Signed URL of the signed-in user's own profile photo (e.g. the coach's
    * photo in the coach app). undefined = no header avatar; null = initials.
@@ -66,6 +70,7 @@ export function AppShell({
         {t("shell.skipToContent")}
       </a>
       <HiddenNavContext.Provider value={hiddenHrefs ?? NO_HIDDEN}>
+      <OrgsContext.Provider value={orgs ?? NO_ORGS}>
       {variant === "sidebar" ? (
         <SidebarShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl}>
           {children}
@@ -75,12 +80,20 @@ export function AppShell({
           {children}
         </BottomShell>
       )}
+      </OrgsContext.Provider>
       </HiddenNavContext.Provider>
     </>
   );
 }
 
 const NO_HIDDEN: string[] = [];
+const NO_ORGS: SwitcherOrg[] = [];
+const OrgsContext = React.createContext<SwitcherOrg[]>(NO_ORGS);
+
+function ShellOrgSwitcher({ className }: { className?: string }) {
+  const orgs = React.useContext(OrgsContext);
+  return <OrgSwitcher orgs={orgs} className={className} />;
+}
 const HiddenNavContext = React.createContext<string[]>(NO_HIDDEN);
 
 /** NAV[navKey] minus the destinations hidden for this user/club. */
@@ -258,6 +271,7 @@ function SidebarShell({
           </button>
           <BrandMark compact className="lg:hidden" />
           <div className="flex-1" />
+          <ShellOrgSwitcher />
           <CommandPalette />
           <LanguageSwitcher variant="compact" />
           {notifications && (
@@ -301,6 +315,7 @@ function BottomShell({
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-bg-secondary/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-bg-secondary/75">
         <BrandMark compact />
         <div className="flex items-center gap-1.5">
+          <ShellOrgSwitcher className="max-sm:[&_svg]:hidden" />
           <CommandPalette />
           <LanguageSwitcher variant="compact" />
           {notifications && (

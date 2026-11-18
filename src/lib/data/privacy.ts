@@ -25,7 +25,12 @@ export async function listDeletionRequests(): Promise<DeletionRequest[]> {
 export async function getMyFamilyId(): Promise<string | null> {
   const me = await getSessionUser();
   if (!me) return null;
+  if (!me?.orgId) return null;
   const admin = createAdminClient();
-  const { data } = await admin.from("family_members").select("family_id").eq("profile_id", me.id).limit(1).maybeSingle();
-  return data?.family_id ?? null;
+  // Only a family of the CURRENT club (a person may be a guardian in several clubs).
+  const { data: links } = await admin.from("family_members").select("family_id").eq("profile_id", me.id);
+  const ids = (links ?? []).map((l) => l.family_id);
+  if (!ids.length) return null;
+  const { data } = await admin.from("families").select("id").in("id", ids).eq("org_id", me.orgId).limit(1).maybeSingle();
+  return data?.id ?? null;
 }
