@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { campsDb } from "@/lib/camps/db";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 
@@ -17,6 +18,11 @@ export type ProgramListItem = {
   isActive: boolean;
   status: "draft" | "published" | "archived";
   currency: string | null;
+  /** Camps: season set on the programme (null = derived from the first week). */
+  season?: string | null;
+  seasonYear?: number | null;
+  /** Camps: first day of the first week. */
+  firstWeek?: string | null;
 };
 
 /** The current org's programmes (RLS: programs_select scopes to the caller's org). */
@@ -24,7 +30,7 @@ export async function listPrograms(orgId: string): Promise<Result<ProgramListIte
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("programs")
-    .select("id,name,slug,kind,price_chf,capacity,starts_on,ends_on,location,is_public,is_active,status,currency")
+    .select("id,name,slug,kind,price_chf,capacity,starts_on,ends_on,location,is_public,is_active,status,currency,season,season_year")
     // programs_select also admits other clubs' PUBLIC programmes: filter to ours.
     .eq("org_id", orgId)
     .order("is_active", { ascending: false })
@@ -38,6 +44,13 @@ export async function listPrograms(orgId: string): Promise<Result<ProgramListIte
     : { data: [] as { program_id: string; status: string }[] };
   const count = new Map<string, number>();
   for (const r of regs ?? []) count.set(r.program_id, (count.get(r.program_id) ?? 0) + 1);
+  // Camps: first week (season grouping when no season is set on the programme).
+  const campIds = (data ?? []).filter((p) => p.kind === "camp").map((p) => p.id);
+  const { data: weeks } = campIds.length
+    ? await (await campsDb()).from("camp_editions").select("program_id,starts_on").in("program_id", campIds).order("starts_on")
+    : { data: [] as { program_id: string; starts_on: string }[] };
+  const firstWeek = new Map<string, string>();
+  for (const w of weeks ?? []) if (!firstWeek.has(w.program_id)) firstWeek.set(w.program_id, w.starts_on);
 
   return {
     data: (data ?? []).map((p) => ({
@@ -55,6 +68,9 @@ export async function listPrograms(orgId: string): Promise<Result<ProgramListIte
       isActive: p.is_active,
       status: ((p as { status?: string }).status ?? (p.is_active ? "published" : "archived")) as ProgramListItem["status"],
       currency: (p as { currency?: string | null }).currency ?? null,
+      season: p.season ?? null,
+      seasonYear: p.season_year ?? null,
+      firstWeek: firstWeek.get(p.id) ?? null,
     })),
     error: null,
   };

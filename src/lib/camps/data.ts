@@ -3,6 +3,8 @@ import { cache } from "react";
 import { campsAdminDb, campsDb, type CampAgeGroupRow, type CampEditionRow, type CampPriceOptionRow, type CampTimeSlotRow, type DiscountRow } from "./db";
 import type { DiscountDef } from "@/lib/pricing/discounts";
 import { isRegistrationOpen, spotsLeft } from "./logic";
+import { campSeason, type SeasonOfYear } from "./seasons";
+import { clubMediaUrl } from "@/lib/shop/db";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 
@@ -16,6 +18,7 @@ export type CampEdition = {
   capacity: number | null; taken: number; spotsLeft: number | null;
   registrationOpensAt: string | null; registrationClosesAt: string | null;
   status: CampEditionRow["status"]; notes: string | null; registrations: number;
+  coverUrl?: string | null; coverFocalX?: number; coverFocalY?: number;
 };
 export type CampPriceOption = { id: string; editionId: string | null; label: string; daysCount: number; includesLunch: boolean; price: number; currency: string | null; isActive: boolean; sort: number };
 export type CampAgeGroup = { id: string; label: string; minAge: number | null; maxAge: number | null; timeSlotId: string | null; isActive: boolean; sort: number; editionId: null };
@@ -37,13 +40,17 @@ export function mapDiscount(d: DiscountRow, usage?: { all: number; family: numbe
     id: d.id, name: d.name, description: d.description, kind: d.kind, value: Number(d.value), currency: d.currency,
     scope: d.scope, scopeProgramId: d.scope_program_id, scopeServiceId: d.scope_service_id, rule: d.rule, code: d.code,
     validFrom: d.valid_from, validUntil: d.valid_until, siblingMinPosition: d.sibling_min_position,
+    multiWeekMinPosition: d.multi_week_min_position ?? null,
     earlyBirdDaysBefore: d.early_bird_days_before, maxRedemptions: d.max_redemptions,
     maxRedemptionsPerFamily: d.max_redemptions_per_family, stackable: d.stackable, active: d.is_active,
     redemptions: usage?.all ?? 0, familyRedemptions: usage?.family ?? 0,
   };
 }
 
-const EDITION_COLS = "id,org_id,program_id,name,starts_on,ends_on,venue_id,location_name,address,city,capacity,registration_opens_at,registration_closes_at,status,notes,archived_at,created_at,updated_at";
+const EDITION_COLS = "id,org_id,program_id,name,starts_on,ends_on,venue_id,location_name,address,city,capacity,registration_opens_at,registration_closes_at,status,notes,archived_at,created_at,updated_at,cover_path,cover_focal_x,cover_focal_y";
+
+/** Public URL of a cover image in the club-media bucket (no personal data). */
+export const coverUrlOf = (path: string | null | undefined): string | null => (path ? clubMediaUrl(path) : null);
 
 type Db = ReturnType<typeof campsAdminDb>;
 
@@ -70,6 +77,7 @@ function mapEditions(rows: CampEditionRow[], venues: Map<string, CampVenue>, cou
       capacity: e.capacity, taken, spotsLeft: spotsLeft(e.capacity, taken),
       registrationOpensAt: e.registration_opens_at, registrationClosesAt: e.registration_closes_at,
       status: e.status, notes: e.notes, registrations: counts.all.get(e.id) ?? 0,
+      coverUrl: coverUrlOf(e.cover_path), coverFocalX: e.cover_focal_x ?? 50, coverFocalY: e.cover_focal_y ?? 50,
     };
   });
 }
@@ -221,7 +229,10 @@ export async function loadPricingDiscounts(orgId: string, familyId: string | nul
 // Public / parent camp page
 // ---------------------------------------------------------------------------
 export type PublicCamp = {
-  program: { id: string; orgId: string; slug: string | null; name: string; description: string | null; currency: string; isPublic: boolean };
+  program: {
+    id: string; orgId: string; slug: string | null; name: string; description: string | null; currency: string; isPublic: boolean;
+    season?: SeasonOfYear | null; coverUrl?: string | null; coverFocalX?: number; coverFocalY?: number;
+  };
   editions: (CampEdition & { open: boolean })[];
   options: CampPriceOption[];
   ageGroups: CampAgeGroup[];
@@ -231,14 +242,17 @@ export type PublicCamp = {
 
 async function loadCamp(filter: { slug?: string; programId?: string; orgId?: string }, requirePublic: boolean): Promise<PublicCamp | null> {
   const db = campsAdminDb();
-  let q = db.from("programs").select("id,org_id,slug,name,description,kind,currency,is_public,status").eq("kind", "camp").eq("status", "published");
+  let q = db.from("programs").select("id,org_id,slug,name,description,kind,currency,is_public,status,season,season_year,cover_path,cover_focal_x,cover_focal_y").eq("kind", "camp").eq("status", "published");
   if (filter.slug) q = q.eq("slug", filter.slug);
   if (filter.programId) q = q.eq("id", filter.programId);
   if (filter.orgId) q = q.eq("org_id", filter.orgId);
   if (requirePublic) q = q.eq("is_public", true);
   const { data: p } = await q.maybeSingle();
   if (!p) return null;
-  const prog = p as { id: string; org_id: string; slug: string | null; name: string; description: string | null; currency: string | null; is_public: boolean };
+  const prog = p as {
+    id: string; org_id: string; slug: string | null; name: string; description: string | null; currency: string | null; is_public: boolean;
+    season: string | null; season_year: number | null; cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null;
+  };
   const orgId = prog.org_id;
   const [ed, op, ag, ts, forms, cur] = await Promise.all([
     db.from("camp_editions").select(EDITION_COLS).eq("org_id", orgId).eq("program_id", prog.id).eq("status", "published").order("starts_on"),
@@ -259,7 +273,11 @@ async function loadCamp(filter: { slug?: string; programId?: string; orgId?: str
   for (const f of forms.data ?? []) if (!byKey.has(f.key)) byKey.set(f.key, { key: f.key, title: f.title, version: f.version, required: f.is_required });
   const orgCurrency = typeof cur.data === "string" ? cur.data : "CHF";
   return {
-    program: { id: prog.id, orgId, slug: prog.slug, name: prog.name, description: prog.description, currency: (prog.currency ?? orgCurrency).toUpperCase(), isPublic: prog.is_public },
+    program: {
+      id: prog.id, orgId, slug: prog.slug, name: prog.name, description: prog.description, currency: (prog.currency ?? orgCurrency).toUpperCase(), isPublic: prog.is_public,
+      season: campSeason({ season: prog.season, seasonYear: prog.season_year, firstStart: edRows[0]?.starts_on ?? null }),
+      coverUrl: coverUrlOf(prog.cover_path), coverFocalX: prog.cover_focal_x ?? 50, coverFocalY: prog.cover_focal_y ?? 50,
+    },
     editions,
     options: (op.data ?? []).map(mapOption),
     ageGroups: (ag.data ?? []).map(mapAgeGroup),
@@ -288,4 +306,85 @@ export async function listMemberCamps(orgId: string): Promise<CampSummary[]> {
     const mine = (eds ?? []).filter((e) => e.program_id === p.id);
     return { id: p.id, name: p.name, description: p.description, nextStart: mine[0]?.starts_on ?? null, editions: mine.length };
   }).filter((c) => c.editions > 0);
+}
+
+/** A published camp of the club by id (public basket: public camps only). Service role, always org-filtered. */
+export const getCampForOrg = cache((orgId: string, programId: string, requirePublic: boolean) => loadCamp({ programId, orgId }, requirePublic));
+
+// ---------------------------------------------------------------------------
+// Season listings (parent "Camps" page, public season chooser, basket adder)
+// ---------------------------------------------------------------------------
+export type SeasonCampWeek = {
+  id: string; name: string | null; startsOn: string; endsOn: string; city: string | null; venueName: string | null;
+  open: boolean; spotsLeft: number | null;
+};
+export type SeasonCampCard = {
+  id: string; slug: string | null; name: string; description: string | null; isPublic: boolean;
+  season: SeasonOfYear | null; coverUrl: string | null; coverFocalX: number; coverFocalY: number;
+  currency: string; priceFrom: number | null; weeks: SeasonCampWeek[];
+};
+
+type ProgramCardRow = {
+  id: string; slug: string | null; name: string; description: string | null; currency: string | null; is_public: boolean;
+  season: string | null; season_year: number | null; cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null;
+};
+
+/**
+ * Published camps of a club with upcoming published weeks (no personal data).
+ * publicOnly: only camps on public pages. Service role, pinned to the org the
+ * server resolved (session, or host / slug for public pages).
+ */
+export async function listSeasonCamps(orgId: string, opts: { publicOnly: boolean }): Promise<SeasonCampCard[]> {
+  const db = campsAdminDb();
+  let q = db.from("programs").select("id,slug,name,description,currency,is_public,season,season_year,cover_path,cover_focal_x,cover_focal_y")
+    .eq("org_id", orgId).eq("kind", "camp").eq("status", "published");
+  if (opts.publicOnly) q = q.eq("is_public", true);
+  const { data: progs } = await q.order("name");
+  const list = (progs ?? []) as unknown as ProgramCardRow[];
+  if (!list.length) return [];
+  const ids = list.map((p) => p.id);
+  const today = new Date().toISOString().slice(0, 10);
+  const [{ data: eds }, { data: prices }, cur] = await Promise.all([
+    db.from("camp_editions").select(EDITION_COLS).eq("org_id", orgId).in("program_id", ids).eq("status", "published").gte("ends_on", today).order("starts_on"),
+    db.from("camp_price_options").select("program_id,price").eq("org_id", orgId).in("program_id", ids).eq("is_active", true),
+    db.rpc("org_currency", { p_org: orgId }),
+  ]);
+  const edRows = (eds ?? []) as CampEditionRow[];
+  const vmap = await venueMap(db, orgId, edRows.map((e) => e.venue_id).filter((x): x is string => !!x));
+  const counts = await editionCounts(db, edRows.map((e) => e.id));
+  const now = new Date();
+  const editions = mapEditions(edRows, vmap, counts);
+  const orgCurrency = typeof cur.data === "string" ? cur.data : "CHF";
+  return list.map((p): SeasonCampCard => {
+    const mine = editions.filter((e) => e.programId === p.id);
+    const amounts = (prices ?? []).filter((o) => o.program_id === p.id).map((o) => Number(o.price));
+    return {
+      id: p.id, slug: p.slug, name: p.name, description: p.description, isPublic: p.is_public,
+      season: campSeason({ season: p.season, seasonYear: p.season_year, firstStart: mine[0]?.startsOn ?? null }),
+      coverUrl: coverUrlOf(p.cover_path), coverFocalX: p.cover_focal_x ?? 50, coverFocalY: p.cover_focal_y ?? 50,
+      currency: (p.currency ?? orgCurrency).toUpperCase(), priceFrom: amounts.length ? Math.min(...amounts) : null,
+      weeks: mine.map((e) => ({
+        id: e.id, name: e.name, startsOn: e.startsOn, endsOn: e.endsOn, city: e.venue?.city ?? e.city,
+        venueName: e.venue?.name ?? e.locationName,
+        open: isRegistrationOpen(e, now) && (e.spotsLeft === null || e.spotsLeft > 0), spotsLeft: e.spotsLeft,
+      })),
+    };
+  }).filter((c) => c.weeks.length > 0);
+}
+
+/**
+ * Old public link of a camp (program_slug_redirects) -> the camp's current
+ * slug. With a club host the lookup is pinned to that club; on the platform
+ * host an old slug is followed only when it is unambiguous.
+ */
+export async function findCampSlugRedirect(slug: string, orgId: string | null): Promise<string | null> {
+  if (!/^[a-z0-9][a-z0-9-]{0,118}[a-z0-9]$/.test(slug)) return null;
+  const db = campsAdminDb();
+  let q = db.from("program_slug_redirects").select("org_id,program_id").eq("old_slug", slug);
+  if (orgId) q = q.eq("org_id", orgId);
+  const { data } = await q.limit(2);
+  if (!data || data.length !== 1) return null;
+  const { data: p } = await db.from("programs").select("slug").eq("id", data[0].program_id).eq("org_id", data[0].org_id)
+    .eq("status", "published").eq("is_public", true).maybeSingle();
+  return p?.slug ?? null;
 }

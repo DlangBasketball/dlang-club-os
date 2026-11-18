@@ -18,6 +18,7 @@ export type CampEditionRow = {
   capacity: number | null; registration_opens_at: string | null; registration_closes_at: string | null;
   status: "draft" | "published" | "archived" | "cancelled"; notes: string | null; archived_at: string | null;
   created_at: string; updated_at: string;
+  cover_path?: string | null; cover_focal_x?: number | null; cover_focal_y?: number | null;
 };
 export type CampTimeSlotRow = {
   id: string; org_id: string; program_id: string; edition_id: string | null; label: string; starts_at: string; ends_at: string;
@@ -34,9 +35,10 @@ export type CampPriceOptionRow = {
 };
 export type DiscountRow = {
   id: string; org_id: string; name: string; description: string | null; kind: "percent" | "fixed_amount";
-  value: number | string; currency: string | null; scope: "all" | "camps" | "training" | "program" | "service";
+  value: number | string; currency: string | null; scope: "all" | "camps" | "training" | "program" | "service" | "shop";
   scope_program_id: string | null; scope_service_id: string | null;
-  rule: "promo_code" | "sibling" | "early_bird" | "manual"; code: string | null;
+  rule: "promo_code" | "sibling" | "early_bird" | "manual" | "multi_week"; code: string | null;
+  multi_week_min_position?: number | null;
   max_redemptions: number | null; max_redemptions_per_family: number | null;
   valid_from: string | null; valid_until: string | null; sibling_min_position: number | null;
   early_bird_days_before: number | null; stackable: boolean; is_active: boolean; created_by: string | null;
@@ -65,12 +67,17 @@ type CampTables = {
   applied_discounts: T<AppliedDiscountRow>;
   registrations: T<CampRegistrationRow>;
   venues: T<{ id: string; org_id: string; name: string; address: string | null; city: string | null; postal_code: string | null; is_active: boolean }>;
+  program_slug_redirects: T<{ id: string; org_id: string; old_slug: string; program_id: string; created_by: string | null; created_at: string; updated_at: string }>;
 };
 
 type CampFunctions = {
   org_currency: { Args: { p_org: string }; Returns: string };
   register_camp: { Args: { p_payload: Json }; Returns: Json };
   apply_manual_discount: { Args: { p_registration: string; p_discount: string; p_reason?: string | null; p_amount?: number | null }; Returns: Json };
+  register_camp_basket: { Args: { p_payload: Json }; Returns: Json };
+  move_camp_edition: { Args: { p_edition: string; p_target: string; p_move_registrations?: boolean }; Returns: Json };
+  split_camp_by_season: { Args: { p_program: string; p_names?: Json }; Returns: Json };
+  duplicate_camp_next_year: { Args: { p_program: string; p_name?: string | null; p_slug?: string | null; p_shift_days?: number }; Returns: Json };
 };
 
 type Pub = Database["public"];

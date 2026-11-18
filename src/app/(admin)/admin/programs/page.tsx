@@ -7,18 +7,28 @@ import { getI18n } from "@/lib/i18n/server";
 import { getTenant } from "@/lib/tenant/server";
 import { termOr } from "@/lib/tenant/terms";
 import { PROGRAM_KINDS } from "@/lib/club-ops/validation";
+import { campSeason, groupBySeason, seasonKey } from "@/lib/camps/seasons";
+import type { ProgramListItem } from "@/lib/data/programs-admin";
 
 const TONE = { draft: "warning", published: "success", archived: "neutral" } as const;
 
-export default async function ProgramsPage({ searchParams }: { searchParams: Promise<{ kind?: string }> }) {
-  const { kind } = await searchParams;
+export default async function ProgramsPage({ searchParams }: { searchParams: Promise<{ kind?: string; season?: string }> }) {
+  const { kind, season } = await searchParams;
   const kindFilter = (PROGRAM_KINDS as readonly string[]).includes(kind ?? "") ? kind : null;
   const [me, tenant, { t, f }] = await Promise.all([getSessionUser(), getTenant(), getI18n()]);
   const title = termOr(tenant.terminology, "program", t("nav.programs"), { plural: true });
   if (!me?.orgId) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("editOps.common.noOrgTitle")} message={t("editOps.common.noOrg")} /></div>);
   const { data, error } = await listPrograms(me.orgId);
   if (error) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("editOps.common.loadFailed")} message={error} /></div>);
-  const programs = kindFilter ? data!.filter((p) => p.kind === kindFilter) : data!;
+  const seasonOfProgram = (p: ProgramListItem) => (p.kind === "camp" ? campSeason({ season: p.season, seasonYear: p.seasonYear, firstStart: p.firstWeek ?? p.startsOn }) : null);
+  // Camps: season filter (?season=summer-2027) and grouping by season.
+  const campSeasons = groupBySeason(data!.filter((p) => p.kind === "camp"), seasonOfProgram).filter((g) => g.season);
+  const seasonFilter = campSeasons.some((g) => g.key === season) ? season! : null;
+  const programs = (kindFilter || seasonFilter ? data!.filter((p) => p.kind === (seasonFilter ? "camp" : kindFilter)) : data!)
+    .filter((p) => !seasonFilter || (seasonOfProgram(p) && seasonKey(seasonOfProgram(p)!) === seasonFilter));
+  const grouped = kindFilter === "camp" || seasonFilter
+    ? groupBySeason(programs, seasonOfProgram)
+    : [{ key: "all", season: null, year: null, items: programs }];
   const isAdmin = me.roles.includes("admin");
 
   return (
@@ -36,12 +46,31 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
           </Link>
         ))}
       </nav>
+      {(kindFilter === "camp" || seasonFilter) && campSeasons.length > 0 && (
+        <nav aria-label={t("camps.seasons.filter")} className="-mt-2 mb-4 flex flex-wrap gap-2">
+          {[null, ...campSeasons.map((g) => g.key)].map((k) => {
+            const g = campSeasons.find((x) => x.key === k);
+            return (
+              <Link key={k ?? "all"} href={k ? `/admin/programs?kind=camp&season=${k}` : "/admin/programs?kind=camp"} aria-current={seasonFilter === k ? "page" : undefined}
+                className={`rounded-full border px-3 py-1 text-xs ${seasonFilter === k ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-3 hover:border-maroon/40"}`}>
+                {g?.season ? t("camps.seasons.label", { season: t(`camps.seasons.names.${g.season}`), year: g.year ?? "" }) : t("camps.seasons.allSeasons")}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
       {programs.length === 0 ? (
         <EmptyState icon={<CalendarRange className="h-5 w-5" />} title={t("editOps.programs.empty")}
           description={isAdmin ? t("editOps.programs.emptyHint") : undefined} />
-      ) : (
+      ) : grouped.map((grp) => (
+        <section key={grp.key} className="mb-6 space-y-3">
+          {grp.key !== "all" && (
+            <h2 className="font-display text-lg font-semibold text-ink">
+              {grp.season ? t("camps.seasons.label", { season: t(`camps.seasons.names.${grp.season}`), year: grp.year ?? "" }) : t("camps.seasons.unscheduled")}
+            </h2>
+          )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {programs.map((p) => (
+          {grp.items.map((p) => (
             <Card key={p.id} className={p.status === "archived" ? "opacity-60" : undefined}>
               <CardBody>
                 <div className="flex items-start justify-between gap-2">
@@ -76,7 +105,8 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
             </Card>
           ))}
         </div>
-      )}
+        </section>
+      ))}
     </div>
   );
 }

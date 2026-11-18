@@ -108,6 +108,7 @@ export const discountSchema = z
     validFrom: optInstant,
     validUntil: optInstant,
     siblingMinPosition: optInt(2, 20, "siblingPosition"),
+    multiWeekMinPosition: optInt(2, 20, "weekPosition"),
     earlyBirdDaysBefore: optInt(0, 730, "daysBefore"),
     stackable: z.boolean().default(true),
     isActive: z.boolean().default(true),
@@ -135,6 +136,7 @@ export function discountRow(v: DiscountValues) {
     max_redemptions_per_family: v.rule === "promo_code" ? v.maxRedemptionsPerFamily : null,
     valid_from: v.validFrom, valid_until: v.validUntil,
     sibling_min_position: v.rule === "sibling" ? (v.siblingMinPosition ?? 2) : null,
+    multi_week_min_position: v.rule === "multi_week" ? (v.multiWeekMinPosition ?? 2) : null,
     early_bird_days_before: v.rule === "early_bird" ? v.earlyBirdDaysBefore : null,
     stackable: v.stackable, is_active: v.isActive,
   };
@@ -207,6 +209,9 @@ const DB_CODES = [
   "DISCOUNT_NOT_AVAILABLE", "ALREADY_REGISTERED", "VPC_REQUIRED", "EDITION_HAS_REGISTRATIONS", "DISCOUNT_ALREADY_APPLIED",
   "NOTHING_TO_DISCOUNT", "CURRENCY_MISMATCH", "NOT_PRICED", "REGISTRATION_CANCELLED", "PRICE_OPTION_NOT_FOUND",
   "AGE_GROUP_NOT_FOUND", "USE_CANCEL", "CREDIT_EXCEEDS_AMOUNT_DUE", "INVOICE_CANCELLED", "INVOICE_WRITTEN_OFF",
+  // camp seasons + basket (20250420101200)
+  "NOTHING_TO_SPLIT", "SAME_CAMP", "NOT_A_CAMP", "SLUG_IN_USE", "DUPLICATE_LINE", "CHILD_NOT_FOUND", "PROGRAM_NOT_FOUND",
+  "EDITION_NOT_FOUND", "DISCOUNT_AMOUNT_INVALID", "BASKET_INVALID",
 ] as const;
 export type CampDbCode = (typeof DB_CODES)[number];
 

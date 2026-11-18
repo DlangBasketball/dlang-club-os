@@ -12,7 +12,7 @@ import { useFormat, useT } from "@/lib/i18n/client";
 export type DiscountListItem = {
   id: string; name: string; description: string | null; kind: DiscountKind; value: number; currency: string | null;
   scope: DiscountScope; scopeProgramId: string | null; scopeServiceId: string | null; rule: DiscountRule; code: string | null;
-  validFrom: string | null; validUntil: string | null; siblingMinPosition: number | null; earlyBirdDaysBefore: number | null;
+  validFrom: string | null; validUntil: string | null; siblingMinPosition: number | null; multiWeekMinPosition?: number | null; earlyBirdDaysBefore: number | null;
   maxRedemptions: number | null; maxRedemptionsPerFamily: number | null; stackable: boolean; active: boolean; uses: number;
 };
 type Opt = { id: string; name: string };
@@ -67,6 +67,7 @@ export function DiscountManager({ discounts, programs, services, canEdit }: { di
                   <div className="text-sm text-ink-2"><span className="tnum">{valueLabel(d)}</span> · {scopeLabel(d)}</div>
                   <div className="text-xs text-ink-3">
                     {d.rule === "sibling" && t("camps.discounts.siblingLine", { n: d.siblingMinPosition ?? 2 })}
+                    {d.rule === "multi_week" && t("camps.discounts.multiWeekLine", { n: d.multiWeekMinPosition ?? 2 })}
                     {d.rule === "early_bird" && d.earlyBirdDaysBefore != null && t("camps.discounts.earlyBirdLine", { days: d.earlyBirdDaysBefore })}
                     {d.validUntil && <> {t("camps.discounts.validUntilLine", { date: f.dateTime(d.validUntil) })}</>}
                   </div>
@@ -103,7 +104,7 @@ function DiscountForm({ discount, programs, services, onDone }: { discount?: Dis
     code: discount?.code ?? "", maxRedemptions: discount?.maxRedemptions != null ? String(discount.maxRedemptions) : "",
     maxRedemptionsPerFamily: discount?.maxRedemptionsPerFamily != null ? String(discount.maxRedemptionsPerFamily) : "",
     validFrom: toLocal(discount?.validFrom ?? null, f.timeZone), validUntil: toLocal(discount?.validUntil ?? null, f.timeZone),
-    siblingMinPosition: String(discount?.siblingMinPosition ?? 2), earlyBirdDaysBefore: discount?.earlyBirdDaysBefore != null ? String(discount.earlyBirdDaysBefore) : "",
+    siblingMinPosition: String(discount?.siblingMinPosition ?? 2), multiWeekMinPosition: String(discount?.multiWeekMinPosition ?? 2), earlyBirdDaysBefore: discount?.earlyBirdDaysBefore != null ? String(discount.earlyBirdDaysBefore) : "",
     stackable: discount?.stackable ?? true, isActive: discount?.active ?? true,
   });
   const [err, setErr] = React.useState<string | null>(null);
@@ -120,7 +121,7 @@ function DiscountForm({ discount, programs, services, onDone }: { discount?: Dis
       scope: v.scope, scopeProgramId: v.scopeProgramId, scopeServiceId: v.scopeServiceId, rule: v.rule, code: v.code,
       maxRedemptions: opt(v.maxRedemptions), maxRedemptionsPerFamily: opt(v.maxRedemptionsPerFamily),
       validFrom: fromLocal(v.validFrom, f.timeZone), validUntil: fromLocal(v.validUntil, f.timeZone),
-      siblingMinPosition: v.rule === "sibling" ? opt(v.siblingMinPosition) : "", earlyBirdDaysBefore: v.rule === "early_bird" ? opt(v.earlyBirdDaysBefore) : "",
+      siblingMinPosition: v.rule === "sibling" ? opt(v.siblingMinPosition) : "", multiWeekMinPosition: v.rule === "multi_week" ? opt(v.multiWeekMinPosition) : "", earlyBirdDaysBefore: v.rule === "early_bird" ? opt(v.earlyBirdDaysBefore) : "",
       stackable: v.stackable, isActive: v.isActive,
     });
     setBusy(false);
@@ -183,6 +184,9 @@ function DiscountForm({ discount, programs, services, onDone }: { discount?: Dis
         </>)}
         {v.rule === "sibling" && (
           <div><Label htmlFor={`d-sib-${id}`}>{t("camps.discounts.siblingFrom")}</Label><Input id={`d-sib-${id}`} type="number" min="2" max="20" value={v.siblingMinPosition} onChange={(e) => set("siblingMinPosition", e.target.value)} /></div>
+        )}
+        {v.rule === "multi_week" && (
+          <div><Label htmlFor={`d-mw-${id}`}>{t("camps.discounts.weekFrom")}</Label><Input id={`d-mw-${id}`} type="number" min="2" max="20" value={v.multiWeekMinPosition} onChange={(e) => set("multiWeekMinPosition", e.target.value)} /></div>
         )}
         {v.rule === "early_bird" && (
           <div><Label htmlFor={`d-eb-${id}`}>{t("camps.discounts.daysBefore")}</Label><Input id={`d-eb-${id}`} type="number" min="0" max="730" value={v.earlyBirdDaysBefore} onChange={(e) => set("earlyBirdDaysBefore", e.target.value)} /></div>

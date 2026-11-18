@@ -8,7 +8,11 @@ import { SportTagPicker } from "@/components/sports/sports-manager";
 import { currentSportId, sportOptions } from "@/lib/sports/data";
 import { getProgram } from "@/lib/data/programs-admin";
 import { getI18n } from "@/lib/i18n/server";
-import { getCampAdmin } from "@/lib/camps/data";
+import { coverUrlOf, getCampAdmin } from "@/lib/camps/data";
+import { campsDb } from "@/lib/camps/db";
+import { campSeason, isCampSeason } from "@/lib/camps/seasons";
+import { CampHero } from "@/components/camps/camp-hero";
+import { CampSeasonTools } from "@/components/camps/camp-season-tools";
 import { CampEditor } from "@/components/camps/camp-editor";
 import { CampSummaryView } from "@/components/camps/camp-summary";
 
@@ -23,6 +27,17 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
   if (!p) notFound();
   const isAdmin = me.roles.includes("admin");
   const camp = p.kind === "camp" ? await getCampAdmin(me.orgId, p.id) : null;
+  // Camp extras: season, cover (hero), the club's other camps (move a week).
+  const cdb = await campsDb();
+  const [{ data: extra }, { data: others }] = p.kind === "camp"
+    ? await Promise.all([
+        cdb.from("programs").select("season,season_year,cover_path,cover_focal_x,cover_focal_y").eq("id", p.id).eq("org_id", me.orgId).maybeSingle(),
+        cdb.from("programs").select("id,name").eq("org_id", me.orgId).eq("kind", "camp").neq("id", p.id).neq("status", "archived").order("name"),
+      ])
+    : [{ data: null }, { data: null }];
+  const firstStart = camp?.data?.editions.map((e) => e.startsOn).sort()[0] ?? null;
+  const derivedSeason = campSeason({ firstStart });
+  const shownSeason = campSeason({ season: extra?.season ?? null, seasonYear: extra?.season_year ?? null, firstStart });
   const [sports, sportId] = isAdmin ? await Promise.all([sportOptions(me.orgId), currentSportId("programs", p.id)]) : [[], null];
   const money = (n: number) => f.money(n, p.currency ?? f.currency);
   const row = (label: string, value: React.ReactNode) => (
@@ -32,6 +47,12 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
+      {p.kind === "camp" && (
+        /* HERO AREA — swap for <CoverImage> (src/components/media/cover-image.tsx, "Edit cover") after merge */
+        <CampHero coverUrl={coverUrlOf(extra?.cover_path)} focalX={extra?.cover_focal_x ?? 50} focalY={extra?.cover_focal_y ?? 50}
+          kicker={shownSeason ? t("camps.seasons.label", { season: t(`camps.seasons.names.${shownSeason.season}`), year: shownSeason.year }) : t("programKind.camp")}
+          title={p.name} />
+      )}
       <PageHeader title={p.name} description={t.dynamic(`programKind.${p.kind}`, undefined, p.kind)}
         actions={isAdmin ? (
           <>
@@ -64,6 +85,11 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       {camp?.data && (isAdmin
         ? <CampEditor programId={p.id} data={camp.data} currency={p.currency ?? f.currency} />
         : <CampSummaryView programId={p.id} data={camp.data} currency={p.currency ?? f.currency} />)}
+      {isAdmin && p.kind === "camp" && camp?.data && (
+        <CampSeasonTools programId={p.id} season={isCampSeason(extra?.season) ? extra.season : null} seasonYear={extra?.season_year ?? null}
+          derived={derivedSeason} otherCamps={(others ?? []).map((o) => ({ id: o.id, name: o.name }))}
+          weeks={camp.data.editions.map((e) => ({ id: e.id, name: e.name, startsOn: e.startsOn, endsOn: e.endsOn, registrations: e.registrations }))} />
+      )}
       {isAdmin && <Card><CardBody><ProgramActions programId={p.id} status={p.status} registrations={p.registrations} /></CardBody></Card>}
     </div>
   );

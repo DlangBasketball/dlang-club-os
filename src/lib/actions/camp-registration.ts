@@ -3,7 +3,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { getTranslations } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -16,10 +15,7 @@ import {
   type CampParentRegistrationInput, type CampPublicRegistrationInput,
 } from "@/lib/camps/validation";
 import type { BatchQuote } from "@/lib/pricing/discounts";
-import { getOrgEmailContext } from "@/lib/email/org-context";
-import { getOrgAlertRecipients } from "@/lib/data/org-alert-recipients";
-import { sendEmail } from "@/lib/email/resend";
-import { adminRegistrationAlert, registrationConfirmation } from "@/lib/email/templates";
+import { createGuestAccount as createGuestAccountShared, notifyCampRegistration } from "@/lib/camps/checkout-helpers";
 import type { Json } from "@/types/database";
 import { logError } from "@/lib/log";
 import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } from "@/lib/registration-form/server";
@@ -176,57 +172,8 @@ function promoBlocks(q: BatchQuote, promoCode: string): boolean {
   return promoCode.trim() !== "" && q.promoRejection !== null && q.promoRejection !== "NOT_COMBINABLE";
 }
 
-async function siteBase(orgId: string): Promise<string> {
-  const org = await getOrgEmailContext(orgId);
-  return org.link("/");
-}
-
-/**
- * Guest account for a non-member family: the parent chose a password or a
- * sign-in link. register_camp() already created the pending parent
- * invitation for THIS club and family, so the new login is linked to them
- * by handle_new_user() — never to a club named by the client.
- */
-async function createGuestAccount(orgId: string, email: string, name: string, account: { mode: "none" | "password" | "link"; password?: string }, locale: string) {
-  if (account.mode === "none") return;
-  const base = (await siteBase(orgId)).replace(/\/$/, "");
-  const redirectTo = `${base}/auth/callback?next=/parent/home`;
-  try {
-    if (account.mode === "password" && account.password) {
-      const anon = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-        auth: { autoRefreshToken: false, persistSession: false },
-      });
-      // Sends the email-confirmation message; an existing account is left untouched.
-      const { error } = await anon.auth.signUp({ email, password: account.password, options: { emailRedirectTo: redirectTo, data: { full_name: name, locale } } });
-      if (error) logError("camp.guestSignup", error);
-    } else {
-      const admin = campsAdminDb();
-      const { error } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo, data: { invited_role: "parent", full_name: name, locale } });
-      if (error && !/already/i.test(error.message)) logError("camp.guestInvite", error);
-    }
-  } catch (e) {
-    logError("camp.guestAccount", e);
-  }
-}
-
-async function notify(orgId: string, programName: string, parentName: string, parentEmail: string | null, children: string[], invoiceNumber: string, total: number) {
-  try {
-    const org = await getOrgEmailContext(orgId);
-    if (parentEmail) {
-      const conf = registrationConfirmation({
-        ...org.brand, parentName, programName, children, invoiceNumber, totalChf: total,
-        dueDateLabel: org.f.date(new Date(Date.now() + 14 * 864e5)), manageUrl: org.link("/login"),
-      });
-      await sendEmail({ to: parentEmail, subject: conf.subject, html: conf.html, fromName: org.senderName ?? org.clubName });
-    }
-    for (const to of await getOrgAlertRecipients(orgId)) {
-      const alert = adminRegistrationAlert({ ...org.brand, programName, parentName, children, totalChf: total, invoiceNumber });
-      await sendEmail({ to, subject: alert.subject, html: alert.html, fromName: org.senderName ?? org.clubName });
-    }
-  } catch (e) {
-    logError("camp.notify", e);
-  }
-}
+const createGuestAccount = createGuestAccountShared;
+const notify = notifyCampRegistration;
 
 const accountSchema = z.discriminatedUnion("mode", [
   z.object({ mode: z.literal("none") }),

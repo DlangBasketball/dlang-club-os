@@ -1,37 +1,25 @@
 import Link from "next/link";
-import { ChevronRight, Tent } from "lucide-react";
-import { Card, CardBody, EmptyState, PageHeader } from "@/components/ui";
+import { ShoppingBasket } from "lucide-react";
+import { Button, PageHeader } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth/get-user";
-import { listMemberCamps } from "@/lib/camps/data";
+import { getMemberCamp, listSeasonCamps, type PublicCamp } from "@/lib/camps/data";
+import { guardianKids } from "@/lib/camps/parent-kids";
 import { getI18n } from "@/lib/i18n/server";
+import { SeasonCampList } from "@/components/camps/season-camp-list";
+import { BasketAdder } from "@/components/camps/basket/basket-adder";
 
 export default async function ParentCampsPage() {
-  const [me, { t, f }] = await Promise.all([getSessionUser(), getI18n()]);
-  const camps = me?.orgId ? await listMemberCamps(me.orgId) : [];
+  const [me, { t }] = await Promise.all([getSessionUser(), getI18n()]);
+  const camps = me?.orgId ? await listSeasonCamps(me.orgId, { publicOnly: false }) : [];
+  const full = me?.orgId ? (await Promise.all(camps.map((c) => getMemberCamp(me.orgId!, c.id)))).filter((c): c is PublicCamp => !!c) : [];
+  const kids = me?.orgId ? await guardianKids(me.id, me.orgId) : [];
   return (
-    <div className="animate-fade-up">
-      <PageHeader title={t("camps.parent.title")} description={t("camps.parent.description")} />
-      {camps.length === 0 ? (
-        <EmptyState icon={<Tent className="h-5 w-5" />} title={t("camps.parent.empty")} />
-      ) : (
-        <div className="space-y-2">
-          {camps.map((c) => (
-            <Link key={c.id} href={`/parent/camps/${c.id}`}>
-              <Card className="transition hover:border-maroon/40">
-                <CardBody className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <div className="font-medium text-ink">{c.name}</div>
-                    <div className="text-xs text-ink-3">
-                      {t("camps.parent.editions", { count: c.editions })}
-                      {c.nextStart && <> · {t("camps.parent.nextStart", { date: f.date(c.nextStart) })}</>}
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-ink-4" />
-                </CardBody>
-              </Card>
-            </Link>
-          ))}
-        </div>
+    <div className="animate-fade-up space-y-6">
+      <PageHeader title={t("camps.parent.title")} description={t("camps.parent.seasonsDescription")}
+        actions={<Link href="/parent/camps/basket"><Button variant="secondary"><ShoppingBasket className="h-4 w-4" /> {t("camps.basket.title")}</Button></Link>} />
+      <SeasonCampList camps={camps} linkTo="parent" />
+      {full.length > 0 && me?.orgId && (
+        <BasketAdder mode="parent" scope={`parent:${me.orgId}`} camps={full} kids={kids} basketHref="/parent/camps/basket" />
       )}
     </div>
   );
