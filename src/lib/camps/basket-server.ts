@@ -14,7 +14,9 @@ import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
 /** Club of a public basket: the club host, else the club owning the camp slug the visitor came from. */
 export async function publicBasketOrg(slug: string | null | undefined): Promise<string | null> {
   const t = await getTenant();
-  if (t.id && t.source !== "default" && t.source !== "fallback") return t.id;
+  // A club host, or the deployment's configured default club (DEFAULT_ORG_SLUG,
+  // source "default"), like the /club hub. A bare fallback tenant has no club.
+  if (t.id && t.source !== "fallback") return t.id;
   if (!slug) return null;
   const camp = await getPublicCamp(slug);
   if (!camp || !orgMatchesTenant(camp.program.orgId, t)) return null;

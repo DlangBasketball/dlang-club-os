@@ -34,7 +34,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
         cdb.from("programs").select("season,season_year,cover_path,cover_focal_x,cover_focal_y").eq("id", p.id).eq("org_id", me.orgId).maybeSingle(),
         cdb.from("programs").select("id,name").eq("org_id", me.orgId).eq("kind", "camp").neq("id", p.id).neq("status", "archived").order("name"),
       ])
-    : [{ data: null }, { data: null }];
+    : [await cdb.from("programs").select("season,season_year,cover_path,cover_focal_x,cover_focal_y").eq("id", p.id).eq("org_id", me.orgId).maybeSingle(), { data: null }];
   const firstStart = camp?.data?.editions.map((e) => e.startsOn).sort()[0] ?? null;
   const derivedSeason = campSeason({ firstStart });
   const shownSeason = campSeason({ season: extra?.season ?? null, seasonYear: extra?.season_year ?? null, firstStart });
@@ -47,9 +47,9 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
-      {p.kind === "camp" && (
+      {(
         <CampHero coverUrl={coverUrlOf(extra?.cover_path)} coverPath={extra?.cover_path ?? null} editProgramId={isAdmin ? p.id : null} focalX={extra?.cover_focal_x ?? 50} focalY={extra?.cover_focal_y ?? 50}
-          kicker={shownSeason ? t("camps.seasons.label", { season: t(`camps.seasons.names.${shownSeason.season}`), year: shownSeason.year }) : t("programKind.camp")}
+          kicker={p.kind !== "camp" ? t.dynamic(`programKind.${p.kind}`, undefined, p.kind) : shownSeason ? t("camps.seasons.label", { season: t(`camps.seasons.names.${shownSeason.season}`), year: shownSeason.year }) : t("programKind.camp")}
           title={p.name} />
       )}
       <PageHeader title={p.name} description={t.dynamic(`programKind.${p.kind}`, undefined, p.kind)}

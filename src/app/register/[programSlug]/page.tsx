@@ -7,6 +7,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { I18nProvider } from "@/lib/i18n/client";
 import { findCampSlugRedirect, getPublicCamp } from "@/lib/camps/data";
 import { CampHero } from "@/components/camps/camp-hero";
+import { coverUrlOf, getProgramCover } from "@/lib/camps/data";
 import { BasketAdder } from "@/components/camps/basket/basket-adder";
 import { CampRegister } from "@/components/camps/camp-register";
 import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
@@ -53,13 +54,13 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
   }
   const { program, consents, siblingDiscountPct } = data;
   // Public page: no user, so localise with the club's own defaults (language, currency, time zone).
-  const [{ t, f, ctx, messages }, config] = await Promise.all([getI18n(program.orgId), getRegistrationConfig(program.orgId, program.id)]);
+  const [{ t, f, ctx, messages }, config, cover] = await Promise.all([getI18n(program.orgId), getRegistrationConfig(program.orgId, program.id), getProgramCover(program.orgId, program.id)]);
 
   return (
     <div className="animate-fade-up space-y-8">
       <section>
-        <div className="text-xs uppercase tracking-[0.18em] text-maroon">{t.dynamic(`programKind.${program.kind}`, undefined, program.kind.replace("_", " "))}</div>
-        <h1 className="mt-1 font-display text-3xl font-semibold">{program.name}</h1>
+        <CampHero coverUrl={coverUrlOf(cover?.cover_path)} focalX={cover?.cover_focal_x ?? 50} focalY={cover?.cover_focal_y ?? 50}
+          kicker={t.dynamic(`programKind.${program.kind}`, undefined, program.kind.replace("_", " "))} title={program.name} />
         {program.description && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-2">{program.description}</p>}
         <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-3">
           <span className="flex items-center gap-1.5"><Tag className="h-4 w-4" />{t("common.perParticipant", { price: f.money(program.priceChf) })}</span>

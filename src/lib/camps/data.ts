@@ -388,3 +388,10 @@ export async function findCampSlugRedirect(slug: string, orgId: string | null): 
     .eq("status", "published").eq("is_public", true).maybeSingle();
   return p?.slug ?? null;
 }
+
+/** Public cover of a published, public programme of this org (any kind). No personal data. */
+export async function getProgramCover(orgId: string, programId: string): Promise<{ cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null } | null> {
+  const db = campsAdminDb();
+  const { data } = await db.from("programs").select("cover_path,cover_focal_x,cover_focal_y").eq("org_id", orgId).eq("id", programId).eq("is_public", true).maybeSingle();
+  return (data as { cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null } | null) ?? null;
+}
