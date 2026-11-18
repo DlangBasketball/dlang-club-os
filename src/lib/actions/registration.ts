@@ -26,6 +26,7 @@ import { logError } from "@/lib/log";
 import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } from "@/lib/registration-form/server";
 import { validateRegistrationExtras, type BuiltinField, type ChildExtras } from "@/lib/registration-form/config";
 import { issueContractsForRegistrations } from "@/lib/contracts/server";
+import { refillAfterCancellation } from "@/lib/club-admin/waitlist-server";
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -319,6 +320,7 @@ export async function updateRegistration(id: string, input: RegistrationEditInpu
   if (p.data.programId !== reg.program_id) {
     await writeAudit(me, "registration.program.change", "registrations", id, { from: reg.program_id, to: p.data.programId });
   }
+  if (cancelled && reg.status !== "cancelled") await refillAfterCancellation(me.orgId, id);
   revalidateRegistration(id, reg.athlete_id);
   return { ok: true, message: t("editPeople.saved") };
 }
@@ -341,6 +343,8 @@ export async function cancelRegistration(id: string, reason: string): Promise<Pe
   }
   if (!data?.length) return { ok: false, error: t("editPeople.errors.notFound") };
   await writeAudit(me, "registration.cancel", "registrations", id);
+  // A spot is free: offer it to the next person on the waiting list.
+  await refillAfterCancellation(me.orgId, id);
   revalidateRegistration(id, data[0].athlete_id);
   return { ok: true, message: t("editPeople.registrations.cancelled") };
 }

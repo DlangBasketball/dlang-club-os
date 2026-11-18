@@ -34,6 +34,10 @@ const PUBLIC_PREFIXES = [
   "/api/calendar/feed",
   // Club shop: storefront, guest checkout and the guest order link.
   "/shop",
+  // Club admin job: memberships, waiting-list offers, certificate reminders (cron bearer secret).
+  "/api/club-admin/cron",
+  // Waiting-list offer link (accept / decline); the URL token is the credential.
+  "/waitlist",
 ];
 
 function isPublic(pathname: string) {

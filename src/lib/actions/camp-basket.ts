@@ -1,5 +1,6 @@
 "use server";
 
+import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -317,6 +318,11 @@ async function checkout(ctxInput: BasketContext, input: BasketInput, extras: Che
   }
   const out = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; lines?: { registration_id: string }[] };
   const regIds = (out.lines ?? []).map((l) => l.registration_id);
+  // Member families pay the optional member price (never fatal).
+  if (await applyMemberPrices(r.orgId, "camp_registration", regIds) && out.invoice_id) {
+    const { data: inv } = await campsAdminDb().from("invoices").select("total_chf").eq("id", out.invoice_id).eq("org_id", r.orgId).maybeSingle();
+    if (inv) out.total = Number((inv as { total_chf: number | string }).total_chf);
+  }
   await issueContractsForRegistrations(r.orgId, regIds, r.profileId ?? undefined);
   const plan = await attachPlanAtCheckout(r.orgId, out.invoice_id, safeCount(extras.instalments), "camp");
   if (!plan.ok) logError("camp.basketPlan", new Error(plan.code), { orgId: r.orgId });

@@ -30,6 +30,14 @@ const JSON_OUT = args.has("--json");
 
 // Strings that are legitimately the same across languages.
 const SAME_AS_EN_OK = new Set([
+  // club admin: German "Status" / "Team", French "Active" / "Programme", the official J+S name
+  "clubadmin.common.status",
+  "clubadmin.incidents.status",
+  "clubadmin.compliance.team",
+  "clubadmin.incidents.team",
+  "clubadmin.membership.statuses.active",
+  "clubadmin.waitlist.kinds.program",
+  "clubadmin.js.title",
   // camp seasons: "{season} {year}", German "Winter", "Camp {year}" (fr/de) are correct as is
   "camps.seasons.label",
   "camps.seasons.names.winter",
