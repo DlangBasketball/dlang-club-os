@@ -3,17 +3,18 @@ import { Landmark } from "lucide-react";
 import { PageHeader, Card, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { listAwaitingPayment } from "@/lib/data/reconciliation";
 import { MarkPaidButton } from "@/components/invoice/mark-paid-button";
-import { getFormatter } from "@/lib/i18n/server";
+import { getFormatter, getI18n } from "@/lib/i18n/server";
 
 export default async function ReconcilePage() {
-  const f = await getFormatter();
+  const [f, { t }] = await Promise.all([getFormatter(), getI18n()]);
   const { data, error } = await listAwaitingPayment();
   if (error) return (<div className="animate-fade-up"><PageHeader title="Reconciliation" /><ErrorState title="Couldn't load" message={error} /></div>);
   const rows = data!;
 
   return (
     <div className="animate-fade-up space-y-4">
-      <PageHeader title="Payment reconciliation" description="Match incoming TWINT / bank transfers to invoices by reference, then mark them paid." />
+      <PageHeader title="Payment reconciliation" description="Match incoming TWINT / bank transfers to invoices by reference, then mark them paid."
+        actions={<Link href="/admin/accounting/bank" className="inline-flex items-center gap-1 text-sm text-maroon hover:underline"><Landmark className="h-4 w-4" aria-hidden /> {t("accounting.bank.upload")}</Link>} />
       {rows.length === 0 ? (
         <EmptyState icon={<Landmark className="h-5 w-5" />} title="Nothing awaiting payment" description="All issued invoices are settled." />
       ) : (

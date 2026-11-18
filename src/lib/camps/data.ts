@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { campsAdminDb, campsDb, type CampAgeGroupRow, type CampEditionRow, type CampPriceOptionRow, type CampTimeSlotRow, type DiscountRow } from "./db";
-import type { DiscountDef } from "@/lib/pricing/discounts";
+import type { DiscountDef, DiscountRule } from "@/lib/pricing/discounts";
 import { isRegistrationOpen, spotsLeft } from "./logic";
 import { campSeason, type SeasonOfYear } from "./seasons";
 import { clubMediaUrl } from "@/lib/shop/db";
@@ -192,7 +192,7 @@ export async function getEditionRegistrations(orgId: string, editionId: string):
 }
 
 /** Discounts of the org (admin / finance; RLS) with their use counts. */
-export async function listDiscounts(orgId: string): Promise<Result<(ReturnType<typeof mapDiscount> & { uses: number })[]>> {
+export async function listDiscounts(orgId: string): Promise<Result<(Omit<ReturnType<typeof mapDiscount>, "rule"> & { rule: DiscountRule; uses: number })[]>> {
   const db = (await campsDb()) as unknown as Db;
   const [{ data, error }, { data: used }] = await Promise.all([
     db.from("discounts").select("*").eq("org_id", orgId).order("is_active", { ascending: false }).order("name"),
@@ -201,7 +201,15 @@ export async function listDiscounts(orgId: string): Promise<Result<(ReturnType<t
   if (error) return { data: null, error: error.message };
   const count = new Map<string, number>();
   for (const u of used ?? []) count.set(u.discount_id, (count.get(u.discount_id) ?? 0) + 1);
-  return { data: (data ?? []).map((d) => ({ ...mapDiscount(d as DiscountRow, { all: count.get(d.id) ?? 0, family: 0 }), uses: count.get(d.id) ?? 0 })), error: null };
+  // Family support discounts are managed per family in Accounting, not in the general editor.
+  const general = (data ?? []).filter((d) => (d.rule as string) !== "family_support");
+  return {
+    data: general.map((d) => {
+      const m = mapDiscount(d as DiscountRow, { all: count.get(d.id) ?? 0, family: 0 });
+      return { ...m, rule: m.rule as DiscountRule, uses: count.get(d.id) ?? 0 };
+    }),
+    error: null,
+  };
 }
 
 /**
