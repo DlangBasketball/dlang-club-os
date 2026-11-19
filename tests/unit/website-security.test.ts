@@ -150,7 +150,10 @@ describe("public roster (minors)", () => {
 describe("embed code and settings", () => {
   it("generates shortcode, script and iframe snippets with escaped, allow-listed params", () => {
     const spec = { widget: "camps" as const, club: "club-a", theme: "dark" as const, params: { season: "summer", team: "x", year: '2026"><script>' } };
-    expect(shortcodeFor(spec)).toBe('[dlang_os widget="camps" season="summer" theme="dark"]');
+    expect(shortcodeFor(spec)).toBe('[dlang_camps season="summer" theme="dark"]');
+    expect(shortcodeFor({ widget: "book", club: "dlang" })).toBe('[dlang_embed widget="book"]');
+    expect(shortcodeFor({ widget: "register", club: "dlang", params: { program: "u14" } })).toBe('[dlang_embed widget="register" program="u14"]');
+    expect(shortcodeFor({ widget: "teams", club: "dlang" })).toBe("[dlang_teams]");
     expect(scriptSnippetFor(spec, "https://app.example/")).toBe('<div data-dlang-widget="camps" data-club="club-a" data-season="summer" data-theme="dark"></div>\n<script src="https://app.example/embed.js" async></script>');
     expect(embedPath(spec, "https://www.club-a.example")).toBe("/embed/camps?club=club-a&theme=dark&season=summer&origin=https%3A%2F%2Fwww.club-a.example");
     expect(iframeSnippetFor(spec, "https://app.example")).not.toContain("<script>");

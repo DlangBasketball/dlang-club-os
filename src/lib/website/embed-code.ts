@@ -1,7 +1,8 @@
 /**
  * Embed code generator (admin "Website" page) and the embed widget list.
  * Pure. Three equivalent forms for the club's website:
- *   - WordPress shortcode (DLang OS Connect plugin): [dlang_os widget="camps" season="summer"]
+ *   - WordPress shortcode (DLang OS Connect plugin): [dlang_camps season="summer"]; booking and
+ *     registration (interactive only) use [dlang_embed widget="book"] / [dlang_embed widget="register" program="..."]
  *   - script helper:  <div data-dlang-widget="camps" data-club="dlang" ...></div><script src="<app>/embed.js" async></script>
  *   - plain iframe:   <iframe src="<app>/embed/camps?club=dlang&..."></iframe>
  */
@@ -60,11 +61,15 @@ export function embedPath(spec: EmbedSpec, origin?: string | null): string {
 const attr = (v: string) => v.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
 export function shortcodeFor(spec: EmbedSpec): string {
-  const parts = [`widget="${attr(spec.widget)}"`];
+  // The plugin registers one shortcode per widget ([dlang_camps], [dlang_schedule], ...);
+  // booking and registration have no server-rendered list, so they go through [dlang_embed].
+  const viaEmbed = spec.widget === "book" || spec.widget === "register";
+  const parts: string[] = viaEmbed ? [`widget="${attr(spec.widget)}"`] : [];
   for (const [k, v] of cleanParams(spec)) parts.push(`${k}="${attr(v)}"`);
   if (spec.theme && spec.theme !== "club") parts.push(`theme="${spec.theme}"`);
   if (spec.lang) parts.push(`lang="${attr(spec.lang)}"`);
-  return `[dlang_os ${parts.join(" ")}]`;
+  const tag = viaEmbed ? "dlang_embed" : `dlang_${spec.widget}`;
+  return parts.length ? `[${tag} ${parts.join(" ")}]` : `[${tag}]`;
 }
 
 export function scriptSnippetFor(spec: EmbedSpec, appUrl: string): string {
