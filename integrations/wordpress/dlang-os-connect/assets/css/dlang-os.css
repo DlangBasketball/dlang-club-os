@@ -1,0 +1,626 @@
+/*
+ * DLang OS Connect - widget styles.
+ *
+ * All colours, radii and fonts are CSS variables. The defaults below match the app's default theme;
+ * each widget wrapper receives the club's own values inline (from the app's theme), so the website
+ * widgets look like the app. Light/dark modes keep the club's brand colours on neutral surfaces.
+ * Scoped to .dlos so it never styles the rest of the WordPress theme.
+ */
+
+.dlos {
+	--dlos-bg: #0a0a0a;
+	--dlos-surface: #1a1a1a;
+	--dlos-surface-2: #222222;
+	--dlos-border: #2a2a2a;
+	--dlos-text: #f1f1f1;
+	--dlos-text-2: #b8b8b8;
+	--dlos-muted: #9a999a;
+	--dlos-primary: #da2627;
+	--dlos-primary-hover: #961f1f;
+	--dlos-on-primary: #ffffff;
+	--dlos-primary-text: #f25555;
+	--dlos-accent: #c19a45;
+	--dlos-on-accent: #0a0a0a;
+	--dlos-accent-text: #c19a45;
+	--dlos-success: #4fae5f;
+	--dlos-warning: #d4a352;
+	--dlos-danger: #f25555;
+	--dlos-radius: 8px;
+	--dlos-radius-lg: 14px;
+	--dlos-font-display: "Fraunces", "Iowan Old Style", "Times New Roman", serif;
+	--dlos-font-ui: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--dlos-focus: var(--dlos-accent);
+	--dlos-gap: 16px;
+
+	box-sizing: border-box;
+	margin-block: 1.5em;
+	color: var(--dlos-text);
+	font-family: var(--dlos-font-ui);
+	line-height: 1.5;
+}
+
+.dlos.dlos-theme--light {
+	--dlos-bg: #ffffff;
+	--dlos-surface: #ffffff;
+	--dlos-surface-2: #f5f5f4;
+	--dlos-border: #e2e2e0;
+	--dlos-text: #18181b;
+	--dlos-text-2: #3f3f46;
+	--dlos-muted: #5c5c66;
+	--dlos-primary-text: #b51f20;
+	--dlos-accent-text: #7a5c1c;
+	--dlos-success: #1f7a33;
+	--dlos-warning: #8a5a00;
+	--dlos-danger: #b51f20;
+}
+
+.dlos.dlos-theme--dark {
+	--dlos-bg: #0f0f10;
+	--dlos-surface: #18181b;
+	--dlos-surface-2: #232327;
+	--dlos-border: #2e2e33;
+	--dlos-text: #f4f4f5;
+	--dlos-text-2: #c4c4cc;
+	--dlos-muted: #a1a1aa;
+}
+
+.dlos.dlos-theme--club {
+	background: var(--dlos-bg);
+	padding: var(--dlos-gap);
+	border-radius: var(--dlos-radius-lg);
+}
+
+.dlos *,
+.dlos *::before,
+.dlos *::after {
+	box-sizing: inherit;
+}
+
+.dlos--inherit-fonts,
+.dlos--inherit-fonts .dlos-card__title,
+.dlos--inherit-fonts .dlos-group__title,
+.dlos--inherit-fonts .dlos-team__title {
+	font-family: inherit;
+}
+
+/* Lists reset (role="list" keeps semantics in Safari). */
+.dlos ul,
+.dlos ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.dlos p {
+	margin: 0 0 0.5em;
+}
+
+.dlos img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* ---- Grid and cards ------------------------------------------------- */
+.dlos-grid {
+	display: grid;
+	gap: var(--dlos-gap);
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+}
+
+.dlos-grid--wide {
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+}
+
+.dlos-grid--people {
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+}
+
+.dlos-card {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: var(--dlos-gap);
+	background: var(--dlos-surface);
+	border: 1px solid var(--dlos-border);
+	border-radius: var(--dlos-radius-lg);
+	overflow: hidden;
+}
+
+.dlos-card__img {
+	display: block;
+	width: calc(100% + 2 * var(--dlos-gap));
+	max-width: none;
+	margin: calc(-1 * var(--dlos-gap)) calc(-1 * var(--dlos-gap)) 8px;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	background: var(--dlos-surface-2);
+}
+
+.dlos-card__photo,
+.dlos-person__photo {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	object-fit: cover;
+	background: var(--dlos-surface-2);
+}
+
+.dlos-card__title,
+.dlos-group__title,
+.dlos-team__title,
+.dlos-event__title,
+.dlos-news__title,
+.dlos-h {
+	margin: 0;
+	color: var(--dlos-text);
+	font-family: var(--dlos-font-display);
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.dlos-card__title {
+	font-size: 1.15rem;
+}
+
+.dlos-group {
+	margin-bottom: calc(var(--dlos-gap) * 2);
+}
+
+.dlos-group__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.dlos-group__title {
+	font-size: 1.5rem;
+}
+
+.dlos-h {
+	margin: 1.25em 0 0.5em;
+	font-size: 1.15rem;
+}
+
+.dlos-meta,
+.dlos-muted,
+.dlos-card__line {
+	color: var(--dlos-text-2);
+	font-size: 0.9rem;
+}
+
+.dlos-card__text {
+	color: var(--dlos-text-2);
+	font-size: 0.95rem;
+}
+
+.dlos-card__text a {
+	color: var(--dlos-primary-text);
+}
+
+.dlos-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-top: auto;
+	padding-top: 8px;
+}
+
+.dlos-price {
+	color: var(--dlos-text);
+	font-weight: 600;
+}
+
+.dlos-prices li {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 8px;
+	justify-content: space-between;
+	padding: 4px 0;
+	border-bottom: 1px solid var(--dlos-border);
+	font-size: 0.92rem;
+}
+
+.dlos-prices li:last-child {
+	border-bottom: 0;
+}
+
+.dlos-prices__price {
+	font-weight: 600;
+}
+
+.dlos-prices__member {
+	color: var(--dlos-accent-text);
+	font-size: 0.85rem;
+}
+
+/* ---- Buttons and links ---------------------------------------------- */
+.dlos-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 10px 18px;
+	border: 1px solid transparent;
+	border-radius: var(--dlos-radius);
+	font: inherit;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.dlos-btn--primary,
+.dlos-btn--primary:visited {
+	background: var(--dlos-primary);
+	color: var(--dlos-on-primary);
+}
+
+.dlos-btn--primary:hover {
+	background: var(--dlos-primary-hover);
+	color: var(--dlos-on-primary);
+}
+
+.dlos-btn--secondary,
+.dlos-btn--secondary:visited {
+	background: transparent;
+	border-color: var(--dlos-border);
+	color: var(--dlos-text);
+}
+
+.dlos-link,
+.dlos-link:visited,
+.dlos-news__title a,
+.dlos-news__title a:visited {
+	color: var(--dlos-primary-text);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.dlos a:focus-visible,
+.dlos button:focus-visible {
+	outline: 3px solid var(--dlos-focus);
+	outline-offset: 2px;
+}
+
+/* ---- Badges, status --------------------------------------------------- */
+.dlos-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border: 1px solid var(--dlos-border);
+	border-radius: 999px;
+	background: var(--dlos-surface-2);
+	color: var(--dlos-text-2);
+	font-size: 0.8rem;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+.dlos-badge--open,
+.dlos-badge--win {
+	color: var(--dlos-success);
+}
+
+.dlos-badge--waitlist,
+.dlos-badge--places,
+.dlos-badge--moved,
+.dlos-badge--draw {
+	color: var(--dlos-warning);
+}
+
+.dlos-badge--full,
+.dlos-badge--closed,
+.dlos-badge--cancelled,
+.dlos-badge--loss {
+	color: var(--dlos-danger);
+}
+
+.dlos-note {
+	margin: 0 0 12px;
+	padding: 8px 12px;
+	border-left: 3px solid var(--dlos-warning);
+	background: var(--dlos-surface-2);
+	color: var(--dlos-text-2);
+	font-size: 0.85rem;
+}
+
+.dlos-empty {
+	color: var(--dlos-text-2);
+}
+
+.dlos-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+/* ---- Events ----------------------------------------------------------- */
+.dlos-events {
+	display: grid;
+	gap: 10px;
+}
+
+.dlos-event {
+	display: grid;
+	grid-template-columns: minmax(110px, 160px) 1fr;
+	gap: 12px;
+	padding: 12px var(--dlos-gap);
+	background: var(--dlos-surface);
+	border: 1px solid var(--dlos-border);
+	border-left: 4px solid var(--dlos-border);
+	border-radius: var(--dlos-radius);
+}
+
+.dlos-event--game {
+	border-left-color: var(--dlos-primary);
+}
+
+.dlos-event--tournament {
+	border-left-color: var(--dlos-accent);
+}
+
+.dlos-event--cancelled .dlos-event__title {
+	text-decoration: line-through;
+}
+
+.dlos-event__when {
+	color: var(--dlos-text);
+	font-weight: 600;
+	font-size: 0.92rem;
+}
+
+.dlos-event__type {
+	color: var(--dlos-accent-text);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.dlos-event__title {
+	font-size: 1.05rem;
+}
+
+.dlos-event__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	font-size: 0.9rem;
+}
+
+.dlos-score {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.dlos-score__value {
+	font-family: var(--dlos-font-display);
+	font-size: 1.4rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.dlos-foot {
+	margin-top: 12px;
+}
+
+/* ---- Team, people ----------------------------------------------------- */
+.dlos-team__cover {
+	display: block;
+	width: 100%;
+	aspect-ratio: 21 / 9;
+	object-fit: cover;
+	border-radius: var(--dlos-radius-lg);
+	margin-bottom: 12px;
+}
+
+.dlos-team__title {
+	font-size: 1.8rem;
+}
+
+.dlos-people {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+.dlos-person {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.dlos-person__photo {
+	width: 56px;
+	height: 56px;
+}
+
+.dlos-person__name {
+	font-weight: 600;
+}
+
+.dlos-person__role {
+	color: var(--dlos-text-2);
+	font-size: 0.9rem;
+}
+
+.dlos-card--person {
+	align-items: center;
+	text-align: center;
+}
+
+.dlos-times li,
+.dlos-roster li {
+	padding: 4px 0;
+}
+
+.dlos-roster {
+	columns: 2 200px;
+}
+
+.dlos-roster__num {
+	display: inline-block;
+	min-width: 2.2em;
+	color: var(--dlos-accent-text);
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---- Donations --------------------------------------------------------- */
+.dlos-progress {
+	height: 10px;
+	border-radius: 999px;
+	background: var(--dlos-surface-2);
+	overflow: hidden;
+}
+
+.dlos-progress__bar {
+	display: block;
+	height: 100%;
+	background: var(--dlos-accent);
+}
+
+/* ---- News -------------------------------------------------------------- */
+.dlos-news__item {
+	padding: 12px 0;
+	border-bottom: 1px solid var(--dlos-border);
+}
+
+.dlos-news__item:last-child {
+	border-bottom: 0;
+}
+
+.dlos-news__title {
+	font-size: 1.1rem;
+}
+
+/* ---- Login, embed ------------------------------------------------------ */
+.dlos.dlos--login,
+.dlos.dlos--embed {
+	background: transparent;
+	padding: 0;
+}
+
+.dlos-embed iframe {
+	width: 100%;
+	border: 0;
+}
+
+/* ---- Dialog (embed mode) ----------------------------------------------- */
+.dlos-dialog {
+	width: min(960px, calc(100vw - 32px));
+	max-height: calc(100vh - 32px);
+	padding: 0;
+	border: 1px solid var(--dlos-border);
+	border-radius: var(--dlos-radius-lg);
+	background: var(--dlos-surface);
+	color: var(--dlos-text);
+	margin: auto;
+}
+
+.dlos-dialog::backdrop {
+	background: rgba(0, 0, 0, 0.6);
+}
+
+.dlos-dialog__frame {
+	display: block;
+	width: 100%;
+	height: 75vh;
+	border: 0;
+}
+
+.dlos-dialog__close,
+.dlos-pwa__close {
+	min-width: 44px;
+	min-height: 44px;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font-size: 1.6rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.dlos-dialog__close {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	z-index: 1;
+}
+
+/* ---- Install hint -------------------------------------------------------- */
+.dlos-pwa {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	left: 16px;
+	z-index: 9999;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	max-width: 520px;
+	margin: 0 0 0 auto;
+	padding: 12px 12px 12px 16px;
+	background: var(--dlos-surface);
+	border: 1px solid var(--dlos-border);
+	border-radius: var(--dlos-radius-lg);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.dlos-pwa[hidden] {
+	display: none;
+}
+
+.dlos-pwa__text {
+	flex: 1 1 200px;
+	margin: 0;
+	font-size: 0.92rem;
+}
+
+/* ---- Utilities ------------------------------------------------------------ */
+.dlos-sr {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.dlos-sep {
+	color: var(--dlos-muted);
+}
+
+@media (max-width: 600px) {
+	.dlos-event {
+		grid-template-columns: 1fr;
+		gap: 4px;
+	}
+
+	.dlos.dlos-theme--club {
+		padding: 12px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dlos-btn {
+		transition: none;
+	}
+}
+
+@media (forced-colors: active) {
+	.dlos-btn,
+	.dlos-badge,
+	.dlos-card {
+		border: 1px solid CanvasText;
+	}
+}

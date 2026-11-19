@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test data only. -->
+<b:Document xmlns:b="urn:iso:std:iso:20022:tech:xsd:camt.053.001.04">
+  <b:BkToCstmrStmt>
+    <b:GrpHdr><b:MsgId>STMT-2026-10</b:MsgId></b:GrpHdr>
+    <b:Stmt>
+      <b:Acct><b:Id><b:IBAN>CH56 0483 5012 3456 7800 9</b:IBAN></b:Id></b:Acct>
+      <b:Ntry>
+        <b:Amt Ccy="EUR">120.5</b:Amt>
+        <b:CdtDbtInd>CRDT</b:CdtDbtInd>
+        <b:Sts>BOOK</b:Sts>
+        <b:BookgDt><b:DtTm>2026-10-03T10:00:00</b:DtTm></b:BookgDt>
+        <b:ValDt><b:Dt>2026-10-03</b:Dt></b:ValDt>
+        <b:NtryDtls><b:TxDtls>
+          <b:RltdPties><b:Dbtr><b:Nm>Max Muster</b:Nm></b:Dbtr></b:RltdPties>
+          <b:RmtInf><b:Ustrd>Payment RF18 5390 0754 7034 thanks</b:Ustrd></b:RmtInf>
+        </b:TxDtls></b:NtryDtls>
+      </b:Ntry>
+      <b:Ntry>
+        <b:Amt Ccy="EUR">10.00</b:Amt>
+        <b:CdtDbtInd>CRDT</b:CdtDbtInd>
+        <b:RvslInd>true</b:RvslInd>
+        <b:BookgDt><b:Dt>2026-10-04</b:Dt></b:BookgDt>
+      </b:Ntry>
+    </b:Stmt>
+  </b:BkToCstmrStmt>
+</b:Document>

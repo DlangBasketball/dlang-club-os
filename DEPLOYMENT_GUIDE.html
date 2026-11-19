@@ -309,8 +309,8 @@ NEXT_PUBLIC_SITE_URL            <span class="c"># your domain, no trailing slash
 STRIPE_SECRET_KEY               <span class="c"># SECRET — sk_live_… (sk_test_ in Preview)</span>
 STRIPE_WEBHOOK_SECRET           <span class="c"># SECRET — set in Phase 4</span>
 RESEND_API_KEY                  <span class="c"># SECRET</span>
-RESEND_FROM                     <span class="c"># "DLang Basketball &lt;noreply@…&gt;"</span>
-CLUB_ADMIN_EMAIL                <span class="c"># new-registration alerts</span></pre>
+RESEND_FROM                     <span class="c"># "DLang Basketball &lt;noreply@…&gt;"</span></pre>
+        <p>New-registration alerts go to each club's own admins (or the club's <code class="inl">notification_email</code> setting), never to a shared inbox.</p>
         </div>
         <p><b>Critical:</b> no secret may carry the <code class="inl">NEXT_PUBLIC_</code> prefix — the app's <code class="inl">assertServerEnv()</code> refuses to boot if a secret is exposed publicly or a required one is missing.</p>
       </li>

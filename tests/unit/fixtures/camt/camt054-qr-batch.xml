@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test data only: fictitious names, IBANs and references. -->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.08" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <BkToCstmrDbtCdtNtfctn>
+    <GrpHdr>
+      <MsgId>MSG-2026-11-17-0001</MsgId>
+      <CreDtTm>2026-11-17T06:00:00</CreDtTm>
+    </GrpHdr>
+    <Ntfctn>
+      <Id>NTF-1</Id>
+      <CreDtTm>2026-11-17T06:00:00</CreDtTm>
+      <FrToDt><FrDtTm>2026-11-16T00:00:00</FrDtTm><ToDtTm>2026-11-16T23:59:59</ToDtTm></FrToDt>
+      <Acct><Id><IBAN>CH4431999123000889012</IBAN></Id><Ccy>CHF</Ccy></Acct>
+      <Ntry>
+        <NtryRef>BATCH-01</NtryRef>
+        <Amt Ccy="CHF">1790.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts><Cd>BOOK</Cd></Sts>
+        <BookgDt><Dt>2026-11-16</Dt></BookgDt>
+        <ValDt><Dt>2026-11-16</Dt></ValDt>
+        <AcctSvcrRef>ASR-ENTRY-0001</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs><AcctSvcrRef>ASR-TX-0001</AcctSvcrRef><EndToEndId>NOTPROVIDED</EndToEndId></Refs>
+            <Amt Ccy="CHF">1490.00</Amt>
+            <CdtDbtInd>CRDT</CdtDbtInd>
+            <RltdPties>
+              <Dbtr><Pty><Nm>Jo&#227;o Testeiro</Nm></Pty></Dbtr>
+              <DbtrAcct><Id><IBAN>CH9300762011623852957</IBAN></Id></DbtrAcct>
+            </RltdPties>
+            <RmtInf>
+              <Strd>
+                <CdtrRefInf><Tp><CdOrPrtry><Prtry>QRR</Prtry></CdOrPrtry></Tp><Ref>210000000003139471430009017</Ref></CdtrRefInf>
+                <AddtlRmtInf>Camp week 1</AddtlRmtInf>
+              </Strd>
+            </RmtInf>
+          </TxDtls>
+          <TxDtls>
+            <Refs><AcctSvcrRef>ASR-TX-0002</AcctSvcrRef></Refs>
+            <AmtDtls><TxAmt><Amt Ccy="CHF">300.00</Amt></TxAmt></AmtDtls>
+            <RltdPties><Dbtr><Nm>Anna Beispiel &amp; Co</Nm></Dbtr></RltdPties>
+            <RmtInf><Ustrd>Rechnung INV-2026-0042 danke</Ustrd></RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+      <Ntry>
+        <Amt Ccy="CHF">50.00</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <Sts><Cd>BOOK</Cd></Sts>
+        <BookgDt><Dt>2026-11-16</Dt></BookgDt>
+        <AcctSvcrRef>ASR-DEBIT-1</AcctSvcrRef>
+      </Ntry>
+      <Ntry>
+        <Amt Ccy="CHF">75.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts><Cd>PDNG</Cd></Sts>
+        <AcctSvcrRef>ASR-PENDING-1</AcctSvcrRef>
+      </Ntry>
+    </Ntfctn>
+  </BkToCstmrDbtCdtNtfctn>
+</Document>
