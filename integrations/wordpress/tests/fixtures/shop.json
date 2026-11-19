@@ -1,0 +1,28 @@
+{
+	"club": { "slug": "demo-club", "name": "Demo Hoops Club", "theme": {}, "currency": "CHF", "app_url": "https://app.example.org" },
+	"data": [
+		{
+			"id": "p-1",
+			"slug": "home-jersey",
+			"name": "Home jersey",
+			"description": "<p>Breathable <strong>mesh</strong>.</p><script>steal()</script>",
+			"images": [ "https://cdn.example.org/jersey.jpg" ],
+			"price": { "amount": 45.0, "currency": "CHF", "formatted": "CHF 45.00" },
+			"member_price": { "amount": 40.0, "currency": "CHF", "formatted": "CHF 40.00" },
+			"in_stock": true,
+			"variants": [ { "size": "S" }, { "size": "M" }, "L" ],
+			"url": "https://app.example.org/shop/home-jersey",
+			"action_url": "https://app.example.org/shop/home-jersey?buy=1"
+		},
+		{
+			"id": "p-2",
+			"slug": "hoodie",
+			"name": "Club hoodie",
+			"images": [ { "url": "https://cdn.example.org/hoodie.jpg" } ],
+			"price": { "amount": 60.0, "currency": "CHF", "formatted": "CHF 60.00" },
+			"in_stock": false,
+			"url": "https://app.example.org/shop/hoodie",
+			"action_url": "https://app.example.org/shop/hoodie?buy=1"
+		}
+	]
+}

@@ -1,0 +1,1036 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: DLang OS Connect 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: dlang-os-connect\n"
+
+#. translators: 1: matched pages, 2: unmatched pages
+#: includes/admin/class-dlos-admin-migration.php:327
+msgid "%1$d old pages matched, %2$d without a match (they keep working as before)."
+msgstr "%1$d alte Seiten zugeordnet, %2$d ohne Treffer (sie funktionieren weiter wie bisher)."
+
+#. translators: 1: amount raised, 2: goal
+#: includes/class-dlos-renderer.php:1023
+msgid "%1$s raised of %2$s"
+msgstr "%1$s von %2$s gesammelt"
+
+#. translators: 1: home team, 2: away team
+#: includes/class-dlos-renderer.php:629
+msgid "%1$s vs %2$s"
+msgstr "%1$s – %2$s"
+
+#. translators: %d: number of days
+#: includes/class-dlos-renderer.php:426
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d Tag"
+msgstr[1] "%d Tage"
+
+#. translators: %d: minutes
+#: includes/class-dlos-renderer.php:890
+msgid "%d min"
+msgstr "%d Min."
+
+#. translators: %d: number of places left
+#: includes/class-dlos-renderer.php:213
+msgid "%d place left"
+msgid_plural "%d places left"
+msgstr[0] "Noch %d Platz"
+msgstr[1] "Noch %d Plätze"
+
+#. translators: %d: number of redirects
+#: includes/admin/class-dlos-admin-migration.php:237
+msgid "%d redirect saved."
+msgid_plural "%d redirects saved."
+msgstr[0] "%d Weiterleitung gespeichert."
+msgstr[1] "%d Weiterleitungen gespeichert."
+
+#. translators: %d: number of sessions
+#: includes/class-dlos-renderer.php:912
+msgid "%d session"
+msgid_plural "%d sessions"
+msgstr[0] "%d Einheit"
+msgstr[1] "%d Einheiten"
+
+#. translators: %d: percent of the goal reached
+#: includes/class-dlos-renderer.php:1018
+msgid "%d%% of the goal reached"
+msgstr "%d %% des Ziels erreicht"
+
+#. translators: %s: price
+#: includes/class-dlos-renderer.php:903
+msgid "%s per session"
+msgstr "%s pro Einheit"
+
+#: includes/class-dlos-renderer.php:116
+msgid "(opens in a new tab)"
+msgstr "(öffnet in einem neuen Tab)"
+
+#: includes/admin/class-dlos-admin-migration.php:204
+msgid "1. What this site has today"
+msgstr "1. Was diese Website heute enthält"
+
+#: includes/admin/class-dlos-admin-migration.php:232
+msgid "2. Redirect old pages to the app"
+msgstr "2. Alte Seiten auf die App weiterleiten"
+
+#: includes/admin/class-dlos-admin-migration.php:271
+msgid "3. Switch off WooCommerce checkout once the shop runs in the app"
+msgstr "3. WooCommerce-Kasse abschalten, sobald der Shop in der App läuft"
+
+#: includes/admin/class-dlos-admin-migration.php:362
+msgid "A page on this site shows the app shop with [dlang_shop] or the \"DLang OS shop\" block."
+msgstr "Eine Seite dieser Website zeigt den App-Shop mit [dlang_shop] oder dem Block «DLang OS shop»."
+
+#: includes/class-dlos-widgets.php:268
+msgid "Add structured data for search engines"
+msgstr "Strukturierte Daten für Suchmaschinen hinzufügen"
+
+#: includes/admin/class-dlos-admin-settings.php:196
+msgid "Add structured data for search engines (games, camps, shop items)"
+msgstr "Strukturierte Daten für Suchmaschinen hinzufügen (Spiele, Camps, Artikel)"
+
+#: includes/class-dlos-menu.php:74
+msgid "Add to Menu"
+msgstr "Zum Menü hinzufügen"
+
+#: includes/admin/class-dlos-admin-migration.php:369
+msgid "After the retention export: keep WooCommerce deactivated or remove it."
+msgstr "Nach dem Archiv-Export: WooCommerce deaktiviert lassen oder entfernen."
+
+#. translators: %s: age range
+#: includes/class-dlos-renderer.php:384 includes/class-dlos-renderer.php:482
+msgid "Ages %s"
+msgstr "%s Jahre"
+
+#: includes/class-dlos-widgets.php:220 includes/class-dlos-widgets.php:235
+msgid "All"
+msgstr "Alle"
+
+#: includes/class-dlos-renderer.php:368
+msgid "All dates and prices"
+msgstr "Alle Daten und Preise"
+
+#: includes/admin/class-dlos-admin-migration.php:361
+msgid "All products, sizes, prices and stock are set up in the app shop, and a test purchase (card and TWINT) worked."
+msgstr "Alle Produkte, Grössen, Preise und Bestände sind im App-Shop erfasst, und ein Testkauf (Karte und TWINT) hat funktioniert."
+
+#: includes/admin/class-dlos-admin-settings.php:144
+msgid "App address"
+msgstr "App-Adresse"
+
+#: includes/class-dlos-widgets.php:253
+msgid "App widget"
+msgstr "App-Widget"
+
+#: includes/admin/class-dlos-admin-migration.php:212
+msgid "Athletes (import from your member list, not from public pages)"
+msgstr "Athletinnen und Athleten (Import aus der Mitgliederliste, nicht von öffentlichen Seiten)"
+
+#: includes/class-dlos-widgets.php:206
+msgid "Automatic"
+msgstr "Automatisch"
+
+#: includes/class-dlos-widgets.php:223
+msgid "Autumn"
+msgstr "Herbst"
+
+#: includes/class-dlos-renderer.php:917
+msgid "Book"
+msgstr "Buchen"
+
+#: includes/class-dlos-widgets.php:260
+msgid "Book a training"
+msgstr "Training buchen"
+
+#: includes/admin/class-dlos-admin-migration.php:245
+msgid "Build the redirect list"
+msgstr "Weiterleitungsliste erstellen"
+
+#: includes/admin/class-dlos-admin-settings.php:225
+msgid "Build the redirect list on Tools > Move to DLang OS"
+msgstr "Weiterleitungsliste unter Werkzeuge > Zu DLang OS wechseln erstellen"
+
+#: includes/class-dlos-widgets.php:250
+msgid "Button label"
+msgstr "Button-Text"
+
+#: includes/admin/class-dlos-admin-settings.php:186
+msgid "Buttons (register, book, buy)"
+msgstr "Buttons (anmelden, buchen, kaufen)"
+
+#: includes/class-dlos-renderer.php:975
+msgid "Buy"
+msgstr "Kaufen"
+
+#: includes/admin/class-dlos-admin-settings.php:202
+msgid "Cache and updates"
+msgstr "Cache und Aktualisierungen"
+
+#: includes/admin/class-dlos-admin-settings.php:258
+msgid "Cache cleared."
+msgstr "Cache geleert."
+
+#: includes/admin/class-dlos-admin-settings.php:205
+msgid "Cache duration (minutes)"
+msgstr "Cache-Dauer (Minuten)"
+
+#: includes/class-dlos-widgets.php:249
+msgid "Campaign (slug, empty = all)"
+msgstr "Kampagne (Slug, leer = alle)"
+
+#: includes/class-dlos-widgets.php:255
+msgid "Camps"
+msgstr "Camps"
+
+#: includes/class-dlos-renderer.php:204
+msgid "Cancelled"
+msgstr "Abgesagt"
+
+#: includes/class-dlos-widgets.php:248
+msgid "Category"
+msgstr "Kategorie"
+
+#: includes/admin/class-dlos-admin-settings.php:241
+msgid "Clear cache"
+msgstr "Cache leeren"
+
+#: includes/class-dlos-widgets.php:527
+msgid "Close"
+msgstr "Schliessen"
+
+#: includes/class-dlos-renderer.php:203
+msgid "Closed"
+msgstr "Geschlossen"
+
+#: includes/class-dlos-frontend.php:51 includes/class-dlos-widgets.php:529
+msgid "Club app"
+msgstr "Club-App"
+
+#: includes/class-dlos-widgets.php:215
+msgid "Club colours"
+msgstr "Clubfarben"
+
+#: includes/admin/class-dlos-admin-settings.php:179
+msgid "Club colours (same as the app)"
+msgstr "Clubfarben (wie die App)"
+
+#: includes/admin/class-dlos-admin-settings.php:149
+msgid "Club slug"
+msgstr "Club-Kennung (Slug)"
+
+#: includes/admin/class-dlos-admin-settings.php:281
+msgid "Club: %s"
+msgstr "Club: %s"
+
+#: includes/admin/class-dlos-admin-migration.php:213 includes/class-dlos-renderer.php:747
+msgid "Coaches"
+msgstr "Trainerinnen und Trainer"
+
+#. translators: %s: list of coach names
+#: includes/class-dlos-renderer.php:708
+msgid "Coaches: %s"
+msgstr "Trainer: %s"
+
+#. translators: %s: club name
+#: includes/admin/class-dlos-admin-settings.php:281
+msgid "Connected."
+msgstr "Verbunden."
+
+#: includes/admin/class-dlos-admin-settings.php:141
+msgid "Connection"
+msgstr "Verbindung"
+
+#: includes/admin/class-dlos-admin-settings.php:271
+msgid "Connection failed."
+msgstr "Verbindung fehlgeschlagen."
+
+#: includes/admin/class-dlos-admin-migration.php:206
+msgid "Content"
+msgstr "Inhalt"
+
+#: includes/admin/class-dlos-admin-settings.php:215
+msgid "Copy the website secret from the app. With it, the app refreshes this site the moment you change something. Webhook URL to paste in the app:"
+msgstr "Kopieren Sie das Website-Geheimnis aus der App. Damit aktualisiert die App diese Website, sobald Sie etwas ändern. Webhook-URL zum Einfügen in der App:"
+
+#. translators: %s: technical error code
+#: includes/class-dlos-renderer.php:100
+msgid "Could not load data from the app (%s). Visitors see a link to the app instead."
+msgstr "Daten konnten nicht aus der App geladen werden (%s). Besucher sehen stattdessen einen Link zur App."
+
+#: includes/admin/class-dlos-admin-migration.php:206
+msgid "Count"
+msgstr "Anzahl"
+
+#: includes/admin/class-dlos-admin-settings.php:34 includes/class-dlos-menu.php:52 includes/class-dlos-widgets.php:154
+msgid "DLang OS"
+msgstr "DLang OS"
+
+#. Plugin Name of the plugin
+#: includes/admin/class-dlos-admin-settings.php:34 includes/admin/class-dlos-admin-settings.php:133 dlang-os-connect.php
+msgid "DLang OS Connect"
+msgstr "DLang OS Connect"
+
+#: includes/class-dlos-renderer.php:95
+msgid "DLang OS Connect is not configured yet. Go to Settings > DLang OS."
+msgstr "DLang OS Connect ist noch nicht eingerichtet. Gehen Sie zu Einstellungen > DLang OS."
+
+#: includes/class-dlos-menu.php:85
+msgid "DLang OS account"
+msgstr "DLang-OS-Konto"
+
+#: includes/class-dlos-menu.php:85
+msgid "DLang OS app"
+msgstr "DLang-OS-App"
+
+#: includes/class-dlos-widgets.php:217
+msgid "Dark"
+msgstr "Dunkel"
+
+#: includes/admin/class-dlos-admin-settings.php:181
+msgid "Dark, with club accent colours"
+msgstr "Dunkel, mit Clubfarben als Akzent"
+
+#: includes/class-dlos-widgets.php:242
+msgid "Days ahead"
+msgstr "Tage im Voraus"
+
+#: includes/admin/class-dlos-admin-migration.php:251
+msgid "Delete the redirect list"
+msgstr "Weiterleitungsliste löschen"
+
+#: includes/class-dlos-renderer.php:500 includes/class-dlos-renderer.php:608
+msgid "Details"
+msgstr "Details"
+
+#: includes/class-dlos-renderer.php:606
+msgid "Directions"
+msgstr "Wegbeschreibung"
+
+#: includes/class-dlos-frontend.php:54
+msgid "Dismiss"
+msgstr "Ausblenden"
+
+#: includes/admin/class-dlos-admin-settings.php:155
+msgid "Display"
+msgstr "Darstellung"
+
+#: includes/class-dlos-renderer.php:1025 includes/class-dlos-widgets.php:262
+msgid "Donate"
+msgstr "Spenden"
+
+#: includes/admin/class-dlos-admin-migration.php:375
+msgid "Done"
+msgstr "Erledigt"
+
+#: includes/class-dlos-renderer.php:647
+msgid "Draw"
+msgstr "Unentschieden"
+
+#: includes/admin/class-dlos-admin-settings.php:246
+msgid "Each shortcode is also available as a block in the editor (category \"DLang OS\")."
+msgstr "Jeder Shortcode ist im Editor auch als Block verfügbar (Kategorie «DLang OS»)."
+
+#: includes/admin/class-dlos-admin-settings.php:190
+msgid "Embed needs this website's address in the app's allowed website origins. Payment and login steps always open in a new tab."
+msgstr "Für die Einbettung muss die Adresse dieser Website in den erlaubten Website-Ursprüngen der App stehen. Zahlung und Anmeldung öffnen immer in einem neuen Tab."
+
+#: includes/admin/class-dlos-admin-settings.php:111
+msgid "Enter the app address and the club slug first, then save."
+msgstr "Geben Sie zuerst die App-Adresse und die Club-Kennung ein und speichern Sie."
+
+#: includes/class-dlos-renderer.php:572
+msgid "Event"
+msgstr "Anlass"
+
+#: includes/class-dlos-widgets.php:238
+msgid "Events"
+msgstr "Anlässe"
+
+#: includes/admin/class-dlos-admin-settings.php:194
+msgid "Extras"
+msgstr "Extras"
+
+#: includes/admin/class-dlos-admin-settings.php:162
+msgid "Follow WPML / Polylang, then the site language"
+msgstr "WPML / Polylang folgen, sonst Website-Sprache"
+
+#. translators: %s: price
+#: includes/class-dlos-renderer.php:492
+msgid "From %s"
+msgstr "Ab %s"
+
+#: includes/class-dlos-renderer.php:201
+msgid "Full"
+msgstr "Ausgebucht"
+
+#: includes/class-dlos-renderer.php:570
+msgid "Game"
+msgstr "Spiel"
+
+#: includes/class-dlos-widgets.php:236
+msgid "Games"
+msgstr "Spiele"
+
+#: includes/admin/class-dlos-admin-migration.php:214
+msgid "Generated from the schedule"
+msgstr "Aus dem Spielplan erzeugt"
+
+#: includes/class-dlos-menu.php:61
+msgid "Get the app"
+msgstr "App holen"
+
+#. translators: 1: minimum, 2: maximum group size
+#: includes/class-dlos-renderer.php:897
+msgid "Groups of %1$d–%2$d"
+msgstr "Gruppen von %1$d–%2$d"
+
+#: includes/admin/class-dlos-admin-settings.php:207
+msgid "If the app cannot be reached, the last saved copy is shown."
+msgstr "Ist die App nicht erreichbar, wird die zuletzt gespeicherte Kopie angezeigt."
+
+#: includes/admin/class-dlos-admin-migration.php:229
+msgid "Import teams, schedule and products in the app (CSV export from SportsPress / WooCommerce). Player data of children is imported from your member list with consent, never scraped from the website."
+msgstr "Importieren Sie Teams, Spielplan und Produkte in der App (CSV-Export aus SportsPress / WooCommerce). Daten von Kindern werden mit Einwilligung aus der Mitgliederliste importiert, nie von der Website übernommen."
+
+#: includes/admin/class-dlos-admin-migration.php:206
+msgid "In the app"
+msgstr "In der App"
+
+#: includes/class-dlos-renderer.php:895
+msgid "Individual"
+msgstr "Einzeltraining"
+
+#: includes/class-dlos-frontend.php:53
+msgid "Install the app"
+msgstr "App installieren"
+
+#: includes/class-dlos-renderer.php:236
+msgid "Join the waiting list"
+msgstr "Auf die Warteliste"
+
+#: includes/class-dlos-widgets.php:229
+msgid "Kind (team, camp, clinic…)"
+msgstr "Art (Team, Camp, Clinic…)"
+
+#: includes/admin/class-dlos-admin-settings.php:158 includes/class-dlos-widgets.php:269
+msgid "Language"
+msgstr "Sprache"
+
+#: includes/class-dlos-renderer.php:782
+msgid "Latest results"
+msgstr "Letzte Resultate"
+
+#: includes/class-dlos-widgets.php:216
+msgid "Light"
+msgstr "Hell"
+
+#: includes/admin/class-dlos-admin-settings.php:180
+msgid "Light, with club accent colours"
+msgstr "Hell, mit Clubfarben als Akzent"
+
+#: includes/class-dlos-widgets.php:528
+msgid "Loading…"
+msgstr "Wird geladen…"
+
+#: includes/class-dlos-widgets.php:263
+msgid "Login"
+msgstr "Anmeldung"
+
+#: includes/admin/class-dlos-admin-settings.php:177 includes/class-dlos-widgets.php:270
+msgid "Look"
+msgstr "Aussehen"
+
+#: includes/class-dlos-renderer.php:646
+msgid "Loss"
+msgstr "Niederlage"
+
+#: includes/admin/class-dlos-admin-migration.php:233
+msgid "Matches your old event, team and product pages to the same items in the app (by slug, name, or date and opponent) so links from Google and social media keep working."
+msgstr "Ordnet Ihre alten Spiel-, Team- und Produktseiten denselben Einträgen in der App zu (nach Slug, Name oder Datum und Gegner), damit Links aus Google und sozialen Medien weiter funktionieren."
+
+#: includes/class-dlos-widgets.php:243
+msgid "Maximum items (0 = all)"
+msgstr "Maximale Anzahl (0 = alle)"
+
+#: includes/class-dlos-widgets.php:267
+msgid "Minimum height (px)"
+msgstr "Mindesthöhe (px)"
+
+#: includes/admin/class-dlos-admin-migration.php:33 includes/admin/class-dlos-admin-migration.php:200
+msgid "Move to DLang OS"
+msgstr "Zu DLang OS wechseln"
+
+#: includes/class-dlos-renderer.php:205
+msgid "Moved"
+msgstr "Verschoben"
+
+#: includes/class-dlos-menu.php:60 includes/class-dlos-renderer.php:1080
+msgid "My account"
+msgstr "Mein Bereich"
+
+#: includes/admin/class-dlos-admin-migration.php:225
+msgid "Neither SportsPress nor WooCommerce is active, so there is nothing to move."
+msgstr "Weder SportsPress noch WooCommerce ist aktiv, es gibt also nichts zu übertragen."
+
+#: includes/admin/class-dlos-admin-migration.php:257
+msgid "New page in the app"
+msgstr "Neue Seite in der App"
+
+#: includes/class-dlos-renderer.php:779
+msgid "Next games and events"
+msgstr "Nächste Spiele und Anlässe"
+
+#: includes/class-dlos-renderer.php:357
+msgid "No camps are open for registration at the moment."
+msgstr "Zurzeit sind keine Camps zur Anmeldung offen."
+
+#: includes/class-dlos-renderer.php:842
+msgid "No coaches to show yet."
+msgstr "Noch keine Trainer anzuzeigen."
+
+#: includes/class-dlos-renderer.php:1043
+msgid "No news yet."
+msgstr "Noch keine News."
+
+#: includes/class-dlos-renderer.php:467
+msgid "No programmes are open at the moment."
+msgstr "Zurzeit sind keine Programme offen."
+
+#: includes/class-dlos-renderer.php:539
+msgid "No results yet."
+msgstr "Noch keine Resultate."
+
+#: includes/class-dlos-renderer.php:691
+msgid "No teams to show yet."
+msgstr "Noch keine Teams anzuzeigen."
+
+#: includes/class-dlos-renderer.php:882
+msgid "No training sessions are bookable at the moment."
+msgstr "Zurzeit sind keine Trainings buchbar."
+
+#: includes/admin/class-dlos-admin-migration.php:377
+msgid "Not yet"
+msgstr "Noch nicht"
+
+#: includes/class-dlos-renderer.php:518
+msgid "Nothing is scheduled in this period."
+msgstr "In diesem Zeitraum ist nichts geplant."
+
+#: includes/admin/class-dlos-admin-migration.php:257
+msgid "Old page"
+msgstr "Alte Seite"
+
+#: includes/admin/class-dlos-admin-settings.php:220
+msgid "Old pages"
+msgstr "Alte Seiten"
+
+#: includes/admin/class-dlos-admin-migration.php:363
+msgid "Old product pages redirect to the app (build the list above, then switch redirects on)."
+msgstr "Alte Produktseiten leiten auf die App weiter (Liste oben erstellen, dann Weiterleitungen einschalten)."
+
+#: includes/admin/class-dlos-admin-settings.php:116
+msgid "Only https:// app addresses are allowed."
+msgstr "Nur https://-App-Adressen sind erlaubt."
+
+#: includes/class-dlos-renderer.php:200
+msgid "Open"
+msgstr "Offen"
+
+#: includes/admin/class-dlos-admin-migration.php:364
+msgid "Open WooCommerce orders are fulfilled or refunded in WooCommerce."
+msgstr "Offene WooCommerce-Bestellungen sind in WooCommerce erledigt oder erstattet."
+
+#: includes/class-dlos-renderer.php:1122
+msgid "Open on the club app"
+msgstr "In der Club-App öffnen"
+
+#: includes/admin/class-dlos-admin-settings.php:189
+msgid "Open the app form in a window on this site (embed)"
+msgstr "App-Formular in einem Fenster auf dieser Website öffnen (Einbettung)"
+
+#: includes/admin/class-dlos-admin-settings.php:188
+msgid "Open the app in a new tab"
+msgstr "App in neuem Tab öffnen"
+
+#: includes/admin/class-dlos-admin-migration.php:228
+msgid "Open the importer in the app"
+msgstr "Import in der App öffnen"
+
+#. translators: %s: list of sizes/variants
+#: includes/class-dlos-renderer.php:969
+msgid "Options: %s"
+msgstr "Optionen: %s"
+
+#: includes/admin/class-dlos-admin-migration.php:365
+msgid "Order history is exported (WooCommerce > Analytics > Download) and archived for your accounting retention period."
+msgstr "Die Bestellhistorie ist exportiert (WooCommerce > Analytics > Herunterladen) und für die buchhalterische Aufbewahrungsfrist archiviert."
+
+#: includes/class-dlos-renderer.php:973
+msgid "Out of stock"
+msgstr "Ausverkauft"
+
+#: includes/admin/class-dlos-admin-migration.php:332
+msgid "Pages without a match"
+msgstr "Seiten ohne Treffer"
+
+#: includes/admin/class-dlos-admin-migration.php:368
+msgid "Privacy policy and terms name the app as the place where purchases and payments happen."
+msgstr "Datenschutzerklärung und AGB nennen die App als Ort für Käufe und Zahlungen."
+
+#: includes/class-dlos-widgets.php:256
+msgid "Programmes"
+msgstr "Programme"
+
+#: includes/admin/class-dlos-admin-settings.php:223
+msgid "Redirects"
+msgstr "Weiterleitungen"
+
+#: includes/admin/class-dlos-admin-migration.php:238
+msgid "Redirects are OFF (switch them on in Settings > DLang OS once the list looks right)."
+msgstr "Weiterleitungen sind AUS (in Einstellungen > DLang OS einschalten, sobald die Liste stimmt)."
+
+#: includes/admin/class-dlos-admin-migration.php:238
+msgid "Redirects are ON."
+msgstr "Weiterleitungen sind AN."
+
+#: includes/class-dlos-renderer.php:241
+msgid "Register"
+msgstr "Anmelden"
+
+#: includes/class-dlos-widgets.php:266
+msgid "Registration form for programme (slug)"
+msgstr "Anmeldeformular für Programm (Slug)"
+
+#: includes/admin/class-dlos-admin-settings.php:213
+msgid "Remove"
+msgstr "Entfernen"
+
+#: includes/class-dlos-widgets.php:258
+msgid "Results"
+msgstr "Resultate"
+
+#: includes/class-dlos-renderer.php:770
+msgid "Roster"
+msgstr "Kader"
+
+#: includes/admin/class-dlos-admin-settings.php:211
+msgid "Saved (leave empty to keep)"
+msgstr "Gespeichert (leer lassen, um es zu behalten)"
+
+#: includes/class-dlos-widgets.php:257
+msgid "Schedule"
+msgstr "Spielplan"
+
+#: includes/admin/class-dlos-admin-migration.php:210
+msgid "Schedule and results"
+msgstr "Spielplan und Resultate"
+
+#: includes/class-dlos-frontend.php:52
+msgid "Schedules, registrations and payments in your pocket: get the club app."
+msgstr "Spielpläne, Anmeldungen und Zahlungen in der Hosentasche: Holen Sie sich die Club-App."
+
+#: includes/class-dlos-widgets.php:227
+msgid "Season"
+msgstr "Saison"
+
+#: includes/class-dlos-renderer.php:107
+msgid "See this on the club app"
+msgstr "In der Club-App ansehen"
+
+#: includes/admin/class-dlos-admin-settings.php:224
+msgid "Send visitors of old event, team and product pages to the app (301)"
+msgstr "Besucher alter Spiel-, Team- und Produktseiten auf die App weiterleiten (301)"
+
+#: includes/admin/class-dlos-admin-settings.php:44 includes/class-dlos-widgets.php:290
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: includes/admin/class-dlos-admin-migration.php:215 includes/class-dlos-widgets.php:261
+msgid "Shop"
+msgstr "Shop"
+
+#: includes/admin/class-dlos-admin-settings.php:245
+msgid "Shortcodes"
+msgstr "Shortcodes"
+
+#: includes/admin/class-dlos-admin-settings.php:197
+msgid "Show a small \"Install the app\" hint to visitors"
+msgstr "Besuchern einen kleinen Hinweis «App installieren» zeigen"
+
+#: includes/class-dlos-widgets.php:247
+msgid "Show latest results"
+msgstr "Letzte Resultate anzeigen"
+
+#: includes/class-dlos-widgets.php:246
+msgid "Show next games"
+msgstr "Nächste Spiele anzeigen"
+
+#: includes/class-dlos-widgets.php:245
+msgid "Show public roster"
+msgstr "Öffentlichen Kader anzeigen"
+
+#. Description of the plugin
+#: dlang-os-connect.php
+msgid "Show your club's live programmes, camps, schedule, results, teams, coaches, training, shop, donations and news from DLang OS on your WordPress site, in your club's look. Enter it once in the app, show it everywhere."
+msgstr "Zeigen Sie Programme, Camps, Spielplan, Resultate, Teams, Trainer, Trainings, Shop, Spenden und News Ihres Clubs live aus DLang OS auf Ihrer WordPress-Website, im Look Ihres Clubs. Einmal in der App erfasst, überall sichtbar."
+
+#: includes/admin/class-dlos-admin-settings.php:134
+msgid "Show your club's live programmes, camps, schedule, teams, shop and more from the app on this website. You enter things once in the app; this site always shows the current version."
+msgstr "Zeigen Sie Programme, Camps, Spielplan, Teams, Shop und mehr live aus der App auf dieser Website. Sie erfassen alles einmal in der App; diese Website zeigt immer den aktuellen Stand."
+
+#: includes/admin/class-dlos-admin-migration.php:267
+msgid "Showing the first 200."
+msgstr "Die ersten 200 werden angezeigt."
+
+#: includes/admin/class-dlos-admin-settings.php:151
+msgid "Shown in the app under Settings > Website."
+msgstr "In der App unter Einstellungen > Website ersichtlich."
+
+#: includes/class-dlos-widgets.php:214
+msgid "Site default"
+msgstr "Website-Standard"
+
+#: includes/admin/class-dlos-admin-settings.php:163
+msgid "Site language only"
+msgstr "Nur Website-Sprache"
+
+#: includes/admin/class-dlos-admin-migration.php:329
+msgid "Some app data could not be loaded:"
+msgstr "Einige App-Daten konnten nicht geladen werden:"
+
+#: includes/admin/class-dlos-admin-migration.php:210
+msgid "SportsPress events (games)"
+msgstr "SportsPress-Events (Spiele)"
+
+#: includes/admin/class-dlos-admin-migration.php:214
+msgid "SportsPress league tables and calendars"
+msgstr "SportsPress-Tabellen und -Kalender"
+
+#: includes/admin/class-dlos-admin-migration.php:212
+msgid "SportsPress players"
+msgstr "SportsPress-Spielerinnen und -Spieler"
+
+#: includes/admin/class-dlos-admin-migration.php:213
+msgid "SportsPress staff"
+msgstr "SportsPress-Staff"
+
+#: includes/admin/class-dlos-admin-migration.php:211
+msgid "SportsPress teams"
+msgstr "SportsPress-Teams"
+
+#: includes/class-dlos-widgets.php:221
+msgid "Spring"
+msgstr "Frühling"
+
+#: includes/admin/class-dlos-admin-migration.php:216
+msgid "Stay in WooCommerce for your records"
+msgstr "Bleiben für Ihre Unterlagen in WooCommerce"
+
+#: includes/class-dlos-renderer.php:523
+msgid "Subscribe to this calendar"
+msgstr "Diesen Kalender abonnieren"
+
+#: includes/class-dlos-widgets.php:222
+msgid "Summer"
+msgstr "Sommer"
+
+#: includes/class-dlos-widgets.php:230 includes/class-dlos-widgets.php:244
+msgid "Team (slug)"
+msgstr "Team (Slug)"
+
+#: includes/class-dlos-renderer.php:711
+msgid "Team page"
+msgstr "Teamseite"
+
+#: includes/class-dlos-renderer.php:784
+msgid "Team page on the app"
+msgstr "Teamseite in der App"
+
+#: includes/admin/class-dlos-admin-migration.php:211 includes/class-dlos-widgets.php:259
+msgid "Teams"
+msgstr "Teams"
+
+#: includes/admin/class-dlos-admin-settings.php:236
+msgid "Test connection"
+msgstr "Verbindung testen"
+
+#: includes/admin/class-dlos-admin-settings.php:146
+msgid "The address of your club's DLang OS app (https only)."
+msgstr "Die Adresse der DLang-OS-App Ihres Clubs (nur https)."
+
+#: includes/class-dlos-settings.php:135
+msgid "The app address must be a valid https:// URL."
+msgstr "Die App-Adresse muss eine gültige https://-URL sein."
+
+#: includes/admin/class-dlos-admin-settings.php:115
+msgid "The app answered, but not with the expected data. Check the app address."
+msgstr "Die App hat geantwortet, aber nicht mit den erwarteten Daten. Prüfen Sie die App-Adresse."
+
+#: includes/admin/class-dlos-admin-settings.php:113
+msgid "The app could not be reached. Check the address and that this server can make outgoing HTTPS requests."
+msgstr "Die App ist nicht erreichbar. Prüfen Sie die Adresse und ob dieser Server ausgehende HTTPS-Anfragen machen darf."
+
+#: includes/class-dlos-renderer.php:97
+msgid "The app did not find this club. Check the club slug and that the website connection is enabled in the app."
+msgstr "Die App findet diesen Club nicht. Prüfen Sie die Club-Kennung und ob die Website-Verbindung in der App aktiviert ist."
+
+#: includes/admin/class-dlos-admin-settings.php:112
+msgid "The app does not know this club, or the website connection is switched off in the app (Settings > Website)."
+msgstr "Die App kennt diesen Club nicht, oder die Website-Verbindung ist in der App ausgeschaltet (Einstellungen > Website)."
+
+#: includes/admin/class-dlos-admin-settings.php:114
+msgid "The app is rate limiting this site. Try again in a minute."
+msgstr "Die App begrenzt die Anfragen dieser Website. Versuchen Sie es in einer Minute erneut."
+
+#: includes/class-dlos-renderer.php:935
+msgid "The shop has no items at the moment."
+msgstr "Der Shop hat zurzeit keine Artikel."
+
+#: includes/admin/class-dlos-admin-migration.php:367
+msgid "The store is hidden: WooCommerce > Settings > Site visibility > \"Coming soon\" for store pages, or the shop page is replaced."
+msgstr "Der Shop ist ausgeblendet: WooCommerce > Einstellungen > Sichtbarkeit der Website > «Demnächst verfügbar» für Shop-Seiten, oder die Shop-Seite ist ersetzt."
+
+#: includes/class-dlos-renderer.php:1006
+msgid "There is no open fundraising campaign at the moment."
+msgstr "Zurzeit läuft keine Spendenaktion."
+
+#: includes/admin/class-dlos-admin-migration.php:201
+msgid "This page only reads your site. Nothing is deleted or changed in SportsPress or WooCommerce."
+msgstr "Diese Seite liest Ihre Website nur. In SportsPress oder WooCommerce wird nichts gelöscht oder geändert."
+
+#: includes/class-dlos-renderer.php:738
+msgid "This team was not found."
+msgstr "Dieses Team wurde nicht gefunden."
+
+#: includes/class-dlos-renderer.php:573
+msgid "Tournament"
+msgstr "Turnier"
+
+#: includes/class-dlos-widgets.php:239
+msgid "Tournaments"
+msgstr "Turniere"
+
+#: includes/class-dlos-renderer.php:571 includes/class-dlos-widgets.php:237
+msgid "Training"
+msgstr "Training"
+
+#: includes/class-dlos-renderer.php:763
+msgid "Training times"
+msgstr "Trainingszeiten"
+
+#: includes/class-dlos-widgets.php:233
+msgid "Type"
+msgstr "Typ"
+
+#. translators: %s: error code
+#: includes/admin/class-dlos-admin-settings.php:119
+msgid "Unexpected answer from the app (%s)."
+msgstr "Unerwartete Antwort der App (%s)."
+
+#: includes/class-dlos-renderer.php:63
+msgid "Updating: showing the last saved information."
+msgstr "Aktualisierung läuft: Die zuletzt gespeicherten Informationen werden angezeigt."
+
+#: includes/admin/class-dlos-admin-settings.php:183
+msgid "Use this website's fonts"
+msgstr "Schriften dieser Website verwenden"
+
+#: includes/class-dlos-renderer.php:202
+msgid "Waiting list"
+msgstr "Warteliste"
+
+#: includes/admin/class-dlos-admin-settings.php:210
+msgid "Webhook secret"
+msgstr "Webhook-Geheimnis"
+
+#: includes/class-dlos-renderer.php:645
+msgid "Win"
+msgstr "Sieg"
+
+#: includes/class-dlos-widgets.php:224
+msgid "Winter"
+msgstr "Winter"
+
+#: includes/admin/class-dlos-admin-migration.php:216
+msgid "WooCommerce orders"
+msgstr "WooCommerce-Bestellungen"
+
+#: includes/admin/class-dlos-admin-migration.php:366
+msgid "WooCommerce payment methods are disabled (WooCommerce > Settings > Payments)."
+msgstr "Die WooCommerce-Zahlungsarten sind deaktiviert (WooCommerce > Einstellungen > Zahlungen)."
+
+#: includes/admin/class-dlos-admin-migration.php:215
+msgid "WooCommerce products"
+msgstr "WooCommerce-Produkte"
+
+#: includes/class-dlos-widgets.php:228
+msgid "Year"
+msgstr "Jahr"
+
+#: includes/admin/class-dlos-admin-migration.php:113 includes/admin/class-dlos-admin-migration.php:178 includes/admin/class-dlos-admin-settings.php:69 includes/admin/class-dlos-admin-settings.php:95
+msgid "You are not allowed to do this."
+msgstr "Sie sind dazu nicht berechtigt."
+
+#: blocks/login/block.json
+msgctxt "block description"
+msgid "A button to the club app login and family area."
+msgstr "Ein Button zur Anmeldung und zum Familienbereich der Club-App."
+
+#: blocks/teams/block.json
+msgctxt "block description"
+msgid "All teams with coaches and training times."
+msgstr "Alle Teams mit Trainern und Trainingszeiten."
+
+#: blocks/training/block.json
+msgctxt "block description"
+msgid "Bookable player-development sessions and packages."
+msgstr "Buchbare Förder-Trainings und Pakete."
+
+#: blocks/camps/block.json
+msgctxt "block description"
+msgid "Camp seasons and editions with prices, places left and registration buttons."
+msgstr "Camp-Saisons und -Wochen mit Preisen, freien Plätzen und Anmeldebuttons."
+
+#: blocks/shop/block.json
+msgctxt "block description"
+msgid "Club shop items with buy buttons."
+msgstr "Club-Shop-Artikel mit Kaufbuttons."
+
+#: blocks/coaches/block.json
+msgctxt "block description"
+msgid "Coaching staff with public photos and bios."
+msgstr "Trainerteam mit öffentlichen Fotos und Kurzbiografien."
+
+#: blocks/embed/block.json
+msgctxt "block description"
+msgid "Embed an interactive app widget (booking, registration form, shop...)."
+msgstr "Ein interaktives App-Widget einbetten (Buchung, Anmeldung, Shop…)."
+
+#: blocks/donate/block.json
+msgctxt "block description"
+msgid "Fundraising campaigns with progress and a donate button."
+msgstr "Spendenaktionen mit Fortschritt und Spendenbutton."
+
+#: blocks/results/block.json
+msgctxt "block description"
+msgid "Latest game results."
+msgstr "Letzte Spielresultate."
+
+#: blocks/news/block.json
+msgctxt "block description"
+msgid "Latest public club news."
+msgstr "Neueste öffentliche Club-News."
+
+#: blocks/team/block.json
+msgctxt "block description"
+msgid "One team page: coaches, training times, next games and results."
+msgstr "Eine Teamseite: Trainer, Trainingszeiten, nächste Spiele und Resultate."
+
+#: blocks/programs/block.json
+msgctxt "block description"
+msgid "Programmes open for registration (teams, camps, clinics)."
+msgstr "Programme mit offener Anmeldung (Teams, Camps, Clinics)."
+
+#: blocks/schedule/block.json
+msgctxt "block description"
+msgid "Upcoming games, trainings and events."
+msgstr "Nächste Spiele, Trainings und Anlässe."
+
+#: blocks/camps/block.json blocks/coaches/block.json blocks/donate/block.json blocks/embed/block.json
+msgctxt "block keyword"
+msgid "club"
+msgstr "Club"
+
+#: blocks/camps/block.json blocks/coaches/block.json blocks/donate/block.json blocks/embed/block.json
+msgctxt "block keyword"
+msgid "dlang"
+msgstr "dlang"
+
+#: blocks/camps/block.json blocks/coaches/block.json blocks/donate/block.json blocks/embed/block.json
+msgctxt "block keyword"
+msgid "sport"
+msgstr "Sport"
+
+#: blocks/login/block.json
+msgctxt "block title"
+msgid "DLang OS account button"
+msgstr "DLang OS: Button Mein Bereich"
+
+#: blocks/embed/block.json
+msgctxt "block title"
+msgid "DLang OS app widget"
+msgstr "DLang OS: App-Widget"
+
+#: blocks/camps/block.json
+msgctxt "block title"
+msgid "DLang OS camps"
+msgstr "DLang OS: Camps"
+
+#: blocks/coaches/block.json
+msgctxt "block title"
+msgid "DLang OS coaches"
+msgstr "DLang OS: Trainer"
+
+#: blocks/donate/block.json
+msgctxt "block title"
+msgid "DLang OS donate"
+msgstr "DLang OS: Spenden"
+
+#: blocks/news/block.json
+msgctxt "block title"
+msgid "DLang OS news"
+msgstr "DLang OS: News"
+
+#: blocks/programs/block.json
+msgctxt "block title"
+msgid "DLang OS programmes"
+msgstr "DLang OS: Programme"
+
+#: blocks/results/block.json
+msgctxt "block title"
+msgid "DLang OS results"
+msgstr "DLang OS: Resultate"
+
+#: blocks/schedule/block.json
+msgctxt "block title"
+msgid "DLang OS schedule"
+msgstr "DLang OS: Spielplan"
+
+#: blocks/shop/block.json
+msgctxt "block title"
+msgid "DLang OS shop"
+msgstr "DLang OS: Shop"
+
+#: blocks/team/block.json
+msgctxt "block title"
+msgid "DLang OS team"
+msgstr "DLang OS: Team"
+
+#: blocks/teams/block.json
+msgctxt "block title"
+msgid "DLang OS teams"
+msgstr "DLang OS: Teams"
+
+#: blocks/training/block.json
+msgctxt "block title"
+msgid "DLang OS training"
+msgstr "DLang OS: Training"
+
+#. translators: %s: member price
+#: includes/class-dlos-renderer.php:436 includes/class-dlos-renderer.php:952
+msgid "members %s"
+msgstr "Mitglieder %s"
+
+#: includes/admin/class-dlos-admin-migration.php:219
+msgid "not installed"
+msgstr "nicht installiert"
+
+#: includes/class-dlos-renderer.php:429
+msgid "with lunch"
+msgstr "mit Mittagessen"
