@@ -25,7 +25,7 @@ export async function PublicSiteHeader({ tenant, maxWidth = "max-w-5xl", signIn 
         <Link href="/club" aria-label={tenant.name}><BrandMark /></Link>
         <div className="flex flex-wrap items-center gap-2">
           {connected && settings && settings.navLinks.length > 0 && (
-            <nav aria-label={t("website.public.websiteNav")} className="hidden items-center gap-3 md:flex">
+            <nav aria-label={t("website.public.websiteNav")} className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {settings.navLinks.map((l) => (
                 <a key={`${l.label}-${l.url}`} href={l.url} className="text-sm text-text-muted hover:text-text">{l.label}</a>
               ))}
