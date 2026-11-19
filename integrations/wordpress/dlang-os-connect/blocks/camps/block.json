@@ -1,0 +1,47 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "dlang-os/camps",
+	"version": "1.0.0",
+	"title": "DLang OS camps",
+	"category": "dlang-os",
+	"icon": "calendar-alt",
+	"description": "Camp seasons and editions with prices, places left and registration buttons.",
+	"keywords": [
+		"dlang",
+		"club",
+		"sport"
+	],
+	"textdomain": "dlang-os-connect",
+	"attributes": {
+		"season": {
+			"type": "string",
+			"default": ""
+		},
+		"year": {
+			"type": "string",
+			"default": ""
+		},
+		"schema": {
+			"type": "boolean",
+			"default": true
+		},
+		"lang": {
+			"type": "string",
+			"default": ""
+		},
+		"theme": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		]
+	},
+	"editorScript": "dlos-blocks-editor",
+	"style": "dlos-front"
+}

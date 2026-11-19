@@ -1,0 +1,22 @@
+{
+	"club": { "slug": "demo-club", "name": "Demo Hoops Club", "theme": {}, "currency": "CHF", "app_url": "https://app.example.org" },
+	"data": [
+		{
+			"slug": "u14",
+			"name": "U14 Boys",
+			"age_group": "U14",
+			"league": "Regional League",
+			"coaches": [ { "name": "Alex Sample", "role": "Head coach", "photo_url": "https://cdn.example.org/coach.jpg" } ],
+			"training_times": [ { "weekday": 2, "start": "18:00", "end": "19:30", "venue": "Home Gym" } ],
+			"roster": [ { "number": 7, "name": "Sam T." }, { "number": 12, "name": "Kim <i>R.</i>" } ],
+			"url": "https://app.example.org/club/teams/u14"
+		},
+		{
+			"slug": "u16",
+			"name": "U16 Girls",
+			"coaches": [],
+			"training_times": [],
+			"url": "https://app.example.org/club/teams/u16"
+		}
+	]
+}

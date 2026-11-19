@@ -1,0 +1,43 @@
+{
+	"club": { "slug": "demo-club", "name": "Demo Hoops Club", "theme": {}, "currency": "CHF", "app_url": "https://app.example.org" },
+	"data": [
+		{
+			"id": "ev-1",
+			"type": "game",
+			"title": "U14 vs Riverside",
+			"team": { "slug": "u14", "name": "U14 Boys" },
+			"opponent": "Riverside <b>BC</b>",
+			"home_away": "away",
+			"starts_at": "2027-02-06T14:00:00+01:00",
+			"starts_at_formatted": "sam. 6 févr. 2027, 14:00",
+			"ends_at": "2027-02-06T15:30:00+01:00",
+			"venue": { "name": "Riverside Arena", "address": "Main Street 5", "maps_url": "https://maps.example.org/?q=riverside" },
+			"status": "scheduled",
+			"url": "https://app.example.org/club/events/ev-1"
+		},
+		{
+			"id": "ev-2",
+			"type": "training",
+			"title": "U14 training",
+			"team": { "slug": "u14", "name": "U14 Boys" },
+			"starts_at": "2027-02-08T18:00:00+01:00",
+			"venue": { "name": "Home Gym", "maps_url": "javascript:alert(1)" },
+			"status": "cancelled",
+			"url": "https://app.example.org/club/events/ev-2"
+		},
+		{
+			"id": "ev-3",
+			"type": "game",
+			"title": "U16 vs Lakeside",
+			"team": { "slug": "u16", "name": "U16 Girls" },
+			"opponent": "Lakeside",
+			"home_away": "home",
+			"starts_at": "2027-01-30T16:00:00+01:00",
+			"venue": "Home Gym",
+			"status": "scheduled",
+			"result": { "our_score": 64, "their_score": 58, "outcome": "win" },
+			"url": "https://app.example.org/club/events/ev-3"
+		}
+	],
+	"generated_at": "2027-01-31T10:00:00+01:00"
+}
