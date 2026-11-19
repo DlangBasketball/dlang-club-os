@@ -103,7 +103,9 @@ begin
          'coach_coaches_program', 'coach_coaches_team', 'coach_leads_attendance_session',
          'guardian_has_athlete_in_program', 'guardian_has_athlete_on_team',
          'can_manage_event', 'can_read_event', 'event_team', 'sportsops_same_org',
-         'suspended_org_ids')
+         'suspended_org_ids',
+         -- website connection: allowed embed origins of a club with the connection enabled (public anyway: CSP header)
+         'website_embed_origins')
   loop
     perform rt.ok(false, 'anon has EXECUTE on SECURITY DEFINER ' || r.sig || ' (not on the allowlist)');
     n := n + 1;

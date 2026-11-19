@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { applyTenantHeaders } from "@/lib/tenant/middleware";
+import { TENANT_DOMAIN_HEADER, TENANT_SLUG_HEADER } from "@/lib/tenant/host";
+import { embedCspHeader, isEmbedPath } from "@/lib/website/embed-csp";
 
 /** Paths reachable without a session. */
 const PUBLIC_PREFIXES = [
@@ -42,6 +44,13 @@ const PUBLIC_PREFIXES = [
   "/scout",
   // Family billing split run (cron bearer secret).
   "/api/family/cron",
+  // Website connection: public read API (CORS per club), chrome-less embeds
+  // for the club's own website (CSP frame-ancestors per club), the embed
+  // helper script, and the webhook retry job (cron bearer secret).
+  "/api/public",
+  "/embed",
+  "/embed.js",
+  "/api/website/cron",
 ];
 
 function isPublic(pathname: string) {
@@ -73,6 +82,15 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
+  }
+
+  // 4) Embeds: frameable only by the club's allowed website origins. Every
+  //    other page keeps X-Frame-Options: SAMEORIGIN (vercel.json).
+  if (isEmbedPath(pathname)) {
+    const club = request.nextUrl.searchParams.get("club")?.trim().toLowerCase() || request.headers.get(TENANT_SLUG_HEADER) || process.env.DEFAULT_ORG_SLUG || null;
+    const csp = await embedCspHeader({ slug: club, host: request.headers.get(TENANT_DOMAIN_HEADER) });
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.delete("X-Frame-Options");
   }
 
   // Per-role authorization is enforced in each segment layout via

@@ -76,7 +76,9 @@ export function CookieConsentBanner({ policyHref = "/legal" }: { policyHref?: st
     const existing = readConsentCookie();
     if (existing) {
       setChoice({ functional: existing.functional, analytics: existing.analytics, marketing: existing.marketing });
-    } else {
+    } else if (!window.location.pathname.startsWith("/embed")) {
+      // Website embeds (iframes on the club's own site) set no optional
+      // cookies and must not cover the widget with a banner.
       setOpen(true);
     }
     const reopen = () => { setDetails(true); setOpen(true); };

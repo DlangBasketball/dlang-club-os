@@ -7349,5 +7349,328 @@
         "CREDIT_ALREADY_USED": "The family credit has already been used."
       }
     }
+  },
+  "website": {
+    "nav": {
+      "camps": "Camps",
+      "programs": "Programs",
+      "schedule": "Schedule",
+      "book": "Book training",
+      "shop": "Shop",
+      "donate": "Donate",
+      "login": "Sign in"
+    },
+    "ages": {
+      "range": "Ages {min}–{max}",
+      "from": "From age {min}",
+      "upTo": "Up to age {max}"
+    },
+    "events": {
+      "vs": "{team} vs {opponent}",
+      "allDay": "All day",
+      "types": {
+        "game": "Game",
+        "training": "Practice",
+        "tournament": "Tournament",
+        "event": "Event"
+      }
+    },
+    "status": {
+      "open": "Open",
+      "full": "Full",
+      "closed": "Closed",
+      "waitlist": "Waitlist"
+    },
+    "eventStatus": {
+      "scheduled": "Scheduled",
+      "cancelled": "Canceled",
+      "moved": "Moved"
+    },
+    "outcome": {
+      "win": "Win",
+      "loss": "Loss",
+      "draw": "Draw"
+    },
+    "kinds": {
+      "team": "Team",
+      "camp": "Camp",
+      "clinic": "Clinic",
+      "tournament": "Tournament"
+    },
+    "coachRoles": {
+      "head": "Head coach",
+      "assistant": "Assistant coach",
+      "manager": "Team manager",
+      "trainer": "Trainer"
+    },
+    "themes": {
+      "club": "Club theme",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "sections": {
+      "club": "Club profile",
+      "programs": "Programs",
+      "camps": "Camps",
+      "events": "Schedule",
+      "results": "Results",
+      "teams": "Teams",
+      "coaches": "Coaches",
+      "training": "Training booking",
+      "shop": "Shop",
+      "campaigns": "Donation campaigns",
+      "news": "News",
+      "contact": "Contact details"
+    },
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "tiktok": "TikTok",
+      "x": "X",
+      "linkedin": "LinkedIn"
+    },
+    "widgetNames": {
+      "camps": "Camps by season",
+      "programs": "Programs",
+      "schedule": "Schedule",
+      "results": "Results",
+      "teams": "Teams",
+      "book": "Training booking",
+      "shop": "Shop",
+      "donate": "Donations",
+      "register": "Registration button",
+      "login": "Member sign-in"
+    },
+    "deliveryStatus": {
+      "sent": "Delivered",
+      "pending": "Retrying",
+      "failed": "Failed"
+    },
+    "widgets": {
+      "empty": "Nothing to show yet.",
+      "unavailable": "This section is not published by the club.",
+      "seasonPage": "All weeks",
+      "register": "Register",
+      "book": "Book",
+      "buy": "View and buy",
+      "donate": "Donate",
+      "login": "Sign in",
+      "loginTitle": "Members of {club}",
+      "loginBody": "Sign in to the club app for invoices, schedules and bookings.",
+      "members": "members {price}",
+      "placesLeft": "{count, plural, =0 {No places left} one {# place left} other {# places left}}",
+      "priceFrom": "From {price}",
+      "duration": "{minutes} min",
+      "perSession": "{price} per session",
+      "package": "{sessions} sessions: {price}",
+      "soldOut": "Sold out",
+      "raised": "{raised} raised of {goal}"
+    },
+    "public": {
+      "website": "Website",
+      "websiteNav": "Club website",
+      "backToWebsite": "Back to the club website",
+      "backToClub": "Back to the club page",
+      "newsTitle": "News",
+      "scheduleCta": "Schedule and results",
+      "scheduleTitle": "Schedule and results",
+      "upcoming": "Upcoming",
+      "results": "Results",
+      "readOnWebsite": "Read on the club website"
+    },
+    "errors": {
+      "forbidden": "Only club admins can change the website connection.",
+      "generic": "Something went wrong. Please try again.",
+      "invalid": "Please check the highlighted fields.",
+      "notFound": "Not found.",
+      "invalidOrigins": "Not a valid https origin (scheme and host only, no path): {list}",
+      "originsRequired": "Add at least one allowed website origin before enabling the connection.",
+      "noWebhookUrl": "Save a webhook URL first.",
+      "noSecret": "Generate a signing secret first.",
+      "slugTaken": "Another team already uses this short name.",
+      "testFailed": "The website did not accept the test ({detail}).",
+      "field": {
+        "enabled": "Please check the connection switch.",
+        "websiteUrl": "Enter the website address starting with https://.",
+        "allowedOrigins": "Enter exact https origins, one per line.",
+        "sections": "Please check the public sections.",
+        "rosterPublic": "Please check the roster setting.",
+        "embedTheme": "Choose a theme.",
+        "webhookUrl": "Enter a webhook URL starting with https://.",
+        "tagline": "The tagline can have at most 200 characters.",
+        "navLinks": "Each website link needs a label (max. 40 characters) and an https address or an app path such as /shop.",
+        "socialLinks": "Social links must start with https://."
+      }
+    },
+    "messages": {
+      "saved": "Saved.",
+      "deleted": "Deleted.",
+      "secretCreated": "New signing secret created. Copy it now: it will not be shown again.",
+      "testSent": "Test delivered (HTTP {status})."
+    },
+    "admin": {
+      "tab": "Website",
+      "tabs": {
+        "connection": "Connection",
+        "news": "News",
+        "import": "Import"
+      },
+      "save": "Save",
+      "copy": "Copy",
+      "copied": "Copied",
+      "connection": {
+        "title": "Website connection",
+        "intro": "Show the club's programs, camps, schedule, results, shop and news on your existing website. Data is entered once, here in the app; the website reads it through the public API and embeds.",
+        "enabled": "Website connection enabled",
+        "websiteUrl": "Website address",
+        "websiteUrlHint": "Used for the importer and the link back to your website.",
+        "origins": "Allowed website origins",
+        "originsHint": "One per line, e.g. https://www.example.org. Only these sites may embed the widgets and read the API from a browser.",
+        "addOrigin": "Add {origin}",
+        "theme": "Theme for embeds",
+        "tagline": "Tagline"
+      },
+      "sections": {
+        "title": "What is public",
+        "intro": "Choose which sections the website may show. Only items you marked public in the app appear (public programs, public teams, public coaches, public news).",
+        "roster": "Show team rosters",
+        "rosterHint": "Off by default. Even when on, a child appears only with recorded media consent, as first name and initial with jersey number, never with a photo."
+      },
+      "nav": {
+        "title": "Website menu in the app",
+        "intro": "These links appear in the header of the app's public pages, so visitors can move between your website and the app.",
+        "label": "Label",
+        "url": "Address",
+        "add": "Add link",
+        "remove": "Remove link"
+      },
+      "webhook": {
+        "title": "Update notifications (webhook)",
+        "intro": "When public data changes, the app sends a signed notification so the website can refresh its cache.",
+        "url": "Webhook URL",
+        "urlHint": "https only. Each request carries the X-DLang-Signature header (HMAC-SHA256 of the body).",
+        "usePlugin": "Use the WordPress plugin address",
+        "noSecret": "No signing secret yet.",
+        "secretSet": "Secret ending in …{hint}, created {date}.",
+        "generate": "Generate secret",
+        "rotate": "Rotate secret",
+        "rotateConfirm": "Rotate the secret? The website must be updated with the new value.",
+        "showOnce": "Copy this secret into the website plugin now. It will not be shown again.",
+        "secretLabel": "Signing secret",
+        "test": "Send test",
+        "lastDelivery": "Last delivery:",
+        "never": "No deliveries yet.",
+        "apiBase": "Public API: {url}"
+      },
+      "embed": {
+        "title": "Embed code",
+        "intro": "Copy a shortcode for the WordPress plugin, or a script or iframe snippet for any website.",
+        "widget": "Widget",
+        "language": "Language",
+        "clubLanguage": "Club default",
+        "shortcode": "WordPress shortcode",
+        "script": "Script snippet",
+        "iframe": "Iframe",
+        "preview": "Live preview",
+        "previewDisabled": "Enable and save the website connection to see the preview.",
+        "params": {
+          "season": "Season",
+          "year": "Year",
+          "kind": "Kind",
+          "team": "Team (short name)",
+          "type": "Event type",
+          "category": "Category",
+          "campaign": "Campaign",
+          "program": "Program (short name)"
+        }
+      },
+      "flags": {
+        "title": "Public teams, coaches and events",
+        "intro": "Everything starts hidden. Mark what the website may show.",
+        "public": "Public",
+        "roster": "Roster",
+        "rosterOff": "Turn on team rosters above first.",
+        "rosterHint": "Rosters show only children with recorded media consent, as first name and initial.",
+        "cover": "Cover image",
+        "photo": "Photo",
+        "slug": "Short name",
+        "league": "League",
+        "clubEvents": "Club calendar entries",
+        "showOnWebsite": "Show on website"
+      },
+      "news": {
+        "title": "News",
+        "add": "Add news",
+        "titleField": "Title",
+        "excerpt": "Summary",
+        "body": "Text",
+        "bodyKeep": "Leave empty to keep the current text.",
+        "link": "Link (optional)",
+        "privacyHint": "Do not name or show children without media consent.",
+        "public": "Public",
+        "draft": "Draft",
+        "imported": "From website",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteConfirm": "Delete this news item?",
+        "alertsTitle": "Club alerts on the website",
+        "alertsIntro": "Club-wide alerts (sent to everyone) can also appear as news on the website."
+      },
+      "deliveries": {
+        "title": "Recent deliveries",
+        "attempts": "{count, plural, one {# attempt} other {# attempts}}"
+      }
+    },
+    "import": {
+      "title": "Import from your website",
+      "intro": "Reads the public data of {url}: SportsPress teams, games and results, WooCommerce products and blog posts. Nothing is changed on the website.",
+      "privacy": "Player lists and player statistics are never imported. Blog images are not imported.",
+      "load": "Load preview",
+      "refresh": "Update preview",
+      "preview": "Preview",
+      "teams": "Your teams",
+      "teamsHint": "Select the club's own teams. Games of these teams are imported; other teams appear only as opponents.",
+      "events": "{count, plural, one {# game} other {# games}}",
+      "products": "{count, plural, one {# product} other {# products}}",
+      "posts": "{count, plural, one {# post} other {# posts}}",
+      "variants": "{count, plural, one {# variant} other {# variants}}",
+      "skippedEvents": "{count, plural, one {# game skipped} other {# games skipped}} (no selected team, draft or missing date).",
+      "existing": "Already imported",
+      "new": "New",
+      "defaultStock": "Stock for products without a count",
+      "defaultStockHint": "The website shop does not publish stock levels. Set the real stock in the app shop afterward.",
+      "dryRun": "Dry run",
+      "run": "Import",
+      "confirm": "Import now? Existing imported items are updated, not duplicated.",
+      "dryRunResult": "Dry run (nothing saved)",
+      "result": "Import finished",
+      "counts": "{created} new, {updated} updated, {failed} failed",
+      "images": "{count, plural, one {# image saved} other {# images saved}}",
+      "kinds": {
+        "sportspress": "SportsPress (teams, games, results)",
+        "woo": "WooCommerce products",
+        "posts": "Blog posts"
+      },
+      "resultKinds": {
+        "teams": "Teams",
+        "events": "Games",
+        "products": "Products",
+        "posts": "Posts"
+      },
+      "messages": {
+        "done": "Import finished.",
+        "dryRunDone": "Dry run finished. Nothing was saved."
+      },
+      "errors": {
+        "noWebsiteUrl": "Save the website address in the connection settings first.",
+        "not_found": "Not available on this website (plugin missing or REST API disabled).",
+        "unsafe_url": "This address cannot be reached safely (https and public addresses only).",
+        "network": "The website did not answer in time.",
+        "too_large": "The website answer was too large.",
+        "invalid_json": "The website did not return valid data.",
+        "http_error": "The website returned an error."
+      }
+    }
   }
 }

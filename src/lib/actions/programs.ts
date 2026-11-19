@@ -9,6 +9,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { tenantMatchesOrg } from "@/lib/tenant/server";
 import { getTranslations } from "@/lib/i18n/server";
 import { dbErrorKey, programRow, programSchema, zodErrorKey, PROGRAM_STATUSES, type ProgramInput, type ProgramStatus } from "@/lib/club-ops/validation";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 export type { ProgramInput } from "@/lib/club-ops/validation";
 export type ProgramActionResult = { ok: true; id?: string; archived?: boolean } | { ok: false; error: string };
@@ -55,6 +56,7 @@ export async function createProgram(input: ProgramInput): Promise<ProgramActionR
     .single();
   if (error || !data) return fail(dbErrorKey(error?.message), me.orgId);
   revalidateProgram();
+  notifyWebsite(me.orgId, "programs", "camps");
   redirect(`/admin/programs/${(data as { id: string }).id}`);
 }
 
@@ -75,6 +77,7 @@ export async function updateProgram(id: string, input: ProgramInput): Promise<Pr
   if (error) return fail(dbErrorKey(error.message), me.orgId);
   if (!data?.length) return fail("editOps.errors.notFound", me.orgId);
   revalidateProgram(id);
+  notifyWebsite(me.orgId, "programs", "camps");
   revalidatePath("/register", "layout");
   return { ok: true, id };
 }
@@ -95,6 +98,7 @@ export async function setProgramStatus(id: string, status: ProgramStatus): Promi
   if (error) return fail(dbErrorKey(error.message), me.orgId);
   if (!data?.length) return fail("editOps.errors.notFound", me.orgId);
   revalidateProgram(id);
+  notifyWebsite(me.orgId, "programs", "camps");
   revalidatePath("/register", "layout");
   return { ok: true, id };
 }
@@ -130,5 +134,6 @@ export async function deleteProgram(id: string): Promise<ProgramActionResult> {
   }
   if (!data?.length) return fail("editOps.errors.notFound", me.orgId);
   revalidateProgram();
+  notifyWebsite(me.orgId, "programs", "camps");
   return { ok: true };
 }

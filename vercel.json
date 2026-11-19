@@ -12,7 +12,8 @@
     { "path": "/api/billing/cron", "schedule": "0 5 * * *" },
     { "path": "/api/operations/cron", "schedule": "20 6 * * *" },
     { "path": "/api/club-admin/cron", "schedule": "15 6 * * *" },
-    { "path": "/api/family/cron", "schedule": "30 5 * * *" }
+    { "path": "/api/family/cron", "schedule": "30 5 * * *" },
+    { "path": "/api/website/cron", "schedule": "40 4 * * *" }
   ],
   "headers": [
     {
@@ -20,10 +21,13 @@
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(self)" }
       ]
+    },
+    {
+      "source": "/((?!embed/|embed$).*)",
+      "headers": [{ "key": "X-Frame-Options", "value": "SAMEORIGIN" }]
     },
     {
       "source": "/api/health",

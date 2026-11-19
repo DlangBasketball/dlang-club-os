@@ -1,0 +1,45 @@
+[
+  {
+    "id": 301,
+    "name": "Synthetic Club Hoodie",
+    "slug": "synthetic-club-hoodie",
+    "permalink": "https://www.club.example/product/synthetic-club-hoodie/",
+    "short_description": "<p>Warm hoodie <script>alert('x')</script>with club logo.</p>",
+    "description": "<p>Long description</p>",
+    "prices": { "price": "5500", "regular_price": "5500", "sale_price": "5500", "currency_code": "CHF", "currency_minor_unit": 2 },
+    "images": [{ "src": "https://www.club.example/wp-content/uploads/hoodie.jpg", "alt": "" }, { "src": "javascript:alert(1)" }, { "src": "http://www.club.example/wp-content/uploads/hoodie-back.jpg" }],
+    "categories": [{ "id": 1, "name": "Apparel &amp; Merch", "slug": "apparel" }],
+    "is_in_stock": true,
+    "low_stock_remaining": null,
+    "attributes": [{ "name": "Size", "terms": [{ "name": "S" }, { "name": "M" }, { "name": "L" }] }],
+    "variations": [
+      { "id": 3011, "attributes": [{ "name": "Size", "value": "S" }] },
+      { "id": 3012, "attributes": [{ "name": "Size", "value": "M" }] }
+    ]
+  },
+  {
+    "id": 302,
+    "name": "Synthetic Water Bottle",
+    "permalink": "https://www.club.example/product/bottle/",
+    "short_description": "",
+    "description": "",
+    "prices": { "price": "1200", "currency_code": "CHF", "currency_minor_unit": 2 },
+    "images": [],
+    "categories": [],
+    "is_in_stock": false,
+    "attributes": [],
+    "variations": []
+  },
+  {
+    "id": 303,
+    "name": "Synthetic Ball",
+    "permalink": "https://www.club.example/product/ball/",
+    "prices": { "price": "2990", "currency_code": "EUR", "currency_minor_unit": 2 },
+    "images": [],
+    "is_in_stock": true,
+    "low_stock_remaining": 3,
+    "attributes": [{ "name": "Taille", "terms": [{ "name": "5" }, { "name": "6" }] }],
+    "variations": []
+  },
+  { "id": 304, "name": "No price", "prices": {} }
+]

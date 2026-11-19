@@ -23,6 +23,7 @@ import {
   checkoutSchema, productSchema, shopErrorKey, shopZodKey, statusSchema, stockSchema, variantSchema,
   type CheckoutInput, type ProductInput, type StatusInput, type StockInput, type VariantInput,
 } from "@/lib/shop/validation";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 /**
  * Shop server actions. Admin mutations: admin of the session's club (org
@@ -91,6 +92,7 @@ export async function saveProduct(id: string | null, input: ProductInput): Promi
     if (error) logError("shop.defaultVariant", error);
   }
   revalidateShop(pid);
+  notifyWebsite(me.orgId, "shop");
   return { ok: true, data: { id: pid } };
 }
 
@@ -105,6 +107,7 @@ export async function deleteProduct(id: string): Promise<ShopResult<{ archived: 
     const { error } = await db.from("shop_products").update({ is_active: false }).eq("id", id).eq("org_id", me.orgId);
     if (error) return fail(shopErrorKey(error.message), me.orgId);
     revalidateShop(id);
+    notifyWebsite(me.orgId, "shop");
     return { ok: true, data: { archived: true } };
   }
   const { data: prod } = await db.from("shop_products").select("images").eq("id", id).eq("org_id", me.orgId).maybeSingle();
@@ -114,6 +117,7 @@ export async function deleteProduct(id: string): Promise<ShopResult<{ archived: 
   const images = ((prod as { images?: string[] } | null)?.images ?? []).filter((p) => p.startsWith(`${me.orgId}/products/`));
   if (images.length) await db.storage.from(CLUB_MEDIA_BUCKET).remove(images);
   revalidateShop();
+  notifyWebsite(me.orgId, "shop");
   return { ok: true, data: { archived: false } };
 }
 
@@ -132,6 +136,7 @@ export async function saveVariant(productId: string, input: VariantInput): Promi
   if (res.error) return fail(shopErrorKey(res.error.message), me.orgId);
   if (!res.data?.length) return fail("shop.errors.notFound", me.orgId);
   revalidateShop(productId);
+  notifyWebsite(me.orgId, "shop");
   return { ok: true, data: { id: res.data[0].id } };
 }
 
@@ -147,6 +152,7 @@ export async function deleteVariant(productId: string, variantId: string): Promi
   if (res.error) return fail(shopErrorKey(res.error.message), me.orgId);
   if (!res.data?.length) return fail("shop.errors.notFound", me.orgId);
   revalidateShop(productId);
+  notifyWebsite(me.orgId, "shop");
   return { ok: true, data: { archived: (count ?? 0) > 0 } };
 }
 
@@ -161,6 +167,7 @@ export async function adjustStock(input: StockInput): Promise<ShopResult<{ stock
   });
   if (error) return fail(shopErrorKey(error.message), me.orgId);
   revalidateShop();
+  notifyWebsite(me.orgId, "shop");
   return { ok: true, data: { stock: Number((data as { stock?: number } | null)?.stock ?? 0) } };
 }
 
@@ -194,6 +201,7 @@ export async function uploadProductImage(form: FormData): Promise<ShopResult<{ p
     return fail(shopErrorKey(error.message), me.orgId);
   }
   revalidateShop(productId);
+  notifyWebsite(me.orgId, "shop");
   return { ok: true, data: { path } };
 }
 
@@ -211,6 +219,7 @@ export async function removeProductImage(productId: string, path: string): Promi
   if (error) return fail(shopErrorKey(error.message), me.orgId);
   await db.storage.from(CLUB_MEDIA_BUCKET).remove([path]);
   revalidateShop(productId);
+  notifyWebsite(me.orgId, "shop");
   return { ok: true };
 }
 
@@ -228,6 +237,7 @@ export async function setOrderStatus(input: StatusInput): Promise<ShopResult> {
   await writeAudit(me, `shop.order.${p.data.status}`, "shop_orders", p.data.orderId, { status: p.data.status });
   revalidatePath(`/admin/shop/orders/${p.data.orderId}`);
   revalidateShop();
+  notifyWebsite(me.orgId, "shop");
   revalidatePath("/admin/invoices");
   return { ok: true };
 }

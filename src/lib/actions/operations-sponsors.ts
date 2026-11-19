@@ -22,6 +22,7 @@ import {
   sponsorSchema,
   uuid,
 } from "@/lib/operations/validation";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 /**
  * Sponsors and donations: admin + finance only (coaches and parents never
@@ -180,6 +181,7 @@ export async function saveCampaign(id: string | null, input: Record<string, unkn
   if (!res.data?.length) return fail(t, "operations.errors.notFound");
   await writeAudit(me, id ? "campaign.update" : "campaign.create", "fundraising_campaigns", res.data[0].id, { goal: v.goalAmount, status: v.status, public: v.isPublic });
   revalidateMoney();
+  notifyWebsite(me.orgId, "campaigns");
   revalidatePath(`/club/donate/${v.slug}`);
   return { ok: true, message: t("operations.messages.saved"), data: { id: res.data[0].id } };
 }
@@ -210,6 +212,7 @@ export async function recordDonation(input: Record<string, unknown>): Promise<Op
   if (error || !data?.length) return dbFail(t, error?.message);
   await writeAudit(me, "donation.record", "donations", data[0].id, { amount: v.amount, currency, campaign_id: v.campaignId });
   revalidateMoney();
+  notifyWebsite(me.orgId, "campaigns");
   return { ok: true, message: t("operations.messages.donationRecorded"), data: { id: data[0].id } };
 }
 
@@ -223,6 +226,7 @@ export async function refundDonation(id: string): Promise<OpsResult> {
   if (!data?.length) return fail(t, "operations.errors.notFound");
   await writeAudit(me, "donation.refund", "donations", id);
   revalidateMoney();
+  notifyWebsite(me.orgId, "campaigns");
   return { ok: true, message: t("operations.messages.saved") };
 }
 

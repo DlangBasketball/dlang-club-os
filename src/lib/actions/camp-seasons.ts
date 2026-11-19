@@ -8,6 +8,7 @@ import { getTranslations } from "@/lib/i18n/server";
 import { campsDb } from "@/lib/camps/db";
 import { campErrorKey } from "@/lib/camps/validation";
 import { CAMP_SEASONS, nextYearName, nextYearSlug, planSeasonSplit, seasonKey } from "@/lib/camps/seasons";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 /**
  * Camp seasons admin: set a camp's season, move a week to another camp,
@@ -64,6 +65,7 @@ export async function setCampSeason(programId: string, input: z.input<typeof sea
   if (error) return fail(campErrorKey(error.message), me.orgId);
   if (!data?.length) return fail("camps.errors.notFound", me.orgId);
   revalidateCamps(programId);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id: programId };
 }
 
@@ -83,6 +85,7 @@ export async function moveCampEdition(editionId: string, targetProgramId: string
   if (error) return fail(campErrorKey(error.message), me.orgId);
   const r = (data ?? {}) as { registrations?: number };
   revalidateCamps(e.program_id, targetProgramId);
+  notifyWebsite(me.orgId, "camps", "programs");
   revalidatePath(`/admin/programs/${targetProgramId}/editions/${editionId}`);
   return { ok: true, id: targetProgramId, moved: r.registrations ?? 0 };
 }
@@ -106,6 +109,7 @@ export async function splitCampBySeason(programId: string): Promise<SeasonAction
   if (error) return fail(campErrorKey(error.message), me.orgId);
   const created = ((data ?? {}) as { created?: { program_id: string }[] }).created ?? [];
   revalidateCamps(programId, ...created.map((c) => c.program_id));
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id: programId, created: created.length };
 }
 
@@ -123,5 +127,6 @@ export async function duplicateCampForNextYear(programId: string): Promise<Seaso
   if (error) return fail(campErrorKey(error.message), me.orgId);
   const id = ((data ?? {}) as { program_id?: string }).program_id;
   revalidateCamps(programId, id);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id };
 }

@@ -30,6 +30,23 @@ const JSON_OUT = args.has("--json");
 
 // Strings that are legitimately the same across languages.
 const SAME_AS_EN_OK = new Set([
+  // website connection: brand names, "Camp(s)", "Shop", "Widget", "Iframe", "min", French "Public" / "Photo"
+  "website.social.facebook",
+  "website.social.instagram",
+  "website.social.youtube",
+  "website.social.tiktok",
+  "website.social.linkedin",
+  "website.nav.camps",
+  "website.nav.shop",
+  "website.kinds.camp",
+  "website.sections.camps",
+  "website.sections.shop",
+  "website.widgetNames.shop",
+  "website.admin.embed.widget",
+  "website.admin.embed.iframe",
+  "website.widgets.duration",
+  "website.admin.flags.public",
+  "website.admin.flags.photo",
   // club admin: German "Status" / "Team", French "Active" / "Programme", the official J+S name
   "clubadmin.common.status",
   "clubadmin.incidents.status",

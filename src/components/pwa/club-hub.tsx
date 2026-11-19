@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, ChevronRight, Dumbbell, LogIn, MapPin, ShoppingBag, Tag, Tent } from "lucide-react";
-import { BrandMark } from "@/components/layout/brand-mark";
-import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { CalendarDays, ChevronRight, Dumbbell, LogIn, MapPin, Newspaper, ShoppingBag, Tag, Tent } from "lucide-react";
 import { buttonVariants } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { getI18n } from "@/lib/i18n/server";
@@ -11,6 +9,9 @@ import { InstallAppPrompt } from "./install-app-prompt";
 import { ContactForm } from "@/components/messaging/leads";
 import { CoverImage } from "@/components/media/cover-image";
 import { getOrgCover } from "@/lib/media/server";
+import { PublicSiteHeader } from "@/components/website/public-site-header";
+import { NewsList } from "@/components/website/widgets";
+import { getHubNews } from "@/lib/website/hub";
 
 /** Public booking page for personal training (built by the training module). */
 export const TRAINING_BOOKING_PATH = "/book";
@@ -21,26 +22,16 @@ export const TRAINING_BOOKING_PATH = "/book";
  * signed out; shows only public programme data.
  */
 export async function ClubHub({ tenant, signedIn = false, canEditCover = false }: { tenant: Tenant; signedIn?: boolean; canEditCover?: boolean }) {
-  const [{ t, f }, camps, cover] = await Promise.all([
+  const [{ t, f }, camps, cover, news] = await Promise.all([
     getI18n(tenant.id),
     tenant.id ? getHubCamps(tenant.id) : Promise.resolve([]),
     getOrgCover(tenant.id),
+    getHubNews(tenant),
   ]);
 
   return (
     <div className="grain min-h-dvh bg-bg text-text">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4">
-          <BrandMark />
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher variant="compact" />
-            <Link href={signedIn ? "/" : "/login"} className={buttonVariants({ variant: "secondary", size: "sm" })}>
-              <LogIn className="h-4 w-4" aria-hidden />
-              {signedIn ? t("pwa.hub.openApp") : t("pwa.hub.signIn")}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader tenant={tenant} signIn={{ href: signedIn ? "/" : "/login", label: signedIn ? t("pwa.hub.openApp") : t("pwa.hub.signIn") }} />
 
       <main className="mx-auto max-w-5xl space-y-10 px-4 py-8">
         <CoverImage
@@ -108,6 +99,22 @@ export async function ClubHub({ tenant, signedIn = false, canEditCover = false }
             </ul>
           )}
         </section>
+
+        {news.items.length > 0 && (
+          <section aria-labelledby="hub-news" className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Newspaper className="h-5 w-5 text-brand-primary" aria-hidden />
+                <h2 id="hub-news" className="font-display text-xl font-semibold">{t("website.public.newsTitle")}</h2>
+              </div>
+              <Link href="/club/schedule" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "shrink-0")}>
+                {t("website.public.scheduleCta")}
+                <ChevronRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
+            <NewsList data={news.items} t={news.t} o={{ newTab: false, returnTo: null }} />
+          </section>
+        )}
 
         <section aria-labelledby="hub-training" className="space-y-4">
           <div className="flex items-center gap-2">

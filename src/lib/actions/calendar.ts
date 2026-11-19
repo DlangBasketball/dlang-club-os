@@ -9,6 +9,7 @@ import { zonedWallTimeToUtc } from "@/lib/format";
 import { staffDb } from "@/lib/staff/db";
 import { clubEventSchema, staffErrorKey, uuid, type ClubEventInput } from "@/lib/staff/validation";
 import { logError } from "@/lib/log";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 /**
  * Club events (admin) and personal calendar subscription links. The feed
@@ -46,6 +47,7 @@ export async function saveClubEvent(input: ClubEventInput): Promise<ActionResult
   }
   await writeAudit(me, e.id ? "club_event.update" : "club_event.create", "club_events", res.data.id, { type: e.type, audience: e.audience });
   revalidateCalendars();
+  notifyWebsite(me.orgId, "events");
   return { ok: true, message: t("staff.messages.clubEventSaved"), data: { id: res.data.id } };
 }
 
@@ -58,6 +60,7 @@ export async function deleteClubEvent(id: string): Promise<ActionResult> {
   if (error || !data?.length) return { ok: false, error: t(error ? "staff.errors.forbidden" : "staff.errors.notFound") };
   await writeAudit(me, "club_event.delete", "club_events", id);
   revalidateCalendars();
+  notifyWebsite(me.orgId, "events");
   return { ok: true, message: t("staff.messages.clubEventDeleted") };
 }
 
@@ -86,6 +89,7 @@ export async function createCalendarFeed(): Promise<ActionResult<{ url: string }
   }
   await writeAudit(me, "calendar_feed.create", "calendar_feed_tokens", data.id);
   revalidateCalendars();
+  notifyWebsite(me.orgId, "events");
   return { ok: true, message: t("staff.messages.feedCreated"), data: { url: `${await origin()}/api/calendar/feed/${token}` } };
 }
 
@@ -98,5 +102,6 @@ export async function revokeCalendarFeed(): Promise<ActionResult> {
   if (error) return { ok: false, error: t("staff.errors.generic") };
   for (const row of data ?? []) await writeAudit(me, "calendar_feed.revoke", "calendar_feed_tokens", row.id);
   revalidateCalendars();
+  notifyWebsite(me.orgId, "events");
   return { ok: true, message: t("staff.messages.feedRevoked") };
 }
