@@ -14,7 +14,6 @@ import { rowToWebsiteSettings, type WebsiteSettings } from "./settings-shape";
  * ?club= slug, checked against the host), never by a client-supplied id.
  * Loosely typed until src/types/database.ts is regenerated.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type WebsiteDb = SupabaseClient<any, "public", any>;
 
 export function websiteDb(): WebsiteDb {
