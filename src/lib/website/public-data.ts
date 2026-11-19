@@ -71,6 +71,10 @@ export async function buildClub(c: Ctx) {
   ]);
   const profile = ((as?.settings as Record<string, unknown> | null)?.profile ?? {}) as Record<string, unknown>;
   const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const navItems = ([
+    ["camps", "/register/camps"], ["programs", "/club"], ["schedule", "/club/schedule"], ["book", `/book/${t.slug}`],
+    ["shop", "/shop"], ["donate", "/club#donate"], ["login", "/login"],
+  ] as const).map(([key, path]) => ({ key, label: c.t(`website.nav.${key}`), url: link(c, path) }));
   const languages = (t.supportedLocales.length ? t.supportedLocales : [t.defaultLocale]).filter((l) => (LOCALES as readonly string[]).includes(l));
   return {
     name: t.name,
@@ -85,15 +89,10 @@ export async function buildClub(c: Ctx) {
     languages,
     website_url: s.websiteUrl,
     website_nav: s.navLinks.map((l) => ({ label: l.label, url: l.url.startsWith("/") ? link(c, l.url) : l.url })),
-    nav: [
-      { key: "camps", label: c.t("website.nav.camps"), url: link(c, "/register/camps") },
-      { key: "programs", label: c.t("website.nav.programs"), url: link(c, "/club") },
-      { key: "schedule", label: c.t("website.nav.schedule"), url: link(c, "/club/schedule") },
-      { key: "book", label: c.t("website.nav.book"), url: link(c, `/book/${t.slug}`) },
-      { key: "shop", label: c.t("website.nav.shop"), url: link(c, "/shop") },
-      { key: "donate", label: c.t("website.nav.donate"), url: link(c, "/club#donate") },
-      { key: "login", label: c.t("website.nav.login"), url: link(c, "/login") },
-    ],
+    // nav: key -> app URL (the WordPress plugin reads nav.login etc.);
+    // nav_items: the same links with translated labels, in display order.
+    nav: Object.fromEntries(navItems.map((n) => [n.key, n.url])),
+    nav_items: navItems,
   };
 }
 

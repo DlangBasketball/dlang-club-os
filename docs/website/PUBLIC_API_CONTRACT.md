@@ -24,7 +24,7 @@ The club must have "website connection" enabled in admin (Settings -> Website); 
 ## Endpoints (`/api/public/v1/...`)
 | Path | Query | data[] item fields |
 |---|---|---|
-| `club` | - | (data = object) name, tagline, contact (public email/phone/address), social links, logo, cover, theme, languages, nav links to app pages (camps, programs, schedule, book, shop, donate, login) |
+| `club` | - | (data = object) name, tagline, contact (public email/phone/address), social (network -> https URL), logo_url, cover_url, theme, languages, website_url, website_nav[] (label, url: the club's own website menu links), nav (object: key -> app URL for camps, programs, schedule, book, shop, donate, login; e.g. `nav.login`), nav_items[] (key, label, url: same links with translated labels, in display order) |
 | `programs` | `kind=team,camp,clinic,...`, `season` | id, slug, name, kind, age_range, level, description (html-safe), cover_url, location, starts_on, ends_on, price_from, places_left (null if unlimited), status (open/full/waitlist/closed), url, action_url |
 | `camps` | `season=spring,summer,fall,winter`, `year` | camp season groups: season, year, title, url (season registration page), editions[]: id, name, dates, venue, ages, price_options[] (days, lunch, price, member_price), places_left, status, action_url (adds to camp basket) |
 | `events` | `from`, `to` (default next 60 days), `team` (slug or id), `type=game,training,event,tournament` | id, type, title, team {slug,name}, opponent, home_away, starts_at, ends_at, venue {name,address,maps_url}, status (scheduled/cancelled/moved), result (for past games: our_score, their_score, outcome), url |
