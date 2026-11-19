@@ -8,6 +8,7 @@ import { getTranslations } from "@/lib/i18n/server";
 import { dbErrorKey, eventScopeSchema, reasonSchema, shiftOccurrences, zodErrorKey, type EventScope } from "@/lib/club-ops/validation";
 import { sportsDb, type ConflictRow } from "./db";
 import { notifyEventChange } from "@/lib/family/notify";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -230,6 +231,7 @@ export async function saveTeam(id: string | null, input: TeamInput): Promise<Act
   }
   if (cErr) return { ok: false, error: friendly(cErr) };
   revalidateAll(teamId);
+  notifyWebsite(me.orgId, "teams", "events");
   return { ok: true, data: { id: teamId! } };
 }
 
@@ -256,6 +258,7 @@ export async function addTeamMember(teamId: string, input: MemberInput): Promise
   });
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll(teamId);
+  notifyWebsite(me.orgId, "teams");
   return { ok: true };
 }
 
@@ -271,6 +274,7 @@ export async function updateTeamMember(membershipId: string, teamId: string, inp
   }).eq("id", membershipId);
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll(teamId);
+  notifyWebsite(me.orgId, "teams");
   return { ok: true };
 }
 
@@ -281,6 +285,7 @@ export async function removeTeamMember(membershipId: string, teamId: string): Pr
   const { error } = await db.from("team_memberships").delete().eq("id", membershipId);
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll(teamId);
+  notifyWebsite(me.orgId, "teams");
   return { ok: true };
 }
 
@@ -427,6 +432,7 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
       revalidatePath(`/admin/schedule/${o.id}`);
     }
     revalidateAll(e.teamId);
+    notifyWebsite(me.orgId, "events", "results");
     if (changedForFamilies && e.status !== "cancelled") await notifyEventChange(me.orgId!, targets.map((o) => o.id!), "changed");
     return { ok: true, data: { ids: targets.map((o) => o.id!) } };
   }
@@ -435,6 +441,7 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
     .select("id");
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll(e.teamId);
+  notifyWebsite(me.orgId, "events", "results");
   return { ok: true, data: { ids: (data ?? []).map((r) => r.id) } };
 }
 
@@ -467,6 +474,7 @@ export async function setEventStatus(
   const { error } = await db.from("events").update(patch).in("id", ids).eq("org_id", me.orgId!);
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll();
+  notifyWebsite(me.orgId, "events", "results");
   for (const x of ids) revalidatePath(`/admin/schedule/${x}`);
   revalidatePath(`/coach/team/events/${id}`);
   if (status === "cancelled" || status === "postponed") await notifyEventChange(me.orgId!, ids, status);
@@ -484,6 +492,7 @@ export async function deleteEvent(id: string, scope: EventScope = "one"): Promis
   const { error } = await db.from("events").delete().in("id", ids).eq("org_id", me.orgId!);
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll();
+  notifyWebsite(me.orgId, "events", "results");
   return { ok: true };
 }
 
@@ -499,6 +508,7 @@ export async function recordResult(eventId: string, scoreFor: number, scoreAgain
   const { error } = await db.rpc("record_game_result", { p_event: eventId, p_score_for: s.data.a, p_score_against: s.data.b, p_notes: notes ?? null });
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll();
+  notifyWebsite(me.orgId, "results", "events");
   revalidatePath(`/admin/schedule/${eventId}`);
   revalidatePath(`/coach/team/events/${eventId}`);
   return { ok: true };

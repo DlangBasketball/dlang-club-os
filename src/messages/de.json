@@ -7349,5 +7349,328 @@
         "CREDIT_ALREADY_USED": "Das Familienguthaben wurde bereits verwendet."
       }
     }
+  },
+  "website": {
+    "nav": {
+      "camps": "Camps",
+      "programs": "Programme",
+      "schedule": "Spielplan",
+      "book": "Training buchen",
+      "shop": "Shop",
+      "donate": "Spenden",
+      "login": "Anmelden"
+    },
+    "ages": {
+      "range": "{min}–{max} Jahre",
+      "from": "Ab {min} Jahren",
+      "upTo": "Bis {max} Jahre"
+    },
+    "events": {
+      "vs": "{team} gegen {opponent}",
+      "allDay": "Ganztägig",
+      "types": {
+        "game": "Spiel",
+        "training": "Training",
+        "tournament": "Turnier",
+        "event": "Anlass"
+      }
+    },
+    "status": {
+      "open": "Offen",
+      "full": "Ausgebucht",
+      "closed": "Geschlossen",
+      "waitlist": "Warteliste"
+    },
+    "eventStatus": {
+      "scheduled": "Geplant",
+      "cancelled": "Abgesagt",
+      "moved": "Verschoben"
+    },
+    "outcome": {
+      "win": "Sieg",
+      "loss": "Niederlage",
+      "draw": "Unentschieden"
+    },
+    "kinds": {
+      "team": "Mannschaft",
+      "camp": "Camp",
+      "clinic": "Kurs",
+      "tournament": "Turnier"
+    },
+    "coachRoles": {
+      "head": "Cheftrainer/in",
+      "assistant": "Assistenztrainer/in",
+      "manager": "Teammanager/in",
+      "trainer": "Athletiktrainer/in"
+    },
+    "themes": {
+      "club": "Vereinsdesign",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
+    "sections": {
+      "club": "Vereinsprofil",
+      "programs": "Programme",
+      "camps": "Camps",
+      "events": "Spielplan",
+      "results": "Resultate",
+      "teams": "Mannschaften",
+      "coaches": "Trainer/innen",
+      "training": "Trainingsbuchung",
+      "shop": "Shop",
+      "campaigns": "Spendenaktionen",
+      "news": "Neuigkeiten",
+      "contact": "Kontaktangaben"
+    },
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "tiktok": "TikTok",
+      "x": "X",
+      "linkedin": "LinkedIn"
+    },
+    "widgetNames": {
+      "camps": "Camps nach Saison",
+      "programs": "Programme",
+      "schedule": "Spielplan",
+      "results": "Resultate",
+      "teams": "Mannschaften",
+      "book": "Trainingsbuchung",
+      "shop": "Shop",
+      "donate": "Spenden",
+      "register": "Anmeldeknopf",
+      "login": "Mitglieder-Login"
+    },
+    "deliveryStatus": {
+      "sent": "Zugestellt",
+      "pending": "Neuer Versuch",
+      "failed": "Fehlgeschlagen"
+    },
+    "widgets": {
+      "empty": "Noch nichts vorhanden.",
+      "unavailable": "Dieser Bereich wird vom Verein nicht veröffentlicht.",
+      "seasonPage": "Alle Wochen",
+      "register": "Anmelden",
+      "book": "Buchen",
+      "buy": "Ansehen und kaufen",
+      "donate": "Spenden",
+      "login": "Anmelden",
+      "loginTitle": "Mitglieder von {club}",
+      "loginBody": "Melde dich in der Vereins-App an für Rechnungen, Pläne und Buchungen.",
+      "members": "Mitglieder {price}",
+      "placesLeft": "{count, plural, =0 {Keine Plätze frei} one {# Platz frei} other {# Plätze frei}}",
+      "priceFrom": "Ab {price}",
+      "duration": "{minutes} Min.",
+      "perSession": "{price} pro Einheit",
+      "package": "{sessions} Einheiten: {price}",
+      "soldOut": "Ausverkauft",
+      "raised": "{raised} von {goal} gesammelt"
+    },
+    "public": {
+      "website": "Webseite",
+      "websiteNav": "Vereinswebseite",
+      "backToWebsite": "Zurück zur Vereinswebseite",
+      "backToClub": "Zurück zur Vereinsseite",
+      "newsTitle": "Neuigkeiten",
+      "scheduleCta": "Spielplan und Resultate",
+      "scheduleTitle": "Spielplan und Resultate",
+      "upcoming": "Demnächst",
+      "results": "Resultate",
+      "readOnWebsite": "Auf der Vereinswebseite lesen"
+    },
+    "errors": {
+      "forbidden": "Nur Vereinsadmins können die Webseiten-Verbindung ändern.",
+      "generic": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
+      "invalid": "Bitte die markierten Felder prüfen.",
+      "notFound": "Nicht gefunden.",
+      "invalidOrigins": "Keine gültige https-Herkunft (nur Schema und Host, ohne Pfad): {list}",
+      "originsRequired": "Vor dem Aktivieren mindestens eine erlaubte Webseiten-Herkunft eintragen.",
+      "noWebhookUrl": "Zuerst eine Webhook-URL speichern.",
+      "noSecret": "Zuerst ein Signatur-Geheimnis erzeugen.",
+      "slugTaken": "Eine andere Mannschaft verwendet diesen Kurznamen bereits.",
+      "testFailed": "Die Webseite hat den Test nicht angenommen ({detail}).",
+      "field": {
+        "enabled": "Bitte den Verbindungsschalter prüfen.",
+        "websiteUrl": "Webseitenadresse mit https:// eingeben.",
+        "allowedOrigins": "Genaue https-Herkünfte eingeben, eine pro Zeile.",
+        "sections": "Bitte die öffentlichen Bereiche prüfen.",
+        "rosterPublic": "Bitte die Kader-Einstellung prüfen.",
+        "embedTheme": "Ein Design wählen.",
+        "webhookUrl": "Webhook-URL mit https:// eingeben.",
+        "tagline": "Der Slogan darf höchstens 200 Zeichen haben.",
+        "navLinks": "Jeder Link braucht eine Bezeichnung (max. 40 Zeichen) und eine https-Adresse oder einen App-Pfad wie /shop.",
+        "socialLinks": "Social-Media-Links müssen mit https:// beginnen."
+      }
+    },
+    "messages": {
+      "saved": "Gespeichert.",
+      "deleted": "Gelöscht.",
+      "secretCreated": "Neues Signatur-Geheimnis erstellt. Jetzt kopieren: es wird nicht mehr angezeigt.",
+      "testSent": "Test zugestellt (HTTP {status})."
+    },
+    "admin": {
+      "tab": "Webseite",
+      "tabs": {
+        "connection": "Verbindung",
+        "news": "Neuigkeiten",
+        "import": "Übernahme"
+      },
+      "save": "Speichern",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "connection": {
+        "title": "Webseiten-Verbindung",
+        "intro": "Programme, Camps, Spielplan, Resultate, Shop und Neuigkeiten des Vereins auf der bestehenden Webseite zeigen. Die Daten werden einmal hier in der App erfasst; die Webseite liest sie über die öffentliche API und Einbettungen.",
+        "enabled": "Webseiten-Verbindung aktiv",
+        "websiteUrl": "Webseitenadresse",
+        "websiteUrlHint": "Wird für die Übernahme und den Link zurück zur Webseite verwendet.",
+        "origins": "Erlaubte Webseiten-Herkünfte",
+        "originsHint": "Eine pro Zeile, z. B. https://www.example.org. Nur diese Seiten dürfen die Widgets einbetten und die API im Browser lesen.",
+        "addOrigin": "{origin} hinzufügen",
+        "theme": "Design für Einbettungen",
+        "tagline": "Slogan"
+      },
+      "sections": {
+        "title": "Was öffentlich ist",
+        "intro": "Wählen, welche Bereiche die Webseite zeigen darf. Es erscheinen nur Einträge, die in der App als öffentlich markiert sind (öffentliche Programme, Mannschaften, Trainer/innen, Neuigkeiten).",
+        "roster": "Mannschaftskader zeigen",
+        "rosterHint": "Standardmässig aus. Auch eingeschaltet erscheint ein Kind nur mit erfasster Medien-Einwilligung, mit Vorname und Initiale und Rückennummer, nie mit Foto."
+      },
+      "nav": {
+        "title": "Webseitenmenü in der App",
+        "intro": "Diese Links erscheinen im Kopf der öffentlichen App-Seiten, damit Besucher zwischen Webseite und App wechseln können.",
+        "label": "Bezeichnung",
+        "url": "Adresse",
+        "add": "Link hinzufügen",
+        "remove": "Link entfernen"
+      },
+      "webhook": {
+        "title": "Änderungsmeldungen (Webhook)",
+        "intro": "Ändern sich öffentliche Daten, sendet die App eine signierte Meldung, damit die Webseite ihren Cache leert.",
+        "url": "Webhook-URL",
+        "urlHint": "Nur https. Jede Anfrage trägt den Header X-DLang-Signature (HMAC-SHA256 des Inhalts).",
+        "usePlugin": "Adresse des WordPress-Plugins verwenden",
+        "noSecret": "Noch kein Signatur-Geheimnis.",
+        "secretSet": "Geheimnis endet auf …{hint}, erstellt am {date}.",
+        "generate": "Geheimnis erzeugen",
+        "rotate": "Geheimnis erneuern",
+        "rotateConfirm": "Geheimnis erneuern? Die Webseite muss den neuen Wert erhalten.",
+        "showOnce": "Dieses Geheimnis jetzt ins Webseiten-Plugin kopieren. Es wird nicht mehr angezeigt.",
+        "secretLabel": "Signatur-Geheimnis",
+        "test": "Test senden",
+        "lastDelivery": "Letzte Zustellung:",
+        "never": "Noch keine Zustellungen.",
+        "apiBase": "Öffentliche API: {url}"
+      },
+      "embed": {
+        "title": "Einbettungscode",
+        "intro": "Einen Shortcode für das WordPress-Plugin oder ein Skript- bzw. iframe-Snippet für jede Webseite kopieren.",
+        "widget": "Widget",
+        "language": "Sprache",
+        "clubLanguage": "Vereinsstandard",
+        "shortcode": "WordPress-Shortcode",
+        "script": "Skript-Snippet",
+        "iframe": "Iframe",
+        "preview": "Live-Vorschau",
+        "previewDisabled": "Webseiten-Verbindung aktivieren und speichern, um die Vorschau zu sehen.",
+        "params": {
+          "season": "Saison",
+          "year": "Jahr",
+          "kind": "Art",
+          "team": "Mannschaft (Kurzname)",
+          "type": "Anlassart",
+          "category": "Kategorie",
+          "campaign": "Aktion",
+          "program": "Programm (Kurzname)"
+        }
+      },
+      "flags": {
+        "title": "Öffentliche Mannschaften, Trainer/innen und Anlässe",
+        "intro": "Alles ist zuerst verborgen. Markieren, was die Webseite zeigen darf.",
+        "public": "Öffentlich",
+        "roster": "Kader",
+        "rosterOff": "Zuerst oben die Mannschaftskader einschalten.",
+        "rosterHint": "Kader zeigen nur Kinder mit erfasster Medien-Einwilligung, mit Vorname und Initiale.",
+        "cover": "Titelbild",
+        "photo": "Foto",
+        "slug": "Kurzname",
+        "league": "Liga",
+        "clubEvents": "Einträge im Vereinskalender",
+        "showOnWebsite": "Auf der Webseite zeigen"
+      },
+      "news": {
+        "title": "Neuigkeiten",
+        "add": "Neuigkeit hinzufügen",
+        "titleField": "Titel",
+        "excerpt": "Zusammenfassung",
+        "body": "Inhalt",
+        "bodyKeep": "Leer lassen, um den bisherigen Text zu behalten.",
+        "link": "Link (freiwillig)",
+        "privacyHint": "Kinder ohne Medien-Einwilligung weder nennen noch zeigen.",
+        "public": "Öffentlich",
+        "draft": "Entwurf",
+        "imported": "Von der Webseite",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "deleteConfirm": "Diese Neuigkeit löschen?",
+        "alertsTitle": "Vereinsmeldungen auf der Webseite",
+        "alertsIntro": "Vereinsweite Meldungen (an alle) können auch als Neuigkeit auf der Webseite erscheinen."
+      },
+      "deliveries": {
+        "title": "Letzte Zustellungen",
+        "attempts": "{count, plural, one {# Versuch} other {# Versuche}}"
+      }
+    },
+    "import": {
+      "title": "Von der Webseite übernehmen",
+      "intro": "Liest die öffentlichen Daten von {url}: SportsPress-Mannschaften, Spiele und Resultate, WooCommerce-Produkte und Blogbeiträge. Auf der Webseite wird nichts verändert.",
+      "privacy": "Spielerlisten und Spielerstatistiken werden nie übernommen. Blogbilder werden nicht übernommen.",
+      "load": "Vorschau laden",
+      "refresh": "Vorschau aktualisieren",
+      "preview": "Vorschau",
+      "teams": "Eigene Mannschaften",
+      "teamsHint": "Die eigenen Mannschaften des Vereins auswählen. Spiele dieser Mannschaften werden übernommen; andere erscheinen nur als Gegner.",
+      "events": "{count, plural, one {# Spiel} other {# Spiele}}",
+      "products": "{count, plural, one {# Produkt} other {# Produkte}}",
+      "posts": "{count, plural, one {# Beitrag} other {# Beiträge}}",
+      "variants": "{count, plural, one {# Variante} other {# Varianten}}",
+      "skippedEvents": "{count, plural, one {# Spiel übersprungen} other {# Spiele übersprungen}} (keine gewählte Mannschaft, Entwurf oder ohne Datum).",
+      "existing": "Bereits übernommen",
+      "new": "Neu",
+      "defaultStock": "Bestand für Produkte ohne Angabe",
+      "defaultStockHint": "Der Webseiten-Shop veröffentlicht keinen Bestand. Den echten Bestand danach im App-Shop erfassen.",
+      "dryRun": "Probelauf",
+      "run": "Übernehmen",
+      "confirm": "Jetzt übernehmen? Bereits übernommene Einträge werden aktualisiert, nicht verdoppelt.",
+      "dryRunResult": "Probelauf (nichts gespeichert)",
+      "result": "Übernahme abgeschlossen",
+      "counts": "{created} neu, {updated} aktualisiert, {failed} fehlgeschlagen",
+      "images": "{count, plural, one {# Bild gespeichert} other {# Bilder gespeichert}}",
+      "kinds": {
+        "sportspress": "SportsPress (Mannschaften, Spiele, Resultate)",
+        "woo": "WooCommerce-Produkte",
+        "posts": "Blogbeiträge"
+      },
+      "resultKinds": {
+        "teams": "Mannschaften",
+        "events": "Spiele",
+        "products": "Produkte",
+        "posts": "Beiträge"
+      },
+      "messages": {
+        "done": "Übernahme abgeschlossen.",
+        "dryRunDone": "Probelauf abgeschlossen. Nichts wurde gespeichert."
+      },
+      "errors": {
+        "noWebsiteUrl": "Zuerst die Webseitenadresse in der Verbindung speichern.",
+        "not_found": "Auf dieser Webseite nicht verfügbar (Plugin fehlt oder REST-API deaktiviert).",
+        "unsafe_url": "Diese Adresse ist nicht sicher erreichbar (nur https und öffentliche Adressen).",
+        "network": "Die Webseite hat nicht rechtzeitig geantwortet.",
+        "too_large": "Die Antwort der Webseite war zu gross.",
+        "invalid_json": "Die Webseite hat keine gültigen Daten geliefert.",
+        "http_error": "Die Webseite hat einen Fehler gemeldet."
+      }
+    }
   }
 }

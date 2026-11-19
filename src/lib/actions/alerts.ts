@@ -9,6 +9,7 @@ import { logError } from "@/lib/log";
 import { msgDb, type AlertRow } from "@/lib/messaging/db";
 import { dispatchAlert } from "@/lib/messaging/notify";
 import { alertSchema, messagingErrorKey, SCOPED_AUDIENCES, uuid, type AlertInput } from "@/lib/messaging/validation";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 /**
  * Alerts: admins address any audience, coaches their own teams, programmes
@@ -77,6 +78,7 @@ export async function createAlert(input: AlertInput): Promise<ActionResult<{ id:
   await writeAudit(me, "alert.create", "club_alerts", alert.id, { audience: v.audience, severity: v.severity, scheduled });
   if (!scheduled) after(() => dispatchAlert(alert, { email: v.alsoEmail }).then(() => undefined).catch((e) => logError("alerts.dispatch", e)));
   revalidateAlerts();
+  notifyWebsite(me.orgId, "news");
   return { ok: true, message: t(scheduled ? "messaging.messages.alertScheduled" : "messaging.messages.alertSent"), data: { id: alert.id, scheduled } };
 }
 
@@ -95,6 +97,7 @@ export async function cancelAlert(id: string): Promise<ActionResult> {
   if (error || !data?.length) return { ok: false, error: t("messaging.errors.forbidden") };
   await writeAudit(me, "alert.cancel", "club_alerts", id);
   revalidateAlerts();
+  notifyWebsite(me.orgId, "news");
   return { ok: true, message: t("messaging.messages.alertCancelled") };
 }
 

@@ -7349,5 +7349,328 @@
         "CREDIT_ALREADY_USED": "Il credito della famiglia è già stato utilizzato."
       }
     }
+  },
+  "website": {
+    "nav": {
+      "camps": "Campi",
+      "programs": "Programmi",
+      "schedule": "Calendario",
+      "book": "Prenota un allenamento",
+      "shop": "Negozio",
+      "donate": "Dona",
+      "login": "Accedi"
+    },
+    "ages": {
+      "range": "{min}–{max} anni",
+      "from": "Da {min} anni",
+      "upTo": "Fino a {max} anni"
+    },
+    "events": {
+      "vs": "{team} contro {opponent}",
+      "allDay": "Tutto il giorno",
+      "types": {
+        "game": "Partita",
+        "training": "Allenamento",
+        "tournament": "Torneo",
+        "event": "Evento"
+      }
+    },
+    "status": {
+      "open": "Aperto",
+      "full": "Al completo",
+      "closed": "Chiuso",
+      "waitlist": "Lista d’attesa"
+    },
+    "eventStatus": {
+      "scheduled": "Previsto",
+      "cancelled": "Annullato",
+      "moved": "Spostato"
+    },
+    "outcome": {
+      "win": "Vittoria",
+      "loss": "Sconfitta",
+      "draw": "Pareggio"
+    },
+    "kinds": {
+      "team": "Squadra",
+      "camp": "Campo",
+      "clinic": "Corso",
+      "tournament": "Torneo"
+    },
+    "coachRoles": {
+      "head": "Allenatore/trice capo",
+      "assistant": "Vice allenatore/trice",
+      "manager": "Dirigente accompagnatore",
+      "trainer": "Preparatore/trice atletico/a"
+    },
+    "themes": {
+      "club": "Tema del club",
+      "light": "Chiaro",
+      "dark": "Scuro"
+    },
+    "sections": {
+      "club": "Profilo del club",
+      "programs": "Programmi",
+      "camps": "Campi",
+      "events": "Calendario",
+      "results": "Risultati",
+      "teams": "Squadre",
+      "coaches": "Allenatori",
+      "training": "Prenotazione allenamenti",
+      "shop": "Negozio",
+      "campaigns": "Raccolte fondi",
+      "news": "Notizie",
+      "contact": "Recapiti"
+    },
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "tiktok": "TikTok",
+      "x": "X",
+      "linkedin": "LinkedIn"
+    },
+    "widgetNames": {
+      "camps": "Campi per stagione",
+      "programs": "Programmi",
+      "schedule": "Calendario",
+      "results": "Risultati",
+      "teams": "Squadre",
+      "book": "Prenotazione allenamenti",
+      "shop": "Negozio",
+      "donate": "Donazioni",
+      "register": "Pulsante d’iscrizione",
+      "login": "Accesso membri"
+    },
+    "deliveryStatus": {
+      "sent": "Consegnato",
+      "pending": "Nuovo tentativo",
+      "failed": "Non riuscito"
+    },
+    "widgets": {
+      "empty": "Ancora niente da mostrare.",
+      "unavailable": "Questa sezione non è pubblicata dal club.",
+      "seasonPage": "Tutte le settimane",
+      "register": "Iscriviti",
+      "book": "Prenota",
+      "buy": "Vedi e acquista",
+      "donate": "Dona",
+      "login": "Accedi",
+      "loginTitle": "Membri di {club}",
+      "loginBody": "Accedi all’app del club per fatture, calendari e prenotazioni.",
+      "members": "membri {price}",
+      "placesLeft": "{count, plural, =0 {Nessun posto libero} one {# posto libero} other {# posti liberi}}",
+      "priceFrom": "Da {price}",
+      "duration": "{minutes} min",
+      "perSession": "{price} a seduta",
+      "package": "{sessions} sedute: {price}",
+      "soldOut": "Esaurito",
+      "raised": "{raised} raccolti su {goal}"
+    },
+    "public": {
+      "website": "Sito web",
+      "websiteNav": "Sito del club",
+      "backToWebsite": "Torna al sito del club",
+      "backToClub": "Torna alla pagina del club",
+      "newsTitle": "Notizie",
+      "scheduleCta": "Calendario e risultati",
+      "scheduleTitle": "Calendario e risultati",
+      "upcoming": "Prossimi",
+      "results": "Risultati",
+      "readOnWebsite": "Leggi sul sito del club"
+    },
+    "errors": {
+      "forbidden": "Solo gli admin del club possono modificare il collegamento al sito.",
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "invalid": "Controlla i campi segnalati.",
+      "notFound": "Non trovato.",
+      "invalidOrigins": "Origine https non valida (solo schema e host, senza percorso): {list}",
+      "originsRequired": "Aggiungi almeno un’origine consentita prima di attivare il collegamento.",
+      "noWebhookUrl": "Salva prima un URL di webhook.",
+      "noSecret": "Genera prima un segreto di firma.",
+      "slugTaken": "Un’altra squadra usa già questo nome breve.",
+      "testFailed": "Il sito non ha accettato il test ({detail}).",
+      "field": {
+        "enabled": "Controlla l’interruttore del collegamento.",
+        "websiteUrl": "Inserisci l’indirizzo del sito che inizia con https://.",
+        "allowedOrigins": "Inserisci origini https esatte, una per riga.",
+        "sections": "Controlla le sezioni pubbliche.",
+        "rosterPublic": "Controlla l’impostazione delle rose.",
+        "embedTheme": "Scegli un tema.",
+        "webhookUrl": "Inserisci un URL di webhook che inizia con https://.",
+        "tagline": "Lo slogan può avere al massimo 200 caratteri.",
+        "navLinks": "Ogni link richiede un’etichetta (max. 40 caratteri) e un indirizzo https o un percorso dell’app come /shop.",
+        "socialLinks": "I link ai social devono iniziare con https://."
+      }
+    },
+    "messages": {
+      "saved": "Salvato.",
+      "deleted": "Eliminato.",
+      "secretCreated": "Nuovo segreto di firma creato. Copialo ora: non verrà più mostrato.",
+      "testSent": "Test consegnato (HTTP {status})."
+    },
+    "admin": {
+      "tab": "Sito web",
+      "tabs": {
+        "connection": "Collegamento",
+        "news": "Notizie",
+        "import": "Importazione"
+      },
+      "save": "Salva",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "connection": {
+        "title": "Collegamento al sito web",
+        "intro": "Mostra programmi, campi, calendario, risultati, negozio e notizie del club sul tuo sito attuale. I dati si inseriscono una sola volta, qui nell’app; il sito li legge tramite l’API pubblica e i moduli incorporati.",
+        "enabled": "Collegamento al sito attivo",
+        "websiteUrl": "Indirizzo del sito",
+        "websiteUrlHint": "Usato per l’importazione e per il link di ritorno al tuo sito.",
+        "origins": "Origini del sito consentite",
+        "originsHint": "Una per riga, ad es. https://www.example.org. Solo questi siti possono incorporare i moduli e leggere l’API dal browser.",
+        "addOrigin": "Aggiungi {origin}",
+        "theme": "Tema dei moduli incorporati",
+        "tagline": "Slogan"
+      },
+      "sections": {
+        "title": "Cosa è pubblico",
+        "intro": "Scegli quali sezioni il sito può mostrare. Compaiono solo gli elementi segnati come pubblici nell’app (programmi, squadre, allenatori e notizie pubblici).",
+        "roster": "Mostra le rose delle squadre",
+        "rosterHint": "Disattivato di default. Anche se attivo, un bambino compare solo con consenso media registrato, con nome, iniziale e numero di maglia, mai con foto."
+      },
+      "nav": {
+        "title": "Menu del sito nell’app",
+        "intro": "Questi link compaiono nell’intestazione delle pagine pubbliche dell’app, per passare facilmente dal sito all’app.",
+        "label": "Etichetta",
+        "url": "Indirizzo",
+        "add": "Aggiungi link",
+        "remove": "Rimuovi link"
+      },
+      "webhook": {
+        "title": "Notifiche di aggiornamento (webhook)",
+        "intro": "Quando cambiano dati pubblici, l’app invia una notifica firmata perché il sito svuoti la sua cache.",
+        "url": "URL del webhook",
+        "urlHint": "Solo https. Ogni richiesta porta l’intestazione X-DLang-Signature (HMAC-SHA256 del contenuto).",
+        "usePlugin": "Usa l’indirizzo del plugin WordPress",
+        "noSecret": "Ancora nessun segreto di firma.",
+        "secretSet": "Segreto che termina con …{hint}, creato il {date}.",
+        "generate": "Genera segreto",
+        "rotate": "Rinnova segreto",
+        "rotateConfirm": "Rinnovare il segreto? Il sito dovrà ricevere il nuovo valore.",
+        "showOnce": "Copia ora questo segreto nel plugin del sito. Non verrà più mostrato.",
+        "secretLabel": "Segreto di firma",
+        "test": "Invia test",
+        "lastDelivery": "Ultima consegna:",
+        "never": "Ancora nessuna consegna.",
+        "apiBase": "API pubblica: {url}"
+      },
+      "embed": {
+        "title": "Codice da incorporare",
+        "intro": "Copia uno shortcode per il plugin WordPress, oppure uno snippet script o iframe per qualsiasi sito.",
+        "widget": "Modulo",
+        "language": "Lingua",
+        "clubLanguage": "Lingua del club",
+        "shortcode": "Shortcode WordPress",
+        "script": "Snippet script",
+        "iframe": "Iframe",
+        "preview": "Anteprima dal vivo",
+        "previewDisabled": "Attiva e salva il collegamento al sito per vedere l’anteprima.",
+        "params": {
+          "season": "Stagione",
+          "year": "Anno",
+          "kind": "Tipo",
+          "team": "Squadra (nome breve)",
+          "type": "Tipo di evento",
+          "category": "Categoria",
+          "campaign": "Raccolta",
+          "program": "Programma (nome breve)"
+        }
+      },
+      "flags": {
+        "title": "Squadre, allenatori ed eventi pubblici",
+        "intro": "All’inizio tutto è nascosto. Segna ciò che il sito può mostrare.",
+        "public": "Pubblico",
+        "roster": "Rosa",
+        "rosterOff": "Attiva prima le rose più sopra.",
+        "rosterHint": "Le rose mostrano solo i bambini con consenso media registrato, con nome e iniziale.",
+        "cover": "Immagine di copertina",
+        "photo": "Foto",
+        "slug": "Nome breve",
+        "league": "Lega",
+        "clubEvents": "Voci del calendario del club",
+        "showOnWebsite": "Mostra sul sito"
+      },
+      "news": {
+        "title": "Notizie",
+        "add": "Aggiungi notizia",
+        "titleField": "Titolo",
+        "excerpt": "Riassunto",
+        "body": "Testo",
+        "bodyKeep": "Lascia vuoto per mantenere il testo attuale.",
+        "link": "Link (facoltativo)",
+        "privacyHint": "Non nominare né mostrare bambini senza consenso media.",
+        "public": "Pubblica",
+        "draft": "Bozza",
+        "imported": "Dal sito",
+        "edit": "Modifica",
+        "delete": "Elimina",
+        "deleteConfirm": "Eliminare questa notizia?",
+        "alertsTitle": "Avvisi del club sul sito",
+        "alertsIntro": "Gli avvisi inviati a tutto il club possono comparire anche come notizie sul sito."
+      },
+      "deliveries": {
+        "title": "Ultime consegne",
+        "attempts": "{count, plural, one {# tentativo} other {# tentativi}}"
+      }
+    },
+    "import": {
+      "title": "Importa dal tuo sito",
+      "intro": "Legge i dati pubblici di {url}: squadre, partite e risultati SportsPress, prodotti WooCommerce e articoli del blog. Sul sito non viene modificato nulla.",
+      "privacy": "Le liste dei giocatori e le loro statistiche non vengono mai importate. Le immagini del blog non vengono importate.",
+      "load": "Carica anteprima",
+      "refresh": "Aggiorna anteprima",
+      "preview": "Anteprima",
+      "teams": "Le tue squadre",
+      "teamsHint": "Seleziona le squadre del club. Vengono importate le loro partite; le altre squadre compaiono solo come avversari.",
+      "events": "{count, plural, one {# partita} other {# partite}}",
+      "products": "{count, plural, one {# prodotto} other {# prodotti}}",
+      "posts": "{count, plural, one {# articolo} other {# articoli}}",
+      "variants": "{count, plural, one {# variante} other {# varianti}}",
+      "skippedEvents": "{count, plural, one {# partita saltata} other {# partite saltate}} (nessuna squadra scelta, bozza o data mancante).",
+      "existing": "Già importato",
+      "new": "Nuovo",
+      "defaultStock": "Scorta per prodotti senza quantità",
+      "defaultStockHint": "Il negozio del sito non pubblica le scorte. Inserisci poi la scorta reale nel negozio dell’app.",
+      "dryRun": "Prova a vuoto",
+      "run": "Importa",
+      "confirm": "Importare ora? Gli elementi già importati vengono aggiornati, non duplicati.",
+      "dryRunResult": "Prova a vuoto (nulla salvato)",
+      "result": "Importazione completata",
+      "counts": "{created} nuovi, {updated} aggiornati, {failed} non riusciti",
+      "images": "{count, plural, one {# immagine salvata} other {# immagini salvate}}",
+      "kinds": {
+        "sportspress": "SportsPress (squadre, partite, risultati)",
+        "woo": "Prodotti WooCommerce",
+        "posts": "Articoli del blog"
+      },
+      "resultKinds": {
+        "teams": "Squadre",
+        "events": "Partite",
+        "products": "Prodotti",
+        "posts": "Articoli"
+      },
+      "messages": {
+        "done": "Importazione completata.",
+        "dryRunDone": "Prova a vuoto completata. Nulla è stato salvato."
+      },
+      "errors": {
+        "noWebsiteUrl": "Salva prima l’indirizzo del sito nel collegamento.",
+        "not_found": "Non disponibile su questo sito (plugin mancante o API REST disattivata).",
+        "unsafe_url": "Questo indirizzo non è raggiungibile in modo sicuro (solo https e indirizzi pubblici).",
+        "network": "Il sito non ha risposto in tempo.",
+        "too_large": "La risposta del sito era troppo grande.",
+        "invalid_json": "Il sito non ha restituito dati validi.",
+        "http_error": "Il sito ha restituito un errore."
+      }
+    }
   }
 }

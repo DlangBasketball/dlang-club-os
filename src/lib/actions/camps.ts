@@ -10,6 +10,7 @@ import {
   ageGroupSchema, campErrorKey, editionRow, editionSchema, firstIssueKey, priceOptionSchema, timeSlotSchema,
   type AgeGroupInput, type EditionInput, type PriceOptionInput, type TimeSlotInput,
 } from "@/lib/camps/validation";
+import { notifyWebsite } from "@/lib/website/webhooks";
 
 /**
  * Camp admin: editions, price options, age groups, time slots. Admin of the
@@ -70,11 +71,13 @@ export async function saveEdition(programId: string, editionId: string | null, i
     if (error) return fail(campErrorKey(error.message), me.orgId);
     if (!data?.length) return fail("camps.errors.notFound", me.orgId);
     revalidateCamp(programId, editionId);
+    notifyWebsite(me.orgId, "camps", "programs");
     return { ok: true, id: editionId };
   }
   const { data, error } = await db.from("camp_editions").insert({ ...row, org_id: me.orgId, program_id: programId }).select("id").single();
   if (error || !data) return fail(campErrorKey(error?.message), me.orgId);
   revalidateCamp(programId);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id: data.id };
 }
 
@@ -113,6 +116,7 @@ export async function duplicateEdition(editionId: string, startsOn?: string): Pr
     })));
   }
   revalidateCamp(e.program_id);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id: copy.id };
 }
 
@@ -129,12 +133,14 @@ export async function deleteEdition(editionId: string): Promise<CampActionResult
     const { error } = await db.from("camp_editions").update({ status: "archived" }).eq("id", editionId).eq("org_id", me.orgId);
     if (error) return fail(campErrorKey(error.message), me.orgId);
     revalidateCamp(e.program_id, editionId);
+    notifyWebsite(me.orgId, "camps", "programs");
     return { ok: true, id: editionId, archived: true };
   };
   if ((count ?? 0) > 0) return archive();
   const { error } = await db.from("camp_editions").delete().eq("id", editionId).eq("org_id", me.orgId);
   if (error) return /EDITION_HAS_REGISTRATIONS/.test(error.message) ? archive() : fail(campErrorKey(error.message), me.orgId);
   revalidateCamp(e.program_id);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true };
 }
 
@@ -165,6 +171,7 @@ export async function savePriceOption(programId: string, input: PriceOptionInput
   if (res.error) return fail(campErrorKey(res.error.message), me.orgId);
   if (!res.data?.length) return fail("camps.errors.notFound", me.orgId);
   revalidateCamp(programId);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id: res.data[0].id };
 }
 
@@ -182,6 +189,7 @@ export async function saveAgeGroup(programId: string, input: AgeGroupInput): Pro
   if (res.error) return fail(campErrorKey(res.error.message), me.orgId);
   if (!res.data?.length) return fail("camps.errors.notFound", me.orgId);
   revalidateCamp(programId);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id: res.data[0].id };
 }
 
@@ -200,6 +208,7 @@ export async function saveTimeSlot(programId: string, input: TimeSlotInput): Pro
   if (res.error) return fail(campErrorKey(res.error.message), me.orgId);
   if (!res.data?.length) return fail("camps.errors.notFound", me.orgId);
   revalidateCamp(programId);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true, id: res.data[0].id };
 }
 
@@ -218,5 +227,6 @@ export async function deleteCampRow(programId: string, kind: keyof typeof ROW_TA
   if (error) return fail(campErrorKey(error.message), me.orgId);
   if (!data?.length) return fail("camps.errors.notFound", me.orgId);
   revalidateCamp(programId);
+  notifyWebsite(me.orgId, "camps", "programs");
   return { ok: true };
 }
