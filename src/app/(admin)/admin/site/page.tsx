@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Globe } from "lucide-react";
 import { Card, CardBody, CardHeader, CardTitle, PageHeader, Badge } from "@/components/ui";
@@ -52,7 +53,7 @@ export default async function SiteAdminPage() {
                 <Globe className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
                 <span>{host ? t("site.checklist.domainSet", { host }) : t("site.checklist.domainHint", { slug: site.slug })}</span>
               </p>
-              <a href="/admin/settings/branding" className="text-sm text-brand-primary underline">{t("site.checklist.domainLink")}</a>
+              <Link href="/admin/settings/branding" className="text-sm text-brand-primary underline">{t("site.checklist.domainLink")}</Link>
             </CardBody>
           </Card>
           <Card>
@@ -62,7 +63,7 @@ export default async function SiteAdminPage() {
             </CardBody>
           </Card>
           {!site.coachesPublic && (
-            <p className="rounded-lg border border-border bg-bg-secondary p-3 text-sm text-text-secondary">{t("site.admin.sectionsHint")} <a className="text-brand-primary underline" href="/admin/settings/website">{t("site.admin.sectionsLink")}</a></p>
+            <p className="rounded-lg border border-border bg-bg-secondary p-3 text-sm text-text-secondary">{t("site.admin.sectionsHint")} <Link className="text-brand-primary underline" href="/admin/settings/website">{t("site.admin.sectionsLink")}</Link></p>
           )}
         </aside>
       </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Script from "next/script";
 import { ChevronDown } from "lucide-react";
 import { ConsentGate, CookieSettingsButton } from "@/components/compliance/cookie-consent-banner";
@@ -87,12 +88,12 @@ export function SiteShell({ ctx, languages, children }: { ctx: RenderCtx; langua
           </nav>
           <div className="ms-auto flex items-center gap-2 lg:ms-2">
             <LanguageMenu current={lang} options={langOptions} label={t("site.chrome.language")} />
-            <a href="/login" className="hidden min-h-tap items-center rounded-full px-3 text-sm font-medium text-text hover:text-brand-primary focus-visible:shadow-focus sm:inline-flex">
+            <Link href="/login" className="hidden min-h-tap items-center rounded-full px-3 text-sm font-medium text-text hover:text-brand-primary focus-visible:shadow-focus sm:inline-flex">
               {t("site.chrome.myAccount")}
-            </a>
-            <a href="/club" className="site-btn site-btn-primary hidden sm:inline-flex">
+            </Link>
+            <Link href="/club" className="site-btn site-btn-primary hidden sm:inline-flex">
               {t("site.chrome.getApp")}
-            </a>
+            </Link>
             <MobileNav links={nav} extra={extra} labels={{ open: t("site.chrome.openMenu"), close: t("site.chrome.closeMenu"), nav: t("site.chrome.mainNav") }} />
           </div>
         </div>
@@ -152,9 +153,9 @@ export function SiteShell({ ctx, languages, children }: { ctx: RenderCtx; langua
                 </li>
               ))}
               <li>
-                <a href="/login" className="hover:text-brand-primary">
+                <Link href="/login" className="hover:text-brand-primary">
                   {t("site.chrome.myAccount")}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
