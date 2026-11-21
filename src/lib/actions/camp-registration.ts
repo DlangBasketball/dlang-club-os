@@ -23,6 +23,7 @@ import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } fro
 import { resolveConfig, validateRegistrationExtras, type BuiltinField, type ChildExtras } from "@/lib/registration-form/config";
 import { issueContractsForRegistrations } from "@/lib/contracts/server";
 import { attachPlanAtCheckout } from "@/lib/plans/checkout";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Camp registration (public camp page + parent app).
@@ -102,7 +103,7 @@ async function parentContext(camp: PublicCamp, athleteIds: string[]): Promise<Pa
   const families = await guardianFamilies(me.id, me.orgId);
   if (!families.length) return null;
   const db = campsAdminDb();
-  const { data: athletes } = await db.from("athletes").select("id,family_id,dob,first_name,last_name").eq("org_id", me.orgId).in("family_id", families);
+  const { data: athletes } = await db.from("athletes").select("id,family_id,dob,first_name,last_name").eq("org_id", me.orgId).in("family_id", families).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   const map = new Map((athletes ?? []).map((a) => [a.id, a]));
   const chosen = athleteIds.map((id) => map.get(id));
   if (chosen.some((a) => !a)) return null;

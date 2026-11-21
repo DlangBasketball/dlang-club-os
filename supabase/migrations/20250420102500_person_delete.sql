@@ -35,6 +35,7 @@
 --     and parent roles put back. Cancelled registrations, bookings, invoices,
 --     plans, memberships, scout links and member cards are NOT restored (money
 --     and capacity may have moved on); the admin re-registers if needed.
+--     Reminders paused on invoices that stayed open resume.
 --   purge_due_person_deletions() / person_deletions_due_notice()   service role
 --     Daily cron: archived people older than 30 days are erased; admins get a
 --     notice 3 days before.
@@ -694,6 +695,16 @@ begin
     perform public.pdel_cancel_invoice(r.id, v_reason);
   end loop;
 
+  -- Invoices that stay open (part-paid, written down…): no reminders / dunning
+  -- to a removed person; restore resumes them.
+  v_snap := v_snap || jsonb_build_object('paused_invoices', coalesce((
+    select jsonb_agg(id) from public.invoices
+     where org_id = p_org and not reminders_paused
+       and status::text in ('draft', 'pending', 'sent', 'overdue', 'partially_paid')
+       and ((p_family is not null and family_id = p_family) or athlete_id = any(p_athletes))), '[]'));
+  update public.invoices set reminders_paused = true
+   where id in (select jsonb_array_elements_text(v_snap -> 'paused_invoices')::uuid);
+
   if p_family is not null then
     update public.autopay_mandates set status = 'revoked', enabled = false, revoked_at = now(), revoked_by = p_actor
      where org_id = p_org and family_id = p_family and status in ('pending', 'active');
@@ -1131,6 +1142,10 @@ begin
     select * from jsonb_populate_recordset(null::public.team_memberships, coalesce(d.snapshot -> 'team_memberships', '[]'))
     on conflict do nothing;
   get diagnostics v_tm = row_count;
+  update public.invoices set reminders_paused = false
+   where org_id = d.org_id and reminders_paused
+     and id in (select jsonb_array_elements_text(coalesce(d.snapshot -> 'paused_invoices', '[]'))::uuid)
+     and status::text in ('draft', 'pending', 'sent', 'overdue', 'partially_paid');
 
   update public.person_deletions set status = 'restored', restored_at = now(), restored_by = auth.uid(), snapshot = null
    where id = d.id;

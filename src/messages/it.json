@@ -5388,7 +5388,7 @@
       "jerseyFor": "Numero di {name}",
       "positionFor": "Ruolo di {name}",
       "statusFor": "Stato di {name}",
-      "removeName": "Rimuovi {name}",
+      "removeName": "Rimuovi {name} dalla squadra",
       "confirmRemoveRow": "Rimuovere {name} dalla rosa? Imposta piuttosto lo stato su inattivo per conservare lo storico.",
       "status": {
         "active": "Attivo",

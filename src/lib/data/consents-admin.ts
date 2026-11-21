@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export type ConsentForm = { id: string; key: string; title: string; version: number; isRequired: boolean; isActive: boolean; bodyLength: number; acceptedCount: number };
 
@@ -30,7 +31,7 @@ export async function consentAudit(formId: string): Promise<AuditResult> {
   const rows = accs ?? [];
   const aIds = Array.from(new Set(rows.map((r) => r.athlete_id).filter((x): x is string => !!x)));
   const pIds = Array.from(new Set(rows.map((r) => r.accepted_by).filter((x): x is string => !!x)));
-  const allAthletes = (await admin.from("athletes").select("id,first_name,last_name").eq("org_id", me.orgId)).data ?? [];
+  const allAthletes = (await admin.from("athletes").select("id,first_name,last_name").eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER)).data ?? [];
   const aName = new Map(allAthletes.map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
   const profs = pIds.length ? (await admin.from("profiles").select("id,full_name,email").in("id", pIds)).data ?? [] : [];
   const pName = new Map(profs.map((p) => [p.id, p.full_name ?? p.email]));

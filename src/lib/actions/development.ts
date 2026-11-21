@@ -17,6 +17,7 @@ import {
   type AssignInput, type AssignNutritionInput, type CompletionInput, type EvaluationBatchInput, type ExerciseInput, type NutritionInput,
   type PlanInput, type SettingsInput, type TemplateInput, type WellnessInput,
 } from "@/lib/development/validation";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Athlete development mutations. Every action: role check, org from the
@@ -349,7 +350,7 @@ export async function getExerciseVideoUrl(exerciseId: string): Promise<DevResult
 async function runAutoAssignFor(db: DevClient, me: Me, planIds: string[]): Promise<number> {
   const { data: plans } = await db.from("training_plans").select("id,sport,age_min,age_max,level,auto_assign,is_active,is_template,weeks").in("id", planIds).eq("org_id", me.orgId);
   if (!plans?.length) return 0;
-  const { data: ath } = await db.from("athletes").select("id").eq("org_id", me.orgId).neq("status", "archived");
+  const { data: ath } = await db.from("athletes").select("id").eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   const athleteIds = (ath ?? []).map((a) => a.id);
   const facts = await athleteFacts(db, athleteIds);
   const { data: existing } = await db.from("training_plan_assignments").select("plan_id,athlete_id").in("plan_id", planIds).eq("status", "active");

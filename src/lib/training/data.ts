@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 import { trainingAdminDb, trainingDb, type PurchaseStatus, type SessionType } from "./db";
 import type { OpeningHours, SlotBlackout, SlotBusy, SlotTemplate, SlotWindow } from "./slots";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Server reads for the training system. RLS decides what each caller sees
@@ -194,7 +195,7 @@ export async function getTrainingWizardData(): Promise<Result<TrainingWizardData
   const now = new Date();
   const horizon = new Date(now.getTime() + Math.max(1, settings.horizonDays + 1) * 864e5);
   const [kids, avail, busy] = await Promise.all([
-    db.from("athletes").select("id,first_name,last_name,status").order("first_name").limit(2000),
+    db.from("athletes").select("id,first_name,last_name,status").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name").limit(2000),
     getAvailabilityData({ from: now, days: settings.horizonDays + 2 }),
     getBusy(now, horizon),
   ]);

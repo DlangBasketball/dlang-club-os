@@ -2,12 +2,13 @@ import { CheckSquare } from "lucide-react";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { getFormatter } from "@/lib/i18n/server";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export default async function ParentAttendancePage() {
   const f = await getFormatter();
   const supabase = await createClient();
   // RLS scopes athletes to the guardian's own children.
-  const { data: kids } = await supabase.from("athletes").select("id,first_name,last_name").order("first_name");
+  const { data: kids } = await supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
 
   const summaries = await Promise.all(
     (kids ?? []).map(async (k) => {

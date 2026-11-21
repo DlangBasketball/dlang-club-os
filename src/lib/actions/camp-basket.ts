@@ -18,6 +18,7 @@ import { attachPlanAtCheckout } from "@/lib/plans/checkout";
 import { createGuestAccount, notifyCampRegistration } from "@/lib/camps/checkout-helpers";
 import { logError } from "@/lib/log";
 import type { Json } from "@/types/database";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Camp basket: several weeks (across camps / seasons) for one or more
@@ -161,7 +162,7 @@ async function resolveContext(ctxInput: BasketContext, children: Basket["childre
     if (!me.roles.includes("parent")) return null;
     const families = await guardianFamilies(me.id, me.orgId);
     if (!families.length) return null;
-    const { data: athletes } = await db.from("athletes").select("id,family_id").eq("org_id", me.orgId).in("family_id", families).in("id", ids);
+    const { data: athletes } = await db.from("athletes").select("id,family_id").eq("org_id", me.orgId).in("family_id", families).in("id", ids).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
     if ((athletes ?? []).length !== new Set(ids).size) return null;
     const fams = new Set((athletes ?? []).map((a) => a.family_id));
     if (fams.size !== 1) return null; // one family per checkout (one invoice)
@@ -171,7 +172,7 @@ async function resolveContext(ctxInput: BasketContext, children: Basket["childre
     if (!ctx.familyId) return null;
     const { data: fam } = await db.from("families").select("id").eq("id", ctx.familyId).eq("org_id", me.orgId).maybeSingle();
     if (!fam) return null;
-    const { data: athletes } = await db.from("athletes").select("id").eq("org_id", me.orgId).eq("family_id", fam.id).in("id", ids);
+    const { data: athletes } = await db.from("athletes").select("id").eq("org_id", me.orgId).eq("family_id", fam.id).in("id", ids).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
     if ((athletes ?? []).length !== new Set(ids).size) return null;
     familyId = fam.id;
   }

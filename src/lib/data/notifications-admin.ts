@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 async function orgOf(): Promise<string | null> {
   const me = await getSessionUser();
@@ -57,7 +58,7 @@ export async function reminderTargets(): Promise<{ overdueInvoices: number; pare
   const admin = createAdminClient();
   const [{ count: overdue }, fams] = await Promise.all([
     admin.from("invoices").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "overdue").eq("reminders_paused", false),
-    admin.from("families").select("id").eq("org_id", orgId),
+    admin.from("families").select("id").eq("org_id", orgId).eq("status", VISIBLE_FAMILY_STATUS),
   ]);
   const famIds = (fams.data ?? []).map((f) => f.id);
   const members = famIds.length ? (await admin.from("family_members").select("profile_id").in("family_id", famIds)).data ?? [] : [];

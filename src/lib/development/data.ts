@@ -6,6 +6,7 @@ import { ageOn, overallScore, type ItemKind } from "./scoring";
 import { athleteLevel, type AthleteFacts, type PlanCriteria } from "./matching";
 import { wellnessFlags, readiness, type WellnessFlag } from "./wellness";
 import { currentWeek } from "./plan";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Server reads for athlete development. RLS decides what each caller sees
@@ -57,7 +58,7 @@ export type Roster = { athletes: RosterAthlete[]; teams: RosterTeam[]; programs:
 export async function getRoster(): Promise<Result<Roster>> {
   const db = await devDb();
   const [ath, teams, members, regs] = await Promise.all([
-    db.from("athletes").select("id,first_name,last_name,dob,status").neq("status", "archived").order("last_name").order("first_name"),
+    db.from("athletes").select("id,first_name,last_name,dob,status").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name").order("first_name"),
     db.from("teams").select("id,name,sport,age_group,is_active,wellness_enabled").eq("is_active", true).order("name"),
     db.from("team_memberships").select("team_id,athlete_id,status").neq("status", "inactive"),
     db.from("registrations").select("program_id,athlete_id,status,programs(id,name,is_active)").in("status", ["confirmed", "completed"]),
@@ -576,7 +577,7 @@ export async function listMyChildren(): Promise<Result<{ id: string; name: strin
   const { data: fam } = await db.from("family_members").select("family_id").eq("profile_id", viewer.me.id);
   const famIds = (fam ?? []).map((f) => f.family_id);
   if (famIds.length === 0) return ok([]);
-  const { data, error } = await db.from("athletes").select("id,first_name,last_name,status").in("family_id", famIds).eq("org_id", viewer.me.orgId).neq("status", "archived").order("first_name");
+  const { data, error } = await db.from("athletes").select("id,first_name,last_name,status").in("family_id", famIds).eq("org_id", viewer.me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
   if (error) return fail(error.message);
   return ok((data ?? []).map((a) => ({ id: a.id, name: fullName(a) })));
 }

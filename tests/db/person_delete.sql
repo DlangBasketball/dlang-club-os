@@ -156,6 +156,13 @@ insert into public.invoices (id, org_id, number, family_id, athlete_id, program_
 insert into public.payments (org_id, invoice_id, amount_chf, method, status, paid_at)
 values ('00000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-0000000000f2', 500, 'twint', 'succeeded', now());
 update public.invoices set status = 'paid', paid_at = now() where id = 'd0000000-0000-0000-0000-0000000000f2';
+-- A part-paid invoice stays open: kept, reminders paused while archived.
+insert into public.invoices (id, org_id, number, family_id, description, currency, total_chf, status, due_date) values
+  ('d0000000-0000-0000-0000-0000000000f3', '00000000-0000-0000-0000-000000000001', 'PD-0003', 'd0000000-0000-0000-0000-0000000000a1',
+   'Kit deposit', 'CHF', 200, 'pending', current_date + 30);
+insert into public.payments (org_id, invoice_id, amount_chf, method, status, paid_at)
+values ('00000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-0000000000f3', 50, 'twint', 'succeeded', now());
+update public.invoices set status = 'partially_paid' where id = 'd0000000-0000-0000-0000-0000000000f3';
 
 -- Upcoming booking (credits used), waiting list, upcoming RSVP, kit, scout link, documents.
 insert into public.training_credits (org_id, athlete_id, credit_category, total_credits, used_credits)
@@ -204,7 +211,7 @@ begin
   perform pd.ok((j->>'bookings')::int = 1, 'preview: 1 upcoming booking');
   perform pd.ok((j->>'invoices_cancelled')::int = 1, 'preview: 1 unpaid invoice to cancel');
   perform pd.ok((j->'invoices_cancelled_amounts'->0->>'amount')::numeric = 300, 'preview: amount to cancel is 300');
-  perform pd.ok((j->>'invoices_kept')::int = 1, 'preview: 1 paid invoice kept');
+  perform pd.ok((j->>'invoices_kept')::int = 2, 'preview: paid + part-paid invoices kept');
   perform pd.ok((j->>'documents')::int = 2 and (j->>'photos')::int = 1, 'preview: 2 documents + 1 photo');
   perform pd.ok((j->>'waitlists')::int = 1 and (j->>'rsvps')::int = 1 and (j->>'kit')::int = 1 and (j->>'carpools')::int = 1,
                 'preview: waitlist, RSVP, kit, carpool counted');
@@ -278,6 +285,8 @@ begin
             and (select cancel_reason from public.invoices where id = 'd0000000-0000-0000-0000-0000000000f1') is not null,
                 'open unpaid invoice cancelled with a reason');
   perform pd.ok((select status::text from public.invoices where id = 'd0000000-0000-0000-0000-0000000000f2') = 'paid', 'paid invoice untouched');
+  perform pd.ok((select status::text || '/' || reminders_paused from public.invoices where id = 'd0000000-0000-0000-0000-0000000000f3') = 'partially_paid/true',
+                'part-paid invoice kept open with reminders paused');
   perform pd.ok((select count(*) from public.family_members where family_id = 'd0000000-0000-0000-0000-0000000000a1') = 0, 'guardians unlinked');
   perform pd.ok(not exists (select 1 from public.staff_roles where profile_id = 'd0000000-0000-0000-0000-000000000001' and role = 'parent'),
                 'guardian with no other family: parent role detached');
@@ -316,6 +325,7 @@ begin
   perform pd.ok((select primary_contact_id from public.families where id = 'd0000000-0000-0000-0000-0000000000a1') = 'd0000000-0000-0000-0000-000000000001', 'primary contact back');
   perform pd.ok(exists (select 1 from public.staff_roles where profile_id = 'd0000000-0000-0000-0000-000000000001' and role = 'parent'), 'parent role back');
   perform pd.ok((select status::text from public.invoices where id = 'd0000000-0000-0000-0000-0000000000f1') = 'cancelled', 'cancelled invoice stays cancelled');
+  perform pd.ok(not (select reminders_paused from public.invoices where id = 'd0000000-0000-0000-0000-0000000000f3'), 'reminders resume on the part-paid invoice');
   perform pd.ok((select count(*) from public.registrations where athlete_id = 'd0000000-0000-0000-0000-0000000000b1' and status = 'cancelled') = 2,
                 'cancelled registrations stay cancelled');
   perform pd.ok((select status from public.person_deletions where id = v_del) = 'restored' and (select snapshot from public.person_deletions where id = v_del) is null,
@@ -361,7 +371,7 @@ begin
   perform pd.ok(not exists (select 1 from public.athlete_medical where athlete_id = 'd0000000-0000-0000-0000-0000000000b1'), 'medical record deleted');
   perform pd.ok(not exists (select 1 from public.documents where storage_path like 'org/pd/%'), 'document rows deleted');
 
-  perform pd.ok((select count(*) from public.invoices where family_id = 'd0000000-0000-0000-0000-0000000000a1') = 2, 'both invoices kept');
+  perform pd.ok((select count(*) from public.invoices where family_id = 'd0000000-0000-0000-0000-0000000000a1') = 3, 'all invoices kept');
   perform pd.ok((select count(*) from public.payments where invoice_id = 'd0000000-0000-0000-0000-0000000000f2' and amount_chf = 500) = 1, 'payment kept');
   perform pd.ok((select description from public.invoices where id = 'd0000000-0000-0000-0000-0000000000f1') = 'Team fee Deleted player', 'invoice text scrubbed: ' ||
                 coalesce((select description from public.invoices where id = 'd0000000-0000-0000-0000-0000000000f1'), '<null>'));

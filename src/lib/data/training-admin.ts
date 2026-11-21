@@ -34,7 +34,7 @@ export async function listCreditPackages(): Promise<Result<PackageRow[]>> {
 export type AthleteCredit = { athleteId: string; name: string; personal: number; nutrition: number; mental: number };
 export async function listAthleteCredits(): Promise<Result<AthleteCredit[]>> {
   const supabase = await createClient();
-  const { data: athletes, error } = await supabase.from("athletes").select("id,first_name,last_name").order("first_name");
+  const { data: athletes, error } = await supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
   if (error) return fail(error.message);
   const ids = (athletes ?? []).map((a) => a.id);
   const credits = ids.length ? await supabase.from("training_credits").select("athlete_id,credit_category,total_credits,used_credits").in("athlete_id", ids) : { data: [] as { athlete_id: string; credit_category: string; total_credits: number; used_credits: number }[] };
@@ -115,6 +115,7 @@ export async function getMyCoach(): Promise<{ id: string; name: string } | null>
 // ---- Booking settings (cancellation rules + enabled toggle) ----------------
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 export type BookingSettings = { enabled: boolean; cancellationHours: number; refundCreditsOnCancel: boolean };
 export async function getBookingSettings(): Promise<BookingSettings> {
   const me = await getSessionUser();

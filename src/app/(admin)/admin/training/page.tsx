@@ -7,6 +7,7 @@ import { trainingDb } from "@/lib/training/db";
 import { getI18n } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getCheckoutPlanOffer } from "@/lib/plans/data";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export default async function AdminTrainingPage() {
   const { t, f } = await getI18n();
@@ -17,7 +18,7 @@ export default async function AdminTrainingPage() {
     listTrainingCatalog({ activeOnly: true }),
     listPurchases({ limit: 200 }),
     listUpcomingGroupSlots(),
-    db.from("athletes").select("id,first_name,last_name").order("first_name").limit(2000),
+    db.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name").limit(2000),
   ]);
   if (catalog.error !== null || purchases.error !== null) {
     return (<div className="animate-fade-up"><PageHeader title={t("training.admin.title")} /><ErrorState title={t("training.common.loadFailed")} message={catalog.error ?? purchases.error ?? ""} /></div>);

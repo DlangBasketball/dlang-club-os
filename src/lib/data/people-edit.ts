@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { sportsDb } from "@/lib/sportsops/db";
+import { VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 /**
  * Reads for the admin editors (athlete / registration / family). All through
@@ -43,7 +44,7 @@ export async function getAthleteEditContext(athleteId: string, familyId: string)
   const supabase = await createClient();
   const sports = await sportsDb(); // teams / team_memberships are typed in the sports-ops client
   const [families, programs, regs, teamRows, consents, forms, members] = await Promise.all([
-    supabase.from("families").select("id,name").order("name"),
+    supabase.from("families").select("id,name").eq("status", VISIBLE_FAMILY_STATUS).order("name"),
     supabase.from("programs").select("id,name,is_active").order("name"),
     supabase.from("registrations").select("id,program_id,status,cancellation_reason").eq("athlete_id", athleteId).order("created_at", { ascending: false }),
     sports.from("team_memberships").select("team_id,jersey_number,position,status").eq("athlete_id", athleteId),

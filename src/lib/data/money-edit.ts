@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { creditBalance, invoiceMoney, netPaid } from "@/lib/payments/adjustments";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 /*
  * Reads for the money-editing screens (invoice edit, payment corrections,
@@ -66,7 +67,7 @@ export async function getInvoiceForEdit(id: string): Promise<Result<DraftEditDat
 /** Families of the caller's org (recipient picker). */
 export async function listFamilyOptions(): Promise<{ id: string; name: string }[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from("families").select("id,name").order("name").limit(1000);
+  const { data } = await supabase.from("families").select("id,name").eq("status", VISIBLE_FAMILY_STATUS).order("name").limit(1000);
   return (data ?? []).map((f) => ({ id: f.id, name: f.name }));
 }
 
@@ -161,7 +162,7 @@ export type CreditTotalsRow = {
 /** Per-athlete training-credit totals and usage (adjust dialog). */
 export async function listTrainingCreditTotals(): Promise<Result<CreditTotalsRow[]>> {
   const supabase = await createClient();
-  const { data: athletes, error } = await supabase.from("athletes").select("id,first_name,last_name").order("first_name").limit(2000);
+  const { data: athletes, error } = await supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name").limit(2000);
   if (error) return fail(error.message);
   const ids = (athletes ?? []).map((a) => a.id);
   const { data: credits } = ids.length

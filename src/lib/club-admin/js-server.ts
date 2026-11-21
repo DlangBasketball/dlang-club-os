@@ -1,6 +1,7 @@
 import "server-only";
 import { caDb } from "./db";
 import type { JsMarks, JsParticipant, JsSession } from "./js";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * J+S activity data of one offer (programme) and period, read through the
@@ -66,7 +67,7 @@ export async function loadJsOffer(orgId: string, programId: string, from: string
   }
   const ids = Array.from(new Set([...((regs.data ?? []) as { athlete_id: string }[]).map((r) => r.athlete_id), ...marks.keys()]));
   const { data: aths } = ids.length
-    ? await db.from("athletes").select("id,first_name,last_name,dob,gender,nationality").in("id", ids)
+    ? await db.from("athletes").select("id,first_name,last_name,dob,gender,nationality").in("id", ids).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER)
     : { data: [] };
   const participants: JsParticipant[] = ((aths ?? []) as { id: string; first_name: string; last_name: string; dob: string | null; gender: string | null; nationality: string | null }[])
     .map((a) => ({ id: a.id, firstName: a.first_name, lastName: a.last_name, dob: a.dob, sex: a.gender, nationality: a.nationality }));

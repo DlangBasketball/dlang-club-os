@@ -5388,7 +5388,7 @@
       "jerseyFor": "Dorsal de {name}",
       "positionFor": "Posición de {name}",
       "statusFor": "Estado de {name}",
-      "removeName": "Quitar a {name}",
+      "removeName": "Quitar a {name} del equipo",
       "confirmRemoveRow": "¿Quitar a {name} de la plantilla? Mejor cambia el estado a inactivo para conservar el historial.",
       "status": {
         "active": "Activo",

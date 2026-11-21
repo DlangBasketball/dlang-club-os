@@ -2,6 +2,7 @@ import "server-only";
 import { caAdminDb, caDb, type CertificateRow, type ClubAdminSettingsRow, type IncidentRow, type MembershipRow, type MembershipTypeRow, type WaitlistRow } from "./db";
 import { DEFAULT_MANDATORY, DEFAULT_REMINDER_DAYS, type CertKind } from "./compliance";
 import { isExpiringSoon, effectiveStatus, type MembershipStatus } from "./membership";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 /**
  * Server reads for the club-admin pages. Everything goes through the signed-
@@ -94,8 +95,8 @@ export function expiring(rows: MembershipView[], today: string, windowDays: numb
 export async function familyAndAthleteOptions(orgId: string): Promise<{ families: Named[]; athletes: (Named & { familyId: string })[] }> {
   const db = await caDb();
   const [{ data: fams }, { data: aths }] = await Promise.all([
-    db.from("families").select("id,name").eq("org_id", orgId).order("name").limit(2000),
-    db.from("athletes").select("id,first_name,last_name,family_id").eq("org_id", orgId).neq("status", "archived").order("last_name").limit(3000),
+    db.from("families").select("id,name").eq("org_id", orgId).eq("status", VISIBLE_FAMILY_STATUS).order("name").limit(2000),
+    db.from("athletes").select("id,first_name,last_name,family_id").eq("org_id", orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name").limit(3000),
   ]);
   return {
     families: (fams ?? []) as Named[],
@@ -110,7 +111,7 @@ export async function parentMembershipView(orgId: string, profileId: string, tod
   const famIds = (links ?? []).map((l) => l.family_id);
   const [{ data: fams }, { data: kids }, { data: ms }, types] = await Promise.all([
     famIds.length ? db.from("families").select("id,name").eq("org_id", orgId).in("id", famIds) : Promise.resolve({ data: [] as Named[] }),
-    famIds.length ? db.from("athletes").select("id,first_name,last_name,family_id,dob").eq("org_id", orgId).in("family_id", famIds).neq("status", "archived") : Promise.resolve({ data: [] }),
+    famIds.length ? db.from("athletes").select("id,first_name,last_name,family_id,dob").eq("org_id", orgId).in("family_id", famIds).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER) : Promise.resolve({ data: [] }),
     famIds.length ? db.from("memberships").select("*").eq("org_id", orgId).in("family_id", famIds).order("valid_until", { ascending: false }) : Promise.resolve({ data: [] }),
     listMembershipTypes(orgId),
   ]);
@@ -379,7 +380,7 @@ export async function getIncident(orgId: string, id: string): Promise<IncidentVi
 export async function incidentFormOptions(orgId: string) {
   const db = await caDb();
   const [{ data: aths }, { data: progs }, { data: teams }] = await Promise.all([
-    db.from("athletes").select("id,first_name,last_name").eq("org_id", orgId).neq("status", "archived").order("last_name").limit(3000),
+    db.from("athletes").select("id,first_name,last_name").eq("org_id", orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name").limit(3000),
     db.from("programs").select("id,name").eq("org_id", orgId).neq("status", "archived").order("name"),
     db.from("teams").select("id,name").eq("org_id", orgId).eq("is_active", true).order("name"),
   ]);

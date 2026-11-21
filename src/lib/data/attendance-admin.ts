@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -74,7 +75,7 @@ export async function getAttendanceSessionDetail(id: string): Promise<Result<Att
   ]);
   const marks = marksRes.data ?? [];
   const marked = new Set(marks.map((m) => m.athlete_id));
-  const { data: allAthletes } = await supabase.from("athletes").select("id,first_name,last_name,status").eq("org_id", s.org_id).neq("status", "archived").order("last_name").limit(1000);
+  const { data: allAthletes } = await supabase.from("athletes").select("id,first_name,last_name,status").eq("org_id", s.org_id).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name").limit(1000);
   const aName = new Map((allAthletes ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
   const missing = uniq(marks.map((m) => m.athlete_id).filter((a) => !aName.has(a)));
   if (missing.length) {

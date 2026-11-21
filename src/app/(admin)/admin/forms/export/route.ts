@@ -5,6 +5,7 @@ import { formsDb } from "@/lib/forms/db";
 import { displayAnswer } from "@/lib/forms/logic";
 import { resolveConfig } from "@/lib/registration-form/config";
 import { writeAudit } from "@/lib/people/server";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /** CSV cell escaping; a leading = + - @ is neutralised (spreadsheet formula injection). */
 function cell(v: string | number | null | undefined): string {
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
   ]);
   const athIds = Array.from(new Set((regs ?? []).map((r) => r.athlete_id)));
   const { data: aths } = athIds.length
-    ? await db.from("athletes").select("id,first_name,last_name,dob,school,nationality,jersey_size,dominant_hand,position_pref").in("id", athIds)
+    ? await db.from("athletes").select("id,first_name,last_name,dob,school,nationality,jersey_size,dominant_hand,position_pref").in("id", athIds).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER)
     : { data: [] as { id: string; first_name: string; last_name: string; dob: string; school: string | null; nationality: string | null; jersey_size: string | null; dominant_hand: string | null; position_pref: string | null }[] };
   const aMap = new Map((aths ?? []).map((a) => [a.id, a]));
   const ansMap = new Map((answers ?? []).map((a) => [a.registration_id, a]));

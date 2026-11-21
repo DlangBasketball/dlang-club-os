@@ -3,6 +3,7 @@ import type { Translator } from "@/lib/i18n/translator";
 import { addDayKey, expandShiftTemplates, windowFor, zonedDayKey } from "@/lib/staff/hours";
 import type { StaffClient } from "@/lib/staff/db";
 import { mergeSources, type CalendarItem } from "./aggregate";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Loads calendar items for one viewer. The same code serves the in-app
@@ -46,7 +47,7 @@ export async function resolveScope(db: StaffClient, orgId: string, profileId: st
     const { data: members } = await db.from("family_members").select("family_id").eq("profile_id", profileId);
     const familyIds = (members ?? []).map((m) => m.family_id);
     if (familyIds.length) {
-      const { data: kids } = await db.from("athletes").select("id").eq("org_id", orgId).in("family_id", familyIds);
+      const { data: kids } = await db.from("athletes").select("id").eq("org_id", orgId).in("family_id", familyIds).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
       scope.athleteIds = (kids ?? []).map((k) => k.id);
     }
     if (scope.athleteIds.length) {

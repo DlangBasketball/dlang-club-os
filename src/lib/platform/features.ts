@@ -15,6 +15,7 @@ import {
   type LimitResource,
 } from "./entitlements";
 import { asPlatform, type PlanRow, type SubscriptionRow } from "./types";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Feature gating & plan limits for a tenant (server-side).
@@ -70,7 +71,7 @@ async function countUsage(orgId: string, resource: LimitResource): Promise<numbe
       .from("athletes")
       .select("id", { count: "exact", head: true })
       .eq("org_id", orgId)
-      .neq("status", "archived");
+      .not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
     return count ?? 0;
   }
   const { data } = await db.from("staff_roles").select("profile_id").eq("org_id", orgId);
