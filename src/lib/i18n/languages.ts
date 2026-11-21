@@ -132,6 +132,11 @@ export function canonicalizeTag(input: string | null | undefined): string | null
     region = parts[i].toUpperCase();
     i++;
   }
+  // Leftovers must be a variant ("1996") or an extension ("u-nu-latn"): dropped.
+  // Anything else ("de-C") means it isn't a tag. Same rule as the DB function.
+  if (parts[i] && !(/^([a-z0-9]{5,8}|[0-9][a-z0-9]{3})$/i.test(parts[i]) || (/^[a-z0-9]$/i.test(parts[i]) && parts.length > i + 1))) {
+    return null;
+  }
   const tag = [lang, script, region].filter(Boolean).join("-");
   return isBcp47Tag(tag) ? tag : null;
 }
