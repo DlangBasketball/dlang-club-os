@@ -390,7 +390,7 @@ export function SiteSettingsForm({
           <div><Label htmlFor="s-og">{t("site.settings.ogImage")}</Label>{imgSelect("s-og", "ogImagePath", true)}</div>
           {langs.map((l) => (
             <div key={l} className="sm:col-span-2">
-              <Label htmlFor={`s-desc-${l}`}>{t("site.settings.description", { language: nativeLanguageName(l) })}</Label>
+              <Label htmlFor={`s-desc-${l}`}>{t("site.settings.seoDescription", { language: nativeLanguageName(l) })}</Label>
               <Textarea id={`s-desc-${l}`} rows={2} maxLength={320} dir="auto" value={(v.description as Record<string, string> | undefined)?.[l] ?? ""} onChange={(e) => set("description", { ...(v.description ?? {}), [l]: e.target.value })} />
             </div>
           ))}
