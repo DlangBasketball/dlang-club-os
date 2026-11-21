@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { listInvoices } from "@/lib/data/invoices";
+import { licenceFromRow, type Licence } from "@/lib/people/licence";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -76,6 +77,7 @@ export type ChildProfile = {
   dob: string;
   age: number | null;
   gender: string | null;
+  licence: Licence;
   medical: { allergies: string | null; conditions: string | null; medications: string | null; notes: string | null; emergencyContactName: string | null; emergencyContactPhone: string | null } | null;
   registrations: { id: string; programName: string; status: string }[];
   consents: { title: string; acceptedAt: string }[];
@@ -84,7 +86,7 @@ export type ChildProfile = {
 
 export async function getChildProfile(athleteId: string): Promise<Result<ChildProfile | null>> {
   const supabase = await createClient();
-  const { data: a, error } = await supabase.from("athletes").select("id,first_name,last_name,dob,gender").eq("id", athleteId).maybeSingle();
+  const { data: a, error } = await supabase.from("athletes").select("id,first_name,last_name,dob,gender,licence_number,licence_category,licence_federation,licence_issued_on").eq("id", athleteId).maybeSingle();
   if (error) return fail(error.message);
   if (!a) return ok(null);
 
@@ -110,6 +112,8 @@ export async function getChildProfile(athleteId: string): Promise<Result<ChildPr
     dob: a.dob,
     age: ageFromDob(a.dob),
     gender: a.gender,
+    // the parent app shows number, category, federation and date (no fee)
+    licence: licenceFromRow(a),
     medical: medRes.data
       ? { allergies: medRes.data.allergies, conditions: medRes.data.conditions, medications: medRes.data.medications, notes: medRes.data.notes, emergencyContactName: medRes.data.emergency_contact_name, emergencyContactPhone: medRes.data.emergency_contact_phone }
       : null,

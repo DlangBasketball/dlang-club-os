@@ -6,7 +6,7 @@ import { createFamily, updateFamily } from "@/lib/actions/family";
 import { Card, CardBody, Button, Input, Label } from "@/components/ui";
 import { useT } from "@/lib/i18n/client";
 
-type FamilyFields = { name: string; address: string; phone: string; contactName: string; contactEmail: string };
+type FamilyFields = { name: string; address: string; postalCode: string; city: string; phone: string; contactName: string; contactEmail: string };
 
 export function FamilyForm({
   familyId,
@@ -20,6 +20,8 @@ export function FamilyForm({
   const [f, setF] = React.useState<FamilyFields>({
     name: initial?.name ?? "",
     address: initial?.address ?? "",
+    postalCode: initial?.postalCode ?? "",
+    city: initial?.city ?? "",
     phone: initial?.phone ?? "",
     contactName: initial?.contactName ?? "",
     contactEmail: initial?.contactEmail ?? "",
@@ -50,8 +52,18 @@ export function FamilyForm({
             <Input id="name" required maxLength={120} value={f.name} onChange={set("name")} />
           </div>
           <div>
-            <Label htmlFor="address">{t("editPeople.family.address")}</Label>
-            <Input id="address" maxLength={300} autoComplete="street-address" value={f.address} onChange={set("address")} />
+            <Label htmlFor="address">{t("editPeople.family.street")}</Label>
+            <Input id="address" maxLength={300} autoComplete="address-line1" value={f.address} onChange={set("address")} />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <Label htmlFor="postalCode">{t("editPeople.family.postalCode")}</Label>
+              <Input id="postalCode" maxLength={12} autoComplete="postal-code" value={f.postalCode} onChange={set("postalCode")} />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="city">{t("editPeople.family.city")}</Label>
+              <Input id="city" maxLength={80} autoComplete="address-level2" value={f.city} onChange={set("city")} />
+            </div>
           </div>
           <div>
             <Label htmlFor="phone">{t("editPeople.family.phone")}</Label>

@@ -8,6 +8,8 @@ import { MedicalSection } from "@/components/athlete/medical-section";
 import { PhotoManager } from "@/components/athlete/photo-manager";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
 import { ActivityTimeline } from "@/components/athlete/activity-timeline";
+import { LicenceCard } from "@/components/athlete/licence-card";
+import { formatPostalAddress } from "@/lib/people/licence";
 import { PlayerCard } from "@/components/athlete/player-card";
 import { ProfileTabs, type ProfileTab } from "@/components/athlete/profile-tabs";
 import { PlayerTeamsCard } from "@/components/teams/player-teams-card";
@@ -112,11 +114,12 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
             </CardBody>
           </Card>
         )}
+        <LicenceCard licence={a.licence} showFee={canViewBilling} editHref={isAdmin ? `/admin/athletes/${id}/edit#licence` : undefined} />
         {canViewMedical && <MedicalSection medical={medical} athleteId={id} canView />}
         <ParentContactSection
           guardians={family.data?.guardians ?? []}
           familyPhone={family.data?.phone ?? null}
-          familyAddress={family.data?.address ?? null}
+          familyAddress={family.data ? formatPostalAddress(family.data) : null}
           emergencyName={emergencyName}
           emergencyPhone={emergencyPhone}
         />

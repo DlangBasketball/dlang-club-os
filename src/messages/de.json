@@ -654,7 +654,8 @@
       "notFound": "Eintrag nicht gefunden.",
       "familyNotFound": "Familie in Ihrem Verein nicht gefunden.",
       "programNotFound": "Programm in Ihrem Verein nicht gefunden.",
-      "saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen."
+      "saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+      "invalidAmount": "Geben Sie einen gültigen Betrag ein (0 oder mehr)."
     },
     "athlete": {
       "sectionProfile": "Profil",
@@ -746,7 +747,10 @@
       "children": "Kinder",
       "addChild": "Kind hinzufügen",
       "noChildren": "Noch keine Kinder in dieser Familie.",
-      "moveHint": "Um ein Kind einer anderen Familie zuzuordnen, die Familie auf der Bearbeitungsseite des Kindes ändern."
+      "moveHint": "Um ein Kind einer anderen Familie zuzuordnen, die Familie auf der Bearbeitungsseite des Kindes ändern.",
+      "postalCode": "PLZ",
+      "city": "Ort",
+      "street": "Strasse und Nummer"
     },
     "guardians": {
       "title": "Erziehungsberechtigte",
@@ -830,6 +834,24 @@
       "verbal": "Mündlich",
       "email": "E-Mail",
       "other": "Andere"
+    },
+    "licence": {
+      "title": "Verbandslizenz",
+      "number": "Lizenznummer",
+      "category": "Kategorie",
+      "categoryPlaceholder": "z. B. U16, Offizieller",
+      "federation": "Verband",
+      "federationPlaceholder": "z. B. nationaler Verband oder Lizenzsystem",
+      "issuedOn": "Ausgestellt am",
+      "fee": "Lizenzgebühr",
+      "none": "Keine Verbandslizenz erfasst.",
+      "hint": "Wird vom Verein verwaltet, zum Beispiel aus dem Lizenzsystem des Verbands. Eltern sehen Nummer, Kategorie, Verband und Datum; die Gebühr sehen nur Administration und Finanzen.",
+      "duplicate": "Ein anderer Spieler Ihres Vereins hat bereits diese Lizenznummer.",
+      "column": "Lizenz",
+      "missing": "Fehlt",
+      "filterLabel": "Nach Verbandslizenz filtern",
+      "filterHas": "Mit Lizenz",
+      "filterMissing": "Lizenz fehlt"
     }
   },
   "athletePhoto": {
@@ -4650,7 +4672,13 @@
         "statusUnknown": "Unbekannter Zustand \"{value}\": als bestätigt importiert.",
         "registeredOnIgnored": "Anmeldedatum \"{value}\" ignoriert (unlesbar oder in der Zukunft).",
         "duplicateRegistration": "Doppelte Anmeldung: gleiche/r Athlet/in und Programm wie Zeile {line}.",
-        "registrationExists": "{name} ist bereits für {programme} angemeldet: übersprungen."
+        "registrationExists": "{name} ist bereits für {programme} angemeldet: übersprungen.",
+        "valueTooLong": "«{column}» ist zu lang (höchstens {max} Zeichen).",
+        "licenceDateUnreadable": "Unlesbares Lizenzdatum «{value}» (verwenden Sie JJJJ-MM-TT oder TT.MM.JJJJ).",
+        "licenceDateFuture": "Das Ausstellungsdatum der Lizenz liegt in der Zukunft.",
+        "licenceFeeInvalid": "Unlesbare Lizenzgebühr «{value}» (verwenden Sie eine Zahl wie 45 oder 45.50).",
+        "licenceDuplicate": "Die Lizenznummer {value} steht auch in Zeile {line}.",
+        "licenceTaken": "Die Lizenznummer {value} gehört bereits einem anderen Spieler Ihres Vereins."
       }
     },
     "nav": {

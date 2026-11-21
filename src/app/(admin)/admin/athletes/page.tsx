@@ -7,19 +7,24 @@ import { getTenant } from "@/lib/tenant/server";
 import { termOr } from "@/lib/tenant/terms";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { signAthletePhotos } from "@/lib/people/server";
+import { parseLicenceFilter } from "@/lib/people/licence";
 
-type Row = { id: string; name: string; family: string; dob: string; status: string; photoUrl: string | null };
+type Row = { id: string; name: string; family: string; dob: string; status: string; photoUrl: string | null; licence: string | null; licenceCategory: string | null };
 
-export default async function AthletesPage() {
+export default async function AthletesPage({ searchParams }: { searchParams: Promise<{ licence?: string | string[] }> }) {
+  const licenceFilter = parseLicenceFilter((await searchParams).licence);
   const [{ t, f }, tenant, user] = await Promise.all([getI18n(), getTenant(), getSessionUser()]);
   const title = termOr(tenant.terminology, "athlete", t("nav.athletes"), { plural: true });
   const singular = termOr(tenant.terminology, "athlete", t("editPeople.athlete.singular"));
   const isAdmin = !!user?.roles.includes("admin");
   const supabase = await createClient();
-  const { data: athletes, error } = await supabase
+  let query = supabase
     .from("athletes")
-    .select("id,org_id,first_name,last_name,dob,status,family_id,photo_path")
+    .select("id,org_id,first_name,last_name,dob,status,family_id,photo_path,licence_number,licence_category")
     .order("last_name");
+  if (licenceFilter === "has") query = query.not("licence_number", "is", null);
+  if (licenceFilter === "missing") query = query.is("licence_number", null);
+  const { data: athletes, error } = await query;
   if (error) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("common.error")} message={error.message} /></div>);
 
   const famIds = Array.from(new Set((athletes ?? []).map((a) => a.family_id)));
@@ -38,6 +43,8 @@ export default async function AthletesPage() {
     dob: a.dob,
     status: a.status,
     photoUrl: photos.get(a.id) ?? null,
+    licence: a.licence_number,
+    licenceCategory: a.licence_category,
   }));
 
   const columns: Column<Row>[] = [
@@ -53,6 +60,16 @@ export default async function AthletesPage() {
     },
     { key: "family", header: t("editPeople.athlete.family") },
     { key: "dob", header: t("editPeople.athlete.born"), render: (r) => f.date(r.dob) },
+    {
+      key: "licence",
+      header: t("editPeople.licence.column"),
+      render: (r) =>
+        r.licence ? (
+          <span className="tnum text-sm text-text">{r.licence}{r.licenceCategory ? <span className="ml-1.5 text-xs text-text-muted">{r.licenceCategory}</span> : null}</span>
+        ) : (
+          <Badge tone="warning">{t("editPeople.licence.missing")}</Badge>
+        ),
+    },
     { key: "status", header: t("common.status"), render: (r) => <Badge tone={statusTone(r.status)}>{t.dynamic(`editPeople.athleteStatus.${r.status}`, undefined, r.status)}</Badge> },
   ];
   if (isAdmin) {
@@ -71,6 +88,14 @@ export default async function AthletesPage() {
   return (
     <div className="animate-fade-up">
       <PageHeader title={title} description={t("editPeople.athlete.listDescription")} />
+      <nav aria-label={t("editPeople.licence.filterLabel")} className="mb-4 flex flex-wrap gap-2">
+        {([null, "has", "missing"] as const).map((k) => (
+          <Link key={k ?? "all"} href={k ? `/admin/athletes?licence=${k}` : "/admin/athletes"} aria-current={licenceFilter === k ? "page" : undefined}
+            className={`rounded-full border px-3 py-1 text-xs ${licenceFilter === k ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-3 hover:border-maroon/40"}`}>
+            {k === "has" ? t("editPeople.licence.filterHas") : k === "missing" ? t("editPeople.licence.filterMissing") : t("common.all")}
+          </Link>
+        ))}
+      </nav>
       <DataTable columns={columns} rows={rows} getRowKey={(r) => r.id} caption={title} empty={<EmptyState icon={<UserCircle className="h-5 w-5" />} title={t("editPeople.athlete.empty")} />} />
     </div>
   );

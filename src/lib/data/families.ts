@@ -86,6 +86,8 @@ export type FamilyDetail = {
   id: string;
   name: string;
   address: string | null;
+  postalCode: string | null;
+  city: string | null;
   phone: string | null;
   contactName: string | null;
   contactEmail: string | null;
@@ -101,7 +103,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
   const supabase = await createClient();
   const { data: family, error } = await supabase
     .from("families")
-    .select("id,name,address,phone,contact_name,contact_email")
+    .select("id,name,address,postal_code,city,phone,contact_name,contact_email")
     .eq("id", id)
     .maybeSingle();
   if (error) return fail(error.message);
@@ -142,6 +144,8 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
     id: family.id,
     name: family.name,
     address: family.address,
+    postalCode: family.postal_code,
+    city: family.city,
     phone: family.phone,
     contactName: family.contact_name,
     contactEmail: family.contact_email,

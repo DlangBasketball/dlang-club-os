@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { PageHeader, ErrorState, Card, CardHeader, CardTitle, CardBody } from "@/components/ui";
 import { AthleteForm } from "@/components/athlete/athlete-form";
 import { MedicalForm } from "@/components/athlete/medical-form";
+import { LicenceForm } from "@/components/athlete/licence-form";
 import { PhotoManager } from "@/components/athlete/photo-manager";
 import { AthleteProgrammes, AthleteConsents } from "@/components/athlete/athlete-records";
 import { getAthleteDetail } from "@/lib/data/athletes";
@@ -72,6 +73,10 @@ export default async function EditAthletePage({ params }: { params: Promise<{ id
           }}
         />
       </section>
+
+      <div id="licence" className="scroll-mt-6">
+        <LicenceForm athleteId={id} initial={a.licence} />
+      </div>
 
       <PlayerTeamsCard athleteId={id} teams={teams} options={teamOptions} editable className="max-w-2xl" />
 

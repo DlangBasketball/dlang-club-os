@@ -10,6 +10,7 @@
  * or without BOM; quoted fields with embedded separators/newlines.
  */
 import { z } from "zod";
+import { LICENCE_FEE_MAX, parseAmount } from "@/lib/people/validation";
 
 export const MAX_ROWS = 2000;
 export const MAX_BYTES = 1_000_000;
@@ -18,6 +19,8 @@ export const TEMPLATE_COLUMNS = [
   "family_ref",
   "family_name",
   "family_address",
+  "family_postal_code",
+  "family_city",
   "family_phone",
   "guardian1_name",
   "guardian1_email",
@@ -32,14 +35,28 @@ export const TEMPLATE_COLUMNS = [
   "athlete_school",
   "athlete_jersey_size",
   "athlete_nationality",
+  "athlete_licence_number",
+  "athlete_licence_category",
+  "athlete_licence_issued_on",
+  "athlete_licence_fee",
+  "athlete_licence_federation",
 ] as const;
+
+/** Optional text columns and their maximum length (same limits as the database). */
+const MAX_LEN: Record<string, number> = {
+  family_postal_code: 12,
+  family_city: 80,
+  athlete_licence_number: 40,
+  athlete_licence_category: 40,
+  athlete_licence_federation: 80,
+};
 
 export const TEMPLATE_CSV =
   TEMPLATE_COLUMNS.join(",") +
   "\n" +
   [
-    "H-001,Muster,\"Avenue de Cour 12, 1007 Lausanne\",+41 21 000 00 00,Anna Muster,anna.muster@example.com,mother,Marc Muster,marc.muster@example.com,father,Léa,Muster,14.03.2013,F,Collège de Béthusy,YM,CH",
-    "H-001,Muster,\"Avenue de Cour 12, 1007 Lausanne\",+41 21 000 00 00,Anna Muster,anna.muster@example.com,mother,Marc Muster,marc.muster@example.com,father,Noah,Muster,2015-09-02,M,,YS,CH",
+    "H-001,Muster,Avenue de Cour 12,1007,Lausanne,+41 21 000 00 00,Anna Muster,anna.muster@example.com,mother,Marc Muster,marc.muster@example.com,father,Léa,Muster,14.03.2013,F,Collège de Béthusy,YM,CH,SYN-0001,U14,01.09.2025,45.00,Example Federation",
+    "H-001,Muster,Avenue de Cour 12,1007,Lausanne,+41 21 000 00 00,Anna Muster,anna.muster@example.com,mother,Marc Muster,marc.muster@example.com,father,Noah,Muster,2015-09-02,M,,YS,CH,,,,,",
   ].join("\n") +
   "\n";
 
@@ -117,7 +134,100 @@ const ALIASES: Record<string, string> = {
   guardian_email: "guardian1_email",
   guardian_name: "guardian1_name",
   address: "family_address",
+  street: "family_address",
+  rue: "family_address",
+  strasse: "family_address",
+  adresse: "family_address",
   phone: "family_phone",
+  // postal code: en / fr (NPA, code postal) / de (PLZ) / it (CAP)
+  postal_code: "family_postal_code",
+  postcode: "family_postal_code",
+  post_code: "family_postal_code",
+  postal_number: "family_postal_code",
+  zip: "family_postal_code",
+  zip_code: "family_postal_code",
+  npa: "family_postal_code",
+  code_postal: "family_postal_code",
+  cp: "family_postal_code",
+  plz: "family_postal_code",
+  postleitzahl: "family_postal_code",
+  cap: "family_postal_code",
+  // city
+  city: "family_city",
+  town: "family_city",
+  location: "family_city",
+  locality: "family_city",
+  localite: "family_city",
+  ville: "family_city",
+  ort: "family_city",
+  wohnort: "family_city",
+  localita: "family_city",
+  citta: "family_city",
+  // federation licence number
+  licence_number: "athlete_licence_number",
+  license_number: "athlete_licence_number",
+  licence_no: "athlete_licence_number",
+  license_no: "athlete_licence_number",
+  licence_nr: "athlete_licence_number",
+  license_nr: "athlete_licence_number",
+  licence: "athlete_licence_number",
+  license: "athlete_licence_number",
+  n_licence: "athlete_licence_number",
+  n_de_licence: "athlete_licence_number",
+  no_licence: "athlete_licence_number",
+  no_de_licence: "athlete_licence_number",
+  numero_licence: "athlete_licence_number",
+  numero_de_licence: "athlete_licence_number",
+  lizenznummer: "athlete_licence_number",
+  lizenz_nr: "athlete_licence_number",
+  lizenz_nummer: "athlete_licence_number",
+  lizenz: "athlete_licence_number",
+  licenza: "athlete_licence_number",
+  n_licenza: "athlete_licence_number",
+  numero_licenza: "athlete_licence_number",
+  numero_di_licenza: "athlete_licence_number",
+  // licence category
+  licence_category: "athlete_licence_category",
+  license_category: "athlete_licence_category",
+  category: "athlete_licence_category",
+  cat: "athlete_licence_category",
+  kat: "athlete_licence_category",
+  categorie: "athlete_licence_category",
+  categorie_licence: "athlete_licence_category",
+  categorie_de_licence: "athlete_licence_category",
+  kategorie: "athlete_licence_category",
+  lizenzkategorie: "athlete_licence_category",
+  categoria: "athlete_licence_category",
+  // licence issue date
+  licence_issued_on: "athlete_licence_issued_on",
+  license_issued_on: "athlete_licence_issued_on",
+  licence_issue_date: "athlete_licence_issued_on",
+  license_issue_date: "athlete_licence_issued_on",
+  licence_date: "athlete_licence_issued_on",
+  license_date: "athlete_licence_issued_on",
+  issued_on: "athlete_licence_issued_on",
+  date_licence: "athlete_licence_issued_on",
+  date_de_licence: "athlete_licence_issued_on",
+  lizenzdatum: "athlete_licence_issued_on",
+  ausgestellt_am: "athlete_licence_issued_on",
+  data_licenza: "athlete_licence_issued_on",
+  // licence fee
+  licence_fee: "athlete_licence_fee",
+  license_fee: "athlete_licence_fee",
+  frais_licence: "athlete_licence_fee",
+  frais_de_licence: "athlete_licence_fee",
+  taxe_de_licence: "athlete_licence_fee",
+  lizenzgebuhr: "athlete_licence_fee",
+  lizenzgebuehr: "athlete_licence_fee",
+  tassa_licenza: "athlete_licence_fee",
+  tassa_di_licenza: "athlete_licence_fee",
+  // issuing federation
+  licence_federation: "athlete_licence_federation",
+  license_federation: "athlete_licence_federation",
+  federation: "athlete_licence_federation",
+  verband: "athlete_licence_federation",
+  federazione: "athlete_licence_federation",
+  federacion: "athlete_licence_federation",
 };
 export function normaliseHeader(h: string): string {
   const k = h
@@ -175,11 +285,18 @@ export type PlannedAthlete = {
   school: string | null;
   jersey_size: string | null;
   nationality: string | null;
+  licence_number: string | null;
+  licence_category: string | null;
+  licence_issued_on: string | null;
+  licence_fee: number | null;
+  licence_federation: string | null;
 };
 export type PlannedFamily = {
   key: string;
   name: string;
   address: string | null;
+  postal_code: string | null;
+  city: string | null;
   phone: string | null;
   guardians: PlannedGuardian[];
   athletes: PlannedAthlete[];
@@ -194,6 +311,8 @@ export type ExistingData = {
   athleteKeys: Set<string>;
   /** emails with a pending invitation or a linked profile in this org */
   knownEmails: Set<string>;
+  /** licence number -> athlete key (`first|last|dob`) of the player who holds it in this club */
+  licenceOwners?: Map<string, string>;
 };
 
 export type ImportPlan = {
@@ -268,6 +387,7 @@ export function buildImportPlanFromTable(table: string[][], order: DateOrder, ex
 
   const families = new Map<string, PlannedFamily>();
   const seenAthletes = new Map<string, number>();
+  const seenLicences = new Map<string, number>();
   let skipped = 0;
   const todayIso = new Date().toISOString().slice(0, 10);
 
@@ -290,6 +410,21 @@ export function buildImportPlanFromTable(table: string[][], order: DateOrder, ex
     else if (!dob) fail("athlete_dob", "dobUnreadable", { value: r.athlete_dob });
     else if (dob > todayIso) fail("athlete_dob", "dobFuture");
     else if (+dob.slice(0, 4) < new Date().getUTCFullYear() - 100) fail("athlete_dob", "dobTooOld");
+
+    for (const [field, max] of Object.entries(MAX_LEN))
+      if ((r[field] ?? "").length > max) fail(field, "valueTooLong", { column: field, max });
+    let licenceIssuedOn: string | null = null;
+    if (r.athlete_licence_issued_on) {
+      licenceIssuedOn = parseDate(r.athlete_licence_issued_on, order);
+      if (!licenceIssuedOn) fail("athlete_licence_issued_on", "licenceDateUnreadable", { value: r.athlete_licence_issued_on });
+      else if (licenceIssuedOn > todayIso) fail("athlete_licence_issued_on", "licenceDateFuture");
+    }
+    let licenceFee: number | null = null;
+    if (r.athlete_licence_fee) {
+      licenceFee = parseAmount(r.athlete_licence_fee);
+      if (licenceFee === null || licenceFee > LICENCE_FEE_MAX) fail("athlete_licence_fee", "licenceFeeInvalid", { value: r.athlete_licence_fee });
+      else licenceFee = Math.round(licenceFee * 100) / 100;
+    }
 
     let gender: string | null = null;
     if (r.athlete_gender) {
@@ -330,6 +465,21 @@ export function buildImportPlanFromTable(table: string[][], order: DateOrder, ex
     }
     seenAthletes.set(athleteKey, line);
 
+    const licenceNumber = opt(r.athlete_licence_number);
+    if (licenceNumber) {
+      const firstLine = seenLicences.get(licenceNumber);
+      if (firstLine !== undefined) {
+        errors.push({ row: line, field: "athlete_licence_number", key: "licenceDuplicate", values: { value: licenceNumber, line: firstLine } });
+        return;
+      }
+      seenLicences.set(licenceNumber, line);
+      const owner = existing?.licenceOwners?.get(licenceNumber);
+      if (owner !== undefined && owner !== athleteKey) {
+        errors.push({ row: line, field: "athlete_licence_number", key: "licenceTaken", values: { value: licenceNumber } });
+        return;
+      }
+    }
+
     let fam = families.get(key);
     if (!fam) {
       const matches = existing?.familiesByName.get(familyName.toLowerCase()) ?? [];
@@ -337,6 +487,8 @@ export function buildImportPlanFromTable(table: string[][], order: DateOrder, ex
         key,
         name: familyName,
         address: opt(r.family_address),
+        postal_code: opt(r.family_postal_code),
+        city: opt(r.family_city),
         phone: opt(r.family_phone),
         guardians: [],
         athletes: [],
@@ -365,6 +517,11 @@ export function buildImportPlanFromTable(table: string[][], order: DateOrder, ex
       school: opt(r.athlete_school),
       jersey_size: opt(r.athlete_jersey_size),
       nationality: opt(r.athlete_nationality)?.toUpperCase() ?? null,
+      licence_number: licenceNumber,
+      licence_category: opt(r.athlete_licence_category),
+      licence_issued_on: licenceIssuedOn,
+      licence_fee: licenceFee,
+      licence_federation: opt(r.athlete_licence_federation),
     });
   });
 

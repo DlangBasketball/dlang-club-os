@@ -654,7 +654,8 @@
       "notFound": "Enregistrement introuvable.",
       "familyNotFound": "Famille introuvable dans votre club.",
       "programNotFound": "Programme introuvable dans votre club.",
-      "saveFailed": "Enregistrement impossible. Veuillez réessayer."
+      "saveFailed": "Enregistrement impossible. Veuillez réessayer.",
+      "invalidAmount": "Saisissez un montant valide (0 ou plus)."
     },
     "athlete": {
       "sectionProfile": "Profil",
@@ -746,7 +747,10 @@
       "children": "Enfants",
       "addChild": "Ajouter un enfant",
       "noChildren": "Aucun enfant dans cette famille pour l'instant.",
-      "moveHint": "Pour rattacher un enfant à une autre famille, modifiez la famille sur sa page de modification."
+      "moveHint": "Pour rattacher un enfant à une autre famille, modifiez la famille sur sa page de modification.",
+      "postalCode": "NPA",
+      "city": "Localité",
+      "street": "Rue et numéro"
     },
     "guardians": {
       "title": "Représentants légaux",
@@ -830,6 +834,24 @@
       "verbal": "Oral",
       "email": "E-mail",
       "other": "Autre"
+    },
+    "licence": {
+      "title": "Licence fédérale",
+      "number": "N° de licence",
+      "category": "Catégorie",
+      "categoryPlaceholder": "p. ex. U16, Officiel",
+      "federation": "Fédération",
+      "federationPlaceholder": "p. ex. fédération nationale ou système de licences",
+      "issuedOn": "Délivrée le",
+      "fee": "Frais de licence",
+      "none": "Aucune licence fédérale enregistrée.",
+      "hint": "Géré par le club, par exemple depuis le système de licences de la fédération. Les parents voient le numéro, la catégorie, la fédération et la date ; les frais ne sont visibles que par l'administration et la comptabilité.",
+      "duplicate": "Un autre joueur de votre club a déjà ce numéro de licence.",
+      "column": "Licence",
+      "missing": "Manquante",
+      "filterLabel": "Filtrer par licence fédérale",
+      "filterHas": "Avec licence",
+      "filterMissing": "Licence manquante"
     }
   },
   "athletePhoto": {
@@ -4650,7 +4672,13 @@
         "statusUnknown": "Statut « {value} » non reconnu : importé comme confirmé.",
         "registeredOnIgnored": "Date d'inscription « {value} » ignorée (illisible ou future).",
         "duplicateRegistration": "Inscription en double : même athlète et programme qu'à la ligne {line}.",
-        "registrationExists": "{name} est déjà inscrit à {programme} : ignoré."
+        "registrationExists": "{name} est déjà inscrit à {programme} : ignoré.",
+        "valueTooLong": "« {column} » est trop long (maximum {max} caractères).",
+        "licenceDateUnreadable": "Date de licence illisible « {value} » (utilisez AAAA-MM-JJ ou JJ.MM.AAAA).",
+        "licenceDateFuture": "La date de délivrance de la licence est dans le futur.",
+        "licenceFeeInvalid": "Frais de licence illisibles « {value} » (utilisez un nombre comme 45 ou 45.50).",
+        "licenceDuplicate": "Le numéro de licence {value} figure aussi à la ligne {line}.",
+        "licenceTaken": "Le numéro de licence {value} appartient déjà à un autre joueur de votre club."
       }
     },
     "nav": {

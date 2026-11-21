@@ -115,7 +115,7 @@ async function loadFamilyExisting(orgId: string): Promise<ExistingData> {
   const supabase = await createClient();
   const [fams, aths, invs, profs] = await Promise.all([
     supabase.from("families").select("id, name").eq("org_id", orgId),
-    supabase.from("athletes").select("first_name, last_name, dob").eq("org_id", orgId),
+    supabase.from("athletes").select("first_name, last_name, dob, licence_number").eq("org_id", orgId),
     supabase.from("invitations").select("email").eq("org_id", orgId).eq("status", "pending"),
     supabase.from("profiles").select("email").eq("org_id", orgId),
   ]);
@@ -124,15 +124,17 @@ async function loadFamilyExisting(orgId: string): Promise<ExistingData> {
     const k = f.name.trim().toLowerCase();
     familiesByName.set(k, [...(familiesByName.get(k) ?? []), f.id]);
   }
-  const athleteKeys = new Set<string>(
-    ((aths.data ?? []) as { first_name: string; last_name: string; dob: string }[]).map(
-      (a) => `${a.first_name.trim().toLowerCase()}|${a.last_name.trim().toLowerCase()}|${a.dob}`,
-    ),
-  );
+  const athleteKeys = new Set<string>();
+  const licenceOwners = new Map<string, string>();
+  for (const a of (aths.data ?? []) as { first_name: string; last_name: string; dob: string; licence_number: string | null }[]) {
+    const key = `${a.first_name.trim().toLowerCase()}|${a.last_name.trim().toLowerCase()}|${a.dob}`;
+    athleteKeys.add(key);
+    if (a.licence_number) licenceOwners.set(a.licence_number, key);
+  }
   const knownEmails = new Set<string>();
   for (const r of [...((invs.data ?? []) as { email: string }[]), ...((profs.data ?? []) as { email: string }[])])
     if (r.email) knownEmails.add(r.email.toLowerCase());
-  return { familiesByName, athleteKeys, knownEmails };
+  return { familiesByName, athleteKeys, knownEmails, licenceOwners };
 }
 
 async function loadRegistrationExisting(orgId: string): Promise<RegistrationExisting> {
@@ -162,7 +164,7 @@ function familySummary(t: Translator, plan: ImportPlan, mode: ImportResult["mode
       title: f.name,
       badge: f.existingFamilyId ? t("forms.import.existingFamily") : undefined,
       lines: [
-        f.athletes.map((a) => `${a.first_name} ${a.last_name} (${a.dob})`).join(" · ") || t("forms.import.noNewAthletes"),
+        f.athletes.map((a) => `${a.first_name} ${a.last_name} (${a.dob})${a.licence_number ? ` · ${a.licence_number}` : ""}`).join(" · ") || t("forms.import.noNewAthletes"),
         ...(f.guardians.length ? [t("forms.import.invite", { emails: f.guardians.map((g) => `${g.email} · ${g.relation}`).join(", ") })] : []),
       ],
     })),
@@ -283,11 +285,15 @@ async function commitFamilies(me: Admin, t: Translator, plan: ImportPlan, sendIn
   const inviteRows: Record<string, unknown>[] = [];
   for (const fam of plan.families) {
     const familyId = fam.existingFamilyId ?? crypto.randomUUID();
-    if (!fam.existingFamilyId) familyRows.push({ id: familyId, org_id: me.orgId, name: fam.name, address: fam.address, phone: fam.phone });
+    if (!fam.existingFamilyId) familyRows.push({
+      id: familyId, org_id: me.orgId, name: fam.name, address: fam.address, postal_code: fam.postal_code, city: fam.city, phone: fam.phone,
+    });
     for (const a of fam.athletes)
       athleteRows.push({
         id: crypto.randomUUID(), org_id: me.orgId, family_id: familyId, first_name: a.first_name, last_name: a.last_name, dob: a.dob,
         gender: a.gender, school: a.school, jersey_size: a.jersey_size, nationality: a.nationality,
+        licence_number: a.licence_number, licence_category: a.licence_category, licence_issued_on: a.licence_issued_on,
+        licence_fee: a.licence_fee, licence_federation: a.licence_federation,
       });
     for (const g of fam.guardians)
       inviteRows.push({ id: crypto.randomUUID(), org_id: me.orgId, email: g.email, role: "parent", family_id: familyId, relation: g.relation, invited_by: me.id });

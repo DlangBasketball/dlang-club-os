@@ -654,7 +654,8 @@
       "notFound": "Registro no encontrado.",
       "familyNotFound": "Familia no encontrada en tu club.",
       "programNotFound": "Programa no encontrado en tu club.",
-      "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
+      "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+      "invalidAmount": "Introduce un importe válido (0 o más)."
     },
     "athlete": {
       "sectionProfile": "Perfil",
@@ -746,7 +747,10 @@
       "children": "Hijos",
       "addChild": "Añadir hijo/a",
       "noChildren": "Aún no hay hijos en esta familia.",
-      "moveHint": "Para pasar a un hijo a otra familia, cambia la familia en su página de edición."
+      "moveHint": "Para pasar a un hijo a otra familia, cambia la familia en su página de edición.",
+      "postalCode": "Código postal",
+      "city": "Localidad",
+      "street": "Calle y número"
     },
     "guardians": {
       "title": "Tutores",
@@ -830,6 +834,24 @@
       "verbal": "Verbal",
       "email": "Correo electrónico",
       "other": "Otro"
+    },
+    "licence": {
+      "title": "Licencia federativa",
+      "number": "N.º de licencia",
+      "category": "Categoría",
+      "categoryPlaceholder": "p. ej. U16, Oficial",
+      "federation": "Federación",
+      "federationPlaceholder": "p. ej. federación nacional o sistema de licencias",
+      "issuedOn": "Expedida el",
+      "fee": "Cuota de licencia",
+      "none": "No hay ninguna licencia federativa registrada.",
+      "hint": "La gestiona el club, por ejemplo desde el sistema de licencias de la federación. Los padres ven el número, la categoría, la federación y la fecha; la cuota solo la ven administración y finanzas.",
+      "duplicate": "Otro jugador de tu club ya tiene este número de licencia.",
+      "column": "Licencia",
+      "missing": "Falta",
+      "filterLabel": "Filtrar por licencia federativa",
+      "filterHas": "Con licencia",
+      "filterMissing": "Sin licencia"
     }
   },
   "athletePhoto": {
@@ -4650,7 +4672,13 @@
         "statusUnknown": "Estado \"{value}\" no reconocido: se importa como confirmado.",
         "registeredOnIgnored": "Fecha de inscripción \"{value}\" ignorada (ilegible o futura).",
         "duplicateRegistration": "Inscripción duplicada: mismo deportista y programa que la fila {line}.",
-        "registrationExists": "{name} ya está inscrito en {programme}: omitido."
+        "registrationExists": "{name} ya está inscrito en {programme}: omitido.",
+        "valueTooLong": "«{column}» es demasiado largo (máximo {max} caracteres).",
+        "licenceDateUnreadable": "Fecha de licencia ilegible «{value}» (usa AAAA-MM-DD o DD.MM.AAAA).",
+        "licenceDateFuture": "La fecha de expedición de la licencia está en el futuro.",
+        "licenceFeeInvalid": "Cuota de licencia ilegible «{value}» (usa un número como 45 o 45.50).",
+        "licenceDuplicate": "El número de licencia {value} también está en la línea {line}.",
+        "licenceTaken": "El número de licencia {value} ya pertenece a otro jugador de tu club."
       }
     },
     "nav": {

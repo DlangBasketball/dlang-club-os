@@ -19,6 +19,7 @@ export const E = {
   tooLong: "editPeople.errors.tooLong",
   invalidOption: "editPeople.errors.invalidOption",
   reasonRequired: "editPeople.errors.reasonRequired",
+  invalidAmount: "editPeople.errors.invalidAmount",
 } as const;
 
 const uuid = z.string().trim().uuid(E.invalidId);
@@ -88,12 +89,65 @@ export const medicalSchema = z.object({
 });
 export type MedicalInput = z.input<typeof medicalSchema>;
 
+/**
+ * Federation licence held by the club for a player (admin-managed; the
+ * database refuses changes by anyone but club staff). Generic: any sport,
+ * any federation. The fee is in the club currency.
+ */
+export const LICENCE_FEE_MAX = 99_999_999.99;
+export const licenceSchema = z.object({
+  number: optText(40),
+  category: optText(40),
+  federation: optText(80),
+  issuedOn: optIsoDate.refine((v) => v === null || new Date(`${v}T00:00:00Z`).getTime() <= Date.now(), E.futureDate),
+  fee: z
+    .union([z.string(), z.number()])
+    .optional()
+    .nullable()
+    .transform((v, ctx) => {
+      if (v === null || v === undefined || (typeof v === "string" && v.trim() === "")) return null;
+      const n = typeof v === "number" ? v : parseAmount(v);
+      if (n === null || !Number.isFinite(n) || n < 0 || n > LICENCE_FEE_MAX) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: E.invalidAmount });
+        return z.NEVER;
+      }
+      return Math.round(n * 100) / 100;
+    }),
+});
+export type LicenceInput = z.input<typeof licenceSchema>;
+export type LicenceData = z.output<typeof licenceSchema>;
+
+/**
+ * Read a typed or imported amount: "45", "45.50", "45,50", "1'200.00",
+ * "1 200,50", "CHF 45.-", "$1,200.50". Returns null when it is not a plain
+ * non-negative amount.
+ */
+export function parseAmount(raw: string): number | null {
+  const s = raw
+    .trim()
+    .replace(/^[A-Za-z$\u20ac\u00a3\u00a5\s]+|[A-Za-z$\u20ac\u00a3\u00a5\s]+$/g, "") // currency code or symbol
+    .replace(/[.,]\s*[-\u2013\u2014]$/, "") // Swiss "45.-"
+    .replace(/[\u00a0\u202f]/g, " ")
+    .trim();
+  if (!/^\d[\d.,' \u2019]*$/.test(s)) return null;
+  // 1-2 trailing digits after the last "." or "," are decimals; the rest is
+  // the integer part, plain or grouped by 3 ("1'200", "1 200", "1.200", "1,200").
+  const m = s.match(/^(.*?)[.,](\d{1,2})$/);
+  const int = m ? m[1] : s;
+  const frac = m ? m[2] : "";
+  if (!/^\d+$/.test(int) && !/^\d{1,3}([.,' \u2019]\d{3})+$/.test(int)) return null;
+  const n = Number(`${int.replace(/\D/g, "")}${frac ? `.${frac}` : ""}`);
+  return Number.isFinite(n) ? n : null;
+}
+
 // ---------------------------------------------------------------------------
 // Families & guardians
 // ---------------------------------------------------------------------------
 export const familySchema = z.object({
   name: text(120).min(1, E.required),
   address: optText(300),
+  postalCode: optText(12),
+  city: optText(80),
   phone: optText(40),
   contactName: optText(120),
   contactEmail: z
