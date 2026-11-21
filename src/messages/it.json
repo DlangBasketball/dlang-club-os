@@ -197,7 +197,11 @@
     "noNotifications": "Sei in pari.",
     "languageSwitcher": "Cambia lingua",
     "skipToContent": "Vai al contenuto",
-    "more": "Altro"
+    "more": "Altro",
+    "notificationsUnread": "{count, plural, one {Notifiche, # non letta} other {Notifiche, # non lette}}",
+    "unread": "Non letta",
+    "archive": "Archivia",
+    "viewAll": "Vedi tutte"
   },
   "auth": {
     "signInTitle": "Accedi",

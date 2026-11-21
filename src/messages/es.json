@@ -197,7 +197,11 @@
     "noNotifications": "Estás al día.",
     "languageSwitcher": "Cambiar idioma",
     "skipToContent": "Ir al contenido",
-    "more": "Más"
+    "more": "Más",
+    "notificationsUnread": "{count, plural, one {Notificaciones, # sin leer} other {Notificaciones, # sin leer}}",
+    "unread": "Sin leer",
+    "archive": "Archivar",
+    "viewAll": "Ver todas"
   },
   "auth": {
     "signInTitle": "Iniciar sesión",

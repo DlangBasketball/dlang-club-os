@@ -197,7 +197,11 @@
     "noNotifications": "Vous êtes à jour.",
     "languageSwitcher": "Changer de langue",
     "skipToContent": "Aller au contenu",
-    "more": "Plus"
+    "more": "Plus",
+    "notificationsUnread": "{count, plural, one {Notifications, # non lue} other {Notifications, # non lues}}",
+    "unread": "Non lue",
+    "archive": "Archiver",
+    "viewAll": "Tout afficher"
   },
   "auth": {
     "signInTitle": "Connexion",

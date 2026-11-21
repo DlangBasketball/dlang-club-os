@@ -145,6 +145,10 @@ const config: Config = {
           from: { transform: "translateX(-100%)" },
           to: { transform: "translateX(0)" },
         },
+        "slide-in-right": {
+          from: { transform: "translateX(100%)" },
+          to: { transform: "translateX(0)" },
+        },
         shimmer: {
           from: { backgroundPosition: "200% 0" },
           to: { backgroundPosition: "-200% 0" },
@@ -154,6 +158,8 @@ const config: Config = {
         "fade-up": "fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
         "fade-in": "fade-in 0.2s ease-out both",
         "slide-in-left": "slide-in-left 0.25s cubic-bezier(0.16, 1, 0.3, 1) both",
+        // RTL drawers enter from the other side (dir="rtl" on <html>).
+        "slide-in-right": "slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1) both",
         shimmer: "shimmer 1.6s linear infinite",
       },
     },

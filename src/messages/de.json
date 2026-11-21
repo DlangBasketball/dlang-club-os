@@ -197,7 +197,11 @@
     "noNotifications": "Du bist auf dem neuesten Stand.",
     "languageSwitcher": "Sprache ändern",
     "skipToContent": "Zum Inhalt springen",
-    "more": "Mehr"
+    "more": "Mehr",
+    "notificationsUnread": "{count, plural, one {Benachrichtigungen, # ungelesen} other {Benachrichtigungen, # ungelesen}}",
+    "unread": "Ungelesen",
+    "archive": "Archivieren",
+    "viewAll": "Alle anzeigen"
   },
   "auth": {
     "signInTitle": "Anmelden",

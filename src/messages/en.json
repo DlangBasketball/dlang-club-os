@@ -197,7 +197,11 @@
     "noNotifications": "You're all caught up.",
     "languageSwitcher": "Change language",
     "skipToContent": "Skip to content",
-    "more": "More"
+    "more": "More",
+    "notificationsUnread": "{count, plural, one {Notifications, # unread} other {Notifications, # unread}}",
+    "unread": "Unread",
+    "archive": "Archive",
+    "viewAll": "View all"
   },
   "auth": {
     "signInTitle": "Sign in",
