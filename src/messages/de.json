@@ -99,7 +99,9 @@
     "inactive": "Inaktiv",
     "queued": "In Warteschlange",
     "delivered": "Zugestellt",
-    "bounced": "Unzustellbar"
+    "bounced": "Unzustellbar",
+    "issued": "Ausgestellt",
+    "written_off": "Abgeschrieben"
   },
   "roles": {
     "admin": "Administrator:in",
@@ -494,7 +496,7 @@
       "intro": "Hallo {name}, in deinem Konto steht eine neue Rechnung bereit.",
       "dueBy": "Zahlbar bis {date}",
       "cta": "Jetzt bezahlen",
-      "methods": "Du kannst in deinem Elternkonto per Karte, TWINT oder Banküberweisung bezahlen."
+      "methods": "Du kannst in deinem Elternkonto online oder per Banküberweisung bezahlen."
     },
     "overdueReminder": {
       "subject": "Zahlungserinnerung: Rechnung {invoice} ist überfällig",
@@ -535,6 +537,14 @@
       "intro": "Klicke auf die Schaltfläche, um dich anzumelden. Der Link ist eine Stunde gültig und kann nur einmal verwendet werden.",
       "cta": "Anmelden",
       "ignore": "Falls du diese E-Mail nicht angefordert hast, kannst du sie ignorieren."
+    },
+    "defaultName": "zusammen",
+    "booking": {
+      "yourChild": "dein Kind",
+      "session": "Trainingseinheit",
+      "soon": "demnächst",
+      "yourCoach": "deine Trainerin / deinen Trainer",
+      "paidCredits": "{count, plural, one {Mit # Trainingsguthaben bezahlt.} other {Mit # Trainingsguthaben bezahlt.}}"
     }
   },
   "language": {
@@ -7671,6 +7681,173 @@
         "invalid_json": "Die Webseite hat keine gültigen Daten geliefert.",
         "http_error": "Die Webseite hat einen Fehler gemeldet."
       }
+    }
+  },
+  "languageSettings": {
+    "tab": "Sprachen",
+    "enabled": "Angebotene Sprachen",
+    "description": "Wähle die Sprachen, die dein Club anbietet. Mitglieder wechseln in der App zwischen ihnen; E-Mails und PDFs folgen der Sprache jedes Mitglieds. Die Region bestimmt die Schreibweise sowie das Format von Datum, Zahlen und Beträgen.",
+    "language": "Sprache",
+    "status": "Übersetzung",
+    "region": "Region (Formate)",
+    "regionFor": "Region für {language}",
+    "preview": "Vorschau",
+    "spelling": "Schreibweise: {name}",
+    "statusComplete": "Vollständig",
+    "statusPartial": "Beta",
+    "statusNone": "Geplant",
+    "betaHint": "Einige Texte können noch auf Englisch erscheinen.",
+    "default": "Standardsprache",
+    "defaultHint": "Gilt, wenn ein Mitglied keine Sprache gewählt hat und seine Browsersprache nicht angeboten wird.",
+    "negotiation": "Reihenfolge: die eigene Wahl des Mitglieds, dann seine Browsersprache, sofern dein Club sie anbietet, dann die Standardsprache.",
+    "planned": "Später verfügbar",
+    "plannedHint": "Geplante Sprachen werden verfügbar, sobald ihre Übersetzung von einer muttersprachlichen Person geprüft wurde.",
+    "save": "Sprachen speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Sprachen gespeichert.",
+    "errors": {
+      "adminOnly": "Nur Club-Admins können die Sprachen ändern.",
+      "noLanguage": "Biete mindestens eine Sprache an.",
+      "invalid": "Diese Spracheinstellungen konnten nicht gespeichert werden."
+    },
+    "profile": {
+      "title": "Sprache",
+      "description": "Die App sowie E-Mails, Benachrichtigungen und PDF-Dokumente, die du erhältst, verwenden diese Sprache."
+    }
+  },
+  "notifyEmail": {
+    "fallback": {
+      "child": "Dein Kind",
+      "childLower": "dein Kind",
+      "program": "das Angebot",
+      "session": "Einheit",
+      "aSession": "eine Einheit",
+      "training": "Training",
+      "yourCoach": "deinem Trainer / deiner Trainerin",
+      "aCoach": "einem Trainer / einer Trainerin",
+      "invoice": "deine Rechnung",
+      "document": "Ein Dokument",
+      "newDocument": "Ein neues Dokument",
+      "consent": "eine Einwilligung",
+      "consentRequired": "Einwilligung nötig",
+      "requiredForm": "ein erforderliches Formular"
+    },
+    "registration_confirmation": {
+      "title": "Anmeldung bestätigt",
+      "body": "{athlete} ist für {program} angemeldet.",
+      "subject": "Anmeldung bestätigt – {program}",
+      "heading": "Alles bereit!",
+      "line": "{athlete} ist jetzt für {program} angemeldet.",
+      "invoiceLine": "Die Rechnung {invoice} ({amount}) wurde ausgestellt.",
+      "welcome": "Wir freuen uns, dich im Team zu haben.",
+      "cta": "Rechnung ansehen"
+    },
+    "invoice_sent": {
+      "title": "Rechnung {invoice} ausgestellt",
+      "body": "{amount}, fällig am {date}.",
+      "subject": "Rechnung {invoice} – {amount} fällig",
+      "heading": "Neue Rechnung",
+      "line": "Die Rechnung {invoice} über {amount} ist jetzt verfügbar.",
+      "due": "Sie ist am {date} fällig.",
+      "cta": "Jetzt bezahlen"
+    },
+    "payment_received": {
+      "title": "Zahlung erhalten",
+      "body": "Danke – wir haben deine Zahlung für {invoice} erhalten.",
+      "subject": "Zahlung erhalten – {invoice}",
+      "subjectThanks": "Zahlung erhalten – vielen Dank",
+      "heading": "Zahlung erhalten",
+      "line": "Wir haben {amount} für die Rechnung {invoice} erhalten. Vielen Dank!"
+    },
+    "payment_overdue": {
+      "title": "Zahlung überfällig – {invoice}",
+      "body": "{amount} war am {date} fällig.",
+      "subject": "Zahlungserinnerung: Rechnung {invoice} ist überfällig",
+      "heading": "Zahlungserinnerung",
+      "line": "Gemäß unseren Unterlagen war die Rechnung {invoice} über {amount} am {date} fällig und ist noch offen.",
+      "disregard": "Falls du bereits bezahlt hast, betrachte diese Nachricht bitte als gegenstandslos.",
+      "cta": "Jetzt bezahlen"
+    },
+    "booking_confirmation": {
+      "title": "Trainingseinheit gebucht",
+      "body": "{service} mit {coach} · {when}",
+      "subject": "Buchung bestätigt – {service}",
+      "heading": "Einheit gebucht",
+      "line": "{athlete} ist für {service} mit {coach} gebucht.",
+      "when": "Wann: {when}.",
+      "cta": "Buchung ansehen"
+    },
+    "booking_cancellation": {
+      "title": "Buchung storniert",
+      "body": "{service} · {when} wurde storniert.",
+      "subject": "Buchung storniert – {service}",
+      "heading": "Buchung storniert",
+      "line": "Die Buchung für {service} ({when}) wurde storniert.",
+      "cta": "Erneut buchen"
+    },
+    "attendance_submitted": {
+      "title": "Anwesenheit aktualisiert",
+      "body": "Die Anwesenheit von {athlete} wurde erfasst.",
+      "bodyProgram": "Die Anwesenheit von {athlete} bei {program} wurde erfasst.",
+      "subject": "Anwesenheit erfasst",
+      "subjectProgram": "Anwesenheit erfasst – {program}",
+      "heading": "Anwesenheit erfasst",
+      "line": "Die heutige Anwesenheit von {athlete} wurde erfasst.",
+      "lineProgram": "Die heutige Anwesenheit von {athlete} bei {program} wurde erfasst.",
+      "cta": "Anwesenheit ansehen"
+    },
+    "document_uploaded": {
+      "title": "Neues Dokument verfügbar",
+      "body": "{document} wurde zu deinem Familiendossier hinzugefügt.",
+      "subject": "Neues Dokument – {document}",
+      "heading": "Neues Dokument",
+      "line": "{document} wurde zu den Unterlagen deiner Familie hinzugefügt.",
+      "cta": "Dokumente ansehen"
+    },
+    "consent_required": {
+      "title": "Aktion nötig: Einwilligung erforderlich",
+      "body": "Bitte prüfen und unterschreiben: {consent}.",
+      "subject": "Aktion nötig – {consent}",
+      "heading": "Einwilligung erforderlich",
+      "line": "Wir brauchen deine Einwilligung für {consent}.",
+      "lineAthlete": "Wir brauchen deine Einwilligung für {consent} für {athlete}.",
+      "sign": "Bitte prüfe und unterschreibe sie so bald wie möglich.",
+      "cta": "Jetzt prüfen"
+    },
+    "announcement": {
+      "title": "Eine Nachricht von {club}",
+      "heading": "Eine Nachricht von deinem Club"
+    }
+  },
+  "pdf": {
+    "invoice": {
+      "title": "Rechnung",
+      "billTo": "Rechnung an",
+      "details": "Details",
+      "issued": "Ausgestellt",
+      "due": "Fällig",
+      "status": "Status",
+      "description": "Beschreibung",
+      "qty": "Menge",
+      "unit": "Einzelpreis",
+      "amount": "Betrag",
+      "total": "Gesamt",
+      "paid": "Bezahlt",
+      "balanceDue": "Offener Betrag"
+    },
+    "qrBill": {
+      "paymentPart": "Zahlteil",
+      "account": "Konto / Zahlbar an",
+      "reference": "Referenz",
+      "payableBy": "Zahlbar durch",
+      "currency": "Währung",
+      "amount": "Betrag"
+    },
+    "payment": {
+      "onlineAndBank": "Bezahle online ({methods}) in deinem Elternkonto oder per Banküberweisung auf das Clubkonto.",
+      "online": "Bezahle online ({methods}) in deinem Elternkonto.",
+      "bank": "Bezahle per Banküberweisung auf das Clubkonto.",
+      "contact": "Bitte kontaktiere den Club, um die Zahlung zu vereinbaren."
     }
   }
 }

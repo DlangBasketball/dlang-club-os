@@ -48,15 +48,17 @@ export async function createGuestAccount(orgId: string, email: string, name: str
 }
 
 /** Confirmation to the parent (when an address is known) + alert to the club's recipients. Never throws. */
-export async function notifyCampRegistration(orgId: string, programName: string, parentName: string, parentEmail: string | null, children: string[], invoiceNumber: string, total: number): Promise<void> {
+export async function notifyCampRegistration(orgId: string, programName: string, parentName: string, parentEmail: string | null, children: string[], invoiceNumber: string, total: number, parentLocale?: string | null): Promise<void> {
   try {
+    // Staff alert in the club default language; the parent's confirmation in theirs.
     const org = await getOrgEmailContext(orgId);
     if (parentEmail) {
+      const parentOrg = parentLocale ? await getOrgEmailContext(orgId, parentLocale) : org;
       const conf = registrationConfirmation({
-        ...org.brand, parentName, programName, children, invoiceNumber, totalChf: total,
-        dueDateLabel: org.f.date(new Date(Date.now() + 14 * 864e5)), manageUrl: org.link("/login"),
+        ...parentOrg.brand, parentName, programName, children, invoiceNumber, totalChf: total,
+        dueDateLabel: parentOrg.f.date(new Date(Date.now() + 14 * 864e5)), manageUrl: parentOrg.link("/login"),
       });
-      await sendEmail({ to: parentEmail, subject: conf.subject, html: conf.html, fromName: org.senderName ?? org.clubName });
+      await sendEmail({ to: parentEmail, subject: conf.subject, html: conf.html, fromName: parentOrg.senderName ?? parentOrg.clubName });
     }
     for (const to of await getOrgAlertRecipients(orgId)) {
       const alert = adminRegistrationAlert({ ...org.brand, programName, parentName, children, totalChf: total, invoiceNumber });

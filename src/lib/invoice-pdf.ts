@@ -1,6 +1,17 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
 import { PLATFORM_NAME } from "@/lib/brand";
+import { getStandaloneI18n } from "@/lib/i18n/messages";
+import type { Translator } from "@/lib/i18n/translator";
+import type { Formatter } from "@/lib/format";
+
+/** Translator + formatter of the document's reader; default English (CH formats). */
+export type PdfI18n = { t: Translator; f: Formatter };
+
+function defaultI18n(currency?: string): PdfI18n {
+  const { t, f } = getStandaloneI18n({ locale: "en", currency: currency ?? null });
+  return { t, f };
+}
 
 export type QrBillSection = {
   payload: string; // Swiss Payment Code (SPC) string
@@ -38,6 +49,8 @@ export type InvoicePdfData = {
   paymentNote?: string | null;
   /** Instalment slip: translated line such as "Instalment 2 of 4 · due 1 May 2027 · CHF 250.00". */
   instalmentNote?: string | null;
+  /** Reader's language and the club's formats (labels, dates, money). Default: English. */
+  i18n?: PdfI18n | null;
 };
 
 const DEFAULT_BRAND = rgb(0.855, 0.149, 0.153); // #DA2627
@@ -76,22 +89,25 @@ export function toWinAnsi(input: string, supported: ReadonlySet<number>): string
 }
 
 /** "How to pay" footer from the methods the payer can actually use (no TWINT outside CH, etc.). */
-export function paymentFooterText(methods: { key: string; label: string; via: "stripe" | "offline" }[]): string {
+export function paymentFooterText(methods: { key: string; label: string; via: "stripe" | "offline" }[], t: Translator = defaultI18n().t): string {
   const online = Array.from(new Set(methods.filter((m) => m.via === "stripe" && m.key !== "manual").map((m) => m.label)));
   const bank = methods.some((m) => m.via === "offline" && (m.key === "bank_transfer" || m.key === "qr_bill"));
-  if (online.length && bank) return `Pay online (${online.join(", ")}) via your parent account, or by bank transfer to the club account.`;
-  if (online.length) return `Pay online (${online.join(", ")}) via your parent account.`;
-  if (bank) return "Pay by bank transfer to the club account.";
-  return "Please contact the club to arrange payment.";
+  // "Card, TWINT": a list, not a sentence ("and" would need ICU list data per language).
+  const list = online.length ? new Intl.ListFormat(t.locale, { style: "short", type: "unit" }).format(online) : "";
+  if (online.length && bank) return t("pdf.payment.onlineAndBank", { methods: list });
+  if (online.length) return t("pdf.payment.online", { methods: list });
+  if (bank) return t("pdf.payment.bank");
+  return t("pdf.payment.contact");
 }
 const INK = rgb(0.1, 0.1, 0.1);
 const MUTE = rgb(0.45, 0.45, 0.45);
 const LINE = rgb(0.85, 0.85, 0.85);
 
-const fmtDate = (s: string | null) => (s ? new Date(s).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—");
-
 export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
-  const chf = (n: number) => `${d.currency} ${n.toFixed(2)}`;
+  const { t, f } = d.i18n ?? defaultI18n(d.currency);
+  const chf = (n: number) => f.money(n, d.currency);
+  const fmtDate = (s: string | null) => (s ? f.date(s, { style: "medium" }) : "—");
+  const upper = (s: string) => s.toLocaleUpperCase(t.locale);
   const place = [d.club.city, d.club.country].filter(Boolean).join(" · ");
   const initial = (d.club.name.trim().match(/[\p{L}\p{N}]/u)?.[0] ?? "C").toUpperCase();
   const pdf = await PDFDocument.create();
@@ -115,40 +131,40 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
   text(page, initial, M + 9, y + 1, bold, 20, rgb(1, 1, 1));
   text(page, d.club.name, M + 42, y + 8, bold, 15);
   text(page, place ? `${platform} · ${place}` : platform, M + 42, y - 5, font, 9, MUTE);
-  right("INVOICE", width - M, y + 6, bold, 22, MAROON);
+  right(upper(t("pdf.invoice.title")), width - M, y + 6, bold, 22, MAROON);
   right(d.number, width - M, y - 10, font, 11, MUTE);
   y -= 54;
   page.drawLine({ start: { x: M, y }, end: { x: width - M, y }, thickness: 1, color: LINE });
   y -= 28;
 
   // Bill-to + meta
-  text(page, "BILL TO", M, y, bold, 9, MUTE);
-  text(page, "DETAILS", width / 2 + 20, y, bold, 9, MUTE);
+  text(page, upper(t("pdf.invoice.billTo")), M, y, bold, 9, MUTE);
+  text(page, upper(t("pdf.invoice.details")), width / 2 + 20, y, bold, 9, MUTE);
   y -= 16;
   text(page, d.familyName, M, y, bold, 11);
-  text(page, "Issued", width / 2 + 20, y, font, 10, MUTE);
+  text(page, t("pdf.invoice.issued"), width / 2 + 20, y, font, 10, MUTE);
   right(fmtDate(d.issuedAt), width - M, y, font, 10);
   y -= 15;
   if (d.contactName) { text(page, d.contactName, M, y, font, 10, MUTE); }
-  text(page, "Due", width / 2 + 20, y, font, 10, MUTE);
+  text(page, t("pdf.invoice.due"), width / 2 + 20, y, font, 10, MUTE);
   right(fmtDate(d.dueDate), width - M, y, font, 10);
   y -= 15;
   if (d.contactEmail) { text(page, d.contactEmail, M, y, font, 10, MUTE); }
-  text(page, "Status", width / 2 + 20, y, font, 10, MUTE);
-  right(d.status.replace("_", " ").toUpperCase(), width - M, y, bold, 10, MAROON);
+  text(page, t("pdf.invoice.status"), width / 2 + 20, y, font, 10, MUTE);
+  right(upper(t.dynamic(`status.${d.status}`, undefined, d.status.replace(/_/g, " "))), width - M, y, bold, 10, MAROON);
   y -= 34;
 
   // Items table header
   page.drawRectangle({ x: M, y: y - 4, width: width - 2 * M, height: 22, color: rgb(0.96, 0.96, 0.96) });
-  text(page, "DESCRIPTION", M + 8, y + 3, bold, 9, MUTE);
-  right("QTY", M + 330, y + 3, bold, 9, MUTE);
-  right("UNIT", M + 415, y + 3, bold, 9, MUTE);
-  right("AMOUNT", width - M - 8, y + 3, bold, 9, MUTE);
+  text(page, upper(t("pdf.invoice.description")), M + 8, y + 3, bold, 9, MUTE);
+  right(upper(t("pdf.invoice.qty")), M + 330, y + 3, bold, 9, MUTE);
+  right(upper(t("pdf.invoice.unit")), M + 415, y + 3, bold, 9, MUTE);
+  right(upper(t("pdf.invoice.amount")), width - M - 8, y + 3, bold, 9, MUTE);
   y -= 26;
 
   for (const it of d.items) {
     text(page, it.description.slice(0, 60), M + 8, y, font, 10);
-    right(String(it.quantity), M + 330, y, font, 10);
+    right(f.number(it.quantity), M + 330, y, font, 10);
     right(chf(it.unitPrice), M + 415, y, font, 10);
     right(chf(it.amount), width - M - 8, y, font, 10);
     y -= 20;
@@ -163,13 +179,13 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
     right(value, width - M - 8, y, f, 10, color);
     y -= 18;
   };
-  totalRow("Total", chf(d.total), bold);
+  totalRow(t("pdf.invoice.total"), chf(d.total), bold);
   // Adjustment documents keep the issued total intact (ASCII sign: WinAnsi font).
   for (const a of d.adjustments ?? []) totalRow(a.label.slice(0, 34), `${a.amount < 0 ? "-" : "+"} ${chf(Math.abs(a.amount))}`);
-  if (d.paid > 0) totalRow("Paid", `- ${chf(d.paid)}`, font, rgb(0.18, 0.62, 0.33));
+  if (d.paid > 0) totalRow(t("pdf.invoice.paid"), `- ${chf(d.paid)}`, font, rgb(0.18, 0.62, 0.33));
   page.drawLine({ start: { x: totalsX, y: y + 8 }, end: { x: width - M, y: y + 8 }, thickness: 1, color: LINE });
   y -= 4;
-  text(page, "Balance due", totalsX, y, bold, 12, MAROON);
+  text(page, t("pdf.invoice.balanceDue"), totalsX, y, bold, 12, MAROON);
   right(chf(d.balance), width - M - 8, y, bold, 12, MAROON);
   if (d.instalmentNote) {
     y -= 24;
@@ -185,7 +201,7 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
   if (d.qrBill) {
     const partTop = 300;
     page.drawLine({ start: { x: M, y: partTop }, end: { x: width - M, y: partTop }, thickness: 0.5, color: LINE, dashArray: [3, 3] });
-    text(page, "Payment part — Swiss QR-bill", M, partTop - 14, font, 8, MUTE);
+    text(page, t("pdf.qrBill.paymentPart"), M, partTop - 14, bold, 8, MUTE);
 
     // QR code
     const qrPng = await QRCode.toBuffer(d.qrBill.payload, { errorCorrectionLevel: "M", margin: 0, width: 360, type: "png" });
@@ -212,13 +228,13 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
       for (const ln of lines) { if (ln) { text(page, ln, dx, dy, font, 9); dy -= 12; } }
       dy -= 4;
     };
-    detail("Account / Payable to", [d.qrBill.iban, ...d.qrBill.creditorLines]);
-    if (d.qrBill.reference) detail("Reference", [d.qrBill.reference]);
-    if (d.qrBill.debtorLines.some(Boolean)) detail("Payable by", d.qrBill.debtorLines);
+    detail(t("pdf.qrBill.account"), [d.qrBill.iban, ...d.qrBill.creditorLines]);
+    if (d.qrBill.reference) detail(t("pdf.qrBill.reference"), [d.qrBill.reference]);
+    if (d.qrBill.debtorLines.some(Boolean)) detail(t("pdf.qrBill.payableBy"), d.qrBill.debtorLines);
 
     // Amount strip
-    text(page, "Currency", dx, dy, bold, 8, MUTE);
-    text(page, "Amount", dx + 70, dy, bold, 8, MUTE);
+    text(page, t("pdf.qrBill.currency"), dx, dy, bold, 8, MUTE);
+    text(page, t("pdf.qrBill.amount"), dx + 70, dy, bold, 8, MUTE);
     dy -= 12;
     text(page, d.qrBill.currency, dx, dy, font, 10);
     text(page, d.qrBill.amount.toFixed(2), dx + 70, dy, font, 10);

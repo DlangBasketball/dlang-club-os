@@ -4,7 +4,7 @@ import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getTranslations } from "@/lib/i18n/server";
+import { getLocaleContext, getTranslations } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { tenantMatchesOrg } from "@/lib/tenant/server";
 import { campsAdminDb } from "@/lib/camps/db";
@@ -330,7 +330,7 @@ async function checkout(ctxInput: BasketContext, input: BasketInput, extras: Che
   const kidNames = v.children.filter((c) => usedRefs.has(c.ref)).map((c) => `${c.firstName} ${c.lastName}`.trim()).filter(Boolean);
   if (r.mode === "public" && extras.parent) {
     if (extras.account) await createGuestAccount(r.orgId, extras.parent.email, extras.parent.name, extras.account, t.locale);
-    await notifyCampRegistration(r.orgId, names, extras.parent.name, extras.parent.email, kidNames, out.invoice_number ?? "", Number(out.total ?? 0));
+    await notifyCampRegistration(r.orgId, names, extras.parent.name, extras.parent.email, kidNames, out.invoice_number ?? "", Number(out.total ?? 0), (await getLocaleContext(r.orgId)).locale);
   } else {
     await notifyCampRegistration(r.orgId, names, r.actorName ?? "", null, kidNames, out.invoice_number ?? "", Number(out.total ?? 0));
   }

@@ -264,6 +264,10 @@ function capitalize(s: string, locale: string): string {
 export function nativeName(tag: string, opts: { withRegion?: boolean } = {}): string {
   const c = canonicalizeTag(tag) ?? tag;
   const show = opts.withRegion === false ? baseLanguage(c) : c;
+  // Registry endonyms first: reviewed, and identical on server and client
+  // (Intl.DisplayNames data differs between ICU versions -> hydration noise).
+  const known = BY_TAG.get(show.toLowerCase());
+  if (known) return known.nativeName;
   try {
     const dn = new Intl.DisplayNames([show], { type: "language", languageDisplay: "standard", fallback: "none" });
     const name = dn.of(show);

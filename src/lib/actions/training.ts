@@ -4,7 +4,7 @@ import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getSessionUser, type SessionUser } from "@/lib/auth/get-user";
-import { getTranslations } from "@/lib/i18n/server";
+import { getLocaleContext, getTranslations } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { getTenant } from "@/lib/tenant/server";
 import { sendEmail } from "@/lib/email/resend";
@@ -352,7 +352,9 @@ async function notifyBooking(me: Me, bookingId: string, payNoteKey: "credits" | 
       admin.from("training_services").select("name,currency").eq("id", b.service_id).maybeSingle(),
       admin.from("coaches").select("display_name,profile_id").eq("id", b.coach_id).maybeSingle(),
     ]);
-    const org = await getOrgEmailContext(me.orgId);
+    // Parent email in the booker's current language (same as `t`); coach alert in the club default.
+    const org = await getOrgEmailContext(me.orgId, (await getLocaleContext(me.orgId)).locale);
+    const coachOrg = await getOrgEmailContext(me.orgId);
     const t = await getTranslations(me.orgId);
     const athleteName = athlete ? `${athlete.first_name} ${athlete.last_name}` : "";
     const serviceName = svc?.name ?? "";
@@ -368,8 +370,8 @@ async function notifyBooking(me: Me, bookingId: string, payNoteKey: "credits" | 
     if (coach?.profile_id) {
       const { data: cp } = await admin.from("profiles").select("email").eq("id", coach.profile_id).maybeSingle();
       if (cp?.email) {
-        const alert = coachBookingAlert({ ...org.brand, coachName, athleteName, serviceName, when });
-        await sendEmail({ to: cp.email, subject: alert.subject, html: alert.html, fromName: org.senderName ?? org.clubName });
+        const alert = coachBookingAlert({ ...coachOrg.brand, coachName, athleteName, serviceName, when: coachOrg.f.dateTime(b.slot_start) });
+        await sendEmail({ to: cp.email, subject: alert.subject, html: alert.html, fromName: coachOrg.senderName ?? coachOrg.clubName });
       }
     }
   } catch (e) {

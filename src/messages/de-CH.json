@@ -381,5 +381,10 @@
         "too_large": "Die Antwort der Webseite war zu gross."
       }
     }
+  },
+  "notifyEmail": {
+    "payment_overdue": {
+      "line": "Gemäss unseren Unterlagen war die Rechnung {invoice} über {amount} am {date} fällig und ist noch offen."
+    }
   }
 }

@@ -286,10 +286,11 @@ export const SAME_AS_EN_OK = new Set([
   // per language ("tag:key"): correct in that language only
   "es:training.service.color",
   "es:shop.admin.color",
-  // invoice PDF / QR-bill: currency codes and international words
-  "pdf.invoice.qty",
-  "pdf.qrBill.currency",
-  "languageSettings.regionCode",
+  // invoice PDF, language settings: international words
+  "pdf.invoice.total",
+  "pdf.invoice.status",
+  "de:pdf.invoice.details",
+  "languageSettings.statusPartial",
 ]);
 
 /** A value counts as translated when it differs from English, is allow-listed, or has no words. */

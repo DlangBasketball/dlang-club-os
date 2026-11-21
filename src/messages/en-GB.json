@@ -592,5 +592,17 @@
         }
       }
     }
+  },
+  "notifyEmail": {
+    "fallback": {
+      "program": "the programme"
+    },
+    "booking_cancellation": {
+      "title": "Booking cancelled",
+      "body": "{service} · {when} was cancelled.",
+      "subject": "Booking cancelled — {service}",
+      "heading": "Booking cancelled",
+      "line": "The booking for {service} ({when}) has been cancelled."
+    }
   }
 }
