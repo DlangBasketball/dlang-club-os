@@ -4,7 +4,7 @@ import {
 } from "@/lib/site/wp-convert";
 import {
   detectColors, detectFonts, extractContact, extractHeaderMenu, extractLogoUrl, extractSocialLinks, fontChoice, googleFontFamilies, isBrandish,
-  makeMenuResolver, mergeMenus,
+  makeMenuResolver, menuFromRest, mergeMenus, pickMenuLocation,
 } from "@/lib/site/wp-theme";
 import { closestSiteFont, siteFontByFamily } from "@/lib/site/fonts";
 import { contentHash, editedSinceImport, rerunAction, stableStringify } from "@/lib/site/wp-rerun";
@@ -82,6 +82,23 @@ describe("header menu", () => {
     expect(menu[1]!.url).toBe("#");
     expect(menu[1]!.children.map((c) => c.label)).toEqual(["Our club", "History", "Coming soon"]);
     expect(menu.some((m) => /Français/.test(m.label))).toBe(false);
+  });
+
+  it("reads a public menus REST payload (plugin) when the site exposes one", () => {
+    expect(pickMenuLocation({ footer: {}, "primary-menu": {} })).toBe("primary-menu");
+    expect(pickMenuLocation([])).toBeNull();
+    const items = menuFromRest({
+      items: [
+        { title: "Home", url: "https://wp.example/" },
+        { title: "Club &amp; Teams", url: "#", child_items: [{ title: "U18", url: "https://wp.example/u18/" }] },
+        { title: "English", url: "https://wp.example/", type: "wpml_ls_menu_item" },
+        { title: "" },
+      ],
+    });
+    expect(items).toEqual([
+      { label: "Home", url: "https://wp.example/", children: [] },
+      { label: "Club & Teams", url: "#", children: [{ label: "U18", url: "https://wp.example/u18/", children: [] }] },
+    ]);
   });
 
   it("falls back to the first <nav> list and returns [] without one", () => {

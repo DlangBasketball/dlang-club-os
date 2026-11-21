@@ -146,7 +146,7 @@ export function SiteShell({ ctx, languages, children }: { ctx: RenderCtx; langua
             </ul>
           </nav>
           <div className="ms-auto flex items-center gap-2 lg:ms-2">
-            <SocialLinks social={s.social} className="hidden 2xl:flex" />
+            <SocialLinks social={s.social} className={crowded ? "hidden 2xl:flex" : "hidden xl:flex"} />
             <LanguageMenu current={lang} options={langOptions} label={t("site.chrome.language")} />
             <Link href="/login" className={cn("hidden min-h-tap items-center rounded-full px-3 text-sm font-medium text-text hover:text-brand-primary focus-visible:shadow-focus", crowded ? "2xl:inline-flex" : "sm:inline-flex")}>
               {t("site.chrome.myAccount")}

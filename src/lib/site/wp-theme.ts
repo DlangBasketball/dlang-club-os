@@ -64,7 +64,33 @@ export function extractHeaderMenu(html: string): WpMenuItem[] {
   return parseMenuList(src, at, 0).slice(0, MAX_TOP);
 }
 
-export type SiteNavItem = { label: Record<string, string>; href: string; children?: SiteNavItem[] };
+/**
+ * Menu from the public "WP REST API Menus" endpoint (/wp-json/menus/v1/locations/<location>),
+ * when a site exposes it: { items: [{ title, url, child_items? }] } or a bare array.
+ * Core's /wp/v2/menu-items needs authentication, so the HTML menu is the usual source.
+ */
+export function menuFromRest(json: unknown): WpMenuItem[] {
+  const list = Array.isArray(json) ? json : json && typeof json === "object" && Array.isArray((json as { items?: unknown }).items) ? (json as { items: unknown[] }).items : [];
+  const one = (v: unknown, depth: number): WpMenuItem | null => {
+    if (!v || typeof v !== "object") return null;
+    const o = v as Record<string, unknown>;
+    const rawTitle = typeof o.title === "string" ? o.title : o.title && typeof o.title === "object" ? String((o.title as { rendered?: unknown }).rendered ?? "") : "";
+    const label = htmlToText(rawTitle, 200).replace(/\s+/g, " ").trim().slice(0, 60);
+    if (!label || /wpml|language/i.test(String(o.type ?? "")) ) return null;
+    const kids = depth < 1 && Array.isArray(o.child_items) ? (o.child_items.map((c) => one(c, depth + 1)).filter(Boolean) as WpMenuItem[]).slice(0, MAX_CHILDREN) : [];
+    return { label, url: typeof o.url === "string" ? o.url : "", children: kids };
+  };
+  return (list.map((v) => one(v, 0)).filter(Boolean) as WpMenuItem[]).slice(0, MAX_TOP);
+}
+
+/** The header menu location among a REST "locations" listing (primary / main / header / top). */
+export function pickMenuLocation(json: unknown): string | null {
+  if (!json || typeof json !== "object" || Array.isArray(json)) return null;
+  const keys = Object.keys(json as object).filter((k) => /^[\w-]{1,60}$/.test(k));
+  return keys.find((k) => /primary|main|header/i.test(k)) ?? keys.find((k) => /top|menu/i.test(k)) ?? null;
+}
+
+export type SiteNavItem ={ label: Record<string, string>; href: string; children?: SiteNavItem[] };
 
 /**
  * Merge the per-language menus into one site menu. `resolve` maps a menu URL

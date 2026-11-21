@@ -15,7 +15,7 @@ import {
 } from "./wp-convert";
 import { contentHash, editedSinceImport, rerunAction } from "./wp-rerun";
 import {
-  detectColors, detectFonts, extractContact, extractHeaderMenu, extractLogoUrl, extractSocialLinks, fontChoice, makeMenuResolver, mergeMenus,
+  detectColors, detectFonts, extractContact, extractHeaderMenu, extractLogoUrl, extractSocialLinks, fontChoice, makeMenuResolver, menuFromRest, mergeMenus, pickMenuLocation,
   type DetectedContact, type SiteNavItem, type WpMenuItem,
 } from "./wp-theme";
 
@@ -142,6 +142,23 @@ async function fetchRoot(url: string): Promise<WpRoot | null> {
   }
 }
 
+async function fetchJson(url: string): Promise<unknown> {
+  try {
+    const res = await safeFetch(url, { timeoutMs: 10_000, maxBytes: 2_000_000, headers: { Accept: "application/json" } });
+    return res.ok ? JSON.parse(res.text()) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Header menu from the public menus REST endpoint (plugin), or null; the home page HTML is the fallback. */
+async function fetchRestMenu(apiBase: string): Promise<WpMenuItem[] | null> {
+  const loc = pickMenuLocation(await fetchJson(`${apiBase}/wp-json/menus/v1/locations`));
+  if (!loc) return null;
+  const items = menuFromRest(await fetchJson(`${apiBase}/wp-json/menus/v1/locations/${encodeURIComponent(loc)}`));
+  return items.length ? items : null;
+}
+
 export type ImportPlanPage = {
   sourceId: string;
   title: string;
@@ -204,10 +221,11 @@ export async function loadWordPress(baseInput: string, site: { languages: readon
   const extra = languages.filter((l) => l.prefix);
 
   // Home pages + REST roots per language (menus, front page ids, tagline).
-  const [root, extraHomes, extraRoots] = await Promise.all([
+  const [root, extraHomes, extraRoots, restMenus] = await Promise.all([
     fetchRoot(`${base}/wp-json/`),
     Promise.all(extra.map((l) => fetchText(`${base}/${l.prefix}/`).catch(() => null))),
     Promise.all(extra.map((l) => fetchRoot(`${base}/${l.prefix}/wp-json/`))),
+    Promise.all([fetchRestMenu(base), ...extra.map((l) => fetchRestMenu(`${base}/${l.prefix}`))]),
   ]);
   const fronts = new Set([root?.frontPageId, ...extraRoots.map((r) => r?.frontPageId)].filter((x): x is string => !!x));
 
@@ -248,8 +266,8 @@ export async function loadWordPress(baseInput: string, site: { languages: readon
 
   // Design: menu (per language), logo, fonts, colours, social, contact.
   const menus = [
-    { lang: wpDefault, items: homeHtml ? extractHeaderMenu(homeHtml) : [] },
-    ...extra.map((l, i) => ({ lang: l.tag, items: extraHomes[i] ? extractHeaderMenu(extraHomes[i]!) : [] })),
+    { lang: wpDefault, items: restMenus[0] ?? (homeHtml ? extractHeaderMenu(homeHtml) : []) },
+    ...extra.map((l, i) => ({ lang: l.tag, items: restMenus[i + 1] ?? (extraHomes[i] ? extractHeaderMenu(extraHomes[i]!) : []) })),
   ];
   const pathMap = new Map<string, string>();
   for (const g of groups) {
