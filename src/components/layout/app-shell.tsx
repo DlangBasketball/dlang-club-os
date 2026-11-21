@@ -44,6 +44,7 @@ export function AppShell({
   user,
   notifications,
   hiddenHrefs,
+  lockedHrefs,
   profilePhotoUrl,
   orgs,
   children,
@@ -53,6 +54,8 @@ export function AppShell({
   notifications?: NotifProp;
   /** Nav destinations to hide for this user/club (e.g. a feature the club has not enabled). */
   hiddenHrefs?: string[];
+  /** Nav destinations outside the club's plan: shown with an "Upgrade" badge (admins / finance). */
+  lockedHrefs?: string[];
   /** The person's clubs (one login, several clubs); a switcher shows when there are 2+. */
   orgs?: SwitcherOrg[];
   /**
@@ -70,6 +73,7 @@ export function AppShell({
         {t("shell.skipToContent")}
       </a>
       <HiddenNavContext.Provider value={hiddenHrefs ?? NO_HIDDEN}>
+      <LockedNavContext.Provider value={lockedHrefs ?? NO_HIDDEN}>
       <OrgsContext.Provider value={orgs ?? NO_ORGS}>
       {variant === "sidebar" ? (
         <SidebarShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl}>
@@ -81,6 +85,7 @@ export function AppShell({
         </BottomShell>
       )}
       </OrgsContext.Provider>
+      </LockedNavContext.Provider>
       </HiddenNavContext.Provider>
     </>
   );
@@ -95,6 +100,7 @@ function ShellOrgSwitcher({ className }: { className?: string }) {
   return <OrgSwitcher orgs={orgs} className={className} />;
 }
 const HiddenNavContext = React.createContext<string[]>(NO_HIDDEN);
+const LockedNavContext = React.createContext<string[]>(NO_HIDDEN);
 
 /** NAV[navKey] minus the destinations hidden for this user/club. */
 function useNavItems(navKey: NavKey): NavItem[] {
@@ -133,6 +139,8 @@ function NavLinks({
   const isActive = useIsActive();
   const navLabel = useNavLabel();
   const items = useNavItems(navKey);
+  const locked = React.useContext(LockedNavContext);
+  const t = useT();
   return (
     <ul className="flex flex-col gap-0.5">
       {items.map(({ labelKey, href, icon: Icon }) => {
@@ -165,6 +173,11 @@ function NavLinks({
                 )}
               />
               {navLabel(labelKey)}
+              {locked.includes(href) && (
+                <span className="ml-auto rounded-full border border-brand-accent/40 bg-brand-accent-soft px-1.5 py-px text-[10.5px] font-medium text-brand-accent">
+                  {t("upgrades.badge")}
+                </span>
+              )}
             </Link>
           </li>
         );
