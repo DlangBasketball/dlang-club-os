@@ -1,3 +1,4 @@
+import { hasFeature } from "@/lib/upgrades/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -25,7 +26,7 @@ export default async function ShopPage() {
   const [tenant, me] = await Promise.all([getTenant(), getSessionUser()]);
   const member = !!me?.orgId && orgMatchesTenant(me.orgId, tenant);
   const orgId = member ? me!.orgId! : tenant.id;
-  if (!orgId) notFound();
+  if (!orgId || !(await hasFeature(orgId, "shop"))) notFound();
   const t = await getTranslations(orgId);
   const [products, venues] = await Promise.all([getStorefront(orgId, member), getPickupVenues(orgId)]);
   const currency = products[0]?.currency ?? tenant.currency;

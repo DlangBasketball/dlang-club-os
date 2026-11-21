@@ -79,10 +79,11 @@ export function defaultsForCountry(code: string): { currency: Currency; locale: 
  * Feature keys a plan can grant (English labels for the operator console).
  * Derived from the full catalog in src/lib/upgrades/catalog.ts, which also
  * holds tiers, add-on prices and dependencies. The AI assistant is a paid
- * add-on (never part of a plan; see src/lib/ai/access.ts).
+ * add-on (never part of a plan; see src/lib/ai/access.ts), like every
+ * add-on-only module (catalog tier null).
  */
 export const FEATURES: Record<string, string> = Object.fromEntries(
-  FEATURE_CATALOG.filter((f) => !f.core).map((f) => [f.key, f.label]),
+  FEATURE_CATALOG.filter((f) => !f.core && f.tier !== null).map((f) => [f.key, f.label]),
 );
 
 export type FeatureKey = string;

@@ -6,6 +6,7 @@ import { getWebsiteSecret } from "./secret-store";
 import { getWebsiteSettings, websiteDb, type WebsiteDb } from "./server";
 import { safeFetch } from "./ssrf";
 import { MAX_ATTEMPTS, WEBHOOK_RESOURCES, isPermanentFailure, nextAttemptAt, type WebhookResource } from "./webhook-schedule";
+import { orgsWithFeature } from "@/lib/upgrades/server";
 
 export { WEBHOOK_RESOURCES, type WebhookResource } from "./webhook-schedule";
 
@@ -84,6 +85,7 @@ export async function deliverDue(opts: { orgId?: string; limit?: number; db?: We
   const now = opts.now ?? new Date();
   let q = db.from("website_webhook_deliveries").select("id,org_id,resource,attempts").eq("status", "pending").lte("next_attempt_at", now.toISOString());
   if (opts.orgId) q = q.eq("org_id", opts.orgId);
+  else q = q.in("org_id", (await orgsWithFeature("website_connect")).ids);
   const { data, error } = await q.order("next_attempt_at").limit(opts.limit ?? 100);
   if (error) {
     logError("website.webhook.due", error);

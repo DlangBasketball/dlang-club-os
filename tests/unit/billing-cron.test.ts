@@ -52,6 +52,8 @@ vi.mock("@/lib/plans/notify", () => ({
   notifyFamily: async (_o: string, familyId: string, kind: string, vars: Record<string, unknown>) => { notices.push({ kind, familyId, vars }); return 1; },
 }));
 vi.mock("@/lib/log", () => ({ logError: () => "x" }));
+// The club holds every billing module (gating itself: tests/unit/upgrades-gating.test.ts).
+vi.mock("@/lib/upgrades/server", () => ({ hasFeature: async () => true }));
 
 const { runOrgBilling } = await import("@/lib/plans/cron");
 

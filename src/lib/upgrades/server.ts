@@ -126,10 +126,11 @@ export async function assertFeature(feature: string): Promise<void> {
 
 /**
  * Clubs that have `feature` (crons / batch jobs): one batch read instead of
- * one per club. Returns a predicate over org ids.
+ * one per club. Scheduled jobs of a module skip every club without it.
  */
-export async function orgsWithFeature(feature: string, now = new Date()): Promise<(orgId: string) => boolean> {
-  if (isCoreFeature(feature)) return () => true;
+export type OrgSet = { has: (orgId: string) => boolean; ids: string[] };
+
+export async function orgsWithFeature(feature: string, now = new Date()): Promise<OrgSet> {
   const db = upgradesAdminDb();
   const [subs, orgs, plans, grants, ai] = await Promise.all([
     db.from("subscriptions").select("*"),
@@ -144,6 +145,7 @@ export async function orgsWithFeature(feature: string, now = new Date()): Promis
   const aiByOrg = new Map<string, LegacyAiRow[]>();
   for (const r of ai.data ?? []) aiByOrg.set(r.org_id, [...(aiByOrg.get(r.org_id) ?? []), r]);
   const allowed = new Set<string>();
+  const core = isCoreFeature(feature);
   for (const o of (orgs.data ?? []) as { id: string; suspended_at: string | null; currency: string | null }[]) {
     const sub = subByOrg.get(o.id) ?? null;
     const suspended = Boolean(o.suspended_at);
@@ -159,7 +161,7 @@ export async function orgsWithFeature(feature: string, now = new Date()): Promis
       legacyAi: legacyAiSource(aiByOrg.get(o.id) ?? [], now),
       now,
     });
-    if (isEnabled(access, feature)) allowed.add(o.id);
+    if (core || isEnabled(access, feature)) allowed.add(o.id);
   }
-  return (orgId: string) => allowed.has(orgId);
+  return { has: (orgId: string) => allowed.has(orgId), ids: Array.from(allowed) };
 }

@@ -658,7 +658,9 @@ begin
 end;
 $$;
 
--- Plan matrix: include / exclude one feature in one plan.
+-- Plan matrix: include / exclude one feature in one plan. Core features are
+-- always on; add-on-only features (default_tier null, e.g. the AI assistant)
+-- are never part of a plan.
 create or replace function public.platform_set_plan_feature(p_plan text, p_key text, p_included boolean)
 returns void
 language plpgsql
@@ -669,6 +671,10 @@ begin
   if not public.is_platform_admin() then raise exception 'FORBIDDEN' using errcode = '42501'; end if;
   if not exists (select 1 from public.platform_features where key = p_key and not is_core) then
     raise exception 'UNKNOWN_FEATURE' using errcode = '22023';
+  end if;
+  if coalesce(p_included, false)
+     and exists (select 1 from public.platform_features where key = p_key and default_tier is null) then
+    raise exception 'ADDON_ONLY' using errcode = '22023';
   end if;
   update public.plans set features = features || jsonb_build_object(p_key, coalesce(p_included, false))
    where code = p_plan;

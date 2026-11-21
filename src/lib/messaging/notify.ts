@@ -11,6 +11,7 @@ import type { MessagingRole } from "./permissions";
 import { parseChannels, resolveDelivery, type NotificationCategory } from "./preferences";
 import { deliverPush } from "@/lib/push/send";
 import type { FamilyClient } from "@/lib/family/db";
+import { orgsWithFeature } from "@/lib/upgrades/server";
 
 /**
  * Notification delivery for the message board, alerts and new contacts.
@@ -272,6 +273,7 @@ export async function dispatchDueAlerts(orgId?: string, emailFor?: (a: AlertRow)
     .order("starts_at")
     .limit(50);
   if (orgId) q = q.eq("org_id", orgId);
+  else q = q.in("org_id", (await orgsWithFeature("alerts_leads")).ids);
   const { data, error } = await q;
   if (error) {
     logError("messaging.dueAlerts", error);

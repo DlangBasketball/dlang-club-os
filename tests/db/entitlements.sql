@@ -245,6 +245,8 @@ begin
   perform ent.ok(v like 'OK:%' and (select amount = 35 from public.feature_addon_prices where feature_key = 'shop' and currency = 'EUR'),
                  'platform admin edits an add-on price (' || v || ')');
   perform ent.ok(exists (select 1 from public.platform_audit_log where action = 'addon.price.set' and details->>'feature' = 'shop'), 'price change audit-logged');
+  v := ent.run_as(op, $q$select public.platform_set_plan_feature('club', 'ai_assistant', true)::text$q$);
+  perform ent.ok(v like 'ERR:%ADDON_ONLY%', 'the AI assistant (add-on only) cannot be put into a plan (' || v || ')');
   v := ent.run_as(op, $q$select public.platform_set_plan_feature('starter', 'invoicing', false)::text$q$);
   perform ent.ok(v like 'ERR:%', 'core features cannot be removed from a plan (' || v || ')');
 end $$;

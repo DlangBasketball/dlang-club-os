@@ -2,6 +2,7 @@ import "server-only";
 import { logError } from "@/lib/log";
 import { familyAdminDb, familyDb } from "./db";
 import { notifyMembers } from "./notify";
+import { orgsWithFeature } from "@/lib/upgrades/server";
 
 const OPEN = ["draft", "pending", "sent", "overdue"] as const;
 /** Only recent invoices are split automatically (older ones stay as issued). */
@@ -60,7 +61,8 @@ export async function splitAllOpenFamilyInvoices(): Promise<{ families: number; 
   const admin = familyAdminDb();
   const { data: fams } = await admin.from("families").select("id,org_id").eq("billing_split_mode", "split").limit(2000);
   let split = 0;
-  for (const f of fams ?? []) {
+  const splitBilling = await orgsWithFeature("split_billing");
+  for (const f of (fams ?? []).filter((x) => splitBilling.has(x.org_id))) {
     const r = await splitOpenInvoicesForFamily(f.org_id, f.id);
     split += r.split;
   }

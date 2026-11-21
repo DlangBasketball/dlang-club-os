@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { hasFeature } from "@/lib/upgrades/server";
 import { toCsv } from "@/lib/sportsops/csv";
 import { attendanceReport, defaultRange, outstandingReceivables, registrationsByProgram, revenueByProgram } from "@/lib/sportsops/reports";
 import { isDayKey } from "@/lib/sportsops/time";
@@ -13,6 +14,7 @@ export async function GET(request: Request) {
   if (!me || !(me.roles.includes("admin") || me.roles.includes("finance"))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+  if (!(await hasFeature(me.orgId, "reports_advanced"))) return NextResponse.json({ error: "not_found" }, { status: 404 });
   const url = new URL(request.url);
   const type = url.searchParams.get("type") ?? "";
   const def = await defaultRange();

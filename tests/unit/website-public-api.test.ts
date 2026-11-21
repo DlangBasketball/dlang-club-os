@@ -118,6 +118,9 @@ vi.mock("@/lib/tenant/server", () => ({
     BY_SLUG[slug] ? tenant(BY_SLUG[slug]!, slug, "default") : { ...tenant("", slug, "unknown"), id: null },
 }));
 
+// Both clubs hold the website-connection module (module off: tests/unit/upgrades-gating.test.ts).
+vi.mock("@/lib/upgrades/server", () => ({ hasFeature: async () => true }));
+
 const { handlePublicApi, resetPublicApiRateLimit } = await import("@/lib/website/public-api");
 
 async function get(path: string, origin?: string) {
