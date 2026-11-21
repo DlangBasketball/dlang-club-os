@@ -9,11 +9,15 @@ import { ParentContactSection } from "@/components/athlete/parent-contact-sectio
 import { getFamily } from "@/lib/data/families";
 import { formatPostalAddress } from "@/lib/people/licence";
 import { getI18n } from "@/lib/i18n/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { FamilySponsorshipButton } from "@/components/athlete/sponsorship-card";
+import { SponsorshipBadge } from "@/components/athlete/sponsorship-badge";
 
 export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { t, f } = await getI18n();
   const { id } = await params;
-  const { data, error } = await getFamily(id);
+  const [{ data, error }, user] = await Promise.all([getFamily(id), getSessionUser()]);
+  const canSponsor = !!user && (user.roles.includes("admin") || user.roles.includes("finance"));
   if (error) return <ErrorState title="Couldn't load family" message={error} />;
   if (!data) notFound();
 
@@ -23,9 +27,10 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
         title={data.name}
         description={formatPostalAddress(data) ?? undefined}
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link href={`/admin/athletes/new?family=${id}`}><Button variant="secondary"><Plus className="h-4 w-4" /> Add athlete</Button></Link>
             <Link href={`/admin/families/${id}/edit`}><Button variant="secondary"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button></Link>
+            {canSponsor && data.athletes.length > 0 && <FamilySponsorshipButton familyId={id} />}
           </div>
         }
       />
@@ -60,7 +65,10 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
                             <div className="text-xs text-ink-3">Born {f.date(a.dob)}</div>
                           </div>
                         </div>
-                        <Badge tone={statusTone(a.status)}>{a.status}</Badge>
+                        <span className="flex items-center gap-2">
+                          <SponsorshipBadge kind={a.sponsorshipKind} percent={a.sponsorshipPercent} />
+                          <Badge tone={statusTone(a.status)}>{a.status}</Badge>
+                        </span>
                       </Link>
                     </li>
                   ))}

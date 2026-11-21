@@ -9,6 +9,8 @@ import { PhotoManager } from "@/components/athlete/photo-manager";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
 import { ActivityTimeline } from "@/components/athlete/activity-timeline";
 import { LicenceCard } from "@/components/athlete/licence-card";
+import { SponsorshipCard } from "@/components/athlete/sponsorship-card";
+import { SponsorshipBadge } from "@/components/athlete/sponsorship-badge";
 import { formatPostalAddress } from "@/lib/people/licence";
 import { PlayerCard } from "@/components/athlete/player-card";
 import { ProfileTabs, type ProfileTab } from "@/components/athlete/profile-tabs";
@@ -115,6 +117,9 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
           </Card>
         )}
         <LicenceCard licence={a.licence} showFee={canViewBilling} editHref={isAdmin ? `/admin/athletes/${id}/edit#licence` : undefined} />
+        {canViewBilling && (
+          <SponsorshipCard athleteId={id} sponsorship={a.sponsorship} editHref={isAdmin ? `/admin/athletes/${id}/edit#sponsorship` : undefined} inlineEdit={!isAdmin} />
+        )}
         {canViewMedical && <MedicalSection medical={medical} athleteId={id} canView />}
         <ParentContactSection
           guardians={family.data?.guardians ?? []}
@@ -287,6 +292,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
         familyHref={`/admin/families/${a.familyId}`}
         stats={stats}
         showCredits={isAdmin}
+        badges={<SponsorshipBadge kind={a.sponsorship.kind} percent={a.sponsorship.percent} />}
         actions={
           isAdmin ? (
             <>

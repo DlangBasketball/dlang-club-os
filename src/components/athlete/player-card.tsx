@@ -40,6 +40,7 @@ export function PlayerCard({
   actions,
   stats,
   showCredits = false,
+  badges,
 }: {
   name: string;
   photoUrl: string | null;
@@ -57,6 +58,8 @@ export function PlayerCard({
   actions?: React.ReactNode;
   stats?: PlayerCardStats | null;
   showCredits?: boolean;
+  /** Extra status chips next to the player status (e.g. "Sponsored"). */
+  badges?: React.ReactNode;
 }) {
   const t = useT();
   const primary = teams.find((x) => x.jerseyNumber !== null) ?? teams[0] ?? null;
@@ -99,6 +102,7 @@ export function PlayerCard({
               {status && (
                 <Badge tone={statusTone(status)}>{t.dynamic(`editPeople.athleteStatus.${status}`, undefined, status)}</Badge>
               )}
+              {badges}
             </div>
             {teams.length > 0 && (
               <ul className="mt-2 flex flex-wrap gap-1.5" aria-label={t("media.roster.teamsTitle")}>
