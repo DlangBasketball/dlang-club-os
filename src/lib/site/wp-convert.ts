@@ -489,6 +489,7 @@ export function mapWpItem(raw: unknown, opts: { basePath?: string; langPrefixes?
  * alternative (reserved "/club" -> "/club-info"). `taken` avoids clashes.
  */
 export function sitePathFor(item: Pick<WpItem, "path" | "slug">, taken: ReadonlySet<string>, languageSlugs: readonly string[] = []): { path: string; changed: boolean } {
+  if (item.path === "/" && !taken.has("/")) return { path: "/", changed: false };
   const clean = (p: string) => p.split("/").filter(Boolean).slice(0, 4).map((s) => s.replace(/[^a-z0-9_%-]/g, "-").replace(/^-+/, "").slice(0, 120)).filter(Boolean);
   const segs = clean(item.path);
   const first = segs[0] ?? "";
