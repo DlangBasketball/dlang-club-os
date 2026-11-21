@@ -1,4 +1,4 @@
-import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2 } from "lucide-react";
+import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2 } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -33,6 +33,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Waiting lists", labelKey: "waitlists", href: "/admin/waitlists", icon: Hourglass },
     { label: "Memberships", labelKey: "memberships", href: "/admin/memberships", icon: IdCard },
     { label: "Discounts", labelKey: "discounts", href: "/admin/discounts", icon: Percent },
+    { label: "Sponsorships", labelKey: "sponsorships", href: "/admin/sponsorships", icon: HandHeart },
     { label: "Shop", labelKey: "shop", href: "/admin/shop", icon: ShoppingBag },
     { label: "Teams", labelKey: "teams", href: "/admin/teams", icon: Shield },
     { label: "Coaches", labelKey: "coaches", href: "/admin/coaches", icon: UserCog },
