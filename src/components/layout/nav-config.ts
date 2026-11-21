@@ -68,6 +68,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Reports", labelKey: "reports", href: "/admin/reports", icon: BarChart3 },
     { label: "Assistant", labelKey: "assistant", href: "/admin/assistant", icon: Sparkles },
     { label: "Settings", labelKey: "settings", href: "/admin/settings", icon: Settings },
+    { label: "Plan & upgrades", labelKey: "upgrades", href: "/admin/upgrades", icon: Award },
   ],
   coach: [
     { label: "Home", labelKey: "home", href: "/coach", icon: Home },

@@ -4,6 +4,7 @@ import { todayIn } from "@/lib/payments/plans";
 import { orgTimeZone } from "@/lib/plans/settings";
 import { accountingAdminDb, type AccountingClient } from "./db";
 import { sendDunningNotice, type DunningNotice } from "./notify";
+import { orgsWithFeature } from "@/lib/upgrades/server";
 
 /**
  * Daily accounting work, run from the billing cron (GET /api/billing/cron,
@@ -57,7 +58,8 @@ export async function runOrgAccounting(orgId: string, db: AccountingClient, opts
 export async function runAccountingCron(opts: { today?: string } = {}): Promise<AccountingCronSummary> {
   const total = empty();
   const db = accountingAdminDb();
-  for (const orgId of await orgsWithWork(db)) {
+  const accounting = await orgsWithFeature("accounting");
+  for (const orgId of (await orgsWithWork(db)).filter(accounting.has)) {
     try {
       const s = await runOrgAccounting(orgId, db, opts);
       for (const k of Object.keys(total) as (keyof AccountingCronSummary)[]) total[k] += s[k];

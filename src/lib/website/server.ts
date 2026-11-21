@@ -1,3 +1,4 @@
+import { hasFeature } from "@/lib/upgrades/server";
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -44,6 +45,7 @@ export async function resolvePublicClub(clubParam: string | null | undefined): P
   if (slug && hostNamesOtherClub(host, slug)) return null;
   const tenant = slug && slug !== host.slug ? await resolveTenant({ slug }) : host;
   if (!tenant.id || tenant.source === "unknown" || tenant.status === "suspended") return null;
+  if (!(await hasFeature(tenant.id, "website_connect"))) return null;
   const settings = await getWebsiteSettings(tenant.id);
   if (!settings.enabled) return null;
   return { tenant: tenant as Tenant & { id: string }, settings };

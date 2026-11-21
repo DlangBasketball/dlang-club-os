@@ -8,6 +8,7 @@ import { dueReminder, thresholdsCovered } from "./compliance";
 import { daysBetween } from "./membership";
 import { adminRecipients, profileRecipients, sendNotice } from "./notify";
 import { processWaitlists } from "./waitlist-server";
+import { orgsWithFeature } from "@/lib/upgrades/server";
 
 /**
  * Daily (or more frequent) club-admin job for every club, service role:
@@ -21,12 +22,17 @@ export async function runClubAdminCron(): Promise<{ expired: number; offers: num
   const db = caAdminDb();
   let expired = 0, offers = 0, reminders = 0;
 
-  const { data: n, error } = await db.rpc("membership_expire_due", { p_org: null });
-  if (error) logError("clubadmin.cron.expire", error);
-  else expired = Number(n ?? 0);
+  const [memberships, waitlists] = await Promise.all([orgsWithFeature("memberships"), orgsWithFeature("waitlists")]);
+  for (const orgId of memberships.ids) {
+    const { data: n, error } = await db.rpc("membership_expire_due", { p_org: orgId });
+    if (error) logError("clubadmin.cron.expire", error, { orgId });
+    else expired += Number(n ?? 0);
+  }
 
-  const w = await processWaitlists({});
-  offers = w.offers;
+  for (const orgId of waitlists.ids) {
+    const w = await processWaitlists({ orgId });
+    offers += w.offers;
+  }
 
   try {
     reminders = await certificateReminders();
@@ -42,7 +48,8 @@ async function certificateReminders(): Promise<number> {
   const horizon = new Date(Date.now() + 400 * 86_400_000).toISOString().slice(0, 10);
   const { data: certs } = await db.from("staff_certificates").select("*").neq("status", "rejected")
     .not("valid_until", "is", null).lte("valid_until", horizon).limit(5000);
-  const rows = (certs ?? []) as CertificateRow[];
+  const compliance = await orgsWithFeature("staff_compliance");
+  const rows = ((certs ?? []) as CertificateRow[]).filter((c) => compliance.has(c.org_id));
   if (!rows.length) return 0;
   const orgIds = Array.from(new Set(rows.map((c) => c.org_id)));
   const { data: settingsRows } = await db.from("club_admin_settings").select("*").in("org_id", orgIds);

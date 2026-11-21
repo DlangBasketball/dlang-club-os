@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -95,6 +96,7 @@ function mapped(table: string[][], kind: ImportKind, rawMapping: FormDataEntryVa
 
 /** Step 1: read the file and propose a column mapping (writes nothing). */
 export async function inspectImport(fd: FormData): Promise<InspectResult> {
+  await assertFeature("csv_import");
   const t = await getTranslations();
   const me = await gateAdmin();
   if (!me) return { ok: false, error: t("forms.import.errors.adminOnly") };
@@ -210,6 +212,7 @@ const failed = (mode: ImportResult["mode"], kind: ImportKind, error: string): Im
 
 /** Dry run: parse + validate + compare with existing club data. Writes nothing. */
 export async function previewImport(fd: FormData): Promise<ImportResult> {
+  await assertFeature("csv_import");
   const t = await getTranslations();
   const me = await gateAdmin();
   if (!me) return failed("dry-run", kindOf(fd), t("forms.import.errors.adminOnly"));
@@ -232,6 +235,7 @@ function chunks<T>(arr: T[], size = 500): T[][] {
  * deleted again (compensating rollback).
  */
 export async function commitImport(fd: FormData): Promise<ImportResult> {
+  await assertFeature("csv_import");
   const t = await getTranslations();
   const me = await gateAdmin();
   if (!me) return failed("commit", kindOf(fd), t("forms.import.errors.adminOnly"));

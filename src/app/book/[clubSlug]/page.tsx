@@ -1,3 +1,4 @@
+import { hasFeature } from "@/lib/upgrades/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin } from "lucide-react";
@@ -25,6 +26,7 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
   if (hostNamesOtherClub(tenant, slug)) notFound();
   const catalog = await getPublicCatalog(slug);
   if (!catalog) notFound();
+  if (!(await hasFeature(catalog.org.id, "bookings"))) notFound();
   const [{ t, ctx, messages }, me] = await Promise.all([getI18n(catalog.org.id), getSessionUser()]);
   const member = me?.orgId === catalog.org.id;
   const venues = catalog.venues.filter((v) => catalog.services.some((s) => s.venueId === v.id) || catalog.availability.templates.some((x) => x.venueId === v.id));

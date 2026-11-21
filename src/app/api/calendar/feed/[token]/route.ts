@@ -1,3 +1,4 @@
+import { hasFeature } from "@/lib/upgrades/server";
 import { createHash } from "node:crypto";
 import { getStandaloneI18n } from "@/lib/i18n/messages";
 import { staffAdminDb } from "@/lib/staff/db";
@@ -31,6 +32,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
     const { data: feed } = await db.from("calendar_feed_tokens").select("id,org_id,profile_id,last_used_at")
       .eq("token_hash", hash).is("revoked_at", null).maybeSingle();
     if (!feed) return notFound();
+    // Calendar module off for the club: feeds go quiet (tokens are kept).
+    if (!(await hasFeature(feed.org_id, "calendar_ics"))) return notFound();
 
     const [{ data: profile }, { data: org }, { data: settings }, { data: roles }, { data: families }] = await Promise.all([
       db.from("profiles").select("id,org_id,locale,is_active").eq("id", feed.profile_id).maybeSingle(),

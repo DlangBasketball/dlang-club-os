@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { getI18n, getLocaleContext, getTranslations } from "@/lib/i18n/server";
 import { logError } from "@/lib/log";
@@ -55,6 +56,7 @@ async function ensureCustomer(db: OpsClient, me: Staff, c: { kind: "company" | "
 // Sponsors
 // ---------------------------------------------------------------------------
 export async function saveSponsor(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -85,6 +87,7 @@ export async function saveSponsor(id: string | null, input: Record<string, unkno
 }
 
 export async function saveDeliverable(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(deliverableSchema, input, t);
@@ -101,6 +104,7 @@ export async function saveDeliverable(input: Record<string, unknown>): Promise<O
 }
 
 export async function toggleDeliverable(id: string): Promise<OpsResult> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -116,6 +120,7 @@ export async function toggleDeliverable(id: string): Promise<OpsResult> {
 }
 
 export async function invoiceSponsor(id: string): Promise<OpsResult<{ invoiceId: string }>> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -144,6 +149,7 @@ export async function invoiceSponsor(id: string): Promise<OpsResult<{ invoiceId:
 // External invoices
 // ---------------------------------------------------------------------------
 export async function setOpsInvoiceStatus(id: string, status: "paid" | "cancelled" | "issued"): Promise<OpsResult> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success || !["paid", "cancelled", "issued"].includes(status)) return fail(t, "operations.errors.notFound");
@@ -162,6 +168,7 @@ export async function setOpsInvoiceStatus(id: string, status: "paid" | "cancelle
 // Campaigns + donations
 // ---------------------------------------------------------------------------
 export async function saveCampaign(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -187,6 +194,7 @@ export async function saveCampaign(id: string | null, input: Record<string, unkn
 }
 
 export async function recordDonation(input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(donationSchema, input, t);
@@ -217,6 +225,7 @@ export async function recordDonation(input: Record<string, unknown>): Promise<Op
 }
 
 export async function refundDonation(id: string): Promise<OpsResult> {
+  await assertFeature("ops_sponsors");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -236,6 +245,7 @@ export async function refundDonation(id: string): Promise<OpsResult> {
  * campaign must be public and open. The webhook records the gift.
  */
 export async function startDonationCheckout(input: Record<string, unknown>): Promise<OpsResult<{ url: string }>> {
+  await assertFeature("ops_sponsors");
   const tenant = await getTenant();
   const t = await getTranslations(tenant.id);
   if (!tenant.id) return fail(t, "operations.errors.notFound");

@@ -6,6 +6,7 @@ import { plansAdminDb, type GenerateRow } from "./db";
 import { chargeOffSession } from "./autopay";
 import { notifyFamily, type PlanNoticeKind } from "./notify";
 import { orgTimeZone } from "./settings";
+import { hasFeature } from "@/lib/upgrades/server";
 
 /**
  * Daily billing job (GET /api/billing/cron, service role). Per club:
@@ -108,9 +109,15 @@ export async function runOrgBilling(orgId: string, opts: { today?: string; gener
   const db = plansAdminDb();
   const today = opts.today ?? todayIn(await orgTimeZone(orgId));
   const until = opts.generateUntil && opts.generateUntil > today ? opts.generateUntil : today;
+  // Each step runs only while the club has its module (data is kept otherwise).
+  const [recurringOn, remindersOn, plansOn] = await Promise.all([
+    hasFeature(orgId, "recurring_fees"), hasFeature(orgId, "reminders"), hasFeature(orgId, "payment_plans"),
+  ]);
 
   // 1. Recurring period invoices (up to `until`; charges below only for what is due today)
-  const { data: gen, error: gErr } = await db.rpc("recurring_generate", { p_org: orgId, p_as_of: until, p_dry_run: false });
+  const { data: gen, error: gErr } = recurringOn
+    ? await db.rpc("recurring_generate", { p_org: orgId, p_as_of: until, p_dry_run: false })
+    : { data: [] as GenerateRow[], error: null };
   if (gErr) { sum.errors += 1; logError("billing.cron.generate", gErr, { orgId }); }
   const issued = ((gen ?? []) as GenerateRow[]).filter((g) => g.action === "invoice" && g.invoice_id);
   sum.invoices = issued.length;
@@ -133,7 +140,7 @@ export async function runOrgBilling(orgId: string, opts: { today?: string; gener
   if (wErr) { sum.errors += 1; logError("billing.cron.work", wErr, { orgId }); return sum; }
   const work = (workRaw ?? {}) as Partial<Work>;
 
-  for (const r of work.remind_before ?? []) {
+  for (const r of remindersOn ? work.remind_before ?? [] : []) {
     const { data: fresh } = await db.rpc("plan_mark_reminded", { p_installment: r.installment_id, p_kind: "before" });
     if (!fresh) continue;
     await notifyFamily(orgId, r.family_id, "reminderBefore", {
@@ -143,14 +150,14 @@ export async function runOrgBilling(orgId: string, opts: { today?: string; gener
     sum.reminders += 1;
   }
 
-  if ((work.charges ?? []).length) {
+  if (plansOn && (work.charges ?? []).length) {
     const profile = await getOrgPaymentProfile(orgId);
     if (profile.stripeReady) {
       for (const r of work.charges ?? []) await chargeOne(profile, r, today, sum);
     }
   }
 
-  for (const r of work.overdue ?? []) {
+  for (const r of remindersOn ? work.overdue ?? [] : []) {
     await db.rpc("plan_mark_reminded", { p_installment: r.installment_id, p_kind: "overdue" });
     await notifyFamily(orgId, r.family_id, "overdue", {
       invoiceId: r.invoice_id, invoiceNumber: r.invoice_number, installmentId: r.kind === "installments" ? r.installment_id : null,
@@ -159,7 +166,7 @@ export async function runOrgBilling(orgId: string, opts: { today?: string; gener
     sum.overdue += 1;
   }
 
-  for (const m of work.expiring ?? []) {
+  for (const m of plansOn ? work.expiring ?? [] : []) {
     const { data: fresh } = await db.rpc("autopay_mark_expiry_notified", { p_mandate: m.mandate_id });
     if (!fresh) continue;
     await notifyFamily(orgId, m.family_id, "cardExpiring", { card: `${String(m.exp_month).padStart(2, "0")}/${m.exp_year}` });

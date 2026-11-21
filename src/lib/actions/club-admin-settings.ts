@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { caDb } from "@/lib/club-admin/db";
 import { audit, dbErrorKey, done, fail, requireMe, type CaResult } from "@/lib/club-admin/server";
@@ -35,6 +36,7 @@ export async function saveClubAdminSettings(input: ClubAdminSettingsInput): Prom
 }
 
 export async function saveJsOffer(input: { programId: string; jsOffer: boolean; jsOfferNumber?: string | null; jsSessionMinutes?: number | string | null }): Promise<CaResult> {
+  await assertFeature("js_export");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = jsOfferSchema.safeParse(input);
@@ -50,6 +52,7 @@ export async function saveJsOffer(input: { programId: string; jsOffer: boolean; 
 }
 
 export async function saveCoachJsNumber(input: { coachId: string; number: string | null }): Promise<CaResult> {
+  await assertFeature("js_export");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = coachJsNumberSchema.safeParse(input);
@@ -65,6 +68,7 @@ export async function saveCoachJsNumber(input: { coachId: string; number: string
 
 /** Store / clear an athlete's AHV number (consent mandatory; encrypted in the database). */
 export async function setAthleteAhv(input: { athleteId: string; ahv: string | null; consentNote?: string }): Promise<CaResult> {
+  await assertFeature("js_export");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = ahvSchema.safeParse(input);

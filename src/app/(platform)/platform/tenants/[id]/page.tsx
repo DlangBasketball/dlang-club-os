@@ -4,11 +4,14 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Badge, Card, CardBody, CardHeader, CardTitle } from "@/components/ui";
 import { getAllPlans, getTenantDetail } from "@/lib/platform/data";
 import { captureTenantUsage } from "@/lib/platform/actions";
-import { FEATURES, formatMoney, SPORTS } from "@/lib/platform/catalog";
+import { formatMoney, SPORTS } from "@/lib/platform/catalog";
 import { resolveEntitlements } from "@/lib/platform/entitlements";
 import { ActionButton } from "../../../_components/action-button";
 import { KV, SubscriptionBadge, UsageMeter, fmtDate, fmtDateTime } from "../../../_components/ui";
 import { ChangePlanControl, DomainControls, SuspendControl } from "./tenant-controls";
+import { ComplimentaryAllControl, EntitlementControls } from "./entitlement-controls";
+import { FEATURE_CATALOG } from "@/lib/upgrades/catalog";
+import { getTenantEntitlements } from "@/lib/upgrades/platform-data";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +22,7 @@ function stripeDashboardUrl(kind: "customers" | "subscriptions", id: string) {
 
 export default async function TenantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [t, plans] = await Promise.all([getTenantDetail(id), getAllPlans()]);
+  const [t, plans, ents] = await Promise.all([getTenantDetail(id), getAllPlans(), getTenantEntitlements(id)]);
   if (!t) notFound();
 
   const { org, subscription: sub, plan } = t;
@@ -213,20 +216,54 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           </CardBody>
         </Card>
 
-        {/* Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Entitlements</CardTitle>
-          </CardHeader>
-          <CardBody className="grid grid-cols-1 gap-1.5 text-sm">
-            {Object.entries(FEATURES).map(([k, label]) => (
-              <div key={k} className="flex items-center justify-between">
-                <span className="text-ink-2">{label}</span>
-                <span className={ent.features[k] ? "text-success" : "text-ink-4"}>{ent.features[k] ? "on" : "off"}</span>
-              </div>
-            ))}
-          </CardBody>
-        </Card>
+        {/* Features: plan + add-ons + grants - blocks (same resolver as the app) */}
+        {ents && (
+          <Card className="xl:col-span-3">
+            <CardHeader>
+              <CardTitle>Entitlements</CardTitle>
+              <ComplimentaryAllControl
+                orgId={org.id}
+                grantId={ents.grants.find((g) => g.kind === "complimentary_all" && ["active", "canceling"].includes(g.status))?.id ?? null}
+              />
+            </CardHeader>
+            <CardBody className="space-y-1 text-sm">
+              {ents.subscription?.pending_plan_code && (
+                <p className="rounded border border-warning/40 bg-warning-soft p-2 text-xs">
+                  Plan change requested: {ents.subscription.plan_code} → {ents.subscription.pending_plan_code}{" "}
+                  {ents.subscription.pending_plan_effective_at ? `scheduled ${fmtDate(ents.subscription.pending_plan_effective_at)}` : "— waiting for the platform team (use Change plan)"}
+                </p>
+              )}
+              {FEATURE_CATALOG.filter((f) => !f.core).map((f) => {
+                const a = ents.access[f.key];
+                const open = ents.grants.filter((g) => g.feature_key === f.key && ["pending", "active", "canceling"].includes(g.status));
+                return (
+                  <div key={f.key} className="flex flex-col gap-1 border-b border-line-soft py-1.5 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <span className="text-ink">{f.label}</span>{" "}
+                      <span className="text-xs text-ink-3">{f.key}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge tone={a.enabled ? "success" : a.state === "blocked" ? "danger" : a.state === "pending" ? "warning" : "neutral"}>
+                        {a.state.replace("_", " ")}
+                        {a.endsAt ? ` · ${fmtDate(a.endsAt)}` : ""}
+                      </Badge>
+                      <EntitlementControls
+                        orgId={org.id}
+                        feature={f.key}
+                        grants={open.map((g) => ({
+                          id: g.id,
+                          kind: g.kind,
+                          status: g.status,
+                          label: `${g.kind}${g.status !== "active" ? ` (${g.status})` : ""}${g.amount != null ? ` ${g.currency ?? ""} ${g.amount}` : ""}`,
+                        }))}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </CardBody>
+          </Card>
+        )}
 
         {/* Staff */}
         <Card className="xl:col-span-2">

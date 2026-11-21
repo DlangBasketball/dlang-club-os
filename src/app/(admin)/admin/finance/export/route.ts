@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { hasFeature } from "@/lib/upgrades/server";
 import { tenantMatchesOrg } from "@/lib/tenant/server";
 import { getI18n } from "@/lib/i18n/server";
 import { writeAudit } from "@/lib/people/server";
@@ -22,6 +23,8 @@ export async function GET(request: Request) {
   if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("finance")) || !(await tenantMatchesOrg(me.orgId))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+  // Module not in the club's plan: the route does not exist for it.
+  if (!(await hasFeature(me.orgId, "finance"))) return NextResponse.json({ error: "not_found" }, { status: 404 });
   const { t, ctx } = await getI18n();
   const url = new URL(request.url);
   const p = (k: string) => url.searchParams.get(k);

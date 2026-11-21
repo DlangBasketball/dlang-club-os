@@ -3,6 +3,7 @@ import { cache } from "react";
 import { env } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEntitlements } from "@/lib/platform/features";
+import { getFeatureAccess } from "@/lib/upgrades/server";
 import type { SessionUser } from "@/lib/auth/get-user";
 import {
   addonEntitlement,
@@ -28,15 +29,23 @@ export function assistantConfigured(): boolean {
  */
 export const getAssistantAddonSource = cache(async (orgId: string): Promise<AddonSource | null> => {
   const admin = createAdminClient();
-  const [ent, { data: rows }] = await Promise.all([
+  const [ent, access, { data: rows }] = await Promise.all([
     getEntitlements(orgId),
+    getFeatureAccess(orgId),
     admin
       .from("ai_assistant_addons")
       .select("scope,source,status,starts_at,ends_at")
       .eq("org_id", orgId)
       .eq("scope", "org"),
   ]);
-  return addonEntitlement((rows ?? []) as AddonRow[], { live: ent.live, suspended: ent.suspended });
+  // A platform block switches the assistant off whatever the source.
+  const a = access.ai_assistant;
+  if (a?.state === "blocked") return null;
+  const legacy = addonEntitlement((rows ?? []) as AddonRow[], { live: ent.live, suspended: ent.suspended });
+  if (legacy) return legacy;
+  // Bought in "Plan & upgrades" or granted by the platform (org_feature_grants).
+  if (!a?.enabled) return null;
+  return a.state === "complimentary" ? "complimentary" : "paid_addon";
 });
 
 /**

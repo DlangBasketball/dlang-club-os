@@ -12,6 +12,7 @@ import { createFormatter, type Formatter } from "@/lib/format";
 import { clubMediaPublicUrl, isLibraryPath } from "@/lib/media/cover";
 import { logError } from "@/lib/log";
 import { websiteDb } from "@/lib/website/server";
+import { hasFeature } from "@/lib/upgrades/server";
 import { parsePageContent, parsePostContent, type PageContent, type PostContent } from "./blocks";
 import { isLanguageTag, uiCatalogFor } from "./languages";
 import { isSiteTemplate, cleanFonts, cleanPalette, type SiteFonts, type SitePalette, type SiteTemplate } from "./theme";
@@ -133,6 +134,8 @@ export const getRequestSite = cache(async (): Promise<ResolvedSite | null> => {
 /** Same, for a known club (admin preview). Never call with a client-supplied id. */
 export async function loadSite(tenant: Tenant & { id: string }, opts: { allowDisabled?: boolean } = {}): Promise<ResolvedSite | null> {
   try {
+    // The public site is a paid module: without it the club's site is off (data is kept).
+    if (!opts.allowDisabled && !(await hasFeature(tenant.id, "site_builder"))) return null;
     let settings = await loadSettings(tenant.id);
     if (!settings && opts.allowDisabled) {
       const { data } = await websiteDb().from("site_settings").select("*").eq("org_id", tenant.id).maybeSingle();

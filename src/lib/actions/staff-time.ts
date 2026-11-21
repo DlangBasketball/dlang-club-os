@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { requireRole, writeAudit, type ActionResult } from "@/lib/people/server";
 import { getLocaleContext } from "@/lib/i18n/server";
@@ -46,6 +47,7 @@ function wallToIso(local: string, timeZone: string): string | null {
 }
 
 export async function clockIn(input: ClockInInput): Promise<ActionResult<{ id: string; linked: boolean; geo: GeoStatus }>> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(STAFF);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const p = clockInSchema.safeParse(input);
@@ -75,6 +77,7 @@ export async function clockIn(input: ClockInInput): Promise<ActionResult<{ id: s
 }
 
 export async function clockOut(note?: string | null): Promise<ActionResult> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(STAFF);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const n = typeof note === "string" ? note.trim().slice(0, 500) : null;
@@ -90,6 +93,7 @@ export async function clockOut(note?: string | null): Promise<ActionResult> {
 }
 
 export async function setBreak(start: boolean): Promise<ActionResult> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(STAFF);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   if (typeof start !== "boolean") return { ok: false, error: t("staff.errors.invalid") };
@@ -108,6 +112,7 @@ export async function setBreak(start: boolean): Promise<ActionResult> {
 // ---------------------------------------------------------------------------
 
 export async function saveTimeEntry(input: EntryInput): Promise<ActionResult<{ id: string }>> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const p = entrySchema.safeParse(input);
@@ -151,6 +156,7 @@ export async function saveTimeEntry(input: EntryInput): Promise<ActionResult<{ i
 }
 
 export async function deleteTimeEntry(entryId: string, reason: string): Promise<ActionResult> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   if (!uuid.safeParse(entryId).success) return { ok: false, error: t("staff.errors.notFound") };
@@ -168,6 +174,7 @@ export async function deleteTimeEntry(entryId: string, reason: string): Promise<
 }
 
 export async function setTimesheet(input: TimesheetInput): Promise<ActionResult> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const p = timesheetSchema.safeParse(input);
@@ -188,6 +195,7 @@ export async function setTimesheet(input: TimesheetInput): Promise<ActionResult>
 }
 
 export async function flagMissedClockOuts(): Promise<ActionResult<{ count: number }>> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const db = await staffDb();
@@ -207,6 +215,7 @@ export async function flagMissedClockOuts(): Promise<ActionResult<{ count: numbe
 // ---------------------------------------------------------------------------
 
 export async function saveShiftTemplate(input: ShiftTemplateInput): Promise<ActionResult<{ id: string }>> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const p = shiftTemplateSchema.safeParse(input);
@@ -242,6 +251,7 @@ export async function saveShiftTemplate(input: ShiftTemplateInput): Promise<Acti
 }
 
 export async function deleteShiftTemplate(id: string): Promise<ActionResult> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   if (!uuid.safeParse(id).success) return { ok: false, error: t("staff.errors.notFound") };
@@ -257,6 +267,7 @@ export async function deleteShiftTemplate(id: string): Promise<ActionResult> {
 }
 
 export async function setVenueGeofence(input: GeofenceInput): Promise<ActionResult> {
+  await assertFeature("staff_time");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const p = geofenceSchema.safeParse(input);

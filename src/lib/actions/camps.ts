@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -54,6 +55,7 @@ async function campOf(programId: string, orgId: string) {
 // Editions
 // ---------------------------------------------------------------------------
 export async function saveEdition(programId: string, editionId: string | null, input: EditionInput): Promise<CampActionResult> {
+  await assertFeature("camps");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!(await campOf(programId, me.orgId))) return fail("camps.errors.notFound", me.orgId);
@@ -83,6 +85,7 @@ export async function saveEdition(programId: string, editionId: string | null, i
 
 /** Copies an edition (as a draft, one week later by default) with its own price options / time slots. */
 export async function duplicateEdition(editionId: string, startsOn?: string): Promise<CampActionResult> {
+  await assertFeature("camps");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!uuid.safeParse(editionId).success) return fail("camps.errors.invalidRequest", me.orgId);
@@ -122,6 +125,7 @@ export async function duplicateEdition(editionId: string, startsOn?: string): Pr
 
 /** Deletes an edition without registrations; with registrations it is archived. */
 export async function deleteEdition(editionId: string): Promise<CampActionResult> {
+  await assertFeature("camps");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!uuid.safeParse(editionId).success) return fail("camps.errors.invalidRequest", me.orgId);
@@ -154,6 +158,7 @@ async function editionOf(db: Awaited<ReturnType<typeof campsDb>>, editionId: str
 }
 
 export async function savePriceOption(programId: string, input: PriceOptionInput): Promise<CampActionResult> {
+  await assertFeature("camps");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!(await campOf(programId, me.orgId))) return fail("camps.errors.notFound", me.orgId);
@@ -176,6 +181,7 @@ export async function savePriceOption(programId: string, input: PriceOptionInput
 }
 
 export async function saveAgeGroup(programId: string, input: AgeGroupInput): Promise<CampActionResult> {
+  await assertFeature("camps");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!(await campOf(programId, me.orgId))) return fail("camps.errors.notFound", me.orgId);
@@ -194,6 +200,7 @@ export async function saveAgeGroup(programId: string, input: AgeGroupInput): Pro
 }
 
 export async function saveTimeSlot(programId: string, input: TimeSlotInput): Promise<CampActionResult> {
+  await assertFeature("camps");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!(await campOf(programId, me.orgId))) return fail("camps.errors.notFound", me.orgId);
@@ -219,6 +226,7 @@ const ROW_TABLES = { option: "camp_price_options", ageGroup: "camp_age_groups", 
  * price snapshot (the link is set null), so history is not lost.
  */
 export async function deleteCampRow(programId: string, kind: keyof typeof ROW_TABLES, id: string): Promise<CampActionResult> {
+  await assertFeature("camps");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!uuid.safeParse(id).success || !(kind in ROW_TABLES)) return fail("camps.errors.invalidRequest", me.orgId);

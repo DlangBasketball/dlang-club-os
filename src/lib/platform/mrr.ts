@@ -69,3 +69,71 @@ export function summarizeMrr(rows: TenantOverviewRow[], now: Date = new Date()):
       .sort((a, b) => b.count - a.count),
   };
 }
+
+/** Add-on grant row as needed for revenue (public.org_feature_grants). */
+export type AddonRevenueRow = {
+  org_id: string;
+  feature_key: string;
+  kind: string;
+  status: string;
+  amount: number | null;
+  currency: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+};
+
+export type AddonMrrSummary = {
+  /** Monthly recurring add-on revenue per currency (active + canceling until their end). */
+  byCurrency: { currency: string; mrr: number; arr: number; addons: number }[];
+  /** Active paid add-ons per feature (count, MRR per currency). */
+  byFeature: { feature: string; count: number; mrr: Record<string, number> }[];
+  /** Open purchase requests waiting for the platform team. */
+  pending: number;
+  /** Paid add-ons scheduled to end at period end. */
+  canceling: number;
+  /** Running free trials of a module. */
+  trials: number;
+};
+
+/** Add-on MRR from org_feature_grants (pure). Complimentary grants are not revenue. */
+export function summarizeAddonMrr(rows: AddonRevenueRow[], now: Date = new Date()): AddonMrrSummary {
+  const t = now.getTime();
+  const live = (r: AddonRevenueRow) =>
+    (!r.starts_at || new Date(r.starts_at).getTime() <= t) && (!r.ends_at || new Date(r.ends_at).getTime() > t);
+  const cur = new Map<string, { mrr: number; addons: number }>();
+  const feat = new Map<string, { count: number; mrr: Record<string, number> }>();
+  let pending = 0;
+  let canceling = 0;
+  let trials = 0;
+  for (const r of rows) {
+    if (r.kind === "trial" && r.status === "active" && live(r)) trials++;
+    if (r.kind !== "addon") continue;
+    if (r.status === "pending") {
+      pending++;
+      continue;
+    }
+    if (!["active", "canceling"].includes(r.status) || !live(r)) continue;
+    if (r.status === "canceling") canceling++;
+    const c = r.currency && ["CHF", "EUR", "USD"].includes(r.currency) ? r.currency : "CHF";
+    const amount = Number(r.amount ?? 0);
+    const e = cur.get(c) ?? { mrr: 0, addons: 0 };
+    e.mrr += amount;
+    e.addons++;
+    cur.set(c, e);
+    const f = feat.get(r.feature_key) ?? { count: 0, mrr: {} };
+    f.count++;
+    f.mrr[c] = Math.round(((f.mrr[c] ?? 0) + amount) * 100) / 100;
+    feat.set(r.feature_key, f);
+  }
+  return {
+    byCurrency: Array.from(cur.entries())
+      .map(([currency, v]) => ({ currency, mrr: Math.round(v.mrr * 100) / 100, arr: Math.round(v.mrr * 12 * 100) / 100, addons: v.addons }))
+      .sort((a, b) => b.mrr - a.mrr),
+    byFeature: Array.from(feat.entries())
+      .map(([feature, v]) => ({ feature, ...v }))
+      .sort((a, b) => b.count - a.count),
+    pending,
+    canceling,
+    trials,
+  };
+}

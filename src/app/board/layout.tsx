@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth/get-user";
 import { AppShell } from "@/components/layout/app-shell";
 import { getNavNotifications } from "@/lib/data/notifications";
+import { FeatureGate } from "@/components/upgrades/feature-gate";
 
 /**
  * Board & committees area. Open to admins and to current committee members
@@ -14,7 +15,7 @@ export default async function BoardLayout({ children }: { children: React.ReactN
   const notifs = await getNavNotifications();
   return (
     <AppShell navKey={navKey} user={user} notifications={{ data: notifs }}>
-      {children}
+      <FeatureGate feature="ops_board" area={navKey}>{children}</FeatureGate>
     </AppShell>
   );
 }

@@ -657,5 +657,49 @@
         "programs": "Programmes"
       }
     }
+  },
+  "upgrades": {
+    "categories": {
+      "programs": "Programmes & scheduling"
+    },
+    "page": {
+      "statuses": {
+        "canceled": "Cancelled"
+      }
+    },
+    "features": {
+      "programs": {
+        "name": "Programmes & schedule",
+        "description": "Seasons, programmes, teams' sessions and the club schedule."
+      },
+      "registration": {
+        "description": "Public sign-up pages per programme with forms, consents and fees."
+      },
+      "custom_branding": {
+        "description": "Your logo, colours and app name."
+      },
+      "waitlists": {
+        "description": "Full programmes fill from the waiting list automatically, with offer links."
+      },
+      "media_library": {
+        "description": "Photos and covers for programmes and camps, with consent checks."
+      },
+      "discounts": {
+        "pitch": "Reward loyal families and fill programmes earlier."
+      },
+      "staff_compliance": {
+        "description": "Track coaching licences, background checks and expiry dates."
+      },
+      "website_connect": {
+        "pitch": "Your website shows live programmes and camps automatically."
+      },
+      "api_access": {
+        "pitch": "Connect the tools your organisation already uses."
+      },
+      "sso": {
+        "description": "Sign in with your organisation's identity provider.",
+        "pitch": "One login and central control for large organisations."
+      }
+    }
   }
 }

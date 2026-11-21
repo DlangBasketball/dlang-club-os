@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import type { Json } from "@/types/database";
 import { logError } from "@/lib/log";
@@ -28,6 +29,7 @@ function revalidateMembership() {
 // Types
 // ---------------------------------------------------------------------------
 export async function saveMembershipType(id: string | null, input: MembershipTypeInput): Promise<CaResult<{ id: string }>> {
+  await assertFeature("memberships");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -72,6 +74,7 @@ async function typeName(orgId: string, typeId: string): Promise<string> {
 
 /** Admin: enrol a family / athlete (optionally free, e.g. honorary). */
 export async function createMembership(input: MembershipCreateInput): Promise<CaResult<{ id: string; invoiceId: string | null }>> {
+  await assertFeature("memberships");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = membershipCreateSchema.safeParse(input);
@@ -89,6 +92,7 @@ export async function createMembership(input: MembershipCreateInput): Promise<Ca
 
 /** Parent: join the club for a child (person type) or the household (family type). */
 export async function joinMembership(input: { typeId: string; familyId: string; athleteId?: string | null }): Promise<CaResult<{ invoiceId: string | null }>> {
+  await assertFeature("memberships");
   const me = await requireMe(["parent"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = membershipCreateSchema.safeParse({ ...input, free: false, validFrom: null });
@@ -114,6 +118,7 @@ export async function joinMembership(input: { typeId: string; familyId: string; 
 
 /** One-click renewal (admin, or a guardian of the membership's family). */
 export async function renewMembership(id: string): Promise<CaResult<{ invoiceId: string | null }>> {
+  await assertFeature("memberships");
   const me = await requireMe(["admin", "parent"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -136,6 +141,7 @@ export async function renewMembership(id: string): Promise<CaResult<{ invoiceId:
 }
 
 export async function cancelMembership(id: string, reason: string): Promise<CaResult> {
+  await assertFeature("memberships");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = membershipCancelSchema.safeParse({ id, reason });
@@ -153,6 +159,7 @@ export async function cancelMembership(id: string, reason: string): Promise<CaRe
 
 /** Renewal campaign: remind the families of the selected expiring memberships. */
 export async function sendRenewalReminders(ids: string[]): Promise<CaResult<{ sent: number }>> {
+  await assertFeature("memberships");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = idList.safeParse(ids);

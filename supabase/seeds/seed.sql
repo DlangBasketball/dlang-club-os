@@ -156,3 +156,19 @@ insert into public.family_members (family_id, profile_id, relation, is_primary) 
 
 update public.families set primary_contact_id = '00000000-0000-0000-0000-0000000000f4'
   where id = '00000000-0000-0000-0000-000000000061';
+
+-- Feature packaging: DLang (customer zero) keeps every module ('complimentary_all'
+-- grant, data only). Guarded: in the DB test harness this seed runs before the
+-- table exists, and migration 20250420102100 inserts the same grant itself.
+do $$
+begin
+  if to_regclass('public.org_feature_grants') is not null then
+    execute $sql$
+      insert into public.org_feature_grants (org_id, feature_key, kind, status, note)
+      select '00000000-0000-0000-0000-000000000001', '*', 'complimentary_all', 'active', 'Customer zero: every module complimentary'
+       where not exists (select 1 from public.org_feature_grants
+                          where org_id = '00000000-0000-0000-0000-000000000001' and kind = 'complimentary_all'
+                            and status in ('pending', 'active', 'canceling'))
+    $sql$;
+  end if;
+end $$;

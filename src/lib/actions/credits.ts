@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -31,6 +32,7 @@ const schema = z
 export type CreditAdjustInput = z.input<typeof schema>;
 
 export async function adjustTrainingCredits(input: CreditAdjustInput): Promise<MoneyResult> {
+  await assertFeature("bookings");
   const t = await moneyT();
   if (!(await requireMoneyStaff())) return notPermitted(t);
   const parsed = schema.safeParse(input);

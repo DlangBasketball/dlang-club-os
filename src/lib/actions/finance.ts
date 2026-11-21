@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -55,6 +56,7 @@ function revalidateFinance(extra: string[] = []) {
 // Expenses
 // ---------------------------------------------------------------------------
 export async function saveExpense(id: string | null, input: ExpenseInput): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (id && !uuid.safeParse(id).success) return err(t, "finance.errors.invalidRequest");
@@ -81,6 +83,7 @@ export async function saveExpense(id: string | null, input: ExpenseInput): Promi
 }
 
 export async function setExpenseStatus(id: string, status: "paid" | "unpaid"): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(id).success || !["paid", "unpaid"].includes(status)) return err(t, "finance.errors.invalidRequest");
@@ -100,6 +103,7 @@ export async function setExpenseStatus(id: string, status: "paid" | "unpaid"): P
 
 /** Soft delete with a reason; the row stays for the audit trail. */
 export async function deleteExpense(id: string, reason: string): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(id).success) return err(t, "finance.errors.invalidRequest");
@@ -121,6 +125,7 @@ export async function deleteExpense(id: string, reason: string): Promise<Finance
 
 /** Posts the monthly copies of recurring expenses up to today. */
 export async function generateRecurringExpenses(): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const db = await financeDb();
@@ -135,6 +140,7 @@ export async function generateRecurringExpenses(): Promise<FinanceResult> {
 // Receipts (private bucket, signed URLs only)
 // ---------------------------------------------------------------------------
 export async function uploadExpenseReceipt(formData: FormData): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const id = String(formData.get("expenseId") ?? "");
@@ -173,6 +179,7 @@ export async function uploadExpenseReceipt(formData: FormData): Promise<FinanceR
 }
 
 export async function removeExpenseReceipt(id: string): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(id).success) return err(t, "finance.errors.invalidRequest");
@@ -199,6 +206,7 @@ type ListKind = "category" | "supplier";
 const TABLE: Record<ListKind, "expense_categories" | "expense_suppliers"> = { category: "expense_categories", supplier: "expense_suppliers" };
 
 export async function saveListItem(kind: ListKind, id: string | null, input: { name: string; contact?: string | null; notes?: string | null }): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!(kind in TABLE) || (id && !uuid.safeParse(id).success)) return err(t, "finance.errors.invalidRequest");
@@ -221,6 +229,7 @@ export async function saveListItem(kind: ListKind, id: string | null, input: { n
 }
 
 export async function setListItemActive(kind: ListKind, id: string, active: boolean): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!(kind in TABLE) || !uuid.safeParse(id).success) return err(t, "finance.errors.invalidRequest");
@@ -235,6 +244,7 @@ export async function setListItemActive(kind: ListKind, id: string, active: bool
 
 /** Deletes an unused entry; one that an expense uses is deactivated instead. */
 export async function deleteListItem(kind: ListKind, id: string): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!(kind in TABLE) || !uuid.safeParse(id).success) return err(t, "finance.errors.invalidRequest");
@@ -257,6 +267,7 @@ export async function deleteListItem(kind: ListKind, id: string): Promise<Financ
 // Coach pay rates and payouts
 // ---------------------------------------------------------------------------
 export async function saveCoachRate(input: { coachId: string; rateType: string; amount: number | string; currency?: string; notes?: string | null }): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const ctx = await getLocaleContext();
@@ -276,6 +287,7 @@ export async function saveCoachRate(input: { coachId: string; rateType: string; 
 }
 
 export async function removeCoachRate(coachId: string): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(coachId).success) return err(t, "finance.errors.invalidRequest");
@@ -293,6 +305,7 @@ export async function removeCoachRate(coachId: string): Promise<FinanceResult> {
  * record_coach_payout books the payout and its expense in one transaction.
  */
 export async function markPayoutPaid(coachId: string, month: string, paidOn: string, method: string): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(coachId).success) return err(t, "finance.errors.invalidRequest");
@@ -325,6 +338,7 @@ export async function markPayoutPaid(coachId: string, month: string, paidOn: str
 }
 
 export async function voidPayout(payoutId: string, reason: string): Promise<FinanceResult> {
+  await assertFeature("finance");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(payoutId).success) return err(t, "finance.errors.invalidRequest");

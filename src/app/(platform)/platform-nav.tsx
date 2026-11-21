@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Gauge, Layers, LogOut } from "lucide-react";
+import { Building2, Gauge, Layers, LogOut, Puzzle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/platform", label: "Overview", icon: Gauge, exact: true },
   { href: "/platform/tenants", label: "Tenants", icon: Building2, exact: false },
-  { href: "/platform/plans", label: "Plans", icon: Layers, exact: false },
+  { href: "/platform/plans", label: "Plans", icon: Layers, exact: true },
+  { href: "/platform/plans/features", label: "Features & add-ons", icon: Puzzle, exact: false },
 ];
 
 export function PlatformNav({ email }: { email: string | null }) {

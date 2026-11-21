@@ -2,6 +2,7 @@ import "server-only";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PLATFORM_NAME } from "./catalog";
+import { planItemOf, syncAddonItems } from "@/lib/upgrades/sync";
 import {
   asPlatform,
   type BillingInterval,
@@ -259,7 +260,7 @@ async function resolvePlanCode(sub: Stripe.Subscription, priceId: string | null)
     const { data } = await db.from("plan_prices").select("plan_code").eq("stripe_price_id", priceId).maybeSingle();
     if (data?.plan_code) return data.plan_code;
   }
-  const item = sub.items?.data?.[0];
+  const item = planItemOf(sub);
   const productMeta =
     item && typeof item.price.product === "object" && item.price.product && "metadata" in item.price.product
       ? (item.price.product as Stripe.Product).metadata?.plan_code
@@ -299,7 +300,8 @@ export async function syncSubscription(
     return { orgId, skipped: "event for superseded subscription" };
   }
 
-  const item = sub.items?.data?.[0];
+  // The plan is the item without an add-on tag (add-ons: src/lib/upgrades).
+  const item = planItemOf(sub);
   const priceId = item?.price?.id ?? null;
   const planCode = (await resolvePlanCode(sub, priceId)) ?? existing?.plan_code ?? "club";
   const currency = (item?.price?.currency ?? sub.currency ?? "chf").toUpperCase();
@@ -327,6 +329,8 @@ export async function syncSubscription(
 
   const { error } = await db.from("subscriptions").upsert(row, { onConflict: "org_id" });
   if (error) throw new Error(`subscriptions upsert failed: ${error.message}`);
+  // Add-on items -> org_feature_grants (idempotent).
+  await syncAddonItems(orgId, sub);
   return { orgId };
 }
 

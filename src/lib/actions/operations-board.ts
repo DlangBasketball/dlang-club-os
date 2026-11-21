@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getI18n, getLocaleContext } from "@/lib/i18n/server";
@@ -48,6 +49,7 @@ async function committeeOfMeeting(meetingId: string): Promise<string | null> {
 // Committees + members (admin)
 // ---------------------------------------------------------------------------
 export async function saveCommittee(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -67,6 +69,7 @@ export async function saveCommittee(id: string | null, input: Record<string, unk
 }
 
 export async function saveMember(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -88,6 +91,7 @@ export async function saveMember(id: string | null, input: Record<string, unknow
 }
 
 export async function removeMember(id: string): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -104,6 +108,7 @@ export async function removeMember(id: string): Promise<OpsResult> {
 // Meetings (committee members + admins)
 // ---------------------------------------------------------------------------
 export async function saveMeeting(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_board");
   const committeeId = typeof input.committeeId === "string" ? input.committeeId : "";
   const { me, t } = await gateCommittee(uuid.safeParse(committeeId).success ? committeeId : "00000000-0000-0000-0000-000000000000");
   if (!me) return fail(t, "operations.errors.forbidden");
@@ -131,6 +136,7 @@ export async function saveMeeting(id: string | null, input: Record<string, unkno
 }
 
 export async function saveMinutes(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const committeeId = await committeeOfMeeting(String(input.meetingId ?? ""));
   const { me, t } = await gateCommittee(committeeId ?? "00000000-0000-0000-0000-000000000000");
   if (!me || !committeeId) return fail(t, "operations.errors.forbidden");
@@ -148,6 +154,7 @@ export async function saveMinutes(input: Record<string, unknown>): Promise<OpsRe
 }
 
 export async function addAttendee(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const committeeId = await committeeOfMeeting(String(input.meetingId ?? ""));
   const { me, t } = await gateCommittee(committeeId ?? "00000000-0000-0000-0000-000000000000");
   if (!me || !committeeId) return fail(t, "operations.errors.forbidden");
@@ -166,6 +173,7 @@ export async function addAttendee(input: Record<string, unknown>): Promise<OpsRe
 
 /** Attendance list pre-filled with the committee's current members. */
 export async function fillAttendeesFromMembers(meetingId: string): Promise<OpsResult<{ added: number }>> {
+  await assertFeature("ops_board");
   const committeeId = await committeeOfMeeting(meetingId);
   const { me, t } = await gateCommittee(committeeId ?? "00000000-0000-0000-0000-000000000000");
   if (!me || !committeeId) return fail(t, "operations.errors.forbidden");
@@ -188,6 +196,7 @@ export async function fillAttendeesFromMembers(meetingId: string): Promise<OpsRe
 }
 
 export async function setAttendeeStatus(id: string, status: string): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin", "finance", "coach", "parent"]);
   if (!me || !uuid.safeParse(id).success || !["present", "absent", "excused", "proxy"].includes(status)) return fail(t, "operations.errors.forbidden");
   const db = await opsDb();
@@ -201,6 +210,7 @@ export async function setAttendeeStatus(id: string, status: string): Promise<Ops
 }
 
 export async function removeAttendee(id: string): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin", "finance", "coach", "parent"]);
   if (!me || !uuid.safeParse(id).success) return fail(t, "operations.errors.forbidden");
   const db = await opsDb();
@@ -216,6 +226,7 @@ export async function removeAttendee(id: string): Promise<OpsResult> {
 // Decisions log, votes, documents
 // ---------------------------------------------------------------------------
 export async function saveDecision(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_board");
   const committeeId = typeof input.committeeId === "string" ? input.committeeId : "";
   const { me, t } = await gateCommittee(uuid.safeParse(committeeId).success ? committeeId : "00000000-0000-0000-0000-000000000000");
   if (!me) return fail(t, "operations.errors.forbidden");
@@ -239,6 +250,7 @@ export async function saveDecision(id: string | null, input: Record<string, unkn
 }
 
 export async function setDecisionStatus(id: string, status: string): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin", "finance", "coach", "parent"]);
   if (!me || !uuid.safeParse(id).success || !(DECISION_STATUSES as readonly string[]).includes(status)) return fail(t, "operations.errors.forbidden");
   const db = await opsDb();
@@ -252,6 +264,7 @@ export async function setDecisionStatus(id: string, status: string): Promise<Ops
 }
 
 export async function saveVote(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const committeeId = await committeeOfMeeting(String(input.meetingId ?? ""));
   const { me, t } = await gateCommittee(committeeId ?? "00000000-0000-0000-0000-000000000000");
   if (!me || !committeeId) return fail(t, "operations.errors.forbidden");
@@ -271,6 +284,7 @@ export async function saveVote(input: Record<string, unknown>): Promise<OpsResul
 }
 
 export async function deleteVote(id: string): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin", "finance", "coach", "parent"]);
   if (!me || !uuid.safeParse(id).success) return fail(t, "operations.errors.forbidden");
   const db = await opsDb();
@@ -283,6 +297,7 @@ export async function deleteVote(id: string): Promise<OpsResult> {
 }
 
 export async function addDocument(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const committeeId = typeof input.committeeId === "string" ? input.committeeId : "";
   const { me, t } = await gateCommittee(uuid.safeParse(committeeId).success ? committeeId : "00000000-0000-0000-0000-000000000000");
   if (!me) return fail(t, "operations.errors.forbidden");
@@ -300,6 +315,7 @@ export async function addDocument(input: Record<string, unknown>): Promise<OpsRe
 }
 
 export async function deleteDocument(id: string): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin", "finance", "coach", "parent"]);
   if (!me || !uuid.safeParse(id).success) return fail(t, "operations.errors.forbidden");
   const db = await opsDb();
@@ -316,6 +332,7 @@ export async function deleteDocument(id: string): Promise<OpsResult> {
  * by each member's preferences) with the date, place and agenda.
  */
 export async function sendAgmInvitation(meetingId: string): Promise<OpsResult> {
+  await assertFeature("ops_board");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(meetingId).success) return fail(t, "operations.errors.notFound");

@@ -3,7 +3,11 @@ import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { FeatureKey } from "./catalog";
 import {
-  entitlementAllows,
+  FeatureNotAvailableError,
+  hasFeature as hasUpgradeFeature,
+  requireFeature as requireUpgradeFeature,
+} from "@/lib/upgrades/server";
+import {
   evaluateLimit,
   resolveEntitlements,
   type Entitlements,
@@ -50,10 +54,13 @@ export const getEntitlements = cache(async (orgId: string): Promise<Entitlements
   return resolveEntitlements(orgId, (sub as SubscriptionRow | null) ?? null, plan, Boolean(org?.suspended_at));
 });
 
-/** True when the org's live subscription grants `feature`. */
+/**
+ * True when the club may use `feature`: plan, add-ons, trials and platform
+ * grants minus blocks, with dependencies (src/lib/upgrades/server.ts is the
+ * single implementation; this keeps the older import path working).
+ */
 export async function hasFeature(org: OrgRef, feature: FeatureKey | string): Promise<boolean> {
-  const ent = isEntitlements(org) ? org : await getEntitlements(orgIdOf(org));
-  return entitlementAllows(ent, feature);
+  return hasUpgradeFeature(orgIdOf(org), feature);
 }
 
 async function countUsage(orgId: string, resource: LimitResource): Promise<number> {
@@ -78,13 +85,9 @@ export async function checkLimit(org: OrgRef, resource: LimitResource, adding = 
   return evaluateLimit(ent, resource, used, adding);
 }
 
-/** Throws a typed error when the feature is missing — handy in server actions. */
-export class FeatureNotAvailableError extends Error {
-  constructor(public readonly feature: string) {
-    super(`FEATURE_NOT_AVAILABLE:${feature}`);
-  }
-}
+export { FeatureNotAvailableError };
 
+/** Throws FeatureNotAvailableError when the feature is missing — handy in server actions. */
 export async function requireFeature(org: OrgRef, feature: FeatureKey | string): Promise<void> {
-  if (!(await hasFeature(org, feature))) throw new FeatureNotAvailableError(feature);
+  return requireUpgradeFeature(orgIdOf(org), feature);
 }

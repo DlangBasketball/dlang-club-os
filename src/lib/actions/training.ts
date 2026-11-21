@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature, hasFeature } from "@/lib/upgrades/server";
 import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -70,6 +71,7 @@ function slugify(s: string) {
 // Services (+ which coaches offer them) and packages
 // ===========================================================================
 export async function saveTrainingService(id: string | null, input: ServiceInput): Promise<TrainingResult<{ id: string }>> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin"]);
   if (!me) return fail("training.errors.notPermitted");
   if (id !== null && !isUuid(id)) return fail("training.errors.invalidRequest");
@@ -115,6 +117,7 @@ export async function saveTrainingService(id: string | null, input: ServiceInput
 
 /** Replace the package rows of a service: update by id, insert new, delete the ones removed. */
 export async function saveServicePackages(serviceId: string, rows: PackageRowInput[]): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(serviceId)) return fail("training.errors.invalidRequest");
@@ -166,6 +169,7 @@ async function availabilityActor(coachId: string | null): Promise<Me | null> {
 }
 
 export async function saveTemplate(input: TemplateInput): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const p = templateSchema.safeParse(input);
   if (!p.success) return fail(zodKey(p.error));
   const v = p.data;
@@ -185,6 +189,7 @@ export async function saveTemplate(input: TemplateInput): Promise<TrainingResult
 }
 
 export async function deleteTemplate(id: string): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "coach"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(id)) return fail("training.errors.invalidRequest");
@@ -197,6 +202,7 @@ export async function deleteTemplate(id: string): Promise<TrainingResult> {
 }
 
 export async function saveWindow(input: WindowInput): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const p = windowSchema.safeParse(input);
   if (!p.success) return fail(zodKey(p.error));
   const v = p.data;
@@ -216,6 +222,7 @@ export async function saveWindow(input: WindowInput): Promise<TrainingResult> {
 }
 
 export async function deleteWindow(id: string): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "coach"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(id)) return fail("training.errors.invalidRequest");
@@ -228,6 +235,7 @@ export async function deleteWindow(id: string): Promise<TrainingResult> {
 }
 
 export async function saveBlackout(input: BlackoutInput): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const p = blackoutSchema.safeParse(input);
   if (!p.success) return fail(zodKey(p.error));
   const v = p.data;
@@ -248,6 +256,7 @@ export async function saveBlackout(input: BlackoutInput): Promise<TrainingResult
 }
 
 export async function deleteBlackout(id: string): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "coach"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(id)) return fail("training.errors.invalidRequest");
@@ -260,6 +269,7 @@ export async function deleteBlackout(id: string): Promise<TrainingResult> {
 }
 
 export async function saveVenueHours(venueId: string, hours: OpeningHoursInput): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(venueId)) return fail("training.errors.invalidRequest");
@@ -274,6 +284,7 @@ export async function saveVenueHours(venueId: string, hours: OpeningHoursInput):
 }
 
 export async function updateTrainingSettings(input: TrainingSettingsInput): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin"]);
   if (!me) return fail("training.errors.notPermitted");
   const p = settingsSchema.safeParse(input);
@@ -302,6 +313,7 @@ export async function updateTrainingSettings(input: TrainingSettingsInput): Prom
 // Purchases
 // ===========================================================================
 export async function purchaseTrainingPackage(input: PurchaseInput): Promise<TrainingResult<{ purchaseId: string; invoiceId: string | null; status: string }>> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "parent"]);
   if (!me) return fail("training.errors.notPermitted");
   const p = purchaseSchema.safeParse(input);
@@ -327,6 +339,7 @@ export async function purchaseTrainingPackage(input: PurchaseInput): Promise<Tra
 }
 
 export async function cancelTrainingPurchase(purchaseId: string, reason: string): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(purchaseId)) return fail("training.errors.invalidRequest");
@@ -380,6 +393,7 @@ async function notifyBooking(me: Me, bookingId: string, payNoteKey: "credits" | 
 }
 
 export async function bookTrainingSession(input: BookInput): Promise<TrainingResult<{ bookingId: string; purchaseId: string | null; invoiceId: string | null }>> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "parent"]);
   if (!me) return fail("training.errors.notPermitted");
   const p = bookSchema.safeParse(input);
@@ -402,6 +416,7 @@ export async function bookTrainingSession(input: BookInput): Promise<TrainingRes
 }
 
 export async function rescheduleTrainingSession(bookingId: string, coachId: string, start: string): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "parent"]);
   if (!me) return fail("training.errors.notPermitted");
   const p = rescheduleSchema.safeParse({ bookingId, coachId, start });
@@ -414,6 +429,7 @@ export async function rescheduleTrainingSession(bookingId: string, coachId: stri
 }
 
 export async function cancelTrainingSession(bookingId: string): Promise<TrainingResult<{ refunded: boolean }>> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "finance", "parent"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(bookingId)) return fail("training.errors.invalidRequest");
@@ -425,6 +441,7 @@ export async function cancelTrainingSession(bookingId: string): Promise<Training
 }
 
 export async function markTrainingSession(bookingId: string, status: "booked" | "completed" | "no_show"): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "coach"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(bookingId) || !["booked", "completed", "no_show"].includes(status)) return fail("training.errors.invalidRequest");
@@ -436,6 +453,7 @@ export async function markTrainingSession(bookingId: string, status: "booked" | 
 }
 
 export async function confirmTrainingGroup(coachId: string, serviceId: string, start: string): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(coachId) || !isUuid(serviceId) || Number.isNaN(Date.parse(start))) return fail("training.errors.invalidRequest");
@@ -447,6 +465,7 @@ export async function confirmTrainingGroup(coachId: string, serviceId: string, s
 }
 
 export async function cancelTrainingGroup(coachId: string, serviceId: string, start: string, reason: string): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin"]);
   if (!me) return fail("training.errors.notPermitted");
   if (!isUuid(coachId) || !isUuid(serviceId) || Number.isNaN(Date.parse(start))) return fail("training.errors.invalidRequest");
@@ -463,6 +482,7 @@ export async function cancelTrainingGroup(coachId: string, serviceId: string, st
 // Athlete training profile (admin, or a coach who trains the athlete)
 // ===========================================================================
 export async function saveTrainingProfile(input: ProfileInput): Promise<TrainingResult> {
+  await assertFeature("bookings");
   const me = await requireRole(["admin", "coach"]);
   if (!me) return fail("training.errors.notPermitted");
   const p = profileSchema.safeParse(input);
@@ -503,6 +523,7 @@ export async function guestCheckout(input: GuestCheckoutInput): Promise<GuestChe
   const admin = trainingAdminDb();
   const { data: org } = await admin.from("organizations").select("id,slug").eq("slug", v.clubSlug).maybeSingle();
   if (!org) return fail("training.errors.notFound");
+  if (!(await hasFeature(org.id, "bookings"))) return fail("training.errors.notFound");
 
   // 1) The parent's account (email + password, or a magic link).
   const supabase = await createClient();

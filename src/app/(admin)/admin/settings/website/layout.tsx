@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ErrorState } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getTranslations } from "@/lib/i18n/server";
+import { FeatureGate } from "@/components/upgrades/feature-gate";
 
 /** Settings -> Website (admins only): connection, news, import. */
 export default async function WebsiteSettingsLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export default async function WebsiteSettingsLayout({ children }: { children: Re
     { href: "/admin/settings/website/import", label: t("website.admin.tabs.import") },
   ];
   return (
+    <FeatureGate feature="website_connect">
     <div className="space-y-6">
       <nav aria-label={t("website.admin.tab")} className="flex flex-wrap gap-2">
         {tabs.map((tab) => (
@@ -23,5 +25,6 @@ export default async function WebsiteSettingsLayout({ children }: { children: Re
       </nav>
       {children}
     </div>
+    </FeatureGate>
   );
 }

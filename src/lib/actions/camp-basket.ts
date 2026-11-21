@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature, hasFeature } from "@/lib/upgrades/server";
 import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -248,6 +249,7 @@ async function checkout(ctxInput: BasketContext, input: BasketInput, extras: Che
   const v = p.data;
   const r = await resolveContext(ctxInput, v.children);
   if (!r) return { ok: false, error: t0("camps.errors.notPermitted") };
+  if (!(await hasFeature(r.orgId, "camp_basket"))) return { ok: false, error: t0("camps.errors.notPermitted") };
   const t = await getTranslations(r.orgId);
 
   // Children of a public basket: names + date of birth (the rest optional).
@@ -345,6 +347,7 @@ async function checkout(ctxInput: BasketContext, input: BasketInput, extras: Che
 
 /** Parent app: the signed-in guardian's own children. On success: the invoice. */
 export async function checkoutCampBasketParent(input: BasketInput, consents: string[], instalments = 0): Promise<BasketSubmitResult> {
+  await assertFeature("camp_basket");
   const t0 = await getTranslations();
   const c = consentsSchema.safeParse(consents);
   if (!c.success) return { ok: false, error: t0("camps.errors.invalidRequest") };
@@ -373,6 +376,7 @@ export async function checkoutCampBasketPublic(slug: string | null, input: Baske
 
 /** Admin / finance: a multi-week booking on behalf of a family of the club. */
 export async function checkoutCampBasketAdmin(familyId: string, input: BasketInput, consents: string[], instalments = 0): Promise<BasketSubmitResult> {
+  await assertFeature("camp_basket");
   const t0 = await getTranslations();
   const c = consentsSchema.safeParse(consents);
   if (!c.success || !z.string().uuid().safeParse(familyId).success) return { ok: false, error: t0("camps.errors.invalidRequest") };

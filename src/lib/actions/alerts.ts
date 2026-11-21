@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { requireRole, writeAudit, type ActionResult } from "@/lib/people/server";
@@ -34,6 +35,7 @@ function wallToIso(local: string | null, timeZone: string): string | null {
 }
 
 export async function createAlert(input: AlertInput): Promise<ActionResult<{ id: string; scheduled: boolean }>> {
+  await assertFeature("alerts_leads");
   const { me, t } = await requireRole(["admin", "coach"]);
   if (!me) return { ok: false, error: t("messaging.errors.forbidden") };
   const p = alertSchema.safeParse(input);
@@ -83,6 +85,7 @@ export async function createAlert(input: AlertInput): Promise<ActionResult<{ id:
 }
 
 export async function cancelAlert(id: string): Promise<ActionResult> {
+  await assertFeature("alerts_leads");
   const { me, t } = await requireRole(["admin", "coach"]);
   if (!me) return { ok: false, error: t("messaging.errors.forbidden") };
   if (!uuid.safeParse(id).success) return { ok: false, error: t("messaging.errors.notFound") };
@@ -102,6 +105,7 @@ export async function cancelAlert(id: string): Promise<ActionResult> {
 }
 
 export async function dismissAlert(id: string): Promise<ActionResult> {
+  await assertFeature("alerts_leads");
   const { me, t } = await requireRole(["admin", "finance", "coach", "parent"]);
   if (!me) return { ok: false, error: t("messaging.errors.forbidden") };
   if (!uuid.safeParse(id).success) return { ok: false, error: t("messaging.errors.notFound") };

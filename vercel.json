@@ -13,7 +13,8 @@
     { "path": "/api/operations/cron", "schedule": "20 6 * * *" },
     { "path": "/api/club-admin/cron", "schedule": "15 6 * * *" },
     { "path": "/api/family/cron", "schedule": "30 5 * * *" },
-    { "path": "/api/website/cron", "schedule": "40 4 * * *" }
+    { "path": "/api/website/cron", "schedule": "40 4 * * *" },
+    { "path": "/api/platform/cron/upgrades", "schedule": "50 3 * * *" }
   ],
   "headers": [
     {

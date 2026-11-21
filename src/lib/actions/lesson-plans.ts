@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { requireRole, writeAudit, type ActionResult } from "@/lib/people/server";
 import { sniffImageType } from "@/lib/people/validation";
@@ -33,6 +34,7 @@ function revalidatePlan(kind: "session" | "event", itemId: string) {
 }
 
 export async function saveLessonPlan(input: LessonPlanInput): Promise<ActionResult<{ id: string }>> {
+  await assertFeature("lesson_plans");
   const { me, t } = await requireRole(["admin", "coach"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const p = lessonPlanSchema.safeParse(input);
@@ -80,6 +82,7 @@ async function loadPlan(planId: string, orgId: string) {
 }
 
 export async function deleteLessonPlan(planId: string): Promise<ActionResult> {
+  await assertFeature("lesson_plans");
   const { me, t } = await requireRole(["admin", "coach"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   if (!uuid.safeParse(planId).success) return { ok: false, error: t("staff.errors.notFound") };
@@ -100,6 +103,7 @@ function sniffType(bytes: Uint8Array): string | null {
 }
 
 export async function uploadLessonPlanAttachment(formData: FormData): Promise<ActionResult> {
+  await assertFeature("lesson_plans");
   const { me, t } = await requireRole(["admin", "coach"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const planId = String(formData.get("planId") ?? "");
@@ -133,6 +137,7 @@ export async function uploadLessonPlanAttachment(formData: FormData): Promise<Ac
 }
 
 export async function removeLessonPlanAttachment(planId: string): Promise<ActionResult> {
+  await assertFeature("lesson_plans");
   const { me, t } = await requireRole(["admin", "coach"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   if (!uuid.safeParse(planId).success) return { ok: false, error: t("staff.errors.notFound") };
