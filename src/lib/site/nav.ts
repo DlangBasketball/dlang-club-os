@@ -114,6 +114,16 @@ export function buildNav(opts: { custom: readonly CustomNavItem[]; pages: readon
   }));
 }
 
+/**
+ * Switcher languages: every site language once the site has more than one
+ * (untranslated pages show the default content with a note, so every link
+ * works), default first; otherwise the page's own languages.
+ */
+export function switcherLanguages(siteLangs: readonly string[], pageLangs: readonly string[], def: string): string[] {
+  const all = siteLangs.length > 1 ? siteLangs : pageLangs;
+  return [...all.filter((l) => l === def), ...all.filter((l) => l !== def)];
+}
+
 /** Languages a page is published in (titles present), default first. */
 export function pageLanguages(titles: Record<string, string>, siteLanguages: readonly string[], def: string): string[] {
   const have = siteLanguages.filter((l) => typeof titles[l] === "string" && titles[l]!.trim());

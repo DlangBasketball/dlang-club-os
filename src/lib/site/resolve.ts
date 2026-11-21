@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import type { PageLang, PostLang } from "./blocks";
 import { textDir } from "./languages";
+import { switcherLanguages } from "./nav";
 import { isReservedPath, localizedPath, normalizeRequestPath, postSlugOf, splitLangPath } from "./paths";
 import { getPublicPage, getPublicPost, getRequestSite, getSiteRedirect, type PublicPage, type PublicPost, type ResolvedSite } from "./server";
 
@@ -29,16 +30,6 @@ export type SiteResolution =
 function liveLanguages<T extends { state?: string; title?: string }>(content: Record<string, T>, siteLangs: readonly string[], def: string): string[] {
   const ok = siteLangs.filter((l) => content[l] && content[l]!.state !== "needs_translation" && (content[l]!.title ?? "").trim());
   return [...ok.filter((l) => l === def), ...ok.filter((l) => l !== def)];
-}
-
-/**
- * Switcher languages: every site language once the site has more than one
- * (untranslated pages show the default content with a note, so every link
- * works), default first; otherwise the page's own languages.
- */
-export function switcherLanguages(siteLangs: readonly string[], pageLangs: readonly string[], def: string): string[] {
-  const all = siteLangs.length > 1 ? siteLangs : pageLangs;
-  return [...all.filter((l) => l === def), ...all.filter((l) => l !== def)];
 }
 
 export const resolveSiteRequest = cache(async (rawPath: string): Promise<SiteResolution | null> => {
