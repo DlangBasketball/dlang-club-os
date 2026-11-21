@@ -4,6 +4,9 @@ import { getTranslations } from "@/lib/i18n/server";
 import { getWebsiteSettings } from "@/lib/website/server";
 import { ImportPanel } from "@/components/website/admin/import-panel";
 
+// Importing a whole website (pages, posts, photos) can take a few minutes.
+export const maxDuration = 300;
+
 export async function generateMetadata() {
   const t = await getTranslations();
   return { title: t("website.admin.tabs.import") };

@@ -6,6 +6,9 @@ import { loadAdminSite, requireAdminOrg } from "@/lib/site/admin-data";
 import { SiteTabs } from "@/components/site/admin/site-tabs";
 import { ImportWizard } from "@/components/site/admin/site-admin";
 
+// Importing a whole website (pages, posts, photos) can take a few minutes.
+export const maxDuration = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("site.import.title") };

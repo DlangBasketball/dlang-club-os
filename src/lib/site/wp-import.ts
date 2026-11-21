@@ -29,8 +29,10 @@ import {
  *            images not yet copied.
  */
 
-const PER_PAGE = 50;
-const MAX_PAGES_PER_LIST = 4;
+// Page-builder sites send very large page bodies, so lists are read in small pages
+// (and the page size halves again if one page is still too large).
+const PER_PAGE = 10;
+const MAX_ITEMS_PER_LIST = 300;
 const LIST_MAX_BYTES = 8_000_000;
 const MAX_IMAGES_PER_RUN = 120;
 const IMAGE_CONCURRENCY = 4;
@@ -67,11 +69,22 @@ export function normalizeBaseUrl(input: string | null | undefined): string | nul
 
 async function fetchJsonList(base: string, path: string, query: Record<string, string>): Promise<unknown[]> {
   const out: unknown[] = [];
-  for (let page = 1; page <= MAX_PAGES_PER_LIST; page++) {
+  let perPage = PER_PAGE;
+  let offset = 0;
+  while (out.length < MAX_ITEMS_PER_LIST) {
     const u = new URL(`${base}${path}`);
-    for (const [k, v] of Object.entries({ ...query, per_page: String(PER_PAGE), page: String(page) })) u.searchParams.set(k, v);
-    const res = await safeFetch(u.toString(), { timeoutMs: 15_000, maxBytes: LIST_MAX_BYTES, headers: { Accept: "application/json" } });
-    if (res.status === 400 && page > 1) break;
+    for (const [k, v] of Object.entries({ ...query, per_page: String(perPage), offset: String(offset) })) u.searchParams.set(k, v);
+    let res: Awaited<ReturnType<typeof safeFetch>>;
+    try {
+      res = await safeFetch(u.toString(), { timeoutMs: 15_000, maxBytes: LIST_MAX_BYTES, headers: { Accept: "application/json" } });
+    } catch (e) {
+      if (e instanceof ResponseTooLargeError && perPage > 1) {
+        perPage = Math.max(1, Math.floor(perPage / 2));
+        continue;
+      }
+      throw e;
+    }
+    if (res.status === 400 && offset > 0) break;
     if (res.status === 404 || res.status === 401 || res.status === 403) throw new ImportError("not_wordpress");
     if (!res.ok) throw new ImportError("network");
     let data: unknown;
@@ -82,8 +95,9 @@ async function fetchJsonList(base: string, path: string, query: Record<string, s
     }
     if (!Array.isArray(data)) throw new ImportError("not_wordpress");
     out.push(...data);
-    const total = Number(res.headers.get("x-wp-totalpages") ?? "0");
-    if (data.length < PER_PAGE || (total && page >= total)) break;
+    offset += data.length;
+    const total = Number(res.headers.get("x-wp-total") ?? "0");
+    if (data.length < perPage || (total && offset >= total)) break;
   }
   return out;
 }
