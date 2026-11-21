@@ -938,7 +938,7 @@
     },
     "events": {
       "address": "Adresse",
-      "addressPlaceholder": "Rue, NPA, localité",
+      "addressPlaceholder": "Rue, code postal, ville",
       "andMore": "…et {count} de plus",
       "applyTo": "Appliquer à",
       "away": "Extérieur",
@@ -4047,7 +4047,7 @@
       "openMap": "Ouvrir la carte",
       "name": "Nom",
       "address": "Rue et numéro",
-      "postalCode": "NPA",
+      "postalCode": "Code postal",
       "city": "Localité",
       "country": "Pays (code ISO)",
       "capacity": "Capacité",
@@ -5596,7 +5596,7 @@
       "kind": "Type de client",
       "contact": "Personne de contact",
       "street": "Rue",
-      "postalCode": "NPA",
+      "postalCode": "Code postal",
       "city": "Localité",
       "country": "Code pays",
       "kinds": {

@@ -938,7 +938,7 @@
     },
     "events": {
       "address": "Indirizzo",
-      "addressPlaceholder": "Via, NPA, località",
+      "addressPlaceholder": "Via, CAP, città",
       "andMore": "…e altri {count}",
       "applyTo": "Applica a",
       "away": "Trasferta",

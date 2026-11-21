@@ -1,0 +1,18 @@
+{
+  "sports": {
+    "locations": {
+      "postalCode": "NPA",
+      "notes": "Note (accesso, posteggio…)"
+    }
+  },
+  "operations": {
+    "customers": {
+      "postalCode": "NPA"
+    }
+  },
+  "editOps": {
+    "events": {
+      "addressPlaceholder": "Via, NPA, località"
+    }
+  }
+}

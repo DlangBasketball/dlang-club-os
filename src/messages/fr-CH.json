@@ -1,0 +1,25 @@
+{
+  "sports": {
+    "locations": {
+      "postalCode": "NPA"
+    }
+  },
+  "operations": {
+    "customers": {
+      "postalCode": "NPA"
+    }
+  },
+  "editOps": {
+    "events": {
+      "addressPlaceholder": "Rue, NPA, localité"
+    }
+  },
+  "development": {
+    "meals": {
+      "morning_snack": "Dix-heures",
+      "lunch": "Dîner",
+      "afternoon_snack": "Quatre-heures",
+      "dinner": "Souper"
+    }
+  }
+}
