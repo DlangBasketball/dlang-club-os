@@ -656,6 +656,11 @@
       "titles": {
         "programs": "Programmes"
       }
+    },
+    "import": {
+      "applyDesignHint": "Header menu (with its drop-downs and translations), logo, fonts, brand colours, social links and contact details. Only empty settings are filled, unless you tick \"Overwrite my edits\".",
+      "designColors": "Brand colours",
+      "designContrast": "Brand colour contrast: {light}:1 on white, {dark}:1 on black. Text that would be hard to read is adjusted automatically."
     }
   },
   "upgrades": {

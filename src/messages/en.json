@@ -8540,7 +8540,7 @@
         "too_large": "The website sent too much data at once."
       },
       "applyDesignLabel": "Use the design of my current website",
-      "applyDesignHint": "Header menu (with its drop-downs and translations), logo, fonts, brand colours, social links and contact details. Only empty settings are filled, unless you tick \"Overwrite my edits\".",
+      "applyDesignHint": "Header menu (with its drop-downs and translations), logo, fonts, brand colors, social links and contact details. Only empty settings are filled, unless you tick \"Overwrite my edits\".",
       "addLiveLabel": "Add live blocks to matching pages",
       "addLiveHint": "{count, plural, one {# page gets} other {# pages get}} a live block from the app: camps with Register buttons, next games and results, training packages with Book buttons, the shop, news or partner logos.",
       "overwriteLabel": "Overwrite my edits",
@@ -8562,8 +8562,8 @@
       "designFontsValue": "headlines {display} (yours: {detectedDisplay}), text {ui} (yours: {detectedUi})",
       "designDefault": "design default",
       "designUppercase": "uppercase headlines",
-      "designColors": "Brand colours",
-      "designContrast": "Brand colour contrast: {light}:1 on white, {dark}:1 on black. Text that would be hard to read is adjusted automatically.",
+      "designColors": "Brand colors",
+      "designContrast": "Brand color contrast: {light}:1 on white, {dark}:1 on black. Text that would be hard to read is adjusted automatically.",
       "designSocial": "Social links",
       "designContact": "Contact"
     },
