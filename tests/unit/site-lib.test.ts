@@ -16,6 +16,7 @@ import { contrastRatio } from "@/lib/tenant/theme";
 import { DEFAULT_BRANDING } from "@/lib/tenant/defaults";
 import { looksLikeSpam, siteFormSchema } from "@/lib/site/forms";
 import { buildStarterSite } from "@/lib/site/starter";
+import { buildNav, pageLanguages, type NavPage } from "@/lib/site/nav";
 
 const ORG = "11111111-1111-4111-8111-111111111111";
 const IMG = `${ORG}/gallery/photo-1.jpg`;
@@ -294,6 +295,32 @@ describe("site forms", () => {
     expect(looksLikeSpam({ website_url: "http://spam" })).toBe(true);
     expect(looksLikeSpam({ startedAt: Date.now() - 500 })).toBe(true);
     expect(looksLikeSpam({ startedAt: Date.now() - 10_000 })).toBe(false);
+  });
+});
+
+describe("site navigation", () => {
+  const pages: NavPage[] = [
+    { id: "h", path: "/", parentId: null, position: 0, showInNav: false, titles: { en: "Home" } },
+    { id: "a", path: "/about-us", parentId: null, position: 10, showInNav: true, titles: { en: "About", fr: "À propos" } },
+    { id: "c", path: "/camps", parentId: null, position: 20, showInNav: true, titles: { en: "Camps" } },
+    { id: "s", path: "/camps/summer", parentId: "c", position: 0, showInNav: false, titles: { en: "Summer" } },
+    { id: "x", path: "/hidden", parentId: null, position: 5, showInNav: false, titles: { en: "Hidden" } },
+  ];
+  it("builds the menu from the page tree with localized links and current marks", () => {
+    const nav = buildNav({ custom: [], pages, lang: "fr", defaultLang: "en", currentPath: "/camps/summer" });
+    expect(nav.map((n) => n.label)).toEqual(["À propos", "Camps"]);
+    expect(nav[0]!.href).toBe("/fr/about-us");
+    expect(nav[1]).toMatchObject({ current: true, children: [{ label: "Summer", href: "/fr/camps/summer", current: true }] });
+  });
+  it("prefers a custom menu and keeps app links unprefixed", () => {
+    const nav = buildNav({ custom: [{ label: { en: "Register", fr: "Inscription" }, href: "/register/camps" }, { label: { en: "Club" }, href: "/about-us" }], pages, lang: "fr", defaultLang: "en", currentPath: "/" });
+    expect(nav).toEqual([
+      { label: "Inscription", href: "/register/camps", current: false, children: undefined },
+      { label: "Club", href: "/fr/about-us", current: false, children: undefined },
+    ]);
+  });
+  it("lists a page's languages, default first", () => {
+    expect(pageLanguages({ fr: "A", en: "B", de: "" }, ["fr", "en", "de"], "en")).toEqual(["en", "fr"]);
   });
 });
 

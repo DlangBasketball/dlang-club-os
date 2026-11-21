@@ -120,8 +120,8 @@ function Stats({ b, ctx }: { b: BlockOf<"stats">; ctx: RenderCtx }) {
         <SectionHead heading={b.heading} center />
         <dl className={cn("grid gap-8 text-center", b.items.length >= 4 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-3")}>
           {b.items.map((it, i) => (
-            <div key={i}>
-              <dt className="order-2 mt-2 text-sm uppercase tracking-[0.16em] text-text-secondary">{it.label}</dt>
+            <div key={i} className="flex flex-col-reverse">
+              <dt className="mt-2 text-sm uppercase tracking-[0.16em] text-text-secondary">{it.label}</dt>
               <dd className="site-h text-5xl text-brand-accent sm:text-6xl">
                 <CountUp value={it.value} locale={ctx.f.locale} />
               </dd>
