@@ -4,6 +4,7 @@ import { familyAdminDb, familyDb, type CarpoolBoard, type ConsentKind, type Jour
 import { myFamilyIds } from "./action-helpers";
 import { suggestMatches, type Suggestion } from "./carpool";
 import { logError } from "@/lib/log";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 type Me = SessionUser & { orgId: string };
 
@@ -27,7 +28,7 @@ export async function getFamilyPanels(me: Me): Promise<FamilyPanel[]> {
   const [{ data: fams }, { data: links }, { data: kids }, { data: invites }] = await Promise.all([
     db.from("families").select("id,name,billing_split_mode").in("id", ids).eq("org_id", me.orgId),
     db.from("family_members").select("*").in("family_id", ids),
-    db.from("athletes").select("id,first_name,last_name,family_id,status").in("family_id", ids).eq("org_id", me.orgId).neq("status", "archived"),
+    db.from("athletes").select("id,first_name,last_name,family_id,status").in("family_id", ids).eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER),
     db.from("invitations").select("id,email,family_id,created_at,status").in("family_id", ids).eq("org_id", me.orgId).eq("status", "pending"),
   ]);
   const profileIds = Array.from(new Set((links ?? []).map((l) => l.profile_id)));
@@ -92,7 +93,7 @@ export async function getPrivacyPanel(me: Me): Promise<PrivacyPanel> {
   if (!familyId) return empty;
   const db = await familyDb();
   const [{ data: kids }, { data: state }, { data: events }, { data: dsars }, { data: del }] = await Promise.all([
-    db.from("athletes").select("id,first_name,last_name").eq("family_id", familyId).neq("status", "archived"),
+    db.from("athletes").select("id,first_name,last_name").eq("family_id", familyId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER),
     db.rpc("family_consent_state", { p_family: familyId }),
     db.from("family_consent_events").select("*").eq("family_id", familyId).order("created_at", { ascending: false }).limit(50),
     db.from("dsar_requests").select("request_type,status,received_at,due_at").order("received_at", { ascending: false }).limit(20),
@@ -199,7 +200,7 @@ export type JourneyAthlete = { id: string; name: string; dob: string | null };
 /** Athletes the caller may open: RLS (admin all, coach assigned, guardian own children). */
 export async function getJourneyAthletes(me: Me, app: "admin" | "coach" | "parent"): Promise<JourneyAthlete[]> {
   const db = await familyDb();
-  let q = db.from("athletes").select("id,first_name,last_name,dob,family_id").eq("org_id", me.orgId).neq("status", "archived").order("last_name").limit(500);
+  let q = db.from("athletes").select("id,first_name,last_name,dob,family_id").eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name").limit(500);
   if (app === "parent") {
     const fams = await myFamilyIds(me);
     if (!fams.length) return [];

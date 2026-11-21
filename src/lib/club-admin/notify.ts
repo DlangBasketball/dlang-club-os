@@ -20,7 +20,8 @@ export type NoticeKind =
   | "waitlistAccepted"
   | "certificateExpiring"
   | "certificateExpiringAdmin"
-  | "incidentRecorded";
+  | "incidentRecorded"
+  | "personPurgeAdmin";
 
 export type Recipient = { profileId: string | null; email: string | null; locale: string | null };
 
@@ -46,6 +47,7 @@ const TYPE: Record<NoticeKind, string> = {
   certificateExpiring: "system",
   certificateExpiringAdmin: "system",
   incidentRecorded: "system",
+  personPurgeAdmin: "system",
 };
 
 /** Guardians of a family (profiles in the same club), else the family contact email. */

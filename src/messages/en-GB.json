@@ -79,6 +79,17 @@
       "filterMissing": "Licence missing"
     }
   },
+  "personDelete": {
+    "impact": {
+      "programmes": "{count, plural, one {# programme registration cancelled} other {# programme registrations cancelled}}",
+      "invoicesKept": "{count, plural, one {# invoice with payments is kept, anonymised, for accounting} other {# invoices with payments are kept, anonymised, for accounting}}"
+    },
+    "eraseHelp": "Personal data, documents and photos are deleted now and cannot be recovered. Invoices and payments are kept, anonymised, as the law requires.",
+    "deleted": {
+      "description": "Archived people stay restorable for 30 days, then they are deleted permanently by the daily clean-up. Invoices and payments are always kept, anonymised.",
+      "deleteNowBody": "Personal data, documents and photos are deleted now and cannot be recovered. Invoices and payments are kept, anonymised."
+    }
+  },
   "editOps": {
     "common": {
       "noOrgTitle": "No organisation"

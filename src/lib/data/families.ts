@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(data: T): Result<T> => ({ data, error: null });
@@ -22,9 +23,9 @@ export async function listFamilies(membership?: "member" | "guest" | null): Prom
   const supabase = await createClient();
   const [families, athletes, invoices] = await Promise.all([
     membership
-      ? supabase.from("families").select("id,name,phone,membership_status").eq("membership_status", membership).order("name")
-      : supabase.from("families").select("id,name,phone,membership_status").order("name"),
-    supabase.from("athletes").select("id,family_id"),
+      ? supabase.from("families").select("id,name,phone,membership_status").eq("status", VISIBLE_FAMILY_STATUS).eq("membership_status", membership).order("name")
+      : supabase.from("families").select("id,name,phone,membership_status").eq("status", VISIBLE_FAMILY_STATUS).order("name"),
+    supabase.from("athletes").select("id,family_id").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER),
     supabase.from("invoices").select("family_id,total_chf,status").in("status", UNPAID),
   ]);
   if (families.error) return fail(families.error.message);
@@ -87,6 +88,8 @@ export type FamilyDocument = {
 export type FamilyDetail = {
   id: string;
   name: string;
+  /** active | archived | erased (20250420102500). */
+  status: string;
   address: string | null;
   postalCode: string | null;
   city: string | null;
@@ -105,7 +108,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
   const supabase = await createClient();
   const { data: family, error } = await supabase
     .from("families")
-    .select("id,name,address,postal_code,city,phone,contact_name,contact_email")
+    .select("id,name,status,address,postal_code,city,phone,contact_name,contact_email")
     .eq("id", id)
     .maybeSingle();
   if (error) return fail(error.message);
@@ -113,7 +116,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
 
   const [members, athletes, invoices, famDocs] = await Promise.all([
     supabase.from("family_members").select("profile_id,relation,is_primary").eq("family_id", id),
-    supabase.from("athletes").select("id,first_name,last_name,dob,status,sponsorship_kind,sponsorship_percent").eq("family_id", id).order("first_name"),
+    supabase.from("athletes").select("id,first_name,last_name,dob,status,sponsorship_kind,sponsorship_percent").eq("family_id", id).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name"),
     supabase.from("invoices").select("id,number,total_chf,status,due_date,issued_at").eq("family_id", id).order("issued_at", { ascending: false }),
     supabase.from("documents").select("id,kind,file_name,created_at,athlete_id").eq("family_id", id),
   ]);
@@ -145,6 +148,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
   return ok({
     id: family.id,
     name: family.name,
+    status: (family as { status?: string }).status ?? "active",
     address: family.address,
     postalCode: family.postal_code,
     city: family.city,

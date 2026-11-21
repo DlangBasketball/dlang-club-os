@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { listInvoices } from "@/lib/data/invoices";
 import { licenceFromRow, type Licence } from "@/lib/people/licence";
 import { sponsorshipFromRow, type Sponsorship } from "@/lib/people/sponsorship";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -32,7 +33,7 @@ export type ParentDashboard = {
 export async function getParentDashboard(): Promise<Result<ParentDashboard>> {
   const supabase = await createClient();
   const [kidsRes, invRes, regRes, notifRes, docRes, sessRes] = await Promise.all([
-    supabase.from("athletes").select("id,first_name,last_name,dob").order("first_name"),
+    supabase.from("athletes").select("id,first_name,last_name,dob").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name"),
     listInvoices("all"),
     supabase.from("registrations").select("id,status").in("status", ["confirmed", "pending"]),
     supabase.from("notifications").select("id").is("read_at", null),
@@ -63,7 +64,7 @@ export type ChildCard = { id: string; name: string; age: number | null; activeRe
 
 export async function listChildren(): Promise<Result<ChildCard[]>> {
   const supabase = await createClient();
-  const { data: kids, error } = await supabase.from("athletes").select("id,first_name,last_name,dob").order("first_name");
+  const { data: kids, error } = await supabase.from("athletes").select("id,first_name,last_name,dob").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
   if (error) return fail(error.message);
   const ids = (kids ?? []).map((k) => k.id);
   const regs = ids.length ? await supabase.from("registrations").select("athlete_id,status").in("athlete_id", ids).in("status", ["confirmed", "pending"]) : { data: [] as { athlete_id: string; status: string }[] };
@@ -160,7 +161,7 @@ export async function listFamilyDocuments(): Promise<Result<{ id: string; fileNa
 
 export async function listFamilyConsents(): Promise<Result<{ athleteName: string; title: string; acceptedAt: string }[]>> {
   const supabase = await createClient();
-  const { data: kids } = await supabase.from("athletes").select("id,first_name,last_name");
+  const { data: kids } = await supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   const ids = (kids ?? []).map((k) => k.id);
   if (!ids.length) return ok([]);
   const aName = new Map((kids ?? []).map((k) => [k.id, `${k.first_name} ${k.last_name}`]));

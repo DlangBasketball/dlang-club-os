@@ -15,6 +15,8 @@ import { PushOptIn } from "./push-opt-in";
 import { CarpoolBoardPanel } from "./carpool-board";
 import { JourneyPanel } from "./journey-panel";
 import { SplitNowButton } from "./split-now-button";
+import { createClient } from "@/lib/supabase/server";
+import { RESTORE_WINDOW_DAYS } from "@/lib/people/person-delete";
 
 type App = "admin" | "coach" | "parent";
 const ROLES: Record<App, ("admin" | "finance" | "coach" | "parent")[]> = {
@@ -52,6 +54,7 @@ export async function PrivacyPage() {
     <div className="animate-fade-up max-w-3xl space-y-5">
       <PageHeader title={t("family.pages.privacy.title")} description={t("family.pages.privacy.description")} />
       {panel.familyId ? <PrivacyPanelView panel={panel} /> : <EmptyState title={t("family.pages.family.empty")} />}
+      {panel.familyId && <RemovedChildren familyId={panel.familyId} />}
       <h2 className="pt-2 font-display text-xl text-text">{t("family.pages.privacy.notifications")}</h2>
       <PushOptIn />
       <PreferencesForm
@@ -59,6 +62,29 @@ export async function PrivacyPage() {
         categories={["messages", "alerts", "announcements", "events", "payments"]}
       />
     </div>
+  );
+}
+
+/** Children the club removed (archived): when they will be deleted for good unless restored. */
+async function RemovedChildren({ familyId }: { familyId: string }) {
+  const { t, f } = await getI18n();
+  const db = await createClient();
+  const { data } = await db.from("athletes").select("id,first_name,archived_at").eq("family_id", familyId).eq("status", "archived");
+  const rows = (data ?? []) as { id: string; first_name: string; archived_at: string | null }[];
+  if (!rows.length) return null;
+  return (
+    <Card>
+      <CardHeader><CardTitle>{t("personDelete.parent.title")}</CardTitle></CardHeader>
+      <CardBody>
+        <ul className="space-y-1 text-sm text-text-muted">
+          {rows.map((r) => {
+            const at = r.archived_at ?? new Date().toISOString();
+            const purge = new Date(new Date(at).getTime() + RESTORE_WINDOW_DAYS * 86_400_000).toISOString();
+            return <li key={r.id}>{t("personDelete.parent.childArchived", { name: r.first_name, date: f.date(at), purge: f.date(purge) })}</li>;
+          })}
+        </ul>
+      </CardBody>
+    </Card>
   );
 }
 

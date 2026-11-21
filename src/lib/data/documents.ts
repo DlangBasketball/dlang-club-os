@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 export type DocScope = "global" | "program" | "family" | "athlete";
 export type AdminDoc = { id: string; title: string | null; fileName: string | null; kind: string; scope: DocScope; targetId: string | null; targetName: string; sizeBytes: number | null; createdAt: string; expiresAt: string | null };
@@ -44,8 +45,8 @@ export async function documentTargets(): Promise<{ programs: Opt[]; families: Op
   const admin = createAdminClient();
   const [p, f, a] = await Promise.all([
     admin.from("programs").select("id,name").eq("org_id", me.orgId).order("name"),
-    admin.from("families").select("id,name").eq("org_id", me.orgId).order("name"),
-    admin.from("athletes").select("id,first_name,last_name").eq("org_id", me.orgId).order("last_name"),
+    admin.from("families").select("id,name").eq("org_id", me.orgId).eq("status", VISIBLE_FAMILY_STATUS).order("name"),
+    admin.from("athletes").select("id,first_name,last_name").eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name"),
   ]);
   return {
     programs: (p.data ?? []).map((x) => ({ id: x.id, label: x.name })),

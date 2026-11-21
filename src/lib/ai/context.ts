@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getFormatter } from "@/lib/i18n/server";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 export type Bundle = { text: string; hasData: boolean };
 
@@ -22,8 +23,8 @@ export async function buildParentContext(): Promise<Bundle> {
   const f = await getFormatter();
   const sb = await createClient();
   const [fam, ath, regs, inv, bk] = await Promise.all([
-    sb.from("families").select("name"),
-    sb.from("athletes").select("id,first_name,last_name,dob,status"),
+    sb.from("families").select("name").eq("status", VISIBLE_FAMILY_STATUS),
+    sb.from("athletes").select("id,first_name,last_name,dob,status").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER),
     sb.from("registrations").select("athlete_id,program_id,status"),
     sb.from("invoices").select("number,total_chf,status,due_date"),
     sb.from("training_bookings").select("athlete_id,service_id,coach_id,slot_start,status").order("slot_start", { ascending: true }).limit(20),

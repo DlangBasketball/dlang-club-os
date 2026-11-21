@@ -10,6 +10,8 @@ import { signAthletePhotos } from "@/lib/people/server";
 import { parseLicenceFilter } from "@/lib/people/licence";
 import { parseSponsoredFilter, type SponsorshipKind } from "@/lib/people/sponsorship";
 import { SponsorshipBadge } from "@/components/athlete/sponsorship-badge";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { BulkCheckbox, BulkDeleteBar, BulkSelect, DeletePersonButton } from "@/components/people/delete-person";
 
 type Row = { id: string; name: string; family: string; dob: string; status: string; photoUrl: string | null; licence: string | null; licenceCategory: string | null; sponsorship: SponsorshipKind; sponsorshipPercent: number | null; sponsor: string | null };
 
@@ -25,6 +27,7 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
   let query = supabase
     .from("athletes")
     .select("id,org_id,first_name,last_name,dob,status,family_id,photo_path,licence_number,licence_category,sponsorship_kind,sponsorship_percent,sponsor_name")
+    .not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER)
     .order("last_name");
   if (licenceFilter === "has") query = query.not("licence_number", "is", null);
   if (licenceFilter === "missing") query = query.is("licence_number", null);
@@ -57,6 +60,7 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
   }));
 
   const columns: Column<Row>[] = [
+    ...(isAdmin ? [{ key: "select", header: "", render: (r: Row) => <BulkCheckbox id={r.id} name={r.name} /> }] : []),
     {
       key: "name",
       header: singular,
@@ -107,9 +111,12 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
       header: t("common.actions"),
       align: "right",
       render: (r) => (
-        <Link href={`/admin/athletes/${r.id}/edit`} aria-label={t("editPeople.editAria", { name: r.name })}>
-          <Button size="sm" variant="ghost" type="button"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button>
-        </Link>
+        <span className="inline-flex items-center gap-1">
+          <Link href={`/admin/athletes/${r.id}/edit`} aria-label={t("editPeople.editAria", { name: r.name })}>
+            <Button size="sm" variant="ghost" type="button"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button>
+          </Link>
+          <DeletePersonButton kind="athlete" id={r.id} name={r.name} variant="icon" />
+        </span>
       ),
     });
   }
@@ -135,7 +142,13 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
           ))}
         </nav>
       </div>
-      <DataTable columns={columns} rows={rows} getRowKey={(r) => r.id} caption={title} empty={<EmptyState icon={<UserCircle className="h-5 w-5" />} title={t("editPeople.athlete.empty")} />} />
+      <BulkSelect kind="athlete">
+        {isAdmin && <BulkDeleteBar allIds={rows.map((r) => r.id)} />}
+        <DataTable columns={columns} rows={rows} getRowKey={(r) => r.id} caption={title} empty={<EmptyState icon={<UserCircle className="h-5 w-5" />} title={t("editPeople.athlete.empty")} />} />
+      </BulkSelect>
+      {isAdmin && (
+        <p className="mt-4 text-sm"><Link href="/admin/deleted" className="text-text-muted underline-offset-4 hover:underline">{t("personDelete.deleted.link")}</Link></p>
+      )}
     </div>
   );
 }

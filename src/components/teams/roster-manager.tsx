@@ -2,7 +2,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trash2, UserPlus } from "lucide-react";
+import { UserMinus, UserPlus } from "lucide-react";
 import { Badge, Button, Card, Input, Label, statusTone } from "@/components/ui";
 import { useT } from "@/lib/i18n/client";
 import { removeTeamMember, updateTeamMember } from "@/lib/sportsops/actions";
@@ -11,6 +11,7 @@ import { parseJersey, POSITION_MAX } from "@/lib/sportsops/roster-validation";
 import type { RosterEntry } from "@/lib/sportsops/data";
 import { FormError, Select } from "./fields";
 import { PlayerPicker, type PickerPlayer } from "./player-picker";
+import { DeletePersonButton } from "@/components/people/delete-person";
 
 type Status = RosterEntry["status"];
 const STATUSES: Status[] = ["active", "trial", "injured", "inactive"];
@@ -19,7 +20,7 @@ function digits(v: string): string {
   return v.replace(/\D/g, "").slice(0, 3);
 }
 
-function Row({ teamId, m, editable, linkPlayers }: { teamId: string; m: RosterEntry; editable: boolean; linkPlayers: boolean }) {
+function Row({ teamId, m, editable, linkPlayers, canDeletePeople }: { teamId: string; m: RosterEntry; editable: boolean; linkPlayers: boolean; canDeletePeople: boolean }) {
   const t = useT();
   const router = useRouter();
   const [jersey, setJersey] = React.useState(m.jerseyNumber?.toString() ?? "");
@@ -69,7 +70,8 @@ function Row({ teamId, m, editable, linkPlayers }: { teamId: string; m: RosterEn
         <td className="px-4 py-2.5 text-right">
           <div className="flex justify-end gap-1">
             {dirty && <Button size="sm" onClick={save} disabled={busy}>{t("common.save")}</Button>}
-            <Button size="icon" variant="ghost" aria-label={t("media.roster.removeName", { name: m.name })} onClick={remove} disabled={busy}><Trash2 className="h-4 w-4" /></Button>
+            <Button size="icon" variant="ghost" aria-label={t("media.roster.removeName", { name: m.name })} title={t("media.roster.removeName", { name: m.name })} onClick={remove} disabled={busy}><UserMinus className="h-4 w-4" /></Button>
+            {canDeletePeople && <DeletePersonButton kind="athlete" id={m.athleteId} name={m.name} variant="icon" />}
           </div>
         </td>
       )}
@@ -124,8 +126,10 @@ function AddPlayer({ teamId, athletes, onRoster }: { teamId: string; athletes: P
   );
 }
 
-export function RosterManager({ teamId, roster, athletes, editable = true, canAdd = true, linkPlayers = false }: {
+export function RosterManager({ teamId, roster, athletes, editable = true, canAdd = true, linkPlayers = false, canDeletePeople = false }: {
   teamId: string; roster: RosterEntry[]; athletes: { id: string; name: string }[]; editable?: boolean; canAdd?: boolean;
+  /** Admins also get "Delete" (the person, everywhere) next to "Remove from team". Never for coaches. */
+  canDeletePeople?: boolean;
   /** Link names to the admin player profile (admin pages). */
   linkPlayers?: boolean;
 }) {
@@ -149,11 +153,12 @@ export function RosterManager({ teamId, roster, athletes, editable = true, canAd
             </tr></thead>
             <tbody>
               {roster.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-ink-3">{t("media.roster.emptyRoster")}</td></tr>}
-              {roster.map((m) => <Row key={m.membershipId} teamId={teamId} m={m} editable={editable} linkPlayers={linkPlayers} />)}
+              {roster.map((m) => <Row key={m.membershipId} teamId={teamId} m={m} editable={editable} linkPlayers={linkPlayers} canDeletePeople={canDeletePeople} />)}
             </tbody>
           </table>
         </div>
       </Card>
+      {editable && canDeletePeople && roster.length > 0 && <p className="text-xs text-text-muted">{t("personDelete.removeFromTeamHint")}</p>}
     </div>
   );
 }

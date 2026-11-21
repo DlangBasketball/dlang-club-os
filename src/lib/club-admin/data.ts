@@ -2,6 +2,7 @@ import "server-only";
 import { caAdminDb, caDb, type CertificateRow, type ClubAdminSettingsRow, type IncidentRow, type MembershipRow, type MembershipTypeRow, type WaitlistRow } from "./db";
 import { DEFAULT_MANDATORY, DEFAULT_REMINDER_DAYS, type CertKind } from "./compliance";
 import { isExpiringSoon, effectiveStatus, type MembershipStatus } from "./membership";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS, isHiddenAthleteStatus } from "@/lib/people/person-delete";
 
 /**
  * Server reads for the club-admin pages. Everything goes through the signed-
@@ -58,8 +59,8 @@ async function decorateMemberships(orgId: string, rows: MembershipRow[], today: 
   const invIds = Array.from(new Set(rows.map((m) => m.invoice_id).filter((x): x is string => !!x)));
   const [types, fams, aths, invs, renewals] = await Promise.all([
     listMembershipTypes(orgId),
-    famIds.length ? db.from("families").select("id,name").in("id", famIds) : Promise.resolve({ data: [] as Named[] }),
-    athIds.length ? db.from("athletes").select("id,first_name,last_name").in("id", athIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
+    famIds.length ? db.from("families").select("id,name,status").in("id", famIds) : Promise.resolve({ data: [] as (Named & { status: string })[] }),
+    athIds.length ? db.from("athletes").select("id,first_name,last_name,status").in("id", athIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string; status: string }[] }),
     invIds.length ? db.from("invoices").select("id,number").in("id", invIds) : Promise.resolve({ data: [] as { id: string; number: string }[] }),
     rows.length ? db.from("memberships").select("renewed_from_id").eq("org_id", orgId).in("renewed_from_id", rows.map((r) => r.id)).neq("status", "cancelled") : Promise.resolve({ data: [] as { renewed_from_id: string | null }[] }),
   ]);
@@ -68,7 +69,10 @@ async function decorateMemberships(orgId: string, rows: MembershipRow[], today: 
   const an = new Map(((aths.data ?? []) as { id: string; first_name: string; last_name: string }[]).map((a) => [a.id, fullName(a)]));
   const inv = new Map(((invs.data ?? []) as { id: string; number: string }[]).map((i) => [i.id, i.number]));
   const renewed = new Set(((renewals.data ?? []) as { renewed_from_id: string | null }[]).map((r) => r.renewed_from_id));
-  return rows.map((m) => ({
+  // Memberships of archived / erased people are hidden (Recently deleted).
+  const hiddenFam = new Set(((fams.data ?? []) as { id: string; status?: string }[]).filter((f) => f.status && f.status !== VISIBLE_FAMILY_STATUS).map((f) => f.id));
+  const hiddenAth = new Set(((aths.data ?? []) as { id: string; status?: string }[]).filter((a) => isHiddenAthleteStatus(a.status)).map((a) => a.id));
+  return rows.filter((m) => !hiddenFam.has(m.family_id) && !(m.athlete_id && hiddenAth.has(m.athlete_id))).map((m) => ({
     ...m,
     typeName: tn.get(m.membership_type_id) ?? "—",
     familyName: fn.get(m.family_id) ?? "—",
@@ -94,8 +98,8 @@ export function expiring(rows: MembershipView[], today: string, windowDays: numb
 export async function familyAndAthleteOptions(orgId: string): Promise<{ families: Named[]; athletes: (Named & { familyId: string })[] }> {
   const db = await caDb();
   const [{ data: fams }, { data: aths }] = await Promise.all([
-    db.from("families").select("id,name").eq("org_id", orgId).order("name").limit(2000),
-    db.from("athletes").select("id,first_name,last_name,family_id").eq("org_id", orgId).neq("status", "archived").order("last_name").limit(3000),
+    db.from("families").select("id,name").eq("org_id", orgId).eq("status", VISIBLE_FAMILY_STATUS).order("name").limit(2000),
+    db.from("athletes").select("id,first_name,last_name,family_id").eq("org_id", orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name").limit(3000),
   ]);
   return {
     families: (fams ?? []) as Named[],
@@ -110,7 +114,7 @@ export async function parentMembershipView(orgId: string, profileId: string, tod
   const famIds = (links ?? []).map((l) => l.family_id);
   const [{ data: fams }, { data: kids }, { data: ms }, types] = await Promise.all([
     famIds.length ? db.from("families").select("id,name").eq("org_id", orgId).in("id", famIds) : Promise.resolve({ data: [] as Named[] }),
-    famIds.length ? db.from("athletes").select("id,first_name,last_name,family_id,dob").eq("org_id", orgId).in("family_id", famIds).neq("status", "archived") : Promise.resolve({ data: [] }),
+    famIds.length ? db.from("athletes").select("id,first_name,last_name,family_id,dob").eq("org_id", orgId).in("family_id", famIds).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER) : Promise.resolve({ data: [] }),
     famIds.length ? db.from("memberships").select("*").eq("org_id", orgId).in("family_id", famIds).order("valid_until", { ascending: false }) : Promise.resolve({ data: [] }),
     listMembershipTypes(orgId),
   ]);
@@ -158,14 +162,16 @@ export async function listWaitlists(orgId: string, includeClosed = false): Promi
   const athIds = Array.from(new Set(rows.map((r) => r.athlete_id)));
   const famIds = Array.from(new Set(rows.map((r) => r.family_id)));
   const [{ data: aths }, { data: fams }, t] = await Promise.all([
-    db.from("athletes").select("id,first_name,last_name").in("id", athIds),
+    db.from("athletes").select("id,first_name,last_name,status").in("id", athIds),
     db.from("families").select("id,name").in("id", famIds),
     targetsFor(rows),
   ]);
+  const hiddenAth = new Set(((aths ?? []) as { id: string; status?: string }[]).filter((a) => isHiddenAthleteStatus(a.status)).map((a) => a.id));
   const an = new Map(((aths ?? []) as { id: string; first_name: string; last_name: string }[]).map((a) => [a.id, fullName(a)]));
   const fn = new Map(((fams ?? []) as Named[]).map((f) => [f.id, f.name]));
   const groups = new Map<string, WaitlistGroup>();
   for (const r of rows) {
+    if (hiddenAth.has(r.athlete_id)) continue;
     let g = groups.get(r.target_key);
     if (!g) {
       const prog = r.program_id ? t.progs.get(r.program_id) : undefined;
@@ -379,7 +385,7 @@ export async function getIncident(orgId: string, id: string): Promise<IncidentVi
 export async function incidentFormOptions(orgId: string) {
   const db = await caDb();
   const [{ data: aths }, { data: progs }, { data: teams }] = await Promise.all([
-    db.from("athletes").select("id,first_name,last_name").eq("org_id", orgId).neq("status", "archived").order("last_name").limit(3000),
+    db.from("athletes").select("id,first_name,last_name").eq("org_id", orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name").limit(3000),
     db.from("programs").select("id,name").eq("org_id", orgId).neq("status", "archived").order("name"),
     db.from("teams").select("id,name").eq("org_id", orgId).eq("is_active", true).order("name"),
   ]);

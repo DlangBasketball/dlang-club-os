@@ -110,6 +110,9 @@ export type Database = {
           sponsorship_until: string | null;
           sponsored_by: string | null;
           sponsored_at: string | null;
+          // remove a person (20250420102500): status active | inactive | archived | erased
+          archived_at: string | null;
+          archived_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -324,7 +327,36 @@ export type Database = {
           primary_contact_id: string | null;
           /** member | guest (registered from a public camp page without membership). */
           membership_status: "member" | "guest";
+          /** active | archived (restorable 30 days) | erased (anonymised tombstone) — 20250420102500. */
+          status: "active" | "archived" | "erased";
+          archived_at: string | null;
+          archived_by: string | null;
           created_at: string;
+        };
+        Insert: Record<string, unknown>;
+        Update: Record<string, unknown>;
+        Relationships: [];
+      };
+      // Remove a person everywhere (20250420102500): ids and counts only.
+      person_deletions: {
+        Row: {
+          id: string;
+          org_id: string;
+          kind: "athlete" | "family";
+          target_id: string;
+          family_id: string | null;
+          status: "archived" | "restored" | "erased";
+          mode: "archive" | "erase";
+          summary: Json;
+          snapshot: Json | null;
+          requested_by: string | null;
+          purge_after: string | null;
+          purge_notified_at: string | null;
+          restored_at: string | null;
+          restored_by: string | null;
+          erased_at: string | null;
+          created_at: string;
+          updated_at: string;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -762,6 +794,16 @@ export type Database = {
       org_ai_assistant_entitled: { Args: { p_org: string }; Returns: boolean };
       org_ai_assistant_enabled: { Args: { p_org: string }; Returns: boolean };
       anonymise_family: { Args: { p_family: string }; Returns: Json };
+      // remove a person everywhere (20250420102500)
+      preview_delete_athlete: { Args: { p_athlete: string }; Returns: Json };
+      preview_delete_family: { Args: { p_family: string }; Returns: Json };
+      delete_athlete: { Args: { p_athlete: string; p_mode?: string }; Returns: Json };
+      delete_family: { Args: { p_family: string; p_mode?: string }; Returns: Json };
+      remove_guardian: { Args: { p_family: string; p_profile: string }; Returns: Json };
+      restore_person: { Args: { p_deletion: string }; Returns: Json };
+      erase_person_deletion: { Args: { p_deletion: string }; Returns: Json };
+      purge_due_person_deletions: { Args: { p_limit?: number }; Returns: Json };
+      person_deletions_due_notice: { Args: { p_days?: number }; Returns: { org_id: string; deletion_id: string; kind: string; purge_after: string }[] };
       set_coach_photo: { Args: { p_coach: string; p_path: string | null }; Returns: string | null };
       coach_usage: { Args: { p_coach: string }; Returns: Json };
       delete_coach_if_unused: { Args: { p_coach: string }; Returns: Json };

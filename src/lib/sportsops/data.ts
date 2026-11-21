@@ -4,6 +4,7 @@ import { findConflicts } from "./conflicts";
 import { rangeBounds } from "./time";
 import { signCoachPhotos } from "@/lib/people/server";
 import { isPhotoPathFor } from "@/lib/people/validation";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -56,7 +57,7 @@ export async function listProgramOptions(): Promise<Result<Option[]>> {
 
 export async function listAthleteOptions(): Promise<Result<Option[]>> {
   const db = await sportsDb();
-  const { data, error } = await db.from("athletes").select("id,first_name,last_name,status").neq("status", "archived").order("last_name");
+  const { data, error } = await db.from("athletes").select("id,first_name,last_name,status").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name");
   if (error) return fail(error.message);
   return ok((data ?? []).map((a) => ({ id: a.id, name: fullName(a) })));
 }
@@ -281,7 +282,7 @@ export async function getChildrenSchedule(limit = 40): Promise<Result<{ events: 
   const { data: fams } = await db.from("family_members").select("family_id").eq("profile_id", user.id);
   const famIds = uniq((fams ?? []).map((f) => f.family_id));
   if (!famIds.length) return ok({ events: [], hasTeams: false });
-  const { data: kids, error } = await db.from("athletes").select("id,first_name,last_name,family_id").in("family_id", famIds);
+  const { data: kids, error } = await db.from("athletes").select("id,first_name,last_name,family_id").in("family_id", famIds).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   if (error) return fail(error.message);
   const kidIds = (kids ?? []).map((k) => k.id);
   if (!kidIds.length) return ok({ events: [], hasTeams: false });

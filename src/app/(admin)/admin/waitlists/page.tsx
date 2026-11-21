@@ -7,6 +7,7 @@ import { familyAndAthleteOptions, getClubAdminSettings, listWaitlists, waitlistT
 import { hoursLeft, waitlistTone, type WaitlistStatus } from "@/lib/club-admin/waitlist";
 import { AdminAddForm, EntryActions, RunWaitlistsButton, type TargetOpt } from "@/components/club-admin/waitlist-widgets";
 import { ClubAdminSettingsForm } from "@/components/club-admin/settings-form";
+import { DeletePersonButton } from "@/components/people/delete-person";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -60,6 +61,7 @@ export default async function WaitlistsPage() {
                       <Badge tone={waitlistTone(e.status as WaitlistStatus)}>{t.dynamic(`clubadmin.waitlist.statuses.${e.status}`, undefined, e.status)}</Badge>
                       {e.status === "offered" && <span className="text-xs text-ink-3">{t("clubadmin.waitlist.hoursLeft", { hours: hoursLeft(e.offer_expires_at, now) })}</span>}
                       <EntryActions id={e.id} position={i + 1} last={i === list.length - 1} status={e.status} />
+                      <DeletePersonButton kind="athlete" id={e.athlete_id} name={e.athleteName} variant="icon" />
                     </span>
                   </li>
                 ))}

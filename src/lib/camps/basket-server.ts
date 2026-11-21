@@ -4,6 +4,7 @@ import { getCampForOrg, getPublicCamp, loadPricingDiscounts, type PublicCamp } f
 import { checkBasket, priceBasket, type Basket, type BasketCheck } from "./basket";
 import type { BatchQuote } from "@/lib/pricing/discounts";
 import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Server side of the camp basket: org resolution, camp loading, what the
@@ -48,7 +49,7 @@ export async function bookedContext(orgId: string, familyId: string | null, refs
   const out: BookedContext = { existingWeeks: {}, existingSiblings: 0, already: new Set() };
   if (!familyId) return out;
   const db = campsAdminDb();
-  const { data: kids } = await db.from("athletes").select("id").eq("org_id", orgId).eq("family_id", familyId);
+  const { data: kids } = await db.from("athletes").select("id").eq("org_id", orgId).eq("family_id", familyId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   const kidIds = (kids ?? []).map((k) => k.id);
   if (!kidIds.length) return out;
   const { data: regs } = await db.from("registrations").select("athlete_id,camp_edition_id,status")

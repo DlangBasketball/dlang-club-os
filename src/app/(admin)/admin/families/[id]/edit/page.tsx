@@ -4,9 +4,8 @@ import { ChevronLeft, Pencil, Plus } from "lucide-react";
 import { PageHeader, ErrorState, Card, CardHeader, CardTitle, CardBody, Badge, Button, statusTone } from "@/components/ui";
 import { FamilyForm } from "@/components/family/family-form";
 import { GuardianManager } from "@/components/family/guardian-manager";
-import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { DeletePersonButton } from "@/components/people/delete-person";
 import { getFamily } from "@/lib/data/families";
-import { deleteFamily } from "@/lib/actions/family";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 
@@ -25,12 +24,8 @@ export default async function EditFamilyPage({ params }: { params: Promise<{ id:
         </Link>
         <PageHeader
           title={t("editPeople.editTitle", { name: data.name })}
-          actions={isAdmin ? (
-            <ConfirmDeleteButton
-              action={deleteFamily.bind(null, id)}
-              label={t("editPeople.family.deleteFamily")}
-              confirmText={t("editPeople.family.confirmDelete", { name: data.name })}
-            />
+          actions={isAdmin && data.status === "active" ? (
+            <DeletePersonButton kind="family" id={id} name={data.name} redirectTo="/admin/families" label={t("editPeople.family.deleteFamily")} />
           ) : undefined}
         />
       </div>
@@ -69,6 +64,7 @@ export default async function EditFamilyPage({ params }: { params: Promise<{ id:
                         <Button size="sm" variant="ghost" type="button"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button>
                       </Link>
                     )}
+                    {isAdmin && data.status === "active" && <DeletePersonButton kind="athlete" id={a.id} name={`${a.firstName} ${a.lastName}`} variant="icon" />}
                   </div>
                 </li>
               ))}

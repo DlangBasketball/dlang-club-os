@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 /** Minimal RFC-4180-ish CSV escaping. */
 function toCsv(headers: string[], rows: (string | number | null)[][]): string {
@@ -27,12 +28,12 @@ export async function GET(request: Request) {
   let csv = "";
 
   if (type === "families") {
-    const { data, error } = await supabase.from("families").select("name,phone,created_at").order("name");
+    const { data, error } = await supabase.from("families").select("name,phone,created_at").eq("status", VISIBLE_FAMILY_STATUS).order("name");
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     filename = "families.csv";
     csv = toCsv(["Family", "Phone", "Created"], (data ?? []).map((f) => [f.name, f.phone, f.created_at]));
   } else if (type === "athletes") {
-    const { data, error } = await supabase.from("athletes").select("first_name,last_name,dob,status").order("last_name");
+    const { data, error } = await supabase.from("athletes").select("first_name,last_name,dob,status").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name");
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     filename = "athletes.csv";
     csv = toCsv(["First name", "Last name", "DOB", "Status"], (data ?? []).map((a) => [a.first_name, a.last_name, a.dob, a.status]));

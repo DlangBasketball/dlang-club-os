@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getBookingSettings } from "@/lib/data/training-admin";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -16,7 +17,7 @@ export async function getWizardData(): Promise<Result<WizardData>> {
   const settings = await getBookingSettings();
 
   const [kidsRes, svcRes, slotRes] = await Promise.all([
-    supabase.from("athletes").select("id,first_name,last_name").order("first_name"),
+    supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name"),
     supabase.from("training_services").select("id,name,description,duration_min,price_chf,credit_category,credits_required").eq("is_active", true).order("name"),
     supabase.from("coach_availability").select("id,coach_id,starts_at,ends_at").eq("is_booked", false).gte("starts_at", new Date().toISOString()).order("starts_at").limit(60),
   ]);

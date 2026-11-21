@@ -23,6 +23,8 @@ import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } fro
 import { resolveConfig, validateRegistrationExtras, type BuiltinField, type ChildExtras } from "@/lib/registration-form/config";
 import { issueContractsForRegistrations } from "@/lib/contracts/server";
 import { attachPlanAtCheckout } from "@/lib/plans/checkout";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 /**
  * Camp registration (public camp page + parent app).
@@ -102,7 +104,7 @@ async function parentContext(camp: PublicCamp, athleteIds: string[]): Promise<Pa
   const families = await guardianFamilies(me.id, me.orgId);
   if (!families.length) return null;
   const db = campsAdminDb();
-  const { data: athletes } = await db.from("athletes").select("id,family_id,dob,first_name,last_name").eq("org_id", me.orgId).in("family_id", families);
+  const { data: athletes } = await db.from("athletes").select("id,family_id,dob,first_name,last_name").eq("org_id", me.orgId).in("family_id", families).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   const map = new Map((athletes ?? []).map((a) => [a.id, a]));
   const chosen = athleteIds.map((id) => map.get(id));
   if (chosen.some((a) => !a)) return null;
@@ -266,6 +268,7 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
   await notify(orgId, camp.program.name, v.parent.name, v.parent.email, v.children.map((c) => `${c.firstName} ${c.lastName}`), r.invoice_number ?? "", Number(r.total ?? 0));
   const qs = new URLSearchParams({ ref: r.invoice_number ?? "", account: acc.data.mode });
   if (plan.ok && plan.planId) qs.set("plan", String(safeCount(instalments)));
+  revalidatePersonEverywhere(orgId);
   redirect(`/register/${v.programSlug}/success?${qs.toString()}`);
 }
 
@@ -343,6 +346,7 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
   await attachPlanAtCheckout(ctx.orgId, r.invoice_id, safeCount(instalments), "camp");
   await notify(ctx.orgId, camp.program.name, me.fullName ?? me.email ?? "", null, Array.from(ctx.athletes.values()).map((a) => a.name), r.invoice_number ?? "", Number(r.total ?? 0));
   revalidatePath("/parent/invoices");
+  revalidatePersonEverywhere(ctx.orgId);
   redirect(r.invoice_id ? `/parent/invoices/${r.invoice_id}` : "/parent/invoices");
 }
 

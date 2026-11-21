@@ -68,7 +68,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">{LABELS.roster} <span className="text-sm font-normal text-ink-3">({t.roster.filter((r) => r.status !== "inactive").length})</span></h2>
-        <RosterManager teamId={t.id} roster={t.roster} athletes={athletes.data!} linkPlayers canAdd={isAdmin} />
+        <RosterManager teamId={t.id} roster={t.roster} athletes={athletes.data!} linkPlayers canAdd={isAdmin} canDeletePeople={isAdmin} />
       </section>
 
       <Card>

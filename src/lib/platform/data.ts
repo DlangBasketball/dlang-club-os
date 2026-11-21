@@ -14,6 +14,7 @@ import {
   type TenantOverviewRow,
   type UsageSnapshotRow,
 } from "./types";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 export type PlanWithPrices = PlanRow & { prices: PlanPriceRow[] };
 
@@ -112,7 +113,7 @@ export async function getTenantDetail(orgId: string): Promise<TenantDetail | nul
   const [settingsRes, rolesRes, athletes, families, programs, invoices, coaches] = await Promise.all([
     svc.from("app_settings").select("*").eq("org_id", orgId).maybeSingle(),
     svc.from("staff_roles").select("profile_id, role").eq("org_id", orgId),
-    svc.from("athletes").select("id", head).eq("org_id", orgId).neq("status", "archived"),
+    svc.from("athletes").select("id", head).eq("org_id", orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER),
     svc.from("families").select("id", head).eq("org_id", orgId),
     svc.from("programs").select("id", head).eq("org_id", orgId),
     svc.from("invoices").select("id", head).eq("org_id", orgId),

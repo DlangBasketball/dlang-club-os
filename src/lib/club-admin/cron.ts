@@ -9,6 +9,7 @@ import { daysBetween } from "./membership";
 import { adminRecipients, profileRecipients, sendNotice } from "./notify";
 import { processWaitlists } from "./waitlist-server";
 import { orgsWithFeature } from "@/lib/upgrades/server";
+import { purgeArchivedPeople } from "@/lib/people/purge";
 
 /**
  * Daily (or more frequent) club-admin job for every club, service role:
@@ -16,11 +17,13 @@ import { orgsWithFeature } from "@/lib/upgrades/server";
  *   2. waiting lists: expire overdue offers, offer free spots (+ emails)
  *   3. certificate expiry reminders (60 / 30 / 7 days by default) to the
  *      coach and the club's admins — once per threshold and validity date
+ *   4. people archived more than 30 days ago are erased (files and logins
+ *      cleaned up); admins are told 3 days before (every club, no feature gate)
  * Idempotent: a repeated run sends nothing twice (reminder rows are unique).
  */
-export async function runClubAdminCron(): Promise<{ expired: number; offers: number; reminders: number }> {
+export async function runClubAdminCron(): Promise<{ expired: number; offers: number; reminders: number; peopleNoticed: number; peopleErased: number }> {
   const db = caAdminDb();
-  let expired = 0, offers = 0, reminders = 0;
+  let expired = 0, offers = 0, reminders = 0, peopleNoticed = 0, peopleErased = 0;
 
   const [memberships, waitlists] = await Promise.all([orgsWithFeature("memberships"), orgsWithFeature("waitlists")]);
   for (const orgId of memberships.ids) {
@@ -39,7 +42,14 @@ export async function runClubAdminCron(): Promise<{ expired: number; offers: num
   } catch (e) {
     logError("clubadmin.cron.reminders", e);
   }
-  return { expired, offers, reminders };
+  try {
+    const purge = await purgeArchivedPeople();
+    peopleNoticed = purge.noticed;
+    peopleErased = purge.erased;
+  } catch (e) {
+    logError("clubadmin.cron.purgePeople", e);
+  }
+  return { expired, offers, reminders, peopleNoticed, peopleErased };
 }
 
 async function certificateReminders(): Promise<number> {

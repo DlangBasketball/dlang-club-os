@@ -4,6 +4,7 @@ import { PageHeader, DataTable, EmptyState, Badge, statusTone, ErrorState, Butto
 import { listRegistrations, type RegistrationListItem } from "@/lib/data/registrations";
 import { getI18n } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { DeletePersonButton } from "@/components/people/delete-person";
 
 export default async function RegistrationsPage() {
   const [{ t, f }, user] = await Promise.all([getI18n(), getSessionUser()]);
@@ -24,9 +25,12 @@ export default async function RegistrationsPage() {
       header: t("common.actions"),
       align: "right",
       render: (r) => (
-        <Link href={`/admin/registrations/${r.id}#edit`} aria-label={t("editPeople.editAria", { name: `${r.athleteName} · ${r.programName}` })}>
-          <Button size="sm" variant="ghost" type="button"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button>
-        </Link>
+        <span className="inline-flex items-center gap-1">
+          <Link href={`/admin/registrations/${r.id}#edit`} aria-label={t("editPeople.editAria", { name: `${r.athleteName} · ${r.programName}` })}>
+            <Button size="sm" variant="ghost" type="button"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button>
+          </Link>
+          <DeletePersonButton kind="athlete" id={r.athleteId} name={r.athleteName} variant="icon" />
+        </span>
       ),
     });
   }

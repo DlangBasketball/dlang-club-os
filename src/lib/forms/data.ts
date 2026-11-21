@@ -4,6 +4,7 @@ import { logError } from "@/lib/log";
 import { formsAdminDb, formsDb, FORM_FILES_BUCKET, SIGNED_URL_TTL, type FormAssignmentRow, type FormsClient, type FormSubmissionRow } from "./db";
 import { parseDefinition, type FormDefinition, type FormType, type AssignmentScope, type Renewal } from "./schema";
 import { completionStatus, hasUnpublishedChanges, summarise, type CompletionStatus, type CompletionSummary, type Answers } from "./logic";
+import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 
 /**
  * Server-side reads for forms. Admin views use the user's RLS-scoped client
@@ -314,7 +315,7 @@ export async function guardianAthletes(u: Me): Promise<{ id: string; name: strin
   const { data: links } = await db.from("family_members").select("family_id").eq("profile_id", u.id);
   const famIds = (links ?? []).map((l) => l.family_id);
   if (!famIds.length) return [];
-  const { data } = await db.from("athletes").select("id,first_name,last_name,family_id,status").eq("org_id", u.orgId).in("family_id", famIds).neq("status", "archived");
+  const { data } = await db.from("athletes").select("id,first_name,last_name,family_id,status").eq("org_id", u.orgId).in("family_id", famIds).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   return (data ?? []).map((a) => ({ id: a.id, name: `${a.first_name} ${a.last_name}`, familyId: a.family_id }));
 }
 

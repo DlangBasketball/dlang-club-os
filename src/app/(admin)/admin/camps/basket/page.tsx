@@ -6,6 +6,7 @@ import { getCampForOrg, listSeasonCamps, type PublicCamp } from "@/lib/camps/dat
 import { createClient } from "@/lib/supabase/server";
 import { getI18n } from "@/lib/i18n/server";
 import { getCheckoutPlanOffer } from "@/lib/plans/data";
+import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 /**
  * Admin / finance: a multi-week camp booking on behalf of a family (one
@@ -19,10 +20,10 @@ export default async function AdminCampBasketPage({ searchParams }: { searchPara
   const orgId = me.orgId;
   const { t, f } = await getI18n();
   const supabase = await createClient();
-  const { data: families } = await supabase.from("families").select("id,name").eq("org_id", orgId).order("name").limit(1000);
+  const { data: families } = await supabase.from("families").select("id,name").eq("org_id", orgId).eq("status", VISIBLE_FAMILY_STATUS).order("name").limit(1000);
   const familyId = families?.some((x) => x.id === family) ? family! : null;
   const { data: kids } = familyId
-    ? await supabase.from("athletes").select("id,first_name,last_name,dob,status").eq("org_id", orgId).eq("family_id", familyId).order("first_name")
+    ? await supabase.from("athletes").select("id,first_name,last_name,dob,status").eq("org_id", orgId).eq("family_id", familyId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name")
     : { data: [] as { id: string; first_name: string; last_name: string; dob: string | null; status: string }[] };
   const cards = familyId ? await listSeasonCamps(orgId, { publicOnly: false }) : [];
   const camps = (await Promise.all(cards.map((c) => getCampForOrg(orgId, c.id, false)))).filter((c): c is PublicCamp => !!c);

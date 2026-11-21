@@ -8,6 +8,7 @@ import type { NotifVars } from "@/lib/notifications/templates";
 import { getOrgEmailContext } from "@/lib/email/org-context";
 import { pickBillingRecipients } from "@/lib/family/billing";
 import { familyAdminDb } from "@/lib/family/db";
+import { VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 
 export type BulkResult = { ok: true; sent: number; failed: number; inApp: number; targets: number } | { ok: false; error: string };
 
@@ -84,7 +85,7 @@ export async function broadcastAnnouncement(input: { title: string; message: str
   if (!input.title.trim() || !input.message.trim()) return { ok: false, error: "Title and message are required" };
   const admin = createAdminClient();
 
-  const fams = (await admin.from("families").select("id").eq("org_id", me.orgId)).data ?? [];
+  const fams = (await admin.from("families").select("id").eq("org_id", me.orgId).eq("status", VISIBLE_FAMILY_STATUS)).data ?? [];
   const famIds = fams.map((f) => f.id);
   const members = famIds.length ? (await admin.from("family_members").select("profile_id").in("family_id", famIds)).data ?? [] : [];
   const profIds = Array.from(new Set(members.map((m) => m.profile_id)));

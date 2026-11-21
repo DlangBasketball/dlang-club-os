@@ -186,7 +186,8 @@
     "accounting": "Contabilidad",
     "refunds": "Cancelaciones y reembolsos",
     "site": "Sitio web",
-    "upgrades": "Plan y ampliaciones"
+    "upgrades": "Plan y ampliaciones",
+    "recentlyDeleted": "Eliminados recientemente"
   },
   "shell": {
     "openMenu": "Abrir menú",
@@ -853,6 +854,121 @@
       "filterLabel": "Filtrar por licencia federativa",
       "filterHas": "Con licencia",
       "filterMissing": "Sin licencia"
+    }
+  },
+  "personDelete": {
+    "button": "Eliminar",
+    "buttonAria": "Eliminar a {name}",
+    "title": "Eliminar a {name}",
+    "loading": "Comprobando a qué afecta…",
+    "intro": "{name} se quitará de todas las secciones del club a la vez: listas, plantillas, inscripciones, reservas, calendarios, mensajes, exportaciones y sitio web, en todos los portales.",
+    "impact": {
+      "teams": "{count, plural, one {Quitado/a de # equipo} other {Quitado/a de # equipos}}",
+      "programmes": "{count, plural, one {# inscripción a un programa cancelada} other {# inscripciones a programas canceladas}}",
+      "camps": "{count, plural, one {# inscripción a un campus cancelada} other {# inscripciones a campus canceladas}}",
+      "bookings": "{count, plural, one {# reserva próxima cancelada (créditos devueltos)} other {# reservas próximas canceladas (créditos devueltos)}}",
+      "waitlists": "{count, plural, one {# entrada en lista de espera retirada} other {# entradas en lista de espera retiradas}}",
+      "memberships": "{count, plural, one {# membresía cancelada} other {# membresías canceladas}}",
+      "carpools": "{count, plural, one {# oferta o solicitud de coche compartido cancelada} other {# ofertas o solicitudes de coche compartido canceladas}}",
+      "rsvps": "{count, plural, one {# respuesta a un evento próximo retirada} other {# respuestas a eventos próximos retiradas}}",
+      "kit": "{count, plural, one {# pedido de equipación pendiente retirado} other {# pedidos de equipación pendientes retirados}}",
+      "paymentPlans": "{count, plural, one {# plan de pago detenido} other {# planes de pago detenidos}}",
+      "autopay": "Pagos automáticos con tarjeta detenidos",
+      "documents": "{count, plural, one {# documento (solo se elimina al eliminar definitivamente)} other {# documentos (solo se eliminan al eliminar definitivamente)}}",
+      "photos": "{count, plural, one {# foto (solo se elimina al eliminar definitivamente)} other {# fotos (solo se eliminan al eliminar definitivamente)}}",
+      "guardians": "{count, plural, one {# tutor desvinculado (los accesos sin otra familia se desconectan)} other {# tutores desvinculados (los accesos sin otra familia se desconectan)}}",
+      "invoicesCancelled": "{count, plural, one {# factura impagada cancelada ({amount})} other {# facturas impagadas canceladas ({amount})}}",
+      "invoicesKept": "{count, plural, one {# factura con pagos se conserva, anonimizada, para la contabilidad} other {# facturas con pagos se conservan, anonimizadas, para la contabilidad}}",
+      "nothing": "No afecta a ningún equipo, inscripción, reserva ni factura.",
+      "athletes": "{count, plural, one {# hijo/a} other {# hijos}}"
+    },
+    "details": "Una eliminación definitiva quita {count} registros:",
+    "groups": {
+      "profile": "Perfil e historial médico",
+      "teams": "Equipos, eventos y equipación",
+      "registrations": "Inscripciones, listas de espera y membresías",
+      "training": "Entrenamientos, reservas y asistencia",
+      "development": "Desarrollo y trayectoria del jugador",
+      "documents": "Documentos, formularios y contratos",
+      "other": "Otros registros"
+    },
+    "modeLabel": "¿Qué debe ocurrir?",
+    "archive": "Archivar (se puede restaurar durante 30 días)",
+    "archiveHelp": "Oculto en todas partes de inmediato. Se puede restaurar desde «Eliminados recientemente» durante 30 días; después se elimina definitivamente.",
+    "erase": "Eliminar definitivamente",
+    "eraseHelp": "Los datos personales, documentos y fotos se eliminan ahora y no se pueden recuperar. Las facturas y pagos se conservan, anonimizados, como exige la ley.",
+    "typeToConfirm": "Escribe {name} para confirmar",
+    "confirmArchive": "Archivar",
+    "confirmErase": "Eliminar definitivamente",
+    "working": "Eliminando…",
+    "restoreNote": "Al restaurar vuelven la persona, sus equipos y los vínculos con los tutores. Las inscripciones, reservas y facturas canceladas siguen canceladas.",
+    "removeFromTeamHint": "«Quitar del equipo» solo saca a la persona de esta plantilla. «Eliminar» la quita de todo el club.",
+    "guardian": {
+      "button": "Quitar",
+      "aria": "Quitar a {name} como tutor",
+      "title": "Quitar a {name} como tutor",
+      "body": "{name} se desvincula de esta familia. Si no pertenece a ninguna otra familia del club, también se desconecta su acceso de padre o madre. Su cuenta e historial se conservan.",
+      "confirm": "Quitar tutor"
+    },
+    "bulk": {
+      "select": "Seleccionar a {name}",
+      "selectAll": "Seleccionar todo",
+      "selected": "{count, plural, one {# seleccionado} other {# seleccionados}}",
+      "delete": "Eliminar selección",
+      "clear": "Borrar selección",
+      "title": "{count, plural, one {Eliminar # persona} other {Eliminar # personas}}",
+      "intro": "Cada persona seleccionada se quita de todas las secciones del club, igual que al eliminarla una a una.",
+      "confirmWord": "ELIMINAR",
+      "typeWord": "Escribe {word} para confirmar",
+      "done": "{count, plural, one {# eliminado} other {# eliminados}}{failed, plural, =0 {} other {, # fallidos}}"
+    },
+    "done": {
+      "archived": "Archivado. Puedes restaurarlo desde «Eliminados recientemente» durante 30 días.",
+      "erased": "Eliminado definitivamente.",
+      "restored": "Restaurado.",
+      "guardianRemoved": "Tutor quitado.",
+      "guardianDetached": "Tutor quitado y su acceso de padre o madre desconectado."
+    },
+    "errors": {
+      "forbidden": "Solo los administradores del club pueden eliminar personas.",
+      "notFound": "No se encontró a esta persona.",
+      "alreadyDeleted": "Esta persona ya está eliminada.",
+      "notRestorable": "Ya no se puede restaurar.",
+      "familyDeleted": "La familia también está eliminada: restaura primero la familia.",
+      "blocked": "Algunos registros vinculados no se pudieron quitar. No se cambió nada; contacta con soporte.",
+      "failed": "No se pudo completar la eliminación. No se cambió nada.",
+      "confirmMismatch": "El texto de confirmación no coincide."
+    },
+    "deleted": {
+      "title": "Eliminados recientemente",
+      "description": "Las personas archivadas se pueden restaurar durante 30 días; después la limpieza diaria las elimina definitivamente. Las facturas y pagos siempre se conservan, anonimizados.",
+      "empty": "No se ha eliminado nada recientemente.",
+      "person": "Persona",
+      "kind": "Tipo",
+      "kindAthlete": "Jugador/a",
+      "kindFamily": "Familia",
+      "deletedOn": "Eliminado el",
+      "purge": "Eliminación definitiva",
+      "purgeIn": "{count, plural, =0 {hoy} one {en # día} other {en # días}}",
+      "statusArchived": "Archivado",
+      "statusErased": "Eliminado definitivamente",
+      "statusRestored": "Restaurado",
+      "restore": "Restaurar",
+      "deleteNow": "Eliminar ahora",
+      "deleteNowTitle": "Eliminar definitivamente ahora",
+      "deleteNowBody": "Los datos personales, documentos y fotos se eliminan ahora y no se pueden recuperar. Las facturas y pagos se conservan, anonimizados.",
+      "deletedPlayer": "Jugador/a eliminado/a",
+      "deletedFamily": "Familia eliminada",
+      "summary": "Resumen",
+      "showErased": "Mostrar eliminados definitivamente",
+      "showArchived": "Mostrar archivados",
+      "link": "Eliminados recientemente"
+    },
+    "parent": {
+      "title": "Eliminación de tus datos",
+      "archived": "El club retiró a tu familia el {date}. Se eliminará definitivamente el {purge}, salvo que el club la restaure.",
+      "requested": "El club está tramitando tu solicitud de eliminación.",
+      "childArchived": "El club retiró a {name} el {date}. El registro se eliminará definitivamente el {purge}, salvo que el club lo restaure."
     }
   },
   "athletePhoto": {
@@ -5275,7 +5391,7 @@
       "jerseyFor": "Dorsal de {name}",
       "positionFor": "Posición de {name}",
       "statusFor": "Estado de {name}",
-      "removeName": "Quitar a {name}",
+      "removeName": "Quitar a {name} del equipo",
       "confirmRemoveRow": "¿Quitar a {name} de la plantilla? Mejor cambia el estado a inactivo para conservar el historial.",
       "status": {
         "active": "Activo",
@@ -6358,6 +6474,11 @@
         "subject": "Informe de incidente de {child}",
         "intro": "El club registró un informe de incidente de {child} el {date}. Puedes leerlo en la app.",
         "cta": "Leer el informe"
+      },
+      "personPurgeAdmin": {
+        "subject": "Personas archivadas se eliminarán definitivamente el {date}",
+        "intro": "{name} registros archivados se eliminarán definitivamente el {date}. Si fue un error, restáuralos antes desde «Eliminados recientemente».",
+        "cta": "Abrir «Eliminados recientemente»"
       }
     }
   },
