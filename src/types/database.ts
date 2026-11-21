@@ -100,6 +100,16 @@ export type Database = {
           licence_issued_on: string | null;
           licence_fee: number | null;
           licence_federation: string | null;
+          // sponsored players (20250420102400); staff-only writes, stamps server-set
+          sponsorship_kind: "none" | "full" | "partial";
+          sponsorship_percent: number | null;
+          sponsorship_scope: string[];
+          sponsor_name: string | null;
+          sponsorship_reason: string | null;
+          sponsorship_from: string | null;
+          sponsorship_until: string | null;
+          sponsored_by: string | null;
+          sponsored_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -369,6 +379,8 @@ export type Database = {
           cancellation_reason: string | null;
           cancelled_at: string | null;
           cancelled_by: string | null;
+          // camps (20250420100100): the invoice the registration is billed on
+          invoice_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -685,6 +697,36 @@ export type Database = {
         Update: Record<string, unknown>;
         Relationships: [];
       };
+      athlete_sponsorship_entries: {
+        // sponsored players (20250420102400): value given, admin / finance read only
+        Row: {
+          id: string;
+          org_id: string;
+          athlete_id: string;
+          family_id: string | null;
+          invoice_id: string | null;
+          invoice_adjustment_id: string | null;
+          installment_id: string | null;
+          membership_id: string | null;
+          scope: string;
+          method: string;
+          sponsorship_kind: string;
+          percent: number;
+          sponsor_name: string | null;
+          list_amount: number;
+          amount: number;
+          currency: string;
+          service_date: string;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+          voided_at: string | null;
+          void_reason: string | null;
+        };
+        Insert: Record<string, unknown>;
+        Update: Record<string, unknown>;
+        Relationships: [];
+      };
       audit_logs: {
         Row: {
           id: number;
@@ -704,6 +746,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      // sponsored players (20250420102400)
+      sponsorship_apply_open_invoices: { Args: { p_athlete: string; p_dry_run?: boolean }; Returns: Json };
+      sponsorship_apply_service: { Args: { p_invoice: string }; Returns: Json };
       get_public_tenant: {
         Args: { p_host?: string | null; p_slug?: string | null };
         Returns: {

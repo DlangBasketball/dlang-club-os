@@ -41,6 +41,39 @@ export function nextDunningLevel(s: DunningSettings, daysOverdue: number, curren
   return next > cur ? (next as DunningLevel) : null;
 }
 
+/** Invoice states dunning never touches (mirrors public.dunning_run). */
+export const NOT_DUNNED_STATUSES = ["draft", "paid", "cancelled", "void", "written_off", "refunded"] as const;
+
+export type DunnableInvoice = {
+  status: string;
+  /** Original total. */
+  total: number;
+  /** Signed sum of active adjustment documents (credit notes negative: sponsorship, family support...). */
+  adjustments: number;
+  /** Net paid so far. */
+  paid: number;
+  remindersPaused?: boolean;
+};
+
+/**
+ * Balance dunning may chase: amount due (total + adjustments) minus what was
+ * paid, 0 for settled / cancelled invoices. A sponsored share is a credit note
+ * (or the invoice is settled / cancelled), so it is never chased.
+ */
+export function dunnableBalance(inv: DunnableInvoice): number {
+  if ((NOT_DUNNED_STATUSES as readonly string[]).includes(inv.status)) return 0;
+  const cents = Math.round((inv.total + inv.adjustments - inv.paid) * 100);
+  return cents > 0 ? cents / 100 : 0;
+}
+
+/** Level to send for one invoice now, or null (paused, nothing to chase, too early). Mirrors public.dunning_run. */
+export function dunningLevelFor(s: DunningSettings, inv: DunnableInvoice, daysOverdue: number, currentLevel: number): DunningLevel | null {
+  if (!s.enabled || inv.remindersPaused) return null;
+  const balance = dunnableBalance(inv);
+  if (balance <= Math.max(s.minBalance, 0)) return null;
+  return nextDunningLevel(s, daysOverdue, currentLevel);
+}
+
 export function dunningFee(s: DunningSettings, level: number): number {
   return level === 2 ? s.level2Fee : level === 3 ? s.level3Fee : 0;
 }

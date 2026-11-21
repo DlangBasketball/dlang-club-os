@@ -144,6 +144,7 @@
     "myTeam": "Mi equipo",
     "import": "Importar",
     "discounts": "Descuentos",
+    "sponsorships": "Patrocinios",
     "camps": "Campamentos",
     "training": "Entrenamiento",
     "trainingAthletes": "Mis deportistas",
@@ -4868,7 +4869,8 @@
       "actions": {
         "invoice": "Factura",
         "skip_pause": "Omitido (pausa)",
-        "skip_zero": "Omitido (nada que pagar)"
+        "skip_zero": "Omitido (nada que pagar)",
+        "skip_sponsored": "Omitido (patrocinado)"
       },
       "runUntil": "Facturar periodos hasta",
       "runNow": "Ejecutar ahora",
@@ -9103,6 +9105,120 @@
         "description": "Paneles consolidados entre clubes y sedes.",
         "pitch": "Dirigir un grupo de clubes con una sola vista."
       }
+    }
+  },
+  "sponsorship": {
+    "title": "Patrocinio",
+    "badge": "Patrocinado",
+    "badgePercent": "Patrocinado {percent} %",
+    "kind": "Patrocinio",
+    "kinds": {
+      "none": "Sin patrocinio",
+      "full": "Total (100 %)",
+      "partial": "Parcial"
+    },
+    "percent": "Parte cubierta (%)",
+    "scope": "Cuotas cubiertas",
+    "scopes": {
+      "season": "Cuotas de temporada y de equipo",
+      "recurring": "Cuotas periódicas",
+      "membership": "Cuotas de socio",
+      "camp": "Campus",
+      "training": "Paquetes de entrenamiento",
+      "shop": "Tienda",
+      "all": "Todas las cuotas"
+    },
+    "sponsorName": "Patrocinador",
+    "sponsorNamePlaceholder": "p. ej. Club – hijo de entrenador, una empresa",
+    "sponsorClub": "el club",
+    "reason": "Motivo (interno)",
+    "from": "Desde",
+    "until": "Hasta",
+    "untilHint": "Déjalo vacío si no hay fecha de fin.",
+    "hint": "Las cuotas patrocinadas aparecen en las facturas como línea «Patrocinado», para que los informes conserven el valor aportado. Las cuotas periódicas y de socio totalmente patrocinadas no generan factura.",
+    "none": "Este jugador paga las cuotas normales.",
+    "coverage": "{percent} % de: {scopes}",
+    "window": "{from} – {until}",
+    "openEnded": "Desde el {from}",
+    "always": "Sin fecha de fin",
+    "since": "Definido el {date}",
+    "edit": "Editar",
+    "save": "Guardar patrocinio",
+    "saving": "Guardando…",
+    "saved": "Patrocinio guardado.",
+    "parentNote": "Cuotas patrocinadas por {sponsor}",
+    "parentNotePartial": "{percent} % de las cuotas patrocinado por {sponsor}",
+    "invoiceNote": "{name}: cuotas patrocinadas por {sponsor}",
+    "invoiceNotePartial": "{name}: {percent} % de las cuotas patrocinado por {sponsor}",
+    "apply": {
+      "button": "Aplicar el patrocinio a las facturas abiertas",
+      "title": "¿Aplicar el patrocinio a las facturas abiertas?",
+      "loading": "Comprobando las facturas abiertas…",
+      "none": "No hay ninguna factura abierta que modificar.",
+      "intro": "Estas facturas abiertas se modificarán. No se puede deshacer automáticamente.",
+      "cancel": "Anulada (totalmente patrocinada)",
+      "credit": "Nota de crédito",
+      "confirm": "Aplicar",
+      "working": "Aplicando…",
+      "back": "Volver",
+      "done": "{count, plural, =0 {Ninguna factura modificada.} one {# factura actualizada.} other {# facturas actualizadas.}}"
+    },
+    "family": {
+      "button": "Patrocinar a todos los jugadores de esta familia",
+      "title": "Patrocinar a todos los jugadores de esta familia",
+      "hint": "Aplica el mismo patrocinio a cada hijo de esta familia. Elige «Sin patrocinio» para terminarlo para todos.",
+      "submit": "Aplicar a todos los jugadores",
+      "saved": "{count, plural, =0 {Ningún jugador que actualizar.} one {Patrocinio guardado para # jugador.} other {Patrocinio guardado para # jugadores.}}",
+      "close": "Cerrar"
+    },
+    "list": {
+      "column": "Patrocinio",
+      "filterLabel": "Filtro de patrocinio",
+      "filterYes": "Patrocinados",
+      "filterNo": "Sin patrocinio"
+    },
+    "report": {
+      "nav": "Patrocinios",
+      "title": "Patrocinios {season}",
+      "description": "Valor de las cuotas del club condonadas a jugadores patrocinados, según las líneas de factura patrocinadas, las notas de crédito y las cuotas no facturadas.",
+      "season": "Temporada",
+      "update": "Mostrar",
+      "total": "Total condonado",
+      "players": "Jugadores patrocinados",
+      "sponsors": "Patrocinadores",
+      "byPlayer": "Por jugador",
+      "bySponsor": "Por patrocinador",
+      "entries": "Registros",
+      "player": "Jugador",
+      "sponsor": "Patrocinador",
+      "amount": "Valor condonado",
+      "count": "Cuotas",
+      "fee": "Cuota",
+      "date": "Fecha",
+      "invoice": "Factura",
+      "currency": "Moneda",
+      "method": "Registrado como",
+      "methods": {
+        "invoice_line": "Línea de factura",
+        "credit_note": "Nota de crédito",
+        "cancellation": "Factura anulada",
+        "waived": "No se emitió factura"
+      },
+      "empty": "No hay patrocinios registrados en esta temporada.",
+      "export": "Exportar CSV"
+    },
+    "errors": {
+      "invalidKind": "Elige un tipo de patrocinio.",
+      "percentRequired": "Indica la parte que cubre el patrocinio.",
+      "invalidPercent": "La parte debe estar entre 1 y 100 %.",
+      "scopeRequired": "Elige al menos un tipo de cuota.",
+      "tooLong": "Este texto es demasiado largo.",
+      "invalidDate": "Introduce una fecha válida.",
+      "untilBeforeFrom": "La fecha de fin debe ser igual o posterior a la de inicio.",
+      "forbidden": "Solo los administradores y finanzas del club pueden gestionar patrocinios.",
+      "notSponsored": "Este jugador no está patrocinado.",
+      "notFound": "Jugador no encontrado.",
+      "saveFailed": "No se pudo guardar el patrocinio. Inténtalo de nuevo."
     }
   }
 }

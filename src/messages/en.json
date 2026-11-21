@@ -144,6 +144,7 @@
     "myTeam": "My team",
     "import": "Import",
     "discounts": "Discounts",
+    "sponsorships": "Sponsorships",
     "camps": "Camps",
     "training": "Training",
     "trainingAthletes": "My athletes",
@@ -4868,7 +4869,8 @@
       "actions": {
         "invoice": "Invoice",
         "skip_pause": "Skipped (pause)",
-        "skip_zero": "Skipped (nothing due)"
+        "skip_zero": "Skipped (nothing due)",
+        "skip_sponsored": "Skipped (sponsored)"
       },
       "runUntil": "Invoice periods up to",
       "runNow": "Run now",
@@ -9103,6 +9105,120 @@
         "description": "Combined dashboards across clubs and sites.",
         "pitch": "Steer a group of clubs with one view."
       }
+    }
+  },
+  "sponsorship": {
+    "title": "Sponsorship",
+    "badge": "Sponsored",
+    "badgePercent": "Sponsored {percent}%",
+    "kind": "Sponsorship",
+    "kinds": {
+      "none": "Not sponsored",
+      "full": "Full (100%)",
+      "partial": "Partial"
+    },
+    "percent": "Share covered (%)",
+    "scope": "Fees covered",
+    "scopes": {
+      "season": "Season and team fees",
+      "recurring": "Recurring fees",
+      "membership": "Membership fees",
+      "camp": "Camps",
+      "training": "Training packages",
+      "shop": "Shop",
+      "all": "All fees"
+    },
+    "sponsorName": "Sponsor",
+    "sponsorNamePlaceholder": "e.g. Club – coach's child, a company",
+    "sponsorClub": "the club",
+    "reason": "Reason (internal)",
+    "from": "From",
+    "until": "Until",
+    "untilHint": "Leave empty for no end date.",
+    "hint": "Sponsored fees appear on invoices as a \"Sponsored\" line so reports keep the value given. Fully sponsored recurring and membership fees issue no invoice.",
+    "none": "This player pays the normal fees.",
+    "coverage": "{percent}% of: {scopes}",
+    "window": "{from} – {until}",
+    "openEnded": "From {from}",
+    "always": "No end date",
+    "since": "Set on {date}",
+    "edit": "Edit",
+    "save": "Save sponsorship",
+    "saving": "Saving…",
+    "saved": "Sponsorship saved.",
+    "parentNote": "Fees sponsored by {sponsor}",
+    "parentNotePartial": "{percent}% of fees sponsored by {sponsor}",
+    "invoiceNote": "{name}: fees sponsored by {sponsor}",
+    "invoiceNotePartial": "{name}: {percent}% of fees sponsored by {sponsor}",
+    "apply": {
+      "button": "Apply sponsorship to open invoices",
+      "title": "Apply sponsorship to open invoices?",
+      "loading": "Checking open invoices…",
+      "none": "No open invoice to change.",
+      "intro": "These open invoices will change. This cannot be undone automatically.",
+      "cancel": "Cancelled (fully sponsored)",
+      "credit": "Credit note",
+      "confirm": "Apply",
+      "working": "Applying…",
+      "back": "Back",
+      "done": "{count, plural, =0 {No invoice changed.} one {# invoice updated.} other {# invoices updated.}}"
+    },
+    "family": {
+      "button": "Sponsor all players in this family",
+      "title": "Sponsor all players in this family",
+      "hint": "Sets the same sponsorship on each child of this family. Choose \"Not sponsored\" to end it for all of them.",
+      "submit": "Apply to all players",
+      "saved": "{count, plural, =0 {No player to update.} one {Sponsorship saved for # player.} other {Sponsorship saved for # players.}}",
+      "close": "Close"
+    },
+    "list": {
+      "column": "Sponsorship",
+      "filterLabel": "Sponsorship filter",
+      "filterYes": "Sponsored",
+      "filterNo": "Not sponsored"
+    },
+    "report": {
+      "nav": "Sponsorships",
+      "title": "Sponsorships {season}",
+      "description": "Value of club fees waived for sponsored players, from the sponsored invoice lines, credit notes and waived fees.",
+      "season": "Season",
+      "update": "Show",
+      "total": "Total waived",
+      "players": "Sponsored players",
+      "sponsors": "Sponsors",
+      "byPlayer": "By player",
+      "bySponsor": "By sponsor",
+      "entries": "Entries",
+      "player": "Player",
+      "sponsor": "Sponsor",
+      "amount": "Value waived",
+      "count": "Fees",
+      "fee": "Fee",
+      "date": "Date",
+      "invoice": "Invoice",
+      "currency": "Currency",
+      "method": "Recorded as",
+      "methods": {
+        "invoice_line": "Invoice line",
+        "credit_note": "Credit note",
+        "cancellation": "Invoice cancelled",
+        "waived": "No invoice issued"
+      },
+      "empty": "No sponsorship recorded for this season.",
+      "export": "Export CSV"
+    },
+    "errors": {
+      "invalidKind": "Choose a sponsorship type.",
+      "percentRequired": "Enter the share the sponsorship covers.",
+      "invalidPercent": "The share must be between 1 and 100%.",
+      "scopeRequired": "Choose at least one kind of fee.",
+      "tooLong": "This text is too long.",
+      "invalidDate": "Enter a valid date.",
+      "untilBeforeFrom": "The end date must be on or after the start date.",
+      "forbidden": "Only club admins and finance can manage sponsorships.",
+      "notSponsored": "This player is not sponsored.",
+      "notFound": "Player not found.",
+      "saveFailed": "The sponsorship could not be saved. Please try again."
     }
   }
 }

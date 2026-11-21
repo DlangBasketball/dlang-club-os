@@ -344,6 +344,15 @@ export const SAME_AS_EN_OK = new Set([
   "site.starter.training.nav",
   "site.starter.training.title",
   "nav.site",
+  // Sponsored players: "Sponsor" is the word in fr / de / it; date range is placeholders only.
+  "sponsorship.sponsorName",
+  "sponsorship.report.sponsor",
+  "sponsorship.window",
+  "fr:sponsorship.report.sponsors",
+  "fr:sponsorship.report.date",
+  "fr:sponsorship.scopes.camp",
+  "de:sponsorship.scopes.camp",
+  "de:sponsorship.scopes.shop",
 ]);
 
 /** A value counts as translated when it differs from English, is allow-listed, or has no words. */
