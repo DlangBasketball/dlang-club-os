@@ -1,5 +1,6 @@
 import type { BillingInterval, Currency } from "./types";
 import { PLATFORM_NAME } from "@/lib/brand";
+import { FEATURE_CATALOG } from "@/lib/upgrades/catalog";
 
 /**
  * Static catalogue for the SaaS layer: product name, sellable currencies,
@@ -75,31 +76,16 @@ export function defaultsForCountry(code: string): { currency: Currency; locale: 
 }
 
 /**
- * Feature keys a plan can grant. Keep in sync with plans.features in SQL.
- * The AI assistant is NOT a plan feature: it is a separate add-on
- * (public.ai_assistant_addons, see src/lib/ai/access.ts).
+ * Feature keys a plan can grant (English labels for the operator console).
+ * Derived from the full catalog in src/lib/upgrades/catalog.ts, which also
+ * holds tiers, add-on prices and dependencies. The AI assistant is a paid
+ * add-on (never part of a plan; see src/lib/ai/access.ts).
  */
-export const FEATURES = {
-  registration: "Online registration",
-  invoicing: "Invoicing",
-  qr_bill: "Swiss QR-bill",
-  online_payments: "Online card payments",
-  attendance: "Attendance",
-  messaging: "Messaging & notifications",
-  documents_consent: "Documents & consents",
-  bookings: "Player-development bookings",
-  custom_branding: "Custom branding",
-  custom_domain: "Custom domain",
-  white_label: "Full white-label",
-  multi_location: "Multiple teams & locations",
-  reports_advanced: "Advanced reports",
-  api_access: "API access",
-  sso: "Single sign-on",
-  federation_rollup: "Federation / school roll-up",
-  priority_support: "Priority support",
-} as const;
+export const FEATURES: Record<string, string> = Object.fromEntries(
+  FEATURE_CATALOG.filter((f) => !f.core).map((f) => [f.key, f.label]),
+);
 
-export type FeatureKey = keyof typeof FEATURES;
+export type FeatureKey = string;
 export const FEATURE_KEYS = Object.keys(FEATURES) as FeatureKey[];
 
 export function isFeatureKey(v: string): v is FeatureKey {
