@@ -1,246 +1,47 @@
 #!/usr/bin/env node
 /**
- * i18n catalog checker — zero dependencies.
+ * i18n catalog checker — zero dependencies, driven by the language registry
+ * (src/lib/i18n/languages.ts).
  *
- *   node scripts/i18n-check.mjs            # report; exit 1 on errors
- *   node scripts/i18n-check.mjs --strict   # also fail on warnings
- *   node scripts/i18n-check.mjs --json     # machine-readable output
+ *   npm run i18n:check                # report; exit 1 on errors
+ *   npm run i18n:check -- --strict    # also fail on warnings
+ *   npm run i18n:check -- --json      # machine-readable output
  *
  * Errors:
- *   - key present in en.json but missing in another locale (or vice versa)
+ *   - a "complete" language misses a key (base catalog, or the merged chain of an overlay)
+ *   - key not in en.json (base catalogs and overlays)
  *   - value is not a string / is empty
  *   - placeholder mismatch ({name} in en but not in de, …)
  *   - plural/select block without an `other` branch
- *   - "ß" in German (Swiss German uses "ss")
+ *   - "ß" anywhere in the merged Swiss German catalog (de-CH)
+ *   - generated overlays or src/messages/index.ts out of date (run npm run i18n:sync)
+ *   - catalog file without registry entry, or registry entry (status != none) without file
  *   - t("key") used in src/ that does not exist in en.json
  * Warnings:
- *   - value identical to English (possibly untranslated)
+ *   - value identical to English in a base catalog (possibly untranslated)
+ * Info:
+ *   - missing keys of "partial" (beta) languages: allowed, they fall back
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, dirname, relative } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, relative } from "node:path";
+import { spawnSync } from "node:child_process";
+import {
+  CATALOG_LANGUAGES,
+  LANGUAGES,
+  ROOT,
+  SAME_AS_EN_OK,
+  SOURCE_LOCALE,
+  SRC_DIR,
+  effectiveCatalog,
+  flatten,
+  loadCatalogFiles,
+  placeholderDiff,
+  pluralBlocksMissingOther,
+} from "./lib/i18n.mjs";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const MESSAGES_DIR = join(ROOT, "src", "messages");
-const SRC_DIR = join(ROOT, "src");
-const SOURCE = "en";
 const args = new Set(process.argv.slice(2));
 const STRICT = args.has("--strict");
 const JSON_OUT = args.has("--json");
-
-// Strings that are legitimately the same across languages.
-const SAME_AS_EN_OK = new Set([
-  // website connection: brand names, "Camp(s)", "Shop", "Widget", "Iframe", "min", French "Public" / "Photo"
-  "website.social.facebook",
-  "website.social.instagram",
-  "website.social.youtube",
-  "website.social.tiktok",
-  "website.social.linkedin",
-  "website.nav.camps",
-  "website.nav.shop",
-  "website.kinds.camp",
-  "website.sections.camps",
-  "website.sections.shop",
-  "website.widgetNames.shop",
-  "website.admin.embed.widget",
-  "website.admin.embed.iframe",
-  "website.widgets.duration",
-  "website.admin.flags.public",
-  "website.admin.flags.photo",
-  // club admin: German "Status" / "Team", French "Active" / "Programme", the official J+S name
-  "clubadmin.common.status",
-  "clubadmin.incidents.status",
-  "clubadmin.compliance.team",
-  "clubadmin.incidents.team",
-  "clubadmin.membership.statuses.active",
-  "clubadmin.waitlist.kinds.program",
-  "clubadmin.js.title",
-  // family & multi-club: international words ("Push", "Club", "College", "Status", "Teams", "Training", "Documents", "Notifications", "Type", "Position")
-  "messaging.preferences.push",
-  "family.push.event.types.training",
-  "family.placement.status",
-  "family.placement.kind",
-  "family.placement.kinds.club",
-  "family.placement.kinds.college",
-  "family.placement.documents",
-  "family.scout.fieldNames.position",
-  "family.scout.fieldNames.teams",
-  "family.privacy.export.sections.documents",
-  "family.pages.privacy.notifications",
-  // accounting: French "Date" and "Canton" are the correct words
-  "accounting.common.date",
-  "accounting.support.funders.canton",
-  // camp seasons: "{season} {year}", German "Winter", "Camp {year}" (fr/de) are correct as is
-  "camps.seasons.label",
-  "camps.seasons.names.winter",
-  "camps.seasons.campNames.other",
-  "editMoney.adjust.kind",
-  "editMoney.common.actions",
-  "editMoney.common.date",
-  "editMoney.common.note",
-  "editMoney.invoice.description",
-  "editMoney.invoice.lineDescription",
-  "editMoney.invoice.notes",
-  "editMoney.invoice.total",
-  "editMoney.payment.note",
-  "editMoney.payment.stripe",
-  "editMoney.training.categories.mental",
-  "editMoney.training.categories.nutrition",
-  "editMoney.training.categories.personal",
-  "editMoney.training.kindLabel",
-  "editPeople.optional",
-  "editPeople.consentSource.verbal",
-  "editPeople.athlete.status",
-  "editPeople.programmes.status",
-  "editPeople.programmes.teams",
-  "editPeople.registrations.status",
-  "editPeople.consentSource.online",
-  "editPeople.consents.version",
-  "editPeople.medical.allergies",
-  "editPeople.registrations.program",
-  "editPeople.documents.kind",
-  "editPeople.documentKind.photo",
-  "editPeople.documentScope.program",
-  "athletePhoto.title",
-  "auth.statusLabel",
-  "nav.import",
-  "nav.teams",
-  "payments.taxLine",
-  "meta.direction",
-  "common.status",
-  "nav.training",
-  "training.book.stepService",
-  "training.common.minutes",
-  "training.common.status",
-  "training.groups.participants",
-  "training.profile.link",
-  "training.profile.pageTitle",
-  "common.total",
-  "common.date",
-  "common.name",
-  "common.notes",
-  "common.actions",
-  "common.no",
-  "nav.assistant",
-  "aiAssistant.pageTitle",
-  "nav.documents",
-  "nav.notifications",
-  "nav.home",
-  "nav.account",
-  "shell.clubOs",
-  "shell.notifications",
-  "status.open",
-  "invoices.total",
-  "programKind.camp",
-  "programKind.clinic",
-  "payments.methods.twint",
-  "notifications.channels.push",
-  "notifications.channels.sms",
-  "notifications.title",
-  "notifications.types.system",
-  "parentHome.notifications",
-  "registration.review.lineItem",
-  "booking.duration",
-  "roles.parent",
-  "email.adminRegistrationAlert.parent",
-  "common.optional",
-  "common.subtotal",
-  "registration.consents.optional",
-  "nav.invitations",
-  "finance.common.date",
-  "finance.common.actions",
-  "finance.methods.twint",
-  "finance.expenses.program",
-  "finance.payouts.minutes",
-  "finance.reports.total",
-]);
-
-/** Flatten nested JSON into { "a.b.c": value }. */
-function flatten(obj, prefix = "", out = {}) {
-  for (const [k, v] of Object.entries(obj)) {
-    const key = prefix ? `${prefix}.${k}` : k;
-    if (v && typeof v === "object" && !Array.isArray(v)) flatten(v, key, out);
-    else out[key] = v;
-  }
-  return out;
-}
-
-/** Top-level variable names in an ICU-lite message: {name}, {count, plural, ...}. */
-function matchBrace(s, open) {
-  let depth = 0;
-  for (let i = open; i < s.length; i++) {
-    if (s[i] === "{") depth++;
-    else if (s[i] === "}" && --depth === 0) return i;
-  }
-  return -1;
-}
-
-function placeholders(msg, names = new Set()) {
-  let i = 0;
-  while (i < msg.length) {
-    const open = msg.indexOf("{", i);
-    if (open === -1) break;
-    const close = matchBrace(msg, open);
-    if (close === -1) break;
-    const body = msg.slice(open + 1, close);
-    const comma = body.indexOf(",");
-    if (comma === -1) {
-      if (/^\s*[a-zA-Z_]\w*\s*$/.test(body)) names.add(body.trim());
-    } else {
-      names.add(body.slice(0, comma).trim());
-      // option texts of plural/select: "one {…} other {…}" — recurse into each
-      const rest = body.slice(comma + 1);
-      const opts = rest.slice(rest.indexOf(",") + 1);
-      let j = 0;
-      while (j < opts.length) {
-        const ob = opts.indexOf("{", j);
-        if (ob === -1) break;
-        const cb = matchBrace(opts, ob);
-        if (cb === -1) break;
-        placeholders(opts.slice(ob + 1, cb), names);
-        j = cb + 1;
-      }
-    }
-    i = close + 1;
-  }
-  return names;
-}
-
-function pluralBlocksMissingOther(msg) {
-  const problems = [];
-  const re = /\{\s*([a-zA-Z_]\w*)\s*,\s*(plural|select)\s*,/g;
-  let m;
-  while ((m = re.exec(msg))) {
-    // find the matching closing brace of this block
-    let depth = 0;
-    let end = -1;
-    for (let i = m.index; i < msg.length; i++) {
-      if (msg[i] === "{") depth++;
-      else if (msg[i] === "}" && --depth === 0) {
-        end = i;
-        break;
-      }
-    }
-    const body = end === -1 ? msg.slice(m.index) : msg.slice(m.index, end);
-    if (!/\bother\s*\{/.test(body)) problems.push(`${m[2]} block for {${m[1]}} has no "other" branch`);
-  }
-  return problems;
-}
-
-function loadCatalogs() {
-  const files = readdirSync(MESSAGES_DIR).filter((f) => f.endsWith(".json"));
-  const catalogs = {};
-  for (const f of files) {
-    const locale = f.replace(/\.json$/, "");
-    try {
-      catalogs[locale] = JSON.parse(readFileSync(join(MESSAGES_DIR, f), "utf8"));
-    } catch (e) {
-      console.error(`✖ ${f}: invalid JSON — ${e.message}`);
-      process.exit(1);
-    }
-  }
-  return catalogs;
-}
 
 function walk(dir, files = []) {
   for (const name of readdirSync(dir)) {
@@ -259,7 +60,6 @@ function usedKeys() {
   const used = new Map();
   const re = /\bt\(\s*["'`]([a-zA-Z][\w]*(?:\.[\w]+)+)["'`]/g;
   for (const file of walk(SRC_DIR)) {
-    // ignore examples in comments
     const src = readFileSync(file, "utf8")
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/^\s*\/\/.*$/gm, "");
@@ -272,72 +72,113 @@ function usedKeys() {
   return used;
 }
 
-const catalogs = loadCatalogs();
-if (!catalogs[SOURCE]) {
-  console.error(`✖ missing source catalog src/messages/${SOURCE}.json`);
+const files = loadCatalogFiles();
+if (!files[SOURCE_LOCALE]) {
+  console.error(`✖ missing source catalog src/messages/${SOURCE_LOCALE}.json`);
   process.exit(1);
 }
-
-const flat = Object.fromEntries(Object.entries(catalogs).map(([l, c]) => [l, flatten(c)]));
-const sourceKeys = Object.keys(flat[SOURCE]);
+const en = flatten(files[SOURCE_LOCALE]);
+const sourceKeys = Object.keys(en);
 const report = {};
 let errorCount = 0;
 let warnCount = 0;
+const add = (tag) => (report[tag] ??= { status: "", overlay: null, keys: 0, missing: 0, errors: [], warnings: [], info: [] });
 
-for (const [locale, entries] of Object.entries(flat)) {
-  const errors = [];
-  const warnings = [];
-  const keys = new Set(Object.keys(entries));
-
-  for (const key of sourceKeys) {
-    if (!keys.has(key)) {
-      errors.push(`missing key: ${key}`);
-      continue;
-    }
-    const value = entries[key];
-    const en = flat[SOURCE][key];
-    if (typeof value !== "string") {
-      errors.push(`not a string: ${key}`);
-      continue;
-    }
-    if (!value.trim()) errors.push(`empty value: ${key}`);
-    const a = placeholders(en);
-    const b = placeholders(value);
-    const missing = [...a].filter((x) => !b.has(x));
-    const extra = [...b].filter((x) => !a.has(x));
-    if (missing.length) errors.push(`placeholder(s) {${missing.join("}, {")}} missing in ${key}`);
-    if (extra.length) errors.push(`unknown placeholder(s) {${extra.join("}, {")}} in ${key}`);
-    for (const p of pluralBlocksMissingOther(value)) errors.push(`${key}: ${p}`);
-    if (locale === "de" && value.includes("ß")) errors.push(`"ß" in ${key} (Swiss German uses "ss")`);
-    if (locale !== SOURCE && value === en && !SAME_AS_EN_OK.has(key) && /[a-z]{3,}/i.test(value)) {
-      warnings.push(`same as English (untranslated?): ${key} = "${value}"`);
-    }
-  }
-  for (const key of keys) {
-    if (!(key in flat[SOURCE])) errors.push(`extra key not in ${SOURCE}.json: ${key}`);
-  }
-  report[locale] = { keys: keys.size, errors, warnings };
-  errorCount += errors.length;
-  warnCount += warnings.length;
+// Registry <-> files ------------------------------------------------------------
+const registered = new Map(LANGUAGES.map((l) => [l.tag, l]));
+for (const tag of Object.keys(files)) {
+  const entry = registered.get(tag);
+  if (!entry) add(tag).errors.push(`src/messages/${tag}.json has no entry in src/lib/i18n/languages.ts`);
+  else if (entry.status === "none") add(tag).errors.push(`registry status is "none" but src/messages/${tag}.json exists (set it to "partial")`);
+}
+for (const entry of CATALOG_LANGUAGES) {
+  if (!files[entry.tag]) add(entry.tag).errors.push(`registry status "${entry.status}" but src/messages/${entry.tag}.json is missing`);
 }
 
+// Per language ------------------------------------------------------------------
+for (const entry of CATALOG_LANGUAGES) {
+  const tag = entry.tag;
+  if (!files[tag]) continue;
+  const r = add(tag);
+  r.status = entry.status;
+  r.overlay = entry.overlay ? `${entry.overlay.base} (${entry.overlay.transform})` : null;
+  const own = flatten(files[tag]);
+  r.keys = Object.keys(own).length;
+
+  for (const [key, value] of Object.entries(own)) {
+    if (!(key in en)) {
+      r.errors.push(`extra key not in ${SOURCE_LOCALE}.json: ${key}`);
+      continue;
+    }
+    if (typeof value !== "string") {
+      r.errors.push(`not a string: ${key}`);
+      continue;
+    }
+    if (!value.trim()) {
+      r.errors.push(`empty value: ${key}`);
+      continue;
+    }
+    if (tag === SOURCE_LOCALE) {
+      for (const p of pluralBlocksMissingOther(value)) r.errors.push(`${key}: ${p}`);
+      continue;
+    }
+    const { missing, extra } = placeholderDiff(en[key], value);
+    if (missing.length) r.errors.push(`placeholder(s) {${missing.join("}, {")}} missing in ${key}`);
+    if (extra.length) r.errors.push(`unknown placeholder(s) {${extra.join("}, {")}} in ${key}`);
+    for (const p of pluralBlocksMissingOther(value)) r.errors.push(`${key}: ${p}`);
+    if (!entry.overlay && value === en[key] && !SAME_AS_EN_OK.has(key) && !SAME_AS_EN_OK.has(`${tag}:${key}`) && /[a-z]{3,}/i.test(value)) {
+      r.warnings.push(`same as English (untranslated?): ${key} = "${value}"`);
+    }
+  }
+
+  // Completeness of what users actually see (overlays inherit their base).
+  const effective = effectiveCatalog(tag, files);
+  const chainOwn = entry.overlay ? flatten(files[entry.overlay.base] ?? {}) : own;
+  const missingKeys = sourceKeys.filter((k) => !(k in chainOwn) && !(k in own));
+  r.missing = missingKeys.length;
+  if (missingKeys.length) {
+    if (entry.status === "complete") {
+      for (const k of missingKeys) r.errors.push(`missing key: ${k}`);
+    } else {
+      r.info.push(`${missingKeys.length} key(s) not translated yet (status "${entry.status}": English fallback)`);
+    }
+  }
+
+  // Swiss German: no sharp s anywhere in what Swiss users see.
+  if (entry.overlay?.transform === "swiss-german" || /^de-(CH|LI)$/.test(tag)) {
+    for (const [k, v] of Object.entries(effective)) {
+      if (typeof v === "string" && /[ßẞ]/.test(v)) r.errors.push(`"ß" in ${k} (Swiss German uses "ss"; run npm run i18n:sync)`);
+    }
+  }
+}
+
+// Generated files in sync -------------------------------------------------------
+const sync = spawnSync(process.execPath, ["--no-warnings", join(ROOT, "scripts", "i18n-sync.mjs"), "--check"], { encoding: "utf8" });
+if (sync.status !== 0) add("_generated").errors.push((sync.stderr || sync.stdout).trim());
+
+// t() usage ---------------------------------------------------------------------
 const usage = usedKeys();
-const unknownUsage = [...usage.entries()].filter(([k]) => !(k in flat[SOURCE]));
-for (const [k, file] of unknownUsage) {
-  (report._source ??= { keys: usage.size, errors: [], warnings: [] }).errors.push(`t("${k}") in ${file} is not in ${SOURCE}.json`);
-  errorCount++;
+for (const [k, file] of usage.entries()) {
+  if (!(k in en)) add("_source").errors.push(`t("${k}") in ${file} is not in ${SOURCE_LOCALE}.json`);
+}
+
+for (const r of Object.values(report)) {
+  errorCount += r.errors.length;
+  warnCount += r.warnings.length;
 }
 
 if (JSON_OUT) {
   console.log(JSON.stringify({ errors: errorCount, warnings: warnCount, locales: report }, null, 2));
 } else {
-  console.log(`i18n check — source: ${SOURCE}.json (${sourceKeys.length} keys), locales: ${Object.keys(catalogs).join(", ")}`);
+  console.log(`i18n check — source: ${SOURCE_LOCALE}.json (${sourceKeys.length} keys), catalogs: ${CATALOG_LANGUAGES.map((l) => l.tag).join(", ")}`);
   console.log(`literal t() keys used in src/: ${usage.size}`);
-  for (const [locale, r] of Object.entries(report)) {
-    const status = r.errors.length ? "✖" : r.warnings.length ? "!" : "✔";
-    console.log(`\n${status} ${locale}: ${r.keys} keys, ${r.errors.length} error(s), ${r.warnings.length} warning(s)`);
+  for (const [tag, r] of Object.entries(report)) {
+    const mark = r.errors.length ? "✖" : r.warnings.length ? "!" : "✔";
+    const kind = r.overlay ? `overlay on ${r.overlay}, ` : "";
+    console.log(`\n${mark} ${tag}${r.status ? ` [${r.status}]` : ""}: ${kind}${r.keys} keys, ${r.errors.length} error(s), ${r.warnings.length} warning(s)`);
     for (const e of r.errors) console.log(`   ✖ ${e}`);
     for (const w of r.warnings) console.log(`   ! ${w}`);
+    for (const i of r.info) console.log(`   · ${i}`);
   }
   console.log(`\n${errorCount} error(s), ${warnCount} warning(s).`);
 }

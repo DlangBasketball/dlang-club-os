@@ -283,6 +283,9 @@ export const SAME_AS_EN_OK = new Set([
   "finance.expenses.program",
   "finance.payouts.minutes",
   "finance.reports.total",
+  // per language ("tag:key"): correct in that language only
+  "es:training.service.color",
+  "es:shop.admin.color",
   // invoice PDF / QR-bill: currency codes and international words
   "pdf.invoice.qty",
   "pdf.qrBill.currency",
@@ -290,8 +293,8 @@ export const SAME_AS_EN_OK = new Set([
 ]);
 
 /** A value counts as translated when it differs from English, is allow-listed, or has no words. */
-export function isTranslated(key, value, english) {
+export function isTranslated(key, value, english, tag = "") {
   if (typeof value !== "string" || !value.trim()) return false;
   if (value !== english) return true;
-  return SAME_AS_EN_OK.has(key) || !/[a-z]{3,}/i.test(value);
+  return SAME_AS_EN_OK.has(key) || SAME_AS_EN_OK.has(`${tag}:${key}`) || !/[a-z]{3,}/i.test(value);
 }
