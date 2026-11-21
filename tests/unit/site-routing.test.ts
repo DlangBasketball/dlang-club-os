@@ -84,3 +84,16 @@ describe("site routing never shadows app routes", () => {
     expect(mw).toContain("isReservedPath");
   });
 });
+
+describe("hostServesSite", () => {
+  it("serves club hosts, and the default host only when enabled", async () => {
+    const { hostServesSite } = await import("@/lib/site/server");
+    const t = (source: "subdomain" | "custom_domain" | "default" | "fallback", status = "active") => ({ id: "org", source, status } as never);
+    expect(hostServesSite(t("subdomain"), false)).toBe(true);
+    expect(hostServesSite(t("custom_domain"), false)).toBe(true);
+    expect(hostServesSite(t("default"), false)).toBe(false);
+    expect(hostServesSite(t("default"), true)).toBe(true);
+    expect(hostServesSite(t("fallback"), true)).toBe(false);
+    expect(hostServesSite(t("custom_domain", "suspended"), true)).toBe(false);
+  });
+});

@@ -90,9 +90,18 @@ export function rowToSiteSettings(raw: unknown): PublicSiteSettings {
   };
 }
 
-/** A host that names a club (its subdomain / custom domain) serves that club's site. */
-export function hostServesSite(tenant: Pick<Tenant, "id" | "source" | "status">): boolean {
-  return Boolean(tenant.id) && (tenant.source === "subdomain" || tenant.source === "custom_domain") && tenant.status !== "suspended";
+/**
+ * A host that names a club (its subdomain / custom domain) serves that club's site.
+ * A single-club deployment (or a staging/demo host) can also serve the default
+ * club's site on its own host by setting SITE_ON_DEFAULT_HOST=true.
+ */
+export function hostServesSite(
+  tenant: Pick<Tenant, "id" | "source" | "status">,
+  siteOnDefaultHost: boolean = process.env.SITE_ON_DEFAULT_HOST === "true",
+): boolean {
+  if (!tenant.id || tenant.status === "suspended") return false;
+  if (tenant.source === "subdomain" || tenant.source === "custom_domain") return true;
+  return siteOnDefaultHost && tenant.source === "default";
 }
 
 const loadSettings = (orgId: string) =>
