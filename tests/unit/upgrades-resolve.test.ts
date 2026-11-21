@@ -146,11 +146,13 @@ describe("entitlement resolution", () => {
     expect(canStartTrial(resolveFeatures(input()).accounting)).toBe(true);
   });
 
-  it("complimentary grants work without a live subscription; complimentary_all covers every module", () => {
+  it("complimentary grants work without a live subscription; complimentary_all covers every unmetered module", () => {
     const one = resolveFeatures(input({ live: false, grants: [grant({ feature_key: "bookings", kind: "complimentary" })] }));
     expect(one.bookings).toMatchObject({ enabled: true, state: "complimentary" });
     const all = resolveFeatures(input({ planCode: null, live: false, grants: [grant({ feature_key: "*", kind: "complimentary_all" })] }));
-    for (const f of FEATURE_CATALOG) expect(all[f.key].enabled, f.key).toBe(true);
+    // every module, except metered ones (AI, SMS) which are granted one by one
+    for (const f of FEATURE_CATALOG) expect(all[f.key].enabled, f.key).toBe(!f.metered);
+    expect(all.ai_assistant.state).toBe("available");
     expect(resolveFeatures(input({ grants: [grant({ feature_key: "bookings", kind: "founding" })] })).bookings.state).toBe("complimentary");
   });
 

@@ -6,7 +6,8 @@ import { FEATURE_CATALOG, getFeature, isCoreFeature, type AddonPrice } from "./c
  *
  *   enabled = core
  *          OR ( NOT blocked AND (
- *                complimentary grant (per feature, founding, or complimentary_all)
+ *                complimentary grant (per feature, founding, or complimentary_all —
+ *                which covers every module except metered ones: AI, SMS)
  *             OR live subscription AND (plan includes it OR active add-on OR running trial) ))
  *          AND every required feature is enabled (recursively)
  *
@@ -157,7 +158,7 @@ export function resolveFeatures(input: ResolveInput): AccessMap {
       continue;
     }
     const comp = mine.find((g) => g.kind === "complimentary" || g.kind === "founding");
-    if (comp || compAll || (key === "ai_assistant" && input.legacyAi === "complimentary")) {
+    if (comp || (compAll && !f.metered) || (key === "ai_assistant" && input.legacyAi === "complimentary")) {
       out[key] = { ...base, enabled: true, state: "complimentary", endsAt: comp?.ends_at ?? null };
       continue;
     }

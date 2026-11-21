@@ -13,7 +13,9 @@
 --                                trial             free trial with an end date
 --                                complimentary     free of charge (one feature)
 --                                founding          founding-club override
---                                complimentary_all every feature free (feature '*')
+--                                complimentary_all every feature free (feature '*'),
+--                                                  except metered ones (AI, SMS:
+--                                                  running cost, granted one by one)
 --                                block             explicit platform block
 --   * plans.features         — the plan <-> feature matrix, seeded with the
 --                              proposed packaging (only once: existing edits by
@@ -48,6 +50,8 @@ create table if not exists public.platform_features (
   key               text primary key check (key ~ '^[a-z][a-z0-9_]{1,47}$'),
   category          text not null,
   is_core           boolean not null default false,
+  -- Running cost per use (AI inference, SMS): not covered by complimentary_all.
+  is_metered        boolean not null default false,
   default_tier      text check (default_tier is null or default_tier in ('starter', 'club', 'academy', 'federation')),
   requires          text[] not null default '{}',
   sort_order        integer not null default 0,
@@ -128,6 +132,10 @@ values
 on conflict (key) do update set
   category = excluded.category, is_core = excluded.is_core, default_tier = excluded.default_tier,
   requires = excluded.requires, sort_order = excluded.sort_order, label = excluded.label;
+
+alter table public.platform_features add column if not exists is_metered boolean not null default false;
+update public.platform_features set is_metered = (key in ('ai_assistant', 'sms'))
+ where is_metered is distinct from (key in ('ai_assistant', 'sms'));
 
 create table if not exists public.feature_addon_prices (
   feature_key      text not null references public.platform_features(key) on update cascade on delete cascade,
@@ -532,7 +540,7 @@ begin
   v_ok := exists (select 1 from public.org_feature_grants g
                    where g.org_id = p_org
                      and ((g.feature_key = p_key and g.kind in ('complimentary', 'founding'))
-                          or g.kind = 'complimentary_all')
+                          or (g.kind = 'complimentary_all' and not v_feat.is_metered))
                      and g.status in ('active', 'canceling') and g.starts_at <= now()
                      and (g.ends_at is null or g.ends_at > now()))
        or (p_key = 'ai_assistant' and exists (
@@ -569,6 +577,24 @@ as $$
     when p_org is null then false
     when not (p_org = public.current_org_id() or public.is_service_caller() or public.is_platform_admin()) then false
     else public._org_feature_enabled(p_org, p_key)
+  end;
+$$;
+
+-- The AI assistant entitlement follows the same rules: the legacy add-on rows
+-- (public.ai_assistant_addons) still count, and an add-on bought in "Plan &
+-- upgrades" (org_feature_grants) or a platform grant counts too; a platform
+-- block switches it off. Same caller check as before.
+create or replace function public.org_ai_assistant_entitled(p_org uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case
+    when p_org is null then false
+    when not (p_org = public.current_org_id() or public.is_service_caller() or public.is_platform_admin()) then false
+    else public._org_feature_enabled(p_org, 'ai_assistant')
   end;
 $$;
 

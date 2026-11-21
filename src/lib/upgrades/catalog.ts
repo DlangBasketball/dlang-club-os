@@ -49,6 +49,11 @@ export type FeatureDef = {
   core?: boolean;
   /** Lowest plan that includes it by default; null = sold only as an add-on. */
   tier: PlanTier | null;
+  /**
+   * Running cost per use (AI inference, SMS). Not covered by a
+   * complimentary_all grant: granted one by one, on purpose.
+   */
+  metered?: true;
   addon: AddonPrice | null;
   requires?: string[];
   routes?: FeatureRoutes;
@@ -93,7 +98,7 @@ export const FEATURE_CATALOG: readonly FeatureDef[] = [
   // ---- Communication ---------------------------------------------------------------
   { key: "alerts_leads", category: "communication", tier: "club", addon: p(19, 19, 21), label: "Scheduled alerts & new contacts", routes: { admin: ["/admin/alerts", "/admin/leads"], coach: ["/coach/alerts"] } },
   { key: "media_library", category: "communication", tier: "club", addon: p(15, 15, 17), label: "Media library", routes: { admin: ["/admin/media"] } },
-  { key: "sms", category: "communication", tier: null, addon: p(25, 25, 29), label: "SMS packs" },
+  { key: "sms", category: "communication", tier: null, metered: true, addon: p(25, 25, 29), label: "SMS packs" },
 
   // ---- Finance ---------------------------------------------------------------------
   { key: "reminders", category: "finance", tier: "club", addon: p(19, 19, 21), label: "Automatic payment reminders" },
@@ -166,7 +171,7 @@ export const FEATURE_CATALOG: readonly FeatureDef[] = [
   { key: "white_label", category: "website", tier: "academy", addon: null, label: "Full white-label" },
 
   // ---- AI ----------------------------------------------------------------------------
-  { key: "ai_assistant", category: "ai", tier: null, addon: { CHF: 69, EUR: 69, USD: 79 }, label: "AI assistant" },
+  { key: "ai_assistant", category: "ai", tier: null, metered: true, addon: { CHF: 69, EUR: 69, USD: 79 }, label: "AI assistant" },
 
   // ---- Enterprise --------------------------------------------------------------------
   { key: "api_access", category: "enterprise", tier: "academy", addon: null, label: "Admin API access" },
