@@ -1174,7 +1174,8 @@ begin
     'public.selection_change_package(uuid, uuid)', 'public.selection_choose_plan(uuid, integer)',
     'public.selection_withdraw(uuid, text)', 'public.selection_review_list(uuid)',
     'public.selection_program_stats(uuid)', 'public.selection_report(uuid, integer, uuid, uuid)',
-    'public.selection_suggest_division(uuid, date, date)'] loop
+    'public.selection_suggest_division(uuid, date, date)', 'public.selection_coach_reviews(uuid, uuid)',
+    'public.selection_head_coach(uuid)', 'public.selection_is_admin_of(uuid)'] loop
     execute format('revoke all on function %s from public, anon', f);
     if exists (select 1 from pg_roles where rolname = 'authenticated') then
       execute format('grant execute on function %s to authenticated', f);
@@ -1187,7 +1188,8 @@ end $$;
 
 -- 13) Feature key (Academy tier; add-on elsewhere) -------------------------------------------------------
 insert into public.platform_features (key, category, is_core, default_tier, requires, sort_order, label)
-values ('selection_programs', 'programs', false, 'academy', '{}'::text[], 195, 'Selection programmes: applications, packages & approvals')
+values
+  ('selection_programs', 'programs', false, 'academy', '{}'::text[], 195, 'Selection programmes: applications, packages & approvals')
 on conflict (key) do nothing;
 
 insert into public.feature_addon_prices (feature_key, currency, amount)
