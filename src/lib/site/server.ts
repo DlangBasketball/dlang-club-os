@@ -254,6 +254,18 @@ export async function clearedImages(orgId: string, paths: readonly string[]): Pr
   return out;
 }
 
+/** Admin preview: every library image of the club, with its cleared flag (no cache). */
+export async function previewImages(orgId: string, paths: readonly string[]): Promise<Map<string, { url: string; alt: string | null; width: number | null; height: number | null; cleared: boolean }>> {
+  const mine = Array.from(new Set(paths.filter((p) => isLibraryPath(p, orgId))));
+  const out = new Map<string, { url: string; alt: string | null; width: number | null; height: number | null; cleared: boolean }>();
+  if (!mine.length) return out;
+  const { data } = await websiteDb().from("media_assets").select("path,alt_text,width,height,public_use_confirmed_at").eq("org_id", orgId).in("path", mine);
+  for (const r of (data ?? []) as { path: string; alt_text: string | null; width: number | null; height: number | null; public_use_confirmed_at: string | null }[]) {
+    out.set(r.path, { url: clubMediaPublicUrl(r.path), alt: r.alt_text, width: r.width, height: r.height, cleared: !!r.public_use_confirmed_at });
+  }
+  return out;
+}
+
 /**
  * Translator + formatter for a site language. UI strings come from the
  * nearest app catalog (de-CH -> de -> site default -> en); dates, numbers and

@@ -29,11 +29,14 @@ function topLevelSegments(dir: string): string[] {
       out.add(name);
       continue;
     }
-    // Root-level route files: page.tsx / layout.tsx are "/" ; others (sitemap.xml/route.ts) are dirs above.
-    if (/^(page|layout|not-found|error|loading|template|global-error|default)\.(tsx?|jsx?)$/.test(name)) continue;
-    if (/\.(css|md)$/.test(name)) continue;
-    // Metadata files (icon.png, robots.ts, sitemap.ts, manifest.ts, favicon.ico ...) become URLs.
-    out.add(name.replace(/\.(tsx?|jsx?)$/, ""));
+    // Files: only metadata conventions become URLs (icon.png, robots.ts,
+    // sitemap.ts, manifest.ts, favicon.ico, opengraph-image.*); page.tsx /
+    // layout.tsx are "/" and other modules (components) are not routes.
+    const meta = /^(favicon\.ico|icon|apple-icon|opengraph-image|twitter-image|robots|sitemap|manifest)(\.\w+)?$/.exec(name);
+    if (meta) {
+      const base = meta[1]!;
+      out.add(base === "robots" ? "robots.txt" : base === "sitemap" ? "sitemap.xml" : base === "manifest" ? "manifest.webmanifest" : base);
+    }
   }
   return Array.from(out);
 }
@@ -46,8 +49,7 @@ describe("site routing never shadows app routes", () => {
   });
 
   it.each(segments)("/%s is a reserved path", (seg) => {
-    const normalized = seg.replace(/\.(ts|js)$/, "");
-    expect(isReservedPath(`/${normalized}`), `/${normalized} must be in RESERVED_SEGMENTS (src/lib/site/paths.ts and site_path_reserved())`).toBe(true);
+    expect(isReservedPath(`/${seg}`), `/${seg} must be in RESERVED_SEGMENTS (src/lib/site/paths.ts and site_path_reserved())`).toBe(true);
   });
 
   it("deeper app paths stay reserved", () => {

@@ -6,6 +6,8 @@ import { TenantProvider } from "@/lib/tenant/context";
 import { TenantGate } from "@/components/layout/tenant-gate";
 import { brandingToCssVars, googleFontsHref, isDarkPalette } from "@/lib/tenant/theme";
 import { getLocaleContext } from "@/lib/i18n/server";
+import { headers } from "next/headers";
+import { siteDocumentLang } from "@/lib/site/resolve";
 import { getMessages } from "@/lib/i18n/messages";
 import { I18nProvider } from "@/lib/i18n/client";
 import { CookieConsentBanner } from "@/components/compliance/cookie-consent-banner";
@@ -72,6 +74,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // context server pages get from getFormatter()/getTranslations(), so the
   // client I18nProvider and server-rendered numbers/dates agree.
   const i18n = await getLocaleContext();
+  // Club website pages carry their own content language (any BCP 47 tag,
+  // right-to-left ones included); the middleware passes the path.
+  const siteDoc = await siteDocumentLang((await headers()).get("x-site-path"));
   // Tenant theme -> design-system CSS variables on <html>: the inline style
   // beats the :root defaults (and the light-theme block) in globals.css, so
   // the whole UI rebrands with no component changes.
@@ -80,7 +85,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const dark = isDarkPalette(tenant.branding);
   return (
     <html
-      lang={i18n.locale}
+      lang={siteDoc?.lang ?? i18n.locale}
+      {...(siteDoc ? { dir: siteDoc.dir } : {})}
       className={`${fontDisplay.variable} ${fontUi.variable} ${fontMono.variable}${dark ? " dark" : ""}`}
       style={{ ...cssVars, colorScheme: dark ? "dark" : "light" }}
       data-theme={dark ? "dark" : "light"}
