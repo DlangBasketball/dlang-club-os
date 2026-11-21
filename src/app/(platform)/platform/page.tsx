@@ -2,7 +2,9 @@ import Link from "next/link";
 import { AlertTriangle, Building2, CalendarClock, Coins, PauseCircle } from "lucide-react";
 import { Card, CardBody, CardHeader, CardTitle, PageHeader, StatCard } from "@/components/ui";
 import { getTenantOverview } from "@/lib/platform/data";
-import { summarizeMrr } from "@/lib/platform/mrr";
+import { summarizeAddonMrr, summarizeMrr } from "@/lib/platform/mrr";
+import { getFeature } from "@/lib/upgrades/catalog";
+import { getAddonRevenueRows } from "@/lib/upgrades/platform-data";
 import { captureAllUsage } from "@/lib/platform/actions";
 import { formatMoney } from "@/lib/platform/catalog";
 import { TenantTable } from "../_components/tenant-table";
@@ -12,8 +14,9 @@ import { fmtDate } from "../_components/ui";
 export const dynamic = "force-dynamic";
 
 export default async function PlatformOverviewPage() {
-  const rows = await getTenantOverview();
+  const [rows, addonData] = await Promise.all([getTenantOverview(), getAddonRevenueRows()]);
   const s = summarizeMrr(rows);
+  const addons = summarizeAddonMrr(addonData.rows);
   const now = Date.now();
   const endingSoon = rows
     .filter(
@@ -75,6 +78,52 @@ export default async function PlatformOverviewPage() {
         MRR counts active and past-due subscriptions (yearly plans ÷ 12, negotiated and founding-lock amounts included).
         Currencies are reported separately — no FX conversion.
       </p>
+
+      <section className="grid gap-6 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Add-on MRR</CardTitle>
+            <Link href={"/platform/plans/features" as never} className="text-xs text-ink-3 hover:text-ink">prices</Link>
+          </CardHeader>
+          <CardBody className="space-y-2 text-sm">
+            {addons.byCurrency.length === 0 && <p className="text-ink-3">No paid add-ons yet.</p>}
+            {addons.byCurrency.map((c) => (
+              <div key={c.currency} className="flex justify-between">
+                <span className="text-ink-2">{c.currency} · {c.addons} add-ons</span>
+                <span className="tnum text-ink">{formatMoney(c.mrr, c.currency)} <span className="text-xs text-ink-3">ARR {formatMoney(c.arr, c.currency, { compact: true })}</span></span>
+              </div>
+            ))}
+            <p className="text-xs text-ink-3">
+              {addons.pending} pending request(s) · {addons.canceling} ending at period end · {addons.trials} trial(s) running. Complimentary grants are not revenue.
+            </p>
+            {addons.byFeature.slice(0, 8).map((f) => (
+              <div key={f.feature} className="flex justify-between text-xs">
+                <span className="text-ink-2">{getFeature(f.feature)?.label ?? f.feature}</span>
+                <span className="tnum text-ink-3">{f.count} · {Object.entries(f.mrr).map(([c, v]) => formatMoney(v, c)).join(" / ")}</span>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Add-on requests to activate</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-2">
+            {addonData.pending.length === 0 && <p className="text-sm text-ink-3">No open requests. Clubs without online billing request add-ons here; promise: within 1 business day.</p>}
+            {addonData.pending.slice(0, 12).map((g) => (
+              <Link
+                key={g.id}
+                href={`/platform/tenants/${g.org_id}` as never}
+                className="flex justify-between rounded px-2 py-1.5 text-sm hover:bg-surface-elevated"
+              >
+                <span className="truncate text-ink">{g.org_name} · {getFeature(g.feature_key)?.label ?? g.feature_key}</span>
+                <span className="text-xs text-ink-3">{g.currency} {g.amount} · {fmtDate(g.created_at)}</span>
+              </Link>
+            ))}
+          </CardBody>
+        </Card>
+      </section>
 
       <section className="grid gap-6 lg:grid-cols-3">
         <Card>
