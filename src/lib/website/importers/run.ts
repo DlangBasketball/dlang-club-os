@@ -9,6 +9,8 @@ import {
   mapSportsPressEvent, mapSportsPressTeam, mapWooProduct, mapWpPost,
   type MappedEvent, type MappedPost, type MappedProduct, type MappedTeam,
 } from "./mappers";
+import { isMerchandiseByDefault } from "./product-filter";
+import { NEW_TEAM, gameTitle, type AppTeamOption, type TeamChoice } from "./team-match";
 
 /**
  * Importer from a club's existing WordPress website, through its PUBLIC REST
@@ -19,6 +21,7 @@ import {
  * 5 MB per page, at most MAX_PAGES pages per source.
  * Idempotent: every imported row is recorded in website_import_map
  * (org_id, source, source_id) -> target id; a re-run updates, never duplicates.
+ * Deselected products are recorded there too (skipped = true).
  * Players, player lists and performance data are never read into the app.
  */
 
@@ -89,17 +92,37 @@ export async function loadSources(websiteUrl: string, kinds: ImportKind[]): Prom
   return s;
 }
 
-type MapRow = { source: string; source_id: string; target_id: string };
+type MapRow = { source: string; source_id: string; target_id: string | null; skipped: boolean | null };
+export type KnownRow = { targetId: string | null; skipped: boolean };
 
-async function existingMap(db: WebsiteDb, orgId: string): Promise<Map<string, string>> {
-  const { data } = await db.from("website_import_map").select("source,source_id,target_id").eq("org_id", orgId).limit(10000);
-  return new Map(((data ?? []) as MapRow[]).map((r) => [`${r.source}:${r.source_id}`, r.target_id]));
+async function existingMap(db: WebsiteDb, orgId: string): Promise<Map<string, KnownRow>> {
+  const { data } = await db.from("website_import_map").select("source,source_id,target_id,skipped").eq("org_id", orgId).limit(10000);
+  return new Map(((data ?? []) as MapRow[]).map((r) => [`${r.source}:${r.source_id}`, { targetId: r.target_id, skipped: !!r.skipped }]));
 }
 
+/** Imported (not skipped) target id of a source row. */
+function targetOf(known: ReadonlyMap<string, KnownRow>, key: string): string | null {
+  const k = known.get(key);
+  return k && !k.skipped ? k.targetId : null;
+}
+
+/** The club's app teams (active first), always read for the signed-in admin's own org. */
+async function listAppTeams(db: WebsiteDb, orgId: string): Promise<AppTeamOption[]> {
+  const { data } = await db.from("teams").select("id,name,is_active").eq("org_id", orgId).order("name").limit(1000);
+  return ((data ?? []) as { id: string; name: string; is_active: boolean }[])
+    .sort((a, b) => Number(b.is_active) - Number(a.is_active))
+    .map(({ id, name }) => ({ id, name }));
+}
+
+export type PreviewProduct = MappedProduct & { existing: boolean; selected: boolean };
+
 export type ImportPreview = {
-  teams: (MappedTeam & { existing: boolean })[];
+  clubName: string | null;
+  appTeams: AppTeamOption[];
+  /** mappedTeamId: the app team this website team was mapped to on an earlier import (if it still exists). */
+  teams: (MappedTeam & { existing: boolean; mappedTeamId: string | null })[];
   events: (MappedEvent & { existing: boolean })[];
-  products: (MappedProduct & { existing: boolean })[];
+  products: PreviewProduct[];
   posts: (Omit<MappedPost, "bodyHtml"> & { existing: boolean })[];
   skipped: { events: number; products: number; posts: number };
   errors: Sources["errors"];
@@ -122,27 +145,56 @@ export function mapSources(s: Sources, ourTeams: ReadonlySet<string>) {
   };
 }
 
+/** Pre-selection of a product: the admin's earlier choice wins, else the merchandise rule. */
+export function defaultProductSelected(p: MappedProduct, known: ReadonlyMap<string, KnownRow>): boolean {
+  const k = known.get(`woo_product:${p.sourceId}`);
+  if (k) return !k.skipped;
+  return isMerchandiseByDefault(p);
+}
+
 export async function previewImport(db: WebsiteDb, orgId: string, s: Sources, ourTeams: ReadonlySet<string>): Promise<ImportPreview> {
   const m = mapSources(s, ourTeams);
-  const known = await existingMap(db, orgId);
+  const [known, appTeams, org] = await Promise.all([
+    existingMap(db, orgId),
+    listAppTeams(db, orgId),
+    db.from("organizations").select("name").eq("id", orgId).maybeSingle(),
+  ]);
+  const teamIds = new Set(appTeams.map((t) => t.id));
   return {
-    teams: m.teams.map((t) => ({ ...t, existing: known.has(`sportspress_team:${t.sourceId}`) })),
-    events: m.events.slice(0, 500).map((e) => ({ ...e, existing: known.has(`sportspress_event:${e.sourceId}`) })),
-    products: m.products.map((p) => ({ ...p, existing: known.has(`woo_product:${p.sourceId}`) })),
-    posts: m.posts.map(({ bodyHtml: _b, ...p }) => ({ ...p, existing: known.has(`wp_post:${p.sourceId}`) })),
+    clubName: ((org.data ?? null) as { name?: string } | null)?.name ?? null,
+    appTeams,
+    teams: m.teams.map((t) => {
+      const mapped = targetOf(known, `sportspress_team:${t.sourceId}`);
+      const live = mapped && teamIds.has(mapped) ? mapped : null;
+      return { ...t, existing: !!live, mappedTeamId: live };
+    }),
+    events: m.events.slice(0, 500).map((e) => ({ ...e, existing: !!targetOf(known, `sportspress_event:${e.sourceId}`) })),
+    products: m.products.map((p) => ({ ...p, existing: !!targetOf(known, `woo_product:${p.sourceId}`), selected: defaultProductSelected(p, known) })),
+    posts: m.posts.map(({ bodyHtml: _b, ...p }) => ({ ...p, existing: !!targetOf(known, `wp_post:${p.sourceId}`) })),
     skipped: m.skipped,
     errors: s.errors,
   };
 }
 
 export type ImportCounts = { created: number; updated: number; failed: number };
-export type ImportResult = { teams: ImportCounts; events: ImportCounts; products: ImportCounts; posts: ImportCounts; images: number };
+export type ImportResult = {
+  teams: ImportCounts;
+  events: ImportCounts;
+  products: ImportCounts;
+  posts: ImportCounts;
+  images: number;
+  /** Products left out (deselected); remembered for the next import. */
+  productsSkipped: number;
+};
 
 const zero = (): ImportCounts => ({ created: 0, updated: 0, failed: 0 });
 
-async function remember(db: WebsiteDb, orgId: string, source: string, sourceId: string, sourceUrl: string | null, table: string, targetId: string) {
+async function remember(
+  db: WebsiteDb, orgId: string, source: string, sourceId: string, sourceUrl: string | null, table: string,
+  targetId: string | null, skipped = false,
+) {
   await db.from("website_import_map").upsert(
-    { org_id: orgId, source, source_id: sourceId, source_url: sourceUrl, target_table: table, target_id: targetId, last_imported_at: new Date().toISOString() },
+    { org_id: orgId, source, source_id: sourceId, source_url: sourceUrl, target_table: table, target_id: targetId, skipped, last_imported_at: new Date().toISOString() },
     { onConflict: "org_id,source,source_id" },
   );
 }
@@ -166,52 +218,65 @@ async function importImage(db: WebsiteDb, orgId: string, productId: string, url:
 /**
  * Write the import. `db` is the signed-in admin's RLS client (inserts are
  * re-checked by the database: admin of the same org). `dryRun` counts only.
+ *
+ * Teams: every ticked website team is attached to the app team the admin
+ * chose (`teamMap`); a team is created only for an explicit NEW_TEAM choice,
+ * so nothing is duplicated. The app team name wins (never overwritten) and is
+ * used in game titles. Games of unticked teams are skipped; opponents stay text.
+ * Products: only `selectedProducts` (null: the default pre-selection) are
+ * imported; the others are remembered as skipped.
  */
 export async function applyImport(
   db: WebsiteDb,
   me: { id: string; orgId: string },
   s: Sources,
-  opts: { ourTeams: ReadonlySet<string>; dryRun: boolean; defaultStock: number },
+  opts: {
+    ourTeams: ReadonlySet<string>;
+    teamMap: ReadonlyMap<string, TeamChoice>;
+    selectedProducts: ReadonlySet<string> | null;
+    dryRun: boolean;
+    defaultStock: number;
+  },
 ): Promise<ImportResult> {
   const orgId = me.orgId;
   const m = mapSources(s, opts.ourTeams);
-  const known = await existingMap(db, orgId);
-  const r: ImportResult = { teams: zero(), events: zero(), products: zero(), posts: zero(), images: 0 };
+  const [known, appTeams] = await Promise.all([existingMap(db, orgId), listAppTeams(db, orgId)]);
+  const appName = new Map(appTeams.map((t) => [t.id, t.name]));
+  const r: ImportResult = { teams: zero(), events: zero(), products: zero(), posts: zero(), images: 0, productsSkipped: 0 };
 
-  // Teams: only the club's own (selected) teams; opponents stay names on events.
-  const teamTarget = new Map<string, string>();
+  // Teams: the club's own (ticked) website teams -> app teams.
+  const teamTarget = new Map<string, { id: string; name: string }>();
   for (const t of m.teams.filter((x) => opts.ourTeams.has(x.sourceId))) {
-    const key = `sportspress_team:${t.sourceId}`;
-    const existing = known.get(key);
-    if (opts.dryRun) { (existing ? r.teams.updated++ : r.teams.created++); continue; }
-    if (existing) {
-      const { error } = await db.from("teams").update({ name: t.name }).eq("id", existing).eq("org_id", orgId);
-      if (error) { r.teams.failed++; continue; }
-      teamTarget.set(t.sourceId, existing);
-      r.teams.updated++;
+    const choice = opts.teamMap.get(t.sourceId);
+    if (choice === NEW_TEAM) {
+      if (opts.dryRun) { teamTarget.set(t.sourceId, { id: "", name: t.name }); r.teams.created++; continue; }
+      // No slug: the database trigger generates a unique one from the name.
+      const ins = await db.from("teams").insert({ org_id: orgId, name: t.name, is_public: true }).select("id,name").single();
+      if (ins.error || !ins.data) { r.teams.failed++; continue; }
+      const row = ins.data as { id: string; name: string };
+      teamTarget.set(t.sourceId, row);
+      await remember(db, orgId, "sportspress_team", t.sourceId, t.sourceUrl, "teams", row.id);
+      r.teams.created++;
       continue;
     }
-    let ins = await db.from("teams").insert({ org_id: orgId, name: t.name, slug: t.slug, is_public: true }).select("id").single();
-    if (ins.error && ins.error.code === "23505") ins = await db.from("teams").insert({ org_id: orgId, name: t.name, is_public: true }).select("id").single();
-    if (ins.error || !ins.data) { r.teams.failed++; continue; }
-    const id = (ins.data as { id: string }).id;
-    teamTarget.set(t.sourceId, id);
-    await remember(db, orgId, "sportspress_team", t.sourceId, t.sourceUrl, "teams", id);
-    r.teams.created++;
+    const name = choice ? appName.get(choice) : undefined;
+    if (!choice || name === undefined) { r.teams.failed++; continue; }
+    teamTarget.set(t.sourceId, { id: choice, name });
+    if (!opts.dryRun) await remember(db, orgId, "sportspress_team", t.sourceId, t.sourceUrl, "teams", choice);
+    r.teams.updated++;
   }
 
-  // Events + results.
+  // Games + results, attached to the mapped app team.
   for (const e of m.events) {
-    const key = `sportspress_event:${e.sourceId}`;
-    const existing = known.get(key);
-    const teamId = teamTarget.get(e.ourTeamSourceId) ?? known.get(`sportspress_team:${e.ourTeamSourceId}`) ?? null;
+    const existing = targetOf(known, `sportspress_event:${e.sourceId}`);
+    const team = teamTarget.get(e.ourTeamSourceId);
+    if (!team) { r.events.failed++; continue; }
     if (opts.dryRun) { (existing ? r.events.updated++ : r.events.created++); continue; }
-    if (!teamId) { r.events.failed++; continue; }
     const row = {
-      team_id: teamId, type: "game", title: e.title.slice(0, 160), starts_at: e.startsAt, ends_at: e.endsAt,
+      team_id: team.id, type: "game", title: gameTitle(team.name, e.opponent), starts_at: e.startsAt, ends_at: e.endsAt,
       opponent: e.opponent, home_away: e.homeAway,
     };
-    let eventId = existing ?? null;
+    let eventId = existing;
     if (existing) {
       const { error } = await db.from("events").update(row).eq("id", existing).eq("org_id", orgId);
       if (error) { r.events.failed++; continue; }
@@ -229,16 +294,29 @@ export async function applyImport(
     }
   }
 
-  // Shop products (+ variants, images by URL into club storage).
+  // Shop products (+ variants, images by URL into club storage): selected only.
   for (const p of m.products) {
-    const key = `woo_product:${p.sourceId}`;
-    const existing = known.get(key);
+    const prior = known.get(`woo_product:${p.sourceId}`);
+    const selected = opts.selectedProducts ? opts.selectedProducts.has(p.sourceId) : defaultProductSelected(p, known);
+    if (!selected) {
+      r.productsSkipped++;
+      if (!opts.dryRun && !prior?.skipped) {
+        await remember(db, orgId, "woo_product", p.sourceId, p.sourceUrl, "shop_products", prior?.targetId ?? null, true);
+      }
+      continue;
+    }
+    const existing = prior?.targetId ?? null;
     if (opts.dryRun) { (existing ? r.products.updated++ : r.products.created++); continue; }
     const row = { name: p.name, description: p.description, category: p.category, price: p.price, currency: p.currency };
     if (existing) {
-      const { error } = await db.from("shop_products").update(row).eq("id", existing).eq("org_id", orgId);
-      (error ? r.products.failed++ : r.products.updated++);
-      continue;
+      const { data, error } = await db.from("shop_products").update(row).eq("id", existing).eq("org_id", orgId).select("id");
+      if (error) { r.products.failed++; continue; }
+      if (data?.length) {
+        if (prior?.skipped) await remember(db, orgId, "woo_product", p.sourceId, p.sourceUrl, "shop_products", existing);
+        r.products.updated++;
+        continue;
+      }
+      // The app product was deleted meanwhile: create it again below.
     }
     const ins = await db.from("shop_products").insert({ ...row, org_id: orgId, visibility: "public", is_active: true, created_by: me.id }).select("id").single();
     if (ins.error || !ins.data) { r.products.failed++; continue; }
@@ -262,8 +340,7 @@ export async function applyImport(
 
   // Posts -> public news linking back to the website.
   for (const p of m.posts) {
-    const key = `wp_post:${p.sourceId}`;
-    const existing = known.get(key);
+    const existing = targetOf(known, `wp_post:${p.sourceId}`);
     if (opts.dryRun) { (existing ? r.posts.updated++ : r.posts.created++); continue; }
     const row = { title: p.title, excerpt: p.excerpt, body_html: p.bodyHtml, link_url: p.linkUrl, published_at: p.publishedAt, source: "wordpress" };
     if (existing) {
