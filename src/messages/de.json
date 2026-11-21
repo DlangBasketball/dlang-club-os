@@ -1097,7 +1097,12 @@
       "price": "Preis ({currency})"
     },
     "teams": {
-      "editNamed": "{name} bearbeiten"
+      "editNamed": "{name} bearbeiten",
+      "slug": "Webadresse (Slug)",
+      "slugHint": "Wird automatisch aus dem Teamnamen erstellt und bei Umbenennung angepasst. Ändern Sie sie, um sie festzulegen; leeren Sie sie für die automatische Variante.",
+      "slugAuto": "automatisch",
+      "slugInvalid": "Kleinbuchstaben, Ziffern und Bindestriche verwenden (max. 64, kein Bindestrich am Anfang oder Ende).",
+      "slugTaken": "Ein anderes Team verwendet diese Webadresse bereits."
     },
     "venues": {
       "address": "Adresse",
@@ -3850,7 +3855,11 @@
       "applyMovement": "Buchen",
       "stockSaved": "Lagerbestand jetzt {stock}.",
       "addImage": "Foto hinzufügen",
-      "removeImage": "Foto entfernen"
+      "removeImage": "Foto entfernen",
+      "imported": "Von der Website importiert",
+      "remove": "Löschen oder ausblenden",
+      "removeNamed": "{name} löschen oder ausblenden",
+      "deleted": "Produkt gelöscht."
     },
     "orders": {
       "title": "Shop-Bestellungen",
@@ -7630,7 +7639,7 @@
       "refresh": "Vorschau aktualisieren",
       "preview": "Vorschau",
       "teams": "Eigene Mannschaften",
-      "teamsHint": "Die eigenen Mannschaften des Vereins auswählen. Spiele dieser Mannschaften werden übernommen; andere erscheinen nur als Gegner.",
+      "teamsHint": "Wählen Sie die eigenen Teams des Clubs und das passende Team in der App. Spiele werden diesem App-Team zugeordnet (sein Name wird verwendet); andere Teams erscheinen nur als Gegner.",
       "events": "{count, plural, one {# Spiel} other {# Spiele}}",
       "products": "{count, plural, one {# Produkt} other {# Produkte}}",
       "posts": "{count, plural, one {# Beitrag} other {# Beiträge}}",
@@ -7669,8 +7678,19 @@
         "network": "Die Webseite hat nicht rechtzeitig geantwortet.",
         "too_large": "Die Antwort der Webseite war zu gross.",
         "invalid_json": "Die Webseite hat keine gültigen Daten geliefert.",
-        "http_error": "Die Webseite hat einen Fehler gemeldet."
-      }
+        "http_error": "Die Webseite hat einen Fehler gemeldet.",
+        "teamUnmapped": "Wählen Sie für jedes ausgewählte Website-Team das App-Team (oder erstellen Sie ein neues Team)."
+      },
+      "appTeam": "Team in der App",
+      "chooseTeam": "Team wählen…",
+      "createNewTeam": "Neues Team erstellen",
+      "suggested": "Vorgeschlagene Zuordnung",
+      "noSuggestion": "Keine sichere Zuordnung: Team wählen.",
+      "productsHint": "Nur ausgewählte Produkte werden importiert. Camps, Programme, Dienstleistungen, Kurse und Gratisprodukte sind standardmässig abgewählt; Ihre Auswahl wird für den nächsten Import gespeichert.",
+      "uncategorised": "Ohne Kategorie",
+      "selectCategory": "Alle in {category} auswählen",
+      "productsSelected": "{selected} von {total} ausgewählt",
+      "productsSkipped": "{count, plural, one {# Produkt ausgelassen} other {# Produkte ausgelassen}}"
     }
   }
 }

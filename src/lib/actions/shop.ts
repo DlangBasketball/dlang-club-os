@@ -16,6 +16,8 @@ import { createInvoiceCheckout } from "@/lib/stripe-connect";
 import { getStripe } from "@/lib/stripe";
 import type { Json } from "@/types/database";
 import { CLUB_MEDIA_BUCKET, shopAdminDb, shopDb } from "@/lib/shop/db";
+import { createClient } from "@/lib/supabase/server";
+import type { WebsiteDb } from "@/lib/website/server";
 import { cartTotals } from "@/lib/shop/cart";
 import { getOrderByToken, getStorefront, hashOrderToken, toCatalog } from "@/lib/shop/data";
 import { attachPlanAtCheckout } from "@/lib/plans/checkout";
@@ -96,6 +98,19 @@ export async function saveProduct(id: string | null, input: ProductInput): Promi
   return { ok: true, data: { id: pid } };
 }
 
+/**
+ * A product imported from the club website that the admin deletes or hides
+ * stays out of later website imports: its import-map row is marked skipped
+ * (the importer then pre-deselects it). No-op for products made in the app.
+ */
+async function forgetImportedProduct(orgId: string, id: string, deleted: boolean) {
+  const db = (await createClient()) as unknown as WebsiteDb;
+  const { error } = await db.from("website_import_map")
+    .update(deleted ? { skipped: true, target_id: null } : { skipped: true })
+    .eq("org_id", orgId).eq("target_table", "shop_products").eq("target_id", id);
+  if (error) logError("shop.product.forgetImported", error);
+}
+
 export async function deleteProduct(id: string): Promise<ShopResult<{ archived: boolean }>> {
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
@@ -106,6 +121,7 @@ export async function deleteProduct(id: string): Promise<ShopResult<{ archived: 
   if ((count ?? 0) > 0) {
     const { error } = await db.from("shop_products").update({ is_active: false }).eq("id", id).eq("org_id", me.orgId);
     if (error) return fail(shopErrorKey(error.message), me.orgId);
+    await forgetImportedProduct(me.orgId, id, false);
     revalidateShop(id);
     notifyWebsite(me.orgId, "shop");
     return { ok: true, data: { archived: true } };
@@ -114,6 +130,7 @@ export async function deleteProduct(id: string): Promise<ShopResult<{ archived: 
   const { data, error } = await db.from("shop_products").delete().eq("id", id).eq("org_id", me.orgId).select("id");
   if (error) return fail(shopErrorKey(error.message), me.orgId);
   if (!data?.length) return fail("shop.errors.notFound", me.orgId);
+  await forgetImportedProduct(me.orgId, id, true);
   const images = ((prod as { images?: string[] } | null)?.images ?? []).filter((p) => p.startsWith(`${me.orgId}/products/`));
   if (images.length) await db.storage.from(CLUB_MEDIA_BUCKET).remove(images);
   revalidateShop();

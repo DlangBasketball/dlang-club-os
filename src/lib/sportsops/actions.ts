@@ -9,6 +9,7 @@ import { dbErrorKey, eventScopeSchema, reasonSchema, shiftOccurrences, zodErrorK
 import { sportsDb, type ConflictRow } from "./db";
 import { notifyEventChange } from "@/lib/family/notify";
 import { notifyWebsite } from "@/lib/website/webhooks";
+import { TEAM_SLUG_RE } from "@/lib/teams/slug";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -176,6 +177,8 @@ const TeamInput = z.object({
   color: z.union([z.string().regex(/^#[0-9A-Fa-f]{6}$/), z.literal(""), z.null()]).optional().transform((v) => (v ? v : null)),
   notes: z.string().trim().max(2000).optional().transform((v) => (v ? v : null)),
   isActive: z.boolean().default(true),
+  /** Web address. Omitted: unchanged. "": automatic (generated from the name by the database). */
+  slug: z.union([z.string().trim().regex(TEAM_SLUG_RE), z.literal("")]).optional(),
   coaches: z.array(z.object({ coachId: uuid, role: z.enum(["head", "assistant", "manager", "trainer"]) })).max(20).default([]),
 });
 export type TeamInput = z.input<typeof TeamInput>;
@@ -208,20 +211,25 @@ export async function saveTeam(id: string | null, input: TeamInput): Promise<Act
   const me = await requireStaff();
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
   const p = TeamInput.safeParse(input);
-  if (!p.success) return { ok: false, error: parseErr(p.error) };
+  if (!p.success) {
+    if (p.error.issues.some((i) => i.path[0] === "slug")) return tErr("editOps.teams.slugInvalid");
+    return { ok: false, error: parseErr(p.error) };
+  }
   const t = p.data;
   const row = {
     name: t.name, season_id: t.seasonId, program_id: t.programId, sport: t.sport, age_group: t.ageGroup,
     gender: t.gender, level: t.level, color: t.color, notes: t.notes, is_active: t.isActive,
+    // Slug: the trigger trg_teams_slug keeps it automatic (follows renames) unless an admin sets one.
+    ...(t.slug === undefined ? {} : { slug: t.slug || null }),
   };
   const db = await sportsDb();
   let teamId = id;
   if (id) {
-    const { error } = await db.from("teams").update(row).eq("id", id);
-    if (error) return { ok: false, error: friendly(error.message) };
+    const { error } = await db.from("teams").update(row).eq("id", id).eq("org_id", me.orgId!);
+    if (error) return error.message.includes("uq_teams_org_slug") ? tErr("editOps.teams.slugTaken") : { ok: false, error: friendly(error.message) };
   } else {
     const { data, error } = await db.from("teams").insert({ ...row, org_id: me.orgId }).select("id").single();
-    if (error) return { ok: false, error: friendly(error.message) };
+    if (error) return error.message.includes("uq_teams_org_slug") ? tErr("editOps.teams.slugTaken") : { ok: false, error: friendly(error.message) };
     teamId = data.id;
   }
   const cErr = await syncCoaches(teamId!, me.orgId!, t.coaches);

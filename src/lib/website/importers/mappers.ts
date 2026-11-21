@@ -148,6 +148,8 @@ export type MappedProduct = {
   name: string;
   description: string | null;
   category: string | null;
+  /** Every WooCommerce category name (the first one is `category`). */
+  categories: string[];
   price: number;
   currency: string;
   imageUrls: string[];
@@ -184,7 +186,11 @@ export function mapWooProduct(raw: unknown): MappedProduct | null {
   const currency = (str(prices.currency_code) ?? "").toUpperCase();
   if (price === null || !/^[A-Z]{3}$/.test(currency)) return null;
   const description = htmlToText(rendered(raw.short_description) ?? rendered(raw.description), 2000) || null;
-  const category = Array.isArray(raw.categories) && isObj(raw.categories[0]) ? htmlToText(str(raw.categories[0].name), 80) || null : null;
+  const categories = (Array.isArray(raw.categories) ? raw.categories : [])
+    .map((c) => (isObj(c) ? htmlToText(str(c.name), 80) : ""))
+    .filter((c): c is string => !!c)
+    .slice(0, 20);
+  const category = categories[0] ?? null;
   const imageUrls = (Array.isArray(raw.images) ? raw.images : [])
     .map((i) => (isObj(i) ? httpsLink(i.src) : null))
     .filter((x): x is string => !!x)
@@ -212,6 +218,7 @@ export function mapWooProduct(raw: unknown): MappedProduct | null {
     name,
     description,
     category,
+    categories,
     price,
     currency,
     imageUrls,

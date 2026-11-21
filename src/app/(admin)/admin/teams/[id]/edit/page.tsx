@@ -21,8 +21,9 @@ export default async function EditTeamPage({ params }: { params: Promise<{ id: s
     <div className="animate-fade-up max-w-2xl">
       <PageHeader title={`Edit ${t.name}`} />
       <Card><CardBody>
-        <TeamForm teamId={t.id}
+        <TeamForm teamId={t.id} slugAuto={t.slugAuto}
           initial={{
+            slug: t.slug ?? "",
             name: t.name, seasonId: t.seasonId ?? "", programId: t.programId ?? "", sport: t.sport ?? "", ageGroup: t.ageGroup ?? "",
             gender: t.gender ?? "", level: t.level ?? "", color: t.color ?? "", notes: t.notes ?? "", isActive: t.isActive,
             coaches: t.coaches.map((c) => ({ coachId: c.id, role: c.role as "head" | "assistant" | "manager" | "trainer" })),

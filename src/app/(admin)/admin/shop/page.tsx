@@ -2,15 +2,19 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Package, Plus, ShoppingBag } from "lucide-react";
 import { Badge, Card, CardBody, EmptyState, PageHeader, buttonVariants } from "@/components/ui";
+import { ProductListActions } from "@/components/shop/product-list-actions";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
-import { listAdminProducts } from "@/lib/shop/data";
+import { listAdminProducts, listImportedProductIds } from "@/lib/shop/data";
 
 export default async function ShopAdminPage() {
   const [me, { t, f }] = await Promise.all([getSessionUser(), getI18n()]);
   if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("finance"))) redirect("/admin/dashboard");
-  const products = await listAdminProducts(me.orgId);
   const isAdmin = me.roles.includes("admin");
+  const [products, imported] = await Promise.all([
+    listAdminProducts(me.orgId),
+    isAdmin ? listImportedProductIds(me.orgId) : Promise.resolve(new Set<string>()),
+  ]);
   return (
     <div className="animate-fade-up space-y-5">
       <PageHeader title={t("shop.admin.title")} description={t("shop.admin.description")} actions={<>
@@ -24,8 +28,8 @@ export default async function ShopAdminPage() {
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {products.map((p) => (
             <li key={p.id}>
-              <Link href={`/admin/shop/${p.id}`} className="block h-full">
-                <Card className="h-full transition hover:border-brand-primary/60">
+              <Card className="flex h-full flex-col transition hover:border-brand-primary/60">
+                <Link href={`/admin/shop/${p.id}`} className="block flex-1">
                   <CardBody className="flex gap-3">
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-border bg-surface-elevated">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -38,11 +42,17 @@ export default async function ShopAdminPage() {
                         {!p.isActive && <Badge>{t("shop.admin.inactive")}</Badge>}
                         {p.visibility === "members" && <Badge tone="accent">{t("shop.admin.visibilityMembers")}</Badge>}
                         {p.lowStock && <Badge tone="warning">{t("shop.admin.lowStockBadge")}</Badge>}
+                        {imported.has(p.id) && <Badge tone="info">{t("shop.admin.imported")}</Badge>}
                       </div>
                     </div>
                   </CardBody>
-                </Card>
-              </Link>
+                </Link>
+                {isAdmin && (
+                  <div className="border-t border-border px-3 py-2">
+                    <ProductListActions id={p.id} name={p.name} />
+                  </div>
+                )}
+              </Card>
             </li>
           ))}
         </ul>

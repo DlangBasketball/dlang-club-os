@@ -114,7 +114,7 @@ export async function listTeams(opts: { seasonId?: string; includeInactive?: boo
 }
 
 export type RosterEntry = { membershipId: string; athleteId: string; name: string; jerseyNumber: number | null; position: string | null; status: MembershipStatus; joinedOn: string };
-export type TeamDetail = TeamSummary & { notes: string | null; roster: RosterEntry[] };
+export type TeamDetail = TeamSummary & { notes: string | null; slug: string | null; slugAuto: boolean; roster: RosterEntry[] };
 
 export async function getTeam(id: string): Promise<Result<TeamDetail | null>> {
   const db = await sportsDb();
@@ -132,7 +132,7 @@ export async function getTeam(id: string): Promise<Result<TeamDetail | null>> {
     membershipId: m.id, athleteId: m.athlete_id, name: names.get(m.athlete_id) ?? "Athlete", jerseyNumber: m.jersey_number,
     position: m.position, status: m.status, joinedOn: m.joined_on,
   })).sort((a, b) => (a.status === "inactive" ? 1 : 0) - (b.status === "inactive" ? 1 : 0) || (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999) || a.name.localeCompare(b.name));
-  return ok({ ...summary.data[0], notes: team.notes, roster });
+  return ok({ ...summary.data[0], notes: team.notes, slug: team.slug ?? null, slugAuto: team.slug_auto ?? true, roster });
 }
 
 // ---------------------------------------------------------------------------
