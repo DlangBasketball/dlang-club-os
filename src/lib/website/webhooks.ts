@@ -1,5 +1,6 @@
 import "server-only";
 import { after } from "next/server";
+import { revalidateSiteLive } from "@/lib/site/revalidate";
 import { logError } from "@/lib/log";
 import { SIGNATURE_HEADER, TIMESTAMP_HEADER, contentUpdatedBody, signBody } from "./hmac";
 import { getWebsiteSecret } from "./secret-store";
@@ -33,6 +34,9 @@ async function enqueue(orgId: string, resources: WebhookResource[], db: WebsiteD
 /** Queue + send now (best-effort, after the response). Safe to call from any server action. */
 export function notifyWebsite(orgId: string | null | undefined, ...resources: WebhookResource[]): void {
   if (!orgId || !resources.length) return;
+  // The club's built-in site (src/lib/site/live.ts) caches live blocks under
+  // this tag: app data changed, so they re-render on the next request.
+  revalidateSiteLive(orgId);
   const run = async () => {
     try {
       const db = websiteDb();

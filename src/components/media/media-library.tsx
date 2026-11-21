@@ -6,6 +6,7 @@ import { ImageUp, ShieldCheck, Trash2 } from "lucide-react";
 import { Badge, Button, Card, CardBody, EmptyState, Input, Label, Select, Textarea } from "@/components/ui";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { deleteMediaAsset, updateMediaAsset, uploadMediaAssets } from "@/lib/actions/media";
+import { setMediaPublicUse } from "@/lib/actions/site";
 import { resizeCover } from "@/lib/media/resize-cover";
 import { COVER_INPUT_ACCEPT, MEDIA_KINDS, MEDIA_MAX_BATCH, type MediaKind } from "@/lib/media/cover";
 import type { MediaAssetView } from "@/lib/media/server";
@@ -123,6 +124,19 @@ function AssetCard({ asset }: { asset: MediaAssetView }) {
     setMsg(res.ok ? { ok: true, text: res.message ?? t("media.library.saved") } : { ok: false, text: res.error });
     if (res.ok) router.refresh();
   }
+  const [cleared, setCleared] = React.useState(!!asset.publicUseConfirmedAt);
+  /** "Cleared for public use": only such images appear on the club website. */
+  async function togglePublic(next: boolean) {
+    setBusy("saving");
+    setMsg(null);
+    const res = await setMediaPublicUse({ id, cleared: next });
+    setBusy(null);
+    if (res.ok) {
+      setCleared(next);
+      router.refresh();
+    }
+    setMsg(res.ok ? { ok: true, text: res.message } : { ok: false, text: res.error });
+  }
   async function remove() {
     if (!window.confirm(t("media.library.confirmDelete"))) return;
     setBusy("deleting");
@@ -164,6 +178,19 @@ function AssetCard({ asset }: { asset: MediaAssetView }) {
             {MEDIA_KINDS.map((k) => <option key={k} value={k}>{t(`media.kinds.${k}`)}</option>)}
           </Select>
         </div>
+        <label className="flex items-start gap-2 rounded-md border border-border-soft bg-bg-secondary p-2 text-xs text-text-secondary">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-[var(--brand-primary)]"
+            checked={cleared}
+            disabled={!!busy}
+            onChange={(e) => togglePublic(e.target.checked)}
+          />
+          <span>
+            <span className="block font-medium text-text">{t("site.media.clearedLabel")}</span>
+            {t("site.media.clearedHint")}
+          </span>
+        </label>
         <Status msg={msg} />
         <div className="flex items-center justify-between gap-2 pt-1">
           <Button

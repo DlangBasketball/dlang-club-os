@@ -3,6 +3,10 @@ import { updateSession } from "@/lib/supabase/middleware";
 import { applyTenantHeaders } from "@/lib/tenant/middleware";
 import { TENANT_DOMAIN_HEADER, TENANT_SLUG_HEADER } from "@/lib/tenant/host";
 import { embedCspHeader, isEmbedPath } from "@/lib/website/embed-csp";
+import { isReservedPath } from "@/lib/site/paths";
+
+/** Request header carrying a club-site path to the root layout (<html lang dir>). */
+const SITE_PATH_HEADER = "x-site-path";
 
 /** Paths reachable without a session. */
 const PUBLIC_PREFIXES = [
@@ -51,10 +55,19 @@ const PUBLIC_PREFIXES = [
   "/embed",
   "/embed.js",
   "/api/website/cron",
+  // Club website: calendar subscription of the site's calendar block,
+  // sitemap and robots per host.
+  "/api/site/calendar",
+  "/sitemap.xml",
+  "/robots.txt",
 ];
 
 function isPublic(pathname: string) {
   if (pathname === "/") return true; // root resolves role-home server-side
+  // Club website pages (/about-us, /fr/camps, /news/<slug>): every path the
+  // app itself does not serve. Reserved app paths keep their auth gate; the
+  // site catch-all 404s when the host's club has no enabled site.
+  if (!isReservedPath(pathname)) return true;
   return PUBLIC_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
@@ -64,6 +77,9 @@ export async function middleware(request: NextRequest) {
   // 0) Tenant: forward the host-derived tenant hint (strips spoofed headers).
   //    Must run before updateSession(), which snapshots request headers.
   applyTenantHeaders(request);
+  // Site path hint for the root layout (never trusted from the client).
+  request.headers.delete(SITE_PATH_HEADER);
+  if (!isReservedPath(request.nextUrl.pathname)) request.headers.set(SITE_PATH_HEADER, request.nextUrl.pathname);
 
   // 1) Always refresh the Supabase session (rotates cookies).
   const { response, user } = await updateSession(request);

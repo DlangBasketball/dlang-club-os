@@ -105,7 +105,11 @@ begin
          'can_manage_event', 'can_read_event', 'event_team', 'sportsops_same_org',
          'suspended_org_ids',
          -- website connection: allowed embed origins of a club with the connection enabled (public anyway: CSP header)
-         'website_embed_origins')
+         'website_embed_origins',
+         -- club website: PUBLISHED content of an ENABLED site of exactly the given club
+         -- (tests/db/site.sql proves drafts, working copies and other clubs never leak)
+         'site_is_live', 'site_public_settings', 'site_public_page', 'site_public_pages',
+         'site_public_posts', 'site_public_post', 'site_public_redirect')
   loop
     perform rt.ok(false, 'anon has EXECUTE on SECURITY DEFINER ' || r.sig || ' (not on the allowlist)');
     n := n + 1;

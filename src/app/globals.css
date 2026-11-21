@@ -325,6 +325,68 @@
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }
 
+/* ===========================================================================
+   Club website (src/components/site). Three templates driven by the same
+   tokens: the site wrapper carries the club palette as --bg / --text /
+   --brand-* (src/lib/site/theme.ts), these classes only shape type, radius
+   and motion. Logical properties throughout, so RTL languages work.
+   =========================================================================== */
+.site-root {
+  --site-scrim: #000000;
+  --site-on-scrim: #FFFFFF;
+  --site-radius: var(--radius-lg);
+  --site-max: 76rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+.site-template-classic { --site-radius: var(--radius-sm); }
+.site-template-court { --site-radius: 2px; }
+.site-h { font-family: var(--font-display); letter-spacing: -0.015em; line-height: 1.05; text-wrap: balance; }
+.site-template-court .site-h { font-weight: 500; letter-spacing: -0.02em; }
+.site-template-classic .site-h { font-family: var(--font-ui); font-weight: 800; text-transform: uppercase; letter-spacing: 0.005em; }
+.site-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brand-accent-text); }
+.site-template-classic .site-eyebrow, .site-template-court .site-eyebrow { color: var(--brand-primary-text); }
+.site-card { border-radius: var(--site-radius); background: var(--surface); border: 1px solid var(--border-soft); }
+.site-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: var(--tap-target); padding-inline: 1.4rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem; transition: transform var(--duration) var(--ease-out), background var(--duration), box-shadow var(--duration); }
+.site-template-classic .site-btn { border-radius: var(--radius-sm); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.85rem; }
+.site-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.site-btn-primary { background: var(--brand-primary); color: var(--brand-primary-contrast); box-shadow: var(--shadow-glow); }
+.site-btn-primary:hover { background: var(--brand-primary-dark); transform: translateY(-1px); }
+.site-btn-secondary { background: color-mix(in srgb, var(--site-on-scrim) 10%, transparent); color: inherit; border: 1px solid color-mix(in srgb, currentColor 35%, transparent); backdrop-filter: blur(6px); }
+.site-btn-secondary:hover { border-color: currentColor; }
+.site-link { color: var(--brand-primary-text); text-decoration: underline; text-underline-offset: 3px; }
+.site-prose { line-height: 1.75; font-size: 1.05rem; color: var(--text-secondary); }
+.site-prose > * + * { margin-block-start: 1em; }
+.site-prose h2, .site-prose h3, .site-prose h4 { color: var(--text); font-family: var(--font-display); line-height: 1.2; margin-block-start: 1.6em; }
+.site-template-classic .site-prose h2, .site-template-classic .site-prose h3 { font-family: var(--font-ui); font-weight: 800; text-transform: uppercase; }
+.site-prose h2 { font-size: 1.75rem; } .site-prose h3 { font-size: 1.35rem; } .site-prose h4 { font-size: 1.1rem; }
+.site-prose strong, .site-prose b { color: var(--text); }
+.site-prose a { color: var(--brand-primary-text); text-decoration: underline; text-underline-offset: 3px; }
+.site-prose ul { list-style: disc; padding-inline-start: 1.4em; }
+.site-prose ol { list-style: decimal; padding-inline-start: 1.4em; }
+.site-prose blockquote { border-inline-start: 3px solid var(--brand-primary); padding-inline-start: 1em; font-style: italic; color: var(--text); }
+.site-on-photo { color: var(--site-on-scrim); text-shadow: var(--cover-text-shadow); }
+.site-scrim { background: var(--site-scrim); }
+.site-on-scrim { color: var(--site-on-scrim); }
+.site-lightbox { background: color-mix(in srgb, var(--site-scrim) 94%, transparent); }
+.site-chip-dark { background: color-mix(in srgb, var(--site-scrim) 60%, transparent); color: var(--site-on-scrim); }
+.site-scrim-gradient { background: linear-gradient(180deg, color-mix(in srgb, var(--site-scrim) 10%, transparent) 0%, color-mix(in srgb, var(--site-scrim) 55%, transparent) 70%, color-mix(in srgb, var(--site-scrim) 85%, transparent) 100%); }
+.site-band { background: var(--brand-primary); color: var(--brand-primary-contrast); }
+.site-band-deep { background: var(--brand-primary-deep); color: var(--text); }
+.site-header-glass { background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(14px); }
+.site-progress { background: color-mix(in srgb, var(--text) 12%, transparent); }
+.site-progress > span { background: var(--brand-primary); }
+@media (prefers-reduced-motion: no-preference) {
+  .site-kenburns { animation: site-zoom 16s var(--ease-out) both; }
+  @supports (animation-timeline: view()) {
+    .site-reveal { animation: site-fade-up linear both; animation-timeline: view(); animation-range: entry 0% entry 30%; }
+  }
+}
+@keyframes site-zoom { from { transform: scale(1.07); } to { transform: scale(1); } }
+@keyframes site-fade-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
 /* Respect users who ask for less motion (WCAG 2.3.3). */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

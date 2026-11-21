@@ -604,5 +604,58 @@
       "heading": "Booking cancelled",
       "line": "The booking for {service} ({when}) has been cancelled."
     }
+  },
+  "site": {
+    "starter": {
+      "hint": "Creates home, about, camps, programmes, teams, training, shop, news, join and contact pages from your app data, in every site language. Existing pages are kept.",
+      "home": {
+        "programsHeading": "Programmes"
+      },
+      "programs": {
+        "title": "Programmes",
+        "lead": "Year-round programmes for every age group.",
+        "nav": "Programmes"
+      }
+    },
+    "settings": {
+      "colors": {
+        "primary": "Brand colour",
+        "accent": "Accent colour"
+      },
+      "useClubColor": "Use the club colour",
+      "contrastPairs": {
+        "2": "Button label on brand colour",
+        "3": "Brand colour on background"
+      },
+      "contrastHint": "Text colours that are too light are corrected automatically on the website; choose colours that pass to keep your exact brand."
+    },
+    "templates": {
+      "arenaHint": "Dark luxury look in your club colours with big photos."
+    },
+    "blockHints": {
+      "live": "Camps, programmes, schedule, teams, shop and more, always up to date from the app."
+    },
+    "fields": {
+      "tone": "Colour"
+    },
+    "options": {
+      "align": {
+        "center": "Centre"
+      },
+      "source": {
+        "programs": "Programmes"
+      },
+      "tone": {
+        "brand": "Brand colour"
+      }
+    },
+    "liveHints": {
+      "programs": "Public programmes. Filter: team, camp, clinic, tournament."
+    },
+    "live": {
+      "titles": {
+        "programs": "Programmes"
+      }
+    }
   }
 }
