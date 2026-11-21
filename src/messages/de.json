@@ -185,7 +185,8 @@
     "accounting": "Buchhaltung",
     "refunds": "Abmeldungen & Rückerstattungen",
     "site": "Website",
-    "upgrades": "Abo & Erweiterungen"
+    "upgrades": "Abo & Erweiterungen",
+    "recentlyDeleted": "Kürzlich gelöscht"
   },
   "shell": {
     "openMenu": "Menü öffnen",
@@ -852,6 +853,120 @@
       "filterLabel": "Nach Verbandslizenz filtern",
       "filterHas": "Mit Lizenz",
       "filterMissing": "Lizenz fehlt"
+    }
+  },
+  "personDelete": {
+    "button": "Löschen",
+    "buttonAria": "{name} löschen",
+    "title": "{name} löschen",
+    "loading": "Auswirkungen werden geprüft…",
+    "intro": "{name} wird in allen Bereichen des Vereins gleichzeitig entfernt: Listen, Kader, Anmeldungen, Buchungen, Kalender, Nachrichten, Exporte und Website, in allen Portalen.",
+    "impact": {
+      "teams": "{count, plural, one {Aus # Team entfernt} other {Aus # Teams entfernt}}",
+      "programmes": "{count, plural, one {# Programmanmeldung storniert} other {# Programmanmeldungen storniert}}",
+      "camps": "{count, plural, one {# Camp-Anmeldung storniert} other {# Camp-Anmeldungen storniert}}",
+      "bookings": "{count, plural, one {# kommende Buchung storniert (Guthaben zurückerstattet)} other {# kommende Buchungen storniert (Guthaben zurückerstattet)}}",
+      "waitlists": "{count, plural, one {# Wartelisteneintrag entfernt} other {# Wartelisteneinträge entfernt}}",
+      "memberships": "{count, plural, one {# Mitgliedschaft gekündigt} other {# Mitgliedschaften gekündigt}}",
+      "carpools": "{count, plural, one {# Fahrgemeinschaftsangebot oder -anfrage storniert} other {# Fahrgemeinschaftsangebote oder -anfragen storniert}}",
+      "rsvps": "{count, plural, one {# Antwort zu einem kommenden Termin entfernt} other {# Antworten zu kommenden Terminen entfernt}}",
+      "kit": "{count, plural, one {# offene Ausrüstungsbestellung entfernt} other {# offene Ausrüstungsbestellungen entfernt}}",
+      "paymentPlans": "{count, plural, one {# Zahlungsplan gestoppt} other {# Zahlungspläne gestoppt}}",
+      "autopay": "Automatische Kartenzahlungen gestoppt",
+      "documents": "{count, plural, one {# Dokument (nur beim endgültigen Löschen gelöscht)} other {# Dokumente (nur beim endgültigen Löschen gelöscht)}}",
+      "photos": "{count, plural, one {# Foto (nur beim endgültigen Löschen gelöscht)} other {# Fotos (nur beim endgültigen Löschen gelöscht)}}",
+      "guardians": "{count, plural, one {# Erziehungsberechtigte/r entkoppelt (Logins ohne andere Familie werden getrennt)} other {# Erziehungsberechtigte entkoppelt (Logins ohne andere Familie werden getrennt)}}",
+      "invoicesCancelled": "{count, plural, one {# unbezahlte Rechnung storniert ({amount})} other {# unbezahlte Rechnungen storniert ({amount})}}",
+      "invoicesKept": "{count, plural, one {# Rechnung mit Zahlungen bleibt anonymisiert für die Buchhaltung erhalten} other {# Rechnungen mit Zahlungen bleiben anonymisiert für die Buchhaltung erhalten}}",
+      "nothing": "Kein Team, keine Anmeldung, Buchung oder Rechnung ist betroffen.",
+      "athletes": "{count, plural, one {# Kind} other {# Kinder}}"
+    },
+    "details": "Endgültiges Löschen entfernt {count} Einträge:",
+    "groups": {
+      "profile": "Profil und medizinische Angaben",
+      "teams": "Teams, Termine und Ausrüstung",
+      "registrations": "Anmeldungen, Wartelisten und Mitgliedschaften",
+      "training": "Training, Buchungen und Anwesenheit",
+      "development": "Entwicklung und Spielerlaufbahn",
+      "documents": "Dokumente, Formulare und Verträge",
+      "other": "Weitere Einträge"
+    },
+    "modeLabel": "Was soll passieren?",
+    "archive": "Archivieren (30 Tage wiederherstellbar)",
+    "archiveHelp": "Sofort überall ausgeblendet. Innerhalb von 30 Tagen unter «Kürzlich gelöscht» wiederherstellbar, danach endgültig gelöscht.",
+    "erase": "Endgültig löschen",
+    "eraseHelp": "Personendaten, Dokumente und Fotos werden jetzt gelöscht und sind nicht wiederherstellbar. Rechnungen und Zahlungen bleiben anonymisiert erhalten, wie es das Gesetz verlangt.",
+    "typeToConfirm": "Zur Bestätigung {name} eingeben",
+    "confirmArchive": "Archivieren",
+    "confirmErase": "Endgültig löschen",
+    "working": "Wird gelöscht…",
+    "restoreNote": "Beim Wiederherstellen kommen Person, Teams und Verknüpfungen der Erziehungsberechtigten zurück. Stornierte Anmeldungen, Buchungen und Rechnungen bleiben storniert.",
+    "removeFromTeamHint": "«Aus dem Team entfernen» nimmt die Person nur aus diesem Kader. «Löschen» entfernt sie aus dem ganzen Verein.",
+    "guardian": {
+      "button": "Entfernen",
+      "aria": "{name} als Erziehungsberechtigte/n entfernen",
+      "title": "{name} als Erziehungsberechtigte/n entfernen",
+      "body": "{name} wird von dieser Familie entkoppelt. Gehört die Person zu keiner anderen Familie des Vereins, wird auch ihr Eltern-Login getrennt. Konto und Verlauf bleiben erhalten.",
+      "confirm": "Erziehungsberechtigte/n entfernen"
+    },
+    "bulk": {
+      "select": "{name} auswählen",
+      "selectAll": "Alle auswählen",
+      "selected": "{count, plural, one {# ausgewählt} other {# ausgewählt}}",
+      "delete": "Auswahl löschen",
+      "clear": "Auswahl aufheben",
+      "title": "{count, plural, one {# Person löschen} other {# Personen löschen}}",
+      "intro": "Jede ausgewählte Person wird in allen Bereichen des Vereins entfernt, genau wie beim einzelnen Löschen.",
+      "confirmWord": "LÖSCHEN",
+      "typeWord": "Zur Bestätigung {word} eingeben",
+      "done": "{count, plural, one {# gelöscht} other {# gelöscht}}{failed, plural, =0 {} other {, # fehlgeschlagen}}"
+    },
+    "done": {
+      "archived": "Archiviert. Sie können es 30 Tage lang unter «Kürzlich gelöscht» wiederherstellen.",
+      "erased": "Endgültig gelöscht.",
+      "restored": "Wiederhergestellt.",
+      "guardianRemoved": "Erziehungsberechtigte/r entfernt.",
+      "guardianDetached": "Erziehungsberechtigte/r entfernt und Eltern-Login getrennt."
+    },
+    "errors": {
+      "forbidden": "Nur Vereinsadmins können Personen löschen.",
+      "notFound": "Diese Person wurde nicht gefunden.",
+      "alreadyDeleted": "Diese Person ist bereits gelöscht.",
+      "notRestorable": "Dies kann nicht mehr wiederhergestellt werden.",
+      "familyDeleted": "Die Familie ist ebenfalls gelöscht: Stellen Sie zuerst die Familie wieder her.",
+      "blocked": "Einige verknüpfte Einträge konnten nicht entfernt werden. Es wurde nichts geändert; bitte kontaktieren Sie den Support.",
+      "failed": "Das Löschen konnte nicht abgeschlossen werden. Es wurde nichts geändert.",
+      "confirmMismatch": "Der Bestätigungstext stimmt nicht überein."
+    },
+    "deleted": {
+      "title": "Kürzlich gelöscht",
+      "description": "Archivierte Personen bleiben 30 Tage wiederherstellbar und werden danach von der täglichen Bereinigung endgültig gelöscht. Rechnungen und Zahlungen bleiben immer anonymisiert erhalten.",
+      "empty": "In letzter Zeit wurde nichts gelöscht.",
+      "person": "Name",
+      "kind": "Art",
+      "kindAthlete": "Spieler/in",
+      "kindFamily": "Familie",
+      "deletedOn": "Gelöscht am",
+      "purge": "Endgültige Löschung",
+      "purgeIn": "{count, plural, =0 {heute} one {in # Tag} other {in # Tagen}}",
+      "statusArchived": "Archiviert",
+      "statusErased": "Endgültig gelöscht",
+      "statusRestored": "Wiederhergestellt",
+      "restore": "Wiederherstellen",
+      "deleteNow": "Jetzt löschen",
+      "deleteNowTitle": "Jetzt endgültig löschen",
+      "deleteNowBody": "Personendaten, Dokumente und Fotos werden jetzt gelöscht und sind nicht wiederherstellbar. Rechnungen und Zahlungen bleiben anonymisiert erhalten.",
+      "deletedPlayer": "Gelöschte/r Spieler/in",
+      "deletedFamily": "Gelöschte Familie",
+      "summary": "Übersicht",
+      "showErased": "Endgültig gelöschte anzeigen",
+      "showArchived": "Archivierte anzeigen",
+      "link": "Kürzlich gelöscht"
+    },
+    "parent": {
+      "title": "Löschung Ihrer Daten",
+      "archived": "Ihre Familie wurde am {date} vom Verein entfernt. Sie wird am {purge} endgültig gelöscht, ausser der Verein stellt sie wieder her.",
+      "requested": "Ihr Löschantrag wird vom Verein bearbeitet."
     }
   },
   "athletePhoto": {
@@ -6356,6 +6471,11 @@
         "subject": "Unfallbericht für {child}",
         "intro": "Der Verein hat am {date} einen Unfallbericht für {child} erfasst. Du kannst ihn in der App lesen.",
         "cta": "Bericht lesen"
+      },
+      "personPurgeAdmin": {
+        "subject": "Archivierte Personen werden am {date} endgültig gelöscht",
+        "intro": "{name} archivierte Einträge werden am {date} endgültig gelöscht. Falls das ein Versehen war, stellen Sie sie vorher unter «Kürzlich gelöscht» wieder her.",
+        "cta": "«Kürzlich gelöscht» öffnen"
       }
     }
   },

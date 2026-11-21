@@ -185,7 +185,8 @@
     "accounting": "Accounting",
     "refunds": "Cancellations & refunds",
     "site": "Website",
-    "upgrades": "Plan & upgrades"
+    "upgrades": "Plan & upgrades",
+    "recentlyDeleted": "Recently deleted"
   },
   "shell": {
     "openMenu": "Open menu",
@@ -852,6 +853,120 @@
       "filterLabel": "Filter by federation license",
       "filterHas": "Has license",
       "filterMissing": "License missing"
+    }
+  },
+  "personDelete": {
+    "button": "Delete",
+    "buttonAria": "Delete {name}",
+    "title": "Delete {name}",
+    "loading": "Checking what this affects…",
+    "intro": "{name} will be removed from every section of the club at once: lists, rosters, registrations, bookings, calendars, messages, exports and the website, in every portal.",
+    "impact": {
+      "teams": "{count, plural, one {Removed from # team} other {Removed from # teams}}",
+      "programmes": "{count, plural, one {# program registration cancelled} other {# program registrations cancelled}}",
+      "camps": "{count, plural, one {# camp registration cancelled} other {# camp registrations cancelled}}",
+      "bookings": "{count, plural, one {# upcoming booking cancelled (credits restored)} other {# upcoming bookings cancelled (credits restored)}}",
+      "waitlists": "{count, plural, one {# waiting list entry removed} other {# waiting list entries removed}}",
+      "memberships": "{count, plural, one {# membership cancelled} other {# memberships cancelled}}",
+      "carpools": "{count, plural, one {# carpool offer or request cancelled} other {# carpool offers or requests cancelled}}",
+      "rsvps": "{count, plural, one {# reply to an upcoming event removed} other {# replies to upcoming events removed}}",
+      "kit": "{count, plural, one {# pending kit order removed} other {# pending kit orders removed}}",
+      "paymentPlans": "{count, plural, one {# payment plan stopped} other {# payment plans stopped}}",
+      "autopay": "Automatic card payments stopped",
+      "documents": "{count, plural, one {# document (deleted only when deleted permanently)} other {# documents (deleted only when deleted permanently)}}",
+      "photos": "{count, plural, one {# photo (deleted only when deleted permanently)} other {# photos (deleted only when deleted permanently)}}",
+      "guardians": "{count, plural, one {# guardian unlinked (logins with no other family are detached)} other {# guardians unlinked (logins with no other family are detached)}}",
+      "invoicesCancelled": "{count, plural, one {# unpaid invoice cancelled ({amount})} other {# unpaid invoices cancelled ({amount})}}",
+      "invoicesKept": "{count, plural, one {# invoice with payments is kept, anonymized, for accounting} other {# invoices with payments are kept, anonymized, for accounting}}",
+      "nothing": "No team, registration, booking or invoice is affected.",
+      "athletes": "{count, plural, one {# child} other {# children}}"
+    },
+    "details": "A permanent delete removes {count} records:",
+    "groups": {
+      "profile": "Profile and medical record",
+      "teams": "Teams, events and kit",
+      "registrations": "Registrations, waiting lists and memberships",
+      "training": "Training, bookings and attendance",
+      "development": "Development and player journey",
+      "documents": "Documents, forms and contracts",
+      "other": "Other records"
+    },
+    "modeLabel": "What should happen?",
+    "archive": "Archive (can be restored for 30 days)",
+    "archiveHelp": "Hidden everywhere right away. Restore it from Recently deleted within 30 days; after that it is deleted permanently.",
+    "erase": "Delete permanently",
+    "eraseHelp": "Personal data, documents and photos are deleted now and cannot be recovered. Invoices and payments are kept, anonymized, as the law requires.",
+    "typeToConfirm": "Type {name} to confirm",
+    "confirmArchive": "Archive",
+    "confirmErase": "Delete permanently",
+    "working": "Deleting…",
+    "restoreNote": "Restoring puts back the person, teams and guardian links. Cancelled registrations, bookings and invoices stay cancelled.",
+    "removeFromTeamHint": "Remove from team only takes the player off this roster. Delete removes the person from the whole club.",
+    "guardian": {
+      "button": "Remove",
+      "aria": "Remove {name} as guardian",
+      "title": "Remove {name} as guardian",
+      "body": "{name} is unlinked from this family. If they belong to no other family of the club, their parent login is detached as well. Their account and history are kept.",
+      "confirm": "Remove guardian"
+    },
+    "bulk": {
+      "select": "Select {name}",
+      "selectAll": "Select all",
+      "selected": "{count, plural, one {# selected} other {# selected}}",
+      "delete": "Delete selected",
+      "clear": "Clear selection",
+      "title": "{count, plural, one {Delete # person} other {Delete # people}}",
+      "intro": "Each selected person is removed from every section of the club, the same way as deleting them one by one.",
+      "confirmWord": "DELETE",
+      "typeWord": "Type {word} to confirm",
+      "done": "{count, plural, one {# deleted} other {# deleted}}{failed, plural, =0 {} other {, # failed}}"
+    },
+    "done": {
+      "archived": "Archived. You can restore it from Recently deleted for 30 days.",
+      "erased": "Deleted permanently.",
+      "restored": "Restored.",
+      "guardianRemoved": "Guardian removed.",
+      "guardianDetached": "Guardian removed and their parent login detached."
+    },
+    "errors": {
+      "forbidden": "Only club admins can delete people.",
+      "notFound": "This person was not found.",
+      "alreadyDeleted": "This person is already deleted.",
+      "notRestorable": "This can no longer be restored.",
+      "familyDeleted": "The family is deleted as well: restore the family first.",
+      "blocked": "Some linked records could not be removed. Nothing was changed; please contact support.",
+      "failed": "The delete could not be completed. Nothing was changed.",
+      "confirmMismatch": "The confirmation text does not match."
+    },
+    "deleted": {
+      "title": "Recently deleted",
+      "description": "Archived people stay restorable for 30 days, then they are deleted permanently by the daily clean-up. Invoices and payments are always kept, anonymized.",
+      "empty": "Nothing was deleted recently.",
+      "person": "Person",
+      "kind": "Type",
+      "kindAthlete": "Player",
+      "kindFamily": "Family",
+      "deletedOn": "Deleted on",
+      "purge": "Deleted permanently",
+      "purgeIn": "{count, plural, =0 {today} one {in # day} other {in # days}}",
+      "statusArchived": "Archived",
+      "statusErased": "Deleted permanently",
+      "statusRestored": "Restored",
+      "restore": "Restore",
+      "deleteNow": "Delete now",
+      "deleteNowTitle": "Delete permanently now",
+      "deleteNowBody": "Personal data, documents and photos are deleted now and cannot be recovered. Invoices and payments are kept, anonymized.",
+      "deletedPlayer": "Deleted player",
+      "deletedFamily": "Deleted family",
+      "summary": "Summary",
+      "showErased": "Show permanently deleted",
+      "showArchived": "Show archived",
+      "link": "Recently deleted"
+    },
+    "parent": {
+      "title": "Deletion of your data",
+      "archived": "Your family was removed by the club on {date}. It will be deleted permanently on {purge} unless the club restores it.",
+      "requested": "Your deletion request is being handled by the club."
     }
   },
   "athletePhoto": {
@@ -6356,6 +6471,11 @@
         "subject": "Incident report for {child}",
         "intro": "The club recorded an incident report for {child} on {date}. You can read it in the app.",
         "cta": "Read the report"
+      },
+      "personPurgeAdmin": {
+        "subject": "Archived people will be deleted permanently on {date}",
+        "intro": "{name} archived record(s) will be deleted permanently on {date}. If this was a mistake, restore them from Recently deleted before then.",
+        "cta": "Open Recently deleted"
       }
     }
   },

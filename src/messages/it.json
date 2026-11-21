@@ -185,7 +185,8 @@
     "accounting": "Contabilità",
     "refunds": "Disdette e rimborsi",
     "site": "Sito web",
-    "upgrades": "Abbonamento & estensioni"
+    "upgrades": "Abbonamento & estensioni",
+    "recentlyDeleted": "Eliminati di recente"
   },
   "shell": {
     "openMenu": "Apri menu",
@@ -852,6 +853,120 @@
       "filterLabel": "Filtra per licenza federale",
       "filterHas": "Con licenza",
       "filterMissing": "Licenza mancante"
+    }
+  },
+  "personDelete": {
+    "button": "Elimina",
+    "buttonAria": "Elimina {name}",
+    "title": "Elimina {name}",
+    "loading": "Verifica dell’impatto…",
+    "intro": "{name} verrà rimosso/a da tutte le sezioni del club in una volta: elenchi, rose, iscrizioni, prenotazioni, calendari, messaggi, esportazioni e sito web, in tutti i portali.",
+    "impact": {
+      "teams": "{count, plural, one {Rimosso/a da # squadra} other {Rimosso/a da # squadre}}",
+      "programmes": "{count, plural, one {# iscrizione a un programma annullata} other {# iscrizioni a programmi annullate}}",
+      "camps": "{count, plural, one {# iscrizione a un campo annullata} other {# iscrizioni a campi annullate}}",
+      "bookings": "{count, plural, one {# prenotazione futura annullata (crediti restituiti)} other {# prenotazioni future annullate (crediti restituiti)}}",
+      "waitlists": "{count, plural, one {# iscrizione in lista d’attesa rimossa} other {# iscrizioni in lista d’attesa rimosse}}",
+      "memberships": "{count, plural, one {# tessera annullata} other {# tessere annullate}}",
+      "carpools": "{count, plural, one {# offerta o richiesta di passaggio annullata} other {# offerte o richieste di passaggio annullate}}",
+      "rsvps": "{count, plural, one {# risposta a un evento futuro rimossa} other {# risposte a eventi futuri rimosse}}",
+      "kit": "{count, plural, one {# ordine di materiale in sospeso rimosso} other {# ordini di materiale in sospeso rimossi}}",
+      "paymentPlans": "{count, plural, one {# piano di pagamento interrotto} other {# piani di pagamento interrotti}}",
+      "autopay": "Pagamenti automatici con carta interrotti",
+      "documents": "{count, plural, one {# documento (eliminato solo con l’eliminazione definitiva)} other {# documenti (eliminati solo con l’eliminazione definitiva)}}",
+      "photos": "{count, plural, one {# foto (eliminata solo con l’eliminazione definitiva)} other {# foto (eliminate solo con l’eliminazione definitiva)}}",
+      "guardians": "{count, plural, one {# tutore scollegato (gli accessi senza altra famiglia vengono staccati)} other {# tutori scollegati (gli accessi senza altra famiglia vengono staccati)}}",
+      "invoicesCancelled": "{count, plural, one {# fattura non pagata annullata ({amount})} other {# fatture non pagate annullate ({amount})}}",
+      "invoicesKept": "{count, plural, one {# fattura con pagamenti resta conservata, anonimizzata, per la contabilità} other {# fatture con pagamenti restano conservate, anonimizzate, per la contabilità}}",
+      "nothing": "Nessuna squadra, iscrizione, prenotazione o fattura è interessata.",
+      "athletes": "{count, plural, one {# figlio/a} other {# figli}}"
+    },
+    "details": "L’eliminazione definitiva rimuove {count} record:",
+    "groups": {
+      "profile": "Profilo e cartella medica",
+      "teams": "Squadre, eventi e materiale",
+      "registrations": "Iscrizioni, liste d’attesa e tessere",
+      "training": "Allenamenti, prenotazioni e presenze",
+      "development": "Sviluppo e percorso del giocatore",
+      "documents": "Documenti, moduli e contratti",
+      "other": "Altri record"
+    },
+    "modeLabel": "Cosa deve succedere?",
+    "archive": "Archivia (ripristinabile per 30 giorni)",
+    "archiveHelp": "Nascosto ovunque subito. Ripristinabile da «Eliminati di recente» entro 30 giorni; dopo viene eliminato definitivamente.",
+    "erase": "Elimina definitivamente",
+    "eraseHelp": "Dati personali, documenti e foto vengono eliminati ora e non possono essere recuperati. Fatture e pagamenti restano conservati, anonimizzati, come richiesto dalla legge.",
+    "typeToConfirm": "Digita {name} per confermare",
+    "confirmArchive": "Archivia",
+    "confirmErase": "Elimina definitivamente",
+    "working": "Eliminazione…",
+    "restoreNote": "Il ripristino rimette la persona, le squadre e i collegamenti con i tutori. Iscrizioni, prenotazioni e fatture annullate restano annullate.",
+    "removeFromTeamHint": "«Rimuovi dalla squadra» toglie la persona solo da questa rosa. «Elimina» la rimuove da tutto il club.",
+    "guardian": {
+      "button": "Rimuovi",
+      "aria": "Rimuovi {name} come tutore",
+      "title": "Rimuovi {name} come tutore",
+      "body": "{name} viene scollegato/a da questa famiglia. Se non appartiene a nessun’altra famiglia del club, viene staccato anche l’accesso genitore. Account e cronologia restano conservati.",
+      "confirm": "Rimuovi tutore"
+    },
+    "bulk": {
+      "select": "Seleziona {name}",
+      "selectAll": "Seleziona tutto",
+      "selected": "{count, plural, one {# selezionato} other {# selezionati}}",
+      "delete": "Elimina selezionati",
+      "clear": "Annulla selezione",
+      "title": "{count, plural, one {Elimina # persona} other {Elimina # persone}}",
+      "intro": "Ogni persona selezionata viene rimossa da tutte le sezioni del club, come nell’eliminazione singola.",
+      "confirmWord": "ELIMINA",
+      "typeWord": "Digita {word} per confermare",
+      "done": "{count, plural, one {# eliminato} other {# eliminati}}{failed, plural, =0 {} other {, # non riusciti}}"
+    },
+    "done": {
+      "archived": "Archiviato. Puoi ripristinarlo da «Eliminati di recente» per 30 giorni.",
+      "erased": "Eliminato definitivamente.",
+      "restored": "Ripristinato.",
+      "guardianRemoved": "Tutore rimosso.",
+      "guardianDetached": "Tutore rimosso e accesso genitore staccato."
+    },
+    "errors": {
+      "forbidden": "Solo gli amministratori del club possono eliminare persone.",
+      "notFound": "Questa persona non è stata trovata.",
+      "alreadyDeleted": "Questa persona è già eliminata.",
+      "notRestorable": "Non è più possibile ripristinare.",
+      "familyDeleted": "Anche la famiglia è eliminata: ripristina prima la famiglia.",
+      "blocked": "Alcuni record collegati non hanno potuto essere rimossi. Non è stato modificato nulla; contatta il supporto.",
+      "failed": "L’eliminazione non è stata completata. Non è stato modificato nulla.",
+      "confirmMismatch": "Il testo di conferma non corrisponde."
+    },
+    "deleted": {
+      "title": "Eliminati di recente",
+      "description": "Le persone archiviate restano ripristinabili per 30 giorni, poi la pulizia giornaliera le elimina definitivamente. Fatture e pagamenti restano sempre conservati, anonimizzati.",
+      "empty": "Nulla è stato eliminato di recente.",
+      "person": "Persona",
+      "kind": "Tipo",
+      "kindAthlete": "Giocatore/trice",
+      "kindFamily": "Famiglia",
+      "deletedOn": "Eliminato il",
+      "purge": "Eliminazione definitiva",
+      "purgeIn": "{count, plural, =0 {oggi} one {tra # giorno} other {tra # giorni}}",
+      "statusArchived": "Archiviato",
+      "statusErased": "Eliminato definitivamente",
+      "statusRestored": "Ripristinato",
+      "restore": "Ripristina",
+      "deleteNow": "Elimina ora",
+      "deleteNowTitle": "Elimina definitivamente ora",
+      "deleteNowBody": "Dati personali, documenti e foto vengono eliminati ora e non possono essere recuperati. Fatture e pagamenti restano conservati, anonimizzati.",
+      "deletedPlayer": "Giocatore/trice eliminato/a",
+      "deletedFamily": "Famiglia eliminata",
+      "summary": "Riepilogo",
+      "showErased": "Mostra eliminati definitivamente",
+      "showArchived": "Mostra archiviati",
+      "link": "Eliminati di recente"
+    },
+    "parent": {
+      "title": "Eliminazione dei tuoi dati",
+      "archived": "La tua famiglia è stata rimossa dal club il {date}. Sarà eliminata definitivamente il {purge}, a meno che il club non la ripristini.",
+      "requested": "La tua richiesta di eliminazione è in corso di trattamento da parte del club."
     }
   },
   "athletePhoto": {
@@ -6356,6 +6471,11 @@
         "subject": "Rapporto d'incidente per {child}",
         "intro": "Il club ha registrato un rapporto d'incidente per {child} il {date}. Puoi leggerlo nell'app.",
         "cta": "Leggi il rapporto"
+      },
+      "personPurgeAdmin": {
+        "subject": "Persone archiviate saranno eliminate definitivamente il {date}",
+        "intro": "{name} schede archiviate saranno eliminate definitivamente il {date}. Se si tratta di un errore, ripristinale prima da «Eliminati di recente».",
+        "cta": "Apri «Eliminati di recente»"
       }
     }
   },
