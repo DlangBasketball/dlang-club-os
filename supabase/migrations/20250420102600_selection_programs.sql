@@ -620,7 +620,8 @@ begin
   v_bal := public.invoice_amount_due(p_invoice) - public.invoice_net_paid(p_invoice);
   if v_bal <= 0 then raise exception 'NOTHING_OUTSTANDING' using errcode = 'P0001'; end if;
   v_dts := public.selection_due_dates(current_date, p_count);
-  v_amts := public.plan_split(v_bal, p_count, v.currency);
+  select array_agg(round(x, public.currency_exponent(v.currency)) order by n) into v_amts
+    from unnest(public.plan_split(v_bal, p_count, v.currency)) with ordinality as u(x, n);
   v_plan := public.plan_create_internal(v, v_dts, v_amts, 0, 'invoice', 'monthly');
   update public.program_applications set installment_count = p_count where id = a.id;
   if a.status = 'accepted' then perform public.selection_enroll_internal(a.id); end if;
@@ -1130,7 +1131,7 @@ declare v_org uuid := public.current_org_id();
 begin
   if not public.is_finance_of(v_org) then raise exception 'NOT_AUTHORIZED' using errcode = '42501'; end if;
   return query
-    select a.id, p.id, p.name, p.season_year, d.name, k.name,
+    select a.id, p.id, p.name, p.season_year::int, d.name, k.name,
            btrim(t.first_name || ' ' || t.last_name), extract(year from t.dob)::int, f.name, a.is_member, a.current_club, a.status,
            coalesce(i.currency, upper(coalesce(nullif(p.currency, ''), 'CHF'))), i.number,
            coalesce(case when i.status::text in ('cancelled', 'void', 'draft') then 0 else i.total_chf end, 0)::numeric,
