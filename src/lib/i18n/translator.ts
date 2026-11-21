@@ -9,6 +9,36 @@ import { formatNumber } from "@/lib/format";
  */
 export type Messages = typeof en;
 
+type DeepPartial<T> = { [K in keyof T]?: T[K] extends string ? string : DeepPartial<T[K]> };
+
+/** A partial catalog or a regional overlay: any subset of the English keys. */
+export type PartialMessages = DeepPartial<Messages>;
+
+type Tree = { [key: string]: string | Tree };
+
+/**
+ * Deep-merge catalog layers, later layers win: mergeCatalogs(en, de, deCH).
+ * Empty strings never override (an untranslated cell in an import stays on
+ * the fallback). Inputs are not mutated.
+ */
+export function mergeCatalogs(...layers: (PartialMessages | Messages | null | undefined)[]): Messages {
+  const merge = (target: Tree, src: Tree) => {
+    for (const [k, v] of Object.entries(src)) {
+      if (typeof v === "string") {
+        if (v.trim() !== "") target[k] = v;
+      } else if (v && typeof v === "object") {
+        const cur = target[k];
+        const next: Tree = cur && typeof cur === "object" ? cur : {};
+        target[k] = next;
+        merge(next, v);
+      }
+    }
+  };
+  const out: Tree = {};
+  for (const layer of layers) if (layer) merge(out, layer as unknown as Tree);
+  return out as unknown as Messages;
+}
+
 type Join<K extends string, P extends string> = `${K}.${P}`;
 
 /** Union of every dotted key path that leads to a string, e.g. "nav.dashboard". */

@@ -2,6 +2,7 @@ import { PageHeader, Card, CardHeader, CardTitle, CardBody, ErrorState } from "@
 import { getAccount } from "@/lib/data/parent";
 import { PrivacyTools } from "@/components/parent/privacy-tools";
 import { ContactForm } from "@/components/parent/contact-form";
+import { LanguagePreferenceCard } from "@/components/i18n/language-preference-card";
 
 export default async function ParentAccountPage() {
   const { data, error } = await getAccount();
@@ -19,6 +20,7 @@ export default async function ParentAccountPage() {
           />
         </CardBody>
       </Card>
+      <LanguagePreferenceCard />
       <PrivacyTools />
     </div>
   );

@@ -147,14 +147,14 @@ function NavLinks({
                 "touch-target group relative flex items-center gap-[11px] rounded-md px-3.5 py-[9px] text-[13.5px] transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:shadow-focus",
                 active
-                  ? "bg-gradient-to-r from-brand-primary-soft to-transparent font-medium text-brand-primary"
+                  ? "bg-gradient-to-r from-brand-primary-soft to-transparent font-medium text-brand-primary rtl:bg-gradient-to-l"
                   : "text-text-secondary hover:bg-surface hover:text-text",
               )}
             >
               {active && (
                 <span
                   aria-hidden
-                  className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-brand-primary shadow-glow"
+                  className="absolute inset-y-1.5 start-0 w-[3px] rounded-full bg-brand-primary shadow-glow"
                 />
               )}
               <Icon
@@ -229,7 +229,7 @@ function SidebarShell({
   return (
     <div className="grain min-h-dvh lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh flex-col border-r border-border bg-bg-secondary lg:flex">
+      <aside className="sticky top-0 hidden h-dvh flex-col border-e border-border bg-bg-secondary lg:flex">
         <div className="border-b border-border px-5 pb-5 pt-[22px]">
           <BrandMark />
         </div>
@@ -243,7 +243,7 @@ function SidebarShell({
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label={t("shell.mainNavigation")}>
           <div className="absolute inset-0 animate-fade-in bg-black/60 backdrop-blur-sm" onClick={close} />
-          <aside className="absolute left-0 top-0 flex h-full w-[min(18rem,85vw)] animate-slide-in-left flex-col border-r border-border bg-bg-secondary shadow-lg">
+          <aside className="absolute start-0 top-0 flex h-full w-[min(18rem,85vw)] animate-slide-in-left flex-col border-e border-border bg-bg-secondary shadow-lg rtl:animate-slide-in-right">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <BrandMark />
               <button onClick={close} aria-label={t("shell.closeMenu")} className={iconBtn} autoFocus>

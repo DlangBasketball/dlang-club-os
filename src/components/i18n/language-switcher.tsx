@@ -5,27 +5,51 @@ import { useRouter } from "next/navigation";
 import { Globe } from "lucide-react";
 import { setLocale } from "@/lib/i18n/actions";
 import { useLocaleContext, useT } from "@/lib/i18n/client";
-import { LOCALE_NAMES, LOCALE_SHORT, type Locale } from "@/lib/i18n/config";
+import { baseLanguage, directionOf, nativeName } from "@/lib/i18n/languages";
 import { cn } from "@/lib/utils";
 
 /**
- * Language switcher. Shows only the languages the tenant enables.
+ * Endonyms for the switcher: "Deutsch", "Français" … The region is only
+ * shown when two variants of one language are offered side by side
+ * ("English" + "English (UK)").
+ */
+export function switcherLabels(languages: readonly string[]): Record<string, { name: string; short: string }> {
+  const count = new Map<string, number>();
+  for (const l of languages) count.set(baseLanguage(l), (count.get(baseLanguage(l)) ?? 0) + 1);
+  return Object.fromEntries(
+    languages.map((l) => {
+      const shared = (count.get(baseLanguage(l)) ?? 0) > 1;
+      return [l, { name: nativeName(l, { withRegion: shared }), short: (shared ? l : baseLanguage(l)).toUpperCase() }];
+    }),
+  );
+}
+
+/**
+ * Language switcher. Shows only the languages the tenant enables, each in its
+ * own language. Persists the choice (cookie + profile), so emails and PDFs
+ * follow it too.
  *  - variant "select"  (default): native <select>, accessible and mobile-friendly
  *  - variant "compact": globe + short code, for tight headers
+ * `showSingle`: render the current language even when only one is offered
+ * (account pages), instead of nothing.
  */
 export function LanguageSwitcher({
   variant = "select",
   className,
+  showSingle = false,
 }: {
   variant?: "select" | "compact";
   className?: string;
+  showSingle?: boolean;
 }) {
   const ctx = useLocaleContext();
   const t = useT();
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
   const languages = ctx.languages.length ? ctx.languages : [ctx.locale];
-  if (languages.length < 2) return null;
+  const options = languages.includes(ctx.locale) ? languages : [ctx.locale, ...languages];
+  const labels = switcherLabels(options);
+  if (options.length < 2 && !showSingle) return null;
 
   function change(next: string) {
     if (next === ctx.locale) return;
@@ -33,6 +57,7 @@ export function LanguageSwitcher({
       const res = await setLocale(next);
       if (res.ok) {
         document.documentElement.lang = next;
+        document.documentElement.dir = directionOf(next);
         router.refresh();
       }
     });
@@ -52,17 +77,17 @@ export function LanguageSwitcher({
       <span className="sr-only">{t("shell.languageSwitcher")}</span>
       <select
         value={ctx.locale}
-        disabled={pending}
+        disabled={pending || options.length < 2}
         onChange={(e) => change(e.target.value)}
         aria-label={t("shell.languageSwitcher")}
         className={cn(
           "cursor-pointer appearance-none bg-transparent text-xs font-medium text-inherit outline-none",
-          variant === "compact" ? "pr-0 uppercase tracking-wide" : "pr-1",
+          variant === "compact" ? "pe-0 uppercase tracking-wide" : "pe-1",
         )}
       >
-        {languages.map((l: Locale) => (
-          <option key={l} value={l} lang={l} className="bg-bg-secondary text-ink">
-            {variant === "compact" ? LOCALE_SHORT[l] : LOCALE_NAMES[l]}
+        {options.map((l) => (
+          <option key={l} value={l} lang={l} dir={directionOf(l)} className="bg-bg-secondary text-ink">
+            {variant === "compact" ? labels[l].short : labels[l].name}
           </option>
         ))}
       </select>

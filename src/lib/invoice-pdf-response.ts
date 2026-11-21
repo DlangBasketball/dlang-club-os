@@ -77,7 +77,7 @@ export async function renderInvoicePdf(id: string, opts: { installmentId?: strin
       label: `${t.dynamic(`editMoney.adjust.kinds.${a.kind}`, undefined, a.kind)} ${a.number}`,
       amount: a.kind === "debit_note" ? a.amount : -a.amount,
     }));
-  const paymentNote = payable ? paymentFooterText(methodsForInvoice(profile, currency)) : null;
+  const paymentNote = payable ? paymentFooterText(methodsForInvoice(profile, currency), t) : null;
 
   const bytes = await buildInvoicePdf({
     number: data.number, issuedAt: data.issuedAt, dueDate: data.dueDate, status: data.status,
@@ -90,6 +90,7 @@ export async function renderInvoicePdf(id: string, opts: { installmentId?: strin
     platformName: APP_NAME,
     paymentNote,
     instalmentNote,
+    i18n: { t, f },
   });
   return new NextResponse(Buffer.from(bytes), {
     headers: { "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${data.number}${inst ? `-${inst.seq}` : ""}.pdf"` },

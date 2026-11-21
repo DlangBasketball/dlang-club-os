@@ -83,7 +83,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
     const t = invoiceIssued({
       ...org.brand,
       currency: inv.currency ?? org.brand.currency,
-      parentName: family.contact_name ?? "there",
+      parentName: family.contact_name ?? "",
       invoiceNumber: inv.number,
       description: inv.description,
       // Amount due: the issued total plus any credit / debit notes.
@@ -174,7 +174,7 @@ export async function sendReminder(id: string): Promise<ActionResult> {
   const t = overdueReminder({
     ...org.brand,
     currency: inv.currency ?? org.brand.currency,
-    parentName: family.contact_name ?? "there",
+    parentName: family.contact_name ?? "",
     invoiceNumber: inv.number,
     description: null,
     totalChf: due,

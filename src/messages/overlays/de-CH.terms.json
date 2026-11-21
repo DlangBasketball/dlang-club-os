@@ -1,0 +1,120 @@
+{
+  "common": {
+    "total": "Total",
+    "subtotal": "Zwischentotal"
+  },
+  "invoices": {
+    "total": "Total"
+  },
+  "editMoney": {
+    "invoice": {
+      "total": "Total",
+      "saveDraftConfirm": "Entwurf mit einem Total von {amount} speichern?",
+      "originalTotal": "Rechnungstotal"
+    },
+    "training": {
+      "modeTotal": "Total festlegen",
+      "newTotal": "Neues Total",
+      "current": "Total {total}, verwendet {used}, übrig {balance}",
+      "after": "danach: Total {total}, übrig {balance}"
+    },
+    "errors": {
+      "INVALID_TOTAL": "Das Total darf nicht negativ sein, und jede Position braucht eine Menge grösser als null.",
+      "BELOW_USED": "Das Total kann nicht unter dem bereits verwendeten Guthaben liegen."
+    }
+  },
+  "camps": {
+    "discounts": {
+      "maxRedemptions": "Max. Einlösungen (total)"
+    }
+  },
+  "finance": {
+    "dashboard": {
+      "totalStudents": "Mitglieder total"
+    }
+  },
+  "development": {
+    "meals": {
+      "morning_snack": "Znüni",
+      "afternoon_snack": "Zvieri"
+    }
+  },
+  "staff": {
+    "clubEvents": {
+      "types": {
+        "international": "Internationaler Anlass",
+        "social": "Clubanlass"
+      }
+    }
+  },
+  "shop": {
+    "csv": {
+      "lineTotal": "Positionstotal"
+    }
+  },
+  "media": {
+    "library": {
+      "emptyText": "Lade ein paar Fotos von Hallen, Mannschaften oder Anlässen hoch, um deine Seiten lebendig zu machen."
+    }
+  },
+  "operations": {
+    "board": {
+      "agenda": "Traktanden",
+      "agendaHint": "Ein Traktandum pro Zeile.",
+      "noAgenda": "Noch keine Traktanden.",
+      "confirmInvitation": "Einladung mit Datum, Ort und Traktanden jetzt an alle Clubmitglieder senden?",
+      "roles": {
+        "treasurer": "Kassier/in"
+      }
+    },
+    "sponsors": {
+      "deliverableKinds": {
+        "event": "Präsenz an Anlass"
+      }
+    }
+  },
+  "clubadmin": {
+    "js": {
+      "totals": "Total: {hours} Stunden, {ph} Teilnehmerstunden, Schätzung {est}."
+    },
+    "incidents": {
+      "referrals": {
+        "hospital": "Spital"
+      }
+    }
+  },
+  "family": {
+    "pages": {
+      "carpool": {
+        "description": "Fahrten zu Auswärtsspielen und Anlässen mit anderen Familien des Aufgebots teilen."
+      }
+    }
+  },
+  "accounting": {
+    "support": {
+      "cap": "Obergrenze total ({currency}, optional)"
+    },
+    "chart": {
+      "accounts": {
+        "6840": "Bank- und Zahlungsspesen"
+      }
+    }
+  },
+  "website": {
+    "events": {
+      "types": {
+        "event": "Anlass"
+      }
+    },
+    "admin": {
+      "embed": {
+        "params": {
+          "type": "Anlassart"
+        }
+      },
+      "flags": {
+        "title": "Öffentliche Mannschaften, Trainer/innen und Anlässe"
+      }
+    }
+  }
+}

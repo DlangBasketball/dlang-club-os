@@ -1,0 +1,608 @@
+{
+  "status": {
+    "cancelled": "Cancelled"
+  },
+  "nav": {
+    "programs": "Programmes"
+  },
+  "parentHome": {
+    "noChildrenHint": "Register for a programme to add your child."
+  },
+  "registration": {
+    "consents": {
+      "health": "I authorise the club to arrange emergency medical care if needed.",
+      "transport": "I consent to club-organised transport to and from activities."
+    },
+    "review": {
+      "program": "Programme"
+    },
+    "success": {
+      "theProgram": "the programme"
+    }
+  },
+  "booking": {
+    "cancelled": "Booking cancelled"
+  },
+  "notifications": {
+    "types": {
+      "booking_cancellation": "Booking cancelled"
+    }
+  },
+  "email": {
+    "registrationConfirmation": {
+      "program": "Programme"
+    },
+    "adminRegistrationAlert": {
+      "program": "Programme"
+    }
+  },
+  "appSettings": {
+    "errors": {
+      "wrongOrg": "You are signed in to a different organisation than this site."
+    }
+  },
+  "aiAssistant": {
+    "pageDescription": "Summarise club operations, invoices, attendance and bookings.",
+    "suggestions": {
+      "registrations": "Summarise this month's registrations"
+    }
+  },
+  "editPeople": {
+    "errors": {
+      "programNotFound": "Programme not found in your club."
+    },
+    "programmes": {
+      "title": "Programmes & teams",
+      "none": "Not registered for any programme yet.",
+      "enrolTitle": "Enrol in a programme",
+      "enrol": "Enrol"
+    },
+    "registrations": {
+      "program": "Programme",
+      "statusCancelHint": "Cancelling requires a reason. The registration stays in the history.",
+      "cancelledOn": "Cancelled on {date}",
+      "duplicate": "This athlete is already registered for that programme.",
+      "cancelled": "Registration cancelled"
+    },
+    "documentScope": {
+      "program": "Programme"
+    }
+  },
+  "editOps": {
+    "common": {
+      "noOrgTitle": "No organisation"
+    },
+    "errors": {
+      "programHasRegistrations": "This programme has registrations, so it was archived instead of deleted."
+    },
+    "registration": {
+      "ageOutOfRange": "A child's age is outside the age range of this programme. Please contact the club.",
+      "closed": "Registration for this programme is closed."
+    },
+    "programs": {
+      "title": "Programme",
+      "confirmArchive": "Archive this programme? It closes registration and hides it from the public page. History is kept.",
+      "confirmDelete": "Delete this programme permanently? This cannot be undone.",
+      "confirmDeleteArchives": "{count, plural, one {This programme has # registration, so it will be archived, not deleted. Continue?} other {This programme has # registrations, so it will be archived, not deleted. Continue?}}",
+      "editTitle": "Edit programme",
+      "empty": "No programmes yet",
+      "emptyHint": "Create your first programme to open registration.",
+      "new": "New programme",
+      "publicHint": "Online registration is open only when the programme is published, public and inside its registration window."
+    },
+    "events": {
+      "addressPlaceholder": "Street, postcode, city",
+      "cancelDescription": "Families see the event as cancelled, with your reason.",
+      "cancelledBecause": "Cancelled: {reason}",
+      "deleteConfirm": "Delete permanently? RSVPs and results are removed too. Prefer cancelling to keep a record.",
+      "statuses": {
+        "cancelled": "Cancelled"
+      }
+    },
+    "bookings": {
+      "cancelled": "Cancelled",
+      "statuses": {
+        "cancelled": "Cancelled"
+      }
+    }
+  },
+  "editMoney": {
+    "actions": {
+      "cancelDraftConfirm": "This draft was never sent. It will be marked cancelled; nothing is deleted."
+    },
+    "invoice": {
+      "cancelledBecause": "Cancelled: {reason}"
+    },
+    "payment": {
+      "cancelledNote": "This invoice was cancelled."
+    },
+    "audit": {
+      "INVOICE_CANCELLED": "Cancelled"
+    },
+    "errors": {
+      "INVOICE_CANCELLED": "This invoice is cancelled.",
+      "ALREADY_CANCELLED": "This invoice is already cancelled.",
+      "CANNOT_CANCEL": "Paid or written-off invoices cannot be cancelled. Refund or issue a credit note instead.",
+      "NOT_CANCELLED": "Only cancelled invoices can be reopened."
+    }
+  },
+  "coaches": {
+    "usage": {
+      "sessions": "{count, plural, one {# programme session} other {# programme sessions}}"
+    },
+    "photo": {
+      "privacy": "Visible only to the staff and parents of your club, so families recognise their coach. Never shown on public pages."
+    }
+  },
+  "camps": {
+    "editionStatus": {
+      "cancelled": "Cancelled"
+    },
+    "discounts": {
+      "description": "Promo codes, sibling and early-bird discounts and manual reductions — for camps, training and any programme.",
+      "scopes": {
+        "program": "One programme"
+      }
+    },
+    "errors": {
+      "db": {
+        "REGISTRATION_CANCELLED": "This registration is cancelled.",
+        "INVOICE_CANCELLED": "The invoice is cancelled.",
+        "SLUG_IN_USE": "This web address is already used by another programme."
+      }
+    },
+    "seasons": {
+      "names": {
+        "fall": "Autumn"
+      },
+      "campNames": {
+        "fall": "Autumn Camp {year}"
+      }
+    }
+  },
+  "training": {
+    "service": {
+      "color": "Colour",
+      "noColor": "No colour"
+    },
+    "settings": {
+      "refund": "Return the credit when cancelled within the free window"
+    },
+    "bookingStatus": {
+      "cancelled": "Cancelled"
+    },
+    "purchases": {
+      "cancelPrompt": "Reason for cancelling this purchase (an unpaid invoice is cancelled with it):",
+      "statuses": {
+        "cancelled": "Cancelled"
+      }
+    },
+    "groups": {
+      "cancelPrompt": "Reason for cancelling the whole group (everyone gets their session or invoice back):"
+    },
+    "profile": {
+      "past": "Past & cancelled",
+      "cancelled": "Cancelled"
+    },
+    "errors": {
+      "color": "Pick a colour."
+    }
+  },
+  "finance": {
+    "expenses": {
+      "program": "Programme"
+    },
+    "reports": {
+      "profitByProgram": "Profit per programme"
+    },
+    "dashboard": {
+      "registrationsChart": "Registrations by programme",
+      "last12Months": "Last 12 months, cancelled registrations excluded."
+    }
+  },
+  "development": {
+    "rankings": {
+      "noGroups": "No teams or programmes with members yet."
+    },
+    "nutrition": {
+      "hydrationTarget": "Drink about {amount} litres of water a day."
+    }
+  },
+  "staff": {
+    "calendar": {
+      "cancelled": "Cancelled"
+    }
+  },
+  "messaging": {
+    "compose": {
+      "noScopes": "You have no team, programme or camp to address yet."
+    },
+    "scope": {
+      "program": "Programme"
+    },
+    "alerts": {
+      "descriptionAdmin": "Send a banner and notification to the whole club, staff, parents, a team, a programme or a camp session.",
+      "descriptionCoach": "Send a banner and notification to your teams, programmes and camps.",
+      "audiences": {
+        "program": "A programme"
+      }
+    },
+    "errors": {
+      "scopeNotFound": "This team, programme or camp was not found.",
+      "coachAudience": "Coaches can send alerts to their own teams, programmes and camps."
+    }
+  },
+  "shop": {
+    "variant": "Size / colour",
+    "status": {
+      "cancelled": "Cancelled"
+    },
+    "movements": {
+      "release": "Released (order cancelled)"
+    },
+    "admin": {
+      "color": "Colour"
+    },
+    "orders": {
+      "events": {
+        "cancelled": "Cancelled"
+      },
+      "confirm": {
+        "cancelled": "Cancel this order? Its unpaid invoice is cancelled and the stock released."
+      }
+    }
+  },
+  "search": {
+    "placeholder": "Search people, programmes, teams, invoices, products, pages…",
+    "kinds": {
+      "program": "Programme"
+    }
+  },
+  "sports": {
+    "description": "The sports of the club, used to tag teams, programmes and assessments. Each sport can bring its own words (player, squad…).",
+    "deleteConfirm": "Delete {name}? Teams and programmes keep their text but lose the tag.",
+    "usage": "{count, plural, =0 {Not used yet} one {Used by # team or programme} other {Used by # teams or programmes}}",
+    "terms": {
+      "program": "Programme"
+    },
+    "locations": {
+      "postalCode": "Postcode"
+    },
+    "cards": {
+      "errors": {
+        "unknownCard": "Card not recognised (or not one of your athletes)."
+      }
+    }
+  },
+  "forms": {
+    "scopes": {
+      "program": "Programme / camp"
+    },
+    "list": {
+      "emptyHint": "Create a waiver or a physical form and assign it to a programme."
+    },
+    "completion": {
+      "description": "Who still has to fill in, renew or re-sign a form, per programme, team or service.",
+      "programme": "Programme",
+      "allProgrammes": "All programmes",
+      "emptyHint": "Assign a published form to a programme, team or all members."
+    },
+    "regForm": {
+      "resetConfirm": "Reset this programme to the default registration form? Custom questions are removed (answers already given are kept)."
+    },
+    "contracts": {
+      "programme": "Only for programme",
+      "anyProgramme": "Any programme of this type"
+    },
+    "import": {
+      "helpRegistrations": "one row per athlete and programme; athletes must already exist (import families first), programmes are matched by name or slug. Columns:",
+      "issues": {
+        "genderUnknown": "Unrecognised gender \"{value}\", left empty.",
+        "relationUnknown": "Unrecognised relation \"{value}\", saved as guardian.",
+        "programmeRequired": "Programme is required.",
+        "programmeUnknown": "No programme named \"{value}\".",
+        "programmeAmbiguous": "Several programmes are named \"{value}\": use the slug instead.",
+        "statusUnknown": "Unrecognised status \"{value}\": imported as confirmed.",
+        "duplicateRegistration": "Duplicate registration: same athlete and programme as line {line}."
+      }
+    }
+  },
+  "plans": {
+    "common": {
+      "seqOf": "Instalment {seq} of {count}",
+      "instalment": "Instalment",
+      "instalments": "Instalments",
+      "instalmentFee": "Instalment fee",
+      "payAllHint": "{count} instalments still open ({amount}). You can pay them all at once."
+    },
+    "status": {
+      "cancelled": "Cancelled"
+    },
+    "planStatus": {
+      "cancelled": "Cancelled"
+    },
+    "choose": {
+      "title": "Pay in instalments",
+      "intro": "Spread this invoice over several payments. Each instalment has its own due date, QR-bill and online payment.",
+      "option": "{count} instalments of about {amount}",
+      "countOnly": "{count} instalments",
+      "fee": "incl. instalment fee {amount}",
+      "schedule": "Instalment schedule",
+      "total": "Total with instalments",
+      "confirm": "Confirm {count} instalments",
+      "done": "Done: the invoice is now split into {count} instalments.",
+      "successNote": "You chose {count} instalments. The schedule and the payment slips are on your invoice."
+    },
+    "invoice": {
+      "planTitle": "Instalment plan",
+      "planSummary": "{count} instalments · plan total {total} · still open {outstanding}",
+      "allocationHint": "Payments are applied to the earliest open instalment; paying more moves the rest on to the next one.",
+      "highlightHint": "Your bank needs you to confirm this payment. Please pay the highlighted instalment online."
+    },
+    "admin": {
+      "description": "Instalment plans on invoices: progress, overdue instalments and failed card charges.",
+      "filter": {
+        "cancelled": "Cancelled"
+      },
+      "emptyHint": "Plans appear when a family chooses instalments or you split an invoice.",
+      "createTitle": "Split into instalments",
+      "count": "Number of instalments",
+      "fee": "Instalment fee",
+      "addRow": "Add instalment",
+      "removeRow": "Remove instalment",
+      "sumCheck": "Instalments add up to {sum} (must be {target})",
+      "created": "Instalment plan created.",
+      "planTitle": "Instalments · {invoice}",
+      "cancelledBecause": "Cancelled: {reason}",
+      "cancelPrompt": "Reason for cancelling (the invoice returns to its normal balance):",
+      "cancelEnrolment": "Cancel enrolment",
+      "cancelEnrolmentPrompt": "Reason for cancelling the enrolment (no further periods are invoiced):",
+      "cancelled": "Plan cancelled."
+    },
+    "settings": {
+      "title": "Instalments & autopay",
+      "description": "Which purchases families may pay in instalments, the schedule, fees, reminders and card autopay.",
+      "instalments": "Instalments",
+      "enabled": "Offer instalments",
+      "productTypesHint": "\"Any open invoice\" adds a \"Pay in instalments\" button on every open invoice that meets the minimum.",
+      "allowedCounts": "Numbers of instalments offered",
+      "feeKind": "Instalment fee",
+      "firstAtSignup": "First instalment due at signup",
+      "campDeadline": "Camps: last instalment at the latest (days before start)"
+    },
+    "recurring": {
+      "noTemplatesHint": "Create a fee such as a monthly team membership, then enrol a team.",
+      "programme": "Programme",
+      "applyToEnrolments": "Use the new amount for running enrolments",
+      "enrolTeam": "Enrol the whole team",
+      "enrolOne": "Enrol",
+      "enrolled": "{count, plural, =0 {Nobody new enrolled.} one {# enrolment created.} other {# enrolments created.}}",
+      "skipIssuedHint": "Skip an issued, unpaid period (its invoice is cancelled). For a paid period, issue a credit note on the invoice.",
+      "endEnrolment": "End enrolment",
+      "ended": "Enrolment end date saved."
+    },
+    "autopay": {
+      "consentedOn": "Authorised on {date} (wording v{version})",
+      "removeConfirm": "Remove the saved card? Future instalments are no longer charged automatically.",
+      "consentText": "I authorise {club} to charge my saved card automatically, through its payment provider Stripe, for my family's instalments and recurring club fees when they fall due. The amount and due date are shown in advance in the parent app. I can turn autopay off or remove the card at any time; payments already made are not affected.",
+      "twintNote": "TWINT can't be charged automatically: each TWINT payment is approved in the app. You can still pay any instalment with TWINT online or by QR-bill.",
+      "savedBanner": "Card saved. Your next instalments are charged automatically on their due dates."
+    },
+    "checkout": {
+      "label": "{club} — Invoice {invoice} · instalment {seq} of {count}"
+    },
+    "pdf": {
+      "note": "Instalment {seq} of {count} · due {date} · amount on this slip {amount}"
+    },
+    "parent": {
+      "description": "Your instalments, recurring club fees and the card used for automatic payments.",
+      "emptyHint": "When you pay an invoice in instalments or the club bills a monthly fee, it shows up here.",
+      "planFor": "Instalments · invoice {invoice}"
+    },
+    "email": {
+      "instalment": "Instalment"
+    },
+    "errors": {
+      "INVOICE_NOT_PAYABLE": "This invoice can no longer be paid in instalments.",
+      "PLAN_EXISTS": "This invoice already has an instalment plan.",
+      "PLANS_DISABLED": "The club doesn't offer instalments.",
+      "PRODUCT_NOT_ELIGIBLE": "Instalments aren't available for this purchase.",
+      "COUNT_NOT_ALLOWED": "This number of instalments isn't offered.",
+      "BELOW_MINIMUM": "The amount is below the club's minimum for instalments.",
+      "SCHEDULE_UNAVAILABLE": "No schedule is available for this number of instalments.",
+      "LAST_AFTER_DEADLINE": "The last instalment would fall too close to the start of the camp.",
+      "TOTAL_MISMATCH": "The instalments must add up to the amount due.",
+      "INVALID_COUNT": "Invalid number of instalments.",
+      "NOT_INSTALMENT_PLAN": "Only instalment plans can be rescheduled.",
+      "INSTALMENT_NOT_FOUND": "Instalment not found.",
+      "INSTALMENT_LOCKED": "Paid instalments can't be changed.",
+      "PROGRAM_NOT_FOUND": "Programme not found.",
+      "CONSENT_REQUIRED": "Please accept the autopay authorisation."
+    }
+  },
+  "media": {
+    "cover": {
+      "noImageYet": "No image yet: the club colours are shown instead."
+    },
+    "consent": {
+      "libraryNotice": "Images used on public pages (club hub, programme and camp pages) must not show identifiable children without media consent. You confirm this each time an image is put on a public page. Record the consent source in the note when it applies."
+    },
+    "library": {
+      "description": "Covers, banners and gallery images for your club pages, teams and programmes."
+    },
+    "profile": {
+      "tabTeams": "Teams & programmes",
+      "programmesTitle": "Programmes",
+      "enrol": "Enrol",
+      "notEnrolledHint": "This player isn't registered for any programme yet."
+    }
+  },
+  "operations": {
+    "rentals": {
+      "statuses": {
+        "cancelled": "Cancelled"
+      }
+    },
+    "closures": {
+      "opsHelp": "Programme sessions and camps cannot be cancelled here (manage them in their programme); training bookings cannot be moved by days.",
+      "opNotice": {
+        "cancel": "Sessions during this period are cancelled."
+      }
+    },
+    "conflicts": {
+      "kinds": {
+        "session": "Programme session"
+      }
+    },
+    "board": {
+      "meetingStatuses": {
+        "cancelled": "Cancelled"
+      },
+      "decisionStatuses": {
+        "cancelled": "Cancelled"
+      }
+    },
+    "customers": {
+      "postalCode": "Postcode",
+      "kinds": {
+        "organization": "Organisation"
+      }
+    },
+    "invoices": {
+      "statuses": {
+        "cancelled": "Cancelled"
+      }
+    },
+    "sponsors": {
+      "statuses": {
+        "cancelled": "Cancelled"
+      }
+    }
+  },
+  "clubadmin": {
+    "errors": {
+      "codes": {
+        "MEMBERSHIP_CANCELLED": "A cancelled membership cannot be renewed."
+      }
+    },
+    "membership": {
+      "noMembersHint": "Create a membership type, then enrol families or let parents join from their app.",
+      "enrolTitle": "Enrol a member",
+      "enrol": "Enrol and invoice",
+      "cancelled": "Membership cancelled.",
+      "statuses": {
+        "cancelled": "Cancelled"
+      }
+    },
+    "waitlist": {
+      "emptyHint": "Families join a waiting list when a programme or camp week is full.",
+      "kinds": {
+        "program": "Programme"
+      },
+      "parentEmptyHint": "If a programme or camp week is full you can join its waiting list below."
+    },
+    "js": {
+      "noOffers": "No programme is marked as a J+S offer yet.",
+      "offersHint": "Tick the programmes that are J+S offers. Session length is used when a session has no end time."
+    },
+    "compliance": {
+      "description": "Licences, first aid, criminal record extracts and child-protection training per coach, with expiry and verification.",
+      "kinds": {
+        "coaching_licence": "Coaching licence"
+      },
+      "myDescription": "Upload your licences and checks. An admin verifies them; you get reminders before they expire."
+    },
+    "incidents": {
+      "context": "Programme / team",
+      "program": "Programme or session"
+    }
+  },
+  "family": {
+    "errors": {
+      "EVENT_CLOSED": "This event is over or cancelled."
+    },
+    "messages": {
+      "matchCancelled": "Ride cancelled."
+    },
+    "privacy": {
+      "consents": {
+        "mediaHint": "Allow the club to publish photos and videos in which your child can be recognised (website, social media, print)."
+      },
+      "erasure": {
+        "intro": "The club reviews the request and then removes or anonymises your family's personal data, including the children's records, documents and photos."
+      }
+    },
+    "push": {
+      "event": {
+        "cancelled": {
+          "title": "Cancelled: {name}",
+          "body": "The event on {date} is cancelled."
+        }
+      },
+      "carpool": {
+        "cancelled": {
+          "title": "Carpool cancelled",
+          "body": "Your ride was cancelled. The board shows other options."
+        }
+      }
+    },
+    "carpool": {
+      "cancelledEvent": "This event is cancelled."
+    }
+  },
+  "accounting": {
+    "cancel": {
+      "submitting": "Cancelling…"
+    },
+    "dunning": {
+      "autopayNote": "Instalments that autopay is still charging or retrying are never dunned; for instalment plans only the overdue instalments count."
+    },
+    "errors": {
+      "codes": {
+        "INVOICE_NOT_PAYABLE": "This invoice cannot take this payment (cancelled, draft or another currency).",
+        "INVOICE_CANCELLED": "This invoice is cancelled.",
+        "REQUEST_EXISTS": "This has already been cancelled.",
+        "ALREADY_CANCELLED": "This is already cancelled."
+      }
+    }
+  },
+  "website": {
+    "nav": {
+      "programs": "Programmes"
+    },
+    "eventStatus": {
+      "cancelled": "Cancelled"
+    },
+    "sections": {
+      "programs": "Programmes"
+    },
+    "widgetNames": {
+      "programs": "Programmes"
+    },
+    "admin": {
+      "connection": {
+        "intro": "Show the club's programmes, camps, schedule, results, shop and news on your existing website. Data is entered once, here in the app; the website reads it through the public API and embeds."
+      },
+      "sections": {
+        "intro": "Choose which sections the website may show. Only items you marked public in the app appear (public programmes, public teams, public coaches, public news)."
+      },
+      "embed": {
+        "params": {
+          "program": "Programme (short name)"
+        }
+      }
+    }
+  },
+  "notifyEmail": {
+    "fallback": {
+      "program": "the programme"
+    },
+    "booking_cancellation": {
+      "title": "Booking cancelled",
+      "body": "{service} · {when} was cancelled.",
+      "subject": "Booking cancelled — {service}",
+      "heading": "Booking cancelled",
+      "line": "The booking for {service} ({when}) has been cancelled."
+    }
+  }
+}

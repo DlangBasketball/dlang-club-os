@@ -80,7 +80,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const dark = isDarkPalette(tenant.branding);
   return (
     <html
-      lang={i18n.locale}
+      lang={i18n.catalogLocale}
+      dir={i18n.dir}
       className={`${fontDisplay.variable} ${fontUi.variable} ${fontMono.variable}${dark ? " dark" : ""}`}
       style={{ ...cssVars, colorScheme: dark ? "dark" : "light" }}
       data-theme={dark ? "dark" : "light"}
@@ -97,7 +98,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <TenantProvider tenant={tenant}>
-          <I18nProvider ctx={i18n} messages={getMessages(i18n.locale)}>
+          <I18nProvider ctx={i18n} messages={getMessages(i18n.catalogLocale)}>
             <TenantGate tenant={tenant}>{children}</TenantGate>
             <CookieConsentBanner policyHref={`/legal/${tenant.slug}/cookies`} />
             <PwaRegister />

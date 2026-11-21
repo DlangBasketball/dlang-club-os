@@ -1,7 +1,8 @@
 import { formatDate, formatMoney, FORMAT_DEFAULTS } from "@/lib/format";
-import { brandStyle, type ClubBrand } from "@/lib/email/templates";
+import { brandStyle, emailTranslator, htmlLangAttrs, type ClubBrand } from "@/lib/email/templates";
 import { tenantLink } from "@/lib/tenant/url";
 import { PLATFORM_NAME } from "@/lib/brand";
+import type { MessageKey, TranslateValues, Translator } from "@/lib/i18n/translator";
 
 /**
  * Template keys. Nine product event types plus a freeform "announcement"
@@ -55,34 +56,54 @@ export type NotifVars = {
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
 
-const PLATFORM = () => PLATFORM_NAME;
-
 /**
  * Per-render tenant context: brand colour/logo, money and date formatting in
- * the club's currency / locale / time zone, and the club's own base URL for
+ * the club's currency / locale / time zone, the RECIPIENT's language
+ * (`language`, default English) and the club's own base URL for
  * call-to-action links. Built by dispatchNotification() from the org.
  */
 export type RenderContext = ClubBrand & { timeZone?: string | null; baseUrl?: string | null };
 
 // Set per render() call so every template's shell shows the issuing club.
 let current: RenderContext = {};
-const clubName = (v?: NotifVars) => v?.club_name?.trim() || current.clubName?.trim() || PLATFORM();
+let tr: Translator = emailTranslator({});
+const clubName = (v?: NotifVars) => v?.club_name?.trim() || current.clubName?.trim() || PLATFORM_NAME;
+
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const tidy = (s: string) => s.replace(/\s{2,}/g, " ").replace(/\s+([.,:;!?)])/g, "$1").trim();
+
+/** Plain-text translation (titles, bodies, subjects). */
+const txt = (key: MessageKey, values?: TranslateValues) => tidy(tr(key, values));
+
+/**
+ * HTML translation: the catalog text is escaped, values are escaped and set
+ * in <strong> (no string concatenation of translated fragments).
+ */
+function html(key: MessageKey, values: Record<string, string> = {}, plain: string[] = []): string {
+  const tokens: string[] = [];
+  const marked: TranslateValues = {};
+  for (const [k, v] of Object.entries(values)) {
+    marked[k] = `${tokens.length}`;
+    tokens.push(plain.includes(k) ? esc(v) : `<strong>${esc(v)}</strong>`);
+  }
+  return esc(tidy(tr(key, marked))).replace(/(\d+)/g, (_m, i: string) => tokens[Number(i)] ?? "");
+}
 
 function shell(heading: string, lines: string[], cta?: { label: string; href: string }): string {
-  const club = clubName();
+  const club = esc(clubName());
   const { brand: BRAND, bg: BG, logo } = brandStyle(current);
   const href = cta && current.baseUrl ? tenantLink(current.baseUrl, cta.href) : cta?.href;
   const body = lines.map((l) => `<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#D8D8D8;">${l}</p>`).join("");
   const button = cta
-    ? `<a href="${href}" style="display:inline-block;margin-top:8px;background:${BRAND};color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 20px;border-radius:8px;">${cta.label}</a>`
+    ? `<a href="${esc(href ?? "")}" style="display:inline-block;margin-top:8px;background:${BRAND};color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 20px;border-radius:8px;">${esc(cta.label)}</a>`
     : "";
   const header = logo
-    ? `<img src="${logo.replace(/"/g, "&quot;")}" alt="${club.replace(/"/g, "&quot;")}" height="40" style="display:block;height:40px;max-width:200px;border:0;" />`
+    ? `<img src="${esc(logo)}" alt="${club}" height="40" style="display:block;height:40px;max-width:200px;border:0;" />`
     : `<div style="font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:${BRAND};font-weight:700;">${club}</div>`;
-  return `<!doctype html><html><body style="margin:0;background:${BG};font-family:Helvetica,Arial,sans-serif;">
+  return `<!doctype html><html ${htmlLangAttrs(current)}><body style="margin:0;background:${BG};font-family:Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
     ${header}
-    <h1 style="margin:16px 0 18px;font-size:22px;color:#F1F1F1;">${heading}</h1>
+    <h1 style="margin:16px 0 18px;font-size:22px;color:#F1F1F1;">${esc(heading)}</h1>
     ${body}${button}
     <hr style="border:none;border-top:1px solid #222;margin:28px 0 14px;" />
     <p style="margin:0;font-size:12px;color:#777;">${club}</p>
@@ -93,7 +114,7 @@ const money = (n?: number) =>
   typeof n === "number" ? formatMoney(n, current.currency || FORMAT_DEFAULTS.currency, current.locale || FORMAT_DEFAULTS.locale) : "—";
 const day = (d?: string) =>
   d ? formatDate(d, { locale: current.locale || FORMAT_DEFAULTS.locale, timeZone: current.timeZone || FORMAT_DEFAULTS.timeZone }) : "—";
-const name = (v?: string) => v ?? "there";
+const greeting = (v: NotifVars) => html("email.greeting", { name: v.parent_name?.trim() || tr("email.defaultName") }, ["name"]);
 
 /** Replace {{variable}} placeholders in freeform text (admin broadcasts). */
 export function applyVars(text: string, vars: NotifVars): string {
@@ -108,119 +129,150 @@ export function applyVars(text: string, vars: NotifVars): string {
 
 type Builder = (v: NotifVars) => Rendered;
 
+const N = "notifyEmail" as const;
+
 export const TEMPLATES: Record<NotifType, Builder> = {
-  registration_confirmation: (v) => ({
-    title: "Registration confirmed",
-    body: `${v.athlete_name ?? "Your child"} is registered for ${v.program_name ?? "the program"}.`,
-    link: "/parent/children",
-    subject: `Registration confirmed — ${v.program_name ?? clubName(v)}`,
-    html: shell("You're all set!", [
-      `Hi ${name(v.parent_name)},`,
-      `${v.athlete_name ?? "Your child"} is now registered for <strong>${v.program_name ?? "the program"}</strong>.`,
-      v.invoice_number ? `Invoice <strong>${v.invoice_number}</strong> (${money(v.amount_due)}) has been issued.` : "We're excited to have you on the team.",
-    ], v.payment_link ? { label: "View invoice", href: v.payment_link } : undefined),
-  }),
+  registration_confirmation: (v) => {
+    const athlete = v.athlete_name ?? tr(`${N}.fallback.child`);
+    const program = v.program_name ?? tr(`${N}.fallback.program`);
+    return {
+      title: txt(`${N}.registration_confirmation.title`),
+      body: txt(`${N}.registration_confirmation.body`, { athlete, program }),
+      link: "/parent/children",
+      subject: txt(`${N}.registration_confirmation.subject`, { program: v.program_name ?? clubName(v) }),
+      html: shell(txt(`${N}.registration_confirmation.heading`), [
+        greeting(v),
+        html(`${N}.registration_confirmation.line`, { athlete, program }, ["athlete"]),
+        v.invoice_number
+          ? html(`${N}.registration_confirmation.invoiceLine`, { invoice: v.invoice_number, amount: money(v.amount_due) }, ["amount"])
+          : html(`${N}.registration_confirmation.welcome`),
+      ], v.payment_link ? { label: txt(`${N}.registration_confirmation.cta`), href: v.payment_link } : undefined),
+    };
+  },
   invoice_sent: (v) => ({
-    title: `Invoice ${v.invoice_number ?? ""} issued`.trim(),
-    body: `${money(v.amount_due)} due ${day(v.due_date)}.`,
+    title: txt(`${N}.invoice_sent.title`, { invoice: v.invoice_number ?? "" }),
+    body: txt(`${N}.invoice_sent.body`, { amount: money(v.amount_due), date: day(v.due_date) }),
     link: "/parent/invoices",
-    subject: `Invoice ${v.invoice_number ?? ""} — ${money(v.amount_due)} due`,
-    html: shell("New invoice", [
-      `Hi ${name(v.parent_name)},`,
-      `Invoice <strong>${v.invoice_number ?? ""}</strong> for <strong>${money(v.amount_due)}</strong> is now available.`,
-      `It is due on <strong>${day(v.due_date)}</strong>.`,
-    ], v.payment_link ? { label: "Pay now", href: v.payment_link } : undefined),
+    subject: txt(`${N}.invoice_sent.subject`, { invoice: v.invoice_number ?? "", amount: money(v.amount_due) }),
+    html: shell(txt(`${N}.invoice_sent.heading`), [
+      greeting(v),
+      html(`${N}.invoice_sent.line`, { invoice: v.invoice_number ?? "", amount: money(v.amount_due) }),
+      html(`${N}.invoice_sent.due`, { date: day(v.due_date) }),
+    ], v.payment_link ? { label: txt(`${N}.invoice_sent.cta`), href: v.payment_link } : undefined),
   }),
   payment_received: (v) => ({
-    title: "Payment received",
-    body: `Thank you — we received your payment for ${v.invoice_number ?? "your invoice"}.`,
+    title: txt(`${N}.payment_received.title`),
+    body: txt(`${N}.payment_received.body`, { invoice: v.invoice_number ?? tr(`${N}.fallback.invoice`) }),
     link: "/parent/invoices",
-    subject: `Payment received — ${v.invoice_number ?? "thank you"}`,
-    html: shell("Payment received", [
-      `Hi ${name(v.parent_name)},`,
-      `We've received <strong>${money(v.amount_due)}</strong> toward invoice <strong>${v.invoice_number ?? ""}</strong>. Thank you!`,
+    subject: v.invoice_number
+      ? txt(`${N}.payment_received.subject`, { invoice: v.invoice_number })
+      : txt(`${N}.payment_received.subjectThanks`),
+    html: shell(txt(`${N}.payment_received.heading`), [
+      greeting(v),
+      html(`${N}.payment_received.line`, { amount: money(v.amount_due), invoice: v.invoice_number ?? "" }),
     ]),
   }),
   payment_overdue: (v) => ({
-    title: `Payment overdue — ${v.invoice_number ?? ""}`.trim(),
-    body: `${money(v.amount_due)} was due ${day(v.due_date)}.`,
+    title: txt(`${N}.payment_overdue.title`, { invoice: v.invoice_number ?? "" }),
+    body: txt(`${N}.payment_overdue.body`, { amount: money(v.amount_due), date: day(v.due_date) }),
     link: "/parent/invoices",
-    subject: `Reminder: invoice ${v.invoice_number ?? ""} is overdue`,
-    html: shell("Payment reminder", [
-      `Hi ${name(v.parent_name)},`,
-      `Our records show invoice <strong>${v.invoice_number ?? ""}</strong> for <strong>${money(v.amount_due)}</strong> was due on <strong>${day(v.due_date)}</strong> and is still open.`,
-      `If you've already paid, please disregard this note.`,
-    ], v.payment_link ? { label: "Pay now", href: v.payment_link } : undefined),
+    subject: txt(`${N}.payment_overdue.subject`, { invoice: v.invoice_number ?? "" }),
+    html: shell(txt(`${N}.payment_overdue.heading`), [
+      greeting(v),
+      html(`${N}.payment_overdue.line`, { invoice: v.invoice_number ?? "", amount: money(v.amount_due), date: day(v.due_date) }),
+      html(`${N}.payment_overdue.disregard`),
+    ], v.payment_link ? { label: txt(`${N}.payment_overdue.cta`), href: v.payment_link } : undefined),
   }),
-  booking_confirmation: (v) => ({
-    title: "Training session booked",
-    body: `${v.service_name ?? "Session"} with ${v.coach_name ?? "your coach"} · ${v.when ?? ""}`.trim(),
-    link: "/parent/bookings",
-    subject: `Booking confirmed — ${v.service_name ?? "training"}`,
-    html: shell("Session booked", [
-      `Hi ${name(v.parent_name)},`,
-      `${v.athlete_name ?? "Your child"} is booked for <strong>${v.service_name ?? "a session"}</strong> with ${v.coach_name ?? "a coach"}.`,
-      `When: <strong>${v.when ?? "—"}</strong>.`,
-    ], { label: "View booking", href: "/parent/bookings" }),
-  }),
+  booking_confirmation: (v) => {
+    const service = v.service_name ?? tr(`${N}.fallback.session`);
+    return {
+      title: txt(`${N}.booking_confirmation.title`),
+      body: txt(`${N}.booking_confirmation.body`, { service, coach: v.coach_name ?? tr(`${N}.fallback.yourCoach`), when: v.when ?? "" }),
+      link: "/parent/bookings",
+      subject: txt(`${N}.booking_confirmation.subject`, { service: v.service_name ?? tr(`${N}.fallback.training`) }),
+      html: shell(txt(`${N}.booking_confirmation.heading`), [
+        greeting(v),
+        html(`${N}.booking_confirmation.line`, {
+          athlete: v.athlete_name ?? tr(`${N}.fallback.child`),
+          service: v.service_name ?? tr(`${N}.fallback.aSession`),
+          coach: v.coach_name ?? tr(`${N}.fallback.aCoach`),
+        }, ["athlete", "coach"]),
+        html(`${N}.booking_confirmation.when`, { when: v.when ?? "—" }),
+      ], { label: txt(`${N}.booking_confirmation.cta`), href: "/parent/bookings" }),
+    };
+  },
   booking_cancellation: (v) => ({
-    title: "Booking cancelled",
-    body: `${v.service_name ?? "Session"} · ${v.when ?? ""} was cancelled.`.trim(),
+    title: txt(`${N}.booking_cancellation.title`),
+    body: txt(`${N}.booking_cancellation.body`, { service: v.service_name ?? tr(`${N}.fallback.session`), when: v.when ?? "" }),
     link: "/parent/bookings",
-    subject: `Booking cancelled — ${v.service_name ?? "training"}`,
-    html: shell("Booking cancelled", [
-      `Hi ${name(v.parent_name)},`,
-      `The booking for <strong>${v.service_name ?? "a session"}</strong> (${v.when ?? "—"}) has been cancelled.`,
-    ], { label: "Book again", href: "/parent/bookings/new" }),
+    subject: txt(`${N}.booking_cancellation.subject`, { service: v.service_name ?? tr(`${N}.fallback.training`) }),
+    html: shell(txt(`${N}.booking_cancellation.heading`), [
+      greeting(v),
+      html(`${N}.booking_cancellation.line`, { service: v.service_name ?? tr(`${N}.fallback.aSession`), when: v.when ?? "—" }, ["when"]),
+    ], { label: txt(`${N}.booking_cancellation.cta`), href: "/parent/bookings/new" }),
   }),
-  attendance_submitted: (v) => ({
-    title: "Attendance updated",
-    body: `Attendance for ${v.athlete_name ?? "your child"} was recorded${v.program_name ? ` for ${v.program_name}` : ""}.`,
-    link: "/parent/attendance",
-    subject: `Attendance recorded${v.program_name ? ` — ${v.program_name}` : ""}`,
-    html: shell("Attendance recorded", [
-      `Hi ${name(v.parent_name)},`,
-      `Today's attendance for <strong>${v.athlete_name ?? "your child"}</strong>${v.program_name ? ` in ${v.program_name}` : ""} has been recorded.`,
-    ], { label: "View attendance", href: "/parent/attendance" }),
-  }),
+  attendance_submitted: (v) => {
+    const athlete = v.athlete_name ?? tr(`${N}.fallback.childLower`);
+    const p = v.program_name;
+    return {
+      title: txt(`${N}.attendance_submitted.title`),
+      body: p ? txt(`${N}.attendance_submitted.bodyProgram`, { athlete, program: p }) : txt(`${N}.attendance_submitted.body`, { athlete }),
+      link: "/parent/attendance",
+      subject: p ? txt(`${N}.attendance_submitted.subjectProgram`, { program: p }) : txt(`${N}.attendance_submitted.subject`),
+      html: shell(txt(`${N}.attendance_submitted.heading`), [
+        greeting(v),
+        p
+          ? html(`${N}.attendance_submitted.lineProgram`, { athlete, program: p }, ["program"])
+          : html(`${N}.attendance_submitted.line`, { athlete }),
+      ], { label: txt(`${N}.attendance_submitted.cta`), href: "/parent/attendance" }),
+    };
+  },
   document_uploaded: (v) => ({
-    title: "New document available",
-    body: `${v.document_name ?? "A document"} was added to your family file.`,
+    title: txt(`${N}.document_uploaded.title`),
+    body: txt(`${N}.document_uploaded.body`, { document: v.document_name ?? tr(`${N}.fallback.document`) }),
     link: "/parent/documents",
-    subject: `New document — ${v.document_name ?? clubName(v)}`,
-    html: shell("New document", [
-      `Hi ${name(v.parent_name)},`,
-      `<strong>${v.document_name ?? "A new document"}</strong> has been added to your family's records.`,
-    ], { label: "View documents", href: "/parent/documents" }),
+    subject: txt(`${N}.document_uploaded.subject`, { document: v.document_name ?? clubName(v) }),
+    html: shell(txt(`${N}.document_uploaded.heading`), [
+      greeting(v),
+      html(`${N}.document_uploaded.line`, { document: v.document_name ?? tr(`${N}.fallback.newDocument`) }),
+    ], { label: txt(`${N}.document_uploaded.cta`), href: "/parent/documents" }),
   }),
   consent_required: (v) => ({
-    title: "Action needed: consent required",
-    body: `Please review and sign: ${v.consent_name ?? "a consent form"}.`,
+    title: txt(`${N}.consent_required.title`),
+    body: txt(`${N}.consent_required.body`, { consent: v.consent_name ?? tr(`${N}.fallback.consent`) }),
     link: "/parent/documents",
-    subject: `Action needed — ${v.consent_name ?? "consent required"}`,
-    html: shell("Consent required", [
-      `Hi ${name(v.parent_name)},`,
-      `We need your consent for <strong>${v.consent_name ?? "a required form"}</strong>${v.athlete_name ? ` for ${v.athlete_name}` : ""}.`,
-      `Please review and sign at your earliest convenience.`,
-    ], { label: "Review now", href: "/parent/documents" }),
+    subject: txt(`${N}.consent_required.subject`, { consent: v.consent_name ?? tr(`${N}.fallback.consentRequired`) }),
+    html: shell(txt(`${N}.consent_required.heading`), [
+      greeting(v),
+      v.athlete_name
+        ? html(`${N}.consent_required.lineAthlete`, { consent: v.consent_name ?? tr(`${N}.fallback.requiredForm`), athlete: v.athlete_name }, ["athlete"])
+        : html(`${N}.consent_required.line`, { consent: v.consent_name ?? tr(`${N}.fallback.requiredForm`) }),
+      html(`${N}.consent_required.sign`),
+    ], { label: txt(`${N}.consent_required.cta`), href: "/parent/documents" }),
   }),
   announcement: (v) => ({
-    title: v.title ?? `A message from ${clubName(v)}`,
+    title: v.title ?? txt(`${N}.announcement.title`, { club: clubName(v) }),
     body: applyVars(v.message ?? "", v),
     link: "/parent/notifications",
-    subject: v.title ?? `A message from ${clubName(v)}`,
-    html: shell(v.title ?? "A message from your club", [
-      `Hi ${name(v.parent_name)},`,
-      applyVars(v.message ?? "", v).replace(/\n/g, "<br/>"),
+    subject: v.title ?? txt(`${N}.announcement.title`, { club: clubName(v) }),
+    html: shell(v.title ?? txt(`${N}.announcement.heading`), [
+      greeting(v),
+      esc(applyVars(v.message ?? "", v)).replace(/\n/g, "<br/>"),
     ]),
   }),
 };
 
+/**
+ * Render one notification in the recipient's language (`ctx.language`,
+ * default English) with the club's formats.
+ */
 export function render(type: NotifType, vars: NotifVars, ctx: RenderContext = {}): Rendered {
   current = { ...ctx, clubName: vars.club_name?.trim() || ctx.clubName || null };
+  tr = emailTranslator(current);
   try {
     return TEMPLATES[type](vars);
   } finally {
     current = {};
+    tr = emailTranslator({});
   }
 }

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createTranslator, type Messages, type Translator } from "./translator";
 import { createFormatter, type Formatter } from "@/lib/format";
-import { DEFAULT_LOCALE, LOCALES, type Locale, type LocaleContext } from "./config";
+import { BASE_LOCALES, DEFAULT_LOCALE, type Locale, type LocaleContext } from "./config";
 
 type I18nValue = {
   ctx: LocaleContext;
@@ -40,11 +40,13 @@ export function I18nProvider({
 
 const FALLBACK_CTX: LocaleContext = {
   locale: DEFAULT_LOCALE,
+  catalogLocale: "en-GB",
+  dir: "ltr",
   intlLocale: "en-CH",
   currency: "CHF",
   timeZone: "Europe/Zurich",
   country: "CH",
-  languages: [...LOCALES],
+  languages: [...BASE_LOCALES],
   orgId: null,
 };
 

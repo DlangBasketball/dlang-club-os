@@ -8,7 +8,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { sendEmail } from "@/lib/email/resend";
 import { getOrgEmailContext } from "@/lib/email/org-context";
 import { bookingConfirmation, coachBookingAlert } from "@/lib/email/templates";
-import { getTranslations } from "@/lib/i18n/server";
+import { getLocaleContext, getTranslations } from "@/lib/i18n/server";
 import { availabilitySchema, bookingEditSchema, dbErrorKey, requiredReasonSchema, serviceSchema, zodErrorKey, type BookingEditInput, type ServiceInput } from "@/lib/club-ops/validation";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
@@ -100,12 +100,15 @@ export async function bookSession(athleteId: string, serviceId: string, slotId: 
       admin.from("training_services").select("name").eq("id", serviceId).maybeSingle(),
     ]);
     const { data: booking } = await admin.from("training_bookings").select("coach_id,slot_start").eq("id", res.booking_id ?? "").maybeSingle();
-    const athleteName = athlete ? `${(athlete as { first_name: string }).first_name} ${(athlete as { last_name: string }).last_name}` : "your child";
-    const serviceName = (svc as { name?: string } | null)?.name ?? "Training session";
-    const org = await getOrgEmailContext(me.orgId);
-    const when = booking ? org.f.dateTime((booking as { slot_start: string }).slot_start) : "soon";
+    // The parent who booked reads the email in their current language; the coach in the club default.
+    const org = await getOrgEmailContext(me.orgId, (await getLocaleContext(me.orgId)).locale);
+    const coachOrg = await getOrgEmailContext(me.orgId);
+    const t = await getTranslations(me.orgId);
+    const athleteName = athlete ? `${(athlete as { first_name: string }).first_name} ${(athlete as { last_name: string }).last_name}` : t("email.booking.yourChild");
+    const serviceName = (svc as { name?: string } | null)?.name ?? t("email.booking.session");
+    const when = booking ? org.f.dateTime((booking as { slot_start: string }).slot_start) : t("email.booking.soon");
 
-    let coachName = "your coach";
+    let coachName = t("email.booking.yourCoach");
     let coachEmail: string | null = null;
     if (booking) {
       const { data: coach } = await admin.from("coaches").select("display_name,profile_id").eq("id", (booking as { coach_id: string }).coach_id).maybeSingle();
@@ -116,12 +119,13 @@ export async function bookSession(athleteId: string, serviceId: string, slotId: 
         coachEmail = (cp as { email?: string } | null)?.email ?? null;
       }
     }
-    const payNote = payWith === "credits" ? `Paid with ${res.credits_used ?? 0} training credit(s).` : `An invoice for ${org.f.money(res.price_chf ?? 0)} has been issued.`;
+    const payNote = payWith === "credits" ? t("email.booking.paidCredits", { count: res.credits_used ?? 0 }) : t("training.email.payInvoice", { amount: org.f.money(res.price_chf ?? 0) });
     const clubName = org.clubName;
-    const parent = bookingConfirmation({ ...org.brand, parentName: me.fullName ?? "there", athleteName, serviceName, coachName, when, payNote });
+    const parent = bookingConfirmation({ ...org.brand, parentName: me.fullName ?? "", athleteName, serviceName, coachName, when, payNote });
     if (me.email) await sendEmail({ to: me.email, subject: parent.subject, html: parent.html, fromName: org.senderName ?? clubName });
     if (coachEmail) {
-      const alert = coachBookingAlert({ ...org.brand, coachName, athleteName, serviceName, when });
+      const coachWhen = booking ? coachOrg.f.dateTime((booking as { slot_start: string }).slot_start) : when;
+      const alert = coachBookingAlert({ ...coachOrg.brand, coachName, athleteName, serviceName, when: coachWhen });
       await sendEmail({ to: coachEmail, subject: alert.subject, html: alert.html, fromName: org.senderName ?? clubName });
     }
   } catch { /* email is best-effort */ }

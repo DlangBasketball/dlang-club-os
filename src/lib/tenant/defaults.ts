@@ -1,5 +1,6 @@
 import type { Tenant, TenantBranding, Terminology } from "./types";
 import { PLATFORM_NAME } from "@/lib/brand";
+import { LOCALES, nativeName } from "@/lib/i18n/languages";
 
 /** Product name shown when no tenant can be resolved. Not a club name. */
 export { PLATFORM_NAME };
@@ -85,20 +86,8 @@ export const TERMINOLOGY_PRESETS: { id: string; label: string; terms: Partial<Te
 
 export const SUPPORTED_CURRENCIES = ["CHF", "EUR", "USD", "GBP", "CAD", "AUD", "SEK", "NOK", "DKK", "PLN", "CZK"] as const;
 
-export const SUPPORTED_LOCALES = [
-  { code: "en", label: "English" },
-  { code: "en-US", label: "English (US)" },
-  { code: "en-GB", label: "English (UK)" },
-  { code: "fr", label: "Français" },
-  { code: "fr-CH", label: "Français (Suisse)" },
-  { code: "de", label: "Deutsch" },
-  { code: "de-CH", label: "Deutsch (Schweiz)" },
-  { code: "it", label: "Italiano" },
-  { code: "it-CH", label: "Italiano (Svizzera)" },
-  { code: "es", label: "Español" },
-  { code: "nl", label: "Nederlands" },
-  { code: "pt", label: "Português" },
-] as const;
+/** Languages with a catalog, from the registry (src/lib/i18n/languages.ts); labels are endonyms. */
+export const SUPPORTED_LOCALES: readonly { code: string; label: string }[] = LOCALES.map((code) => ({ code, label: nativeName(code) }));
 
 export const COMMON_TIMEZONES = [
   "Europe/Zurich",

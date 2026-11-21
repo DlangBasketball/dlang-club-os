@@ -55,6 +55,7 @@ export async function renderOpsInvoicePdf(id: string, orgId: string): Promise<Ne
     total: inv.total, paid: inv.status === "paid" ? inv.total : 0, balance, qrBill,
     club: { name: settings.creditorName || profile.name, city: settings.creditorCity, country: settings.creditorCountry },
     currency, brandColor: branding.colors.primary, platformName: APP_NAME,
+    i18n: await getI18n(orgId),
   });
   return new NextResponse(Buffer.from(bytes), {
     headers: { "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${inv.number}.pdf"`, "Cache-Control": "private, no-store" },

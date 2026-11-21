@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { getTranslations } from "@/lib/i18n/server";
+import { getLocaleContext, getTranslations } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -190,7 +190,10 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
   try {
     const childNames = data.children.map((c) => `${c.firstName} ${c.lastName}`);
     // The club's own name, brand, currency, time zone and host (never the platform apex).
-    const org = await getOrgEmailContext(program.org_id);
+    // The parent reads the confirmation in the language they registered in; the
+    // staff alert goes out in the club default language.
+    const org = await getOrgEmailContext(program.org_id, (await getLocaleContext(program.org_id)).locale);
+    const staffOrg = await getOrgEmailContext(program.org_id);
     const clubName = org.clubName;
     const conf = registrationConfirmation({
       ...org.brand,
@@ -209,7 +212,7 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
     const adminInboxes = await getOrgAlertRecipients(program.org_id);
     if (adminInboxes.length) {
       const alert = adminRegistrationAlert({
-        ...org.brand,
+        ...staffOrg.brand,
         programName: program.name,
         parentName: data.parent.name,
         children: childNames,

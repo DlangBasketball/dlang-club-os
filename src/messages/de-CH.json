@@ -1,0 +1,390 @@
+{
+  "common": {
+    "close": "Schliessen",
+    "total": "Total",
+    "subtotal": "Zwischentotal"
+  },
+  "shell": {
+    "closeMenu": "Menü schliessen"
+  },
+  "invoices": {
+    "total": "Total"
+  },
+  "email": {
+    "registrationConfirmation": {
+      "cta": "Zahlung abschliessen & Konto einrichten"
+    },
+    "overdueReminder": {
+      "intro": "Hallo {name}, gemäss unseren Unterlagen ist die Rechnung {invoice} überfällig."
+    }
+  },
+  "appSettings": {
+    "ai": {
+      "description": "Ermöglicht Administratoren und dem Finanzteam, Fragen zum Vereinsbetrieb zu stellen. Die Antworten stammen ausschliesslich aus den Daten Ihres Vereins."
+    }
+  },
+  "aiAssistant": {
+    "intro": "Stellen Sie Fragen zum Vereinsbetrieb. Die Antworten stammen ausschliesslich aus den Daten Ihres Vereins."
+  },
+  "editPeople": {
+    "athlete": {
+      "jerseySize": "Trikotgrösse"
+    },
+    "documents": {
+      "tooLarge": "Datei zu gross (max. 25 MB)",
+      "close": "Schliessen"
+    }
+  },
+  "athletePhoto": {
+    "errors": {
+      "size": "Das Foto ist auch nach dem Verkleinern grösser als 2 MB."
+    }
+  },
+  "editOps": {
+    "errors": {
+      "windowOrder": "Die Anmeldung muss nach der Öffnung schliessen."
+    },
+    "registration": {
+      "ageOutOfRange": "Das Alter eines Kindes liegt ausserhalb der Altersgruppe dieses Angebots. Bitte kontaktieren Sie den Verein."
+    },
+    "events": {
+      "addressPlaceholder": "Strasse, PLZ, Ort"
+    }
+  },
+  "editMoney": {
+    "invoice": {
+      "total": "Total",
+      "saveDraftConfirm": "Entwurf mit einem Total von {amount} speichern?",
+      "originalTotal": "Rechnungstotal"
+    },
+    "training": {
+      "modeTotal": "Total festlegen",
+      "newTotal": "Neues Total",
+      "current": "Total {total}, verwendet {used}, übrig {balance}",
+      "after": "danach: Total {total}, übrig {balance}"
+    },
+    "errors": {
+      "INVALID_AMOUNT": "Geben Sie einen Betrag grösser als null ein.",
+      "INVALID_TOTAL": "Das Total darf nicht negativ sein, und jede Position braucht eine Menge grösser als null.",
+      "INVALID_QUANTITY": "Mengen müssen grösser als null sein.",
+      "BELOW_USED": "Das Total kann nicht unter dem bereits verwendeten Guthaben liegen."
+    }
+  },
+  "pwa": {
+    "install": {
+      "close": "Schliessen"
+    }
+  },
+  "camps": {
+    "discounts": {
+      "maxRedemptions": "Max. Einlösungen (total)"
+    },
+    "errors": {
+      "db": {
+        "CREDIT_EXCEEDS_AMOUNT_DUE": "Der Rabatt ist grösser als der offene Betrag."
+      }
+    }
+  },
+  "training": {
+    "service": {
+      "locationPlaceholder": "z. B. Aussenplatz, Strasse, Ort"
+    },
+    "book": {
+      "override": "Ausserhalb der veröffentlichten Verfügbarkeit buchen"
+    }
+  },
+  "finance": {
+    "dashboard": {
+      "totalStudents": "Mitglieder total"
+    },
+    "errors": {
+      "fileTooLarge": "Die Datei ist grösser als 10 MB."
+    }
+  },
+  "development": {
+    "meals": {
+      "morning_snack": "Znüni",
+      "afternoon_snack": "Zvieri"
+    },
+    "errors": {
+      "score": "Eine Note liegt ausserhalb der Skala.",
+      "videoSize": "Das Video darf höchstens 100 MB gross sein."
+    }
+  },
+  "staff": {
+    "errors": {
+      "openEntries": "Schliesse laufende Schichten ab und korrigiere fehlende Ausstempelungen vor der Freigabe.",
+      "fileTooLarge": "Die Datei ist grösser als 10 MB."
+    },
+    "clubEvents": {
+      "types": {
+        "international": "Internationaler Anlass",
+        "social": "Clubanlass",
+        "holiday": "Ferien / Schliessung"
+      }
+    }
+  },
+  "messaging": {
+    "thread": {
+      "close": "Unterhaltung schliessen"
+    },
+    "preferences": {
+      "quietHint": "Keine E-Mails in diesen Stunden (ausser dringende Meldungen). Leer lassen für die Einstellung des Vereins."
+    },
+    "alerts": {
+      "alsoEmail": "Auch per E-Mail senden (gemäss den Einstellungen jeder Person)"
+    },
+    "errors": {
+      "fileTooLarge": "Die Datei ist grösser als 2 MB."
+    }
+  },
+  "shop": {
+    "variant": "Grösse / Farbe",
+    "admin": {
+      "size": "Grösse"
+    },
+    "csv": {
+      "lineTotal": "Positionstotal"
+    },
+    "errors": {
+      "imageSize": "Das Foto darf höchstens 3 MB gross sein."
+    }
+  },
+  "search": {
+    "hint": "Mindestens 2 Zeichen eingeben. ↑↓ bewegen, Enter öffnen, Esc schliessen."
+  },
+  "sports": {
+    "locations": {
+      "address": "Strasse und Nummer",
+      "errors": {
+        "photoSize": "Das Foto darf höchstens 3 MB gross sein."
+      }
+    }
+  },
+  "forms": {
+    "builtin": {
+      "jerseySize": "Trikotgrösse"
+    },
+    "errors": {
+      "minMax": "Minimum darf nicht grösser als Maximum sein.",
+      "numberRange": "Die Zahl liegt ausserhalb des Bereichs.",
+      "signatureTooLarge": "Das Unterschriftsbild ist zu gross."
+    },
+    "contracts": {
+      "sample": {
+        "address": "Musterstrasse 1"
+      }
+    },
+    "import": {
+      "errors": {
+        "tooLarge": "Die Datei ist grösser als {mb} MB. Teile sie in mehrere Dateien auf."
+      },
+      "issues": {
+        "fileTooLarge": "Die Datei ist grösser als {mb} MB. Teile sie in mehrere Dateien auf.",
+        "ambiguousFamily": "Mehrere bestehende Familien heissen \"{name}\": eine neue Familie wird erstellt.",
+        "programmeAmbiguous": "Mehrere Programme heissen \"{value}\": stattdessen das Kürzel verwenden."
+      }
+    }
+  },
+  "media": {
+    "library": {
+      "uploadedPartial": "{count, plural, one {# Bild hinzugefügt} other {# Bilder hinzugefügt}}, {failed} übersprungen (nicht unterstützt oder zu gross).",
+      "emptyText": "Lade ein paar Fotos von Hallen, Mannschaften oder Anlässen hoch, um deine Seiten lebendig zu machen."
+    },
+    "profile": {
+      "jerseySize": "Trikotgrösse"
+    },
+    "errors": {
+      "size": "Das Bild ist auch nach dem Verkleinern zu gross (max. 5 MB).",
+      "sourceTooLarge": "Diese Datei ist zu gross für die Verarbeitung (max. 40 MB)."
+    }
+  },
+  "operations": {
+    "hub": {
+      "kitPending": "Offene Trikotgrössen",
+      "closures": "Hallenschliessungen"
+    },
+    "kit": {
+      "description": "Pro Saison und Team: Rückennummern, Grössen von den Familien, Ausgabe und Rückgabe, optionales Depot.",
+      "sizes": "Grössen",
+      "jerseySize": "Trikotgrösse",
+      "shortsSize": "Hosengrösse",
+      "warmupSize": "Grösse Trainingsanzug",
+      "requestTitle": "Grössen bei den Familien anfragen",
+      "requestHelp": "Erstellt Bekleidung für alle Spieler/innen im Kader (freie Kadernummern bleiben) und fragt die Erziehungsberechtigten in der App nach den Grössen.",
+      "request": "Grössen anfragen",
+      "includeWarmup": "Trainingsanzug einschliessen",
+      "parentDescription": "Die Teambekleidung Ihrer Kinder: Nummer, Stand und Grössen.",
+      "sendSizes": "Grössen senden",
+      "statuses": {
+        "sizes_requested": "Grössen angefragt",
+        "sizes_submitted": "Grössen erhalten"
+      },
+      "moveTo": {
+        "sizes_requested": "Grössen erneut anfragen"
+      }
+    },
+    "facilities": {
+      "description": "Wöchentliche Hallenzeiten pro Team, externe Vermietungen und Hallenschliessungen."
+    },
+    "closures": {
+      "title": "Hallenschliessungen",
+      "help": "Schliessen Sie eine Halle für Ferien, Unterhalt oder einen Notfall, und sagen Sie dann alles Betroffene ab oder verschieben Sie es und informieren Familien und Trainer in einem Schritt.",
+      "empty": "Keine Schliessungen geplant.",
+      "create": "Halle schliessen",
+      "nothing": "Während der Schliessung ist in dieser Halle nichts geplant.",
+      "weeklySlots": "Hallenzeiten während der Schliessung",
+      "reasons": {
+        "holiday": "Ferienschliessung",
+        "emergency": "Notfallschliessung",
+        "other": "Schliessung"
+      }
+    },
+    "board": {
+      "agenda": "Traktanden",
+      "agendaHint": "Ein Traktandum pro Zeile.",
+      "noAgenda": "Noch keine Traktanden.",
+      "confirmInvitation": "Einladung mit Datum, Ort und Traktanden jetzt an alle Clubmitglieder senden?",
+      "roles": {
+        "treasurer": "Kassier/in"
+      },
+      "meetingKinds": {
+        "extraordinary": "Ausserordentliche Versammlung"
+      }
+    },
+    "customers": {
+      "street": "Strasse"
+    },
+    "sponsors": {
+      "deliverableKinds": {
+        "event": "Präsenz an Anlass"
+      }
+    },
+    "notify": {
+      "kitSizesTitle": "Trikotgrössen benötigt · {team}",
+      "kitSizesBody": "Bitte senden Sie die Grössen Ihres Kindes in der App."
+    },
+    "messages": {
+      "sizesSent": "Danke, die Grössen wurden gesendet."
+    },
+    "errors": {
+      "kitLocked": "Die Grössen können nicht mehr geändert werden.",
+      "invalidSize": "Geben Sie für jedes Teil eine Grösse ein (z. B. S, YM, 152).",
+      "closureApplied": "Eine bereits bearbeitete Schliessung kann nicht gelöscht werden."
+    }
+  },
+  "clubadmin": {
+    "errors": {
+      "fileSize": "Die Datei ist zu gross (max. 2,5 MB)."
+    },
+    "js": {
+      "totals": "Total: {hours} Stunden, {ph} Teilnehmerstunden, Schätzung {est}.",
+      "estimateHint": "Berechtigt: Jahr des Trainings minus Geburtsjahr zwischen {min} und {max} [Verify with J+S/NDS]. Teilnehmende ausserhalb stehen in Klammern. Die Schätzung nutzt den Ansatz pro Teilnehmerstunde aus den Einstellungen.",
+      "includeAhv": "AHV-Nummern einschliessen (nur mit Einwilligung gespeicherte; der Export wird protokolliert)"
+    },
+    "incidents": {
+      "bodyParts": {
+        "ankle": "Fussgelenk",
+        "foot": "Fuss"
+      },
+      "referrals": {
+        "hospital": "Spital"
+      }
+    }
+  },
+  "family": {
+    "relations": {
+      "grandparent": "Grosselternteil"
+    },
+    "split": {
+      "even": "Gleichmässig aufteilen"
+    },
+    "privacy": {
+      "erasure": {
+        "intro": "Der Verein prüft den Antrag und löscht oder anonymisiert dann die Personendaten Ihrer Familie, einschliesslich der Daten, Dokumente und Fotos der Kinder."
+      }
+    },
+    "push": {
+      "optIn": {
+        "platforms": "Funktioniert auf Android und in Desktop-Browsern. Unten wählen Sie, welche Themen eine Push-Mitteilung senden dürfen; während Ihrer Ruhezeiten kommt nichts ausser dringenden Hinweisen."
+      }
+    },
+    "scout": {
+      "intro": "Eine Seite, die Sie mit Scouts, Schulen oder Vereinen teilen können. Sie ist standardmässig aus, zeigt nur, was Sie wählen, läuft ab und kann jederzeit zurückgezogen werden. Medizinische Daten werden nie gezeigt."
+    },
+    "pages": {
+      "carpool": {
+        "description": "Fahrten zu Auswärtsspielen und Anlässen mit anderen Familien des Aufgebots teilen."
+      }
+    }
+  },
+  "accounting": {
+    "overview": {
+      "cards": {
+        "periods": {
+          "body": "Einen Monat abschliessen, damit nichts mehr geändert werden kann, was darin datiert ist."
+        }
+      }
+    },
+    "chart": {
+      "accounts": {
+        "6840": "Bank- und Zahlungsspesen"
+      }
+    },
+    "periods": {
+      "close": "Monat abschliessen",
+      "closeConfirm": "{month} abschliessen? Darin datierte Rechnungen, Zahlungen und Ausgaben werden gesperrt."
+    },
+    "dunning": {
+      "resolve": "Fall schliessen"
+    },
+    "support": {
+      "description": "Ermässigte Beiträge für Familien (Stipendium, Gemeindebeitrag, J+S-finanzierte Ermässigung …), als Gutschrift auf ihre Rechnungen, und Rückvergütungen, die Sie von Gemeinde, Kanton oder Stiftung erwarten.",
+      "reasons": {
+        "js_reduction": "J+S-finanzierte Ermässigung"
+      },
+      "cap": "Obergrenze total ({currency}, optional)"
+    },
+    "email": {
+      "level1": {
+        "intro": "Gemäss unseren Unterlagen ist die Rechnung {invoice} (fällig am {date}) noch offen. Vielleicht ist sie untergegangen – Sie können sie mit wenigen Klicks bezahlen."
+      }
+    },
+    "errors": {
+      "fileTooLarge": "Die Datei ist grösser als 5 MB.",
+      "camt": {
+        "TOO_LARGE": "Die Datei ist zu gross."
+      }
+    }
+  },
+  "website": {
+    "events": {
+      "types": {
+        "event": "Anlass"
+      }
+    },
+    "admin": {
+      "sections": {
+        "rosterHint": "Standardmässig aus. Auch eingeschaltet erscheint ein Kind nur mit erfasster Medien-Einwilligung, mit Vorname und Initiale und Rückennummer, nie mit Foto."
+      },
+      "embed": {
+        "params": {
+          "type": "Anlassart"
+        }
+      },
+      "flags": {
+        "title": "Öffentliche Mannschaften, Trainer/innen und Anlässe"
+      }
+    },
+    "import": {
+      "errors": {
+        "too_large": "Die Antwort der Webseite war zu gross."
+      }
+    }
+  },
+  "notifyEmail": {
+    "payment_overdue": {
+      "line": "Gemäss unseren Unterlagen war die Rechnung {invoice} über {amount} am {date} fällig und ist noch offen."
+    }
+  }
+}

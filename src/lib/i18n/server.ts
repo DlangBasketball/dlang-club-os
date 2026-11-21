@@ -5,18 +5,18 @@ import { cookies, headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  LOCALES,
+  BASE_LOCALES,
   LOCALE_COOKIE,
   currencyForCountry,
-  intlLocaleFor,
-  normalizeLocale,
+  localeTagsFor,
+  regionFor,
   timezoneForCountry,
-  type Locale,
   type LocaleContext,
 } from "./config";
 import { resolveLocale } from "./negotiate";
-import { CATALOGS, getMessages } from "./messages";
+import { SOURCE_MESSAGES, getMessages } from "./messages";
 import { createTranslator, type Messages, type Translator } from "./translator";
+import { tenantLocaleSettingsFromRows, type TenantLocaleSettings } from "./tenant-settings";
 import { createFormatter, type Formatter } from "@/lib/format";
 
 export type { LocaleContext } from "./config";
@@ -24,48 +24,16 @@ export type { LocaleContext } from "./config";
 type Row = Record<string, unknown>;
 const str = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
 
-type TenantLocaleSettings = {
-  orgId: string;
-  country: string | null;
-  currency: string | null;
-  defaultLocale: string | null;
-  timeZone: string | null;
-  languages: Locale[] | null;
-};
-
 /** Org-level localisation settings (service role; never exposes other columns). */
 async function loadTenantSettings(orgId: string): Promise<TenantLocaleSettings | null> {
   try {
     const admin = createAdminClient();
-    // select("*") so this keeps working before/after the i18n migration adds columns.
+    // select("*") so this keeps working before/after the i18n migrations add columns.
     const [{ data: org }, { data: settings }] = await Promise.all([
       admin.from("organizations").select("*").eq("id", orgId).maybeSingle(),
       admin.from("app_settings").select("*").eq("org_id", orgId).maybeSingle(),
     ]);
-    const o = (org ?? {}) as Row;
-    const s = (settings ?? {}) as Row;
-    const json = (s.settings && typeof s.settings === "object" ? s.settings : {}) as Row;
-    const loc = (json.localization && typeof json.localization === "object" ? json.localization : {}) as Row;
-    // settings.languages is what the admin "Languages & currency" form stores;
-    // app_settings.enabled_locales is the typed column added by the i18n migration.
-    const rawLangs = Array.isArray(json.languages)
-      ? json.languages
-      : Array.isArray(s.enabled_locales)
-        ? s.enabled_locales
-        : Array.isArray(loc.languages)
-          ? loc.languages
-          : null;
-    const languages = rawLangs
-      ? rawLangs.map((l) => normalizeLocale(String(l))).filter((l): l is Locale => l !== null)
-      : null;
-    return {
-      orgId,
-      country: str(o.country),
-      currency: str(s.currency) ?? str(o.currency),
-      defaultLocale: str(s.default_locale) ?? str(o.default_locale),
-      timeZone: str(s.timezone) ?? str(o.timezone) ?? str(json.timezone) ?? str(loc.timezone),
-      languages: languages && languages.length ? languages : null,
-    };
+    return tenantLocaleSettingsFromRows(orgId, (org ?? null) as Row | null, (settings ?? null) as Row | null);
   } catch {
     return null;
   }
@@ -96,7 +64,10 @@ async function loadUserLocale(): Promise<UserLocale | null> {
  * request. Pass `orgId` on public, tenant-specific pages (e.g. registration)
  * where no user is signed in.
  *
- * Order: user preference -> locale cookie -> tenant default -> Accept-Language -> en.
+ * Order: user preference -> locale cookie -> Accept-Language -> tenant default -> en,
+ * constrained to the tenant's enabled languages (see ./negotiate.ts). The
+ * tenant's region for that language then picks the regional catalog
+ * (de + CH -> de-CH) and the Intl formats.
  */
 export const getLocaleContext = cache(async (orgId?: string | null): Promise<LocaleContext> => {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
@@ -123,13 +94,16 @@ export const getLocaleContext = cache(async (orgId?: string | null): Promise<Loc
     acceptLanguage,
   });
   const country = (tenant?.country ?? "CH").toUpperCase();
+  const tags = localeTagsFor(locale, regionFor(locale, tenant?.regions, country));
   return {
     locale,
-    intlLocale: intlLocaleFor(locale, country),
+    catalogLocale: tags.catalogLocale,
+    dir: tags.dir,
+    intlLocale: tags.intlLocale,
     currency: (tenant?.currency ?? currencyForCountry(country)).toUpperCase(),
     timeZone: tenant?.timeZone ?? timezoneForCountry(country),
     country,
-    languages: tenant?.languages ?? [...LOCALES],
+    languages: tenant?.languages ?? [...BASE_LOCALES],
     orgId: tenantId,
   };
 });
@@ -137,7 +111,7 @@ export const getLocaleContext = cache(async (orgId?: string | null): Promise<Loc
 /** Server-side translator for the current request: `const t = await getTranslations();` */
 export async function getTranslations(orgId?: string | null): Promise<Translator> {
   const ctx = await getLocaleContext(orgId);
-  return createTranslator(ctx.locale, getMessages(ctx.locale), CATALOGS.en, ctx.intlLocale);
+  return createTranslator(ctx.catalogLocale, getMessages(ctx.catalogLocale), SOURCE_MESSAGES, ctx.intlLocale);
 }
 
 /** Server-side formatter bound to the tenant's currency/time zone and the user's language. */
@@ -149,11 +123,11 @@ export async function getFormatter(orgId?: string | null): Promise<Formatter> {
 /** Convenience: everything at once. `const { t, f, ctx } = await getI18n();` */
 export async function getI18n(orgId?: string | null): Promise<{ t: Translator; f: Formatter; ctx: LocaleContext; messages: Messages }> {
   const ctx = await getLocaleContext(orgId);
-  const messages = getMessages(ctx.locale);
+  const messages = getMessages(ctx.catalogLocale);
   return {
     ctx,
     messages,
-    t: createTranslator(ctx.locale, messages, CATALOGS.en, ctx.intlLocale),
+    t: createTranslator(ctx.catalogLocale, messages, SOURCE_MESSAGES, ctx.intlLocale),
     f: createFormatter({ locale: ctx.intlLocale, currency: ctx.currency, timeZone: ctx.timeZone }),
   };
 }

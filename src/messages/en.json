@@ -74,7 +74,7 @@
     "partially_paid": "Partially paid",
     "overdue": "Overdue",
     "void": "Void",
-    "cancelled": "Cancelled",
+    "cancelled": "Canceled",
     "refunded": "Refunded",
     "partially_refunded": "Partially refunded",
     "succeeded": "Succeeded",
@@ -99,7 +99,9 @@
     "inactive": "Inactive",
     "queued": "Queued",
     "delivered": "Delivered",
-    "bounced": "Bounced"
+    "bounced": "Bounced",
+    "issued": "Issued",
+    "written_off": "Written off"
   },
   "roles": {
     "admin": "Administrator",
@@ -195,7 +197,11 @@
     "noNotifications": "You're all caught up.",
     "languageSwitcher": "Change language",
     "skipToContent": "Skip to content",
-    "more": "More"
+    "more": "More",
+    "notificationsUnread": "{count, plural, one {Notifications, # unread} other {Notifications, # unread}}",
+    "unread": "Unread",
+    "archive": "Archive",
+    "viewAll": "View all"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -303,8 +309,8 @@
       "terms": "I accept the club terms & conditions.",
       "privacy": "I have read the privacy policy and consent to data processing (Swiss FADP / GDPR).",
       "media": "I consent to photos/video of my child being used in club media.",
-      "health": "I authorise the club to arrange emergency medical care if needed.",
-      "transport": "I consent to club-organised transport to and from activities.",
+      "health": "I authorize the club to arrange emergency medical care if needed.",
+      "transport": "I consent to club-organized transport to and from activities.",
       "default": "I accept this agreement."
     },
     "review": {
@@ -410,7 +416,7 @@
     "confirmed": "Booking confirmed",
     "cancel": "Cancel booking",
     "cancelConfirm": "Cancel this booking? Cancellation within {hours} hours of the start may be charged.",
-    "cancelled": "Booking cancelled",
+    "cancelled": "Booking canceled",
     "upcoming": "Upcoming",
     "past": "Past",
     "duration": "{minutes} min",
@@ -459,7 +465,7 @@
       "payment_received": "Payment received",
       "payment_overdue": "Payment overdue",
       "booking_confirmation": "Booking confirmed",
-      "booking_cancellation": "Booking cancelled",
+      "booking_cancellation": "Booking canceled",
       "attendance_submitted": "Attendance submitted",
       "document_uploaded": "Document uploaded",
       "consent_required": "Consent required"
@@ -494,7 +500,7 @@
       "intro": "Hi {name}, a new invoice is ready for your account.",
       "dueBy": "Due by {date}",
       "cta": "Pay now",
-      "methods": "You can pay by card, TWINT or bank transfer from your parent account."
+      "methods": "You can pay online or by bank transfer from your parent account."
     },
     "overdueReminder": {
       "subject": "Reminder: invoice {invoice} is overdue",
@@ -535,6 +541,14 @@
       "intro": "Click the button below to sign in. The link is valid for one hour and can only be used once.",
       "cta": "Sign in",
       "ignore": "If you didn't request this email, you can safely ignore it."
+    },
+    "defaultName": "there",
+    "booking": {
+      "yourChild": "your child",
+      "session": "Training session",
+      "soon": "soon",
+      "yourCoach": "your coach",
+      "paidCredits": "{count, plural, one {Paid with # training credit.} other {Paid with # training credits.}}"
     }
   },
   "language": {
@@ -637,7 +651,7 @@
       "forbidden": "You don't have permission to do that.",
       "notFound": "Record not found.",
       "familyNotFound": "Family not found in your club.",
-      "programNotFound": "Programme not found in your club.",
+      "programNotFound": "Program not found in your club.",
       "saveFailed": "Could not save. Please try again."
     },
     "athlete": {
@@ -691,11 +705,11 @@
       "save": "Save medical info"
     },
     "programmes": {
-      "title": "Programmes & teams",
-      "none": "Not registered for any programme yet.",
+      "title": "Programs & teams",
+      "none": "Not registered for any program yet.",
       "status": "Status",
-      "enrolTitle": "Enrol in a programme",
-      "enrol": "Enrol",
+      "enrolTitle": "Enroll in a program",
+      "enrol": "Enroll",
       "editRegistration": "Edit registration",
       "teams": "Teams",
       "noTeams": "Not on a team roster.",
@@ -704,16 +718,16 @@
     },
     "registrations": {
       "editTitle": "Edit registration",
-      "program": "Programme",
+      "program": "Program",
       "status": "Status",
       "notes": "Internal notes",
       "notesHint": "Not shown to parents. Do not record medical details here; use the medical record.",
       "cancellationReason": "Reason for cancellation / withdrawal",
-      "statusCancelHint": "Cancelling requires a reason. The registration stays in the history.",
-      "cancelledOn": "Cancelled on {date}",
+      "statusCancelHint": "Canceling requires a reason. The registration stays in the history.",
+      "cancelledOn": "Canceled on {date}",
       "reasonLabel": "Reason",
-      "duplicate": "This athlete is already registered for that programme.",
-      "cancelled": "Registration cancelled",
+      "duplicate": "This athlete is already registered for that program.",
+      "cancelled": "Registration canceled",
       "enrolled": "Registration created",
       "priceNote": "Prices, discounts and credits are adjusted on the invoice."
     },
@@ -779,7 +793,7 @@
     },
     "documentScope": {
       "global": "All members",
-      "program": "Programme",
+      "program": "Program",
       "family": "Family",
       "athlete": "Athlete"
     },
@@ -847,7 +861,7 @@
       "lastUpdated": "Last updated",
       "loadFailed": "Couldn't load",
       "noOrg": "Your account isn't linked to a club yet.",
-      "noOrgTitle": "No organisation",
+      "noOrgTitle": "No organization",
       "none": "—",
       "reason": "Reason",
       "reasonOptional": "Reason (optional)",
@@ -870,7 +884,7 @@
       "notPermitted": "You don't have permission to do that.",
       "nothingToSave": "There are no changes to save.",
       "price": "Enter a price of 0 or more.",
-      "programHasRegistrations": "This programme has registrations, so it was archived instead of deleted.",
+      "programHasRegistrations": "This program has registrations, so it was archived instead of deleted.",
       "reasonRequired": "Enter a reason.",
       "reasonTooLong": "The reason can be at most 500 characters.",
       "sessionLocked": "This session is locked. Ask an administrator to reopen it.",
@@ -884,11 +898,11 @@
       "windowOrder": "Registration must close after it opens."
     },
     "registration": {
-      "ageOutOfRange": "A child's age is outside the age range of this programme. Please contact the club.",
-      "closed": "Registration for this programme is closed."
+      "ageOutOfRange": "A child's age is outside the age range of this program. Please contact the club.",
+      "closed": "Registration for this program is closed."
     },
     "programs": {
-      "title": "Programme",
+      "title": "Program",
       "ageRange": "Age range",
       "ageRangeValue": "{min} to {max} years",
       "alwaysOpen": "No window (open while published)",
@@ -896,29 +910,29 @@
       "archivedInstead": "It has registrations, so it was archived instead of deleted.",
       "capacity": "Capacity",
       "clubCurrency": "Club currency ({currency})",
-      "confirmArchive": "Archive this programme? It closes registration and hides it from the public page. History is kept.",
-      "confirmDelete": "Delete this programme permanently? This cannot be undone.",
-      "confirmDeleteArchives": "{count, plural, one {This programme has # registration, so it will be archived, not deleted. Continue?} other {This programme has # registrations, so it will be archived, not deleted. Continue?}}",
+      "confirmArchive": "Archive this program? It closes registration and hides it from the public page. History is kept.",
+      "confirmDelete": "Delete this program permanently? This cannot be undone.",
+      "confirmDeleteArchives": "{count, plural, one {This program has # registration, so it will be archived, not deleted. Continue?} other {This program has # registrations, so it will be archived, not deleted. Continue?}}",
       "currency": "Currency",
       "dates": "Dates",
       "deleteOrArchive": "Delete (archives)",
       "description": "Description",
       "editNamed": "Edit {name}",
-      "editTitle": "Edit programme",
+      "editTitle": "Edit program",
       "editTitleNamed": "Edit {name}",
-      "empty": "No programmes yet",
-      "emptyHint": "Create your first programme to open registration.",
+      "empty": "No programs yet",
+      "emptyHint": "Create your first program to open registration.",
       "endsOn": "Ends",
       "kind": "Type",
       "listDescription": "Camps, teams and clinics open for registration.",
       "location": "Location",
       "maxAge": "Maximum age",
       "minAge": "Minimum age",
-      "new": "New programme",
+      "new": "New program",
       "newDescription": "Save it as a draft or publish it straight away. Make it public to open online registration.",
       "price": "Price",
       "publicBadge": "public",
-      "publicHint": "Online registration is open only when the programme is published, public and inside its registration window.",
+      "publicHint": "Online registration is open only when the program is published, public and inside its registration window.",
       "publicToggle": "Public (shown on the registration page)",
       "publish": "Publish",
       "registrationCloses": "Registration closes",
@@ -938,22 +952,22 @@
     },
     "events": {
       "address": "Address",
-      "addressPlaceholder": "Street, postcode, city",
+      "addressPlaceholder": "Street, ZIP code, city",
       "andMore": "…and {count} more",
       "applyTo": "Apply to",
       "away": "Away",
       "awayPrefix": "Away / other:",
       "cancelConfirm": "Cancel event",
-      "cancelDescription": "Families see the event as cancelled, with your reason.",
+      "cancelDescription": "Families see the event as canceled, with your reason.",
       "cancelEvent": "Cancel…",
       "cancelTitle": "Cancel this event?",
-      "cancelledBecause": "Cancelled: {reason}",
+      "cancelledBecause": "Canceled: {reason}",
       "city": "City",
       "clubWide": "Club-wide (no team)",
       "conflictConfirm": "This overlaps other bookings at the venue. Review and confirm to save anyway.",
       "create": "Create event",
       "createMany": "Create {count} events",
-      "deleteConfirm": "Delete permanently? RSVPs and results are removed too. Prefer cancelling to keep a record.",
+      "deleteConfirm": "Delete permanently? RSVPs and results are removed too. Prefer canceling to keep a record.",
       "deleteTitle": "Delete event",
       "doesNotRepeat": "Does not repeat",
       "doubleBooking": "Double booking: this court/field is already taken",
@@ -985,7 +999,7 @@
       "statuses": {
         "scheduled": "Scheduled",
         "postponed": "Postponed",
-        "cancelled": "Cancelled",
+        "cancelled": "Canceled",
         "completed": "Completed"
       },
       "team": "Team",
@@ -1059,7 +1073,7 @@
       "cancelConfirm": "Cancel booking",
       "cancelDescription": "Credits are refunded and an unpaid invoice is voided, as for any staff cancellation.",
       "cancelTitle": "Cancel this booking?",
-      "cancelled": "Cancelled",
+      "cancelled": "Canceled",
       "coach": "Coach",
       "confirmMove": "Move this booking to the new coach/time? The family is not notified automatically.",
       "credits": "{count, plural, one {# credit} other {# credits}}",
@@ -1075,7 +1089,7 @@
         "booked": "Booked",
         "completed": "Completed",
         "no_show": "No-show",
-        "cancelled": "Cancelled"
+        "cancelled": "Canceled"
       },
       "subtitle": "{athlete} · with {coach}",
       "to": "To",
@@ -1155,7 +1169,7 @@
       "edit": "Edit",
       "cancel": "Cancel invoice",
       "cancelTitle": "Cancel invoice {number}",
-      "cancelDraftConfirm": "This draft was never sent. It will be marked cancelled; nothing is deleted.",
+      "cancelDraftConfirm": "This draft was never sent. It will be marked canceled; nothing is deleted.",
       "cancelIssuedConfirm": "A cancellation document for {amount} is issued against this invoice. Nothing is deleted and you can reopen it later.",
       "reopen": "Reopen",
       "reopenTitle": "Reopen invoice {number}",
@@ -1205,7 +1219,7 @@
       "balance": "Balance",
       "issuedOn": "Issued {date}",
       "dueOn": "Due {date}",
-      "cancelledBecause": "Cancelled: {reason}",
+      "cancelledBecause": "Canceled: {reason}",
       "auditTitle": "Audit trail",
       "auditEmpty": "No history"
     },
@@ -1258,7 +1272,7 @@
       "toCredit": "Moved to credit",
       "stripe": "Online",
       "markedPaidNote": "Reconciled: marked paid",
-      "cancelledNote": "This invoice was cancelled.",
+      "cancelledNote": "This invoice was canceled.",
       "settledNote": "Nothing is outstanding. A further payment will be flagged as an overpayment.",
       "pageHint": "Online payments update only from verified Stripe webhooks. Manual payments can be corrected, moved or voided with a reason."
     },
@@ -1329,7 +1343,7 @@
       "INVOICE_DETAILS_EDITED": "Details edited",
       "INVOICE_ADJUSTMENT_ISSUED": "Credit / debit note issued",
       "INVOICE_ADJUSTMENT_VOIDED": "Adjustment voided",
-      "INVOICE_CANCELLED": "Cancelled",
+      "INVOICE_CANCELLED": "Canceled",
       "INVOICE_REOPENED": "Reopened",
       "INVOICE_OVERPAID": "Overpayment flagged",
       "PAYMENT_RECORDED": "Payment recorded",
@@ -1352,7 +1366,7 @@
       "INVOICE_NOT_FOUND": "Invoice not found.",
       "INVOICE_NOT_DRAFT": "Only drafts can be edited freely. Issue a credit or debit note instead.",
       "INVOICE_IS_DRAFT": "This is still a draft: edit it directly instead.",
-      "INVOICE_CANCELLED": "This invoice is cancelled.",
+      "INVOICE_CANCELLED": "This invoice is canceled.",
       "INVOICE_WRITTEN_OFF": "This invoice is written off. Reverse the write-off first.",
       "INVOICE_LOCKED": "This invoice can no longer be changed.",
       "CREDIT_EXCEEDS_AMOUNT_DUE": "A credit note cannot be larger than the amount due.",
@@ -1369,10 +1383,10 @@
       "FAMILY_NOT_FOUND": "Family not found.",
       "REASON_REQUIRED": "Please give a reason.",
       "ALREADY_VOIDED": "This was already voided.",
-      "ALREADY_CANCELLED": "This invoice is already cancelled.",
-      "CANNOT_CANCEL": "Paid or written-off invoices cannot be cancelled. Refund or issue a credit note instead.",
+      "ALREADY_CANCELLED": "This invoice is already canceled.",
+      "CANNOT_CANCEL": "Paid or written-off invoices cannot be canceled. Refund or issue a credit note instead.",
       "HAS_PAYMENTS": "This invoice has payments. Void or move them first.",
-      "NOT_CANCELLED": "Only cancelled invoices can be reopened.",
+      "NOT_CANCELLED": "Only canceled invoices can be reopened.",
       "WAS_PAID": "This invoice received money and cannot be reopened.",
       "USE_REOPEN": "Use Reopen to undo a cancellation.",
       "ADJUSTMENT_NOT_FOUND": "Adjustment not found.",
@@ -1474,7 +1488,7 @@
     "usage": {
       "title": "Used in",
       "teams": "{count, plural, one {# team} other {# teams}}",
-      "sessions": "{count, plural, one {# programme session} other {# programme sessions}}",
+      "sessions": "{count, plural, one {# program session} other {# program sessions}}",
       "attendance": "{count, plural, one {# attendance record} other {# attendance records}}",
       "availability": "{count, plural, one {# availability slot} other {# availability slots}}",
       "bookings": "{count, plural, one {# booking} other {# bookings}}"
@@ -1508,7 +1522,7 @@
       "generic": "Something went wrong. Please try again."
     },
     "photo": {
-      "privacy": "Visible only to the staff and parents of your club, so families recognise their coach. Never shown on public pages.",
+      "privacy": "Visible only to the staff and parents of your club, so families recognize their coach. Never shown on public pages.",
       "saved": "Photo saved.",
       "removed": "Photo removed."
     },
@@ -1584,7 +1598,7 @@
       "draft": "Draft",
       "published": "Open",
       "archived": "Archived",
-      "cancelled": "Cancelled"
+      "cancelled": "Canceled"
     },
     "editions": {
       "title": "Editions (dates & places)",
@@ -1657,7 +1671,7 @@
     },
     "discounts": {
       "title": "Discounts",
-      "description": "Promo codes, sibling and early-bird discounts and manual reductions — for camps, training and any programme.",
+      "description": "Promo codes, sibling and early-bird discounts and manual reductions — for camps, training and any program.",
       "add": "New discount",
       "empty": "No discounts yet.",
       "rule": "Type",
@@ -1700,7 +1714,7 @@
         "all": "Everything",
         "camps": "All camps",
         "training": "Training (services & packages)",
-        "program": "One programme",
+        "program": "One program",
         "service": "One training service",
         "shop": "Shop (merchandise)"
       },
@@ -1870,17 +1884,17 @@
         "NOTHING_TO_DISCOUNT": "Nothing left to discount.",
         "CURRENCY_MISMATCH": "The currency does not match.",
         "NOT_PRICED": "This registration has no price to discount.",
-        "REGISTRATION_CANCELLED": "This registration is cancelled.",
+        "REGISTRATION_CANCELLED": "This registration is canceled.",
         "PRICE_OPTION_NOT_FOUND": "Choose a price option.",
         "AGE_GROUP_NOT_FOUND": "Choose an age group.",
         "USE_CANCEL": "This would credit the whole invoice: cancel the invoice instead.",
         "CREDIT_EXCEEDS_AMOUNT_DUE": "The discount is larger than the amount still due.",
-        "INVOICE_CANCELLED": "The invoice is cancelled.",
+        "INVOICE_CANCELLED": "The invoice is canceled.",
         "INVOICE_WRITTEN_OFF": "The invoice was written off.",
         "NOTHING_TO_SPLIT": "All weeks of this camp are in one season: nothing to split.",
         "SAME_CAMP": "Choose another camp.",
         "NOT_A_CAMP": "The target must be a camp.",
-        "SLUG_IN_USE": "This web address is already used by another programme.",
+        "SLUG_IN_USE": "This web address is already used by another program.",
         "DUPLICATE_LINE": "This child already has this week in the basket.",
         "CHILD_NOT_FOUND": "Choose a child for this week.",
         "PROGRAM_NOT_FOUND": "This camp is not available.",
@@ -2049,8 +2063,8 @@
       "locationPlaceholder": "e.g. outdoor court, street, city",
       "coaches": "Coaches offering it",
       "coachesHint": "Only these coaches appear when booking this service.",
-      "color": "Colour",
-      "noColor": "No colour",
+      "color": "Color",
+      "noColor": "No color",
       "sortOrder": "Order",
       "active": "Bookable (active)",
       "confirmDeactivate": "Deactivate this service? Existing bookings stay; no new bookings or purchases."
@@ -2075,7 +2089,7 @@
     "settings": {
       "title": "Online booking rules",
       "enabled": "Players and parents can book online (also the public booking page)",
-      "refund": "Return the credit when cancelled within the free window",
+      "refund": "Return the credit when canceled within the free window",
       "cancellationHours": "Free cancellation (hours before)",
       "slotStep": "Start times every (minutes)",
       "leadHours": "Book at least (hours ahead)",
@@ -2189,7 +2203,7 @@
       "booked": "Booked",
       "completed": "Attended",
       "no_show": "No-show",
-      "cancelled": "Cancelled"
+      "cancelled": "Canceled"
     },
     "adminBookings": {
       "title": "Training bookings",
@@ -2224,11 +2238,11 @@
       "expires": "Expires",
       "invoice": "Invoice",
       "cancel": "Cancel",
-      "cancelPrompt": "Reason for cancelling this purchase (an unpaid invoice is cancelled with it):",
+      "cancelPrompt": "Reason for canceling this purchase (an unpaid invoice is canceled with it):",
       "statuses": {
         "pending": "Awaiting payment",
         "active": "Active",
-        "cancelled": "Cancelled",
+        "cancelled": "Canceled",
         "expired": "Expired"
       }
     },
@@ -2239,7 +2253,7 @@
       "confirmed": "Confirmed",
       "confirm": "Run anyway",
       "cancel": "Cancel group",
-      "cancelPrompt": "Reason for cancelling the whole group (everyone gets their session or invoice back):"
+      "cancelPrompt": "Reason for canceling the whole group (everyone gets their session or invoice back):"
     },
     "profile": {
       "link": "Training",
@@ -2260,10 +2274,10 @@
       "history": "Sessions",
       "noBookings": "No sessions yet",
       "upcoming": "Upcoming",
-      "past": "Past & cancelled",
+      "past": "Past & canceled",
       "attended": "Attended",
       "noShow": "No-shows",
-      "cancelled": "Cancelled",
+      "cancelled": "Canceled",
       "groupWaiting": "Group not confirmed yet",
       "paidCredits": "{count, plural, one {# session used} other {# sessions used}}",
       "markAttended": "Attended",
@@ -2339,7 +2353,7 @@
       "minAboveMax": "The minimum can't be above the maximum.",
       "duration": "Duration must be 15 to 480 minutes.",
       "price": "Enter a valid price.",
-      "color": "Pick a colour.",
+      "color": "Pick a color.",
       "credits": "Enter 0 to 99 credits.",
       "sessions": "A package has 1 to 1000 sessions.",
       "validity": "Validity is 1 to 3650 days, or empty.",
@@ -2471,7 +2485,7 @@
       "category": "Category",
       "supplier": "Supplier",
       "coach": "Coach / trainer",
-      "program": "Programme",
+      "program": "Program",
       "camp": "Camp edition",
       "team": "Team",
       "location": "Location",
@@ -2595,7 +2609,7 @@
       "revenueVsExpenses": "Revenue vs expenses per month",
       "basisNote": "Revenue = payments received minus refunds.",
       "profitByMonth": "Profit per month",
-      "profitByProgram": "Profit per programme",
+      "profitByProgram": "Profit per program",
       "profitByCamp": "Profit per camp edition",
       "profitByLocation": "Profit per location",
       "paymentsByMethod": "Payments recorded by method",
@@ -2623,8 +2637,8 @@
       "outstanding": "Outstanding",
       "financialChart": "Revenue vs expenses (12 months)",
       "studentChart": "Students (12 months)",
-      "registrationsChart": "Registrations by programme",
-      "last12Months": "Last 12 months, cancelled registrations excluded.",
+      "registrationsChart": "Registrations by program",
+      "last12Months": "Last 12 months, canceled registrations excluded.",
       "noRegistrations": "No registrations in the last 12 months.",
       "openReports": "Financial reports",
       "error": "Couldn't load the finance overview"
@@ -2814,7 +2828,7 @@
       "description": "Score = attendance ({attendance}) and latest evaluation ({evaluation}) over the last {days} days.",
       "privacy": "Visible to staff only. Families only see their own child's band and level, never a list of names.",
       "groups": "Groups",
-      "noGroups": "No teams or programmes with members yet.",
+      "noGroups": "No teams or programs with members yet.",
       "level": "Level",
       "positionOf": "#{position} of {size}",
       "coachTitle": "Coach ranking (admins only)",
@@ -2922,7 +2936,7 @@
       "clientSpecific": "For",
       "template": "Template (age group)",
       "hydrationMl": "Water per day (ml)",
-      "hydrationTarget": "Drink about {amount} litres of water a day.",
+      "hydrationTarget": "Drink about {amount} liters of water a day.",
       "guidelines": "Guidelines",
       "meals": "Meals",
       "day": "Day",
@@ -3261,7 +3275,7 @@
       "empty": "Nothing in this period.",
       "more": "+{count} more",
       "newClubEvent": "New club event",
-      "cancelled": "Cancelled",
+      "cancelled": "Canceled",
       "draft": "Draft",
       "subscribe": {
         "title": "Subscribe to your calendar",
@@ -3467,12 +3481,12 @@
       "audience": "Audience",
       "allowReplies": "Parents may reply in this channel",
       "post": "Post",
-      "noScopes": "You have no team, programme or camp to address yet.",
+      "noScopes": "You have no team, program or camp to address yet.",
       "nobody": "There is nobody you can message yet. The club office can reach you here."
     },
     "scope": {
       "team": "Team",
-      "program": "Programme",
+      "program": "Program",
       "camp_edition": "Camp session"
     },
     "moderation": {
@@ -3527,8 +3541,8 @@
     },
     "alerts": {
       "pageTitle": "Alerts",
-      "descriptionAdmin": "Send a banner and notification to the whole club, staff, parents, a team, a programme or a camp session.",
-      "descriptionCoach": "Send a banner and notification to your teams, programmes and camps.",
+      "descriptionAdmin": "Send a banner and notification to the whole club, staff, parents, a team, a program or a camp session.",
+      "descriptionCoach": "Send a banner and notification to your teams, programs and camps.",
       "new": "New alert",
       "audience": "Audience",
       "audiences": {
@@ -3536,7 +3550,7 @@
         "staff": "Staff",
         "parents": "Parents",
         "team": "A team",
-        "program": "A programme",
+        "program": "A program",
         "camp_edition": "A camp session"
       },
       "severityLabel": "Severity",
@@ -3701,9 +3715,9 @@
       "reasonRequired": "Please say briefly what is wrong.",
       "parentStartDisabled": "The club has turned off new conversations from parents. You can still reply.",
       "familyNotFound": "No matching family for this conversation.",
-      "scopeNotFound": "This team, programme or camp was not found.",
+      "scopeNotFound": "This team, program or camp was not found.",
       "scopeRequired": "Choose who should receive the alert.",
-      "coachAudience": "Coaches can send alerts to their own teams, programmes and camps.",
+      "coachAudience": "Coaches can send alerts to their own teams, programs and camps.",
       "expiry": "The end must be after the start.",
       "quietHours": "Quiet hours need a start and a different end.",
       "rateLimited": "Too many messages from this connection. Please try again later.",
@@ -3721,7 +3735,7 @@
     "allCategories": "All",
     "empty": "No products available right now.",
     "membersOnly": "Members",
-    "variant": "Size / colour",
+    "variant": "Size / color",
     "soldOut": "Sold out",
     "addToCart": "Add to cart",
     "myOrders": "My orders",
@@ -3797,12 +3811,12 @@
       "paid": "Paid",
       "ready_for_pickup": "Ready for pick-up",
       "fulfilled": "Handed over",
-      "cancelled": "Cancelled",
+      "cancelled": "Canceled",
       "refunded": "Refunded"
     },
     "movements": {
       "sale": "Sale",
-      "release": "Released (order cancelled)",
+      "release": "Released (order canceled)",
       "restock": "Restock",
       "adjustment": "Adjustment"
     },
@@ -3843,7 +3857,7 @@
       "archived": "The product was sold before, so it is hidden instead of deleted.",
       "sku": "SKU",
       "size": "Size",
-      "color": "Colour",
+      "color": "Color",
       "variantPrice": "Own price",
       "stock": "Stock",
       "moveStock": "Restock / adjust",
@@ -3882,7 +3896,7 @@
         "paid": "Paid",
         "ready": "Ready for pick-up",
         "fulfilled": "Handed over",
-        "cancelled": "Cancelled",
+        "cancelled": "Canceled",
         "refunded": "Refunded"
       },
       "actions": {
@@ -3892,7 +3906,7 @@
         "refunded": "Mark refunded"
       },
       "confirm": {
-        "cancelled": "Cancel this order? Its unpaid invoice is cancelled and the stock released.",
+        "cancelled": "Cancel this order? Its unpaid invoice is canceled and the stock released.",
         "refunded": "Mark this order refunded? Record the refund itself on the invoice (credit note)."
       }
     },
@@ -3971,7 +3985,7 @@
     "title": "Search",
     "open": "Search (Ctrl+K)",
     "shortcut": "Search everything — Ctrl+K / ⌘K",
-    "placeholder": "Search people, programmes, teams, invoices, products, pages…",
+    "placeholder": "Search people, programs, teams, invoices, products, pages…",
     "placeholderShort": "Search",
     "hint": "Type at least 2 characters. ↑↓ to move, Enter to open, Esc to close.",
     "searching": "Searching…",
@@ -3985,7 +3999,7 @@
       "athlete": "Athlete",
       "family": "Family",
       "coach": "Coach",
-      "program": "Programme",
+      "program": "Program",
       "camp": "Camp",
       "team": "Team",
       "invoice": "Invoice",
@@ -3995,7 +4009,7 @@
   },
   "sports": {
     "title": "Sports",
-    "description": "The sports of the club, used to tag teams, programmes and assessments. Each sport can bring its own words (player, squad…).",
+    "description": "The sports of the club, used to tag teams, programs and assessments. Each sport can bring its own words (player, squad…).",
     "add": "Add sport",
     "empty": "No sports yet.",
     "name": "Name",
@@ -4006,14 +4020,14 @@
     "active": "Active",
     "inactive": "Inactive",
     "saved": "Saved.",
-    "deleteConfirm": "Delete {name}? Teams and programmes keep their text but lose the tag.",
-    "usage": "{count, plural, =0 {Not used yet} one {Used by # team or programme} other {Used by # teams or programmes}}",
+    "deleteConfirm": "Delete {name}? Teams and programs keep their text but lose the tag.",
+    "usage": "{count, plural, =0 {Not used yet} one {Used by # team or program} other {Used by # teams or programs}}",
     "sport": "Sport",
     "none": "No sport",
     "terms": {
       "athlete": "Athlete",
       "team": "Team",
-      "program": "Programme",
+      "program": "Program",
       "coach": "Coach",
       "session": "Session"
     },
@@ -4123,7 +4137,7 @@
         "tagInUse": "This bracelet belongs to another member.",
         "tagInvalid": "This is not a valid tag serial number.",
         "inactive": "This card is disabled.",
-        "unknownCard": "Card not recognised (or not one of your athletes)."
+        "unknownCard": "Card not recognized (or not one of your athletes)."
       }
     },
     "rollCall": {
@@ -4168,7 +4182,7 @@
     },
     "scopes": {
       "all_members": "All members",
-      "program": "Programme / camp",
+      "program": "Program / camp",
       "team": "Team",
       "training_service": "Training service"
     },
@@ -4286,7 +4300,7 @@
       "description": "Waivers, physicals, media consent and custom forms that families fill in online.",
       "new": "New form",
       "empty": "No forms yet",
-      "emptyHint": "Create a waiver or a physical form and assign it to a programme.",
+      "emptyHint": "Create a waiver or a physical form and assign it to a program.",
       "version": "Version {version}",
       "assignments": "{count, plural, =0 {not assigned} one {# assignment} other {# assignments}}",
       "submissions": "{count, plural, =0 {no submissions} one {# submission} other {# submissions}}"
@@ -4362,12 +4376,12 @@
     },
     "completion": {
       "title": "Form completion",
-      "description": "Who still has to fill in, renew or re-sign a form, per programme, team or service.",
-      "programme": "Programme",
-      "allProgrammes": "All programmes",
+      "description": "Who still has to fill in, renew or re-sign a form, per program, team or service.",
+      "programme": "Program",
+      "allProgrammes": "All programs",
       "filter": "Filter",
       "empty": "No active assignments",
-      "emptyHint": "Assign a published form to a programme, team or all members.",
+      "emptyHint": "Assign a published form to a program, team or all members.",
       "counts": "{done} of {total} done",
       "allDone": "Everyone is up to date.",
       "validUntil": "valid until {date}",
@@ -4452,7 +4466,7 @@
       "questionsTitle": "Custom questions",
       "questionsHint": "Asked once per child. Answers are stored with the registration and appear on the registration and in the export.",
       "reset": "Reset to default",
-      "resetConfirm": "Reset this programme to the default registration form? Custom questions are removed (answers already given are kept).",
+      "resetConfirm": "Reset this program to the default registration form? Custom questions are removed (answers already given are kept).",
       "answersTitle": "Registration answers",
       "noAnswers": "No custom questions were answered.",
       "export": "Export answers (CSV)"
@@ -4503,8 +4517,8 @@
       "noTemplatesHint": "Create a template for team seasons, camps or training packages.",
       "templateName": "Template name",
       "activityType": "Activity type",
-      "programme": "Only for programme",
-      "anyProgramme": "Any programme of this type",
+      "programme": "Only for program",
+      "anyProgramme": "Any program of this type",
       "autoIssue": "Issue automatically on registration / purchase",
       "autoIssueShort": "automatic",
       "issuedCount": "{count, plural, =0 {none issued} one {# issued} other {# issued}}",
@@ -4542,7 +4556,7 @@
       "templateRegistrations": "Registrations template",
       "helpFormats": "Excel (.xlsx, first sheet) or CSV (comma, semicolon or tab separated, UTF-8). Up to {max} rows per file. Your columns are mapped in the next step.",
       "helpFamilies": "one row per athlete, household and guardians repeated on each row; existing athletes (same name and date of birth) are skipped. Columns:",
-      "helpRegistrations": "one row per athlete and programme; athletes must already exist (import families first), programmes are matched by name or slug. Columns:",
+      "helpRegistrations": "one row per athlete and program; athletes must already exist (import families first), programs are matched by name or slug. Columns:",
       "helpPrivacy": "Do not include medical information: collect it through the forms in the parent app so consent is recorded.",
       "kindLabel": "What are you importing?",
       "kindFamilies": "Families & athletes",
@@ -4616,9 +4630,9 @@
         "dobUnreadable": "Unreadable date \"{value}\" (use YYYY-MM-DD or DD.MM.YYYY).",
         "dobFuture": "Date of birth is in the future.",
         "dobTooOld": "Date of birth is more than 100 years ago.",
-        "genderUnknown": "Unrecognised gender \"{value}\", left empty.",
+        "genderUnknown": "Unrecognized gender \"{value}\", left empty.",
         "emailInvalid": "Invalid email \"{value}\".",
-        "relationUnknown": "Unrecognised relation \"{value}\", saved as guardian.",
+        "relationUnknown": "Unrecognized relation \"{value}\", saved as guardian.",
         "noGuardian": "No guardian email: the family will have no parent login until you invite one.",
         "noFamilyName": "No family name: using \"{name}\".",
         "duplicateAthlete": "Duplicate athlete: same name and date of birth as line {line}.",
@@ -4627,13 +4641,13 @@
         "athleteExists": "{name} ({dob}) already exists in the club: skipped.",
         "guardianMultiple": "{email} is a guardian in more than one household: only invited for the first one; link the others manually.",
         "guardianKnown": "{email} is already invited or registered in this club: no new invitation.",
-        "programmeRequired": "Programme is required.",
-        "programmeUnknown": "No programme named \"{value}\".",
-        "programmeAmbiguous": "Several programmes are named \"{value}\": use the slug instead.",
+        "programmeRequired": "Program is required.",
+        "programmeUnknown": "No program named \"{value}\".",
+        "programmeAmbiguous": "Several programs are named \"{value}\": use the slug instead.",
         "athleteUnknown": "No athlete {name} born {dob} in the club: import the families first.",
-        "statusUnknown": "Unrecognised status \"{value}\": imported as confirmed.",
+        "statusUnknown": "Unrecognized status \"{value}\": imported as confirmed.",
         "registeredOnIgnored": "Registration date \"{value}\" ignored (unreadable or in the future).",
-        "duplicateRegistration": "Duplicate registration: same athlete and programme as line {line}.",
+        "duplicateRegistration": "Duplicate registration: same athlete and program as line {line}.",
         "registrationExists": "{name} is already registered for {programme}: skipped."
       }
     },
@@ -4676,7 +4690,7 @@
       "due": "Due",
       "paid": "Paid",
       "overdue": "Overdue",
-      "cancelled": "Cancelled",
+      "cancelled": "Canceled",
       "skipped": "Skipped"
     },
     "planStatus": {
@@ -4684,7 +4698,7 @@
       "overdue": "Overdue",
       "paused": "Paused",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Canceled"
     },
     "product": {
       "season": "Team season fees",
@@ -4726,7 +4740,7 @@
         "failed": "Failed charges",
         "paused": "Paused",
         "completed": "Completed",
-        "cancelled": "Cancelled"
+        "cancelled": "Canceled"
       },
       "statActive": "Running plans",
       "statOverdue": "Overdue",
@@ -4752,7 +4766,7 @@
       "backToPlans": "Back to payment plans",
       "openInvoice": "Open invoice {invoice}",
       "pausedBecause": "Paused: {reason}",
-      "cancelledBecause": "Cancelled: {reason}",
+      "cancelledBecause": "Canceled: {reason}",
       "editSchedule": "Reschedule or change amounts",
       "reasonOptional": "Reason (optional)",
       "saveSchedule": "Save schedule",
@@ -4764,10 +4778,10 @@
       "paused": "Plan paused: no reminders or automatic charges.",
       "resumed": "Plan resumed.",
       "cancel": "Cancel plan",
-      "cancelPrompt": "Reason for cancelling (the invoice returns to its normal balance):",
-      "cancelEnrolment": "Cancel enrolment",
-      "cancelEnrolmentPrompt": "Reason for cancelling the enrolment (no further periods are invoiced):",
-      "cancelled": "Plan cancelled."
+      "cancelPrompt": "Reason for canceling (the invoice returns to its normal balance):",
+      "cancelEnrolment": "Cancel enrollment",
+      "cancelEnrolmentPrompt": "Reason for canceling the enrollment (no further periods are invoiced):",
+      "cancelled": "Plan canceled."
     },
     "settings": {
       "title": "Installments & autopay",
@@ -4833,7 +4847,7 @@
       "ran": "{count, plural, =0 {No new invoices.} one {# invoice issued.} other {# invoices issued.}}",
       "newTemplate": "New recurring fee",
       "noTemplates": "No recurring fees yet",
-      "noTemplatesHint": "Create a fee such as a monthly team membership, then enrol a team.",
+      "noTemplatesHint": "Create a fee such as a monthly team membership, then enroll a team.",
       "name": "Name",
       "currency": "Currency",
       "frequency": "Interval",
@@ -4846,7 +4860,7 @@
       "startDate": "Starts",
       "endDate": "Ends (optional)",
       "team": "Team",
-      "programme": "Programme",
+      "programme": "Program",
       "proration": "Joining mid-period",
       "prorations": {
         "none": "Full fee",
@@ -4856,7 +4870,7 @@
       "dueDays": "Payment term (days)",
       "applyDiscounts": "Apply club discounts (siblings, manual)",
       "active": "Active",
-      "applyToEnrolments": "Use the new amount for running enrolments",
+      "applyToEnrolments": "Use the new amount for running enrollments",
       "prorationHint": "Proration applies to the first period of someone who joins after it started.",
       "saved": "Recurring fee saved.",
       "amountPer": "{amount} per period · {frequency}",
@@ -4864,16 +4878,16 @@
       "enrolledCount": "{count, plural, one {# enrolled} other {# enrolled}}",
       "summary": "Billed on day {day} · from {start} to {end} · joining mid-period: {proration} · payment term {due} days",
       "joinDate": "Join date",
-      "enrolTeam": "Enrol the whole team",
-      "enrolOne": "Enrol",
-      "enrolled": "{count, plural, =0 {Nobody new enrolled.} one {# enrolment created.} other {# enrolments created.}}",
+      "enrolTeam": "Enroll the whole team",
+      "enrolOne": "Enroll",
+      "enrolled": "{count, plural, =0 {Nobody new enrolled.} one {# enrollment created.} other {# enrollments created.}}",
       "nextRunOn": "Next invoice {date}",
       "editTemplate": "Edit fee",
       "perPeriod": "Per period",
       "nextRun": "Next invoice",
       "periods": "Periods",
       "noPeriods": "No period invoiced yet.",
-      "skipIssuedHint": "Skip an issued, unpaid period (its invoice is cancelled). For a paid period, issue a credit note on the invoice.",
+      "skipIssuedHint": "Skip an issued, unpaid period (its invoice is canceled). For a paid period, issue a credit note on the invoice.",
       "skip": "Skip",
       "skipPrompt": "Reason for skipping this period:",
       "skipped": "Period skipped.",
@@ -4894,8 +4908,8 @@
       "pauseRemoved": "Pause removed.",
       "removePause": "Remove",
       "endOn": "Last day",
-      "endEnrolment": "End enrolment",
-      "ended": "Enrolment end date saved.",
+      "endEnrolment": "End enrollment",
+      "ended": "Enrollment end date saved.",
       "amountEach": "{amount} per period"
     },
     "autopay": {
@@ -4904,7 +4918,7 @@
       "none": "No card saved.",
       "cardLine": "{brand} card ending {last4}",
       "expires": "Expires {month}/{year}",
-      "consentedOn": "Authorised on {date} (wording v{version})",
+      "consentedOn": "Authorized on {date} (wording v{version})",
       "on": "Autopay on",
       "off": "Autopay off",
       "expiringSoon": "Expires soon",
@@ -4918,7 +4932,7 @@
       "save": "Save a card",
       "replace": "Replace card",
       "accept": "I agree",
-      "consentText": "I authorise {club} to charge my saved card automatically, through its payment provider Stripe, for my family's installments and recurring club fees when they fall due. The amount and due date are shown in advance in the parent app. I can turn autopay off or remove the card at any time; payments already made are not affected.",
+      "consentText": "I authorize {club} to charge my saved card automatically, through its payment provider Stripe, for my family's installments and recurring club fees when they fall due. The amount and due date are shown in advance in the parent app. I can turn autopay off or remove the card at any time; payments already made are not affected.",
       "unavailable": "Card autopay is not available for this club yet.",
       "twintNote": "TWINT can't be charged automatically: each TWINT payment is approved in the app. You can still pay any installment with TWINT online or by QR-bill.",
       "savedBanner": "Card saved. Your next installments are charged automatically on their due dates.",
@@ -5044,7 +5058,7 @@
       "TEMPLATE_NOT_FOUND": "Recurring fee not found.",
       "TEMPLATE_INACTIVE": "This recurring fee is inactive.",
       "TEAM_NOT_FOUND": "Team not found.",
-      "PROGRAM_NOT_FOUND": "Programme not found.",
+      "PROGRAM_NOT_FOUND": "Program not found.",
       "INVALID_DATE": "Invalid date.",
       "INVALID_AMOUNT": "Invalid amount.",
       "NOT_RECURRING": "Only recurring fees can do this.",
@@ -5055,7 +5069,7 @@
       "INVALID_PERIOD": "Choose the start date of a future period.",
       "FAMILY_NOT_FOUND": "Family not found.",
       "AUTOPAY_DISABLED": "The club doesn't offer card autopay.",
-      "CONSENT_REQUIRED": "Please accept the autopay authorisation.",
+      "CONSENT_REQUIRED": "Please accept the autopay authorization.",
       "CONSENT_OUTDATED": "The autopay wording has changed; please reload the page.",
       "MANDATE_NOT_FOUND": "Saved card not found.",
       "MANDATE_NOT_ACTIVE": "This card is no longer active.",
@@ -5448,7 +5462,7 @@
       "action": "Action",
       "shiftDays": "Move by days",
       "targetVenue": "New venue",
-      "opsHelp": "Programme sessions and camps cannot be canceled here (manage them in their program); training bookings cannot be moved by days.",
+      "opsHelp": "Program sessions and camps cannot be canceled here (manage them in their program); training bookings cannot be moved by days.",
       "message": "Message to families and coaches (optional)",
       "notify": "Notify affected teams, families and coaches",
       "apply": "Apply and notify",
@@ -5874,7 +5888,7 @@
         "AGE_OUT_OF_RANGE": "The age does not fit this membership type.",
         "TYPE_INACTIVE": "This membership type is not available.",
         "TYPE_NOT_FOUND": "Membership type not found.",
-        "MEMBERSHIP_CANCELLED": "A cancelled membership cannot be renewed.",
+        "MEMBERSHIP_CANCELLED": "A canceled membership cannot be renewed.",
         "OFFER_NOT_OPEN": "This offer is no longer open.",
         "OFFER_NOT_FOUND": "This offer could not be found.",
         "NO_SPOT_LEFT": "Sorry, the spot has just been taken. You stay on the waiting list.",
@@ -5908,20 +5922,20 @@
       "remindedOn": "reminded {date}",
       "members": "Members",
       "noMembers": "No memberships yet",
-      "noMembersHint": "Create a membership type, then enrol families or let parents join from their app.",
+      "noMembersHint": "Create a membership type, then enroll families or let parents join from their app.",
       "holder": "Member",
       "type": "Membership type",
       "validity": "Validity",
       "price": "Price",
       "validFrom": "Valid from",
       "validUntil": "Valid until {date}",
-      "enrolTitle": "Enrol a member",
-      "enrol": "Enrol and invoice",
+      "enrolTitle": "Enroll a member",
+      "enrol": "Enroll and invoice",
       "free": "Free (e.g. honorary member) — no invoice",
       "created": "Membership created.",
       "joined": "Welcome to the club! Your invoice is in the app.",
       "renewed": "Membership renewed.",
-      "cancelled": "Membership cancelled.",
+      "cancelled": "Membership canceled.",
       "renew": "Renew",
       "cancel": "Cancel membership",
       "types": "Membership types",
@@ -5958,7 +5972,7 @@
         "pending_payment": "Awaiting payment",
         "active": "Active",
         "expired": "Expired",
-        "cancelled": "Cancelled"
+        "cancelled": "Canceled"
       },
       "notMember": "No active membership",
       "notMemberHint": "Join the club below to get member prices and your digital member card.",
@@ -5979,9 +5993,9 @@
       "runNow": "Check lists now",
       "processed": "{count, plural, =0 {No new offers.} one {# offer sent.} other {# offers sent.}}",
       "empty": "No one is waiting",
-      "emptyHint": "Families join a waiting list when a programme or camp week is full.",
+      "emptyHint": "Families join a waiting list when a program or camp week is full.",
       "kinds": {
-        "program": "Programme",
+        "program": "Program",
         "camp_edition": "Camp week",
         "training_slot": "Training slot"
       },
@@ -6014,7 +6028,7 @@
       "parentTitle": "Waiting lists",
       "parentDescription": "Your places in line. When a spot frees up you get an email with a link to accept it.",
       "parentEmpty": "You are not on any waiting list",
-      "parentEmptyHint": "If a programme or camp week is full you can join its waiting list below.",
+      "parentEmptyHint": "If a program or camp week is full you can join its waiting list below.",
       "place": "Place {place} in line",
       "offerOpen": "A spot is offered to you — accept it from the email link ({hours} h left).",
       "leave": "Leave the list",
@@ -6058,9 +6072,9 @@
       "includeAhv": "Include AHV numbers (only those stored with consent; the export is logged)",
       "downloadParticipants": "Download participants and attendance (CSV)",
       "downloadSessions": "Download sessions (CSV)",
-      "noOffers": "No programme is marked as a J+S offer yet.",
+      "noOffers": "No program is marked as a J+S offer yet.",
       "offersTitle": "J+S offers",
-      "offersHint": "Tick the programmes that are J+S offers. Session length is used when a session has no end time.",
+      "offersHint": "Tick the programs that are J+S offers. Session length is used when a session has no end time.",
       "offerNumber": "Offer number",
       "sessionMinutes": "Session length (min)",
       "coachesTitle": "Coach J+S numbers",
@@ -6094,7 +6108,7 @@
     },
     "compliance": {
       "title": "Staff compliance",
-      "description": "Licences, first aid, criminal record extracts and child-protection training per coach, with expiry and verification.",
+      "description": "Licenses, first aid, criminal record extracts and child-protection training per coach, with expiry and verification.",
       "stats": {
         "compliant": "Compliant coaches",
         "missing": "Missing mandatory checks",
@@ -6105,7 +6119,7 @@
       "coach": "Coach",
       "kind": "Type",
       "kinds": {
-        "coaching_licence": "Coaching licence",
+        "coaching_licence": "Coaching license",
         "first_aid": "First-aid course",
         "criminal_record": "Criminal record extract",
         "criminal_record_youth": "Special youth criminal record extract",
@@ -6152,7 +6166,7 @@
       "assignAnyway": "Assign with override",
       "overrideDone": "Coach assigned; override recorded.",
       "myTitle": "My certificates",
-      "myDescription": "Upload your licences and checks. An admin verifies them; you get reminders before they expire.",
+      "myDescription": "Upload your licenses and checks. An admin verifies them; you get reminders before they expire.",
       "required": "Required by the club",
       "myCertificates": "My documents",
       "none": "Nothing uploaded yet.",
@@ -6179,8 +6193,8 @@
       "sectionFollowUp": "Follow-up and return to play",
       "athlete": "Athlete",
       "occurredAt": "Date and time",
-      "context": "Programme / team",
-      "program": "Programme or session",
+      "context": "Program / team",
+      "program": "Program or session",
       "team": "Team",
       "location": "Location",
       "descriptionHint": "Facts only: what happened, how, what was observed. No diagnosis.",
@@ -6351,7 +6365,7 @@
       "INVOICE_LINKED": "This invoice is linked to a payment, plan or order and stays as issued.",
       "SAME_FAMILY": "You can't match a request with your own family's offer.",
       "NOT_OPEN": "This offer or request is no longer open.",
-      "EVENT_CLOSED": "This event is over or cancelled.",
+      "EVENT_CLOSED": "This event is over or canceled.",
       "NOT_ENOUGH_SEATS": "Not enough free seats in this car.",
       "GUARDIAN_CONSENT_REQUIRED": "Only a guardian of the player can publish this profile.",
       "INVALID_EXPIRY": "Choose a validity between 1 day and 1 year.",
@@ -6369,7 +6383,7 @@
       "inviteRevoked": "Invitation withdrawn.",
       "inviteSent": "Invitation sent.",
       "invoicesSplit": "Open invoices were split.",
-      "matchCancelled": "Ride cancelled.",
+      "matchCancelled": "Ride canceled.",
       "matched": "Ride arranged. A private conversation was opened.",
       "offerPosted": "Your offer is on the board.",
       "permissionsSaved": "Permissions saved.",
@@ -6558,8 +6572,8 @@
       },
       "event": {
         "cancelled": {
-          "title": "Cancelled: {name}",
-          "body": "The event on {date} is cancelled."
+          "title": "Canceled: {name}",
+          "body": "The event on {date} is canceled."
         },
         "postponed": {
           "title": "Postponed: {name}",
@@ -6583,8 +6597,8 @@
           "body": "{event}, {date}. Open the conversation to agree on the details."
         },
         "cancelled": {
-          "title": "Carpool cancelled",
-          "body": "Your ride was cancelled. The board shows other options."
+          "title": "Carpool canceled",
+          "body": "Your ride was canceled. The board shows other options."
         }
       },
       "split": {
@@ -6630,7 +6644,7 @@
       },
       "away": "Away",
       "counts": "{offers, plural, =0 {No cars} one {# car} other {# cars}} · {requests, plural, =0 {nobody looking} one {# looking} other {# looking}}",
-      "cancelledEvent": "This event is cancelled."
+      "cancelledEvent": "This event is canceled."
     },
     "journey": {
       "history": "Season by season",
@@ -7151,7 +7165,7 @@
       "reasonLabel": "Message to the club (optional)",
       "confirm": "Confirm cancellation",
       "confirmPrompt": "Cancel now? This cannot be undone online.",
-      "submitting": "Cancelling…"
+      "submitting": "Canceling…"
     },
     "dunning": {
       "title": "Dunning",
@@ -7336,21 +7350,21 @@
         "ENTRY_IGNORED": "This credit was ignored. Undo first.",
         "ENTRY_BOOKED": "This credit is already booked. Undo first.",
         "INVOICE_NOT_FOUND": "Invoice not found.",
-        "INVOICE_NOT_PAYABLE": "This invoice cannot take this payment (cancelled, draft or another currency).",
+        "INVOICE_NOT_PAYABLE": "This invoice cannot take this payment (canceled, draft or another currency).",
         "INVOICE_REQUIRED": "Please choose an invoice.",
-        "INVOICE_CANCELLED": "This invoice is cancelled.",
+        "INVOICE_CANCELLED": "This invoice is canceled.",
         "SUBJECT_NOT_FOUND": "Registration or booking not found.",
         "INVALID_IBAN": "This IBAN is not valid.",
         "HOLDER_REQUIRED": "Please enter the account holder.",
         "STRIPE_NOT_AVAILABLE": "This invoice was not paid by card or TWINT, so it cannot be refunded that way.",
         "STRIPE_AMOUNT_TOO_HIGH": "The amount is higher than what is left to refund on the card payment.",
-        "REQUEST_EXISTS": "This has already been cancelled.",
+        "REQUEST_EXISTS": "This has already been canceled.",
         "REQUEST_NOT_FOUND": "Request not found.",
         "REQUEST_CLOSED": "This request is already settled.",
         "OVERRIDE_REASON_REQUIRED": "Please give a reason for deviating from the policy.",
         "BANK_DETAILS_REQUIRED": "The family gave no bank details. Choose family credit or ask for the IBAN.",
         "INVALID_AMOUNT": "Please check the amount.",
-        "ALREADY_CANCELLED": "This is already cancelled.",
+        "ALREADY_CANCELLED": "This is already canceled.",
         "CASE_NOT_FOUND": "Case not found.",
         "CROSS_TENANT_REFERENCE": "This record belongs to another club.",
         "INVALID_PAYLOAD": "The file has too many credits to import at once.",
@@ -7691,6 +7705,173 @@
       "selectCategory": "Select all of {category}",
       "productsSelected": "{selected} of {total} selected",
       "productsSkipped": "{count, plural, one {# product left out} other {# products left out}}"
+    }
+  },
+  "languageSettings": {
+    "tab": "Languages",
+    "enabled": "Offered languages",
+    "description": "Choose the languages your club offers. Members switch between them in the app; emails and PDFs follow each member's language. The region sets the spelling and the format of dates, numbers and amounts.",
+    "language": "Language",
+    "status": "Translation",
+    "region": "Region (formats)",
+    "regionFor": "Region for {language}",
+    "preview": "Preview",
+    "spelling": "Spelling: {name}",
+    "statusComplete": "Complete",
+    "statusPartial": "Beta",
+    "statusNone": "Planned",
+    "betaHint": "Some texts may still appear in English.",
+    "default": "Default language",
+    "defaultHint": "Used when a member hasn't chosen a language and their browser language isn't offered.",
+    "negotiation": "Order: the member's own choice, then their browser language if your club offers it, then the default language.",
+    "planned": "Coming later",
+    "plannedHint": "Planned languages become available once their translation has been reviewed by a native speaker.",
+    "save": "Save languages",
+    "saving": "Saving…",
+    "saved": "Languages saved.",
+    "errors": {
+      "adminOnly": "Only club admins can change the languages.",
+      "noLanguage": "Offer at least one language.",
+      "invalid": "These language settings could not be saved."
+    },
+    "profile": {
+      "title": "Language",
+      "description": "The app, emails, notifications and PDF documents you receive use this language."
+    }
+  },
+  "notifyEmail": {
+    "fallback": {
+      "child": "Your child",
+      "childLower": "your child",
+      "program": "the program",
+      "session": "Session",
+      "aSession": "a session",
+      "training": "training",
+      "yourCoach": "your coach",
+      "aCoach": "a coach",
+      "invoice": "your invoice",
+      "document": "A document",
+      "newDocument": "A new document",
+      "consent": "a consent form",
+      "consentRequired": "consent required",
+      "requiredForm": "a required form"
+    },
+    "registration_confirmation": {
+      "title": "Registration confirmed",
+      "body": "{athlete} is registered for {program}.",
+      "subject": "Registration confirmed — {program}",
+      "heading": "You're all set!",
+      "line": "{athlete} is now registered for {program}.",
+      "invoiceLine": "Invoice {invoice} ({amount}) has been issued.",
+      "welcome": "We're excited to have you on the team.",
+      "cta": "View invoice"
+    },
+    "invoice_sent": {
+      "title": "Invoice {invoice} issued",
+      "body": "{amount} due {date}.",
+      "subject": "Invoice {invoice} — {amount} due",
+      "heading": "New invoice",
+      "line": "Invoice {invoice} for {amount} is now available.",
+      "due": "It is due on {date}.",
+      "cta": "Pay now"
+    },
+    "payment_received": {
+      "title": "Payment received",
+      "body": "Thank you — we received your payment for {invoice}.",
+      "subject": "Payment received — {invoice}",
+      "subjectThanks": "Payment received — thank you",
+      "heading": "Payment received",
+      "line": "We've received {amount} toward invoice {invoice}. Thank you!"
+    },
+    "payment_overdue": {
+      "title": "Payment overdue — {invoice}",
+      "body": "{amount} was due {date}.",
+      "subject": "Reminder: invoice {invoice} is overdue",
+      "heading": "Payment reminder",
+      "line": "Our records show invoice {invoice} for {amount} was due on {date} and is still open.",
+      "disregard": "If you've already paid, please disregard this note.",
+      "cta": "Pay now"
+    },
+    "booking_confirmation": {
+      "title": "Training session booked",
+      "body": "{service} with {coach} · {when}",
+      "subject": "Booking confirmed — {service}",
+      "heading": "Session booked",
+      "line": "{athlete} is booked for {service} with {coach}.",
+      "when": "When: {when}.",
+      "cta": "View booking"
+    },
+    "booking_cancellation": {
+      "title": "Booking canceled",
+      "body": "{service} · {when} was canceled.",
+      "subject": "Booking canceled — {service}",
+      "heading": "Booking canceled",
+      "line": "The booking for {service} ({when}) has been canceled.",
+      "cta": "Book again"
+    },
+    "attendance_submitted": {
+      "title": "Attendance updated",
+      "body": "Attendance for {athlete} was recorded.",
+      "bodyProgram": "Attendance for {athlete} was recorded for {program}.",
+      "subject": "Attendance recorded",
+      "subjectProgram": "Attendance recorded — {program}",
+      "heading": "Attendance recorded",
+      "line": "Today's attendance for {athlete} has been recorded.",
+      "lineProgram": "Today's attendance for {athlete} in {program} has been recorded.",
+      "cta": "View attendance"
+    },
+    "document_uploaded": {
+      "title": "New document available",
+      "body": "{document} was added to your family file.",
+      "subject": "New document — {document}",
+      "heading": "New document",
+      "line": "{document} has been added to your family's records.",
+      "cta": "View documents"
+    },
+    "consent_required": {
+      "title": "Action needed: consent required",
+      "body": "Please review and sign: {consent}.",
+      "subject": "Action needed — {consent}",
+      "heading": "Consent required",
+      "line": "We need your consent for {consent}.",
+      "lineAthlete": "We need your consent for {consent} for {athlete}.",
+      "sign": "Please review and sign at your earliest convenience.",
+      "cta": "Review now"
+    },
+    "announcement": {
+      "title": "A message from {club}",
+      "heading": "A message from your club"
+    }
+  },
+  "pdf": {
+    "invoice": {
+      "title": "Invoice",
+      "billTo": "Bill to",
+      "details": "Details",
+      "issued": "Issued",
+      "due": "Due",
+      "status": "Status",
+      "description": "Description",
+      "qty": "Qty",
+      "unit": "Unit price",
+      "amount": "Amount",
+      "total": "Total",
+      "paid": "Paid",
+      "balanceDue": "Balance due"
+    },
+    "qrBill": {
+      "paymentPart": "Payment part",
+      "account": "Account / Payable to",
+      "reference": "Reference",
+      "payableBy": "Payable by",
+      "currency": "Currency",
+      "amount": "Amount"
+    },
+    "payment": {
+      "onlineAndBank": "Pay online ({methods}) via your parent account, or by bank transfer to the club account.",
+      "online": "Pay online ({methods}) via your parent account.",
+      "bank": "Pay by bank transfer to the club account.",
+      "contact": "Please contact the club to arrange payment."
     }
   }
 }

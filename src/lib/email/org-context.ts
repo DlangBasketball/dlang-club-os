@@ -38,7 +38,7 @@ export async function getOrgEmailContext(orgId: string | null | undefined, recip
     org = (data as OrgRow | null) ?? null;
   }
   const branding = normalizeBranding(org?.branding);
-  const { f } = getStandaloneI18n({
+  const { f, catalogLocale } = getStandaloneI18n({
     locale: recipientLocale ?? org?.default_locale ?? null,
     country: org?.country ?? null,
     currency: org?.currency ?? null,
@@ -56,6 +56,7 @@ export async function getOrgEmailContext(orgId: string | null | undefined, recip
       logoUrl: logo,
       currency: f.currency,
       locale: f.locale,
+      language: catalogLocale,
     },
     f,
     baseUrl,

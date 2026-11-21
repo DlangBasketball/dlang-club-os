@@ -21,10 +21,25 @@ export async function dispatchNotification(opts: {
   vars: NotifVars;
   invoiceId?: string | null;
   email?: boolean; // default true when toEmail is present
+  /** Recipient language when known by the caller (e.g. the visitor who just registered). */
+  locale?: string | null;
 }): Promise<DispatchResult> {
   const admin = createAdminClient();
+  // The recipient's own language when they chose one (profiles.locale with
+  // locale_set_at), else the club default. Same org only.
+  let recipientLocale: string | null = opts.locale ?? null;
+  if (!recipientLocale && opts.recipientProfileId) {
+    const { data: p } = await admin
+      .from("profiles")
+      .select("locale,locale_set_at")
+      .eq("id", opts.recipientProfileId)
+      .eq("org_id", opts.orgId)
+      .maybeSingle();
+    const prof = p as { locale?: string | null; locale_set_at?: string | null } | null;
+    recipientLocale = prof?.locale_set_at ? prof.locale ?? null : null;
+  }
   // The issuing club's own name, brand, currency, time zone and host.
-  const org = await getOrgEmailContext(opts.orgId);
+  const org = await getOrgEmailContext(opts.orgId, recipientLocale);
   const clubName = opts.vars.club_name ?? org.clubName;
   const r = render(opts.type, { ...opts.vars, ...(clubName ? { club_name: clubName } : {}) }, { ...org.brand, timeZone: org.f.timeZone, baseUrl: org.baseUrl });
   const result: DispatchResult = { notificationId: null, emailLogId: null, emailOk: false };
