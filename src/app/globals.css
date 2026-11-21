@@ -349,7 +349,7 @@
 .site-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brand-accent-text); }
 .site-template-classic .site-eyebrow, .site-template-court .site-eyebrow { color: var(--brand-primary-text); }
 .site-card { border-radius: var(--site-radius); background: var(--surface); border: 1px solid var(--border-soft); }
-.site-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: var(--tap-target); padding-inline: 1.4rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem; transition: transform var(--duration) var(--ease-out), background var(--duration), box-shadow var(--duration); }
+.site-btn { display: inline-flex; white-space: nowrap; align-items: center; justify-content: center; gap: 0.5rem; min-height: var(--tap-target); padding-inline: 1.4rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem; transition: transform var(--duration) var(--ease-out), background var(--duration), box-shadow var(--duration); }
 .site-template-classic .site-btn { border-radius: var(--radius-sm); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.85rem; }
 .site-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .site-btn-primary { background: var(--brand-primary); color: var(--brand-primary-contrast); box-shadow: var(--shadow-glow); }

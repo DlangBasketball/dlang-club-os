@@ -115,17 +115,17 @@ export function SiteShell({ ctx, languages, children }: { ctx: RenderCtx; langua
             ) : null}
             <span className={cn("site-h truncate text-lg text-text lg:text-xl", logo && "sr-only")}>{site.tenant.name}</span>
           </a>
-          <nav aria-label={t("site.chrome.mainNav")} className="ms-auto hidden lg:block">
+          <nav aria-label={t("site.chrome.mainNav")} className={cn("ms-auto hidden", crowded ? "xl:block" : "lg:block")}>
             <ul className="site-nav flex items-center gap-0.5">
               {nav.map((l, i) => (
                 <li key={`${l.href}-${i}`} className="group relative">
                   {l.href ? (
-                    <a href={l.href} aria-current={l.current ? "page" : undefined} className={cn("site-nav-link inline-flex min-h-tap items-center gap-1 rounded-full px-2.5 text-sm font-medium transition hover:text-brand-primary focus-visible:shadow-focus xl:px-3", l.current ? "text-brand-primary" : "text-text")}>
+                    <a href={l.href} aria-current={l.current ? "page" : undefined} className={cn("site-nav-link inline-flex min-h-tap items-center gap-1 whitespace-nowrap rounded-full px-2 text-sm font-medium transition hover:text-brand-primary focus-visible:shadow-focus 2xl:px-3", l.current ? "text-brand-primary" : "text-text")}>
                       {l.label}
                       {!!l.children?.length && <ChevronDown className="h-3.5 w-3.5" aria-hidden />}
                     </a>
                   ) : (
-                    <button type="button" aria-haspopup="true" className={cn("site-nav-link inline-flex min-h-tap items-center gap-1 rounded-full px-2.5 text-sm font-medium transition hover:text-brand-primary focus-visible:shadow-focus xl:px-3", l.current ? "text-brand-primary" : "text-text")}>
+                    <button type="button" aria-haspopup="true" className={cn("site-nav-link inline-flex min-h-tap items-center gap-1 whitespace-nowrap rounded-full px-2 text-sm font-medium transition hover:text-brand-primary focus-visible:shadow-focus 2xl:px-3", l.current ? "text-brand-primary" : "text-text")}>
                       {l.label}
                       <ChevronDown className="h-3.5 w-3.5" aria-hidden />
                     </button>
@@ -151,10 +151,10 @@ export function SiteShell({ ctx, languages, children }: { ctx: RenderCtx; langua
             <Link href="/login" className={cn("hidden min-h-tap items-center rounded-full px-3 text-sm font-medium text-text hover:text-brand-primary focus-visible:shadow-focus", crowded ? "2xl:inline-flex" : "sm:inline-flex")}>
               {t("site.chrome.myAccount")}
             </Link>
-            <Link href="/club" className={cn("site-btn site-btn-primary hidden", crowded ? "sm:inline-flex lg:hidden xl:inline-flex" : "sm:inline-flex")}>
+            <Link href="/club" className={cn("site-btn site-btn-primary hidden", crowded ? "sm:inline-flex xl:hidden 2xl:inline-flex" : "sm:inline-flex")}>
               {t("site.chrome.getApp")}
             </Link>
-            <MobileNav links={nav} extra={extra} labels={{ open: t("site.chrome.openMenu"), close: t("site.chrome.closeMenu"), nav: t("site.chrome.mainNav") }} />
+            <MobileNav wide={crowded} links={nav} extra={extra} labels={{ open: t("site.chrome.openMenu"), close: t("site.chrome.closeMenu"), nav: t("site.chrome.mainNav") }} />
           </div>
         </div>
       </header>

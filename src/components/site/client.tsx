@@ -229,7 +229,7 @@ export function HeroSlideshow({ children, autoplay, interval, labels }: { childr
 
 export type NavLink = { label: string; href: string; current: boolean; children?: { label: string; href: string; current: boolean }[] };
 
-export function MobileNav({ links, extra, labels }: { links: NavLink[]; extra: { label: string; href: string; primary?: boolean }[]; labels: { open: string; close: string; nav: string } }) {
+export function MobileNav({ links, extra, labels, wide = false }: { links: NavLink[]; wide?: boolean; extra: { label: string; href: string; primary?: boolean }[]; labels: { open: string; close: string; nav: string } }) {
   const [open, setOpen] = React.useState(false);
   const btn = React.useRef<HTMLButtonElement | null>(null);
   React.useEffect(() => {
@@ -244,7 +244,7 @@ export function MobileNav({ links, extra, labels }: { links: NavLink[]; extra: {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
   return (
-    <div className="lg:hidden">
+    <div className={wide ? "xl:hidden" : "lg:hidden"}>
       <button ref={btn} type="button" aria-expanded={open} aria-controls="site-mobile-nav" onClick={() => setOpen((v) => !v)} className="inline-flex min-h-tap min-w-tap items-center justify-center rounded-full focus-visible:shadow-focus">
         {open ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}
         <span className="sr-only">{open ? labels.close : labels.open}</span>
