@@ -104,12 +104,13 @@ export function addonPriceFor(
   currency: string,
   prices?: ResolveInput["prices"],
 ): number | null {
-  const runtime = prices?.[key];
-  if (runtime && Object.prototype.hasOwnProperty.call(runtime, currency)) {
-    const v = runtime[currency];
+  // Runtime price list loaded (public.feature_addon_prices): it is the truth;
+  // no row for this feature and currency = not sold in that currency.
+  if (prices && Object.keys(prices).length > 0) {
+    const v = prices[key]?.[currency];
     return typeof v === "number" && v >= 0 ? v : null;
   }
-  if (prices && Object.keys(prices).length > 0 && runtime === undefined) return null;
+  // No price list (tests, crons): the catalog's proposed prices.
   const cat = getFeature(key)?.addon;
   const v = cat ? cat[currency as keyof AddonPrice] : null;
   return typeof v === "number" ? v : null;
