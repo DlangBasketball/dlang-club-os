@@ -50,6 +50,15 @@ insert into public.ai_assistant_addons (id, org_id, scope, source, status, start
   ('dd010018-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000001', 'org', 'complimentary', 'active', '2026-11-01 00:00:00+01', 'Founding club: complimentary AI assistant add-on (demo)')
 on conflict do nothing;
 
+-- Feature packaging (migration 20250420102100): DLang (customer zero) keeps every
+-- module through a 'complimentary_all' grant (data, not code). FC Seeblick stays
+-- on the Club plan, so Academy modules (bookings, accounting, operations, ...)
+-- are locked and show the upgrade screens; one module runs a demo trial.
+insert into public.org_feature_grants (id, org_id, feature_key, kind, status, starts_at, ends_at, note) values
+  ('dd010020-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000001', '*', 'complimentary_all', 'active', '2026-11-01 00:00:00+01', null, 'Customer zero: every module complimentary (demo)'),
+  ('dd020020-0000-4000-8000-000000000001', '20000000-0000-0000-0000-000000000002', 'player_development', 'trial', 'active', '2026-11-15 00:00:00+01', '2026-12-31 23:59:00+01', 'Demo: 14-day trial of player development')
+on conflict do nothing;
+
 -- ---------------------------------------------------------------- DLang Basketball (demo data)
 
 insert into public.venues (id, org_id, name, address, city, postal_code, country, capacity) values
