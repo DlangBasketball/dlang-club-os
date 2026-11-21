@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser, type SessionUser } from "@/lib/auth/get-user";
@@ -103,6 +104,7 @@ const settingsSchema = z.object({
 export type PlanSettingsInput = z.input<typeof settingsSchema>;
 
 export async function savePlanSettings(input: PlanSettingsInput): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const p = settingsSchema.safeParse(input);
@@ -129,6 +131,7 @@ export async function savePlanSettings(input: PlanSettingsInput): Promise<PlanRe
 // ===========================================================================
 /** Parent (own family) or finance: split an open invoice by the club's rules. */
 export async function choosePlan(invoiceId: string, count: number): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await member();
   if (!me) return denied(t);
   const id = uuid.safeParse(invoiceId);
@@ -150,6 +153,7 @@ export type CustomPlanInput = z.input<typeof customSchema>;
 
 /** Finance: any schedule on an open invoice (amounts must add up to balance + fee). */
 export async function adminCreatePlan(invoiceId: string, input: CustomPlanInput): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const id = uuid.safeParse(invoiceId);
@@ -169,6 +173,7 @@ const rescheduleSchema = z.object({
 export type RescheduleInput = z.input<typeof rescheduleSchema>;
 
 export async function reschedulePlan(planId: string, input: RescheduleInput): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const id = uuid.safeParse(planId);
@@ -184,6 +189,7 @@ export async function reschedulePlan(planId: string, input: RescheduleInput): Pr
 }
 
 export async function setPlanPaused(planId: string, paused: boolean, why = ""): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const id = uuid.safeParse(planId);
@@ -197,6 +203,7 @@ export async function setPlanPaused(planId: string, paused: boolean, why = ""): 
 }
 
 export async function cancelPlan(planId: string, why: string): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const id = uuid.safeParse(planId);
@@ -312,6 +319,7 @@ const templateSchema = z.object({
 export type TemplateInput = z.input<typeof templateSchema>;
 
 export async function saveRecurringTemplate(id: string | null, input: TemplateInput): Promise<PlanResult<{ id: string }>> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const p = templateSchema.safeParse(input);
@@ -343,6 +351,7 @@ export async function saveRecurringTemplate(id: string | null, input: TemplateIn
 }
 
 export async function enrolAthletes(templateId: string, athleteIds: string[], start: string): Promise<PlanResult<{ count: number }>> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const p = z.object({ templateId: uuid, athleteIds: z.array(uuid).min(1).max(500), start: isoDate }).safeParse({ templateId, athleteIds, start });
@@ -355,6 +364,7 @@ export async function enrolAthletes(templateId: string, athleteIds: string[], st
 }
 
 export async function enrolTeam(templateId: string, teamId: string, start: string): Promise<PlanResult<{ count: number }>> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const p = z.object({ templateId: uuid, teamId: uuid, start: isoDate }).safeParse({ templateId, teamId, start });
@@ -367,6 +377,7 @@ export async function enrolTeam(templateId: string, teamId: string, start: strin
 }
 
 export async function endEnrolment(planId: string, end: string, why = ""): Promise<PlanResult> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const p = z.object({ planId: uuid, end: isoDate }).safeParse({ planId, end });
@@ -380,6 +391,7 @@ export async function endEnrolment(planId: string, end: string, why = ""): Promi
 }
 
 export async function addPause(planId: string, from: string, to: string, kind: "holiday" | "injury" | "other", note = ""): Promise<PlanResult> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const p = z.object({ planId: uuid, from: isoDate, to: isoDate, kind: z.enum(["holiday", "injury", "other"]), note: z.string().trim().max(300) })
@@ -394,6 +406,7 @@ export async function addPause(planId: string, from: string, to: string, kind: "
 }
 
 export async function removePause(pauseId: string, planId: string): Promise<PlanResult> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   if (!uuid.safeParse(pauseId).success || !uuid.safeParse(planId).success) return invalid(t);
@@ -406,6 +419,7 @@ export async function removePause(pauseId: string, planId: string): Promise<Plan
 }
 
 export async function skipPeriod(planId: string, periodStart: string, why: string): Promise<PlanResult> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const p = z.object({ planId: uuid, periodStart: isoDate }).safeParse({ planId, periodStart });
@@ -426,6 +440,7 @@ export async function skipPeriod(planId: string, periodStart: string, why: strin
  * for instalments already due today). Same idempotent code as the cron.
  */
 export async function runRecurringNow(asOf: string): Promise<PlanResult<{ invoices: number }>> {
+  await assertFeature("recurring_fees");
   const { me, t } = await staff();
   if (!me) return denied(t);
   const d = isoDate.safeParse(asOf);
@@ -445,6 +460,7 @@ export async function runRecurringNow(asOf: string): Promise<PlanResult<{ invoic
 
 /** Finance: retry a failed / fallen-back autopay charge now. */
 export async function retryCharge(installmentId: string): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await staff();
   if (!me) return denied(t);
   if (!uuid.safeParse(installmentId).success) return invalid(t);
@@ -469,6 +485,7 @@ async function myFamilies(me: SessionUser & { orgId: string }): Promise<string[]
 }
 
 export async function startAutopaySetup(familyId: string, accepted: boolean): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  await assertFeature("payment_plans");
   const { me, t } = await member();
   if (!me) return denied(t);
   if (!uuid.safeParse(familyId).success) return invalid(t);
@@ -498,6 +515,7 @@ export async function startAutopaySetup(familyId: string, accepted: boolean): Pr
 }
 
 export async function setAutopayEnabled(mandateId: string, enabled: boolean): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await member();
   if (!me) return denied(t);
   if (!uuid.safeParse(mandateId).success) return invalid(t);
@@ -509,6 +527,7 @@ export async function setAutopayEnabled(mandateId: string, enabled: boolean): Pr
 }
 
 export async function removeCard(mandateId: string): Promise<PlanResult> {
+  await assertFeature("payment_plans");
   const { me, t } = await member();
   if (!me) return denied(t);
   if (!uuid.safeParse(mandateId).success) return invalid(t);

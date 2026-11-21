@@ -1,4 +1,6 @@
 "use server";
+import { hasFeature } from "@/lib/upgrades/server";
+import { getTranslations } from "@/lib/i18n/server";
 
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -74,6 +76,9 @@ export async function updateVenues(venues: { name: string; address: string }[]):
 export async function updateLocalization(input: { currency: string; defaultLocale: string; languages: string[] }): Promise<ActionResult> {
   const me = await getAdmin();
   if (!me) return { ok: false, error: "Admins only" };
+  if (new Set(input.languages).size > 2 && !(await hasFeature(me.orgId, "extra_languages"))) {
+    return { ok: false, error: (await getTranslations(me.orgId))("upgrades.errors.languagesLimit") };
+  }
   const admin = createAdminClient();
   await admin.from("app_settings").update({ currency: input.currency, default_locale: input.defaultLocale }).eq("org_id", me.orgId);
   await admin.from("organizations").update({ currency: input.currency }).eq("id", me.orgId);

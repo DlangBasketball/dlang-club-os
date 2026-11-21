@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getLocaleContext } from "@/lib/i18n/server";
@@ -42,6 +43,7 @@ function revalidateKit() {
 // Equipment
 // ---------------------------------------------------------------------------
 export async function saveEquipmentItem(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -66,6 +68,7 @@ export async function saveEquipmentItem(id: string | null, input: Record<string,
 }
 
 export async function checkOutEquipment(input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin", "coach"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(checkoutSchema, input, t);
@@ -81,6 +84,7 @@ export async function checkOutEquipment(input: Record<string, unknown>): Promise
 }
 
 export async function checkInEquipment(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin", "coach"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(checkinSchema, input, t);
@@ -93,6 +97,7 @@ export async function checkInEquipment(input: Record<string, unknown>): Promise<
 }
 
 export async function addMaintenance(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(maintenanceSchema, input, t);
@@ -118,6 +123,7 @@ async function teamKitRows(teamId: string, orgId: string): Promise<KitNumberRow[
 }
 
 export async function saveKitAssignment(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -157,6 +163,7 @@ export async function saveKitAssignment(id: string | null, input: Record<string,
  * guardians.
  */
 export async function requestKitSizes(input: Record<string, unknown>): Promise<OpsResult<{ created: number }>> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(kitRequestSchema, input, t);
@@ -199,6 +206,7 @@ export async function requestKitSizes(input: Record<string, unknown>): Promise<O
 }
 
 export async function setKitStatus(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(kitStatusSchema, input, t);
@@ -217,6 +225,7 @@ export async function setKitStatus(input: Record<string, unknown>): Promise<OpsR
 }
 
 export async function deleteKitAssignment(id: string): Promise<OpsResult> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -231,6 +240,7 @@ export async function deleteKitAssignment(id: string): Promise<OpsResult> {
 
 /** Kit deposit as a line on a draft invoice for the player's family. */
 export async function invoiceKitDeposit(id: string): Promise<OpsResult<{ invoiceId: string }>> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -264,6 +274,7 @@ export async function invoiceKitDeposit(id: string): Promise<OpsResult<{ invoice
 
 /** Guardian quick form: sizes for one child's kit. */
 export async function submitKitSizes(input: Record<string, unknown>): Promise<OpsResult> {
+  await assertFeature("ops_equipment");
   const { me, t } = await gate(["parent", "admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(kitSizesSchema, input, t);

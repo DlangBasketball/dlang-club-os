@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { caDb } from "@/lib/club-admin/db";
 import { audit, dbErrorKey, done, fail, removePrivateFile, requireMe, signedFileUrl, uploadPrivateFile, type CaResult } from "@/lib/club-admin/server";
@@ -20,6 +21,7 @@ function revalidateIncidents(id?: string) {
 }
 
 export async function saveIncident(id: string | null, input: IncidentInput): Promise<CaResult<{ id: string }>> {
+  await assertFeature("injury_log");
   const me = await requireMe(["admin", "coach"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -58,6 +60,7 @@ export async function saveIncident(id: string | null, input: IncidentInput): Pro
 
 /** Upload the return-to-play clearance document (FormData: file). */
 export async function uploadClearance(id: string, fd: FormData): Promise<CaResult> {
+  await assertFeature("injury_log");
   const me = await requireMe(["admin", "coach"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -83,6 +86,7 @@ export async function uploadClearance(id: string, fd: FormData): Promise<CaResul
 
 /** Signed URL of the clearance document (anyone who can read the report — RLS). */
 export async function clearanceFileUrl(id: string): Promise<CaResult<{ url: string }>> {
+  await assertFeature("injury_log");
   const me = await requireMe(["admin", "coach", "parent"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -93,6 +97,7 @@ export async function clearanceFileUrl(id: string): Promise<CaResult<{ url: stri
 }
 
 export async function deleteIncident(id: string): Promise<CaResult> {
+  await assertFeature("injury_log");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");

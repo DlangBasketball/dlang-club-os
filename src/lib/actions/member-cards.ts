@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import QRCode from "qrcode";
 import { z } from "zod";
@@ -47,6 +48,7 @@ const athleteId = z.string().uuid();
 
 /** The athlete's card token + its QR code (SVG markup, no personal data inside). */
 export async function getMemberCard(id: string): Promise<CardResult<{ token: string; qrSvg: string }>> {
+  await assertFeature("member_cards");
   const me = await requireRole(["admin", "parent"]);
   if (!me) return fail("notPermitted");
   if (!athleteId.safeParse(id).success) return fail("notFound", me.orgId);
@@ -58,6 +60,7 @@ export async function getMemberCard(id: string): Promise<CardResult<{ token: str
 }
 
 export async function rotateMemberCard(id: string): Promise<CardResult<{ token: string; qrSvg: string }>> {
+  await assertFeature("member_cards");
   const me = await requireRole(["admin", "parent"]);
   if (!me) return fail("notPermitted");
   if (!athleteId.safeParse(id).success) return fail("notFound", me.orgId);
@@ -71,6 +74,7 @@ export async function rotateMemberCard(id: string): Promise<CardResult<{ token: 
 }
 
 export async function assignMemberTag(id: string, tag: string | null): Promise<CardResult<{ tag: string | null }>> {
+  await assertFeature("member_cards");
   const me = await requireRole(["admin"]);
   if (!me) return fail("notPermitted");
   if (!athleteId.safeParse(id).success) return fail("notFound", me.orgId);
@@ -85,6 +89,7 @@ export async function assignMemberTag(id: string, tag: string | null): Promise<C
 
 /** A coach / admin scanned a QR code or an NFC tag: which athlete is it? */
 export async function resolveScan(raw: string): Promise<CardResult<{ athleteId: string; name: string }>> {
+  await assertFeature("member_cards");
   const me = await requireRole(["admin", "coach"]);
   if (!me) return fail("notPermitted");
   const payload = scanPayload(typeof raw === "string" ? raw.slice(0, 300) : "");

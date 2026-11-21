@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -64,6 +65,7 @@ function refresh(...paths: string[]) {
 // Bank files
 // ---------------------------------------------------------------------------
 export async function importBankFile(form: FormData): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const file = form.get("file");
@@ -110,6 +112,7 @@ export async function importBankFile(form: FormData): Promise<AccountingResult> 
 }
 
 export async function confirmBankEntry(entryId: string, invoiceId?: string | null): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(entryId).success || (invoiceId && !uuid.safeParse(invoiceId).success)) return err(t, "accounting.errors.invalidRequest");
@@ -122,6 +125,7 @@ export async function confirmBankEntry(entryId: string, invoiceId?: string | nul
 
 /** Book every reference match of one file (one click). */
 export async function confirmReferenceMatches(importId: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(importId).success) return err(t, "accounting.errors.invalidRequest");
@@ -140,6 +144,7 @@ export async function confirmReferenceMatches(importId: string): Promise<Account
 }
 
 export async function ignoreBankEntry(entryId: string, reason: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const r = reasonSchema.safeParse(reason);
@@ -152,6 +157,7 @@ export async function ignoreBankEntry(entryId: string, reason: string): Promise<
 }
 
 export async function reopenBankEntry(entryId: string, reason: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const r = reasonSchema.safeParse(reason);
@@ -167,6 +173,7 @@ export async function reopenBankEntry(entryId: string, reason: string): Promise<
 // Chart of accounts
 // ---------------------------------------------------------------------------
 export async function seedDefaultChart(): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const db = await accountingDb();
@@ -181,6 +188,7 @@ export async function seedDefaultChart(): Promise<AccountingResult> {
 }
 
 export async function saveAccount(id: string | null, input: z.input<typeof accountSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (id && !uuid.safeParse(id).success) return err(t, "accounting.errors.invalidRequest");
@@ -198,6 +206,7 @@ export async function saveAccount(id: string | null, input: z.input<typeof accou
 }
 
 export async function deleteAccount(id: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(id).success) return err(t, "accounting.errors.invalidRequest");
@@ -210,6 +219,7 @@ export async function deleteAccount(id: string): Promise<AccountingResult> {
 }
 
 export async function saveMappings(items: z.input<typeof mappingSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const p = mappingSchema.safeParse(items);
@@ -236,6 +246,7 @@ export async function saveMappings(items: z.input<typeof mappingSchema>): Promis
 // Period locks
 // ---------------------------------------------------------------------------
 export async function closePeriod(month: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!monthSchema.safeParse(month).success) return err(t, "accounting.errors.invalidPeriod");
@@ -247,6 +258,7 @@ export async function closePeriod(month: string): Promise<AccountingResult> {
 }
 
 export async function reopenPeriod(month: string, reason: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!me.roles.includes("admin")) return denied(t);
@@ -263,6 +275,7 @@ export async function reopenPeriod(month: string, reason: string): Promise<Accou
 // Refund policies and requests
 // ---------------------------------------------------------------------------
 export async function savePolicy(input: z.input<typeof policySchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const p = policySchema.safeParse(input);
@@ -280,6 +293,7 @@ export async function savePolicy(input: z.input<typeof policySchema>): Promise<A
 
 /** Parent (own family) or finance: cancel a registration / booking and request the refund. */
 export async function createRefundRequest(input: z.input<typeof refundCreateSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await session();
   if (!me) return denied(t);
   const p = refundCreateSchema.safeParse(input);
@@ -332,6 +346,7 @@ async function sendStripeRefund(orgId: string, requestId: string, params: { paym
 }
 
 export async function processRefund(input: z.input<typeof refundProcessSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const p = refundProcessSchema.safeParse(input);
@@ -352,6 +367,7 @@ export async function processRefund(input: z.input<typeof refundProcessSchema>):
 }
 
 export async function retryStripeRefund(requestId: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(requestId).success) return err(t, "accounting.errors.invalidRequest");
@@ -364,6 +380,7 @@ export async function retryStripeRefund(requestId: string): Promise<AccountingRe
 }
 
 export async function rejectRefund(requestId: string, reason: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const r = reasonSchema.safeParse(reason);
@@ -379,6 +396,7 @@ export async function rejectRefund(requestId: string, reason: string): Promise<A
 // Dunning
 // ---------------------------------------------------------------------------
 export async function saveDunningSettings(input: z.input<typeof dunningSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const p = dunningSchema.safeParse(input);
@@ -395,6 +413,7 @@ export async function saveDunningSettings(input: z.input<typeof dunningSchema>):
 
 /** Finance "run now": the same work as the daily cron, for this club only. */
 export async function runDunningNow(): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const db = await accountingDb();
@@ -405,6 +424,7 @@ export async function runDunningNow(): Promise<AccountingResult> {
 }
 
 export async function pauseFamilyDunning(input: z.input<typeof pauseSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const p = pauseSchema.safeParse(input);
@@ -419,6 +439,7 @@ export async function pauseFamilyDunning(input: z.input<typeof pauseSchema>): Pr
 }
 
 export async function resumeFamilyDunning(pauseId: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(pauseId).success) return err(t, "accounting.errors.invalidRequest");
@@ -430,6 +451,7 @@ export async function resumeFamilyDunning(pauseId: string): Promise<AccountingRe
 }
 
 export async function resolveDunningCase(caseId: string, reason: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const r = reasonSchema.safeParse(reason);
@@ -445,6 +467,7 @@ export async function resolveDunningCase(caseId: string, reason: string): Promis
 // Family support + reimbursements
 // ---------------------------------------------------------------------------
 export async function saveSupport(id: string | null, input: z.input<typeof supportSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (id && !uuid.safeParse(id).success) return err(t, "accounting.errors.invalidRequest");
@@ -467,6 +490,7 @@ export async function saveSupport(id: string | null, input: z.input<typeof suppo
 }
 
 export async function setSupportActive(id: string, active: boolean): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(id).success) return err(t, "accounting.errors.invalidRequest");
@@ -479,6 +503,7 @@ export async function setSupportActive(id: string, active: boolean): Promise<Acc
 }
 
 export async function applySupportNow(): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   const db = await accountingDb();
@@ -489,6 +514,7 @@ export async function applySupportNow(): Promise<AccountingResult> {
 }
 
 export async function saveReimbursement(id: string | null, input: z.input<typeof reimbursementSchema>): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (id && !uuid.safeParse(id).success) return err(t, "accounting.errors.invalidRequest");
@@ -511,6 +537,7 @@ export async function saveReimbursement(id: string | null, input: z.input<typeof
 }
 
 export async function deleteReimbursement(id: string): Promise<AccountingResult> {
+  await assertFeature("accounting");
   const { me, t } = await requireFinance();
   if (!me) return denied(t);
   if (!uuid.safeParse(id).success) return err(t, "accounting.errors.invalidRequest");

@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { familyAdminDb, familyDb } from "@/lib/family/db";
 import { fail, failDb, myFamilyIds, ok, requireMember, type FamilyResult } from "@/lib/family/action-helpers";
@@ -36,6 +37,7 @@ async function rosterFamily(me: { id: string; orgId: string }, eventId: string):
 }
 
 export async function postCarpoolOffer(input: CarpoolOfferInput): Promise<FamilyResult> {
+  await assertFeature("carpooling");
   const me = await requireMember();
   if (!me) return fail("forbidden");
   const p = carpoolOfferSchema.safeParse(input);
@@ -54,6 +56,7 @@ export async function postCarpoolOffer(input: CarpoolOfferInput): Promise<Family
 }
 
 export async function postCarpoolRequest(input: CarpoolRequestInput): Promise<FamilyResult> {
+  await assertFeature("carpooling");
   const me = await requireMember();
   if (!me) return fail("forbidden");
   const p = carpoolRequestSchema.safeParse(input);
@@ -73,6 +76,7 @@ export async function postCarpoolRequest(input: CarpoolRequestInput): Promise<Fa
 
 /** Withdraw my offer or request (an admin may withdraw any); live matches on it are cancelled. */
 export async function withdrawCarpoolPost(input: { kind: "offer" | "request"; id: string }): Promise<FamilyResult> {
+  await assertFeature("carpooling");
   const me = await requireMember();
   if (!me) return fail("forbidden");
   if (!uuid.safeParse(input.id).success || !["offer", "request"].includes(input.kind)) return fail("invalid");
@@ -98,6 +102,7 @@ export async function withdrawCarpoolPost(input: { kind: "offer" | "request"; id
  * between the two guardians; both are notified (in-app + push).
  */
 export async function matchCarpool(input: { offerId: string; requestId: string }): Promise<FamilyResult<{ conversationId: string }>> {
+  await assertFeature("carpooling");
   const me = await requireMember();
   if (!me) return fail("forbidden");
   if (!uuid.safeParse(input.offerId).success || !uuid.safeParse(input.requestId).success) return fail("invalid");
@@ -122,6 +127,7 @@ export async function matchCarpool(input: { offerId: string; requestId: string }
 }
 
 export async function cancelCarpoolMatch(matchId: string): Promise<FamilyResult> {
+  await assertFeature("carpooling");
   const me = await requireMember();
   if (!me) return fail("forbidden");
   if (!uuid.safeParse(matchId).success) return fail("invalid");

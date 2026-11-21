@@ -1,3 +1,4 @@
+import { hasFeature } from "@/lib/upgrades/server";
 import { notFound } from "next/navigation";
 import { I18nProvider } from "@/lib/i18n/client";
 import { getI18n } from "@/lib/i18n/server";
@@ -15,7 +16,7 @@ export default async function PublicCampBasketPage({ searchParams }: { searchPar
   const { camp } = await searchParams;
   const slug = typeof camp === "string" ? camp.slice(0, 120) : null;
   const orgId = await publicBasketOrg(slug);
-  if (!orgId) notFound();
+  if (!orgId || !(await hasFeature(orgId, "camp_basket"))) notFound();
   const i18n = await getI18n(orgId);
   const cards = await listSeasonCamps(orgId, { publicOnly: true });
   const camps = (await Promise.all(cards.map((c) => getCampForOrg(orgId, c.id, true)))).filter((c): c is PublicCamp => !!c);

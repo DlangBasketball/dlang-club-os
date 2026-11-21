@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -36,6 +37,7 @@ async function requireAdmin(): Promise<Admin | null> {
 
 
 export async function saveLocation(id: string | null, input: LocationInput): Promise<LocationResult<{ id: string }>> {
+  await assertFeature("multi_location");
   const me = await requireAdmin();
   if (!me) return fail(E("notPermitted"));
   if (id && !z.string().uuid().safeParse(id).success) return fail(E("invalidRequest"), me.orgId);
@@ -64,6 +66,7 @@ export async function saveLocation(id: string | null, input: LocationInput): Pro
 }
 
 export async function uploadLocationPhoto(form: FormData): Promise<LocationResult> {
+  await assertFeature("multi_location");
   const me = await requireAdmin();
   if (!me) return fail(E("notPermitted"));
   const id = String(form.get("venueId") ?? "");
@@ -96,6 +99,7 @@ export async function uploadLocationPhoto(form: FormData): Promise<LocationResul
 }
 
 export async function removeLocationPhoto(id: string): Promise<LocationResult> {
+  await assertFeature("multi_location");
   const me = await requireAdmin();
   if (!me) return fail(E("notPermitted"));
   if (!z.string().uuid().safeParse(id).success) return fail(E("invalidRequest"), me.orgId);

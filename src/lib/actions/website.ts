@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -46,6 +47,7 @@ const uuid = z.string().uuid();
 
 /** Save the connection settings (origins arrive as typed text and are validated here). */
 export async function saveWebsiteSettings(input: Omit<WebsiteSettingsInput, "allowedOrigins"> & { allowedOrigins: string }): Promise<WebsiteActionResult<{ invalidOrigins: string[] }>> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };
@@ -88,6 +90,7 @@ export async function saveWebsiteSettings(input: Omit<WebsiteSettingsInput, "all
 
 /** Generate or rotate the webhook signing secret. The plaintext is returned ONCE and never again. */
 export async function rotateWebsiteWebhookSecret(): Promise<WebsiteActionResult<{ secret: string; hint: string }>> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };
@@ -100,6 +103,7 @@ export async function rotateWebsiteWebhookSecret(): Promise<WebsiteActionResult<
 
 /** Send a signed test "content.updated" (resource "club") to the configured webhook URL now. */
 export async function sendWebsiteTestWebhook(): Promise<WebsiteActionResult<{ status: number | null }>> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };
@@ -130,6 +134,7 @@ const teamFlags = z.object({
 });
 
 export async function setTeamWebsiteFlags(teamId: string, input: z.input<typeof teamFlags>): Promise<WebsiteActionResult> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };
@@ -149,6 +154,7 @@ export async function setTeamWebsiteFlags(teamId: string, input: z.input<typeof 
 }
 
 export async function setCoachWebsiteFlags(coachId: string, input: { isPublic: boolean; photoPublic: boolean }): Promise<WebsiteActionResult> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };
@@ -166,6 +172,7 @@ export async function setCoachWebsiteFlags(coachId: string, input: { isPublic: b
 
 /** Show / hide a club calendar entry (club_events) or a club-wide alert on the website. */
 export async function setPublicFlag(kind: "club_event" | "alert", id: string, isPublic: boolean): Promise<WebsiteActionResult> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };
@@ -193,6 +200,7 @@ const newsInput = z.object({
 });
 
 export async function saveWebsiteNews(id: string | null, input: z.input<typeof newsInput>): Promise<WebsiteActionResult<{ id: string }>> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };
@@ -220,6 +228,7 @@ export async function saveWebsiteNews(id: string | null, input: z.input<typeof n
 }
 
 export async function deleteWebsiteNews(id: string): Promise<WebsiteActionResult> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if ("error" in me) return { ok: false, error: me.error };

@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { familyDb } from "@/lib/family/db";
 import { audit, fail, failDb, ok, requireMember, type FamilyResult } from "@/lib/family/action-helpers";
@@ -18,6 +19,7 @@ const isStaff = (roles: string[]) => roles.includes("admin") || roles.includes("
 
 /** End-of-season review (coach comment + awards). Admin / the athlete's coach (RLS). */
 export async function saveSeasonReview(input: SeasonReviewInput): Promise<FamilyResult> {
+  await assertFeature("player_journey");
   const me = await requireMember();
   if (!me || !isStaff(me.roles)) return fail("forbidden");
   const p = seasonReviewSchema.safeParse(input);
@@ -37,6 +39,7 @@ export async function saveSeasonReview(input: SeasonReviewInput): Promise<Family
 }
 
 export async function deleteSeasonReview(input: { id: string; athleteId: string }): Promise<FamilyResult> {
+  await assertFeature("player_journey");
   const me = await requireMember();
   if (!me || !isStaff(me.roles)) return fail("forbidden");
   if (!uuid.safeParse(input.id).success || !uuid.safeParse(input.athleteId).success) return fail("invalid");
@@ -50,6 +53,7 @@ export async function deleteSeasonReview(input: { id: string; athleteId: string 
 
 /** Placement / scholarship target (admin / coach; guardians read only). */
 export async function savePlacement(input: PlacementInput): Promise<FamilyResult> {
+  await assertFeature("player_journey");
   const me = await requireMember();
   if (!me || !isStaff(me.roles)) return fail("forbidden");
   const p = placementSchema.safeParse(input);
@@ -70,6 +74,7 @@ export async function savePlacement(input: PlacementInput): Promise<FamilyResult
 }
 
 export async function deletePlacement(input: { id: string; athleteId: string }): Promise<FamilyResult> {
+  await assertFeature("player_journey");
   const me = await requireMember();
   if (!me || !isStaff(me.roles)) return fail("forbidden");
   if (!uuid.safeParse(input.id).success || !uuid.safeParse(input.athleteId).success) return fail("invalid");
@@ -87,6 +92,7 @@ export async function deletePlacement(input: { id: string; athleteId: string }):
  * stops working); only its hash is stored. The link is shown once.
  */
 export async function publishScoutProfile(input: ScoutPublishInput): Promise<FamilyResult<{ url: string; expiresAt: string }>> {
+  await assertFeature("player_journey");
   const me = await requireMember();
   if (!me) return fail("forbidden");
   const p = scoutPublishSchema.safeParse(input);
@@ -108,6 +114,7 @@ export async function publishScoutProfile(input: ScoutPublishInput): Promise<Fam
 }
 
 export async function revokeScoutProfile(athleteId: string): Promise<FamilyResult> {
+  await assertFeature("player_journey");
   const me = await requireMember();
   if (!me) return fail("forbidden");
   if (!uuid.safeParse(athleteId).success) return fail("invalid");

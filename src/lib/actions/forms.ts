@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getTranslations } from "@/lib/i18n/server";
@@ -35,6 +36,7 @@ function revalidateForms(id?: string) {
 // Builder
 // ===========================================================================
 export async function createForm(input: FormMetaInput): Promise<FormsResult<{ id: string }>> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   const p = formMetaSchema.safeParse(input);
@@ -51,6 +53,7 @@ export async function createForm(input: FormMetaInput): Promise<FormsResult<{ id
 }
 
 export async function saveFormDraft(id: string, meta: FormMetaInput, definition: FormDefinitionInput): Promise<FormsResult> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -71,6 +74,7 @@ export async function saveFormDraft(id: string, meta: FormMetaInput, definition:
 
 /** Publish the saved draft as a new immutable version (old submissions keep theirs). */
 export async function publishForm(id: string): Promise<FormsResult<{ versionId: string }>> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -87,6 +91,7 @@ export async function publishForm(id: string): Promise<FormsResult<{ versionId: 
 }
 
 export async function setFormArchived(id: string, archived: boolean): Promise<FormsResult> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -102,6 +107,7 @@ export async function setFormArchived(id: string, archived: boolean): Promise<Fo
 }
 
 export async function deleteDraftForm(id: string): Promise<FormsResult> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -118,6 +124,7 @@ export async function deleteDraftForm(id: string): Promise<FormsResult> {
 // Assignments
 // ===========================================================================
 export async function saveAssignment(formId: string, id: string | null, input: AssignmentInput): Promise<FormsResult> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(formId) || (id !== null && !isUuid(id))) return fail("forms.errors.invalidRequest");
@@ -150,6 +157,7 @@ export async function saveAssignment(formId: string, id: string | null, input: A
 }
 
 export async function deleteAssignment(id: string): Promise<FormsResult> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -176,6 +184,7 @@ async function familyFor(me: Me, athleteId: string): Promise<string | null> {
 
 /** Upload one attachment for a form answer (private bucket, family folder). */
 export async function uploadFormFile(formData: FormData): Promise<FormsResult<{ path: string; name: string; mime: string }>> {
+  await assertFeature("forms");
   const me = await requireMe(["parent", "admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   const athleteId = formData.get("athleteId");
@@ -198,6 +207,7 @@ export async function uploadFormFile(formData: FormData): Promise<FormsResult<{ 
 }
 
 export async function submitForm(input: SubmitInput): Promise<FormsResult<{ id: string }> & { fieldErrors?: Record<string, string> }> {
+  await assertFeature("forms");
   const me = await requireMe(["parent", "admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   const p = submitSchema.safeParse(input);
@@ -256,6 +266,7 @@ export async function submitForm(input: SubmitInput): Promise<FormsResult<{ id: 
 }
 
 export async function voidSubmission(id: string, reason: string): Promise<FormsResult> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -279,6 +290,7 @@ const REMINDER_COOLDOWN_DAYS = 3;
 
 /** Remind families with missing / expired / expiring forms (in-app + email). */
 export async function sendFormReminders(formId: string | null): Promise<FormsResult<{ families: number; skipped: number }>> {
+  await assertFeature("forms");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (formId !== null && !isUuid(formId)) return fail("forms.errors.invalidRequest");

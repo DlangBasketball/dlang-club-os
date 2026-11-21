@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -53,6 +54,7 @@ async function occupancy(db: OpsClient, orgId: string, venueId: string, fromKey:
 // Allocations
 // ---------------------------------------------------------------------------
 export async function saveAllocation(id: string | null, input: Record<string, unknown>, force = false): Promise<OpsResult<{ id: string }> | ConflictResult> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -94,6 +96,7 @@ export async function saveAllocation(id: string | null, input: Record<string, un
 }
 
 export async function deleteAllocation(id: string): Promise<OpsResult> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -108,6 +111,7 @@ export async function deleteAllocation(id: string): Promise<OpsResult> {
 
 /** Put a team's weekly court time on the schedule as training events. */
 export async function generateEventsFromAllocation(input: Record<string, unknown>): Promise<OpsResult<{ created: number; skipped: number }>> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(generateEventsSchema, input, t);
@@ -146,6 +150,7 @@ export async function generateEventsFromAllocation(input: Record<string, unknown
 // External customers + rentals
 // ---------------------------------------------------------------------------
 export async function saveCustomer(id: string | null, input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -168,6 +173,7 @@ export async function saveCustomer(id: string | null, input: Record<string, unkn
 }
 
 export async function saveRental(id: string | null, input: Record<string, unknown>, force = false): Promise<OpsResult<{ id: string }> | ConflictResult> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (id && !uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -201,6 +207,7 @@ export async function saveRental(id: string | null, input: Record<string, unknow
 
 /** Invoice a rental to its external customer (created from the renter when missing). */
 export async function invoiceRental(id: string): Promise<OpsResult<{ invoiceId: string }>> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin", "finance"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -236,6 +243,7 @@ export async function invoiceRental(id: string): Promise<OpsResult<{ invoiceId: 
 // Venue closures
 // ---------------------------------------------------------------------------
 export async function createClosure(input: Record<string, unknown>): Promise<OpsResult<{ id: string }>> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(closureSchema, input, t);
@@ -252,6 +260,7 @@ export async function createClosure(input: Record<string, unknown>): Promise<Ops
 }
 
 export async function deleteClosure(id: string): Promise<OpsResult> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail(t, "operations.errors.notFound");
@@ -271,6 +280,7 @@ export async function deleteClosure(id: string): Promise<OpsResult> {
  * and coaches of affected training bookings and sessions.
  */
 export async function applyClosure(input: Record<string, unknown>): Promise<OpsResult<{ changed: number; skipped: number; notified: number }>> {
+  await assertFeature("ops_facilities");
   const { me, t } = await gate(["admin"]);
   if (!me) return fail(t, "operations.errors.forbidden");
   const p = parseInput(closureApplySchema, input, t);

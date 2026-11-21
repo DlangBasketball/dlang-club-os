@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -53,6 +54,7 @@ const seasonInput = z.object({
 
 /** Sets (or clears = derive from the weeks) a camp's season and year. */
 export async function setCampSeason(programId: string, input: z.input<typeof seasonInput>): Promise<SeasonActionResult> {
+  await assertFeature("camp_basket");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!(await campRow(programId, me.orgId))) return fail("camps.errors.notFound", me.orgId);
@@ -74,6 +76,7 @@ export async function setCampSeason(programId: string, input: z.input<typeof sea
  * only when the admin confirmed it (they move with it).
  */
 export async function moveCampEdition(editionId: string, targetProgramId: string, moveRegistrations: boolean): Promise<SeasonActionResult> {
+  await assertFeature("camp_basket");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   if (!uuid.safeParse(editionId).success || !uuid.safeParse(targetProgramId).success) return fail("camps.errors.invalidRequest", me.orgId);
@@ -92,6 +95,7 @@ export async function moveCampEdition(editionId: string, targetProgramId: string
 
 /** One camp per season of its weeks (names in the club's language). */
 export async function splitCampBySeason(programId: string): Promise<SeasonActionResult> {
+  await assertFeature("camp_basket");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   const camp = await campRow(programId, me.orgId);
@@ -115,6 +119,7 @@ export async function splitCampBySeason(programId: string): Promise<SeasonAction
 
 /** A draft copy of the camp with every week 52 weeks later (same weekdays). */
 export async function duplicateCampForNextYear(programId: string): Promise<SeasonActionResult> {
+  await assertFeature("camp_basket");
   const me = await requireAdmin();
   if (!me) return fail("camps.errors.notPermitted");
   const camp = await campRow(programId, me.orgId);

@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -67,6 +68,7 @@ async function myCoachId(db: DevClient, me: Me): Promise<string | null> {
 // Assessment templates
 // ===========================================================================
 export async function saveAssessmentTemplate(id: string | null, input: TemplateInput): Promise<DevResult<{ id: string }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (id !== null && !isUuid(id)) return fail("development.errors.invalidRequest");
@@ -121,6 +123,7 @@ export async function saveAssessmentTemplate(id: string | null, input: TemplateI
 }
 
 export async function deleteAssessmentTemplate(id: string): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(id)) return fail("development.errors.invalidRequest");
@@ -137,6 +140,7 @@ export async function deleteAssessmentTemplate(id: string): Promise<DevResult> {
 // Evaluations (single athlete or a team batch)
 // ===========================================================================
 export async function saveEvaluations(input: EvaluationBatchInput): Promise<DevResult<{ ids: string[] }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   const p = evaluationBatchSchema.safeParse(input);
@@ -178,6 +182,7 @@ export async function saveEvaluations(input: EvaluationBatchInput): Promise<DevR
 }
 
 export async function setEvaluationShared(id: string, shared: boolean): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(id) || typeof shared !== "boolean") return fail("development.errors.invalidRequest");
@@ -191,6 +196,7 @@ export async function setEvaluationShared(id: string, shared: boolean): Promise<
 }
 
 export async function deleteEvaluation(id: string): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(id)) return fail("development.errors.invalidRequest");
@@ -207,6 +213,7 @@ export async function deleteEvaluation(id: string): Promise<DevResult> {
 // Settings (ranking weights, levels / emoji) and per-team wellness
 // ===========================================================================
 export async function saveDevelopmentSettings(input: SettingsInput): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(["admin"]);
   if (!me) return fail("development.errors.notPermitted");
   const p = settingsSchema.safeParse(input);
@@ -225,6 +232,7 @@ export async function saveDevelopmentSettings(input: SettingsInput): Promise<Dev
 }
 
 export async function setTeamWellness(teamId: string, enabled: boolean): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(["admin"]);
   if (!me) return fail("development.errors.notPermitted");
   const p = teamWellnessSchema.safeParse({ teamId, enabled });
@@ -242,6 +250,7 @@ export async function setTeamWellness(teamId: string, enabled: boolean): Promise
 // Exercise library (+ private videos)
 // ===========================================================================
 export async function saveExercise(id: string | null, input: ExerciseInput): Promise<DevResult<{ id: string }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (id !== null && !isUuid(id)) return fail("development.errors.invalidRequest");
@@ -269,6 +278,7 @@ export async function saveExercise(id: string | null, input: ExerciseInput): Pro
 }
 
 export async function deleteExercise(id: string): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(id)) return fail("development.errors.invalidRequest");
@@ -290,6 +300,7 @@ async function editableExercise(db: DevClient, me: Me, exerciseId: string) {
 
 /** Signed one-time upload URL for an exercise video (browser uploads straight to the private bucket). */
 export async function createExerciseVideoUpload(input: { exerciseId: string; contentType: string; size: number }): Promise<DevResult<{ path: string; token: string }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   const p = videoUploadSchema.safeParse(input);
@@ -303,6 +314,7 @@ export async function createExerciseVideoUpload(input: { exerciseId: string; con
 }
 
 export async function attachExerciseVideo(exerciseId: string, path: string | null): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(exerciseId) || (path !== null && (typeof path !== "string" || !isVideoPathFor(path, me.orgId, exerciseId)))) return fail("development.errors.invalidRequest");
@@ -319,6 +331,7 @@ export async function attachExerciseVideo(exerciseId: string, path: string | nul
 
 /** Short-lived signed URL; anyone in the club who may read the exercise (RLS) may watch it. */
 export async function getExerciseVideoUrl(exerciseId: string): Promise<DevResult<{ url: string }>> {
+  await assertFeature("player_development");
   const me = await requireRole(["admin", "coach", "parent"]);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(exerciseId)) return fail("development.errors.invalidRequest");
@@ -359,6 +372,7 @@ async function runAutoAssignFor(db: DevClient, me: Me, planIds: string[]): Promi
 }
 
 export async function saveTrainingPlan(id: string | null, input: PlanInput): Promise<DevResult<{ id: string; autoAssigned: number }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (id !== null && !isUuid(id)) return fail("development.errors.invalidRequest");
@@ -408,6 +422,7 @@ export async function saveTrainingPlan(id: string | null, input: PlanInput): Pro
 }
 
 export async function deleteTrainingPlan(id: string): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(id)) return fail("development.errors.invalidRequest");
@@ -421,6 +436,7 @@ export async function deleteTrainingPlan(id: string): Promise<DevResult> {
 }
 
 export async function runPlanAutoAssign(planId: string): Promise<DevResult<{ assigned: number }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(planId)) return fail("development.errors.invalidRequest");
@@ -431,6 +447,7 @@ export async function runPlanAutoAssign(planId: string): Promise<DevResult<{ ass
 }
 
 export async function assignTrainingPlan(input: AssignInput): Promise<DevResult<{ assigned: number }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   const p = assignSchema.safeParse(input);
@@ -457,6 +474,7 @@ export async function assignTrainingPlan(input: AssignInput): Promise<DevResult<
 }
 
 export async function setAssignmentStatus(id: string, status: "active" | "completed" | "cancelled"): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(id) || !["active", "completed", "cancelled"].includes(status)) return fail("development.errors.invalidRequest");
@@ -471,6 +489,7 @@ export async function setAssignmentStatus(id: string, status: "active" | "comple
 
 /** Check off / un-check a plan item, with optional rating + comment (guardian, coach of the athlete or admin). */
 export async function setPlanItemDone(input: CompletionInput): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(["admin", "coach", "parent"]);
   if (!me) return fail("development.errors.notPermitted");
   const p = completionSchema.safeParse(input);
@@ -498,6 +517,7 @@ export async function setPlanItemDone(input: CompletionInput): Promise<DevResult
 // Nutrition
 // ===========================================================================
 export async function saveNutritionPlan(id: string | null, input: NutritionInput): Promise<DevResult<{ id: string }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (id !== null && !isUuid(id)) return fail("development.errors.invalidRequest");
@@ -533,6 +553,7 @@ export async function saveNutritionPlan(id: string | null, input: NutritionInput
 }
 
 export async function deleteNutritionPlan(id: string): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(id)) return fail("development.errors.invalidRequest");
@@ -546,6 +567,7 @@ export async function deleteNutritionPlan(id: string): Promise<DevResult> {
 }
 
 export async function assignNutritionPlan(input: AssignNutritionInput): Promise<DevResult<{ assigned: number }>> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   const p = assignNutritionSchema.safeParse(input);
@@ -568,6 +590,7 @@ export async function assignNutritionPlan(input: AssignNutritionInput): Promise<
 }
 
 export async function unassignNutritionPlan(assignmentId: string): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(STAFF);
   if (!me) return fail("development.errors.notPermitted");
   if (!isUuid(assignmentId)) return fail("development.errors.invalidRequest");
@@ -584,6 +607,7 @@ export async function unassignNutritionPlan(assignmentId: string): Promise<DevRe
 // Wellness check-in (guardian, the athlete's coach or admin; one per day)
 // ===========================================================================
 export async function submitWellness(input: WellnessInput): Promise<DevResult> {
+  await assertFeature("player_development");
   const me = await requireRole(["admin", "coach", "parent"]);
   if (!me) return fail("development.errors.notPermitted");
   const p = wellnessSchema.safeParse(input);

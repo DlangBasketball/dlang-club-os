@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature, hasFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { headers } from "next/headers";
@@ -46,6 +47,8 @@ export async function submitContactForm(input: ContactFormInput): Promise<Action
     orgId = (data as { id: string } | null)?.id ?? null;
   }
   if (!orgId) return { ok: false, error: t("messaging.errors.notFound") };
+  // Module off for this club: the form behaves as if the club had none.
+  if (!(await hasFeature(orgId, "alerts_leads"))) return { ok: false, error: t("messaging.errors.notFound") };
 
   const hdrs = await headers();
   const ip = clientIpFrom((n) => hdrs.get(n));
@@ -88,6 +91,7 @@ export async function submitContactForm(input: ContactFormInput): Promise<Action
 }
 
 export async function setLeadStatus(input: { leadId: string; status: "new" | "replied" | "converted" | "closed" }): Promise<ActionResult> {
+  await assertFeature("alerts_leads");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("messaging.errors.forbidden") };
   const p = leadStatusSchema.safeParse(input);
@@ -108,6 +112,7 @@ export async function setLeadStatus(input: { leadId: string; status: "new" | "re
 }
 
 export async function replyToLead(input: { leadId: string; body: string }): Promise<ActionResult> {
+  await assertFeature("alerts_leads");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("messaging.errors.forbidden") };
   const p = leadReplySchema.safeParse(input);
@@ -152,6 +157,7 @@ export async function replyToLead(input: { leadId: string; body: string }): Prom
 
 /** Turn a lead into a family record (reuses a family with the same contact email). */
 export async function convertLeadToFamily(leadId: string): Promise<ActionResult<{ familyId: string }>> {
+  await assertFeature("alerts_leads");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("messaging.errors.forbidden") };
   if (!uuid.safeParse(leadId).success) return { ok: false, error: t("messaging.errors.notFound") };

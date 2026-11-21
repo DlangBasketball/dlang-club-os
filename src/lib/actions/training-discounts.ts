@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getTenant, tenantMatchesOrg } from "@/lib/tenant/server";
@@ -36,6 +37,7 @@ const input = z.object({
 });
 
 export async function previewTrainingPrice(raw: z.input<typeof input>): Promise<TrainingPricePreview> {
+  await assertFeature("bookings");
   const empty: TrainingPricePreview = { ok: false, currency: "CHF", listPrice: 0, discountTotal: 0, amount: 0, promo: "none" };
   const p = input.safeParse(raw);
   const t0 = await getTranslations();

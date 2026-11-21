@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -46,6 +47,7 @@ async function requireOwnAdmin() {
 }
 
 export async function previewWebsiteImport(raw: z.input<typeof input>): Promise<ImportActionResult<ImportPreview>> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if (!me) return { ok: false, error: t("website.errors.forbidden") };
@@ -59,6 +61,7 @@ export async function previewWebsiteImport(raw: z.input<typeof input>): Promise<
 }
 
 export async function runWebsiteImport(raw: z.input<typeof runInput> & { dryRun: boolean; defaultStock?: number }): Promise<ImportActionResult<ImportResult>> {
+  await assertFeature("website_connect");
   const t = await getTranslations();
   const me = await requireOwnAdmin();
   if (!me) return { ok: false, error: t("website.errors.forbidden") };

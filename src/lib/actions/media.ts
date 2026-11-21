@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
@@ -113,6 +114,7 @@ function optNumber(v: FormDataEntryValue | null): number | undefined {
  * club library (public bucket, registered in media_assets).
  */
 export async function setCover(formData: FormData): Promise<ActionResult<{ path: string | null }>> {
+  await assertFeature("media_library");
   const { me, t } = await requireRole(["admin", "parent"]);
   if (!me) return { ok: false, error: t("media.errors.forbidden") };
   const parsed = setCoverSchema.safeParse({
@@ -237,6 +239,7 @@ export type CoverLibraryItem = { id: string; url: string; alt: string | null; wi
 
 /** Library images for the "Choose from library" tab (admins only). */
 export async function listCoverLibrary(): Promise<ActionResult<CoverLibraryItem[]>> {
+  await assertFeature("media_library");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("media.errors.forbidden") };
   const supabase = await createClient();
@@ -270,6 +273,7 @@ export async function listCoverLibrary(): Promise<ActionResult<CoverLibraryItem[
  * (repeated), and per file index i: width_i, height_i, alt_i; kind.
  */
 export async function uploadMediaAssets(formData: FormData): Promise<ActionResult<{ count: number; failed: number }>> {
+  await assertFeature("media_library");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("media.errors.forbidden") };
   const files = formData.getAll("files").filter((f): f is File => f instanceof File);
@@ -329,6 +333,7 @@ export async function uploadMediaAssets(formData: FormData): Promise<ActionResul
 
 /** Edit alt text / consent note / kind of a library image (admin). */
 export async function updateMediaAsset(input: MediaAssetUpdateInput): Promise<ActionResult> {
+  await assertFeature("media_library");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("media.errors.forbidden") };
   const p = mediaAssetUpdateSchema.safeParse(input);
@@ -354,6 +359,7 @@ export async function updateMediaAsset(input: MediaAssetUpdateInput): Promise<Ac
 
 /** Delete a library image that nothing uses (the database refuses otherwise). */
 export async function deleteMediaAsset(id: string): Promise<ActionResult> {
+  await assertFeature("media_library");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("media.errors.forbidden") };
   if (!/^[0-9a-f-]{36}$/i.test(id)) return { ok: false, error: t("media.errors.invalid") };

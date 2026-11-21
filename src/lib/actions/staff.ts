@@ -1,4 +1,6 @@
 "use server";
+import { hasFeature } from "@/lib/upgrades/server";
+import { getTranslations } from "@/lib/i18n/server";
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -18,6 +20,10 @@ export async function assignRole(profileId: string, role: string): Promise<Actio
   if (!me) return { ok: false, error: "Admins only" };
   if (!STAFF_ROLES.includes(role as AppRole)) return { ok: false, error: "Unknown role" };
   const r = role as AppRole;
+  if (r === "finance" && !(await hasFeature(me.orgId, "advanced_roles"))) {
+    const t = await getTranslations(me.orgId);
+    return { ok: false, error: t("upgrades.errors.locked") };
+  }
   const admin = createAdminClient();
   // Only members of this club can receive one of its roles.
   const { data: target } = await admin.from("profiles").select("org_id").eq("id", profileId).maybeSingle();

@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -51,6 +52,7 @@ function revalidateBooking(id: string) {
 // ===========================================================================
 /** Change service, coach, time, status or notes. Payment is not changed here. */
 export async function adminUpdateBooking(bookingId: string, input: BookingEditInput): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me) return tFail("editOps.errors.notPermitted");
   if (!isUuid(bookingId)) return tFail("editOps.errors.invalidRequest");
@@ -69,6 +71,7 @@ export async function adminUpdateBooking(bookingId: string, input: BookingEditIn
 
 /** Cancel with a reason (refunds credits / voids an unpaid invoice like any staff cancel). */
 export async function adminCancelBooking(bookingId: string, reason: string): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me) return tFail("editOps.errors.notPermitted");
   if (!isUuid(bookingId)) return tFail("editOps.errors.invalidRequest");
@@ -85,6 +88,7 @@ export async function adminCancelBooking(bookingId: string, reason: string): Pro
 // PARENT: book / reschedule / cancel
 // ===========================================================================
 export async function bookSession(athleteId: string, serviceId: string, slotId: string, payWith: "credits" | "invoice"): Promise<ActionResult<{ bookingId: string }>> {
+  await assertFeature("bookings");
   const me = await getSessionUser();
   if (!me) return { ok: false, error: "Not signed in" };
   const supabase = await createClient();
@@ -131,6 +135,7 @@ export async function bookSession(athleteId: string, serviceId: string, slotId: 
 }
 
 export async function rescheduleBookingAction(bookingId: string, newSlotId: string): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await getSessionUser();
   if (!me) return { ok: false, error: "Not signed in" };
   const supabase = await createClient();
@@ -143,6 +148,7 @@ export async function rescheduleBookingAction(bookingId: string, newSlotId: stri
 }
 
 export async function cancelBookingAction(bookingId: string): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await getSessionUser();
   if (!me) return { ok: false, error: "Not signed in" };
   const supabase = await createClient();
@@ -162,6 +168,7 @@ export type { ServiceInput } from "@/lib/club-ops/validation";
 function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60); }
 
 export async function createService(input: ServiceInput): Promise<ActionResult<{ id: string }>> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me) return tFail("editOps.errors.notPermitted");
   const p = serviceSchema.safeParse(input);
@@ -179,6 +186,7 @@ export async function createService(input: ServiceInput): Promise<ActionResult<{
 }
 
 export async function updateService(id: string, input: ServiceInput): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me) return tFail("editOps.errors.notPermitted");
   if (!isUuid(id)) return tFail("editOps.errors.invalidRequest");
@@ -198,6 +206,7 @@ export async function updateService(id: string, input: ServiceInput): Promise<Ac
 }
 
 export async function toggleService(id: string, isActive: boolean): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me) return tFail("editOps.errors.notPermitted");
   if (!isUuid(id)) return tFail("editOps.errors.invalidRequest");
@@ -220,6 +229,7 @@ const packageSchema = z.object({
 export type PackageInput = z.input<typeof packageSchema>;
 
 export async function createCreditPackage(input: PackageInput): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me) return { ok: false, error: "Admins only" };
   const p = packageSchema.safeParse(input);
@@ -233,6 +243,7 @@ export async function createCreditPackage(input: PackageInput): Promise<ActionRe
 }
 
 export async function grantCredits(athleteId: string, category: "personal" | "nutrition" | "mental", credits: number): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me) return { ok: false, error: "Admins only" };
   const supabase = await createClient();
@@ -246,6 +257,7 @@ export async function grantCredits(athleteId: string, category: "personal" | "nu
 // ADMIN: booking settings (cancellation rules + enable toggle)
 // ===========================================================================
 export async function updateBookingSettings(input: { enabled: boolean; cancellationHours: number; refundCreditsOnCancel: boolean }): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await requireAdmin();
   if (!me?.orgId) return { ok: false, error: "Admins only" };
   const admin = createAdminClient();
@@ -263,6 +275,7 @@ export async function updateBookingSettings(input: { enabled: boolean; cancellat
 // COACH/ADMIN: availability
 // ===========================================================================
 export async function addAvailability(coachId: string, startISO: string, endISO: string): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await getSessionUser();
   if (!me || !(me.roles.includes("admin") || me.roles.includes("coach"))) return { ok: false, error: "Not permitted" };
   if (!startISO || !endISO || new Date(endISO) <= new Date(startISO)) return { ok: false, error: "End time must be after the start time." };
@@ -278,6 +291,7 @@ export async function addAvailability(coachId: string, startISO: string, endISO:
 }
 
 export async function removeAvailability(slotId: string): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await getSessionUser();
   if (!me || !(me.roles.includes("admin") || me.roles.includes("coach"))) return { ok: false, error: "Not permitted" };
   const supabase = await createClient();
@@ -290,6 +304,7 @@ export async function removeAvailability(slotId: string): Promise<ActionResult> 
 
 /** Move/resize an unbooked availability slot (admin, or the slot's own coach via RLS). */
 export async function updateAvailability(slotId: string, startISO: string, endISO: string): Promise<ActionResult> {
+  await assertFeature("bookings");
   const me = await getSessionUser();
   if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("coach"))) return tFail("editOps.errors.notPermitted");
   if (!isUuid(slotId)) return tFail("editOps.errors.invalidRequest");

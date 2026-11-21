@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createHash, randomBytes } from "node:crypto";
@@ -24,6 +25,7 @@ function revalidateCalendars() {
 }
 
 export async function saveClubEvent(input: ClubEventInput): Promise<ActionResult<{ id: string }>> {
+  await assertFeature("calendar_ics");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const p = clubEventSchema.safeParse(input);
@@ -52,6 +54,7 @@ export async function saveClubEvent(input: ClubEventInput): Promise<ActionResult
 }
 
 export async function deleteClubEvent(id: string): Promise<ActionResult> {
+  await assertFeature("calendar_ics");
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   if (!uuid.safeParse(id).success) return { ok: false, error: t("staff.errors.notFound") };
@@ -75,6 +78,7 @@ async function origin(): Promise<string> {
 
 /** Create (or rotate) the caller's read-only calendar link. The URL is returned once. */
 export async function createCalendarFeed(): Promise<ActionResult<{ url: string }>> {
+  await assertFeature("calendar_ics");
   const { me, t } = await requireRole(["admin", "finance", "coach", "parent"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const db = await staffDb();
@@ -94,6 +98,7 @@ export async function createCalendarFeed(): Promise<ActionResult<{ url: string }
 }
 
 export async function revokeCalendarFeed(): Promise<ActionResult> {
+  await assertFeature("calendar_ics");
   const { me, t } = await requireRole(["admin", "finance", "coach", "parent"]);
   if (!me) return { ok: false, error: t("staff.errors.forbidden") };
   const db = await staffDb();

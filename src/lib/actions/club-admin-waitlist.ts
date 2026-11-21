@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { caAdminDb, caDb } from "@/lib/club-admin/db";
 import { audit, dbErrorKey, done, fail, requireMe, type CaResult } from "@/lib/club-admin/server";
@@ -59,6 +60,7 @@ async function resolveJoin(orgId: string, v: { kind: string; targetId: string; a
 
 /** Guardian joins a list for their child. */
 export async function joinWaitlist(input: WaitlistJoinInput): Promise<CaResult> {
+  await assertFeature("waitlists");
   const me = await requireMe(["parent"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = waitlistJoinSchema.safeParse(input);
@@ -78,6 +80,7 @@ export async function joinWaitlist(input: WaitlistJoinInput): Promise<CaResult> 
 
 /** Leave a list (guardian of the entry, or admin). */
 export async function leaveWaitlist(id: string): Promise<CaResult> {
+  await assertFeature("waitlists");
   const me = await requireMe(["parent", "admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -99,6 +102,7 @@ export async function leaveWaitlist(id: string): Promise<CaResult> {
 }
 
 export async function adminAddToWaitlist(input: WaitlistAdminAddInput): Promise<CaResult> {
+  await assertFeature("waitlists");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = waitlistAdminAddSchema.safeParse(input);
@@ -114,6 +118,7 @@ export async function adminAddToWaitlist(input: WaitlistAdminAddInput): Promise<
 }
 
 export async function moveWaitlistEntry(id: string, position: number): Promise<CaResult> {
+  await assertFeature("waitlists");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = waitlistMoveSchema.safeParse({ id, position });
@@ -125,6 +130,7 @@ export async function moveWaitlistEntry(id: string, position: number): Promise<C
 }
 
 export async function skipWaitlistEntry(id: string, reason: string): Promise<CaResult> {
+  await assertFeature("waitlists");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = waitlistSkipSchema.safeParse({ id, reason });
@@ -142,6 +148,7 @@ export async function skipWaitlistEntry(id: string, reason: string): Promise<CaR
 
 /** Admin: offer the spot to this entry now (even without a free spot). */
 export async function offerWaitlistEntryNow(id: string): Promise<CaResult> {
+  await assertFeature("waitlists");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -156,6 +163,7 @@ export async function offerWaitlistEntryNow(id: string): Promise<CaResult> {
 
 /** Admin: expire overdue offers and fill free spots on every list now. */
 export async function runWaitlistsNow(): Promise<CaResult<{ offers: number }>> {
+  await assertFeature("waitlists");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const r = await processWaitlists({ orgId: me.orgId });

@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -30,6 +31,7 @@ async function fail(key: string, orgId?: string | null): Promise<DiscountActionR
 }
 
 export async function saveDiscount(id: string | null, input: DiscountInput): Promise<DiscountActionResult> {
+  await assertFeature("discounts");
   const me = await requireStaff(["admin"]);
   if (!me) return fail("camps.errors.notPermitted");
   if (id && !uuid.safeParse(id).success) return fail("camps.errors.invalidRequest", me.orgId);
@@ -55,6 +57,7 @@ export async function saveDiscount(id: string | null, input: DiscountInput): Pro
 }
 
 export async function setDiscountActive(id: string, active: boolean): Promise<DiscountActionResult> {
+  await assertFeature("discounts");
   const me = await requireStaff(["admin"]);
   if (!me) return fail("camps.errors.notPermitted");
   if (!uuid.safeParse(id).success) return fail("camps.errors.invalidRequest", me.orgId);
@@ -68,6 +71,7 @@ export async function setDiscountActive(id: string, active: boolean): Promise<Di
 
 /** Deletes an unused discount; a discount that was ever applied is disabled instead (history stays). */
 export async function deleteDiscount(id: string): Promise<DiscountActionResult> {
+  await assertFeature("discounts");
   const me = await requireStaff(["admin"]);
   if (!me) return fail("camps.errors.notPermitted");
   if (!uuid.safeParse(id).success) return fail("camps.errors.invalidRequest", me.orgId);
@@ -92,6 +96,7 @@ export async function deleteDiscount(id: string): Promise<DiscountActionResult> 
 
 /** Admin / finance: take a discount off one camp registration (credit note when the invoice is issued). */
 export async function applyManualDiscount(registrationId: string, discountId: string, reason: string, amount?: number | null): Promise<DiscountActionResult> {
+  await assertFeature("discounts");
   const me = await requireStaff(["admin", "finance"]);
   if (!me) return fail("camps.errors.notPermitted");
   if (!uuid.safeParse(registrationId).success || !uuid.safeParse(discountId).success) return fail("camps.errors.invalidRequest", me.orgId);

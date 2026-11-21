@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -208,6 +209,7 @@ async function syncCoaches(teamId: string, orgId: string, coaches: { coachId: st
 }
 
 export async function saveTeam(id: string | null, input: TeamInput): Promise<ActionResult<{ id: string }>> {
+  await assertFeature("multi_team");
   const me = await requireStaff();
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
   const p = TeamInput.safeParse(input);
@@ -255,6 +257,7 @@ const MemberInput = z.object({
 export type MemberInput = z.input<typeof MemberInput>;
 
 export async function addTeamMember(teamId: string, input: MemberInput): Promise<ActionResult> {
+  await assertFeature("multi_team");
   const me = await requireStaff(["admin", "coach"]);
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
   const p = MemberInput.safeParse(input);
@@ -271,6 +274,7 @@ export async function addTeamMember(teamId: string, input: MemberInput): Promise
 }
 
 export async function updateTeamMember(membershipId: string, teamId: string, input: Omit<MemberInput, "athleteId">): Promise<ActionResult> {
+  await assertFeature("multi_team");
   const me = await requireStaff(["admin", "coach"]);
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
   const p = MemberInput.omit({ athleteId: true }).safeParse(input);
@@ -287,6 +291,7 @@ export async function updateTeamMember(membershipId: string, teamId: string, inp
 }
 
 export async function removeTeamMember(membershipId: string, teamId: string): Promise<ActionResult> {
+  await assertFeature("multi_team");
   const me = await requireStaff(["admin", "coach"]);
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
   const db = await sportsDb();

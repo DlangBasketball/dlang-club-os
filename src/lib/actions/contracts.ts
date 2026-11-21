@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { formsAdminDb, formsDb } from "@/lib/forms/db";
@@ -24,6 +25,7 @@ function revalidateContracts(id?: string) {
 }
 
 export async function saveContractTemplate(id: string | null, input: ContractTemplateInput): Promise<FormsResult<{ id: string }>> {
+  await assertFeature("contracts");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (id !== null && !isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -55,6 +57,7 @@ export async function saveContractTemplate(id: string | null, input: ContractTem
 
 /** Publish: first publish is version 1, every later publish of changed text is the next version. */
 export async function publishContractTemplate(id: string): Promise<FormsResult> {
+  await assertFeature("contracts");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -71,6 +74,7 @@ export async function publishContractTemplate(id: string): Promise<FormsResult> 
 }
 
 export async function archiveContractTemplate(id: string): Promise<FormsResult> {
+  await assertFeature("contracts");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -85,6 +89,7 @@ export async function archiveContractTemplate(id: string): Promise<FormsResult> 
 
 /** Admin issues a contract for a registration (merge data from it) or an athlete (club + family data only). */
 export async function issueContract(input: IssueContractInput): Promise<FormsResult<{ id: string }>> {
+  await assertFeature("contracts");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   const p = issueContractSchema.safeParse(input);
@@ -126,6 +131,7 @@ export async function issueContract(input: IssueContractInput): Promise<FormsRes
 
 /** Guardian accepts: typed name + timestamp + IP hash; then the signed PDF is stored privately. */
 export async function signContract(input: SignContractInput): Promise<FormsResult> {
+  await assertFeature("contracts");
   const me = await requireMe(["parent"]);
   if (!me) return fail("forms.errors.notPermitted");
   const p = signContractSchema.safeParse(input);
@@ -141,6 +147,7 @@ export async function signContract(input: SignContractInput): Promise<FormsResul
 }
 
 export async function voidContract(id: string, reason: string): Promise<FormsResult> {
+  await assertFeature("contracts");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");
@@ -157,6 +164,7 @@ export async function voidContract(id: string, reason: string): Promise<FormsRes
 
 /** Void and issue a fresh contract from the template's current published version. */
 export async function reissueContract(id: string, reason: string): Promise<FormsResult<{ id: string }>> {
+  await assertFeature("contracts");
   const me = await requireMe(["admin"]);
   if (!me) return fail("forms.errors.notPermitted");
   if (!isUuid(id)) return fail("forms.errors.invalidRequest");

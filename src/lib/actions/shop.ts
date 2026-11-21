@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature, hasFeature } from "@/lib/upgrades/server";
 import { randomBytes, randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -62,6 +63,7 @@ function revalidateShop(productId?: string) {
 // Products + variants (admin)
 // ===========================================================================
 export async function saveProduct(id: string | null, input: ProductInput): Promise<ShopResult<{ id: string }>> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   if (id && !isUuid(id)) return fail("shop.errors.invalidRequest", me.orgId);
@@ -112,6 +114,7 @@ async function forgetImportedProduct(orgId: string, id: string, deleted: boolean
 }
 
 export async function deleteProduct(id: string): Promise<ShopResult<{ archived: boolean }>> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   if (!isUuid(id)) return fail("shop.errors.invalidRequest", me.orgId);
@@ -139,6 +142,7 @@ export async function deleteProduct(id: string): Promise<ShopResult<{ archived: 
 }
 
 export async function saveVariant(productId: string, input: VariantInput): Promise<ShopResult<{ id: string }>> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   if (!isUuid(productId)) return fail("shop.errors.invalidRequest", me.orgId);
@@ -158,6 +162,7 @@ export async function saveVariant(productId: string, input: VariantInput): Promi
 }
 
 export async function deleteVariant(productId: string, variantId: string): Promise<ShopResult<{ archived: boolean }>> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   if (!isUuid(productId) || !isUuid(variantId)) return fail("shop.errors.invalidRequest", me.orgId);
@@ -174,6 +179,7 @@ export async function deleteVariant(productId: string, variantId: string): Promi
 }
 
 export async function adjustStock(input: StockInput): Promise<ShopResult<{ stock: number }>> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   const p = stockSchema.safeParse(input);
@@ -191,6 +197,7 @@ export async function adjustStock(input: StockInput): Promise<ShopResult<{ stock
 const IMAGE_MAX_BYTES = 3 * 1024 * 1024;
 
 export async function uploadProductImage(form: FormData): Promise<ShopResult<{ path: string }>> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   const productId = String(form.get("productId") ?? "");
@@ -223,6 +230,7 @@ export async function uploadProductImage(form: FormData): Promise<ShopResult<{ p
 }
 
 export async function removeProductImage(productId: string, path: string): Promise<ShopResult> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   if (!isUuid(productId) || typeof path !== "string" || !path.startsWith(`${me.orgId}/products/`) || path.includes("..")) {
@@ -244,6 +252,7 @@ export async function removeProductImage(productId: string, path: string): Promi
 // Orders (admin)
 // ===========================================================================
 export async function setOrderStatus(input: StatusInput): Promise<ShopResult> {
+  await assertFeature("shop");
   const me = await requireAdmin();
   if (!me) return fail("shop.errors.notPermitted");
   const p = statusSchema.safeParse(input);
@@ -266,6 +275,11 @@ type ShopContext = { orgId: string; member: { profileId: string; familyId: strin
 
 /** The club of the shop: the signed-in member's own club when it matches the host, else the host's club. */
 async function shopContext(): Promise<ShopContext | null> {
+  const ctx = await shopContextUngated();
+  return ctx && (await hasFeature(ctx.orgId, "shop")) ? ctx : null;
+}
+
+async function shopContextUngated(): Promise<ShopContext | null> {
   const [tenant, me] = await Promise.all([getTenant(), getSessionUser()]);
   if (me?.orgId && orgMatchesTenant(me.orgId, tenant)) {
     const admin = shopAdminDb();

@@ -1,5 +1,6 @@
 "use server";
 
+import { assertFeature } from "@/lib/upgrades/server";
 import { revalidatePath } from "next/cache";
 import { caDb } from "@/lib/club-admin/db";
 import { audit, dbErrorKey, done, fail, removePrivateFile, requireMe, signedFileUrl, uploadPrivateFile, type CaResult } from "@/lib/club-admin/server";
@@ -27,6 +28,7 @@ const str = (fd: FormData, k: string) => {
 
 /** Create or update a certificate (+ optional document). FormData: id?, coachId, kind, title, reference, issuedOn, validUntil, notes, file. */
 export async function saveCertificate(fd: FormData): Promise<CaResult<{ id: string }>> {
+  await assertFeature("staff_compliance");
   const me = await requireMe(["admin", "coach"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const isAdmin = me.roles.includes("admin");
@@ -78,6 +80,7 @@ export async function saveCertificate(fd: FormData): Promise<CaResult<{ id: stri
 }
 
 export async function verifyCertificate(id: string, decision: "verified" | "rejected", reason?: string | null): Promise<CaResult> {
+  await assertFeature("staff_compliance");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = verifySchema.safeParse({ id, decision, reason });
@@ -95,6 +98,7 @@ export async function verifyCertificate(id: string, decision: "verified" | "reje
 }
 
 export async function deleteCertificate(id: string): Promise<CaResult> {
+  await assertFeature("staff_compliance");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -109,6 +113,7 @@ export async function deleteCertificate(id: string): Promise<CaResult> {
 
 /** Signed URL of a certificate document (admin, or the coach it belongs to — via RLS). */
 export async function certificateFileUrl(id: string): Promise<CaResult<{ url: string }>> {
+  await assertFeature("staff_compliance");
   const me = await requireMe(["admin", "coach"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   if (!uuid.safeParse(id).success) return fail("clubadmin.errors.invalid");
@@ -120,6 +125,7 @@ export async function certificateFileUrl(id: string): Promise<CaResult<{ url: st
 
 /** Assign a coach to a youth team although mandatory checks are missing (reason recorded). */
 export async function assignCoachWithOverride(input: { teamId: string; coachId: string; role?: string; reason: string }): Promise<CaResult> {
+  await assertFeature("staff_compliance");
   const me = await requireMe(["admin"]);
   if (!me) return fail("clubadmin.errors.forbidden");
   const p = overrideSchema.safeParse(input);
