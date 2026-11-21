@@ -15,6 +15,7 @@ import { FinanceOverview, FinanceOverviewSkeleton } from "@/components/dashboard
 import { CoverImage } from "@/components/media/cover-image";
 import { getOrgCover } from "@/lib/media/server";
 import { getTranslations } from "@/lib/i18n/server";
+import { SelectionRevenueCard } from "@/components/selection/revenue-card";
 
 export default async function DashboardPage() {
   const [user, t] = await Promise.all([getSessionUser(), getTranslations()]);
@@ -37,6 +38,11 @@ export default async function DashboardPage() {
       {/* Students & money: KPI tiles + charts */}
       <Suspense fallback={<FinanceOverviewSkeleton />}>
         <FinanceOverview />
+      </Suspense>
+
+      {/* Revenue straight from selection programmes (e.g. an international team) */}
+      <Suspense fallback={null}>
+        <SelectionRevenueCard />
       </Suspense>
 
       {/* KPIs */}

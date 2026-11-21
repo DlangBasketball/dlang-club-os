@@ -174,7 +174,7 @@ export type Database = {
           org_id: string;
           slug: string | null;
           name: string;
-          kind: "camp" | "recurring_team" | "clinic" | "tournament";
+          kind: "camp" | "recurring_team" | "clinic" | "tournament" | "selection";
           description: string | null;
           price_chf: number;
           capacity: number | null;
@@ -190,6 +190,8 @@ export type Database = {
           // camp seasons + cover image (20250420101200)
           season: "spring" | "summer" | "fall" | "winter" | "other" | null; season_year: number | null;
           cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null;
+          // selection programmes (20250420102600)
+          selection_enabled: boolean; requires_approval: boolean; allow_non_members: boolean;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;

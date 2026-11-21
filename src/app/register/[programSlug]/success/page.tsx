@@ -8,10 +8,10 @@ export default async function RegistrationSuccessPage({
   params, searchParams,
 }: {
   params: Promise<{ programSlug: string }>;
-  searchParams: Promise<{ ref?: string; account?: string; plan?: string }>;
+  searchParams: Promise<{ ref?: string; account?: string; plan?: string; applied?: string }>;
 }) {
   const { programSlug } = await params;
-  const { ref, account, plan } = await searchParams;
+  const { ref, account, plan, applied } = await searchParams;
   const planCount = /^\d{1,2}$/.test(plan ?? "") ? Number(plan) : 0;
   const data = await getPublicProgram(programSlug);
   const t = await getTranslations(data?.program.orgId);
@@ -25,9 +25,11 @@ export default async function RegistrationSuccessPage({
             <CheckCircle2 className="h-7 w-7" />
           </span>
           <div>
-            <h1 className="font-display text-2xl font-semibold">{t("registration.success.title")}</h1>
+            <h1 className="font-display text-2xl font-semibold">{applied === "1" ? t("selection.public.successTitle") : t("registration.success.title")}</h1>
             <p className="mt-2 text-sm text-ink-2">
-              {ref
+              {applied === "1"
+                ? t("selection.public.successBody", { program: programName })
+                : ref
                 ? t("registration.success.thanksWithInvoice", { program: programName, invoice: ref })
                 : t("registration.success.thanks", { program: programName })}
             </p>
@@ -38,11 +40,19 @@ export default async function RegistrationSuccessPage({
           )}
           <div className="w-full rounded-md border border-line bg-surface-elevated/50 p-4 text-left text-sm text-ink-2">
             <p className="font-medium text-ink">{t("registration.success.nextTitle")}</p>
-            <ol className="mt-2 list-decimal space-y-1 pl-5">
-              <li>{t("registration.success.next1")}</li>
-              <li>{t("registration.success.next2")}</li>
-              <li>{t("registration.success.next3")}</li>
-            </ol>
+            {applied === "1" ? (
+              <ol className="mt-2 list-decimal space-y-1 pl-5">
+                <li>{t("selection.public.next1")}</li>
+                <li>{t("selection.public.next2")}</li>
+                <li>{t("selection.public.next3")}</li>
+              </ol>
+            ) : (
+              <ol className="mt-2 list-decimal space-y-1 pl-5">
+                <li>{t("registration.success.next1")}</li>
+                <li>{t("registration.success.next2")}</li>
+                <li>{t("registration.success.next3")}</li>
+              </ol>
+            )}
           </div>
           <Link href="/login"><Button>{t("registration.success.setupAccount")}</Button></Link>
         </CardBody>

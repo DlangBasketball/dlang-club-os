@@ -99,8 +99,8 @@ export async function buildClub(c: Ctx) {
 // ---------------------------------------------------------------------------
 // programs
 // ---------------------------------------------------------------------------
-const KIND_OUT: Record<string, string> = { camp: "camp", recurring_team: "team", clinic: "clinic", tournament: "tournament" };
-const KIND_IN: Record<string, string> = { camp: "camp", team: "recurring_team", clinic: "clinic", tournament: "tournament" };
+const KIND_OUT: Record<string, string> = { camp: "camp", recurring_team: "team", clinic: "clinic", tournament: "tournament", selection: "selection" };
+const KIND_IN: Record<string, string> = { camp: "camp", team: "recurring_team", clinic: "clinic", tournament: "tournament", selection: "selection" };
 
 type ProgramRow = {
   id: string; slug: string | null; name: string; kind: string; description: string | null; price_chf: number | string | null;

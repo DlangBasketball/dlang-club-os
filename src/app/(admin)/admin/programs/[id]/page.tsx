@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Pencil, ExternalLink, ListChecks } from "lucide-react";
+import { Pencil, ExternalLink, ListChecks, Medal } from "lucide-react";
 import { PageHeader, Button, Card, CardBody, Badge, ErrorState } from "@/components/ui";
 import { ProgramActions } from "@/components/admin/program-actions";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -55,6 +55,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       <PageHeader title={p.name} description={t.dynamic(`programKind.${p.kind}`, undefined, p.kind)}
         actions={isAdmin ? (
           <>
+            {p.kind !== "camp" && <Link href={`/admin/selection/${p.id}`}><Button size="sm" variant="secondary"><Medal className="h-4 w-4" /> {t("selection.admin.manageLink")}</Button></Link>}
             <Link href={`/admin/programs/${p.id}/registration-form`}><Button size="sm" variant="secondary"><ListChecks className="h-4 w-4" /> {t("forms.regForm.link")}</Button></Link>
             <Link href={`/admin/programs/${p.id}/edit`}><Button size="sm"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button></Link>
           </>

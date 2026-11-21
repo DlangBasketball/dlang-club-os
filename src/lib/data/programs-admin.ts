@@ -7,7 +7,7 @@ export type ProgramListItem = {
   id: string;
   name: string;
   slug: string | null;
-  kind: "camp" | "recurring_team" | "clinic" | "tournament";
+  kind: "camp" | "recurring_team" | "clinic" | "tournament" | "selection";
   price: number;
   capacity: number | null;
   enrolled: number;
