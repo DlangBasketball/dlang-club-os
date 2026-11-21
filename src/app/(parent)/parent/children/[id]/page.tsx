@@ -13,6 +13,7 @@ import { photoUrlsForAthletes } from "@/lib/people/server";
 import { getAthleteCover } from "@/lib/media/server";
 import { getPlayerStats, getPlayerTeams } from "@/lib/data/player-profile";
 import { MemberCardPanel } from "@/components/member-card/member-card-panel";
+import { LicenceCard } from "@/components/athlete/licence-card";
 
 /**
  * Parent app: one child's player card. Guardians edit the photo, the cover
@@ -49,6 +50,7 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
           </div>
         </CardBody>
       </Card>
+      <div className="lg:col-span-2"><LicenceCard licence={data.licence} /></div>
       <Card>
         <CardHeader><CardTitle>{t("athletePhoto.title")}</CardTitle></CardHeader>
         <CardBody>

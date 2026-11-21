@@ -654,7 +654,8 @@
       "notFound": "Record not found.",
       "familyNotFound": "Family not found in your club.",
       "programNotFound": "Program not found in your club.",
-      "saveFailed": "Could not save. Please try again."
+      "saveFailed": "Could not save. Please try again.",
+      "invalidAmount": "Enter a valid amount (0 or more)."
     },
     "athlete": {
       "sectionProfile": "Profile",
@@ -746,7 +747,10 @@
       "children": "Children",
       "addChild": "Add child",
       "noChildren": "No children in this family yet.",
-      "moveHint": "To move a child to another family, change the family on the child's edit page."
+      "moveHint": "To move a child to another family, change the family on the child's edit page.",
+      "postalCode": "Postal code",
+      "city": "City",
+      "street": "Street and number"
     },
     "guardians": {
       "title": "Guardians",
@@ -830,6 +834,24 @@
       "verbal": "Verbal",
       "email": "Email",
       "other": "Other"
+    },
+    "licence": {
+      "title": "Federation license",
+      "number": "License number",
+      "category": "Category",
+      "categoryPlaceholder": "e.g. U16, Official",
+      "federation": "Federation",
+      "federationPlaceholder": "e.g. national federation or licensing system",
+      "issuedOn": "Issued on",
+      "fee": "License fee",
+      "none": "No federation license recorded.",
+      "hint": "Managed by the club, for example from the federation's licensing system. Parents see the number, category, federation and date; the fee is shown to admin and finance only.",
+      "duplicate": "Another player in your club already has this license number.",
+      "column": "License",
+      "missing": "Missing",
+      "filterLabel": "Filter by federation license",
+      "filterHas": "Has license",
+      "filterMissing": "License missing"
     }
   },
   "athletePhoto": {
@@ -4650,7 +4672,13 @@
         "statusUnknown": "Unrecognized status \"{value}\": imported as confirmed.",
         "registeredOnIgnored": "Registration date \"{value}\" ignored (unreadable or in the future).",
         "duplicateRegistration": "Duplicate registration: same athlete and program as line {line}.",
-        "registrationExists": "{name} is already registered for {programme}: skipped."
+        "registrationExists": "{name} is already registered for {programme}: skipped.",
+        "valueTooLong": "\"{column}\" is too long (maximum {max} characters).",
+        "licenceDateUnreadable": "Unreadable license date \"{value}\" (use YYYY-MM-DD or DD.MM.YYYY).",
+        "licenceDateFuture": "License issue date is in the future.",
+        "licenceFeeInvalid": "Unreadable license fee \"{value}\" (use a number such as 45 or 45.50).",
+        "licenceDuplicate": "License number {value} is also on line {line}.",
+        "licenceTaken": "License number {value} already belongs to another player in your club."
       }
     },
     "nav": {

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui";
 import { ParentContactSection } from "@/components/athlete/parent-contact-section";
 import { getFamily } from "@/lib/data/families";
+import { formatPostalAddress } from "@/lib/people/licence";
 import { getI18n } from "@/lib/i18n/server";
 
 export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,7 +21,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
     <div className="animate-fade-up space-y-6">
       <PageHeader
         title={data.name}
-        description={data.address ?? undefined}
+        description={formatPostalAddress(data) ?? undefined}
         actions={
           <div className="flex gap-2">
             <Link href={`/admin/athletes/new?family=${id}`}><Button variant="secondary"><Plus className="h-4 w-4" /> Add athlete</Button></Link>
@@ -98,7 +99,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="space-y-6">
-          <ParentContactSection guardians={data.guardians} familyPhone={data.phone} familyAddress={data.address} />
+          <ParentContactSection guardians={data.guardians} familyPhone={data.phone} familyAddress={formatPostalAddress(data)} />
 
           {/* Documents */}
           <Card>

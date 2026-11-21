@@ -6,16 +6,18 @@ import { createClient } from "@/lib/supabase/server";
 import { requireRole, writeAudit, type ActionResult } from "@/lib/people/server";
 import {
   athleteSchema,
+  licenceSchema,
   medicalSchema,
   firstIssueKey,
   isPhotoPathFor,
   PHOTO_BUCKET,
   type AthleteInput,
+  type LicenceInput,
   type MedicalInput,
 } from "@/lib/people/validation";
 import { logError } from "@/lib/log";
 
-export type { AthleteInput, MedicalInput } from "@/lib/people/validation";
+export type { AthleteInput, LicenceInput, MedicalInput } from "@/lib/people/validation";
 
 /** The family must belong to the caller's org (checked through RLS + org filter). */
 async function familyInOrg(familyId: string, orgId: string): Promise<boolean> {
@@ -139,5 +141,49 @@ export async function upsertMedical(athleteId: string, input: MedicalInput): Pro
     return { ok: false, error: t("editPeople.errors.saveFailed") };
   }
   revalidatePath(`/admin/athletes/${athleteId}`);
+  return { ok: true, message: t("editPeople.saved") };
+}
+
+/**
+ * Federation licence (admin only). The number is unique per club: a clash is
+ * reported as a friendly error. Audited in audit_logs (plus the row trigger).
+ */
+export async function updateAthleteLicence(athleteId: string, input: LicenceInput): Promise<ActionResult> {
+  const { me, t } = await requireRole(["admin"]);
+  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
+  const p = licenceSchema.safeParse(input);
+  if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
+  const d = p.data;
+  const supabase = await createClient();
+  const { data: before } = await supabase
+    .from("athletes")
+    .select("id,licence_number,licence_category,licence_federation,licence_issued_on,licence_fee")
+    .eq("id", athleteId)
+    .eq("org_id", me.orgId)
+    .maybeSingle();
+  if (!before) return { ok: false, error: t("editPeople.errors.notFound") };
+  const row = {
+    licence_number: d.number,
+    licence_category: d.category,
+    licence_federation: d.federation,
+    licence_issued_on: d.issuedOn,
+    licence_fee: d.fee,
+  };
+  const { error } = await supabase.from("athletes").update(row).eq("id", athleteId).eq("org_id", me.orgId);
+  if (error) {
+    if (error.code === "23505") return { ok: false, error: t("editPeople.licence.duplicate") };
+    logError("updateAthleteLicence", error);
+    return { ok: false, error: t("editPeople.errors.saveFailed") };
+  }
+  const old = {
+    licence_number: before.licence_number,
+    licence_category: before.licence_category,
+    licence_federation: before.licence_federation,
+    licence_issued_on: before.licence_issued_on,
+    licence_fee: before.licence_fee,
+  };
+  await writeAudit(me, "athlete.licence.update", "athletes", athleteId, { before: old, after: row });
+  revalidatePath(`/admin/athletes/${athleteId}`);
+  revalidatePath("/admin/athletes");
   return { ok: true, message: t("editPeople.saved") };
 }

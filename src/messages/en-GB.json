@@ -66,6 +66,17 @@
     },
     "documentScope": {
       "program": "Programme"
+    },
+    "licence": {
+      "title": "Federation licence",
+      "number": "Licence number",
+      "fee": "Licence fee",
+      "none": "No federation licence recorded.",
+      "duplicate": "Another player in your club already has this licence number.",
+      "column": "Licence",
+      "filterLabel": "Filter by federation licence",
+      "filterHas": "Has licence",
+      "filterMissing": "Licence missing"
     }
   },
   "editOps": {
@@ -303,7 +314,12 @@
         "programmeUnknown": "No programme named \"{value}\".",
         "programmeAmbiguous": "Several programmes are named \"{value}\": use the slug instead.",
         "statusUnknown": "Unrecognised status \"{value}\": imported as confirmed.",
-        "duplicateRegistration": "Duplicate registration: same athlete and programme as line {line}."
+        "duplicateRegistration": "Duplicate registration: same athlete and programme as line {line}.",
+        "licenceDateUnreadable": "Unreadable licence date \"{value}\" (use YYYY-MM-DD or DD.MM.YYYY).",
+        "licenceDateFuture": "Licence issue date is in the future.",
+        "licenceFeeInvalid": "Unreadable licence fee \"{value}\" (use a number such as 45 or 45.50).",
+        "licenceDuplicate": "Licence number {value} is also on line {line}.",
+        "licenceTaken": "Licence number {value} already belongs to another player in your club."
       }
     }
   },

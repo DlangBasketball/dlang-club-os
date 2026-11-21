@@ -24,6 +24,8 @@ function toRow(d: ReturnType<typeof familySchema.parse>) {
   return {
     name: d.name,
     address: d.address,
+    postal_code: d.postalCode,
+    city: d.city,
     phone: d.phone,
     contact_name: d.contactName,
     contact_email: d.contactEmail,

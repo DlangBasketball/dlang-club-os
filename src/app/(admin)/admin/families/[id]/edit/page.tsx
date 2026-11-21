@@ -37,7 +37,7 @@ export default async function EditFamilyPage({ params }: { params: Promise<{ id:
 
       <FamilyForm
         familyId={id}
-        initial={{ name: data.name, address: data.address, phone: data.phone, contactName: data.contactName, contactEmail: data.contactEmail }}
+        initial={{ name: data.name, address: data.address, postalCode: data.postalCode, city: data.city, phone: data.phone, contactName: data.contactName, contactEmail: data.contactEmail }}
       />
 
       {isAdmin && <GuardianManager familyId={id} guardians={data.guardians} />}

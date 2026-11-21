@@ -94,6 +94,12 @@ export type Database = {
           cover_path: string | null;
           cover_focal_x: number;
           cover_focal_y: number;
+          // federation licence (20250420102300); club-managed, staff-only writes
+          licence_number: string | null;
+          licence_category: string | null;
+          licence_issued_on: string | null;
+          licence_fee: number | null;
+          licence_federation: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -298,7 +304,10 @@ export type Database = {
           id: string;
           org_id: string;
           name: string;
+          /** Street line; postal code and city live in their own columns (20250420102300). */
           address: string | null;
+          postal_code: string | null;
+          city: string | null;
           phone: string | null;
           contact_name: string | null;
           contact_email: string | null;
