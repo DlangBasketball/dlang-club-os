@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser, postLoginDestination } from "@/lib/auth/get-user";
 import { isSafeNextPath } from "@/lib/auth/safe-next";
 import type { FamilyClient } from "@/lib/family/db";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 /**
  * Single callback for every email auth flow:
@@ -29,7 +30,9 @@ export async function GET(request: Request) {
   // Open invitations to further clubs (guest checkout, second guardian,
   // staff invite) become memberships; the current club does not change.
   try {
-    await (supabase as unknown as FamilyClient).rpc("claim_my_invitations");
+    const { data: claimed } = await (supabase as unknown as FamilyClient).rpc("claim_my_invitations");
+    // A guardian / staff member joined: family pages, rosters and recipients change in every portal.
+    if (claimed) revalidatePersonEverywhere((await getSessionUser())?.orgId ?? null);
   } catch {
     // Signed out or nothing to claim.
   }

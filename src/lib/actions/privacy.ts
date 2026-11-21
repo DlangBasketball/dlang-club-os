@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { logError, safeError } from "@/lib/log";
 import type { FamilyClient } from "@/lib/family/db";
+import { finishErase } from "@/lib/people/erase-cleanup";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -37,25 +39,18 @@ export async function processDeletionRequest(id: string, approve: boolean): Prom
   if (req.status !== "pending") return { ok: false, error: "Already processed" };
   try {
     if (approve) {
-      // Session client: anonymise_family checks is_admin() and the target's org
-      // against the signed-in user (the service role has no user and is refused).
+      // The shared "remove a person everywhere" erase (session client: it
+      // checks is_admin() and the family's org against the signed-in user).
+      // Rosters, registrations, bookings and personal records go; accounting
+      // records stay, anonymised. Already erased: just complete the request.
       const session = await createClient();
-      const { data: erased, error: rpcErr } = await session.rpc("anonymise_family", { p_family: req.family_id });
-      if (rpcErr) return { ok: false, error: rpcErr.message };
-      // Remove the family's document files; the rows are already gone.
-      const paths = ((erased as { storage_paths?: unknown } | null)?.storage_paths ?? []) as unknown[];
-      const ownPaths = paths.filter((p): p is string => typeof p === "string" && p.startsWith(`${me.orgId}/`));
-      if (ownPaths.length) {
-        const { error: rmErr } = await admin.storage.from("documents").remove(ownPaths);
-        if (rmErr) logError("processDeletionRequest.storage", rmErr);
+      const { data: erased, error: rpcErr } = await session.rpc("delete_family", { p_family: req.family_id, p_mode: "erase" });
+      if (rpcErr && !rpcErr.message.includes("ALREADY_DELETED")) {
+        logError("processDeletionRequest.erase", rpcErr);
+        return { ok: false, error: rpcErr.message };
       }
-      // ...and the children's identification photos (athlete-photos bucket).
-      const photos = ((erased as { photo_paths?: unknown } | null)?.photo_paths ?? []) as unknown[];
-      const ownPhotos = photos.filter((p): p is string => typeof p === "string" && p.startsWith(`${me.orgId}/`));
-      if (ownPhotos.length) {
-        const { error: rmErr } = await admin.storage.from("athlete-photos").remove(ownPhotos);
-        if (rmErr) logError("processDeletionRequest.photos", rmErr);
-      }
+      if (!rpcErr) await finishErase(erased as { files?: unknown; auth_user_ids?: unknown }, admin);
+      revalidatePersonEverywhere(me.orgId);
       await admin.from("deletion_requests").update({ status: "completed", reviewed_by: me.id, reviewed_at: new Date().toISOString(), completed_at: new Date().toISOString() }).eq("id", id);
       // The linked rights request (filed from the parent app) is answered too.
       await (admin as unknown as FamilyClient).from("dsar_requests").update({ status: "completed", handled_by: me.id, response_summary: "erasure completed" } as never).eq("org_id", me.orgId).eq("deletion_request_id", id);

@@ -4,9 +4,12 @@ import { PageHeader, Button, DataTable, Badge, statusTone, EmptyState, ErrorStat
 import { photoUrlsForCoaches } from "@/lib/people/server";
 import { listAllBookings, type AdminBooking } from "@/lib/data/training-admin";
 import { getI18n } from "@/lib/i18n/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { DeletePersonButton } from "@/components/people/delete-person";
 
 export default async function AdminBookingsPage() {
-  const { t, f } = await getI18n();
+  const [{ t, f }, me] = await Promise.all([getI18n(), getSessionUser()]);
+  const isAdmin = !!me?.roles.includes("admin");
   const { data, error } = await listAllBookings();
   if (error) return (<div className="animate-fade-up"><PageHeader title="Bookings" /><ErrorState title="Couldn't load" message={error} /></div>);
   const coachPhotos = await photoUrlsForCoaches(data!.map((b) => b.coachId));
@@ -17,8 +20,11 @@ export default async function AdminBookingsPage() {
     { key: "start", header: "When", render: (b) => `${f.date(b.start)} ${f.time(b.start)}` },
     { key: "price", header: "Paid", render: (b) => b.creditsUsed > 0 ? `${b.creditsUsed} credits` : b.price !== null ? f.money(b.price) : "—" },
     { key: "status", header: "Status", render: (b) => <Badge tone={statusTone(b.status)}>{t.dynamic(`editOps.bookings.statuses.${b.status}`, undefined, b.status)}</Badge> },
-    { key: "id", header: t("common.actions"), render: (b) => b.status === "cancelled" ? null : (
-      <Link href={`/admin/bookings/${b.id}`} className="inline-flex items-center gap-1 text-xs text-maroon hover:underline"><Pencil className="h-3 w-3" />{t("common.edit")}</Link>
+    { key: "id", header: t("common.actions"), render: (b) => (
+      <span className="inline-flex items-center gap-2">
+        {b.status !== "cancelled" && <Link href={`/admin/bookings/${b.id}`} className="inline-flex items-center gap-1 text-xs text-maroon hover:underline"><Pencil className="h-3 w-3" />{t("common.edit")}</Link>}
+        {isAdmin && <DeletePersonButton kind="athlete" id={b.athleteId} name={b.athleteName} variant="icon" />}
+      </span>
     ) },
   ];
   return (

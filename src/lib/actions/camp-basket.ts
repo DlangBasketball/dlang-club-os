@@ -19,6 +19,7 @@ import { createGuestAccount, notifyCampRegistration } from "@/lib/camps/checkout
 import { logError } from "@/lib/log";
 import type { Json } from "@/types/database";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 /**
  * Camp basket: several weeks (across camps / seasons) for one or more
@@ -342,6 +343,7 @@ async function checkout(ctxInput: BasketContext, input: BasketInput, extras: Che
   revalidatePath("/admin/invoices");
   revalidatePath("/admin/registrations");
   for (const id of res.camps.keys()) revalidatePath(`/admin/programs/${id}`);
+  revalidatePersonEverywhere(r.orgId);
   const firstSlug = res.check.lines.map((l) => res.camps.get(l.programId)?.program.slug).find(Boolean) ?? null;
   return { ok: true, invoiceId: out.invoice_id ?? "", invoiceNumber: out.invoice_number ?? "", orgId: r.orgId, slug: firstSlug, regIds };
 }

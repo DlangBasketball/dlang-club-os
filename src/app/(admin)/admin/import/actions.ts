@@ -17,6 +17,7 @@ import {
 import { buildRegistrationPlan, programmeIndex, REGISTRATION_ALIASES, REGISTRATION_COLUMNS, type RegistrationExisting, type RegistrationPlan } from "@/lib/import/registrations";
 import { applyMapping, checkMapping, suggestMapping } from "@/lib/import/mapping";
 import { looksLikeXlsx, parseXlsx, XLSX_MAX_BYTES } from "@/lib/import/xlsx";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 /**
  * Spreadsheet import (CSV or .xlsx): families & athletes, or existing
@@ -349,6 +350,7 @@ async function commitFamilies(me: Admin, t: Translator, plan: ImportPlan, sendIn
   revalidatePath("/admin/families");
   revalidatePath("/admin/athletes");
   revalidatePath("/admin/invitations");
+  revalidatePersonEverywhere(me.orgId);
   return {
     ...result,
     ok: true,

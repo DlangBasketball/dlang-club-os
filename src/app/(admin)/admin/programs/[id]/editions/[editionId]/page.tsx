@@ -5,6 +5,7 @@ import { Badge, Button, Card, CardBody, DataTable, EmptyState, ErrorState, PageH
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getEditionRegistrations, type EditionRegistration } from "@/lib/camps/data";
 import { getI18n } from "@/lib/i18n/server";
+import { DeletePersonButton } from "@/components/people/delete-person";
 
 export default async function CampEditionPage({ params }: { params: Promise<{ id: string; editionId: string }> }) {
   const { id, editionId } = await params;
@@ -38,6 +39,9 @@ export default async function CampEditionPage({ params }: { params: Promise<{ id
     { key: "status", header: t("common.status"), render: (r) => <Badge tone={statusTone(r.status)}>{t.dynamic(`status.${r.status}`, undefined, r.status)}</Badge> },
     { key: "invoice", header: t("camps.export.invoice"), render: (r) => r.invoiceId ? <Link href={`/admin/invoices/${r.invoiceId}`} className="tnum text-xs text-maroon hover:underline">{r.invoiceNumber}</Link> : "—" },
   ];
+  if (me.roles.includes("admin")) {
+    columns.push({ key: "actions", header: t("common.actions"), align: "right", render: (r) => <DeletePersonButton kind="athlete" id={r.athleteId} name={r.athleteName} variant="icon" /> });
+  }
 
   return (
     <div className="animate-fade-up space-y-5">

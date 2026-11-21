@@ -5,6 +5,7 @@ import type { DiscountDef, DiscountRule } from "@/lib/pricing/discounts";
 import { isRegistrationOpen, spotsLeft } from "./logic";
 import { campSeason, type SeasonOfYear } from "./seasons";
 import { clubMediaUrl } from "@/lib/shop/db";
+import { isHiddenAthleteStatus } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 
@@ -157,7 +158,7 @@ export async function getEditionRegistrations(orgId: string, editionId: string):
   const invoiceIds = Array.from(new Set(list.map((r) => r.invoice_id).filter((x): x is string => !!x)));
   const groupIds = Array.from(new Set(list.map((r) => r.camp_age_group_id).filter((x): x is string => !!x)));
   const [{ data: athletes }, { data: invoices }, { data: groups }] = await Promise.all([
-    athleteIds.length ? db.from("athletes").select("id,first_name,last_name,dob,family_id").in("id", athleteIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string; dob: string | null; family_id: string }[] }),
+    athleteIds.length ? db.from("athletes").select("id,first_name,last_name,dob,family_id,status").in("id", athleteIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string; dob: string | null; family_id: string; status: string }[] }),
     invoiceIds.length ? db.from("invoices").select("id,number,status").in("id", invoiceIds) : Promise.resolve({ data: [] as { id: string; number: string; status: string }[] }),
     groupIds.length ? db.from("camp_age_groups").select("id,label").in("id", groupIds) : Promise.resolve({ data: [] as { id: string; label: string }[] }),
   ]);
@@ -169,7 +170,8 @@ export async function getEditionRegistrations(orgId: string, editionId: string):
   const fMap = new Map((families ?? []).map((f) => [f.id, f as { id: string; name: string; contact_email: string | null; phone: string | null; membership_status: string | null }]));
   const iMap = new Map((invoices ?? []).map((i) => [i.id, i]));
   const gMap = new Map((groups ?? []).map((g) => [g.id, g.label]));
-  const rows: EditionRegistration[] = list.map((r) => {
+  // Archived / erased people are left out of the list and its export.
+  const rows: EditionRegistration[] = list.filter((r) => !isHiddenAthleteStatus(aMap.get(r.athlete_id)?.status)).map((r) => {
     const a = aMap.get(r.athlete_id);
     const fam = a ? fMap.get(a.family_id) : undefined;
     const snap = (r.price_snapshot ?? {}) as { option_label?: string; discounts?: { name?: string }[] };

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { HIDDEN_ATHLETE_STATUS_FILTER, isHiddenAthleteStatus } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -48,20 +49,22 @@ export async function listAthleteCredits(): Promise<Result<AthleteCredit[]>> {
 }
 
 // ---- Bookings (admin: all) -------------------------------------------------
-export type AdminBooking = { id: string; athleteName: string; serviceName: string; coachName: string; coachId: string; start: string; status: string; price: number | null; creditsUsed: number; invoiceId: string | null };
+export type AdminBooking = { id: string; athleteId: string; athleteName: string; serviceName: string; coachName: string; coachId: string; start: string; status: string; price: number | null; creditsUsed: number; invoiceId: string | null };
 export async function listAllBookings(): Promise<Result<AdminBooking[]>> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,status,price_chf,credits_used,invoice_id").order("slot_start", { ascending: false }).limit(300);
   if (error) return fail(error.message);
   const [aRes, sRes, cRes] = await Promise.all([
-    supabase.from("athletes").select("id,first_name,last_name").in("id", uniq((data ?? []).map((b) => b.athlete_id))),
+    supabase.from("athletes").select("id,first_name,last_name,status").in("id", uniq((data ?? []).map((b) => b.athlete_id))),
     supabase.from("training_services").select("id,name").in("id", uniq((data ?? []).map((b) => b.service_id))),
     supabase.from("coaches").select("id,display_name").in("id", uniq((data ?? []).map((b) => b.coach_id))),
   ]);
   const aName = new Map((aRes.data ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
+  const hidden = new Set((aRes.data ?? []).filter((a) => isHiddenAthleteStatus(a.status)).map((a) => a.id));
   const sName = new Map((sRes.data ?? []).map((s) => [s.id, s.name]));
   const cName = new Map((cRes.data ?? []).map((c) => [c.id, c.display_name]));
-  return ok((data ?? []).map((b) => ({ id: b.id, athleteName: aName.get(b.athlete_id) ?? "Athlete", serviceName: sName.get(b.service_id) ?? "Session", coachName: cName.get(b.coach_id) ?? "Coach", coachId: b.coach_id, start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null, creditsUsed: b.credits_used, invoiceId: b.invoice_id })));
+  // Bookings of archived / erased people are left out (they were cancelled).
+  return ok((data ?? []).filter((b) => !hidden.has(b.athlete_id)).map((b) => ({ id: b.id, athleteId: b.athlete_id, athleteName: aName.get(b.athlete_id) ?? "Athlete", serviceName: sName.get(b.service_id) ?? "Session", coachName: cName.get(b.coach_id) ?? "Coach", coachId: b.coach_id, start: b.slot_start, status: b.status, price: b.price_chf ? Number(b.price_chf) : null, creditsUsed: b.credits_used, invoiceId: b.invoice_id })));
 }
 
 export async function getBookingDetail(id: string): Promise<Result<(AdminBooking & { athleteId: string; serviceName: string; notes: string | null }) | null>> {
@@ -115,7 +118,6 @@ export async function getMyCoach(): Promise<{ id: string; name: string } | null>
 // ---- Booking settings (cancellation rules + enabled toggle) ----------------
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
-import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 export type BookingSettings = { enabled: boolean; cancellationHours: number; refundCreditsOnCancel: boolean };
 export async function getBookingSettings(): Promise<BookingSettings> {
   const me = await getSessionUser();

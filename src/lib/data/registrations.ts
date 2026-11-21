@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isHiddenAthleteStatus } from "@/lib/people/person-delete";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(data: T): Result<T> => ({ data, error: null });
@@ -10,6 +11,7 @@ export type RegistrationListItem = {
   id: string;
   status: string;
   createdAt: string;
+  athleteId: string;
   athleteName: string;
   programName: string;
   familyName: string;
@@ -27,8 +29,8 @@ export async function listRegistrations(): Promise<Result<RegistrationListItem[]
   const athleteIds = uniq((data ?? []).map((r) => r.athlete_id));
   const programIds = uniq((data ?? []).map((r) => r.program_id));
   const athletes = athleteIds.length
-    ? await supabase.from("athletes").select("id,first_name,last_name,family_id").in("id", athleteIds)
-    : { data: [] as { id: string; first_name: string; last_name: string; family_id: string }[] };
+    ? await supabase.from("athletes").select("id,first_name,last_name,family_id,status").in("id", athleteIds)
+    : { data: [] as { id: string; first_name: string; last_name: string; family_id: string; status: string }[] };
   const programs = programIds.length
     ? await supabase.from("programs").select("id,name").in("id", programIds)
     : { data: [] as { id: string; name: string }[] };
@@ -42,12 +44,14 @@ export async function listRegistrations(): Promise<Result<RegistrationListItem[]
   const fName = new Map((families.data ?? []).map((f) => [f.id, f.name]));
 
   return ok(
-    (data ?? []).map((r) => {
+    // Archived / erased people are hidden from the list (Recently deleted).
+    (data ?? []).filter((r) => !isHiddenAthleteStatus(aMap.get(r.athlete_id)?.status)).map((r) => {
       const a = aMap.get(r.athlete_id);
       return {
         id: r.id,
         status: r.status,
         createdAt: r.created_at,
+        athleteId: r.athlete_id,
         athleteName: a ? `${a.first_name} ${a.last_name}` : "Athlete",
         programName: pName.get(r.program_id) ?? "Program",
         familyName: a ? fName.get(a.family_id) ?? "—" : "—",

@@ -27,6 +27,7 @@ import { getRegistrationConfig, storeRegistrationExtras, type ChildAnswers } fro
 import { validateRegistrationExtras, type BuiltinField, type ChildExtras } from "@/lib/registration-form/config";
 import { issueContractsForRegistrations } from "@/lib/contracts/server";
 import { refillAfterCancellation } from "@/lib/club-admin/waitlist-server";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -227,6 +228,7 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
     console.error("[register] email error (non-fatal):", e);
   }
 
+  revalidatePersonEverywhere(program.org_id);
   redirect(`/register/${data.programSlug}/success?ref=${encodeURIComponent(invoiceNumber)}`);
 }
 
@@ -349,6 +351,7 @@ export async function cancelRegistration(id: string, reason: string): Promise<Pe
   // A spot is free: offer it to the next person on the waiting list.
   await refillAfterCancellation(me.orgId, id);
   revalidateRegistration(id, data[0].athlete_id);
+  revalidatePersonEverywhere(me.orgId);
   return { ok: true, message: t("editPeople.registrations.cancelled") };
 }
 
@@ -379,5 +382,6 @@ export async function createRegistration(input: RegistrationCreateInput): Promis
     return { ok: false, error: t("editPeople.errors.saveFailed") };
   }
   revalidateRegistration(data.id, p.data.athleteId);
+  revalidatePersonEverywhere(me.orgId);
   return { ok: true, message: t("editPeople.registrations.enrolled"), data: { id: data.id } };
 }

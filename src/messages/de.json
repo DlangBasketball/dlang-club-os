@@ -966,7 +966,8 @@
     "parent": {
       "title": "Löschung Ihrer Daten",
       "archived": "Ihre Familie wurde am {date} vom Verein entfernt. Sie wird am {purge} endgültig gelöscht, ausser der Verein stellt sie wieder her.",
-      "requested": "Ihr Löschantrag wird vom Verein bearbeitet."
+      "requested": "Ihr Löschantrag wird vom Verein bearbeitet.",
+      "childArchived": "{name} wurde am {date} vom Verein entfernt. Der Eintrag wird am {purge} endgültig gelöscht, ausser der Verein stellt ihn wieder her."
     }
   },
   "athletePhoto": {

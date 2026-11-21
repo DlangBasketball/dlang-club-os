@@ -966,7 +966,8 @@
     "parent": {
       "title": "Eliminazione dei tuoi dati",
       "archived": "La tua famiglia è stata rimossa dal club il {date}. Sarà eliminata definitivamente il {purge}, a meno che il club non la ripristini.",
-      "requested": "La tua richiesta di eliminazione è in corso di trattamento da parte del club."
+      "requested": "La tua richiesta di eliminazione è in corso di trattamento da parte del club.",
+      "childArchived": "{name} è stato/a rimosso/a dal club il {date}. La scheda sarà eliminata definitivamente il {purge}, a meno che il club non la ripristini."
     }
   },
   "athletePhoto": {

@@ -8,6 +8,7 @@ import { expiring, familyAndAthleteOptions, getClubAdminSettings, listMembership
 import { CreateMembershipForm, MembershipRowActions, MembershipTypeForm, RenewalCampaign, type TypeFormValue } from "@/components/club-admin/membership-forms";
 import { MEMBERSHIP_STATUSES } from "@/lib/club-admin/membership";
 import { ClubAdminSettingsForm } from "@/components/club-admin/settings-form";
+import { DeletePersonButton } from "@/components/people/delete-person";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -80,7 +81,12 @@ export default async function MembershipsPage({ searchParams }: { searchParams: 
               { key: "invoice", header: t("clubadmin.common.invoice"), render: (r) => r.invoice_id ? <Link href={`/admin/invoices/${r.invoice_id}`} className="tnum text-maroon hover:underline">{r.invoiceNumber ?? "—"}</Link> : "—" },
               { key: "status", header: t("clubadmin.common.status"), render: (r) => <Badge tone={tone(r.effective)}>{t.dynamic(`clubadmin.membership.statuses.${r.effective}`, undefined, r.effective)}</Badge> },
               ...(isAdmin ? [{ key: "actions", header: "", render: (r: MembershipView) => (
-                <MembershipRowActions id={r.id} canRenew={!r.renewed && (r.effective === "active" || r.effective === "expired")} canCancel={r.effective !== "cancelled"} />
+                <span className="inline-flex items-center gap-1">
+                  <MembershipRowActions id={r.id} canRenew={!r.renewed && (r.effective === "active" || r.effective === "expired")} canCancel={r.effective !== "cancelled"} />
+                  {r.athlete_id
+                    ? <DeletePersonButton kind="athlete" id={r.athlete_id} name={r.athleteName ?? r.familyName} variant="icon" />
+                    : <DeletePersonButton kind="family" id={r.family_id} name={r.familyName} variant="icon" />}
+                </span>
               ) }] : []),
             ]} />
         </CardBody>

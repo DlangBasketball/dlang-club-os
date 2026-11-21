@@ -966,7 +966,8 @@
     "parent": {
       "title": "Suppression de vos données",
       "archived": "Votre famille a été retirée par le club le {date}. Elle sera supprimée définitivement le {purge}, sauf si le club la restaure.",
-      "requested": "Votre demande de suppression est en cours de traitement par le club."
+      "requested": "Votre demande de suppression est en cours de traitement par le club.",
+      "childArchived": "{name} a été retiré(e) par le club le {date}. La fiche sera supprimée définitivement le {purge}, sauf si le club la restaure."
     }
   },
   "athletePhoto": {

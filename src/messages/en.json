@@ -966,7 +966,8 @@
     "parent": {
       "title": "Deletion of your data",
       "archived": "Your family was removed by the club on {date}. It will be deleted permanently on {purge} unless the club restores it.",
-      "requested": "Your deletion request is being handled by the club."
+      "requested": "Your deletion request is being handled by the club.",
+      "childArchived": "{name} was removed by the club on {date}. The record will be deleted permanently on {purge} unless the club restores it."
     }
   },
   "athletePhoto": {
