@@ -8,11 +8,15 @@ import { termOr } from "@/lib/tenant/terms";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { signAthletePhotos } from "@/lib/people/server";
 import { parseLicenceFilter } from "@/lib/people/licence";
+import { parseSponsoredFilter, type SponsorshipKind } from "@/lib/people/sponsorship";
+import { SponsorshipBadge } from "@/components/athlete/sponsorship-badge";
 
-type Row = { id: string; name: string; family: string; dob: string; status: string; photoUrl: string | null; licence: string | null; licenceCategory: string | null };
+type Row = { id: string; name: string; family: string; dob: string; status: string; photoUrl: string | null; licence: string | null; licenceCategory: string | null; sponsorship: SponsorshipKind; sponsorshipPercent: number | null; sponsor: string | null };
 
-export default async function AthletesPage({ searchParams }: { searchParams: Promise<{ licence?: string | string[] }> }) {
-  const licenceFilter = parseLicenceFilter((await searchParams).licence);
+export default async function AthletesPage({ searchParams }: { searchParams: Promise<{ licence?: string | string[]; sponsored?: string | string[] }> }) {
+  const sp = await searchParams;
+  const licenceFilter = parseLicenceFilter(sp.licence);
+  const sponsoredFilter = parseSponsoredFilter(sp.sponsored);
   const [{ t, f }, tenant, user] = await Promise.all([getI18n(), getTenant(), getSessionUser()]);
   const title = termOr(tenant.terminology, "athlete", t("nav.athletes"), { plural: true });
   const singular = termOr(tenant.terminology, "athlete", t("editPeople.athlete.singular"));
@@ -20,10 +24,12 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
   const supabase = await createClient();
   let query = supabase
     .from("athletes")
-    .select("id,org_id,first_name,last_name,dob,status,family_id,photo_path,licence_number,licence_category")
+    .select("id,org_id,first_name,last_name,dob,status,family_id,photo_path,licence_number,licence_category,sponsorship_kind,sponsorship_percent,sponsor_name")
     .order("last_name");
   if (licenceFilter === "has") query = query.not("licence_number", "is", null);
   if (licenceFilter === "missing") query = query.is("licence_number", null);
+  if (sponsoredFilter === "yes") query = query.neq("sponsorship_kind", "none");
+  if (sponsoredFilter === "no") query = query.eq("sponsorship_kind", "none");
   const { data: athletes, error } = await query;
   if (error) return (<div className="animate-fade-up"><PageHeader title={title} /><ErrorState title={t("common.error")} message={error.message} /></div>);
 
@@ -45,6 +51,9 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
     photoUrl: photos.get(a.id) ?? null,
     licence: a.licence_number,
     licenceCategory: a.licence_category,
+    sponsorship: a.sponsorship_kind,
+    sponsorshipPercent: a.sponsorship_percent === null ? null : Number(a.sponsorship_percent),
+    sponsor: a.sponsor_name,
   }));
 
   const columns: Column<Row>[] = [
@@ -70,8 +79,28 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
           <Badge tone="warning">{t("editPeople.licence.missing")}</Badge>
         ),
     },
+    {
+      key: "sponsorship",
+      header: t("sponsorship.list.column"),
+      render: (r) =>
+        r.sponsorship === "none" ? (
+          <span className="text-text-muted">—</span>
+        ) : (
+          <span className="flex flex-col items-start gap-0.5">
+            <SponsorshipBadge kind={r.sponsorship} percent={r.sponsorshipPercent} />
+            {r.sponsor && <span className="text-xs text-text-muted">{r.sponsor}</span>}
+          </span>
+        ),
+    },
     { key: "status", header: t("common.status"), render: (r) => <Badge tone={statusTone(r.status)}>{t.dynamic(`editPeople.athleteStatus.${r.status}`, undefined, r.status)}</Badge> },
   ];
+  const listHref = (licence: typeof licenceFilter, sponsored: typeof sponsoredFilter) => {
+    const q = new URLSearchParams();
+    if (licence) q.set("licence", licence);
+    if (sponsored) q.set("sponsored", sponsored);
+    const s = q.toString();
+    return s ? `/admin/athletes?${s}` : "/admin/athletes";
+  };
   if (isAdmin) {
     columns.push({
       key: "actions",
@@ -88,14 +117,24 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
   return (
     <div className="animate-fade-up">
       <PageHeader title={title} description={t("editPeople.athlete.listDescription")} />
-      <nav aria-label={t("editPeople.licence.filterLabel")} className="mb-4 flex flex-wrap gap-2">
-        {([null, "has", "missing"] as const).map((k) => (
-          <Link key={k ?? "all"} href={k ? `/admin/athletes?licence=${k}` : "/admin/athletes"} aria-current={licenceFilter === k ? "page" : undefined}
-            className={`rounded-full border px-3 py-1 text-xs ${licenceFilter === k ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-3 hover:border-maroon/40"}`}>
-            {k === "has" ? t("editPeople.licence.filterHas") : k === "missing" ? t("editPeople.licence.filterMissing") : t("common.all")}
-          </Link>
-        ))}
-      </nav>
+      <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
+        <nav aria-label={t("editPeople.licence.filterLabel")} className="flex flex-wrap gap-2">
+          {([null, "has", "missing"] as const).map((k) => (
+            <Link key={k ?? "all"} href={listHref(k, sponsoredFilter)} aria-current={licenceFilter === k ? "page" : undefined}
+              className={`rounded-full border px-3 py-1 text-xs ${licenceFilter === k ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-3 hover:border-maroon/40"}`}>
+              {k === "has" ? t("editPeople.licence.filterHas") : k === "missing" ? t("editPeople.licence.filterMissing") : t("common.all")}
+            </Link>
+          ))}
+        </nav>
+        <nav aria-label={t("sponsorship.list.filterLabel")} className="flex flex-wrap gap-2">
+          {([null, "yes", "no"] as const).map((k) => (
+            <Link key={k ?? "all"} href={listHref(licenceFilter, k)} aria-current={sponsoredFilter === k ? "page" : undefined}
+              className={`rounded-full border px-3 py-1 text-xs ${sponsoredFilter === k ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-3 hover:border-maroon/40"}`}>
+              {k === "yes" ? t("sponsorship.list.filterYes") : k === "no" ? t("sponsorship.list.filterNo") : t("common.all")}
+            </Link>
+          ))}
+        </nav>
+      </div>
       <DataTable columns={columns} rows={rows} getRowKey={(r) => r.id} caption={title} empty={<EmptyState icon={<UserCircle className="h-5 w-5" />} title={t("editPeople.athlete.empty")} />} />
     </div>
   );

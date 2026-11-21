@@ -14,6 +14,7 @@ import { getAthleteCover } from "@/lib/media/server";
 import { getPlayerStats, getPlayerTeams } from "@/lib/data/player-profile";
 import { MemberCardPanel } from "@/components/member-card/member-card-panel";
 import { LicenceCard } from "@/components/athlete/licence-card";
+import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
 
 /**
  * Parent app: one child's player card. Guardians edit the photo, the cover
@@ -50,6 +51,9 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
           </div>
         </CardBody>
       </Card>
+      {data.sponsorship.kind !== "none" && (
+        <div className="lg:col-span-2"><SponsorshipNote kind={data.sponsorship.kind} percent={data.sponsorship.percent} sponsorName={data.sponsorship.sponsorName} /></div>
+      )}
       <div className="lg:col-span-2"><LicenceCard licence={data.licence} /></div>
       <Card>
         <CardHeader><CardTitle>{t("athletePhoto.title")}</CardTitle></CardHeader>

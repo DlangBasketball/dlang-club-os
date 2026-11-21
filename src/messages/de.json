@@ -144,6 +144,7 @@
     "myTeam": "Mein Team",
     "import": "Import",
     "discounts": "Rabatte",
+    "sponsorships": "Sponsorings",
     "camps": "Feriencamps",
     "training": "Training",
     "trainingAthletes": "Meine Athleten",
@@ -4868,7 +4869,8 @@
       "actions": {
         "invoice": "Rechnung",
         "skip_pause": "Ausgelassen (Pause)",
-        "skip_zero": "Ausgelassen (nichts fällig)"
+        "skip_zero": "Ausgelassen (nichts fällig)",
+        "skip_sponsored": "Ausgelassen (gesponsert)"
       },
       "runUntil": "Perioden verrechnen bis",
       "runNow": "Jetzt ausführen",
@@ -9103,6 +9105,120 @@
         "description": "Gemeinsame Dashboards über Vereine und Standorte hinweg.",
         "pitch": "Eine Vereinsgruppe mit einer Übersicht steuern."
       }
+    }
+  },
+  "sponsorship": {
+    "title": "Sponsoring",
+    "badge": "Gesponsert",
+    "badgePercent": "Gesponsert {percent} %",
+    "kind": "Sponsoring",
+    "kinds": {
+      "none": "Nicht gesponsert",
+      "full": "Vollständig (100 %)",
+      "partial": "Teilweise"
+    },
+    "percent": "Übernommener Anteil (%)",
+    "scope": "Abgedeckte Gebühren",
+    "scopes": {
+      "season": "Saison- und Teambeiträge",
+      "recurring": "Wiederkehrende Gebühren",
+      "membership": "Mitgliederbeiträge",
+      "camp": "Camps",
+      "training": "Trainingspakete",
+      "shop": "Shop",
+      "all": "Alle Gebühren"
+    },
+    "sponsorName": "Sponsor",
+    "sponsorNamePlaceholder": "z. B. Club – Kind eines Trainers, eine Firma",
+    "sponsorClub": "den Club",
+    "reason": "Grund (intern)",
+    "from": "Von",
+    "until": "Bis",
+    "untilHint": "Leer lassen für kein Enddatum.",
+    "hint": "Gesponserte Gebühren erscheinen auf Rechnungen als Zeile «Gesponsert», damit Berichte den geschenkten Wert behalten. Vollständig gesponserte wiederkehrende Gebühren und Mitgliederbeiträge erzeugen keine Rechnung.",
+    "none": "Dieser Spieler bezahlt die normalen Gebühren.",
+    "coverage": "{percent} % von: {scopes}",
+    "window": "{from} – {until}",
+    "openEnded": "Ab {from}",
+    "always": "Kein Enddatum",
+    "since": "Festgelegt am {date}",
+    "edit": "Bearbeiten",
+    "save": "Sponsoring speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Sponsoring gespeichert.",
+    "parentNote": "Gebühren gesponsert von {sponsor}",
+    "parentNotePartial": "{percent} % der Gebühren gesponsert von {sponsor}",
+    "invoiceNote": "{name}: Gebühren gesponsert von {sponsor}",
+    "invoiceNotePartial": "{name}: {percent} % der Gebühren gesponsert von {sponsor}",
+    "apply": {
+      "button": "Sponsoring auf offene Rechnungen anwenden",
+      "title": "Sponsoring auf offene Rechnungen anwenden?",
+      "loading": "Offene Rechnungen werden geprüft…",
+      "none": "Keine offene Rechnung zu ändern.",
+      "intro": "Diese offenen Rechnungen werden geändert. Das lässt sich nicht automatisch rückgängig machen.",
+      "cancel": "Storniert (vollständig gesponsert)",
+      "credit": "Gutschrift",
+      "confirm": "Anwenden",
+      "working": "Wird angewendet…",
+      "back": "Zurück",
+      "done": "{count, plural, =0 {Keine Rechnung geändert.} one {# Rechnung aktualisiert.} other {# Rechnungen aktualisiert.}}"
+    },
+    "family": {
+      "button": "Alle Spieler dieser Familie sponsern",
+      "title": "Alle Spieler dieser Familie sponsern",
+      "hint": "Setzt dasselbe Sponsoring für jedes Kind dieser Familie. Wählen Sie «Nicht gesponsert», um es für alle zu beenden.",
+      "submit": "Auf alle Spieler anwenden",
+      "saved": "{count, plural, =0 {Kein Spieler zu aktualisieren.} one {Sponsoring für # Spieler gespeichert.} other {Sponsoring für # Spieler gespeichert.}}",
+      "close": "Schliessen"
+    },
+    "list": {
+      "column": "Sponsoring",
+      "filterLabel": "Sponsoring-Filter",
+      "filterYes": "Gesponsert",
+      "filterNo": "Nicht gesponsert"
+    },
+    "report": {
+      "nav": "Sponsorings",
+      "title": "Sponsorings {season}",
+      "description": "Wert der erlassenen Clubgebühren für gesponserte Spieler, aus den gesponserten Rechnungszeilen, Gutschriften und erlassenen Gebühren.",
+      "season": "Saison",
+      "update": "Anzeigen",
+      "total": "Total erlassen",
+      "players": "Gesponserte Spieler",
+      "sponsors": "Sponsoren",
+      "byPlayer": "Nach Spieler",
+      "bySponsor": "Nach Sponsor",
+      "entries": "Einträge",
+      "player": "Spieler",
+      "sponsor": "Sponsor",
+      "amount": "Erlassener Wert",
+      "count": "Gebühren",
+      "fee": "Gebühr",
+      "date": "Datum",
+      "invoice": "Rechnung",
+      "currency": "Währung",
+      "method": "Erfasst als",
+      "methods": {
+        "invoice_line": "Rechnungszeile",
+        "credit_note": "Gutschrift",
+        "cancellation": "Rechnung storniert",
+        "waived": "Keine Rechnung ausgestellt"
+      },
+      "empty": "Für diese Saison ist kein Sponsoring erfasst.",
+      "export": "CSV exportieren"
+    },
+    "errors": {
+      "invalidKind": "Wählen Sie eine Sponsoring-Art.",
+      "percentRequired": "Geben Sie den übernommenen Anteil ein.",
+      "invalidPercent": "Der Anteil muss zwischen 1 und 100 % liegen.",
+      "scopeRequired": "Wählen Sie mindestens eine Gebührenart.",
+      "tooLong": "Dieser Text ist zu lang.",
+      "invalidDate": "Geben Sie ein gültiges Datum ein.",
+      "untilBeforeFrom": "Das Enddatum muss am oder nach dem Startdatum liegen.",
+      "forbidden": "Nur Club-Admins und die Buchhaltung können Sponsorings verwalten.",
+      "notSponsored": "Dieser Spieler wird nicht gesponsert.",
+      "notFound": "Spieler nicht gefunden.",
+      "saveFailed": "Das Sponsoring konnte nicht gespeichert werden. Bitte erneut versuchen."
     }
   }
 }

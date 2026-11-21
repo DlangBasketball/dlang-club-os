@@ -68,6 +68,8 @@ export type FamilyAthlete = {
   lastName: string;
   dob: string;
   status: string;
+  sponsorshipKind: "none" | "full" | "partial";
+  sponsorshipPercent: number | null;
 };
 export type FamilyInvoice = {
   id: string;
@@ -111,7 +113,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
 
   const [members, athletes, invoices, famDocs] = await Promise.all([
     supabase.from("family_members").select("profile_id,relation,is_primary").eq("family_id", id),
-    supabase.from("athletes").select("id,first_name,last_name,dob,status").eq("family_id", id).order("first_name"),
+    supabase.from("athletes").select("id,first_name,last_name,dob,status,sponsorship_kind,sponsorship_percent").eq("family_id", id).order("first_name"),
     supabase.from("invoices").select("id,number,total_chf,status,due_date,issued_at").eq("family_id", id).order("issued_at", { ascending: false }),
     supabase.from("documents").select("id,kind,file_name,created_at,athlete_id").eq("family_id", id),
   ]);
@@ -166,6 +168,8 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
       lastName: a.last_name,
       dob: a.dob,
       status: a.status,
+      sponsorshipKind: a.sponsorship_kind ?? "none",
+      sponsorshipPercent: a.sponsorship_percent === null || a.sponsorship_percent === undefined ? null : Number(a.sponsorship_percent),
     })),
     invoices: (invoices.data ?? []).map((i) => ({
       id: i.id,

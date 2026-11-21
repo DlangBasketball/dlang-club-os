@@ -144,6 +144,7 @@
     "myTeam": "La mia squadra",
     "import": "Importa",
     "discounts": "Sconti",
+    "sponsorships": "Sponsorizzazioni",
     "camps": "Camp",
     "training": "Allenamento",
     "trainingAthletes": "I miei atleti",
@@ -4868,7 +4869,8 @@
       "actions": {
         "invoice": "Fattura",
         "skip_pause": "Saltato (pausa)",
-        "skip_zero": "Saltato (nulla da pagare)"
+        "skip_zero": "Saltato (nulla da pagare)",
+        "skip_sponsored": "Saltato (sponsorizzato)"
       },
       "runUntil": "Fattura i periodi fino al",
       "runNow": "Esegui ora",
@@ -9103,6 +9105,120 @@
         "description": "Dashboard consolidate tra club e sedi.",
         "pitch": "Guidare un gruppo di club con un'unica vista."
       }
+    }
+  },
+  "sponsorship": {
+    "title": "Sponsorizzazione",
+    "badge": "Sponsorizzato",
+    "badgePercent": "Sponsorizzato {percent}%",
+    "kind": "Sponsorizzazione",
+    "kinds": {
+      "none": "Non sponsorizzato",
+      "full": "Totale (100%)",
+      "partial": "Parziale"
+    },
+    "percent": "Quota coperta (%)",
+    "scope": "Costi coperti",
+    "scopes": {
+      "season": "Quote stagionali e di squadra",
+      "recurring": "Quote ricorrenti",
+      "membership": "Quote associative",
+      "camp": "Campi",
+      "training": "Pacchetti di allenamento",
+      "shop": "Negozio",
+      "all": "Tutti i costi"
+    },
+    "sponsorName": "Sponsor",
+    "sponsorNamePlaceholder": "es. Club – figlio di un allenatore, un'azienda",
+    "sponsorClub": "il club",
+    "reason": "Motivo (interno)",
+    "from": "Dal",
+    "until": "Al",
+    "untilHint": "Lasciare vuoto per nessuna data di fine.",
+    "hint": "I costi sponsorizzati compaiono sulle fatture come riga «Sponsorizzato», così i rapporti conservano il valore offerto. Le quote ricorrenti e associative interamente sponsorizzate non generano fattura.",
+    "none": "Questo giocatore paga le quote normali.",
+    "coverage": "{percent}% di: {scopes}",
+    "window": "{from} – {until}",
+    "openEnded": "Dal {from}",
+    "always": "Nessuna data di fine",
+    "since": "Impostato il {date}",
+    "edit": "Modifica",
+    "save": "Salva sponsorizzazione",
+    "saving": "Salvataggio…",
+    "saved": "Sponsorizzazione salvata.",
+    "parentNote": "Quote sponsorizzate da {sponsor}",
+    "parentNotePartial": "{percent}% delle quote sponsorizzato da {sponsor}",
+    "invoiceNote": "{name}: quote sponsorizzate da {sponsor}",
+    "invoiceNotePartial": "{name}: {percent}% delle quote sponsorizzato da {sponsor}",
+    "apply": {
+      "button": "Applica la sponsorizzazione alle fatture aperte",
+      "title": "Applicare la sponsorizzazione alle fatture aperte?",
+      "loading": "Verifica delle fatture aperte…",
+      "none": "Nessuna fattura aperta da modificare.",
+      "intro": "Queste fatture aperte verranno modificate. L'operazione non può essere annullata automaticamente.",
+      "cancel": "Annullata (interamente sponsorizzata)",
+      "credit": "Nota di credito",
+      "confirm": "Applica",
+      "working": "Applicazione…",
+      "back": "Indietro",
+      "done": "{count, plural, =0 {Nessuna fattura modificata.} one {# fattura aggiornata.} other {# fatture aggiornate.}}"
+    },
+    "family": {
+      "button": "Sponsorizza tutti i giocatori di questa famiglia",
+      "title": "Sponsorizza tutti i giocatori di questa famiglia",
+      "hint": "Imposta la stessa sponsorizzazione per ogni figlio di questa famiglia. Scegli «Non sponsorizzato» per terminarla per tutti.",
+      "submit": "Applica a tutti i giocatori",
+      "saved": "{count, plural, =0 {Nessun giocatore da aggiornare.} one {Sponsorizzazione salvata per # giocatore.} other {Sponsorizzazione salvata per # giocatori.}}",
+      "close": "Chiudi"
+    },
+    "list": {
+      "column": "Sponsorizzazione",
+      "filterLabel": "Filtro sponsorizzazione",
+      "filterYes": "Sponsorizzati",
+      "filterNo": "Non sponsorizzati"
+    },
+    "report": {
+      "nav": "Sponsorizzazioni",
+      "title": "Sponsorizzazioni {season}",
+      "description": "Valore delle quote del club condonate ai giocatori sponsorizzati, dalle righe di fattura sponsorizzate, note di credito e quote non fatturate.",
+      "season": "Stagione",
+      "update": "Mostra",
+      "total": "Totale condonato",
+      "players": "Giocatori sponsorizzati",
+      "sponsors": "Sponsor",
+      "byPlayer": "Per giocatore",
+      "bySponsor": "Per sponsor",
+      "entries": "Registrazioni",
+      "player": "Giocatore",
+      "sponsor": "Sponsor",
+      "amount": "Valore condonato",
+      "count": "Quote",
+      "fee": "Quota",
+      "date": "Data",
+      "invoice": "Fattura",
+      "currency": "Valuta",
+      "method": "Registrato come",
+      "methods": {
+        "invoice_line": "Riga di fattura",
+        "credit_note": "Nota di credito",
+        "cancellation": "Fattura annullata",
+        "waived": "Nessuna fattura emessa"
+      },
+      "empty": "Nessuna sponsorizzazione registrata per questa stagione.",
+      "export": "Esporta CSV"
+    },
+    "errors": {
+      "invalidKind": "Scegli un tipo di sponsorizzazione.",
+      "percentRequired": "Inserisci la quota coperta.",
+      "invalidPercent": "La quota deve essere tra 1 e 100%.",
+      "scopeRequired": "Scegli almeno un tipo di costo.",
+      "tooLong": "Questo testo è troppo lungo.",
+      "invalidDate": "Inserisci una data valida.",
+      "untilBeforeFrom": "La data di fine deve essere uguale o successiva alla data di inizio.",
+      "forbidden": "Solo gli amministratori e la contabilità del club possono gestire le sponsorizzazioni.",
+      "notSponsored": "Questo giocatore non è sponsorizzato.",
+      "notFound": "Giocatore non trovato.",
+      "saveFailed": "Impossibile salvare la sponsorizzazione. Riprova."
     }
   }
 }

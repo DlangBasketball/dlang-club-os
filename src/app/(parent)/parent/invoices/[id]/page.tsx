@@ -12,6 +12,9 @@ import { getI18n } from "@/lib/i18n/server";
 import { getInvoicePlan, getInvoicePlanOffer } from "@/lib/plans/data";
 import { InstalmentTable } from "@/components/plans/instalment-table";
 import { ChoosePlanForm } from "@/components/plans/plan-widgets";
+import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
+import { getInvoiceSponsorships } from "@/lib/data/sponsorships";
+import { isSponsorshipLine } from "@/lib/people/sponsorship";
 
 export default async function ParentInvoiceDetailPage({
   params, searchParams,
@@ -31,6 +34,10 @@ export default async function ParentInvoiceDetailPage({
   const settings = profile.swiss;
   const payable = data.balance > 0 && !["cancelled", "void", "paid", "written_off"].includes(data.status);
   const activeAdjustments = data.adjustments.filter((a) => !a.voidedAt);
+  // Sponsored players on this invoice, when a sponsored line or credit note is on it.
+  const sponsored = activeAdjustments.some((a) => a.reason === "sponsorship") || data.items.some((it) => it.amount < 0 && isSponsorshipLine(it.description))
+    ? await getInvoiceSponsorships(data.id)
+    : [];
 
   const isSwiss = profile.region === "CH";
   // Swiss clubs: pair the invoice's own reference with the account kind it
@@ -94,6 +101,10 @@ export default async function ParentInvoiceDetailPage({
           <CheckCircle2 className="h-4 w-4" /> {t("invoices.thankYouProcessing")}
         </div>
       )}
+
+      {sponsored.map((s) => (
+        <SponsorshipNote key={s.athleteId} kind={s.kind} percent={s.percent} sponsorName={s.sponsorName} name={sponsored.length > 1 ? s.name : undefined} />
+      ))}
 
       <Card>
         <CardBody className="space-y-3">

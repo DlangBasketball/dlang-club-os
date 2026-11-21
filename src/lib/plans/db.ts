@@ -62,7 +62,7 @@ export type ChargeRow = {
 };
 export type GenerateRow = {
   plan_id: string; family_id: string; athlete_id: string | null; period_start: string; period_end: string; amount: number;
-  discount: number; net: number; action: "invoice" | "skip_pause" | "skip_zero"; installment_id: string | null; invoice_id: string | null;
+  discount: number; net: number; action: "invoice" | "skip_pause" | "skip_zero" | "skip_sponsored"; installment_id: string | null; invoice_id: string | null;
 };
 
 type PlanTables = {

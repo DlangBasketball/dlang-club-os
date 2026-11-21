@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { licenceFromRow, type Licence } from "@/lib/people/licence";
+import { sponsorshipFromRow, type Sponsorship } from "@/lib/people/sponsorship";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(data: T): Result<T> => ({ data, error: null });
@@ -26,6 +27,7 @@ export type AthleteCore = {
   photoPath: string | null;
   orgId: string;
   licence: Licence;
+  sponsorship: Sponsorship;
 };
 
 export type Medical = {
@@ -71,7 +73,7 @@ export async function getAthleteDetail(id: string): Promise<Result<AthleteDetail
   const { data: a, error } = await supabase
     .from("athletes")
     .select(
-      "id,org_id,family_id,first_name,last_name,dob,gender,nationality,school,jersey_size,dominant_hand,position_pref,status,notes,photo_path,licence_number,licence_category,licence_federation,licence_issued_on,licence_fee",
+      "id,org_id,family_id,first_name,last_name,dob,gender,nationality,school,jersey_size,dominant_hand,position_pref,status,notes,photo_path,licence_number,licence_category,licence_federation,licence_issued_on,licence_fee,sponsorship_kind,sponsorship_percent,sponsorship_scope,sponsor_name,sponsorship_reason,sponsorship_from,sponsorship_until,sponsored_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -167,6 +169,7 @@ export async function getAthleteDetail(id: string): Promise<Result<AthleteDetail
       photoPath: a.photo_path,
       orgId: a.org_id,
       licence: licenceFromRow(a),
+      sponsorship: sponsorshipFromRow(a),
     },
     medical: m
       ? {
