@@ -24,6 +24,7 @@ import {
 import { isLanguageTag, parseLanguageList, uiCatalogFor } from "@/lib/site/languages";
 import { isSafeRedirectTarget, isValidSitePath, normalizeRequestPath, slugify } from "@/lib/site/paths";
 import { cleanFonts, cleanPalette, isSiteTemplate } from "@/lib/site/theme";
+import { cleanNav } from "@/lib/site/nav";
 import { buildStarterSite } from "@/lib/site/starter";
 import { revalidateSite } from "@/lib/site/revalidate";
 import { SOCIAL_KEYS as SITE_SOCIAL_KEYS } from "@/lib/website/settings-shape";
@@ -82,7 +83,11 @@ const settingsInput = z.object({
   logoPath: z.string().max(300).nullable().optional(),
   faviconPath: z.string().max(300).nullable().optional(),
   palette: z.record(z.string(), z.string().max(20)).default({}),
-  fonts: z.record(z.string(), z.string().max(60)).default({}),
+  fonts: z.record(z.string(), z.union([z.string().max(60), z.boolean()])).default({}),
+  contactPhone: z.string().trim().max(40).optional().transform((v) => v || null).refine((v) => !v || /^[+0-9 ().\/-]{3,40}$/.test(v)),
+  contactAddress: z.string().trim().max(300).optional().transform((v) => v || null),
+  /** Header menu (validated by cleanNav: labels per language, safe links, one level of children). */
+  headerNav: z.array(z.unknown()).max(12).optional(),
   social: z.record(z.string(), z.string().max(500)).default({}),
   titleSuffix: z.string().trim().max(80).optional(),
   description: z.record(z.string(), z.string().max(320)).default({}),
@@ -121,6 +126,9 @@ export async function saveSiteSettings(input: SiteSettingsInput): Promise<SiteRe
     languages: tags,
     default_language: def,
     contact_email: v.contactEmail,
+    contact_phone: v.contactPhone,
+    contact_address: v.contactAddress,
+    ...(v.headerNav ? { header_nav: cleanNav(v.headerNav) } : {}),
     logo_path: v.logoPath || null,
     favicon_path: v.faviconPath || null,
     palette: cleanPalette(v.palette),

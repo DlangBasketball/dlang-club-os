@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Globe, Menu, Play, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, Menu, Pause, Play, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { submitSiteForm } from "@/lib/actions/site-forms";
 import { HONEYPOT_FIELD } from "@/lib/site/forms";
@@ -169,6 +169,61 @@ export function CountUp({ value, locale }: { value: string; locale: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// Hero slideshow: cross-fading slides (server-rendered), dots, pause / play.
+// No autoplay when the visitor prefers reduced motion; pauses on hover / focus.
+// ---------------------------------------------------------------------------
+
+export function HeroSlideshow({ children, autoplay, interval, labels }: { children: React.ReactNode[]; autoplay: boolean; interval: number; labels: { pause: string; play: string; goTo: string; slide: string } }) {
+  const count = children.length;
+  const [index, setIndex] = React.useState(0);
+  const [playing, setPlaying] = React.useState(autoplay);
+  const [hold, setHold] = React.useState(false);
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) setPlaying(false);
+  }, []);
+  React.useEffect(() => {
+    if (!playing || hold || count < 2) return;
+    const id = window.setTimeout(() => setIndex((i) => (i + 1) % count), Math.max(3, interval) * 1000);
+    return () => window.clearTimeout(id);
+  }, [playing, hold, index, count, interval]);
+  const fmt = (s: string, n: number) => s.replace("{n}", String(n)).replace("{count}", String(count));
+  return (
+    <div className="absolute inset-0" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onFocus={() => setHold(true)} onBlur={() => setHold(false)}>
+      {children.map((child, i) => (
+        <div
+          key={i}
+          className="site-slide absolute inset-0"
+          data-active={i === index ? "true" : "false"}
+          role="group"
+          aria-roledescription={labels.slide}
+          aria-label={fmt("{n} / {count}", i + 1)}
+          aria-hidden={i === index ? undefined : true}
+          inert={i === index ? undefined : true}
+        >
+          {child}
+        </div>
+      ))}
+      {count > 1 && (
+        <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center gap-3">
+          <button type="button" onClick={() => setPlaying((p) => !p)} className="site-chip-dark inline-flex min-h-tap min-w-tap items-center justify-center rounded-full focus-visible:shadow-focus" aria-label={playing ? labels.pause : labels.play}>
+            {playing ? <Pause className="h-4 w-4" aria-hidden /> : <Play className="h-4 w-4" aria-hidden />}
+          </button>
+          <ul className="flex items-center gap-1">
+            {children.map((_, i) => (
+              <li key={i}>
+                <button type="button" onClick={() => setIndex(i)} aria-current={i === index ? "true" : undefined} aria-label={fmt(labels.goTo, i + 1)} className="inline-flex min-h-tap min-w-tap items-center justify-center focus-visible:shadow-focus">
+                  <span className="site-slide-dot" aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Header: mobile menu + language menu
 // ---------------------------------------------------------------------------
 
@@ -197,15 +252,19 @@ export function MobileNav({ links, extra, labels }: { links: NavLink[]; extra: {
       {open && (
         <nav id="site-mobile-nav" aria-label={labels.nav} className="site-header-glass fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border px-4 pb-8 pt-4">
           <ul className="space-y-1">
-            {links.map((l) => (
-              <li key={l.href}>
-                <a href={l.href} aria-current={l.current ? "page" : undefined} className={cn("block rounded-md px-3 py-3 text-lg font-medium", l.current ? "text-brand-primary" : "text-text")}>
-                  {l.label}
-                </a>
+            {links.map((l, i) => (
+              <li key={`${l.href}-${i}`}>
+                {l.href ? (
+                  <a href={l.href} aria-current={l.current ? "page" : undefined} className={cn("block rounded-md px-3 py-3 text-lg font-medium", l.current ? "text-brand-primary" : "text-text")}>
+                    {l.label}
+                  </a>
+                ) : (
+                  <p className={cn("px-3 pb-1 pt-3 text-lg font-medium", l.current ? "text-brand-primary" : "text-text")}>{l.label}</p>
+                )}
                 {!!l.children?.length && (
                   <ul className="ms-4 border-s border-border ps-3">
-                    {l.children.map((c) => (
-                      <li key={c.href}>
+                    {l.children.map((c, k) => (
+                      <li key={`${c.href}-${k}`}>
                         <a href={c.href} aria-current={c.current ? "page" : undefined} className="block px-3 py-2 text-text-secondary">
                           {c.label}
                         </a>

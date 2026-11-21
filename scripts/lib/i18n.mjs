@@ -292,6 +292,13 @@ export const SAME_AS_EN_OK = new Set([
   "de:pdf.invoice.details",
   "languageSettings.statusPartial",
   // club website (site.*) and other merged keys: loanwords identical in that language
+  "site.import.designLogo",
+  "site.import.live.camps",
+  "de:site.import.live.shop",
+  "de:site.import.live.news",
+  "de:site.menu.link",
+  "it:site.menu.link",
+  "fr:site.import.designContact",
   "site.admin.tabs.import",
   "site.admin.tabs.pages",
   "site.admin.tabs.posts",

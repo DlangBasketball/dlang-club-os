@@ -8061,8 +8061,8 @@
         "text": "Texto"
       },
       "useClubColor": "Usar el color del club",
-      "fontDisplay": "Fuente de títulos (nombre en Google Fonts)",
-      "fontUi": "Fuente del texto (nombre en Google Fonts)",
+      "fontDisplay": "Fuente de títulos",
+      "fontUi": "Fuente del texto",
       "contrast": "Comprobación de contraste (WCAG AA)",
       "contrastPairs": {
         "0": "Texto sobre el fondo",
@@ -8083,7 +8083,13 @@
       "analyticsHint": "Se cargan solo si el visitante acepta las cookies de estadística.",
       "analyticsId": "ID del sitio / de medición",
       "social": "Redes sociales",
-      "saved": "Ajustes del sitio guardados."
+      "saved": "Ajustes del sitio guardados.",
+      "contactPhone": "Teléfono mostrado en el sitio",
+      "contactAddress": "Dirección mostrada en el sitio",
+      "fontTemplate": "Predeterminada del diseño",
+      "fontCondensed": "condensada",
+      "uppercaseHeadings": "Títulos en mayúsculas",
+      "uppercaseHint": "Mayúsculas en negrita para títulos y menú, el estilo deportivo de las fuentes condensadas."
     },
     "templates": {
       "arena": "Arena (oscuro, potente)",
@@ -8317,7 +8323,10 @@
       "ogImage": "Imagen para compartir",
       "excerpt": "Resumen",
       "body": "Texto",
-      "cover": "Imagen de portada"
+      "cover": "Imagen de portada",
+      "slides": "Más diapositivas (presentación)",
+      "autoplay": "Reproducir la presentación automáticamente",
+      "interval": "Segundos por diapositiva"
     },
     "options": {
       "height": {
@@ -8446,7 +8455,13 @@
       "previous": "Imagen anterior",
       "next": "Imagen siguiente",
       "counter": "{current} de {total}",
-      "allNews": "Todas las noticias"
+      "allNews": "Todas las noticias",
+      "notTranslated": "Esta página aún no está disponible en {language}. Se muestra en {shown}.",
+      "slideshow": "Presentación",
+      "slide": "Diapositiva",
+      "slideGoTo": "Mostrar la diapositiva {n}",
+      "slidePause": "Pausar la presentación",
+      "slidePlay": "Reproducir la presentación"
     },
     "chrome": {
       "skip": "Saltar al contenido",
@@ -8510,7 +8525,12 @@
         "imagesFailed": "Fotos no importadas",
         "imagesRemaining": "Fotos para la próxima vuelta",
         "redirects": "Redirecciones",
-        "skipped": "Omitidas"
+        "skipped": "Omitidas",
+        "pagesKept": "Páginas conservadas (cambiadas desde la última importación)",
+        "postsKept": "Noticias conservadas (cambiadas desde la última importación)",
+        "liveBlocks": "Páginas con un bloque en vivo",
+        "menuItems": "Elementos del menú",
+        "designApplied": "Ajustes de diseño aplicados"
       },
       "runAgain": "Quedan más fotos: vuelve a importar para continuar.",
       "errors": {
@@ -8518,7 +8538,34 @@
         "not_wordpress": "No se encontró contenido público de WordPress en esta dirección.",
         "network": "No se pudo acceder al sitio. Inténtalo de nuevo.",
         "too_large": "El sitio envió demasiados datos a la vez."
-      }
+      },
+      "applyDesignLabel": "Usar el diseño de mi sitio actual",
+      "applyDesignHint": "Menú principal (con submenús y traducciones), logotipo, fuentes, colores de la marca, enlaces a redes sociales y datos de contacto. Solo se completan los ajustes vacíos, salvo que marques \"Sobrescribir mis cambios\".",
+      "addLiveLabel": "Añadir bloques en vivo a las páginas correspondientes",
+      "addLiveHint": "{count, plural, one {# página recibe} other {# páginas reciben}} un bloque en vivo de la app: campus con botón de inscripción, próximos partidos y resultados, paquetes de entrenamiento con botón de reserva, la tienda, noticias o logotipos de patrocinadores.",
+      "overwriteLabel": "Sobrescribir mis cambios",
+      "overwriteHint": "Al volver a importar, las páginas, noticias y ajustes que cambiaste después de la última importación se conservan, salvo que marques esto. Una copia de cada página reemplazada queda en su historial de versiones.",
+      "liveColumn": "Bloque en vivo",
+      "live": {
+        "camps": "Campus",
+        "schedule": "Partidos y resultados",
+        "training": "Paquetes de entrenamiento",
+        "shop": "Tienda",
+        "news": "Noticias",
+        "sponsors": "Logotipos de patrocinadores"
+      },
+      "designTitle": "Diseño encontrado en tu sitio",
+      "designMenu": "Menú principal ({count, plural, one {# elemento} other {# elementos}})",
+      "designNone": "nada encontrado",
+      "designLogo": "Logotipo",
+      "designFonts": "Fuentes",
+      "designFontsValue": "títulos {display} (la tuya: {detectedDisplay}), texto {ui} (la tuya: {detectedUi})",
+      "designDefault": "predeterminada del diseño",
+      "designUppercase": "títulos en mayúsculas",
+      "designColors": "Colores de la marca",
+      "designContrast": "Contraste del color principal: {light}:1 sobre blanco, {dark}:1 sobre negro. El texto difícil de leer se ajusta automáticamente.",
+      "designSocial": "Redes sociales",
+      "designContact": "Contacto"
     },
     "posts": {
       "title": "Noticias",
@@ -8554,6 +8601,20 @@
       "redirect": "Introduce una dirección antigua y una nueva (/pagina o https://…).",
       "slug": "Introduce una dirección para la entrada.",
       "slugTaken": "Otra entrada ya usa esta dirección."
+    },
+    "menu": {
+      "title": "Menú principal",
+      "label": "Etiqueta ({language})",
+      "link": "Enlace",
+      "linkPlaceholder": "/pagina, https://... o vacío para un desplegable",
+      "add": "Añadir elemento",
+      "addChild": "Añadir subelemento",
+      "indent": "Mover dentro del elemento de arriba",
+      "outdent": "Mover al primer nivel",
+      "clear": "Usar el árbol de páginas",
+      "confirmClear": "¿Quitar este menú? El encabezado mostrará entonces tus páginas de primer nivel.",
+      "empty": "Aún no hay menú: el encabezado muestra tus páginas de primer nivel marcadas \"mostrar en el menú\". Añade elementos para elegir exactamente lo que se muestra.",
+      "hint": "Los enlaces a tus páginas siguen automáticamente el idioma del visitante (/camps pasa a /fr/camps). Deja el enlace vacío para un título que solo abre sus subelementos. Guarda los ajustes para publicar el menú."
     }
   },
   "upgrades": {

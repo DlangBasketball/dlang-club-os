@@ -8061,8 +8061,8 @@
         "text": "Text"
       },
       "useClubColor": "Use the club color",
-      "fontDisplay": "Headline font (Google Fonts name)",
-      "fontUi": "Text font (Google Fonts name)",
+      "fontDisplay": "Headline font",
+      "fontUi": "Text font",
       "contrast": "Contrast check (WCAG AA)",
       "contrastPairs": {
         "0": "Body text on background",
@@ -8083,7 +8083,13 @@
       "analyticsHint": "Loaded only after a visitor accepts analytics cookies.",
       "analyticsId": "Site ID / measurement ID",
       "social": "Social media",
-      "saved": "Website settings saved."
+      "saved": "Website settings saved.",
+      "contactPhone": "Phone shown on the website",
+      "contactAddress": "Address shown on the website",
+      "fontTemplate": "Design default",
+      "fontCondensed": "condensed",
+      "uppercaseHeadings": "Uppercase headlines",
+      "uppercaseHint": "Bold capitals for headlines and menu, the sporty look of condensed fonts."
     },
     "templates": {
       "arena": "Arena (dark, bold)",
@@ -8317,7 +8323,10 @@
       "ogImage": "Sharing image",
       "excerpt": "Summary",
       "body": "Text",
-      "cover": "Cover image"
+      "cover": "Cover image",
+      "slides": "More slides (slideshow)",
+      "autoplay": "Play the slideshow automatically",
+      "interval": "Seconds per slide"
     },
     "options": {
       "height": {
@@ -8446,7 +8455,13 @@
       "previous": "Previous image",
       "next": "Next image",
       "counter": "{current} of {total}",
-      "allNews": "All news"
+      "allNews": "All news",
+      "notTranslated": "This page is not available in {language} yet. It is shown in {shown}.",
+      "slideshow": "Slideshow",
+      "slide": "Slide",
+      "slideGoTo": "Show slide {n}",
+      "slidePause": "Pause the slideshow",
+      "slidePlay": "Play the slideshow"
     },
     "chrome": {
       "skip": "Skip to content",
@@ -8510,7 +8525,12 @@
         "imagesFailed": "Photos not imported",
         "imagesRemaining": "Photos left for the next run",
         "redirects": "Redirects",
-        "skipped": "Skipped"
+        "skipped": "Skipped",
+        "pagesKept": "Pages kept (edited since the last import)",
+        "postsKept": "News kept (edited since the last import)",
+        "liveBlocks": "Pages with a live block",
+        "menuItems": "Menu items",
+        "designApplied": "Design settings applied"
       },
       "runAgain": "More photos are waiting: run the import again to continue.",
       "errors": {
@@ -8518,7 +8538,34 @@
         "not_wordpress": "No public WordPress content was found at this address.",
         "network": "The website could not be reached. Please try again.",
         "too_large": "The website sent too much data at once."
-      }
+      },
+      "applyDesignLabel": "Use the design of my current website",
+      "applyDesignHint": "Header menu (with its drop-downs and translations), logo, fonts, brand colours, social links and contact details. Only empty settings are filled, unless you tick \"Overwrite my edits\".",
+      "addLiveLabel": "Add live blocks to matching pages",
+      "addLiveHint": "{count, plural, one {# page gets} other {# pages get}} a live block from the app: camps with Register buttons, next games and results, training packages with Book buttons, the shop, news or partner logos.",
+      "overwriteLabel": "Overwrite my edits",
+      "overwriteHint": "When importing again, pages, news and settings you changed after the last import are kept unless you tick this. A copy of every replaced page stays in its version history.",
+      "liveColumn": "Live block",
+      "live": {
+        "camps": "Camps",
+        "schedule": "Games and results",
+        "training": "Training packages",
+        "shop": "Shop",
+        "news": "News",
+        "sponsors": "Partner logos"
+      },
+      "designTitle": "Design found on your website",
+      "designMenu": "Header menu ({count, plural, one {# item} other {# items}})",
+      "designNone": "none found",
+      "designLogo": "Logo",
+      "designFonts": "Fonts",
+      "designFontsValue": "headlines {display} (yours: {detectedDisplay}), text {ui} (yours: {detectedUi})",
+      "designDefault": "design default",
+      "designUppercase": "uppercase headlines",
+      "designColors": "Brand colours",
+      "designContrast": "Brand colour contrast: {light}:1 on white, {dark}:1 on black. Text that would be hard to read is adjusted automatically.",
+      "designSocial": "Social links",
+      "designContact": "Contact"
     },
     "posts": {
       "title": "News",
@@ -8554,6 +8601,20 @@
       "redirect": "Enter an old address and a new address (/page or https://…).",
       "slug": "Enter an address for the post.",
       "slugTaken": "Another post already uses this address."
+    },
+    "menu": {
+      "title": "Header menu",
+      "label": "Label ({language})",
+      "link": "Link",
+      "linkPlaceholder": "/page, https://... or empty for a drop-down",
+      "add": "Add menu item",
+      "addChild": "Add sub-item",
+      "indent": "Move into the item above",
+      "outdent": "Move to the top level",
+      "clear": "Use the page tree instead",
+      "confirmClear": "Remove this menu? The header then lists your top-level pages.",
+      "empty": "No menu yet: the header lists your top-level pages marked \"show in menu\". Add items to choose exactly what the header shows.",
+      "hint": "Links to your pages follow the visitor's language automatically (/camps becomes /fr/camps). Leave the link empty for a drop-down title that only opens its sub-items. Save the settings to publish the menu."
     }
   },
   "upgrades": {

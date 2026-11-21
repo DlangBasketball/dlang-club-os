@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { imagePathsOf, type PageLang, type PostLang } from "@/lib/site/blocks";
-import { textDir } from "@/lib/site/languages";
+import { nativeLanguageName, textDir } from "@/lib/site/languages";
 import { localizedPath, postPath } from "@/lib/site/paths";
 import { alternatesToMetadata, breadcrumbLd, hreflangAlternates, jsonLdString, newsArticleLd, pathTrail } from "@/lib/site/seo";
 import { clearedImages, libraryUrl, previewImages, siteI18n, type PublicPost, type ResolvedSite } from "@/lib/site/server";
@@ -25,27 +25,42 @@ export async function makeCtx(site: ResolvedSite, lang: string, path: string, pa
 }
 
 /** A content page (published snapshot, or the working copy in the admin preview). */
-export async function SitePageView({ site, lang, path, page, languages, preview = false, langHref }: { site: ResolvedSite; lang: string; path: string; page: PageLang; languages: string[]; preview?: boolean; langHref?: (lang: string) => string }) {
+export async function SitePageView({ site, lang, path, page, languages, preview = false, langHref, contentLang, switcher }: {
+  site: ResolvedSite; lang: string; path: string; page: PageLang; languages: string[]; preview?: boolean; langHref?: (lang: string) => string;
+  /** Language of `page` when it is a fallback (page not translated into `lang` yet). */
+  contentLang?: string;
+  /** Languages in the switcher (defaults to `languages`). */
+  switcher?: string[];
+}) {
   const ctx = await makeCtx(site, lang, path, imagePathsOf({ [lang]: page }), preview);
+  const shownLang = contentLang ?? lang;
+  const fallback = shownLang !== lang;
   const startsWithHero = page.blocks[0]?.type === "hero";
   const trail = pathTrail(path)
     .map((p) => ({ path: p, page: site.pages.find((x) => x.path === p) }))
     .filter((x) => x.page)
     .map((x) => ({ name: x.page!.titles[lang] ?? x.page!.titles[ctx.defaultLang] ?? site.tenant.name, url: `${site.origin}${localizedPath(x.path, lang, ctx.defaultLang)}` }));
   return (
-    <SiteShell ctx={ctx} languages={languages.map((l) => ({ tag: l, href: langHref ? langHref(l) : localizedPath(path, l, ctx.defaultLang) }))}>
+    <SiteShell ctx={ctx} languages={(switcher ?? languages).map((l) => ({ tag: l, href: langHref ? langHref(l) : localizedPath(path, l, ctx.defaultLang) }))}>
       {preview && (
         <div className="bg-warning px-4 py-2 text-center text-sm font-semibold text-bg" role="status">
           {ctx.t("site.render.previewBanner")}
           {page.state === "machine_draft" ? ` · ${ctx.t("site.render.machineDraft")}` : ""}
         </div>
       )}
-      {!startsWithHero && (
-        <section className={cn(WRAP, "pb-4 pt-16 sm:pt-24")}>
-          <h1 className="site-h text-5xl text-text sm:text-6xl">{page.title}</h1>
-        </section>
+      {fallback && (
+        <p role="note" className="border-b border-border-soft bg-bg-secondary px-4 py-2 text-center text-sm text-text-secondary">
+          {ctx.t("site.render.notTranslated", { language: nativeLanguageName(lang), shown: nativeLanguageName(shownLang) })}
+        </p>
       )}
-      <Blocks blocks={page.blocks} ctx={ctx} />
+      <div lang={fallback ? shownLang : undefined} dir={fallback ? textDir(shownLang) : undefined}>
+        {!startsWithHero && (
+          <section className={cn(WRAP, "pb-4 pt-16 sm:pt-24")}>
+            <h1 className="site-h text-5xl text-text sm:text-6xl">{page.title}</h1>
+          </section>
+        )}
+        <Blocks blocks={page.blocks} ctx={ctx} />
+      </div>
       {trail.length > 1 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbLd(trail)) }} />}
     </SiteShell>
   );

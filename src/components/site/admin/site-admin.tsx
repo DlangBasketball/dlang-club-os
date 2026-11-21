@@ -13,6 +13,9 @@ import {
 } from "@/lib/actions/site";
 import { previewSiteImport, runSiteImport } from "@/lib/actions/site-import";
 import { languageNameIn, nativeLanguageName } from "@/lib/site/languages";
+import { moveItem } from "@/lib/site/blocks";
+import { indentNavItem, outdentNavItem, type CustomNavItem } from "@/lib/site/nav";
+import { siteFontByFamily, siteFontsFor } from "@/lib/site/fonts";
 import { localizedPath } from "@/lib/site/paths";
 import type { ImportPlan, ImportReport } from "@/lib/site/wp-import";
 import type { AdminPageRow } from "@/lib/site/admin-data";
@@ -259,6 +262,83 @@ export function Checklist({ items }: { items: readonly { key: string; done: bool
 
 export type SettingsFormValue = SiteSettingsInput & { languagesList: string[] };
 
+/**
+ * Header menu editor: items with a label per site language and a link (a
+ * site page, any https URL, or empty for a dropdown parent), one level of
+ * sub-items; reorder, nest and un-nest with buttons (keyboard friendly).
+ * An empty menu means "build it from the page tree".
+ */
+export function HeaderMenuEditor({ value, onChange, languages, pages }: { value: CustomNavItem[]; onChange: (v: CustomNavItem[]) => void; languages: string[]; pages: { title: string; path: string }[] }) {
+  const t = useT();
+  const setTop = (i: number, it: CustomNavItem) => onChange(value.map((x, k) => (k === i ? it : x)));
+  const setChild = (p: number, c: number, it: CustomNavItem) => setTop(p, { ...value[p]!, children: (value[p]!.children ?? []).map((x, k) => (k === c ? it : x)) });
+  const blank = (): CustomNavItem => ({ label: Object.fromEntries(languages.slice(0, 1).map((l) => [l, ""])), href: "/" });
+  const row = (it: CustomNavItem, id: string, onItem: (v: CustomNavItem) => void, tools: React.ReactNode) => (
+    <div className="space-y-2 rounded border border-border-soft p-3">
+      <div className="flex flex-wrap items-end gap-2">
+        {languages.map((l) => (
+          <div key={l} className="min-w-[9rem] flex-1">
+            <Label htmlFor={`${id}-l-${l}`}>{t("site.menu.label", { language: nativeLanguageName(l) })}</Label>
+            <Input id={`${id}-l-${l}`} dir="auto" maxLength={60} value={it.label[l] ?? ""} onChange={(e) => onItem({ ...it, label: { ...it.label, [l]: e.target.value } })} />
+          </div>
+        ))}
+        <div className="min-w-[12rem] flex-1">
+          <Label htmlFor={`${id}-h`}>{t("site.menu.link")}</Label>
+          <Input id={`${id}-h`} dir="ltr" list="site-menu-pages" placeholder={t("site.menu.linkPlaceholder")} value={it.href} onChange={(e) => onItem({ ...it, href: e.target.value })} />
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1">{tools}</div>
+    </div>
+  );
+  const iconBtn = (label: string, onClick: () => void, icon: React.ReactNode, disabled = false) => (
+    <Button type="button" size="sm" variant="ghost" aria-label={label} title={label} disabled={disabled} onClick={onClick}>{icon}</Button>
+  );
+  return (
+    <div className="space-y-3">
+      <datalist id="site-menu-pages">
+        {pages.map((p) => <option key={p.path} value={p.path}>{p.title}</option>)}
+      </datalist>
+      {!value.length && <p className="text-sm text-text-muted">{t("site.menu.empty")}</p>}
+      <ol className="space-y-3">
+        {value.map((it, i) => (
+          <li key={i} className="space-y-2">
+            {row(it, `nav-${i}`, (v) => setTop(i, v), (
+              <>
+                {iconBtn(t("site.editor.moveUp"), () => onChange(moveItem(value, i, i - 1)), <ArrowUp className="h-4 w-4" aria-hidden />, i === 0)}
+                {iconBtn(t("site.editor.moveDown"), () => onChange(moveItem(value, i, i + 1)), <ArrowDown className="h-4 w-4" aria-hidden />, i === value.length - 1)}
+                <Button type="button" size="sm" variant="ghost" disabled={i === 0 || !!it.children?.length} onClick={() => onChange(indentNavItem(value, i))}>{t("site.menu.indent")}</Button>
+                <Button type="button" size="sm" variant="ghost" disabled={(it.children?.length ?? 0) >= 20} onClick={() => setTop(i, { ...it, children: [...(it.children ?? []), blank()] })}><Plus className="h-4 w-4" aria-hidden /> {t("site.menu.addChild")}</Button>
+                {iconBtn(t("site.editor.removeItem"), () => onChange(value.filter((_, k) => k !== i)), <Trash2 className="h-4 w-4" aria-hidden />)}
+              </>
+            ))}
+            {!!it.children?.length && (
+              <ol className="ms-6 space-y-2 border-s border-border ps-3">
+                {it.children.map((c, k) => (
+                  <li key={k}>
+                    {row(c, `nav-${i}-${k}`, (v) => setChild(i, k, v), (
+                      <>
+                        {iconBtn(t("site.editor.moveUp"), () => setTop(i, { ...it, children: moveItem(it.children!, k, k - 1) }), <ArrowUp className="h-4 w-4" aria-hidden />, k === 0)}
+                        {iconBtn(t("site.editor.moveDown"), () => setTop(i, { ...it, children: moveItem(it.children!, k, k + 1) }), <ArrowDown className="h-4 w-4" aria-hidden />, k === it.children!.length - 1)}
+                        <Button type="button" size="sm" variant="ghost" disabled={value.length >= 12} onClick={() => onChange(outdentNavItem(value, i, k))}>{t("site.menu.outdent")}</Button>
+                        {iconBtn(t("site.editor.removeItem"), () => setTop(i, { ...it, children: it.children!.filter((_, x) => x !== k) }), <Trash2 className="h-4 w-4" aria-hidden />)}
+                      </>
+                    ))}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </li>
+        ))}
+      </ol>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" size="sm" variant="secondary" disabled={value.length >= 12} onClick={() => onChange([...value, blank()])}><Plus className="h-4 w-4" aria-hidden /> {t("site.menu.add")}</Button>
+        {!!value.length && <Button type="button" size="sm" variant="ghost" onClick={() => window.confirm(t("site.menu.confirmClear")) && onChange([])}>{t("site.menu.clear")}</Button>}
+      </div>
+      <FieldHint>{t("site.menu.hint")}</FieldHint>
+    </div>
+  );
+}
+
 export function SiteSettingsForm({
   initial, pages, images, contrast, social, appLocale,
 }: {
@@ -333,6 +413,21 @@ export function SiteSettingsForm({
             <Label htmlFor="s-email">{t("site.settings.contactEmail")}</Label>
             <Input id="s-email" type="email" value={v.contactEmail ?? ""} onChange={(e) => set("contactEmail", e.target.value)} />
           </div>
+          <div>
+            <Label htmlFor="s-phone">{t("site.settings.contactPhone")}</Label>
+            <Input id="s-phone" type="tel" dir="ltr" maxLength={40} value={v.contactPhone ?? ""} onChange={(e) => set("contactPhone", e.target.value)} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="s-address">{t("site.settings.contactAddress")}</Label>
+            <Input id="s-address" dir="auto" maxLength={300} value={v.contactAddress ?? ""} onChange={(e) => set("contactAddress", e.target.value)} />
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>{t("site.menu.title")}</CardTitle></CardHeader>
+        <CardBody>
+          <HeaderMenuEditor value={(v.headerNav as CustomNavItem[] | undefined) ?? []} onChange={(nav) => set("headerNav", nav)} languages={langs} pages={pages} />
         </CardBody>
       </Card>
 
@@ -358,14 +453,27 @@ export function SiteSettingsForm({
               </div>
             </div>
           ))}
-          <div>
-            <Label htmlFor="s-fd">{t("site.settings.fontDisplay")}</Label>
-            <Input id="s-fd" value={(v.fonts as Record<string, string> | undefined)?.display ?? ""} onChange={(e) => set("fonts", { ...(v.fonts ?? {}), display: e.target.value })} placeholder="Fraunces" />
-          </div>
-          <div>
-            <Label htmlFor="s-fu">{t("site.settings.fontUi")}</Label>
-            <Input id="s-fu" value={(v.fonts as Record<string, string> | undefined)?.ui ?? ""} onChange={(e) => set("fonts", { ...(v.fonts ?? {}), ui: e.target.value })} placeholder="Geist" />
-          </div>
+          {(["display", "ui"] as const).map((k) => {
+            const cur = String((v.fonts as Record<string, unknown> | undefined)?.[k] ?? "");
+            const options = siteFontsFor(k === "display" ? "display" : "body");
+            return (
+              <div key={k}>
+                <Label htmlFor={`s-f-${k}`}>{t(k === "display" ? "site.settings.fontDisplay" : "site.settings.fontUi")}</Label>
+                <Select id={`s-f-${k}`} value={cur} onChange={(e) => set("fonts", { ...(v.fonts ?? {}), [k]: e.target.value })}>
+                  <option value="">{t("site.settings.fontTemplate")}</option>
+                  {options.map((f) => <option key={f.family} value={f.family}>{f.family}{f.condensed ? ` · ${t("site.settings.fontCondensed")}` : ""}</option>)}
+                  {cur && !siteFontByFamily(cur) && <option value={cur}>{cur}</option>}
+                </Select>
+              </div>
+            );
+          })}
+          <label className="flex items-start gap-3 sm:col-span-2">
+            <input type="checkbox" className="mt-1 h-5 w-5 accent-[var(--brand-primary)]" checked={(v.fonts as Record<string, unknown> | undefined)?.uppercase === true} onChange={(e) => set("fonts", { ...(v.fonts ?? {}), uppercase: e.target.checked })} />
+            <span>
+              <span className="block font-medium text-text">{t("site.settings.uppercaseHeadings")}</span>
+              <span className="text-sm text-text-muted">{t("site.settings.uppercaseHint")}</span>
+            </span>
+          </label>
           <div className="sm:col-span-2">
             <p className="text-sm font-medium text-text">{t("site.settings.contrast")}</p>
             <ul className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
@@ -545,6 +653,88 @@ export function SubmissionsList({ rows }: { rows: { id: string; kind: string; na
 // Import wizard
 // ---------------------------------------------------------------------------
 
+/** What the importer found about the old site's look (menu, logo, fonts, colours, social, contact). */
+function DesignPreview({ design }: { design: ImportPlan["design"] }) {
+  const t = useT();
+  const first = (rec: Record<string, string>) => Object.values(rec)[0] ?? "";
+  const others = (rec: Record<string, string>) => Object.entries(rec).slice(1).map(([l, v]) => `${l}: ${v}`).join(" · ");
+  const swatch = (hex: string | null, label: string) =>
+    hex ? (
+      <li className="flex items-center gap-2">
+        <span aria-hidden className="inline-block h-6 w-6 rounded border border-border" style={{ background: hex }} />
+        <span>{label}: <span className="font-mono" dir="ltr">{hex}</span></span>
+      </li>
+    ) : null;
+  return (
+    <section aria-labelledby="imp-design" className="space-y-3 rounded-md border border-border p-3">
+      <h3 id="imp-design" className="font-medium text-text">{t("site.import.designTitle")}</h3>
+      <div className="grid gap-4 text-sm sm:grid-cols-2">
+        <div>
+          <p className="text-text-muted">{t("site.import.designMenu", { count: design.menu.length })}</p>
+          {design.menu.length ? (
+            <ul className="mt-1 max-h-48 space-y-1 overflow-auto">
+              {design.menu.map((m, i) => (
+                <li key={i}>
+                  <span className="font-medium text-text">{first(m.label)}</span>
+                  {others(m.label) && <span className="text-xs text-text-muted"> ({others(m.label)})</span>}
+                  {m.href && <span className="ms-1 font-mono text-xs text-text-muted" dir="ltr">{m.href}</span>}
+                  {!!m.children?.length && (
+                    <ul className="ms-4 border-s border-border ps-2 text-text-secondary">
+                      {m.children.map((c, k) => <li key={k}>{first(c.label)} <span className="font-mono text-xs text-text-muted" dir="ltr">{c.href}</span></li>)}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-text-secondary">{t("site.import.designNone")}</p>
+          )}
+        </div>
+        <ul className="space-y-2">
+          <li>
+            <span className="text-text-muted">{t("site.import.designLogo")}: </span>
+            {design.logoUrl ? <a className="font-mono text-xs underline" dir="ltr" href={design.logoUrl} target="_blank" rel="noopener noreferrer">{design.logoUrl.split("/").pop()}</a> : t("site.import.designNone")}
+          </li>
+          <li>
+            <span className="text-text-muted">{t("site.import.designFonts")}: </span>
+            {design.fonts.display || design.fonts.ui
+              ? t("site.import.designFontsValue", {
+                  display: design.fonts.display ?? t("site.import.designDefault"),
+                  detectedDisplay: design.fonts.detectedDisplay ?? "-",
+                  ui: design.fonts.ui ?? t("site.import.designDefault"),
+                  detectedUi: design.fonts.detectedBody ?? "-",
+                })
+              : t("site.import.designNone")}
+            {design.fonts.uppercase && <span className="text-text-muted"> · {t("site.import.designUppercase")}</span>}
+          </li>
+          <li>
+            <span className="text-text-muted">{t("site.import.designColors")}:</span>
+            {design.colors.primary ? (
+              <ul className="mt-1 space-y-1">
+                {swatch(design.colors.primary, t("site.settings.colors.primary"))}
+                {swatch(design.colors.accent, t("site.settings.colors.accent"))}
+                <li className="text-xs text-text-muted">
+                  {t("site.import.designContrast", { light: (design.colors.primaryContrastOnWhite ?? 0).toFixed(2), dark: (design.colors.primaryContrastOnDark ?? 0).toFixed(2) })}
+                </li>
+              </ul>
+            ) : (
+              <span> {t("site.import.designNone")}</span>
+            )}
+          </li>
+          <li>
+            <span className="text-text-muted">{t("site.import.designSocial")}: </span>
+            {Object.keys(design.social).length ? Object.keys(design.social).map((k) => t.dynamic(`website.social.${k}`, {}, k)).join(", ") : t("site.import.designNone")}
+          </li>
+          <li>
+            <span className="text-text-muted">{t("site.import.designContact")}: </span>
+            {[design.contact.email, design.contact.phone, design.contact.address].filter(Boolean).join(" · ") || t("site.import.designNone")}
+          </li>
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 export function ImportWizard({ initialUrl }: { initialUrl: string }) {
   const t = useT();
   const router = useRouter();
@@ -553,6 +743,9 @@ export function ImportWizard({ initialUrl }: { initialUrl: string }) {
   const [report, setReport] = React.useState<ImportReport | null>(null);
   const [cleared, setCleared] = React.useState(false);
   const [publish, setPublish] = React.useState(false);
+  const [applyDesign, setApplyDesign] = React.useState(true);
+  const [addLive, setAddLive] = React.useState(true);
+  const [overwrite, setOverwrite] = React.useState(false);
   const [busy, setBusy] = React.useState<null | "preview" | "run">(null);
   const [msg, setMsg] = React.useState<Msg>(null);
   async function preview(e: React.FormEvent) {
@@ -566,7 +759,7 @@ export function ImportWizard({ initialUrl }: { initialUrl: string }) {
   }
   async function run() {
     setBusy("run");
-    const res = await runSiteImport({ url, clearedForPublic: cleared, publish });
+    const res = await runSiteImport({ url, clearedForPublic: cleared, publish, applyDesign, addLiveBlocks: addLive, overwriteEdits: overwrite });
     setBusy(null);
     setMsg(res.ok ? { ok: true, text: res.message } : { ok: false, text: res.error });
     if (res.ok) {
@@ -605,7 +798,11 @@ export function ImportWizard({ initialUrl }: { initialUrl: string }) {
             <div className="max-h-80 overflow-auto rounded-md border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-bg-secondary text-start text-xs uppercase text-text-muted">
-                  <tr><th className="px-3 py-2 text-start">{t("site.pages.title")}</th><th className="px-3 py-2 text-start">{t("site.import.oldPath")}</th><th className="px-3 py-2 text-start">{t("site.import.newPath")}</th><th className="px-3 py-2 text-start">{t("site.import.languages")}</th></tr>
+                  <tr>
+                    <th className="px-3 py-2 text-start">{t("site.pages.title")}</th><th className="px-3 py-2 text-start">{t("site.import.oldPath")}</th>
+                    <th className="px-3 py-2 text-start">{t("site.import.newPath")}</th><th className="px-3 py-2 text-start">{t("site.import.languages")}</th>
+                    <th className="px-3 py-2 text-start">{t("site.import.liveColumn")}</th>
+                  </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {importable.map((p) => (
@@ -614,6 +811,7 @@ export function ImportWizard({ initialUrl }: { initialUrl: string }) {
                       <td className="px-3 py-2 font-mono text-xs" dir="ltr">{p.oldPath}</td>
                       <td className={cn("px-3 py-2 font-mono text-xs", p.oldPath !== p.newPath && "text-warning")} dir="ltr">{p.newPath}</td>
                       <td className="px-3 py-2 text-xs">{p.translations.join(", ") || "-"}</td>
+                      <td className="px-3 py-2 text-xs">{p.live ? t.dynamic(`site.import.live.${p.live}`, {}, p.live) : "-"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -628,6 +826,28 @@ export function ImportWizard({ initialUrl }: { initialUrl: string }) {
               </details>
             )}
             {!!plan.unmatched.length && <p className="text-xs text-text-muted">{t("site.import.unmatched", { count: plan.unmatched.length })}</p>}
+            <DesignPreview design={plan.design} />
+            <label className="flex items-start gap-3 rounded-md border border-border p-3">
+              <input type="checkbox" className="mt-1 h-5 w-5 accent-[var(--brand-primary)]" checked={applyDesign} onChange={(e) => setApplyDesign(e.target.checked)} />
+              <span>
+                <span className="block font-medium text-text">{t("site.import.applyDesignLabel")}</span>
+                <span className="text-sm text-text-muted">{t("site.import.applyDesignHint")}</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-3 rounded-md border border-border p-3">
+              <input type="checkbox" className="mt-1 h-5 w-5 accent-[var(--brand-primary)]" checked={addLive} onChange={(e) => setAddLive(e.target.checked)} />
+              <span>
+                <span className="block font-medium text-text">{t("site.import.addLiveLabel")}</span>
+                <span className="text-sm text-text-muted">{t("site.import.addLiveHint", { count: importable.filter((p) => p.live).length })}</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-3 rounded-md border border-border p-3">
+              <input type="checkbox" className="mt-1 h-5 w-5 accent-[var(--brand-primary)]" checked={overwrite} onChange={(e) => setOverwrite(e.target.checked)} />
+              <span>
+                <span className="block font-medium text-text">{t("site.import.overwriteLabel")}</span>
+                <span className="text-sm text-text-muted">{t("site.import.overwriteHint")}</span>
+              </span>
+            </label>
             <label className="flex items-start gap-3 rounded-md border border-border p-3">
               <input type="checkbox" className="mt-1 h-5 w-5 accent-[var(--brand-primary)]" checked={cleared} onChange={(e) => setCleared(e.target.checked)} />
               <span>

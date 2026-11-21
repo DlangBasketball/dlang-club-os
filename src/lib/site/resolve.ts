@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import type { PageLang, PostLang } from "./blocks";
 import { textDir } from "./languages";
+import { switcherLanguages } from "./nav";
 import { isReservedPath, localizedPath, normalizeRequestPath, postSlugOf, splitLangPath } from "./paths";
 import { getPublicPage, getPublicPost, getRequestSite, getSiteRedirect, type PublicPage, type PublicPost, type ResolvedSite } from "./server";
 
@@ -12,7 +13,16 @@ import { getPublicPage, getPublicPost, getRequestSite, getSiteRedirect, type Pub
  */
 
 export type SiteResolution =
-  | { kind: "page"; site: ResolvedSite; lang: string; path: string; page: PublicPage; tr: PageLang; languages: string[] }
+  | {
+      kind: "page"; site: ResolvedSite; lang: string;
+      /** Language of the content shown (differs from `lang` when the page is not translated yet). */
+      contentLang: string;
+      path: string; page: PublicPage; tr: PageLang;
+      /** Languages the page is published in (hreflang). */
+      languages: string[];
+      /** Languages offered in the switcher (every site language when the site has more than one). */
+      switcher: string[];
+    }
   | { kind: "post"; site: ResolvedSite; lang: string; path: string; post: PublicPost; tr: PostLang; languages: string[] }
   | { kind: "redirect"; to: string; status: 301 | 302 }
   | { kind: "notFound" };
@@ -36,13 +46,16 @@ export const resolveSiteRequest = cache(async (rawPath: string): Promise<SiteRes
   const page = await getPublicPage(site.orgId, path);
   if (page) {
     const languages = liveLanguages(page.content, site.settings.languages, def);
+    const switcher = switcherLanguages(site.settings.languages, languages, def);
     const tr = page.content[lang];
     if (!tr || !languages.includes(lang)) {
+      // Not translated yet: show the default-language content at this
+      // address (menus and labels stay in the visitor's language) with a note.
       const fallback = languages.includes(def) ? def : languages[0];
       if (!fallback) return { kind: "notFound" };
-      return { kind: "redirect", to: localizedPath(path, fallback, def), status: 302 };
+      return { kind: "page", site, lang, contentLang: fallback, path, page, tr: page.content[fallback]!, languages, switcher };
     }
-    return { kind: "page", site, lang, path, page, tr, languages };
+    return { kind: "page", site, lang, contentLang: lang, path, page, tr, languages, switcher };
   }
 
   const slug = postSlugOf(path);

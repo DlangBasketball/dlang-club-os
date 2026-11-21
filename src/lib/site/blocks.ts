@@ -77,6 +77,15 @@ const richHtml = (max = 50_000) => z.string().max(max * 2).transform((v) => sani
 const id = z.string().regex(/^[A-Za-z0-9_-]{1,40}$/);
 const base = { id };
 
+export const heroSlideSchema = z.object({
+  eyebrow: optText(80),
+  headline: text(200).default(""),
+  subheadline: optText(400),
+  image: mediaRefSchema.nullable().optional(),
+  ctas: z.array(ctaSchema).max(2).default([]),
+});
+export type HeroSlide = z.infer<typeof heroSlideSchema>;
+
 export const heroBlock = z.object({
   ...base,
   type: z.literal("hero"),
@@ -89,6 +98,12 @@ export const heroBlock = z.object({
   height: z.enum(["full", "large", "medium"]).default("large"),
   align: z.enum(["start", "center"]).default("start"),
   ctas: z.array(ctaSchema).max(3).default([]),
+  /** Slideshow: further slides after the block's own (first) slide. Optional, additive. */
+  slides: z.array(heroSlideSchema).max(8).optional(),
+  /** Slideshow: advance automatically (never when the visitor prefers reduced motion). */
+  autoplay: z.boolean().optional(),
+  /** Slideshow: seconds per slide. */
+  interval: z.coerce.number().int().min(3).max(30).optional(),
 });
 
 export const richTextBlock = z.object({ ...base, type: z.literal("richText"), html: richHtml(), width: z.enum(["narrow", "wide"]).default("narrow") });
@@ -437,6 +452,11 @@ export const BLOCK_FIELDS: Record<BlockType, readonly Field[]> = {
     { key: "image", kind: "media" }, { key: "videoUrl", kind: "text" }, { key: "overlay", kind: "number", min: 0, max: 90 },
     { key: "height", kind: "select", options: ["full", "large", "medium"] }, { key: "align", kind: "select", options: ["start", "center"] },
     { key: "ctas", kind: "ctas" },
+    {
+      key: "slides", kind: "items",
+      item: [{ key: "eyebrow", kind: "text" }, { key: "headline", kind: "text" }, { key: "subheadline", kind: "textarea" }, { key: "image", kind: "media" }, { key: "ctas", kind: "ctas" }],
+    },
+    { key: "autoplay", kind: "boolean" }, { key: "interval", kind: "number", min: 3, max: 30 },
   ],
   richText: [{ key: "html", kind: "richtext" }, { key: "width", kind: "select", options: ["narrow", "wide"] }],
   image: [{ key: "image", kind: "media" }, { key: "caption", kind: "text" }, { key: "width", kind: "select", options: ["content", "wide", "full"] }],
