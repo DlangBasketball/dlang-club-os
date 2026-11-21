@@ -25,7 +25,7 @@ export async function makeCtx(site: ResolvedSite, lang: string, path: string, pa
 }
 
 /** A content page (published snapshot, or the working copy in the admin preview). */
-export async function SitePageView({ site, lang, path, page, languages, preview = false }: { site: ResolvedSite; lang: string; path: string; page: PageLang; languages: string[]; preview?: boolean }) {
+export async function SitePageView({ site, lang, path, page, languages, preview = false, langHref }: { site: ResolvedSite; lang: string; path: string; page: PageLang; languages: string[]; preview?: boolean; langHref?: (lang: string) => string }) {
   const ctx = await makeCtx(site, lang, path, imagePathsOf({ [lang]: page }), preview);
   const startsWithHero = page.blocks[0]?.type === "hero";
   const trail = pathTrail(path)
@@ -33,7 +33,7 @@ export async function SitePageView({ site, lang, path, page, languages, preview 
     .filter((x) => x.page)
     .map((x) => ({ name: x.page!.titles[lang] ?? x.page!.titles[ctx.defaultLang] ?? site.tenant.name, url: `${site.origin}${localizedPath(x.path, lang, ctx.defaultLang)}` }));
   return (
-    <SiteShell ctx={ctx} languages={languages.map((l) => ({ tag: l, href: localizedPath(path, l, ctx.defaultLang) }))}>
+    <SiteShell ctx={ctx} languages={languages.map((l) => ({ tag: l, href: langHref ? langHref(l) : localizedPath(path, l, ctx.defaultLang) }))}>
       {preview && (
         <div className="bg-warning px-4 py-2 text-center text-sm font-semibold text-bg" role="status">
           {ctx.t("site.render.previewBanner")}
