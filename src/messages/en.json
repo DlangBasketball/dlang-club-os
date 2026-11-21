@@ -1097,7 +1097,12 @@
       "price": "Price ({currency})"
     },
     "teams": {
-      "editNamed": "Edit {name}"
+      "editNamed": "Edit {name}",
+      "slug": "Web address (slug)",
+      "slugHint": "Created automatically from the team name and updated when it is renamed. Change it to fix it; clear it to go back to automatic.",
+      "slugAuto": "automatic",
+      "slugInvalid": "Use lowercase letters, digits and dashes (max 64, no dash at the start or end).",
+      "slugTaken": "Another team already uses this web address."
     },
     "venues": {
       "address": "Address",
@@ -3850,7 +3855,11 @@
       "applyMovement": "Apply",
       "stockSaved": "Stock is now {stock}.",
       "addImage": "Add photo",
-      "removeImage": "Remove photo"
+      "removeImage": "Remove photo",
+      "imported": "Imported from website",
+      "remove": "Delete or hide",
+      "removeNamed": "Delete or hide {name}",
+      "deleted": "Product deleted."
     },
     "orders": {
       "title": "Shop orders",
@@ -7630,7 +7639,7 @@
       "refresh": "Update preview",
       "preview": "Preview",
       "teams": "Your teams",
-      "teamsHint": "Select the club's own teams. Games of these teams are imported; other teams appear only as opponents.",
+      "teamsHint": "Select the club's own teams and choose the app team each one is. Games are attached to that app team (its name is used); other teams appear only as opponents.",
       "events": "{count, plural, one {# game} other {# games}}",
       "products": "{count, plural, one {# product} other {# products}}",
       "posts": "{count, plural, one {# post} other {# posts}}",
@@ -7669,8 +7678,19 @@
         "network": "The website did not answer in time.",
         "too_large": "The website answer was too large.",
         "invalid_json": "The website did not return valid data.",
-        "http_error": "The website returned an error."
-      }
+        "http_error": "The website returned an error.",
+        "teamUnmapped": "Choose the app team for every selected website team (or create a new team)."
+      },
+      "appTeam": "App team",
+      "chooseTeam": "Choose a team…",
+      "createNewTeam": "Create a new team",
+      "suggested": "Suggested match",
+      "noSuggestion": "No confident match: choose the app team.",
+      "productsHint": "Only selected products are imported. Camps, programmes, services, courses and free products are left out by default; your choices are remembered for the next import.",
+      "uncategorised": "Without category",
+      "selectCategory": "Select all of {category}",
+      "productsSelected": "{selected} of {total} selected",
+      "productsSkipped": "{count, plural, one {# product left out} other {# products left out}}"
     }
   }
 }

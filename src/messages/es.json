@@ -1097,7 +1097,12 @@
       "price": "Precio ({currency})"
     },
     "teams": {
-      "editNamed": "Editar {name}"
+      "editNamed": "Editar {name}",
+      "slug": "Dirección web (slug)",
+      "slugHint": "Se crea automáticamente a partir del nombre del equipo y se actualiza al renombrarlo. Cámbiala para fijarla; vacíala para volver al modo automático.",
+      "slugAuto": "automática",
+      "slugInvalid": "Usa minúsculas, dígitos y guiones (máx. 64, sin guion al principio ni al final).",
+      "slugTaken": "Otro equipo ya usa esta dirección web."
     },
     "venues": {
       "address": "Dirección",
@@ -3850,7 +3855,11 @@
       "applyMovement": "Aplicar",
       "stockSaved": "Existencias actuales: {stock}.",
       "addImage": "Añadir foto",
-      "removeImage": "Quitar foto"
+      "removeImage": "Quitar foto",
+      "imported": "Importado del sitio web",
+      "remove": "Eliminar u ocultar",
+      "removeNamed": "Eliminar u ocultar {name}",
+      "deleted": "Producto eliminado."
     },
     "orders": {
       "title": "Pedidos de la tienda",
@@ -7630,7 +7639,7 @@
       "refresh": "Actualizar vista previa",
       "preview": "Vista previa",
       "teams": "Tus equipos",
-      "teamsHint": "Selecciona los equipos del club. Se importan sus partidos; los demás equipos solo aparecen como rivales.",
+      "teamsHint": "Selecciona los equipos propios del club y elige el equipo de la app que corresponde. Los partidos se asignan a ese equipo (se usa su nombre); los demás equipos solo aparecen como rivales.",
       "events": "{count, plural, one {# partido} other {# partidos}}",
       "products": "{count, plural, one {# producto} other {# productos}}",
       "posts": "{count, plural, one {# entrada} other {# entradas}}",
@@ -7669,8 +7678,19 @@
         "network": "La web no respondió a tiempo.",
         "too_large": "La respuesta de la web era demasiado grande.",
         "invalid_json": "La web no devolvió datos válidos.",
-        "http_error": "La web devolvió un error."
-      }
+        "http_error": "La web devolvió un error.",
+        "teamUnmapped": "Elige el equipo de la app para cada equipo seleccionado del sitio (o crea un equipo nuevo)."
+      },
+      "appTeam": "Equipo en la app",
+      "chooseTeam": "Elige un equipo…",
+      "createNewTeam": "Crear un equipo nuevo",
+      "suggested": "Coincidencia sugerida",
+      "noSuggestion": "Sin coincidencia segura: elige el equipo.",
+      "productsHint": "Solo se importan los productos seleccionados. Campus, programas, servicios, cursos y productos gratuitos quedan fuera por defecto; tus elecciones se recuerdan para la próxima importación.",
+      "uncategorised": "Sin categoría",
+      "selectCategory": "Seleccionar todo en {category}",
+      "productsSelected": "{selected} de {total} seleccionados",
+      "productsSkipped": "{count, plural, one {# producto excluido} other {# productos excluidos}}"
     }
   }
 }

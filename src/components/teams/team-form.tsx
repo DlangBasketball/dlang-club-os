@@ -8,6 +8,7 @@ import { saveTeam, type TeamInput } from "@/lib/sportsops/actions";
 import { quickCreateCoach } from "@/lib/actions/coaches";
 import { useT } from "@/lib/i18n/client";
 import { COACH_NAME_MAX, COACH_TITLE_MAX } from "@/lib/coaches/validation";
+import { TEAM_SLUG_MAX, isValidTeamSlug, slugifyText } from "@/lib/teams/slug";
 import { FormError, Select, Textarea } from "./fields";
 
 type Opt = { id: string; name: string };
@@ -16,10 +17,12 @@ type CoachRole = "head" | "assistant" | "manager" | "trainer";
 export type TeamFormValues = {
   name: string; seasonId: string; programId: string; sport: string; ageGroup: string; gender: string; level: string;
   color: string; notes: string; isActive: boolean; coaches: { coachId: string; role: CoachRole }[];
+  /** Web address; "" = automatic from the name. */
+  slug: string;
 };
 
-export function TeamForm({ teamId, initial, seasons, programs, coaches, defaultSport }: {
-  teamId?: string; initial?: Partial<TeamFormValues>; seasons: Opt[]; programs: Opt[]; coaches: Opt[]; defaultSport?: string;
+export function TeamForm({ teamId, initial, slugAuto = true, seasons, programs, coaches, defaultSport }: {
+  teamId?: string; initial?: Partial<TeamFormValues>; slugAuto?: boolean; seasons: Opt[]; programs: Opt[]; coaches: Opt[]; defaultSport?: string;
 }) {
   const router = useRouter();
   const tr = useT();
@@ -29,8 +32,11 @@ export function TeamForm({ teamId, initial, seasons, programs, coaches, defaultS
   );
   const [f, setF] = React.useState<TeamFormValues>({
     name: "", seasonId: seasons[0]?.id ?? "", programId: "", sport: defaultSport ?? "", ageGroup: "", gender: "", level: "",
-    color: "", notes: "", isActive: true, coaches: [], ...initial,
+    color: "", notes: "", isActive: true, coaches: [], slug: "", ...initial,
   });
+  const initialSlug = initial?.slug ?? "";
+  const slugTouched = f.slug !== initialSlug;
+  const slugInvalid = f.slug !== "" && !isValidTeamSlug(f.slug);
   const [err, setErr] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
   const set = <K extends keyof TeamFormValues>(k: K, v: TeamFormValues[K]) => setF((s) => ({ ...s, [k]: v }));
@@ -66,7 +72,9 @@ export function TeamForm({ teamId, initial, seasons, programs, coaches, defaultS
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setPending(true); setErr(null);
-    const payload: TeamInput = { ...f, coaches: f.coaches.filter((c) => c.coachId) };
+    if (slugInvalid) return setErr(tr("editOps.teams.slugInvalid"));
+    // An untouched automatic slug is not sent, so a rename keeps it in step with the name.
+    const payload: TeamInput = { ...f, slug: slugAuto && !slugTouched ? undefined : f.slug, coaches: f.coaches.filter((c) => c.coachId) };
     const res = await saveTeam(teamId ?? null, payload);
     setPending(false);
     if (!res.ok) return setErr(res.error);
@@ -78,6 +86,12 @@ export function TeamForm({ teamId, initial, seasons, programs, coaches, defaultS
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2"><Label htmlFor="t-name">Team name</Label><Input id="t-name" required maxLength={120} value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. U12 Girls A" /></div>
+        <div className="sm:col-span-2"><Label htmlFor="t-slug">{tr("editOps.teams.slug")}{slugAuto && !slugTouched && f.slug ? ` (${tr("editOps.teams.slugAuto")})` : ""}</Label>
+          <Input id="t-slug" maxLength={TEAM_SLUG_MAX} value={f.slug} aria-invalid={slugInvalid || undefined} aria-describedby="t-slug-hint"
+            onChange={(e) => set("slug", e.target.value.toLowerCase())} placeholder={slugifyText(f.name)} spellCheck={false} autoCapitalize="none" />
+          <p id="t-slug-hint" className={slugInvalid ? "mt-1 text-xs text-danger" : "mt-1 text-xs text-ink-3"}>
+            {slugInvalid ? tr("editOps.teams.slugInvalid") : tr("editOps.teams.slugHint")}
+          </p></div>
         <div><Label htmlFor="t-season">Season</Label>
           <Select id="t-season" value={f.seasonId} onChange={(e) => set("seasonId", e.target.value)}>
             <option value="">No season</option>
