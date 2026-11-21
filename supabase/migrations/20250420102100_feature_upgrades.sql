@@ -301,6 +301,11 @@ update public.plans set features = (features - array(select key from public.plat
   '{"programs":true,"registration":true,"invoicing":true,"qr_bill":true,"online_payments":true,"roster":true,"attendance":true,"messaging":true,"documents_consent":true,"parent_app":true,"custom_branding":true,"web_push":true,"multi_club":true,"camps":true,"camp_basket":true,"multi_team":true,"multi_location":true,"calendar_ics":true,"waitlists":true,"shop":true,"alerts_leads":true,"media_library":true,"sms":false,"reminders":true,"discounts":true,"payment_plans":true,"recurring_fees":true,"finance":true,"reports_advanced":true,"accounting":true,"bookings":true,"player_development":true,"player_journey":true,"lesson_plans":true,"coach_app":true,"csv_import":true,"memberships":true,"member_cards":true,"forms":true,"contracts":true,"staff_time":true,"advanced_roles":true,"staff_compliance":true,"injury_log":true,"js_export":true,"ops_equipment":true,"ops_facilities":true,"ops_board":true,"ops_sponsors":true,"split_billing":true,"carpooling":true,"website_connect":true,"site_builder":true,"custom_domain":true,"extra_languages":true,"white_label":true,"ai_assistant":false,"api_access":true,"priority_support":true,"sso":true,"federation_rollup":true}'::jsonb
  where code = 'federation' and not (features ? 'coach_app');
 
+-- Add-on-only modules (default tier null: AI assistant, SMS) are never plan keys.
+update public.plans
+   set features = features - array(select key from public.platform_features where default_tier is null)
+ where features ?| array(select key from public.platform_features where default_tier is null);
+
 -- Plan copy follows the packaging (only while it still has the original text).
 update public.plans
    set description = 'Up to 180 active athletes. Everything in Starter plus multiple teams, the coach app, reminders, reports and CSV import.'
@@ -598,7 +603,8 @@ as $$
   end;
 $$;
 
--- The legacy plan-only check now follows the same rules (grants, blocks, deps).
+-- The legacy plan-only check now follows the same rules (grants, blocks, deps)
+-- and keeps its old contract that a suspended club has no feature at all.
 create or replace function public.org_has_feature(p_org uuid, p_feature text)
 returns boolean
 language sql
@@ -606,7 +612,8 @@ stable
 security definer
 set search_path = public
 as $$
-  select public._org_feature_enabled(p_org, p_feature);
+  select public._org_feature_enabled(p_org, p_feature)
+     and not exists (select 1 from public.organizations o where o.id = p_org and o.suspended_at is not null);
 $$;
 
 revoke all on function public._org_feature_enabled(uuid, text, integer) from public, anon, authenticated;

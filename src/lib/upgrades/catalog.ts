@@ -196,11 +196,11 @@ export function isCoreFeature(key: string): boolean {
   return FEATURE_BY_KEY.get(key)?.core === true;
 }
 
-/** Default inclusion per tier (seed for plans.features). */
+/** Default inclusion per tier (seed for plans.features). Add-on-only modules are never plan keys. */
 export function defaultPlanFeatures(tier: PlanTier): Record<string, boolean> {
   const rank = PLAN_TIERS.indexOf(tier);
   const out: Record<string, boolean> = {};
-  for (const f of FEATURE_CATALOG) out[f.key] = f.tier !== null && PLAN_TIERS.indexOf(f.tier) <= rank;
+  for (const f of FEATURE_CATALOG) if (f.tier !== null) out[f.key] = PLAN_TIERS.indexOf(f.tier) <= rank;
   return out;
 }
 

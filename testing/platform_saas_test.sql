@@ -56,7 +56,10 @@ select case when plan_code = 'academy' then 'PASS' else 'FAIL' end || ' — admi
 insert into public.plans (code, name) values ('hack', 'Hack');
 select 'EXPECT ALREADY_MEMBER: ' || (public.provision_tenant('Another Club','another-club','soccer','CH','CHF'))::text;
 select case when public.org_has_feature('00000000-0000-0000-0000-000000000001', 'custom_domain') then 'PASS' else 'FAIL' end || ' — academy has custom_domain';
-select case when public.org_has_feature('00000000-0000-0000-0000-000000000001', 'sso') then 'FAIL' else 'PASS' end || ' — academy lacks sso';
+-- The Academy PLAN lacks sso; this org (customer zero) holds complimentary_all
+-- (migration 20250420102100), so the org itself has it.
+select case when coalesce((select (features->>'sso')::boolean from public.plans where code = 'academy'), false) then 'FAIL' else 'PASS' end || ' — academy plan lacks sso';
+select case when public.org_has_feature('00000000-0000-0000-0000-000000000001', 'sso') then 'PASS' else 'FAIL' end || ' — customer zero has sso via complimentary_all';
 select case when public.org_within_limit('00000000-0000-0000-0000-000000000001', 'athletes', 1) then 'PASS' else 'FAIL' end || ' — within athlete limit';
 reset role;
 
@@ -74,7 +77,9 @@ select case when public.is_slug_available('lakers-youth') then 'FAIL' else 'PASS
 select case when count(*) = 1 and bool_and(slug = 'lakers-youth') then 'PASS' else 'FAIL' end || ' — founder sees only new org' from public.organizations;
 select case when count(*) = 1 and bool_and(status = 'trialing' and trial_ends_at > now() + interval '13 days') then 'PASS' else 'FAIL' end || ' — 14-day trial' from public.subscriptions;
 select case when public.is_admin() then 'PASS' else 'FAIL' end || ' — founder is admin';
-select case when public.org_has_feature(public.current_org_id(), 'bookings') then 'PASS' else 'FAIL' end || ' — club trial has bookings';
+-- Packaging (migration 20250420102100, §4.1): Club includes multiple teams; bookings moved to Academy.
+select case when public.org_has_feature(public.current_org_id(), 'multi_team') then 'PASS' else 'FAIL' end || ' — club trial has multiple teams';
+select case when public.org_has_feature(public.current_org_id(), 'bookings') then 'FAIL' else 'PASS' end || ' — bookings is an Academy module (add-on on Club)';
 select case when count(*) = 0 then 'PASS' else 'FAIL' end || ' — founder sees no DLang athletes' from public.athletes;
 select 'EXPECT ALREADY_MEMBER: ' || (public.provision_tenant('Second','second-club','soccer','CH','CHF'))::text;
 reset role;
