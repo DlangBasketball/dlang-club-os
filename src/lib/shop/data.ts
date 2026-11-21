@@ -1,5 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
+import { createClient } from "@/lib/supabase/server";
+import type { WebsiteDb } from "@/lib/website/server";
 import { clubMediaUrl, shopAdminDb, shopDb, type MovementRow, type OrderItemRow, type OrderRow, type ProductRow, type VariantRow } from "./db";
 import type { CatalogVariant } from "./cart";
 import { isLowStock } from "./cart";
@@ -78,6 +80,14 @@ export async function listAdminProducts(orgId: string): Promise<ShopProduct[]> {
     db.from("shop_product_variants").select("*").eq("org_id", orgId),
   ]);
   return ((products ?? []) as ProductRow[]).map((p) => mapProduct(p, (variants ?? []) as VariantRow[]));
+}
+
+/** Ids of the club's products imported from its website (admin RLS: empty for other roles). */
+export async function listImportedProductIds(orgId: string): Promise<Set<string>> {
+  const db = (await createClient()) as unknown as WebsiteDb;
+  const { data } = await db.from("website_import_map").select("target_id")
+    .eq("org_id", orgId).eq("target_table", "shop_products").eq("skipped", false).limit(5000);
+  return new Set(((data ?? []) as { target_id: string | null }[]).flatMap((r) => (r.target_id ? [r.target_id] : [])));
 }
 
 export async function getAdminProduct(orgId: string, id: string): Promise<{ product: ShopProduct; movements: MovementRow[] } | null> {
