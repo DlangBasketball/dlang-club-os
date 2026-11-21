@@ -15,6 +15,7 @@ import { websiteDb } from "@/lib/website/server";
 import { hasFeature } from "@/lib/upgrades/server";
 import { parsePageContent, parsePostContent, type PageContent, type PostContent } from "./blocks";
 import { isLanguageTag, uiCatalogFor } from "./languages";
+import { cleanNav } from "./nav";
 import { isSiteTemplate, cleanFonts, cleanPalette, type SiteFonts, type SitePalette, type SiteTemplate } from "./theme";
 
 /**
@@ -48,6 +49,8 @@ export type PublicSiteSettings = {
   seo: { titleSuffix?: string; description?: Record<string, string>; ogImagePath?: string | null; noindex?: boolean };
   analytics: { provider?: "plausible" | "ga4" | null; id?: string | null };
   contactEmail: string | null;
+  contactPhone: string | null;
+  contactAddress: string | null;
   updatedAt: string | null;
 };
 
@@ -66,7 +69,7 @@ export function rowToSiteSettings(raw: unknown): PublicSiteSettings {
   return {
     template: isSiteTemplate(o.template) ? o.template : "arena",
     homePageId: typeof o.home_page_id === "string" ? o.home_page_id : null,
-    headerNav: Array.isArray(o.header_nav) ? (o.header_nav as NavItem[]).slice(0, 12) : [],
+    headerNav: cleanNav(o.header_nav),
     footerColumns: Array.isArray(o.footer_columns) ? (o.footer_columns as FooterColumn[]).slice(0, 6) : [],
     social,
     logoPath: typeof o.logo_path === "string" ? o.logo_path : null,
@@ -86,6 +89,8 @@ export function rowToSiteSettings(raw: unknown): PublicSiteSettings {
       id: typeof analytics.id === "string" && /^[A-Za-z0-9._-]{1,64}$/.test(analytics.id) ? analytics.id : null,
     },
     contactEmail: typeof o.contact_email === "string" ? o.contact_email : null,
+    contactPhone: typeof o.contact_phone === "string" && o.contact_phone.trim() ? o.contact_phone.trim().slice(0, 40) : null,
+    contactAddress: typeof o.contact_address === "string" && o.contact_address.trim() ? o.contact_address.trim().slice(0, 300) : null,
     updatedAt: typeof o.updated_at === "string" ? o.updated_at : null,
   };
 }

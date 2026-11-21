@@ -27,7 +27,7 @@ export default async function RootPage() {
     const tenant = await getTenant();
     if (showsHubAtRoot(tenant) || hostServesSite(tenant)) {
       const r = await resolveSiteRequest("/");
-      if (r?.kind === "page") return <SitePageView site={r.site} lang={r.lang} path="/" page={r.tr} languages={r.languages} />;
+      if (r?.kind === "page") return <SitePageView site={r.site} lang={r.lang} path="/" page={r.tr} languages={r.languages} contentLang={r.contentLang} switcher={r.switcher} />;
       if (r?.kind === "redirect") redirect(r.to);
       if (showsHubAtRoot(tenant)) return <ClubHub tenant={tenant} />;
     }

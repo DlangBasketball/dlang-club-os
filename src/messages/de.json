@@ -8061,8 +8061,8 @@
         "text": "Schrift"
       },
       "useClubColor": "Vereinsfarbe verwenden",
-      "fontDisplay": "Schrift für Titel (Name bei Google Fonts)",
-      "fontUi": "Schrift für Text (Name bei Google Fonts)",
+      "fontDisplay": "Schrift für Titel",
+      "fontUi": "Schrift für Text",
       "contrast": "Kontrastprüfung (WCAG AA)",
       "contrastPairs": {
         "0": "Text auf Hintergrund",
@@ -8083,7 +8083,13 @@
       "analyticsHint": "Wird erst geladen, wenn Besucher Statistik-Cookies akzeptieren.",
       "analyticsId": "Website-ID / Mess-ID",
       "social": "Soziale Medien",
-      "saved": "Website-Einstellungen gespeichert."
+      "saved": "Website-Einstellungen gespeichert.",
+      "contactPhone": "Auf der Website angezeigte Telefonnummer",
+      "contactAddress": "Auf der Website angezeigte Adresse",
+      "fontTemplate": "Standard des Designs",
+      "fontCondensed": "schmal",
+      "uppercaseHeadings": "Titel in Grossbuchstaben",
+      "uppercaseHint": "Fette Grossbuchstaben für Titel und Menü, der sportliche Look schmaler Schriften."
     },
     "templates": {
       "arena": "Arena (dunkel, kraftvoll)",
@@ -8317,7 +8323,10 @@
       "ogImage": "Bild zum Teilen",
       "excerpt": "Zusammenfassung",
       "body": "Text",
-      "cover": "Titelbild"
+      "cover": "Titelbild",
+      "slides": "Weitere Folien (Diashow)",
+      "autoplay": "Diashow automatisch abspielen",
+      "interval": "Sekunden pro Folie"
     },
     "options": {
       "height": {
@@ -8446,7 +8455,13 @@
       "previous": "Vorheriges Bild",
       "next": "Nächstes Bild",
       "counter": "{current} von {total}",
-      "allNews": "Alle News"
+      "allNews": "Alle News",
+      "notTranslated": "Diese Seite ist noch nicht auf {language} verfügbar. Sie wird auf {shown} angezeigt.",
+      "slideshow": "Diashow",
+      "slide": "Folie",
+      "slideGoTo": "Folie {n} zeigen",
+      "slidePause": "Diashow anhalten",
+      "slidePlay": "Diashow abspielen"
     },
     "chrome": {
       "skip": "Zum Inhalt springen",
@@ -8510,7 +8525,12 @@
         "imagesFailed": "Fotos nicht importiert",
         "imagesRemaining": "Fotos für den nächsten Durchgang",
         "redirects": "Weiterleitungen",
-        "skipped": "Übersprungen"
+        "skipped": "Übersprungen",
+        "pagesKept": "Seiten behalten (seit dem letzten Import geändert)",
+        "postsKept": "News behalten (seit dem letzten Import geändert)",
+        "liveBlocks": "Seiten mit Live-Block",
+        "menuItems": "Menüeinträge",
+        "designApplied": "Übernommene Design-Einstellungen"
       },
       "runAgain": "Weitere Fotos warten: Starten Sie den Import erneut, um fortzufahren.",
       "errors": {
@@ -8518,7 +8538,34 @@
         "not_wordpress": "Unter dieser Adresse wurden keine öffentlichen WordPress-Inhalte gefunden.",
         "network": "Die Website war nicht erreichbar. Bitte erneut versuchen.",
         "too_large": "Die Website hat zu viele Daten auf einmal gesendet."
-      }
+      },
+      "applyDesignLabel": "Design meiner aktuellen Website übernehmen",
+      "applyDesignHint": "Hauptmenü (mit Untermenüs und Übersetzungen), Logo, Schriften, Markenfarben, Social-Media-Links und Kontaktangaben. Es werden nur leere Einstellungen ausgefüllt, ausser Sie wählen \"Meine Änderungen überschreiben\".",
+      "addLiveLabel": "Live-Blöcke zu passenden Seiten hinzufügen",
+      "addLiveHint": "{count, plural, one {# Seite erhält} other {# Seiten erhalten}} einen Live-Block aus der App: Camps mit Anmeldeknopf, nächste Spiele und Resultate, Trainingspakete mit Buchungsknopf, den Shop, News oder Partnerlogos.",
+      "overwriteLabel": "Meine Änderungen überschreiben",
+      "overwriteHint": "Bei einem erneuten Import bleiben Seiten, News und Einstellungen, die Sie nach dem letzten Import geändert haben, erhalten, ausser Sie wählen dies. Jede ersetzte Seite bleibt im Versionsverlauf.",
+      "liveColumn": "Live-Block",
+      "live": {
+        "camps": "Camps",
+        "schedule": "Spiele und Resultate",
+        "training": "Trainingspakete",
+        "shop": "Shop",
+        "news": "News",
+        "sponsors": "Partnerlogos"
+      },
+      "designTitle": "Auf Ihrer Website gefundenes Design",
+      "designMenu": "Hauptmenü ({count, plural, one {# Eintrag} other {# Einträge}})",
+      "designNone": "nichts gefunden",
+      "designLogo": "Logo",
+      "designFonts": "Schriften",
+      "designFontsValue": "Titel {display} (Ihre: {detectedDisplay}), Text {ui} (Ihre: {detectedUi})",
+      "designDefault": "Standard des Designs",
+      "designUppercase": "Titel in Grossbuchstaben",
+      "designColors": "Markenfarben",
+      "designContrast": "Kontrast der Markenfarbe: {light}:1 auf Weiss, {dark}:1 auf Schwarz. Schwer lesbarer Text wird automatisch angepasst.",
+      "designSocial": "Social-Media-Links",
+      "designContact": "Kontakt"
     },
     "posts": {
       "title": "News",
@@ -8554,6 +8601,20 @@
       "redirect": "Geben Sie eine alte und eine neue Adresse ein (/seite oder https://…).",
       "slug": "Geben Sie eine Adresse für den Beitrag ein.",
       "slugTaken": "Diese Adresse wird bereits von einem anderen Beitrag verwendet."
+    },
+    "menu": {
+      "title": "Hauptmenü",
+      "label": "Bezeichnung ({language})",
+      "link": "Link",
+      "linkPlaceholder": "/seite, https://... oder leer für ein Aufklappmenü",
+      "add": "Menüeintrag hinzufügen",
+      "addChild": "Untereintrag hinzufügen",
+      "indent": "In den Eintrag darüber verschieben",
+      "outdent": "Auf die oberste Ebene verschieben",
+      "clear": "Stattdessen den Seitenbaum verwenden",
+      "confirmClear": "Dieses Menü entfernen? Die Kopfzeile zeigt dann Ihre Seiten der obersten Ebene.",
+      "empty": "Noch kein Menü: Die Kopfzeile zeigt Ihre Seiten der obersten Ebene mit \"Im Menü zeigen\". Fügen Sie Einträge hinzu, um genau festzulegen, was angezeigt wird.",
+      "hint": "Links zu Ihren Seiten folgen automatisch der Sprache der Besucher (/camps wird zu /fr/camps). Lassen Sie den Link leer für einen Titel, der nur seine Untereinträge aufklappt. Speichern Sie die Einstellungen, um das Menü zu veröffentlichen."
     }
   },
   "upgrades": {

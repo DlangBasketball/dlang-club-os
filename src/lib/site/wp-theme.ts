@@ -103,6 +103,48 @@ export function mergeMenus(menus: { lang: string; items: WpMenuItem[] }[], defau
   return top.map((p) => p.nav);
 }
 
+const SHOP_PATH = /^\/(shop|boutique|store|tienda|negozio|produkte|products?)(\/|$)/;
+
+/**
+ * Menu URL -> site href. Links on the old site become the imported page's
+ * new path (language prefix removed: the site menu is localised per page
+ * language), the shop goes to the club shop, other sites stay external
+ * (https only), and links to pages that were not imported are dropped.
+ */
+export function makeMenuResolver(opts: { baseUrl: string; prefixes: readonly { tag: string; prefix: string | null }[]; pathMap: ReadonlyMap<string, string> }): (url: string) => string | null {
+  let base: URL;
+  try {
+    base = new URL(opts.baseUrl);
+  } catch {
+    return () => null;
+  }
+  const basePath = base.pathname.replace(/\/+$/, "");
+  const sameHost = (h: string) => h.replace(/^www\./, "") === base.hostname.replace(/^www\./, "");
+  return (url: string) => {
+    let u: URL;
+    try {
+      u = new URL(url, `${base.origin}${basePath}/`);
+    } catch {
+      return null;
+    }
+    if (!sameHost(u.hostname)) {
+      if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+      u.protocol = "https:";
+      return u.username || u.password ? null : u.toString();
+    }
+    let path = decodeEntities(u.pathname).replace(/\/{2,}/g, "/").toLowerCase();
+    if (basePath && path.startsWith(`${basePath.toLowerCase()}/`)) path = path.slice(basePath.length);
+    const seg = path.split("/")[1] ?? "";
+    if (opts.prefixes.some((p) => p.prefix && p.prefix === seg)) path = path.slice(seg.length + 1) || "/";
+    if (path.length > 1) path = path.replace(/\/+$/, "");
+    if (!path || path === "/") return "/";
+    const hit = opts.pathMap.get(path);
+    if (hit) return hit;
+    if (SHOP_PATH.test(path)) return "/shop";
+    return null;
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Logo
 // ---------------------------------------------------------------------------

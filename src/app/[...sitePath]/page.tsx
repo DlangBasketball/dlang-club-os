@@ -25,7 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const r = await resolveSiteRequest(path);
   if (!r) return {};
   if (r.kind === "page") {
-    return siteMetadata({ site: r.site, lang: r.lang, path: r.path, languages: r.languages, title: r.tr.metaTitle || r.tr.title, description: r.tr.metaDescription, ogImagePath: r.tr.ogImage?.path ?? null });
+    // An untranslated page shown in another language points search engines at the original.
+    return siteMetadata({ site: r.site, lang: r.contentLang, path: r.path, languages: r.languages, title: r.tr.metaTitle || r.tr.title, description: r.tr.metaDescription, ogImagePath: r.tr.ogImage?.path ?? null });
   }
   if (r.kind === "post") {
     return siteMetadata({ site: r.site, lang: r.lang, path: r.path, languages: r.languages, title: r.tr.metaTitle || r.tr.title, description: r.tr.metaDescription || r.tr.excerpt, ogImagePath: r.post.coverPath, type: "article" });
@@ -43,5 +44,5 @@ export default async function SitePage({ params }: { params: Promise<Params> }) 
     redirect(r.to);
   }
   if (r.kind === "post") return <SitePostView site={r.site} lang={r.lang} post={r.post} tr={r.tr} languages={r.languages} />;
-  return <SitePageView site={r.site} lang={r.lang} path={r.path} page={r.tr} languages={r.languages} />;
+  return <SitePageView site={r.site} lang={r.lang} path={r.path} page={r.tr} languages={r.languages} contentLang={r.contentLang} switcher={r.switcher} />;
 }

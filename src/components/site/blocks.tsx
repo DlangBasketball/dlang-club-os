@@ -5,7 +5,7 @@ import { videoEmbed, type Block, type BlockOf, type Cta } from "@/lib/site/block
 import { localizedPath } from "@/lib/site/paths";
 import { loadSponsorNames } from "@/lib/site/live";
 import { LiveBlockView } from "./live-blocks";
-import { CountUp, GalleryLightbox, SiteForm, VideoFacade } from "./client";
+import { CountUp, GalleryLightbox, HeroSlideshow, SiteForm, VideoFacade } from "./client";
 import { SiteImage, resolveImg } from "./site-image";
 import type { RenderCtx } from "./types";
 
@@ -59,6 +59,47 @@ function Hero({ b, ctx, first }: { b: BlockOf<"hero">; ctx: RenderCtx; first: bo
   const video = b.videoUrl ? videoEmbed(b.videoUrl) : null;
   const h = b.height === "full" ? "min-h-[88svh]" : b.height === "large" ? "min-h-[68svh]" : "min-h-[44svh]";
   const Tag = first ? "h1" : "h2";
+  if (b.slides?.length && !video) {
+    // Slideshow: the block's own slide first, then the extra slides (h1 only on the first one).
+    const slides = [{ eyebrow: b.eyebrow, headline: b.headline, subheadline: b.subheadline, image: b.image, ctas: b.ctas }, ...b.slides];
+    return (
+      <section className={cn("relative isolate overflow-hidden bg-cover-fallback", h)} aria-roledescription={ctx.t("site.render.slideshow")} aria-label={b.headline || ctx.site.tenant.name}>
+        <HeroSlideshow
+          autoplay={b.autoplay !== false}
+          interval={b.interval ?? 7}
+          labels={{ pause: ctx.t("site.render.slidePause"), play: ctx.t("site.render.slidePlay"), goTo: ctx.t("site.render.slideGoTo"), slide: ctx.t("site.render.slide") }}
+        >
+          {slides.map((s, i) => {
+            const simg = resolveImg(ctx, s.image ?? null);
+            const STag = i === 0 ? Tag : "p";
+            return (
+              <div key={i} className="relative flex h-full items-end">
+                {simg ? (
+                  <div className="absolute inset-0 -z-20 site-kenburns">
+                    <SiteImage img={simg} fill sizes="100vw" priority={first && i === 0} unclearedLabel={ctx.t("site.render.notCleared")} />
+                  </div>
+                ) : (
+                  <div aria-hidden className="absolute inset-0 -z-20 bg-cover-pattern" />
+                )}
+                <div aria-hidden className="absolute inset-0 -z-10 site-scrim" style={{ opacity: b.overlay / 100 }} />
+                <div aria-hidden className="absolute inset-0 -z-10 site-scrim-gradient" />
+                <div className={cn(WRAP, "pb-20 pt-32 sm:pb-28", b.align === "center" && "text-center")}>
+                  <div className={cn("max-w-4xl", b.align === "center" && "mx-auto")}>
+                    {s.eyebrow && <p className="site-eyebrow site-on-photo">{s.eyebrow}</p>}
+                    {s.headline && <STag className="site-h site-on-photo mt-3 text-5xl sm:text-6xl lg:text-7xl xl:text-8xl">{s.headline}</STag>}
+                    {s.subheadline && <p className="site-on-photo mt-6 max-w-2xl text-lg sm:text-xl">{s.subheadline}</p>}
+                    <div className={cn(b.align === "center" && "flex justify-center")}>
+                      <Ctas ctas={s.ctas ?? []} ctx={ctx} onPhoto />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </HeroSlideshow>
+      </section>
+    );
+  }
   return (
     <section className={cn("relative isolate flex items-end overflow-hidden bg-cover-fallback", h)}>
       {video?.kind === "file" ? (

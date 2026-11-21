@@ -378,6 +378,16 @@
 .site-header-glass { background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(14px); }
 .site-progress { background: color-mix(in srgb, var(--text) 12%, transparent); }
 .site-progress > span { background: var(--brand-primary); }
+/* Bold condensed capitals (site setting "uppercase headlines"; imported from sporty themes). */
+.site-upper .site-h { text-transform: uppercase; font-weight: 700; letter-spacing: 0.005em; line-height: 0.98; }
+.site-upper .site-prose h2, .site-upper .site-prose h3 { text-transform: uppercase; letter-spacing: 0.01em; }
+.site-upper .site-nav-link { text-transform: uppercase; letter-spacing: 0.02em; }
+/* Hero slideshow: stacked slides, cross-fade (instant when reduced motion is requested). */
+.site-slide { transition: opacity 900ms var(--ease-out), visibility 900ms; }
+.site-slide[data-active="false"] { opacity: 0; visibility: hidden; }
+.site-slide[data-active="true"] { opacity: 1; visibility: visible; }
+.site-slide-dot { width: 0.6rem; height: 0.6rem; border-radius: 999px; background: color-mix(in srgb, var(--site-on-scrim) 45%, transparent); transition: background var(--duration), transform var(--duration); }
+.site-slide-dot[aria-current="true"] { background: var(--site-on-scrim); transform: scale(1.25); }
 @media (prefers-reduced-motion: no-preference) {
   .site-kenburns { animation: site-zoom 16s var(--ease-out) both; }
   @supports (animation-timeline: view()) {

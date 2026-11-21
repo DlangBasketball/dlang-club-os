@@ -57,7 +57,14 @@ export async function previewSiteImport(url: string): Promise<ImportResult<Impor
   }
 }
 
-const runInput = z.object({ url: urlInput, clearedForPublic: z.boolean(), publish: z.boolean() });
+const runInput = z.object({
+  url: urlInput,
+  clearedForPublic: z.boolean(),
+  publish: z.boolean(),
+  applyDesign: z.boolean().default(true),
+  addLiveBlocks: z.boolean().default(true),
+  overwriteEdits: z.boolean().default(false),
+});
 
 export async function runSiteImport(input: z.input<typeof runInput>): Promise<ImportResult<ImportReport>> {
   const c = await context();
@@ -69,8 +76,12 @@ export async function runSiteImport(input: z.input<typeof runInput>): Promise<Im
     const { report } = await runWordPressImport(c.db, {
       orgId: c.me.orgId, actorId: c.me.id, baseUrl: base, languages: c.languages, defaultLanguage: c.defaultLanguage,
       clearedForPublic: p.data.clearedForPublic, publish: p.data.publish,
+      applyDesign: p.data.applyDesign, addLiveBlocks: p.data.addLiveBlocks, overwriteEdits: p.data.overwriteEdits,
     });
-    await writeAudit(c.me, "site.import", "site_pages", null, { ...report, clearedForPublic: p.data.clearedForPublic, publish: p.data.publish });
+    await writeAudit(c.me, "site.import", "site_pages", null, {
+      ...report, clearedForPublic: p.data.clearedForPublic, publish: p.data.publish,
+      applyDesign: p.data.applyDesign, addLiveBlocks: p.data.addLiveBlocks, overwriteEdits: p.data.overwriteEdits,
+    });
     revalidateSite(c.me.orgId);
     revalidatePath("/admin/site", "layout");
     revalidatePath("/admin/media");
