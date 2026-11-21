@@ -16,7 +16,7 @@ const optInstant = z
   .default("");
 const optAge = z.union([z.literal(""), z.coerce.number().int("editOps.errors.ageRange").min(0, "editOps.errors.ageRange").max(99, "editOps.errors.ageRange")]).optional().default("");
 
-export const PROGRAM_KINDS = ["camp", "recurring_team", "clinic", "tournament"] as const;
+export const PROGRAM_KINDS = ["camp", "recurring_team", "clinic", "tournament", "selection"] as const;
 export const PROGRAM_STATUSES = ["draft", "published", "archived"] as const;
 export type ProgramStatus = (typeof PROGRAM_STATUSES)[number];
 /** Currencies a programme can be priced in (empty = the club's currency). */
@@ -69,6 +69,8 @@ export function programRow(v: ProgramValues) {
     registration_opens_at: v.registrationOpensAt ? new Date(v.registrationOpensAt).toISOString() : null,
     registration_closes_at: v.registrationClosesAt ? new Date(v.registrationClosesAt).toISOString() : null,
     is_public: v.isPublic,
+    // A selection programme takes applications (divisions, packages, approval).
+    ...(v.kind === "selection" ? { selection_enabled: true } : {}),
   };
 }
 

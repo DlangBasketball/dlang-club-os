@@ -1,4 +1,4 @@
-import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2 } from "lucide-react";
+import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2, Medal } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -30,6 +30,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", labelKey: "athletes", href: "/admin/athletes", icon: UserCircle },
     { label: "Programs", labelKey: "programs", href: "/admin/programs", icon: CalendarRange },
     { label: "Registrations", labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList },
+    { label: "Selection programs", labelKey: "selection", href: "/admin/selection", icon: Medal },
     { label: "Waiting lists", labelKey: "waitlists", href: "/admin/waitlists", icon: Hourglass },
     { label: "Memberships", labelKey: "memberships", href: "/admin/memberships", icon: IdCard },
     { label: "Discounts", labelKey: "discounts", href: "/admin/discounts", icon: Percent },
@@ -78,6 +79,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Calendar", labelKey: "calendar", href: "/coach/calendar", icon: CalendarCheck },
     { label: "Schedule", labelKey: "schedule", href: "/coach/schedule", icon: CalendarClock },
     { label: "My team", labelKey: "myTeam", href: "/coach/team", icon: Shield },
+    { label: "Applications", labelKey: "selectionReview", href: "/coach/selection", icon: Medal },
     { label: "Attendance", labelKey: "attendance", href: "/coach/attendance", icon: CheckSquare },
     { label: "Availability", labelKey: "availability", href: "/coach/availability", icon: CalendarClock },
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
@@ -101,6 +103,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Carpooling", labelKey: "carpool", href: "/parent/carpool", icon: Car },
     { label: "Calendar", labelKey: "calendar", href: "/parent/calendar", icon: CalendarCheck },
     { label: "Camps", labelKey: "camps", href: "/parent/camps", icon: Tent },
+    { label: "Programs", labelKey: "programmes", href: "/parent/programmes", icon: Medal },
     { label: "Waiting lists", labelKey: "waitlists", href: "/parent/waitlist", icon: Hourglass },
     { label: "Membership", labelKey: "membership", href: "/parent/membership", icon: IdCard },
     { label: "Invoices", labelKey: "invoices", href: "/parent/invoices", icon: Receipt },

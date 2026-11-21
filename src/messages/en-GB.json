@@ -3,7 +3,9 @@
     "cancelled": "Cancelled"
   },
   "nav": {
-    "programs": "Programmes"
+    "programs": "Programmes",
+    "selection": "Selection programmes",
+    "programmes": "Programmes"
   },
   "parentHome": {
     "noChildrenHint": "Register for a programme to add your child."
@@ -720,7 +722,72 @@
       "sso": {
         "description": "Sign in with your organisation's identity provider.",
         "pitch": "One login and central control for large organisations."
+      },
+      "selection_programs": {
+        "name": "Selection programmes",
+        "pitch": "Run tryout-based and international teams with clear revenue per programme."
       }
+    }
+  },
+  "sponsorship": {
+    "scopes": {
+      "program": "Selection programmes"
+    }
+  },
+  "selection": {
+    "admin": {
+      "title": "Selection programmes",
+      "description": "Programmes players apply to: review applications, packages and revenue.",
+      "empty": "No selection programme yet",
+      "emptyHint": "Create a programme of type \"Selection team\", or open an existing programme and enable applications.",
+      "create": "New programme",
+      "programSettings": "Programme details"
+    },
+    "setup": {
+      "enabled": "Players apply to this programme",
+      "allowNonMembersHint": "Players of other clubs apply from the public page; their family sees only this programme in the app."
+    },
+    "packages": {
+      "rulesHint": "Each package has its own instalment counts (monthly, first one on the day the family chooses the plan). Families may always pick fewer instalments or pay in full. These rules replace the club's general payment-plan settings for this programme."
+    },
+    "review": {
+      "staffNotesHint": "Seen by staff and the programme's coaches only."
+    },
+    "sponsor": {
+      "hint": "The programme fee shows a \"Sponsored\" line; nothing or only the remainder is due."
+    },
+    "family": {
+      "title": "Programmes",
+      "description": "Teams and programmes you can apply to, and your applications.",
+      "empty": "No programme open for applications right now."
+    },
+    "public": {
+      "accountHint": "Follow the application, pay and get team news in the app. You only see this programme."
+    },
+    "coach": {
+      "description": "Programmes you review applications for.",
+      "empty": "You are not assigned to a selection programme."
+    },
+    "dashboard": {
+      "title": "Programme revenue"
+    },
+    "report": {
+      "title": "Programme report",
+      "program": "Programme",
+      "allPrograms": "All programmes",
+      "pickProgram": "Choose a programme to filter by division or package.",
+      "csv": {
+        "program": "Programme"
+      }
+    },
+    "email": {
+      "footer": "You receive this email because you applied to a programme of {club}."
+    },
+    "errors": {
+      "duplicateName": "This name is already used in this programme.",
+      "PROGRAM_NOT_OPEN": "This programme is not open for applications.",
+      "MEMBERS_ONLY": "This programme is for club members only.",
+      "DIVISION_NOT_FOUND": "Choose a division of this programme."
     }
   }
 }

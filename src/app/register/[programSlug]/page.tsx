@@ -14,6 +14,10 @@ import { getTenant, orgMatchesTenant } from "@/lib/tenant/server";
 import { ContactForm } from "@/components/messaging/leads";
 import { getRegistrationConfig } from "@/lib/registration-form/server";
 import { getCheckoutPlanOffer } from "@/lib/plans/data";
+import { getPublicSelection } from "@/lib/selection/data";
+import { PublicSelectionApply } from "@/components/selection/public-apply";
+import { todayIn } from "@/lib/payments/plans";
+import { hasFeature } from "@/lib/upgrades/server";
 
 export default async function PublicProgramPage({ params }: { params: Promise<{ programSlug: string }> }) {
   const { programSlug } = await params;
@@ -40,6 +44,29 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
           <CampRegister mode="public" camp={camp} slug={programSlug} config={await getRegistrationConfig(camp.program.orgId, camp.program.id)}
             planRules={await getCheckoutPlanOffer(camp.program.orgId, "camp", camp.program.currency)} />
           <ContactForm compact defaultInterest="camp" programId={camp.program.id} source={`/register/${programSlug}`} />
+        </I18nProvider>
+      </div>
+    );
+  }
+  // Selection programmes (apply, coach approval, package): anyone may apply,
+  // members and players of other clubs alike.
+  const selection = await getPublicSelection(programSlug);
+  if (selection && (await hasFeature(selection.program.orgId, "selection_programs"))) {
+    if (!orgMatchesTenant(selection.program.orgId, await getTenant())) notFound();
+    const i18n = await getI18n(selection.program.orgId);
+    const sp = selection.program;
+    const sCover = await getProgramCover(sp.orgId, sp.id);
+    const currency = sp.currency ?? i18n.f.currency;
+    return (
+      <div className="animate-fade-up space-y-8">
+        <CampHero coverUrl={coverUrlOf(sCover?.cover_path)} focalX={sCover?.cover_focal_x ?? 50} focalY={sCover?.cover_focal_y ?? 50}
+          kicker={i18n.t("programKind.selection")} title={sp.name} />
+        {sp.description && <p className="max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-ink-2">{sp.description}</p>}
+        <p className="max-w-2xl text-sm text-ink-3">{sp.requiresApproval ? i18n.t("selection.public.howItWorks") : i18n.t("selection.public.howItWorksDirect")}</p>
+        <I18nProvider ctx={i18n.ctx} messages={i18n.messages}>
+          <PublicSelectionApply slug={programSlug} divisions={selection.divisions} packages={selection.packages} consents={selection.consents}
+            currency={currency} today={todayIn(i18n.f.timeZone)} />
+          <ContactForm compact defaultInterest="team" programId={sp.id} source={`/register/${programSlug}`} />
         </I18nProvider>
       </div>
     );

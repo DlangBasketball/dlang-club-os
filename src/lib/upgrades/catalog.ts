@@ -93,6 +93,10 @@ export const FEATURE_CATALOG: readonly FeatureDef[] = [
     routes: { admin: ["/admin/calendar"], coach: ["/coach/calendar"], parent: ["/parent/calendar"], public: ["/api/calendar/feed"] },
   },
   { key: "waitlists", category: "programs", tier: "club", addon: p(19, 19, 21), label: "Waiting lists with auto-promotion", routes: { admin: ["/admin/waitlists"], parent: ["/parent/waitlist"], public: ["/waitlist"] } },
+  {
+    key: "selection_programs", category: "programs", tier: "academy", addon: p(49, 49, 54), label: "Selection programmes: applications, packages & approvals",
+    routes: { admin: ["/admin/selection"], coach: ["/coach/selection"], parent: ["/parent/programmes"] },
+  },
   { key: "shop", category: "programs", tier: "club", addon: p(39, 39, 43), label: "Club shop", routes: { admin: ["/admin/shop"], parent: ["/shop"], public: ["/shop"] } },
 
   // ---- Communication ---------------------------------------------------------------

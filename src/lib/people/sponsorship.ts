@@ -16,7 +16,7 @@ export const SPONSORSHIP_KINDS = ["none", "full", "partial"] as const;
 export type SponsorshipKind = (typeof SPONSORSHIP_KINDS)[number];
 
 /** Fees a sponsorship can cover. "all" covers every one of them. */
-export const SPONSORSHIP_SCOPES = ["season", "recurring", "membership", "camp", "training", "shop", "all"] as const;
+export const SPONSORSHIP_SCOPES = ["season", "recurring", "membership", "camp", "training", "shop", "program", "all"] as const;
 export type SponsorshipScope = (typeof SPONSORSHIP_SCOPES)[number];
 /** A fee being billed (never "all"). */
 export type FeeScope = Exclude<SponsorshipScope, "all">;
@@ -189,7 +189,7 @@ export const sponsorshipSchema = z
   .object({
     kind: z.enum(SPONSORSHIP_KINDS, { errorMap: () => ({ message: K.invalidKind }) }),
     percent: z.union([z.string(), z.number()]).optional().nullable(),
-    scope: z.array(z.enum(SPONSORSHIP_SCOPES, { errorMap: () => ({ message: K.scopeRequired }) })).max(7).default([]),
+    scope: z.array(z.enum(SPONSORSHIP_SCOPES, { errorMap: () => ({ message: K.scopeRequired }) })).max(8).default([]),
     sponsorName: optText(120),
     reason: optText(300),
     from: optDate,

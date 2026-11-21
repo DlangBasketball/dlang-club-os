@@ -197,6 +197,7 @@ export const SAME_AS_EN_OK = new Set([
   "website.admin.flags.photo",
   "programKind.camp",
   "programKind.clinic",
+  "selection.report.seasonValue",
   "clubadmin.common.status",
   "clubadmin.incidents.status",
   "clubadmin.compliance.team",
