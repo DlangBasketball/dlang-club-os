@@ -181,7 +181,8 @@
     "journey": "Percorso",
     "familyBilling": "Fatture suddivise",
     "accounting": "Contabilità",
-    "refunds": "Disdette e rimborsi"
+    "refunds": "Disdette e rimborsi",
+    "upgrades": "Abbonamento & estensioni"
   },
   "shell": {
     "openMenu": "Apri menu",
@@ -7691,6 +7692,466 @@
       "selectCategory": "Seleziona tutto in {category}",
       "productsSelected": "{selected} di {total} selezionati",
       "productsSkipped": "{count, plural, one {# prodotto escluso} other {# prodotti esclusi}}"
+    }
+  },
+  "upgrades": {
+    "title": "Abbonamento & estensioni",
+    "description": "Il vostro abbonamento, cosa include e i moduli che potete aggiungere.",
+    "badge": "Estendi",
+    "categories": {
+      "core": "Incluso in ogni abbonamento",
+      "programs": "Programmi & pianificazione",
+      "communication": "Comunicazione",
+      "finance": "Finanze",
+      "training": "Allenamento & sviluppo dei giocatori",
+      "people": "Persone & personale",
+      "safety": "Sicurezza & conformità",
+      "operations": "Gestione operativa",
+      "family": "Famiglie",
+      "website": "Sito web, marchio & lingue",
+      "ai": "Intelligenza artificiale",
+      "enterprise": "Grandi organizzazioni"
+    },
+    "states": {
+      "core": "Incluso",
+      "included": "Nel vostro abbonamento",
+      "addon": "Estensione attiva",
+      "addon_canceling": "Termina il {date}",
+      "trial": "Prova fino al {date}",
+      "complimentary": "Offerto",
+      "pending": "Richiesto",
+      "blocked": "Disattivato",
+      "requires": "Richiede un altro modulo",
+      "available": "Disponibile come estensione",
+      "upgrade": "In un abbonamento superiore",
+      "unavailable": "Non offerto"
+    },
+    "gate": {
+      "eyebrow": "Estendi",
+      "lockedTitle": "{feature} non fa parte del vostro abbonamento",
+      "askAdminTitle": "Non ancora attivato",
+      "askAdmin": "Questo modulo non è attivo per il vostro club. Chiedete all'amministrazione del club se desiderate usarlo.",
+      "financeOnly": "Solo gli amministratori del club possono aggiungere moduli. Rivolgetevi all'amministrazione del club.",
+      "price": "{price} al mese",
+      "priceNote": "Prezzi IVA esclusa, fatturati con il vostro abbonamento.",
+      "startTrial": "Prova gratuita di {days} giorni",
+      "addToPlan": "Aggiungi all'abbonamento",
+      "inPlan": "Incluso nell'abbonamento {plan}",
+      "seePlans": "Confronta gli abbonamenti",
+      "requires": "Richiede: {features}",
+      "blocked": "Questo modulo è stato disattivato per il vostro club. Contattate l'assistenza.",
+      "pending": "Richiesto: lo attiviamo entro 1 giorno lavorativo.",
+      "unavailable": "Questo modulo non è ancora offerto al vostro club. Contattateci per parlarne.",
+      "dataKept": "I vostri dati restano. Riattivate il modulo in qualsiasi momento e tutto torna disponibile.",
+      "whatItDoes": "Cosa fa",
+      "whyItMatters": "Perché i club lo usano",
+      "trialUsed": "La prova gratuita di questo modulo è già stata usata.",
+      "manage": "Abbonamento & estensioni"
+    },
+    "page": {
+      "currentPlan": "Abbonamento attuale",
+      "noPlan": "Ancora nessun abbonamento",
+      "statuses": {
+        "trialing": "Prova",
+        "active": "Attivo",
+        "past_due": "Pagamento scaduto",
+        "unpaid": "Non pagato",
+        "canceled": "Disdetto",
+        "incomplete": "Incompleto",
+        "incomplete_expired": "Scaduto",
+        "paused": "In pausa"
+      },
+      "trialEnds": "La prova termina il {date}",
+      "renews": "Prossima fatturazione il {date}",
+      "athletes": "Atleti attivi",
+      "athletesOf": "{used} di {limit}",
+      "unlimited": "{used} (senza limite)",
+      "nearCap": "State per raggiungere il limite di atleti del vostro abbonamento.",
+      "addonsTotal": "Estensioni al mese",
+      "changePlan": "Cambia abbonamento",
+      "perMonth": "{price} / mese",
+      "currentBadge": "Attuale",
+      "switchTo": "Passa a {plan}",
+      "contactSales": "Contatta le vendite",
+      "pendingPlan": "Passaggio a {plan} richiesto: lo attiviamo entro 1 giorno lavorativo.",
+      "scheduledPlan": "Passaggio a {plan} il {date}.",
+      "withdraw": "Ritira",
+      "modules": "Moduli",
+      "showLocked": "Mostra i moduli bloccati nel menu con l'indicazione «Estendi»",
+      "showLockedHint": "Se disattivato, i moduli fuori dal vostro abbonamento non compaiono nel menu.",
+      "financeView": "Potete consultare l'abbonamento. Solo gli amministratori del club possono modificarlo.",
+      "billingManual": "La fatturazione online non è ancora configurata per il vostro club: le richieste vanno al nostro team, che le attiva entro 1 giorno lavorativo.",
+      "toggleLabel": "Estensione {feature}",
+      "tryFree": "Prova gratis",
+      "open": "Apri",
+      "requiresList": "Richiede {features}",
+      "proposal": "Prezzi di abbonamenti ed estensioni in {currency}, IVA esclusa."
+    },
+    "dialog": {
+      "addTitle": "Aggiungere {feature}?",
+      "addBody": "{price} al mese vengono aggiunti al vostro abbonamento.",
+      "proration": "Per il resto di questo periodo di fatturazione vengono addebitati ora circa {amount} (pro rata).",
+      "requestBody": "La fatturazione online non è ancora attiva per il vostro club. Registriamo la richiesta e la attiviamo entro 1 giorno lavorativo.",
+      "removeTitle": "Rimuovere {feature}?",
+      "removeBody": "Resta attivo fino alla fine del periodo di fatturazione ({date}). Dopo, il modulo è bloccato; i vostri dati restano e tornano quando lo riattivate.",
+      "removeBodyPending": "La vostra richiesta viene ritirata. Non è stato addebitato nulla.",
+      "confirmAdd": "Aggiungi per {price} / mese",
+      "confirmRequest": "Invia richiesta",
+      "confirmRemove": "Rimuovi a fine periodo",
+      "cancel": "Annulla",
+      "upgradeTitle": "Passare a {plan}?",
+      "upgradeBody": "Il nuovo prezzo di {price} al mese vale subito; il resto del periodo è calcolato pro rata.",
+      "downgradeTitle": "Cambiare in {plan}?",
+      "downgradeBody": "Il cambio avviene alla fine del periodo di fatturazione ({date}).",
+      "manualBody": "Il nostro team conferma il cambio entro 1 giorno lavorativo.",
+      "trialBody": "Siete nel periodo di prova, quindi il cambio è immediato.",
+      "lose": "Questi moduli saranno bloccati (i vostri dati restano):",
+      "gain": "Questi moduli vengono aggiunti:",
+      "nothingLost": "Nessun modulo che usate oggi sarà bloccato.",
+      "confirm": "Conferma",
+      "working": "In corso…"
+    },
+    "messages": {
+      "added": "{feature} aggiunto per {price} al mese.",
+      "requested": "Richiesta inviata. La attiviamo entro 1 giorno lavorativo.",
+      "alreadyRequested": "Già richiesto: lo attiviamo entro 1 giorno lavorativo.",
+      "alreadyActive": "Questo modulo è già attivo.",
+      "resumed": "{feature} resta attivo.",
+      "requestWithdrawn": "Richiesta ritirata.",
+      "alreadyCanceling": "Termina già alla fine del periodo.",
+      "removalScheduled": "{feature} termina il {date}. I vostri dati restano.",
+      "trialStarted": "La vostra prova di {feature} dura fino al {date}.",
+      "planUpgraded": "Ora avete {plan}.",
+      "planDowngradeScheduled": "Passerete a {plan} il {date}.",
+      "planSwitchedTrial": "Passati a {plan}. La prova continua.",
+      "planRequested": "Cambio di abbonamento richiesto. Lo attiviamo entro 1 giorno lavorativo.",
+      "planChangeWithdrawn": "Cambio di abbonamento ritirato.",
+      "samePlan": "È già il vostro abbonamento.",
+      "saved": "Salvato."
+    },
+    "errors": {
+      "adminOnly": "Solo gli amministratori del club possono cambiare l'abbonamento o aggiungere moduli.",
+      "unknownFeature": "Modulo sconosciuto.",
+      "unknownPlan": "Abbonamento sconosciuto.",
+      "blocked": "Questo modulo è stato disattivato per il vostro club. Contattate l'assistenza.",
+      "noSubscription": "Il vostro abbonamento non è attivo. Scegliete prima un abbonamento.",
+      "notForSale": "Questo modulo non si aggiunge da solo. È incluso in un abbonamento superiore.",
+      "requiresFirst": "Aggiungete prima {features}.",
+      "billingFailed": "Non è stato possibile aggiornare la fatturazione. Non è stato addebitato nulla; riprovate.",
+      "notAnAddon": "Questo modulo non è un'estensione che potete rimuovere.",
+      "trialUsed": "La prova gratuita di questo modulo è già stata usata.",
+      "contactSales": "Questo abbonamento è venduto dal nostro team. Contattate le vendite.",
+      "noPrice": "Questo abbonamento non ha un prezzo nella vostra valuta.",
+      "generic": "Si è verificato un errore. Riprovate.",
+      "locked": "Questo modulo non fa parte dell'abbonamento del vostro club.",
+      "languagesLimit": "Il vostro abbonamento include due lingue. Aggiungete il modulo «Più di due lingue» per offrirne altre."
+    },
+    "features": {
+      "programs": {
+        "name": "Programmi & calendario",
+        "description": "Stagioni, programmi, sedute e calendario del club.",
+        "pitch": "La spina dorsale del club: tutto il resto si appoggia qui."
+      },
+      "registration": {
+        "name": "Iscrizione online",
+        "description": "Pagine di iscrizione pubbliche per programma con moduli, consensi e quote.",
+        "pitch": "Le famiglie si iscrivono in pochi minuti, senza e-mail né carta."
+      },
+      "invoicing": {
+        "name": "Fatturazione",
+        "description": "Fatture per quote, campi e allenamenti con numerazione e PDF.",
+        "pitch": "Ogni franco dovuto è su una fattura, nulla va perso."
+      },
+      "qr_bill": {
+        "name": "QR-fattura svizzera",
+        "description": "QR-fatture con riferimento strutturato, abbinate automaticamente.",
+        "pitch": "I pagamenti si riconciliano da soli, senza abbinamenti manuali."
+      },
+      "online_payments": {
+        "name": "Pagamenti con carta & TWINT",
+        "description": "Le famiglie pagano online con carta o TWINT.",
+        "pitch": "Il denaro arriva prima, con meno solleciti."
+      },
+      "roster": {
+        "name": "Anagrafica",
+        "description": "Famiglie, atleti, tutori e allenatori in un unico posto.",
+        "pitch": "Una scheda pulita per persona invece di elenchi sparsi."
+      },
+      "attendance": {
+        "name": "Presenze",
+        "description": "Registrare le presenze per seduta, da telefono o da scrivania.",
+        "pitch": "Vedere chi viene e chi molla, e intervenire presto."
+      },
+      "messaging": {
+        "name": "Messaggi & notifiche",
+        "description": "Messaggi, annunci e notifiche via e-mail o nell'app.",
+        "pitch": "Raggiungere le famiglie giuste senza il caos di WhatsApp."
+      },
+      "documents_consent": {
+        "name": "Documenti & consensi",
+        "description": "Consensi dei genitori con versione, data e firmatario, più i documenti.",
+        "pitch": "Prova del consenso per ogni bambino, pronta per ogni verifica."
+      },
+      "parent_app": {
+        "name": "App web per genitori",
+        "description": "I genitori vedono figli, orari, fatture e documenti.",
+        "pitch": "Meno domande alla segreteria del club."
+      },
+      "custom_branding": {
+        "name": "Immagine del club",
+        "description": "Il vostro logo, i colori e il nome dell'app.",
+        "pitch": "L'app sembra il vostro club, non un software."
+      },
+      "web_push": {
+        "name": "Notifiche push web",
+        "description": "Notifiche push su telefono e computer.",
+        "pitch": "Diffusione gratuita e immediata per le notizie urgenti."
+      },
+      "multi_club": {
+        "name": "Un accesso per più club",
+        "description": "I genitori con figli in più club cambiano club con un solo accesso.",
+        "pitch": "Meno complicazioni per le famiglie con più sport."
+      },
+      "camps": {
+        "name": "Campi e campus",
+        "description": "Campi con edizioni, opzioni di prezzo, capienza e iscrizione.",
+        "pitch": "Riempire i campi online invece di destreggiarsi tra fogli di calcolo."
+      },
+      "camp_basket": {
+        "name": "Stagioni dei campi & carrello multisettimana",
+        "description": "Le famiglie prenotano più settimane di campo insieme con sconto stagionale.",
+        "pitch": "Carrelli più grandi e meno iscrizioni abbandonate."
+      },
+      "multi_team": {
+        "name": "Più squadre",
+        "description": "Squadre con rosa, allenatori e calendario proprio.",
+        "pitch": "Gestire tutte le categorie d'età da un unico posto."
+      },
+      "multi_location": {
+        "name": "Più sedi",
+        "description": "Luoghi, palestre e spazi su più sedi.",
+        "pitch": "Pianificare tra le sedi senza doppie prenotazioni."
+      },
+      "calendar_ics": {
+        "name": "Calendario del club & feed ICS",
+        "description": "Un calendario del club e feed personali per i calendari del telefono.",
+        "pitch": "Le famiglie vedono sempre gli orari aggiornati nel proprio calendario."
+      },
+      "waitlists": {
+        "name": "Liste d'attesa con avanzamento automatico",
+        "description": "I programmi completi si riempiono dalla lista d'attesa, con link di offerta.",
+        "pitch": "Ogni posto libero viene occupato senza telefonate."
+      },
+      "shop": {
+        "name": "Negozio del club",
+        "description": "Vendere materiale e gadget con magazzino, varianti e pagamento online.",
+        "pitch": "Entrate in più, senza un negozio online separato."
+      },
+      "alerts_leads": {
+        "name": "Annunci programmati & nuovi contatti",
+        "description": "Programmare annunci e raccogliere le richieste dal vostro sito.",
+        "pitch": "Non perdere mai più una famiglia interessata."
+      },
+      "media_library": {
+        "name": "Mediateca",
+        "description": "Foto e copertine per programmi e campi, con controllo del consenso.",
+        "pitch": "Pagine attraenti nel rispetto del consenso alle foto."
+      },
+      "sms": {
+        "name": "Pacchetti SMS",
+        "description": "Inviare SMS per le comunicazioni urgenti (pacchetti prepagati).",
+        "pitch": "Raggiungere chi non legge le e-mail, quando conta davvero."
+      },
+      "reminders": {
+        "name": "Promemoria di pagamento automatici",
+        "description": "Promemoria cortesi prima e dopo la scadenza, in automatico.",
+        "pitch": "Essere pagati puntualmente senza telefonate imbarazzanti."
+      },
+      "discounts": {
+        "name": "Sconti & codici promozionali",
+        "description": "Sconti fratelli, iscrizione anticipata e codici promozionali.",
+        "pitch": "Premiare le famiglie fedeli e riempire prima i programmi."
+      },
+      "payment_plans": {
+        "name": "Piani di pagamento & addebito automatico",
+        "description": "Rateizzare le quote, con pagamento automatico con carta opzionale.",
+        "pitch": "Quote sostenibili, incassate secondo calendario."
+      },
+      "recurring_fees": {
+        "name": "Quote ricorrenti",
+        "description": "Quote mensili o trimestrali fatturate automaticamente.",
+        "pitch": "Entrate prevedibili senza lavoro amministrativo mensile."
+      },
+      "finance": {
+        "name": "Finanze: spese, compensi, budget",
+        "description": "Registrare spese, compensi degli allenatori e budget.",
+        "pitch": "Sapere dove vanno i soldi, stagione dopo stagione."
+      },
+      "reports_advanced": {
+        "name": "Rapporti",
+        "description": "Rapporti su entrate, presenze e iscrizioni con esportazione.",
+        "pitch": "Numeri chiari per il comitato con un clic."
+      },
+      "accounting": {
+        "name": "Contabilità",
+        "description": "Importazione bancaria, esportazione del giornale, chiusure di periodo, solleciti, rimborsi e rapporti per i finanziatori.",
+        "pitch": "Conti in ordine per il cassiere o il fiduciario."
+      },
+      "bookings": {
+        "name": "Prenotazioni di allenamento & pacchetti",
+        "description": "Allenamenti privati e di gruppo con pacchetti, crediti e prenotazione online.",
+        "pitch": "Il coaching privato diventa un servizio chiaro e pagato."
+      },
+      "player_development": {
+        "name": "Sviluppo dei giocatori",
+        "description": "Valutazioni, piani di sviluppo, alimentazione, classifiche e benessere.",
+        "pitch": "Mostrare progressi reali alle famiglie e trattenere i giocatori più a lungo."
+      },
+      "player_journey": {
+        "name": "Percorso del giocatore & profilo scout",
+        "description": "Bilanci di stagione, collocamenti e un profilo scout condivisibile.",
+        "pitch": "Aiutare i giocatori a fare il passo successivo e valorizzare l'accademia."
+      },
+      "lesson_plans": {
+        "name": "Piani di allenamento",
+        "description": "Schemi di seduta ed esercizi riutilizzabili dagli allenatori.",
+        "pitch": "Qualità costante per ogni allenatore e squadra."
+      },
+      "coach_app": {
+        "name": "App per allenatori",
+        "description": "App mobile per allenatori: sedute, rose, presenze e messaggi.",
+        "pitch": "Gli allenatori gestiscono tutto a bordo campo, non in ufficio."
+      },
+      "csv_import": {
+        "name": "Importazione CSV / Excel",
+        "description": "Importare famiglie, atleti e storico da fogli di calcolo.",
+        "pitch": "Abbandonare i vecchi strumenti in un pomeriggio."
+      },
+      "memberships": {
+        "name": "Affiliazioni",
+        "description": "Tipi di affiliazione, rinnovi e prezzi per i soci.",
+        "pitch": "Entrate associative costanti e stato di socio chiaro."
+      },
+      "member_cards": {
+        "name": "Tessere socio NFC / QR",
+        "description": "Tessere digitali con codice QR o check-in NFC.",
+        "pitch": "Check-in veloce e prova dell'affiliazione."
+      },
+      "forms": {
+        "name": "Moduli personalizzati",
+        "description": "Creare moduli propri per sondaggi, taglie o dati sanitari.",
+        "pitch": "Raccogliere ciò che serve senza carta né strumenti extra."
+      },
+      "contracts": {
+        "name": "Contratti & firma elettronica",
+        "description": "Contratti di giocatori e collaboratori con modelli e firma online.",
+        "pitch": "Accordi firmati in giorni, non in settimane."
+      },
+      "staff_time": {
+        "name": "Timbratura & fogli ore",
+        "description": "Timbratura, turni del personale e fogli ore per gli stipendi.",
+        "pitch": "Pagare correttamente gli allenatori senza conteggi manuali."
+      },
+      "advanced_roles": {
+        "name": "Ruoli avanzati",
+        "description": "Un ruolo finanze e accessi delegati oltre ad amministratore e allenatore.",
+        "pitch": "Dare al cassiere ciò che serve, niente di più."
+      },
+      "staff_compliance": {
+        "name": "Conformità del personale & certificati",
+        "description": "Monitorare licenze, estratti del casellario e date di scadenza.",
+        "pitch": "Restare conformi sulla tutela dei minori."
+      },
+      "injury_log": {
+        "name": "Registro infortuni & incidenti",
+        "description": "Registrare infortuni e incidenti con seguito e avviso ai genitori.",
+        "pitch": "Una traccia affidabile del dovere di diligenza."
+      },
+      "js_export": {
+        "name": "Esportazione G+S",
+        "description": "Esportare le presenze per i sussidi Gioventù+Sport.",
+        "pitch": "Ottenere ogni sussidio G+S senza ricopiare elenchi."
+      },
+      "ops_equipment": {
+        "name": "Materiale & divise",
+        "description": "Prestito del materiale, manutenzione, taglie e numeri delle maglie.",
+        "pitch": "Sapere dov'è ogni pallone e ogni maglia."
+      },
+      "ops_facilities": {
+        "name": "Impianti & chiusure",
+        "description": "Palestre, orari, chiusure e affitti.",
+        "pitch": "Prevedere le chiusure prima che annullino le sedute."
+      },
+      "ops_board": {
+        "name": "Comitato & commissioni",
+        "description": "Commissioni, riunioni, verbali e decisioni.",
+        "pitch": "Un comitato che lavora con i verbali, non con le caselle e-mail."
+      },
+      "ops_sponsors": {
+        "name": "Sponsor & donazioni",
+        "description": "Contratti di sponsorizzazione, controprestazioni, donazioni e fatture.",
+        "pitch": "Sponsor soddisfatti e rinnovi puntuali."
+      },
+      "split_billing": {
+        "name": "Fatturazione divisa tra due genitori",
+        "description": "Ripartire le fatture tra genitori separati.",
+        "pitch": "Una fatturazione equa per ogni situazione familiare."
+      },
+      "carpooling": {
+        "name": "Car pooling",
+        "description": "Le famiglie offrono e trovano passaggi per sedute e partite.",
+        "pitch": "Meno sedute perse e meno viaggi."
+      },
+      "website_connect": {
+        "name": "Collegamento al sito web",
+        "description": "API pubblica, incorporamenti e plugin WordPress per il vostro sito esistente.",
+        "pitch": "Il vostro sito mostra automaticamente programmi e campi aggiornati."
+      },
+      "site_builder": {
+        "name": "Sito del club integrato",
+        "description": "Un sito completo del club gestito nell'app.",
+        "pitch": "Un sito moderno senza agenzia web."
+      },
+      "custom_domain": {
+        "name": "Dominio proprio & mittente e-mail",
+        "description": "Usare il vostro dominio e inviare e-mail dall'indirizzo del club.",
+        "pitch": "Ogni link e ogni e-mail portano il nome del vostro club."
+      },
+      "extra_languages": {
+        "name": "Più di due lingue",
+        "description": "Offrire l'app in più di due lingue.",
+        "pitch": "Accogliere ogni famiglia nella sua lingua."
+      },
+      "white_label": {
+        "name": "White label completo",
+        "description": "Rimuovere ogni marchio della piattaforma.",
+        "pitch": "L'app è interamente vostra."
+      },
+      "ai_assistant": {
+        "name": "Assistente IA",
+        "description": "Un assistente per lo staff: prepara promemoria e risponde a domande sui rapporti.",
+        "pitch": "Fa risparmiare ore alla segreteria ogni mese."
+      },
+      "api_access": {
+        "name": "Accesso API amministrativo",
+        "description": "Accesso API per le vostre integrazioni.",
+        "pitch": "Collegare gli strumenti che la vostra organizzazione già usa."
+      },
+      "priority_support": {
+        "name": "Assistenza prioritaria",
+        "description": "Risposte più rapide e un referente dedicato.",
+        "pitch": "Aiuto quando la stagione è più intensa."
+      },
+      "sso": {
+        "name": "Accesso unico (SSO)",
+        "description": "Accesso tramite il fornitore di identità della vostra organizzazione.",
+        "pitch": "Un solo accesso e controllo centrale per le grandi organizzazioni."
+      },
+      "federation_rollup": {
+        "name": "Vista gruppo / federazione",
+        "description": "Dashboard consolidate tra club e sedi.",
+        "pitch": "Guidare un gruppo di club con un'unica vista."
+      }
     }
   }
 }

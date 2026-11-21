@@ -181,7 +181,8 @@
     "journey": "Player journey",
     "familyBilling": "Split billing",
     "accounting": "Accounting",
-    "refunds": "Cancellations & refunds"
+    "refunds": "Cancellations & refunds",
+    "upgrades": "Plan & upgrades"
   },
   "shell": {
     "openMenu": "Open menu",
@@ -7691,6 +7692,466 @@
       "selectCategory": "Select all of {category}",
       "productsSelected": "{selected} of {total} selected",
       "productsSkipped": "{count, plural, one {# product left out} other {# products left out}}"
+    }
+  },
+  "upgrades": {
+    "title": "Plan & upgrades",
+    "description": "Your plan, what it includes and the modules you can add.",
+    "badge": "Upgrade",
+    "categories": {
+      "core": "Included in every plan",
+      "programs": "Programs & scheduling",
+      "communication": "Communication",
+      "finance": "Finance",
+      "training": "Training & player development",
+      "people": "People & staff",
+      "safety": "Safety & compliance",
+      "operations": "Operations",
+      "family": "Families",
+      "website": "Website, brand & languages",
+      "ai": "Artificial intelligence",
+      "enterprise": "Enterprise"
+    },
+    "states": {
+      "core": "Included",
+      "included": "In your plan",
+      "addon": "Add-on active",
+      "addon_canceling": "Ends {date}",
+      "trial": "Trial until {date}",
+      "complimentary": "Complimentary",
+      "pending": "Requested",
+      "blocked": "Switched off",
+      "requires": "Needs another module",
+      "available": "Available as add-on",
+      "upgrade": "In a higher plan",
+      "unavailable": "Not offered"
+    },
+    "gate": {
+      "eyebrow": "Upgrade",
+      "lockedTitle": "{feature} is not part of your plan",
+      "askAdminTitle": "Not switched on yet",
+      "askAdmin": "This module is not switched on for your club. Ask the club admin if you would like to use it.",
+      "financeOnly": "Only club admins can add modules. Ask your club admin.",
+      "price": "{price} per month",
+      "priceNote": "Prices exclude VAT and are billed with your subscription.",
+      "startTrial": "Start {days}-day free trial",
+      "addToPlan": "Add to plan",
+      "inPlan": "Included in the {plan} plan",
+      "seePlans": "Compare plans",
+      "requires": "Needs: {features}",
+      "blocked": "This module has been switched off for your club. Please contact support.",
+      "pending": "Requested: we'll activate it within 1 business day.",
+      "unavailable": "This module is not offered for your club yet. Contact us to discuss it.",
+      "dataKept": "Your data is kept. Switch the module back on any time and everything is there again.",
+      "whatItDoes": "What it does",
+      "whyItMatters": "Why clubs use it",
+      "trialUsed": "The free trial of this module has been used.",
+      "manage": "Plan & upgrades"
+    },
+    "page": {
+      "currentPlan": "Current plan",
+      "noPlan": "No plan yet",
+      "statuses": {
+        "trialing": "Trial",
+        "active": "Active",
+        "past_due": "Payment due",
+        "unpaid": "Unpaid",
+        "canceled": "Canceled",
+        "incomplete": "Incomplete",
+        "incomplete_expired": "Expired",
+        "paused": "Paused"
+      },
+      "trialEnds": "Trial ends {date}",
+      "renews": "Next billing date {date}",
+      "athletes": "Active athletes",
+      "athletesOf": "{used} of {limit}",
+      "unlimited": "{used} (no limit)",
+      "nearCap": "You are close to your plan's athlete limit.",
+      "addonsTotal": "Add-ons per month",
+      "changePlan": "Change plan",
+      "perMonth": "{price} / month",
+      "currentBadge": "Current",
+      "switchTo": "Switch to {plan}",
+      "contactSales": "Contact sales",
+      "pendingPlan": "Switch to {plan} requested: we'll activate it within 1 business day.",
+      "scheduledPlan": "Switch to {plan} on {date}.",
+      "withdraw": "Withdraw",
+      "modules": "Modules",
+      "showLocked": "Show locked modules in the menu with an \"Upgrade\" badge",
+      "showLockedHint": "When off, modules outside your plan are hidden from the menu.",
+      "financeView": "You can view the plan. Only club admins can change it.",
+      "billingManual": "Online billing is not set up for your club yet: requests go to our team, who activate them within 1 business day.",
+      "toggleLabel": "Add-on {feature}",
+      "tryFree": "Try free",
+      "open": "Open",
+      "requiresList": "Needs {features}",
+      "proposal": "Plan prices and add-on prices are shown in {currency}, excluding VAT."
+    },
+    "dialog": {
+      "addTitle": "Add {feature}?",
+      "addBody": "{price} per month is added to your subscription.",
+      "proration": "For the rest of this billing period, about {amount} is charged now (prorated).",
+      "requestBody": "Online billing is not active for your club yet. We'll record the request and activate it within 1 business day.",
+      "removeTitle": "Remove {feature}?",
+      "removeBody": "It stays active until the end of the billing period ({date}). After that the module is locked; your data is kept and comes back when you switch it on again.",
+      "removeBodyPending": "Your request is withdrawn. Nothing has been charged.",
+      "confirmAdd": "Add for {price} / month",
+      "confirmRequest": "Send request",
+      "confirmRemove": "Remove at period end",
+      "cancel": "Cancel",
+      "upgradeTitle": "Upgrade to {plan}?",
+      "upgradeBody": "The new price of {price} per month applies right away; the rest of this period is prorated.",
+      "downgradeTitle": "Switch to {plan}?",
+      "downgradeBody": "The switch happens at the end of the billing period ({date}).",
+      "manualBody": "Our team confirms the switch within 1 business day.",
+      "trialBody": "You are in your trial, so the switch happens right away.",
+      "lose": "These modules will lock (your data is kept):",
+      "gain": "These modules are added:",
+      "nothingLost": "No module you use today will lock.",
+      "confirm": "Confirm",
+      "working": "Working…"
+    },
+    "messages": {
+      "added": "{feature} added for {price} per month.",
+      "requested": "Request sent. We'll activate it within 1 business day.",
+      "alreadyRequested": "Already requested: we'll activate it within 1 business day.",
+      "alreadyActive": "This module is already active.",
+      "resumed": "{feature} stays active.",
+      "requestWithdrawn": "Request withdrawn.",
+      "alreadyCanceling": "Already set to end at the end of the period.",
+      "removalScheduled": "{feature} ends on {date}. Your data is kept.",
+      "trialStarted": "Your trial of {feature} runs until {date}.",
+      "planUpgraded": "You're now on {plan}.",
+      "planDowngradeScheduled": "You'll switch to {plan} on {date}.",
+      "planSwitchedTrial": "Switched to {plan}. Your trial continues.",
+      "planRequested": "Plan change requested. We'll activate it within 1 business day.",
+      "planChangeWithdrawn": "Plan change withdrawn.",
+      "samePlan": "That is already your plan.",
+      "saved": "Saved."
+    },
+    "errors": {
+      "adminOnly": "Only club admins can change the plan or add modules.",
+      "unknownFeature": "Unknown module.",
+      "unknownPlan": "Unknown plan.",
+      "blocked": "This module has been switched off for your club. Please contact support.",
+      "noSubscription": "Your subscription is not active. Choose a plan first.",
+      "notForSale": "This module can't be added on its own. It's included in a higher plan.",
+      "requiresFirst": "Add {features} first.",
+      "billingFailed": "Billing could not be updated. Nothing was charged; please try again.",
+      "notAnAddon": "This module is not an add-on you can remove.",
+      "trialUsed": "The free trial of this module has already been used.",
+      "contactSales": "This plan is sold by our team. Please contact sales.",
+      "noPrice": "This plan has no price in your currency.",
+      "generic": "Something went wrong. Please try again.",
+      "locked": "This module is not part of your club's plan.",
+      "languagesLimit": "Your plan includes two languages. Add the \"More than two languages\" module to offer more."
+    },
+    "features": {
+      "programs": {
+        "name": "Programs & schedule",
+        "description": "Seasons, programs, teams' sessions and the club schedule.",
+        "pitch": "The backbone of the club: everything else hangs off it."
+      },
+      "registration": {
+        "name": "Online registration",
+        "description": "Public sign-up pages per program with forms, consents and fees.",
+        "pitch": "Families register in minutes instead of email and paper."
+      },
+      "invoicing": {
+        "name": "Invoicing",
+        "description": "Invoices for fees, camps and training with numbering and PDFs.",
+        "pitch": "Every franc owed is on an invoice, nothing gets lost."
+      },
+      "qr_bill": {
+        "name": "Swiss QR-bill",
+        "description": "QR-bills with structured reference, matched automatically.",
+        "pitch": "Payments reconcile themselves; no manual matching."
+      },
+      "online_payments": {
+        "name": "Card & TWINT payments",
+        "description": "Families pay online by card or TWINT.",
+        "pitch": "Money arrives faster, with fewer reminders."
+      },
+      "roster": {
+        "name": "Roster",
+        "description": "Families, athletes, guardians and coaches in one place.",
+        "pitch": "One clean record per person instead of scattered lists."
+      },
+      "attendance": {
+        "name": "Attendance",
+        "description": "Take attendance per session, on the phone or the desk.",
+        "pitch": "See who comes, who drops out, and act early."
+      },
+      "messaging": {
+        "name": "Messaging & notifications",
+        "description": "Messages, announcements and email or in-app notifications.",
+        "pitch": "Reach the right families without WhatsApp chaos."
+      },
+      "documents_consent": {
+        "name": "Documents & consents",
+        "description": "Guardian consents with version, date and signer, plus documents.",
+        "pitch": "Proof of consent for every child, ready for any audit."
+      },
+      "parent_app": {
+        "name": "Parent web app",
+        "description": "Parents see children, schedules, invoices and documents.",
+        "pitch": "Fewer questions to the club office."
+      },
+      "custom_branding": {
+        "name": "Club branding",
+        "description": "Your logo, colors and app name.",
+        "pitch": "The app looks like your club, not like software."
+      },
+      "web_push": {
+        "name": "Web push notifications",
+        "description": "Push notifications on phones and desktops.",
+        "pitch": "Free, instant reach for urgent news."
+      },
+      "multi_club": {
+        "name": "One login for several clubs",
+        "description": "Parents with children in several clubs switch with one login.",
+        "pitch": "Less friction for families who do more than one sport."
+      },
+      "camps": {
+        "name": "Camps",
+        "description": "Camps with editions, price options, capacity and registration.",
+        "pitch": "Fill camps online and stop juggling spreadsheets."
+      },
+      "camp_basket": {
+        "name": "Camp seasons & multi-week basket",
+        "description": "Families book several camp weeks at once with season discounts.",
+        "pitch": "Bigger baskets per family and fewer abandoned sign-ups."
+      },
+      "multi_team": {
+        "name": "Multiple teams",
+        "description": "Teams with rosters, coaches and their own schedule.",
+        "pitch": "Run every age group from one place."
+      },
+      "multi_location": {
+        "name": "Multiple locations",
+        "description": "Venues, halls and spaces across several sites.",
+        "pitch": "Plan across sites without double bookings."
+      },
+      "calendar_ics": {
+        "name": "Club calendar & ICS feeds",
+        "description": "A club calendar plus personal feeds for phone calendars.",
+        "pitch": "Families always see the latest times in their own calendar."
+      },
+      "waitlists": {
+        "name": "Waiting lists with auto-promotion",
+        "description": "Full programs fill from the waiting list automatically, with offer links.",
+        "pitch": "Every free spot is filled without manual phone calls."
+      },
+      "shop": {
+        "name": "Club shop",
+        "description": "Sell kit and merchandise with stock, variants and online payment.",
+        "pitch": "Extra revenue for the club, with no separate web shop."
+      },
+      "alerts_leads": {
+        "name": "Scheduled alerts & new contacts",
+        "description": "Schedule announcements and capture enquiries from your website.",
+        "pitch": "Never lose an interested family again."
+      },
+      "media_library": {
+        "name": "Media library",
+        "description": "Photos and covers for programs and camps, with consent checks.",
+        "pitch": "Attractive pages while respecting photo consent."
+      },
+      "sms": {
+        "name": "SMS packs",
+        "description": "Send text messages for urgent news (prepaid packs).",
+        "pitch": "Reach families who don't read email, when it really matters."
+      },
+      "reminders": {
+        "name": "Automatic payment reminders",
+        "description": "Polite reminders before and after the due date, automatically.",
+        "pitch": "Get paid on time without awkward calls."
+      },
+      "discounts": {
+        "name": "Discounts & promo codes",
+        "description": "Sibling, early-bird and promo-code discounts.",
+        "pitch": "Reward loyal families and fill programs earlier."
+      },
+      "payment_plans": {
+        "name": "Payment plans, instalments & autopay",
+        "description": "Split fees into instalments with optional card autopay.",
+        "pitch": "Make fees affordable and collect on schedule."
+      },
+      "recurring_fees": {
+        "name": "Recurring fees",
+        "description": "Monthly or termly fees invoiced automatically.",
+        "pitch": "Predictable income without monthly admin work."
+      },
+      "finance": {
+        "name": "Finance: expenses, payouts, budgets",
+        "description": "Track expenses, coach payouts and budgets.",
+        "pitch": "Know where the money goes, season by season."
+      },
+      "reports_advanced": {
+        "name": "Reports",
+        "description": "Revenue, attendance and registration reports with exports.",
+        "pitch": "Clear numbers for the committee in one click."
+      },
+      "accounting": {
+        "name": "Accounting",
+        "description": "Bank import, journal exports, period locks, dunning, refunds and funder reports.",
+        "pitch": "Hand clean books to your treasurer or fiduciary."
+      },
+      "bookings": {
+        "name": "Training bookings & packages",
+        "description": "Private and group training with packages, credits and online booking.",
+        "pitch": "Turn private coaching into a clean, paid service."
+      },
+      "player_development": {
+        "name": "Player development",
+        "description": "Assessments, development plans, nutrition, rankings and wellness.",
+        "pitch": "Show families real progress and keep players longer."
+      },
+      "player_journey": {
+        "name": "Player journey & scout profile",
+        "description": "Season reviews, placements and a shareable scout profile.",
+        "pitch": "Help players take the next step and showcase your academy."
+      },
+      "lesson_plans": {
+        "name": "Lesson plans",
+        "description": "Session plans and drills coaches can reuse.",
+        "pitch": "Consistent quality across every coach and team."
+      },
+      "coach_app": {
+        "name": "Coach app",
+        "description": "Mobile app for coaches: sessions, rosters, attendance and messages.",
+        "pitch": "Coaches handle it pitch-side, not the office."
+      },
+      "csv_import": {
+        "name": "CSV / Excel import",
+        "description": "Import families, athletes and history from spreadsheets.",
+        "pitch": "Switch from old tools in an afternoon."
+      },
+      "memberships": {
+        "name": "Memberships",
+        "description": "Membership types, renewals and member pricing.",
+        "pitch": "Steady membership income and clear member status."
+      },
+      "member_cards": {
+        "name": "NFC / QR member cards",
+        "description": "Digital member cards with QR code or NFC tag check-in.",
+        "pitch": "Fast check-in and proof of membership."
+      },
+      "forms": {
+        "name": "Custom forms",
+        "description": "Build your own forms for surveys, sizes or medical updates.",
+        "pitch": "Collect what you need without paper or extra tools."
+      },
+      "contracts": {
+        "name": "Contracts & e-signature",
+        "description": "Player and staff contracts with templates and online signature.",
+        "pitch": "Signed agreements in days, not weeks."
+      },
+      "staff_time": {
+        "name": "Staff clock-in & timesheets",
+        "description": "Clock-in, staff schedules and timesheets for payroll.",
+        "pitch": "Pay coaches correctly with no manual tallying."
+      },
+      "advanced_roles": {
+        "name": "Advanced roles",
+        "description": "A finance role and delegated access beyond admin and coach.",
+        "pitch": "Give the treasurer what they need, nothing more."
+      },
+      "staff_compliance": {
+        "name": "Staff compliance & certificates",
+        "description": "Track coaching licenses, background checks and expiry dates.",
+        "pitch": "Stay compliant on child protection."
+      },
+      "injury_log": {
+        "name": "Injury & incident log",
+        "description": "Record injuries and incidents with follow-up and guardian notice.",
+        "pitch": "A duty-of-care record you can rely on."
+      },
+      "js_export": {
+        "name": "J+S export",
+        "description": "Export attendance for Swiss Jugend+Sport subsidies.",
+        "pitch": "Claim every J+S subsidy without retyping lists."
+      },
+      "ops_equipment": {
+        "name": "Equipment & kit",
+        "description": "Equipment check-out, maintenance and kit sizes and numbers.",
+        "pitch": "Know where every ball and jersey is."
+      },
+      "ops_facilities": {
+        "name": "Facilities & closures",
+        "description": "Halls, opening hours, closures and rentals.",
+        "pitch": "Plan around closures before they cancel sessions."
+      },
+      "ops_board": {
+        "name": "Board & committees",
+        "description": "Committees, meetings, minutes and decisions.",
+        "pitch": "A board that runs on records, not inboxes."
+      },
+      "ops_sponsors": {
+        "name": "Sponsors & donations",
+        "description": "Sponsor contracts, deliverables, donations and invoices.",
+        "pitch": "Keep sponsors happy and renewals on time."
+      },
+      "split_billing": {
+        "name": "Split billing for two guardians",
+        "description": "Split invoices between separated guardians.",
+        "pitch": "Fair billing for every family situation."
+      },
+      "carpooling": {
+        "name": "Carpooling",
+        "description": "Families offer and find rides to sessions and games.",
+        "pitch": "Fewer missed sessions and less driving."
+      },
+      "website_connect": {
+        "name": "Website connection",
+        "description": "Public API, embeds and a WordPress plugin for your existing site.",
+        "pitch": "Your website shows live programs and camps automatically."
+      },
+      "site_builder": {
+        "name": "Built-in club website",
+        "description": "A complete club website managed in the app.",
+        "pitch": "A modern website without a web agency."
+      },
+      "custom_domain": {
+        "name": "Custom domain & branded email",
+        "description": "Use your own domain and send email from your club address.",
+        "pitch": "Every link and email carries your club's name."
+      },
+      "extra_languages": {
+        "name": "More than two languages",
+        "description": "Offer the app in more than two languages.",
+        "pitch": "Welcome every family in their own language."
+      },
+      "white_label": {
+        "name": "Full white-label",
+        "description": "Remove all platform branding.",
+        "pitch": "The app is entirely yours."
+      },
+      "ai_assistant": {
+        "name": "AI assistant",
+        "description": "An assistant for staff: drafts reminders and answers report questions.",
+        "pitch": "Saves the office hours every month."
+      },
+      "api_access": {
+        "name": "Admin API access",
+        "description": "API access for your own integrations.",
+        "pitch": "Connect the tools your organization already uses."
+      },
+      "priority_support": {
+        "name": "Priority support",
+        "description": "Faster answers and a named contact.",
+        "pitch": "Help when the season is busiest."
+      },
+      "sso": {
+        "name": "Single sign-on",
+        "description": "Sign in with your organization's identity provider.",
+        "pitch": "One login and central control for large organizations."
+      },
+      "federation_rollup": {
+        "name": "Group / federation roll-up",
+        "description": "Combined dashboards across clubs and sites.",
+        "pitch": "Steer a group of clubs with one view."
+      }
     }
   }
 }
