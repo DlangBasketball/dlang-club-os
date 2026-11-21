@@ -13,6 +13,7 @@ import {
   sanitizeColors,
   type ContrastCheck,
 } from "@/lib/tenant/theme";
+import { siteFontByFamily, siteFontVar } from "./fonts";
 
 /**
  * Site templates. All three are driven by the SAME CSS variables as the app
@@ -39,7 +40,8 @@ export function isSiteTemplate(v: unknown): v is SiteTemplate {
 }
 
 export type SitePalette = Partial<Pick<TenantColors, "primary" | "accent" | "background" | "surface" | "text">>;
-export type SiteFonts = { display?: string; ui?: string };
+/** display / ui: font family names; uppercase: headlines in capitals (sporty condensed look). */
+export type SiteFonts = { display?: string; ui?: string; uppercase?: boolean };
 
 /** Keep only valid #rrggbb values. */
 export function cleanPalette(input: unknown): SitePalette {
@@ -56,6 +58,7 @@ export function cleanFonts(input: unknown): SiteFonts {
     const f = safeFont(o[k], "");
     if (f) out[k] = f;
   }
+  if (o.uppercase === true) out.uppercase = true;
   return out;
 }
 
@@ -104,11 +107,22 @@ function darker(hex: string): string {
 
 /** CSS variables to put on the site wrapper (plus the template marker class). */
 export function siteCssVars(input: SiteThemeInput): Record<string, string> {
-  return brandingToCssVars(siteBranding(input));
+  const vars = brandingToCssVars(siteBranding(input));
+  // Curated fonts are self-hosted (next/font): point the tokens at their variables.
+  const f = cleanFonts(input.fonts);
+  for (const [key, fam] of [["--font-display", f.display], ["--font-ui", f.ui]] as const) {
+    const def = siteFontByFamily(fam);
+    if (def) vars[key] = `var(${siteFontVar(def)}, "${def.family}"), ${def.fallback}`;
+  }
+  return vars;
 }
 
+/** Google Fonts stylesheet for fonts outside the curated (self-hosted) catalog, or null. */
 export function siteFontsHref(input: SiteThemeInput): string | null {
-  return googleFontsHref(siteBranding(input));
+  const b = siteBranding(input);
+  const fonts = { ...b.fonts };
+  for (const k of ["display", "ui"] as const) if (siteFontByFamily(fonts[k])) fonts[k] = "";
+  return googleFontsHref({ ...b, fonts });
 }
 
 export function siteIsDark(input: SiteThemeInput): boolean {
