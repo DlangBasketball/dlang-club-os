@@ -96,6 +96,9 @@ describe("merchandise rule", () => {
   it("pre-selects only priced merchandise", () => {
     expect(isMerchandiseByDefault({ price: 55, categories: ["Apparel"] })).toBe(true);
     expect(isMerchandiseByDefault({ price: 55, categories: [] })).toBe(true);
+    expect(isMerchandiseByDefault({ price: 55, categories: [], name: "Club Scarf" })).toBe(true);
+    expect(isMerchandiseByDefault({ price: 3850, categories: [], name: "Las Vegas Summer Camp" })).toBe(false);
+    expect(isMerchandiseByDefault({ price: 40, categories: ["Merchandise"], name: "Camp T-Shirt" })).toBe(true);
     expect(isMerchandiseByDefault({ price: 0, categories: ["Apparel"] })).toBe(false);
     expect(isMerchandiseByDefault({ price: 390, categories: ["Merch", "Camps"] })).toBe(false);
   });

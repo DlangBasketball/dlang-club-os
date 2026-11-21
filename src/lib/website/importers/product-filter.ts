@@ -6,6 +6,8 @@
  *
  *  - deselected: price 0, or any category whose words look like a camp /
  *    programme / service / training / class / course (en, fr, de, it, es);
+ *  - products without any category: the same rule applied to the product name
+ *    (e.g. "Las Vegas Summer Camp");
  *  - everything else selected.
  *
  * The admin can change every choice; deselections are remembered.
@@ -29,7 +31,8 @@ export function isNonMerchCategory(name: string): boolean {
   return words(name).some((w) => PREFIXES.some((p) => w.startsWith(p)) || PARTS.some((p) => w.length > p.length && w.includes(p)));
 }
 
-export function isMerchandiseByDefault(p: { price: number; categories: readonly string[] }): boolean {
+export function isMerchandiseByDefault(p: { price: number; categories: readonly string[]; name?: string }): boolean {
   if (!(p.price > 0)) return false;
+  if (p.categories.length === 0) return !(p.name && isNonMerchCategory(p.name));
   return !p.categories.some(isNonMerchCategory);
 }
