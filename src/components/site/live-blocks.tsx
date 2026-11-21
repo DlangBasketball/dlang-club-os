@@ -57,7 +57,10 @@ function LiveBody({ data, ctx }: { data: LiveData; ctx: RenderCtx }) {
   const org = ctx.site.tenant.name;
   switch (data.source) {
     case "camps": {
-      const editions = data.items.flatMap((g) => g.editions.map((e) => ({ ...e, group: g.title })));
+      const editions = data.items
+        .flatMap((g) => g.editions.map((e) => ({ ...e, group: g.title })))
+        // Soonest camp first, whatever season group it belongs to.
+        .sort((a, b) => String(a.dates.starts_on ?? "9999").localeCompare(String(b.dates.starts_on ?? "9999")));
       if (!editions.length) return <Empty ctx={ctx} />;
       const ld = editions.slice(0, 20).map((e) => {
         const prices = e.price_options.map((o) => o.price?.amount).filter((x): x is number => typeof x === "number");
