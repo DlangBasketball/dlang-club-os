@@ -50,6 +50,7 @@ export default async function PaymentSettingsPage({
           </div>
           {sp.connect === "error" && <p className="text-danger">Stripe onboarding could not start. Check the Stripe keys and try again.</p>}
           {sp.connect === "pending" && <p className="text-ink-3">Stripe still needs some details before you can accept payments.</p>}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- API route that redirects to Stripe, not a page (the club-site catch-all makes the rule match every path) */}
           <a href="/api/stripe/connect/onboard" className="inline-flex items-center gap-1.5 text-maroon hover:underline">
             <ExternalLink className="h-4 w-4" /> {stripe?.account_id ? "Continue / update Stripe onboarding" : "Connect Stripe account"}
           </a>
