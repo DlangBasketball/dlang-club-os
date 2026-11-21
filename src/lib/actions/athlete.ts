@@ -16,6 +16,7 @@ import {
   type MedicalInput,
 } from "@/lib/people/validation";
 import { logError } from "@/lib/log";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 export type { AthleteInput, LicenceInput, MedicalInput } from "@/lib/people/validation";
 
@@ -60,8 +61,7 @@ export async function createAthlete(input: AthleteInput): Promise<ActionResult<{
     logError("createAthlete", error);
     return { ok: false, error: t("editPeople.errors.saveFailed") };
   }
-  revalidatePath(`/admin/families/${p.data.familyId}`);
-  revalidatePath("/admin/athletes");
+  revalidatePersonEverywhere(me.orgId);
   redirect(`/admin/athletes/${data.id}`);
 }
 
@@ -84,32 +84,11 @@ export async function updateAthlete(id: string, input: AthleteInput): Promise<Ac
     await writeAudit(me, "athlete.family.move", "athletes", id, { from: before.family_id, to: p.data.familyId });
     revalidatePath(`/admin/families/${before.family_id}`);
   }
-  revalidatePath(`/admin/athletes/${id}`);
-  revalidatePath(`/admin/families/${p.data.familyId}`);
-  revalidatePath("/admin/athletes");
+  revalidatePersonEverywhere(me.orgId);
   return { ok: true, message: t("editPeople.saved") };
 }
 
-export async function deleteAthlete(id: string): Promise<ActionResult> {
-  const { me, t } = await requireRole(["admin"]);
-  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
-  const supabase = await createClient();
-  const { data: a } = await supabase.from("athletes").select("family_id,photo_path").eq("id", id).eq("org_id", me.orgId).maybeSingle();
-  if (!a) return { ok: false, error: t("editPeople.errors.notFound") };
-  const { error } = await supabase.from("athletes").delete().eq("id", id).eq("org_id", me.orgId);
-  if (error) {
-    logError("deleteAthlete", error);
-    return { ok: false, error: t("editPeople.errors.saveFailed") };
-  }
-  if (a.photo_path && isPhotoPathFor(a.photo_path, me.orgId, id)) {
-    const rm = await supabase.storage.from(PHOTO_BUCKET).remove([a.photo_path]);
-    if (rm.error) logError("deleteAthlete.photo", rm.error);
-  }
-  await writeAudit(me, "athlete.delete", "athletes", id, { family_id: a.family_id });
-  revalidatePath("/admin/families");
-  revalidatePath("/admin/athletes");
-  redirect(`/admin/families/${a.family_id}`);
-}
+// Deleting a player: src/lib/actions/person-delete.ts (archive / erase everywhere).
 
 /** Medical record: admin only here (guardians edit their own child from the parent app). */
 export async function upsertMedical(athleteId: string, input: MedicalInput): Promise<ActionResult> {

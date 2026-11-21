@@ -9,13 +9,12 @@ import {
   guardianLinkSchema,
   guardianUpdateSchema,
   firstIssueKey,
-  isPhotoPathFor,
-  PHOTO_BUCKET,
   type FamilyInput,
   type GuardianLinkInput,
   type GuardianUpdateInput,
 } from "@/lib/people/validation";
 import { logError } from "@/lib/log";
+import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 
 export type ActionResult = PeopleResult;
 export type { FamilyInput } from "@/lib/people/validation";
@@ -48,7 +47,7 @@ export async function createFamily(input: FamilyInput): Promise<ActionResult> {
     logError("createFamily", error);
     return { ok: false, error: t("editPeople.errors.saveFailed") };
   }
-  revalidatePath("/admin/families");
+  revalidatePersonEverywhere(me.orgId);
   redirect(`/admin/families/${data.id}`);
 }
 
@@ -69,34 +68,11 @@ export async function updateFamily(id: string, input: FamilyInput): Promise<Acti
     return { ok: false, error: t("editPeople.errors.saveFailed") };
   }
   if (!data?.length) return { ok: false, error: t("editPeople.errors.notFound") };
-  revalidatePath(`/admin/families/${id}`);
-  revalidatePath("/admin/families");
+  revalidatePersonEverywhere(me.orgId);
   return { ok: true, message: t("editPeople.saved") };
 }
 
-export async function deleteFamily(id: string): Promise<ActionResult> {
-  const { me, t } = await requireRole(["admin"]);
-  if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
-  const supabase = await createClient();
-  const { data: athletes } = await supabase.from("athletes").select("id,photo_path").eq("family_id", id).eq("org_id", me.orgId);
-  const { data, error } = await supabase.from("families").delete().eq("id", id).eq("org_id", me.orgId).select("id");
-  if (error) {
-    logError("deleteFamily", error);
-    return { ok: false, error: t("editPeople.errors.saveFailed") };
-  }
-  if (!data?.length) return { ok: false, error: t("editPeople.errors.notFound") };
-  // Athletes cascade with the family: remove their photo objects as well.
-  const photos = (athletes ?? [])
-    .filter((a) => isPhotoPathFor(a.photo_path, me.orgId, a.id))
-    .map((a) => a.photo_path as string);
-  if (photos.length) {
-    const rm = await supabase.storage.from(PHOTO_BUCKET).remove(photos);
-    if (rm.error) logError("deleteFamily.photos", rm.error);
-  }
-  await writeAudit(me, "family.delete", "families", id, { athletes: (athletes ?? []).length });
-  revalidatePath("/admin/families");
-  redirect("/admin/families");
-}
+// Deleting a family: src/lib/actions/person-delete.ts (archive / erase everywhere).
 
 // ---------------------------------------------------------------------------
 // Guardians (family_members): admin only
@@ -151,8 +127,7 @@ export async function linkGuardian(input: GuardianLinkInput): Promise<ActionResu
     relation: p.data.relation,
     is_primary: p.data.isPrimary,
   });
-  revalidatePath(`/admin/families/${p.data.familyId}`);
-  revalidatePath(`/admin/families/${p.data.familyId}/edit`);
+  revalidatePersonEverywhere(me.orgId);
   return { ok: true, message: t("editPeople.guardians.linked") };
 }
 
@@ -186,25 +161,17 @@ export async function updateGuardian(input: GuardianUpdateInput): Promise<Action
   return { ok: true, message: t("editPeople.saved") };
 }
 
+/** Unlink a guardian: the shared remove_guardian() (also detaches a login with no other family). */
 export async function unlinkGuardian(familyId: string, profileId: string): Promise<ActionResult> {
   const { me, t } = await requireRole(["admin"]);
   if (!me) return { ok: false, error: t("editPeople.errors.forbidden") };
   if (!(await familyInOrg(familyId, me.orgId))) return { ok: false, error: t("editPeople.errors.familyNotFound") };
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("family_members")
-    .delete()
-    .eq("family_id", familyId)
-    .eq("profile_id", profileId)
-    .select("profile_id");
+  const { error } = await supabase.rpc("remove_guardian", { p_family: familyId, p_profile: profileId });
   if (error) {
     logError("unlinkGuardian", error);
-    return { ok: false, error: t("editPeople.errors.saveFailed") };
+    return { ok: false, error: error.message.includes("NOT_FOUND") ? t("editPeople.errors.notFound") : t("editPeople.errors.saveFailed") };
   }
-  if (!data?.length) return { ok: false, error: t("editPeople.errors.notFound") };
-  await supabase.from("families").update({ primary_contact_id: null }).eq("id", familyId).eq("org_id", me.orgId).eq("primary_contact_id", profileId);
-  await writeAudit(me, "family.guardian.unlink", "families", familyId, { profile_id: profileId });
-  revalidatePath(`/admin/families/${familyId}`);
-  revalidatePath(`/admin/families/${familyId}/edit`);
+  revalidatePersonEverywhere(me.orgId);
   return { ok: true, message: t("editPeople.guardians.unlinked") };
 }

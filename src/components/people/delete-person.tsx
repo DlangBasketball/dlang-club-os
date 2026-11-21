@@ -292,7 +292,7 @@ export function BulkSelectAll({ ids }: { ids: string[] }) {
   return <input type="checkbox" className="h-4 w-4" checked={all} onChange={(e) => ctx.setAll(ids, e.target.checked)} aria-label={t("personDelete.bulk.selectAll")} />;
 }
 
-export function BulkDeleteBar() {
+export function BulkDeleteBar({ allIds = [] }: { allIds?: string[] }) {
   const t = useT();
   const router = useRouter();
   const ctx = React.useContext(BulkContext);
@@ -321,6 +321,11 @@ export function BulkDeleteBar() {
 
   return (
     <div className="mb-3 flex min-h-10 flex-wrap items-center gap-3" aria-live="polite">
+      {allIds.length > 0 && (
+        <label className="flex items-center gap-2 text-sm text-text-muted">
+          <BulkSelectAll ids={allIds} /> {t("personDelete.bulk.selectAll")}
+        </label>
+      )}
       {count > 0 && (
         <>
           <span className="text-sm text-text">{t("personDelete.bulk.selected", { count })}</span>

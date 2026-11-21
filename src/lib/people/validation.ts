@@ -51,7 +51,8 @@ const optIsoDate = z
 // ---------------------------------------------------------------------------
 // Athletes
 // ---------------------------------------------------------------------------
-export const ATHLETE_STATUSES = ["active", "inactive", "archived"] as const;
+/** Statuses an admin sets in the form. Archiving goes through Delete (archive), which also clears rosters, bookings and invoices. */
+export const ATHLETE_STATUSES = ["active", "inactive"] as const;
 export const GENDERS = ["male", "female", "other"] as const;
 export const DOMINANT_HANDS = ["right", "left", "ambidextrous"] as const;
 

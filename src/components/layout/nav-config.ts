@@ -1,4 +1,4 @@
-import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2 } from "lucide-react";
+import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2, ArchiveRestore } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -13,7 +13,7 @@ export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: stri
 export const ASSISTANT_HREF = "/admin/assistant";
 /** Communication entries only admins use (finance shares the admin app). */
 /** Also: club-admin pages with minors' or staff data that finance must not open. */
-export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads", "/admin/media", "/admin/site", "/admin/waitlists", "/admin/js", "/admin/staff-compliance", "/admin/incidents"];
+export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads", "/admin/media", "/admin/site", "/admin/waitlists", "/admin/js", "/admin/staff-compliance", "/admin/incidents", "/admin/deleted"];
 
 export const NAV: Record<NavKey, NavItem[]> = {
   admin: [
@@ -65,6 +65,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Carpooling", labelKey: "carpool", href: "/admin/carpool", icon: Car },
     { label: "Invitations", labelKey: "invitations", href: "/admin/invitations", icon: Mail },
     { label: "Import", labelKey: "import", href: "/admin/import", icon: Upload },
+    { label: "Recently deleted", labelKey: "recentlyDeleted", href: "/admin/deleted", icon: ArchiveRestore },
     { label: "Reports", labelKey: "reports", href: "/admin/reports", icon: BarChart3 },
     { label: "Assistant", labelKey: "assistant", href: "/admin/assistant", icon: Sparkles },
     { label: "Settings", labelKey: "settings", href: "/admin/settings", icon: Settings },

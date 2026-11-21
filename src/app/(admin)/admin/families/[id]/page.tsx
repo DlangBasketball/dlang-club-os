@@ -9,13 +9,18 @@ import { ParentContactSection } from "@/components/athlete/parent-contact-sectio
 import { getFamily } from "@/lib/data/families";
 import { formatPostalAddress } from "@/lib/people/licence";
 import { getI18n } from "@/lib/i18n/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { DeletePersonButton, RemoveGuardianButton } from "@/components/people/delete-person";
 
 export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { t, f } = await getI18n();
+  const [{ t, f }, me] = await Promise.all([getI18n(), getSessionUser()]);
   const { id } = await params;
   const { data, error } = await getFamily(id);
   if (error) return <ErrorState title="Couldn't load family" message={error} />;
   if (!data) notFound();
+  const isAdmin = !!me?.roles.includes("admin");
+  const active = data.status === "active";
+  const canDelete = isAdmin && active;
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -26,9 +31,15 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
           <div className="flex gap-2">
             <Link href={`/admin/athletes/new?family=${id}`}><Button variant="secondary"><Plus className="h-4 w-4" /> Add athlete</Button></Link>
             <Link href={`/admin/families/${id}/edit`}><Button variant="secondary"><Pencil className="h-4 w-4" /> {t("editPeople.edit")}</Button></Link>
+            {canDelete && <DeletePersonButton kind="family" id={id} name={data.name} redirectTo="/admin/families" />}
           </div>
         }
       />
+      {!active && isAdmin && (
+        <p className="rounded-md border border-border bg-surface p-3 text-sm text-text-muted">
+          <Link href="/admin/deleted" className="underline-offset-4 hover:underline">{t("personDelete.deleted.link")}</Link>
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Balance due" value={f.money(data.balance)} accent={data.balance > 0} />
@@ -51,8 +62,8 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
               ) : (
                 <ul>
                   {data.athletes.map((a) => (
-                    <li key={a.id}>
-                      <Link href={`/admin/athletes/${a.id}`} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0 hover:bg-surface-elevated/50">
+                    <li key={a.id} className="flex items-center gap-1 border-b border-line-soft pe-3 last:border-0">
+                      <Link href={`/admin/athletes/${a.id}`} className="flex flex-1 items-center justify-between px-5 py-3 hover:bg-surface-elevated/50">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-elevated text-maroon"><UserCircle className="h-5 w-5" /></div>
                           <div>
@@ -60,8 +71,9 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
                             <div className="text-xs text-ink-3">Born {f.date(a.dob)}</div>
                           </div>
                         </div>
-                        <Badge tone={statusTone(a.status)}>{a.status}</Badge>
+                        <Badge tone={statusTone(a.status)}>{t.dynamic(`editPeople.athleteStatus.${a.status}`, undefined, a.status)}</Badge>
                       </Link>
+                      {canDelete && <DeletePersonButton kind="athlete" id={a.id} name={`${a.firstName} ${a.lastName}`} variant="icon" />}
                     </li>
                   ))}
                 </ul>
@@ -100,6 +112,21 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
 
         <div className="space-y-6">
           <ParentContactSection guardians={data.guardians} familyPhone={data.phone} familyAddress={formatPostalAddress(data)} />
+          {canDelete && data.guardians.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>{t("personDelete.guardian.confirm")}</CardTitle></CardHeader>
+              <CardBody className="p-0">
+                <ul>
+                  {data.guardians.map((g) => (
+                    <li key={g.id} className="flex items-center justify-between gap-2 border-b border-line-soft px-5 py-2 last:border-0">
+                      <span className="text-sm text-ink">{g.name ?? g.email ?? "—"}</span>
+                      <RemoveGuardianButton familyId={id} profileId={g.id} name={g.name ?? g.email ?? ""} />
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
+          )}
 
           {/* Documents */}
           <Card>

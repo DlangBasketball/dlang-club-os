@@ -13,11 +13,11 @@ import { formatPostalAddress } from "@/lib/people/licence";
 import { PlayerCard } from "@/components/athlete/player-card";
 import { ProfileTabs, type ProfileTab } from "@/components/athlete/profile-tabs";
 import { PlayerTeamsCard } from "@/components/teams/player-teams-card";
-import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { DeletePersonButton } from "@/components/people/delete-person";
+import { isHiddenAthleteStatus } from "@/lib/people/person-delete";
 import { getAthleteDetail } from "@/lib/data/athletes";
 import { getFamily } from "@/lib/data/families";
 import { getSessionUser } from "@/lib/auth/get-user";
-import { deleteAthlete } from "@/lib/actions/athlete";
 import { athleteAttendanceHistory } from "@/lib/data/attendance-admin";
 import { getI18n } from "@/lib/i18n/server";
 import { signAthletePhotos } from "@/lib/people/server";
@@ -291,7 +291,11 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
           isAdmin ? (
             <>
               <Link href={`/admin/athletes/${id}/edit`}><Button variant="secondary" size="sm"><Pencil className="h-4 w-4" aria-hidden /> {t("editPeople.edit")}</Button></Link>
-              <ConfirmDeleteButton action={deleteAthlete.bind(null, id)} label={t("common.delete")} confirmText={t("editPeople.athlete.confirmDelete", { name: fullName })} />
+              {isHiddenAthleteStatus(a.status) ? (
+                <Link href="/admin/deleted"><Button variant="ghost" size="sm">{t("personDelete.deleted.link")}</Button></Link>
+              ) : (
+                <DeletePersonButton kind="athlete" id={id} name={fullName} redirectTo="/admin/athletes" />
+              )}
             </>
           ) : undefined
         }
