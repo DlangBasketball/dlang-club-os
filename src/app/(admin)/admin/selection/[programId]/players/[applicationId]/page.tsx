@@ -9,6 +9,7 @@ import { getEnrollmentMoney, getRoster, getSeasonPrograms, getTournaments, seaso
 import { programDivisionLabel } from "@/lib/selection/arrangement";
 import { EnrollmentForm } from "@/components/selection/roster/enrollment-form";
 import { EnrollmentMoney, EnrollNowButton, WithdrawControls } from "@/components/selection/roster/enrollment-money";
+import { InvoiceBillingLine } from "@/components/player-billing/invoice-billing-line";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -83,10 +84,13 @@ export default async function EnrollmentRecordPage({ params }: { params: Promise
           <h2 className="font-display text-lg text-text">{t("roster.record.payments")}</h2>
           {!entry.invoiceId ? <p className="text-sm text-text-muted">{t("roster.record.noAgreement")}</p>
             : money?.error ? <ErrorState compact title={t("roster.loadFailedTitle")} message={t("roster.loadFailed")} /> : (
+            <>
+            <InvoiceBillingLine invoiceId={entry.invoiceId} />
             <EnrollmentMoney applicationId={entry.id} currency={currency} agreedFee={entry.agreedFee} amountDue={entry.amountDue}
               received={entry.received} balance={entry.balance} nextDueOn={entry.nextDueOn} overdueAmount={entry.overdueAmount}
               status={entry.paymentStatus} payments={money?.payments ?? []} installments={money?.installments ?? []} today={today}
               canRecord invoiceHref={`/admin/invoices/${entry.invoiceId}`} />
+            </>
           )}
         </CardBody></Card>
       )}

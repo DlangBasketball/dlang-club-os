@@ -9,6 +9,9 @@ import { CreateMembershipForm, MembershipRowActions, MembershipTypeForm, Renewal
 import { MEMBERSHIP_STATUSES } from "@/lib/club-admin/membership";
 import { ClubAdminSettingsForm } from "@/components/club-admin/settings-form";
 import { DeletePersonButton } from "@/components/people/delete-person";
+import { getMembershipFormOptions, isUuid, listSeasonMemberships, listSeasonTeams } from "@/lib/data/player-billing";
+import { parsePaymentFilter } from "@/lib/billing/player-billing";
+import { SeasonMemberships } from "@/components/player-billing/season-memberships";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -17,8 +20,11 @@ export async function generateMetadata() {
 
 const tone = (s: string) => (s === "active" ? "success" : s === "pending_payment" ? "warning" : s === "expired" ? "danger" : "neutral");
 
-/** Club membership: types, members, renewal campaign. Admin (finance reads). */
-export default async function MembershipsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+/**
+ * Club membership: season memberships (club fee, per season, filters),
+ * typed memberships, types, renewal campaign. Admin (finance reads).
+ */
+export default async function MembershipsPage({ searchParams }: { searchParams: Promise<{ status?: string; season?: string; team?: string; payment?: string; q?: string }> }) {
   const [me, { t, f, ctx }, sp] = await Promise.all([getSessionUser(), getI18n(), searchParams]);
   if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("finance"))) redirect("/admin/dashboard");
   const isAdmin = me.roles.includes("admin");
@@ -29,6 +35,12 @@ export default async function MembershipsPage({ searchParams }: { searchParams: 
     isAdmin ? familyAndAthleteOptions(me.orgId) : Promise.resolve({ families: [], athletes: [] }),
   ]);
   const rows = status ? all.filter((m) => m.effective === status) : all;
+  const formOpts = await getMembershipFormOptions();
+  const seasons = formOpts.data?.seasons ?? [];
+  const seasonId = isUuid(sp.season) && seasons.some((s) => s.id === sp.season) ? sp.season : seasons.find((s) => s.isCurrent)?.id ?? seasons[0]?.id ?? null;
+  const teamId = isUuid(sp.team) ? sp.team : null;
+  const q = (typeof sp.q === "string" ? sp.q : "").trim().slice(0, 80);
+  const [seasonRows, seasonTeams] = await Promise.all([listSeasonMemberships({ seasonId, teamId, q }), listSeasonTeams(seasonId)]);
   const soon = expiring(all, today, settings.membershipRenewalWindowDays);
   const active = all.filter((m) => m.effective === "active");
   const blank: TypeFormValue = {
@@ -40,6 +52,11 @@ export default async function MembershipsPage({ searchParams }: { searchParams: 
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title={t("clubadmin.membership.title")} description={t("clubadmin.membership.description")} />
+
+      {seasons.length > 0 && (
+        <SeasonMemberships rows={seasonRows.data ?? []} error={seasonRows.error} seasons={seasons} teams={seasonTeams}
+          filters={{ seasonId, teamId, payment: parsePaymentFilter(sp.payment), q }} />
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label={t("clubadmin.membership.stats.active")} value={String(active.length)} />
@@ -74,7 +91,7 @@ export default async function MembershipsPage({ searchParams }: { searchParams: 
           <DataTable caption={t("clubadmin.membership.members")} rows={rows as (MembershipView & Record<string, unknown>)[]} getRowKey={(r) => r.id}
             empty={<EmptyState title={t("clubadmin.membership.noMembers")} description={t("clubadmin.membership.noMembersHint")} />}
             columns={[
-              { key: "who", header: t("clubadmin.membership.holder"), render: (r) => <span>{r.athleteName ?? r.familyName}{r.athleteName && <span className="block text-xs text-ink-3">{r.familyName}</span>}</span> },
+              { key: "who", header: t("clubadmin.membership.holder"), render: (r) => <span>{r.athlete_id ? <Link href={`/admin/athletes/${r.athlete_id}?tab=membership`} className="hover:text-maroon">{r.athleteName ?? r.familyName}</Link> : <Link href={`/admin/families/${r.family_id}`} className="hover:text-maroon">{r.familyName}</Link>}{r.athleteName && <span className="block text-xs text-ink-3">{r.familyName}</span>}</span> },
               { key: "type", header: t("clubadmin.membership.type"), render: (r) => r.typeName },
               { key: "valid", header: t("clubadmin.membership.validity"), render: (r) => f.dateRange(r.valid_from, r.valid_until) },
               { key: "amount", header: t("clubadmin.membership.price"), align: "right", render: (r) => <span className="tnum">{f.money(Number(r.price_amount), r.currency)}</span> },

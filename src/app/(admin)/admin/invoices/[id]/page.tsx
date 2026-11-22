@@ -18,6 +18,7 @@ import { clubToday, getInvoicePlan, getInvoicePlanOffer } from "@/lib/plans/data
 import { InstalmentTable } from "@/components/plans/instalment-table";
 import { AdminCreatePlan } from "@/components/plans/plan-widgets";
 import { InvoiceCategoryBadge } from "@/components/billing/category-badge";
+import { RelatedRecordCard } from "@/components/player-billing/related-record";
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [f, t] = await Promise.all([getFormatter(), getTranslations()]);
@@ -209,6 +210,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
         {/* Sidebar */}
         <div className="space-y-6">
+          <RelatedRecordCard invoiceId={data.id} />
           <Card>
             <CardHeader><CardTitle>{t("editMoney.invoice.family")}</CardTitle><Link href={`/admin/families/${data.family.id}`} className="text-xs text-maroon hover:underline">{t("editMoney.common.open")}</Link></CardHeader>
             <CardBody className="space-y-1 text-sm">

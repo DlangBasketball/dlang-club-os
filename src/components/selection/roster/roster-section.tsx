@@ -46,6 +46,7 @@ export async function RosterSection({
         playerHrefBase={playerHrefBase ? playerHrefBase.replace("{id}", programId) : null}
         addHref={addHref ? addHref.replace("{id}", programId) : null}
         canAdd={isAdmin}
+        profileHrefBase={playerHrefBase?.startsWith("/admin/") ? "/admin/athletes/" : null}
       />
       {unenrolled.data.length > 0 && (
         <div className="space-y-2 rounded-md border border-warning/30 bg-warning-soft p-4 text-sm text-text">

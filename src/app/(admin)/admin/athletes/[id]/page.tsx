@@ -26,11 +26,14 @@ import { getI18n } from "@/lib/i18n/server";
 import { signAthletePhotos } from "@/lib/people/server";
 import { ageOn } from "@/lib/people/player-stats";
 import { getAthleteCover } from "@/lib/media/server";
-import { getPlayerBilling, getPlayerStats, getPlayerTeams, getTeamPickerOptions } from "@/lib/data/player-profile";
+import { getPlayerStats, getPlayerTeams, getTeamPickerOptions } from "@/lib/data/player-profile";
 import { MemberCardPanel } from "@/components/member-card/member-card-panel";
 import { shopDb } from "@/lib/shop/db";
 import { MoveToAlumniButton } from "@/components/alumni/tools";
 import { hasFeature } from "@/lib/upgrades/server";
+import { getCurrentSeasonId, getPlayerBillingOverview, getPlayerBookings, getPlayerMemberships } from "@/lib/data/player-billing";
+import { BillingTab, BookingsTab, MembershipTab } from "@/components/player-billing/profile-panels";
+import { parseProfileTab } from "@/lib/billing/player-billing";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -46,9 +49,10 @@ function Detail({ label, value }: { label: string; value: string | null }) {
  * teams, quick stats) and tabbed sections. Finance sees billing, never
  * medical data; editing (teams, cover, photo, medical, consents) is admin-only.
  */
-export default async function AthleteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AthleteDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { t, f } = await getI18n();
   const { id } = await params;
+  const initialTab = parseProfileTab((await searchParams).tab);
   const [{ data, error }, user] = await Promise.all([getAthleteDetail(id), getSessionUser()]);
   if (error) return <ErrorState title={t("media.profile.loadError")} message={error} />;
   if (!data) notFound();
@@ -63,18 +67,21 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
   const optionLabel = (group: "gender" | "hand", v: string | null) =>
     v ? t.dynamic(`editPeople.${group}.${v.trim().toLowerCase()}`, undefined, v) : null;
 
-  const [photos, cover, family, attendanceRes, teams, teamOptions, billing, cardTag, alumniOn] = await Promise.all([
+  const [photos, cover, family, attendanceRes, teams, teamOptions, cardTag, alumniOn, memberships, bookings, billingOverview, currentSeasonId] = await Promise.all([
     signAthletePhotos([{ id: a.id, photoPath: a.photoPath }], a.orgId),
     getAthleteCover(a.id),
     getFamily(a.familyId),
     athleteAttendanceHistory(id),
     getPlayerTeams(a.id),
     isAdmin ? getTeamPickerOptions() : Promise.resolve([]),
-    canViewBilling ? getPlayerBilling(a.familyId, a.id) : Promise.resolve([]),
     isAdmin
       ? shopDb().then(async (db) => (await db.from("member_cards").select("nfc_tag_id").eq("athlete_id", id).maybeSingle()).data?.nfc_tag_id ?? null)
       : Promise.resolve(null),
     isAdmin ? hasFeature(a.orgId, "alumni_network") : Promise.resolve(false),
+    canViewBilling ? getPlayerMemberships(a.id) : Promise.resolve(null),
+    canViewBilling ? getPlayerBookings(a.id) : Promise.resolve(null),
+    canViewBilling ? getPlayerBillingOverview(a.id, a.familyId) : Promise.resolve(null),
+    getCurrentSeasonId(),
   ]);
   const attendanceHistory = attendanceRes.data ?? [];
   const stats = await getPlayerStats(a.id, attendanceHistory, { includeCredits: isAdmin, includeDevelopment: isAdmin });
@@ -138,8 +145,10 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
 
   const teamsTab = (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <PlayerTeamsCard athleteId={a.id} teams={teams} options={teamOptions} editable={isAdmin} />
-      <AthleteProgrammesCard athleteId={a.id} recordHref={(programId, applicationId) => `/admin/selection/${programId}/players/${applicationId}`} />
+      <div className="space-y-2">
+        <PlayerTeamsCard athleteId={a.id} teams={teams} options={teamOptions} editable={isAdmin} />
+        <p className="text-xs text-text-muted">{t("playerBilling.membership.teamsNeverChangeFee")}</p>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><ClipboardList className="h-4 w-4" aria-hidden /> {t("media.profile.programmesTitle")}</CardTitle>
@@ -241,45 +250,30 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
     </Card>
   );
 
-  const billingTab = (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("media.profile.billingTitle")}</CardTitle>
-        <Link href={`/admin/families/${a.familyId}`} className="text-xs text-brand-primary hover:underline">{t("media.profile.openFamily")}</Link>
-      </CardHeader>
-      <CardBody className="p-0">
-        {billing.length === 0 ? (
-          <p className="px-5 py-6 text-center text-sm text-text-muted">{t("media.profile.noInvoices")}</p>
-        ) : (
-          <ul>
-            {billing.map((inv) => (
-              <li key={inv.id} className="flex items-center justify-between gap-3 border-b border-border-soft px-5 py-2.5 last:border-0">
-                <div className="min-w-0">
-                  <Link href={`/admin/invoices/${inv.id}`} className="tnum text-sm text-text hover:text-brand-primary">{inv.number}</Link>
-                  <div className="text-xs text-text-muted">
-                    {f.date(inv.issuedAt)}
-                    {!inv.forThisPlayer && ` · ${t("media.profile.familyInvoice")}`}
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="tnum text-sm text-text">{f.money(inv.total, inv.currency)}</span>
-                  <Badge tone={statusTone(inv.status)}>{t.dynamic(`status.${inv.status}`, undefined, inv.status)}</Badge>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardBody>
-    </Card>
+  const selectionTab = (
+    <AthleteProgrammesCard athleteId={a.id} recordHref={(programId, applicationId) => `/admin/selection/${programId}/players/${applicationId}`} />
   );
 
   const tabs: ProfileTab[] = [
     { id: "overview", label: t("media.profile.tabOverview"), content: overview },
     { id: "teams", label: t("media.profile.tabTeams"), content: teamsTab, count: teams.length + programs.length },
+    ...(canViewBilling ? [{
+      id: "membership", label: t("playerBilling.tabs.membership"),
+      content: <MembershipTab athleteId={a.id} memberships={memberships?.data ?? []} currentSeasonId={currentSeasonId} canAdd={isAdmin} error={memberships?.error} />,
+      count: (memberships?.data ?? []).length,
+    }] : []),
+    { id: "selection", label: t("playerBilling.tabs.selection"), content: selectionTab },
+    ...(canViewBilling ? [{
+      id: "bookings", label: t("playerBilling.tabs.bookings"),
+      content: <BookingsTab bookings={bookings?.data ?? []} error={bookings?.error} />, count: (bookings?.data ?? []).length,
+    }] : []),
     ...(isAdmin ? [{ id: "development", label: t("media.profile.tabDevelopment"), content: developmentTab }] : []),
     { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: attendanceHistory.length },
     { id: "documents", label: t("media.profile.tabDocuments"), content: documentsTab },
-    ...(canViewBilling ? [{ id: "billing", label: t("media.profile.tabBilling"), content: billingTab }] : []),
+    ...(canViewBilling ? [{
+      id: "billing", label: t("media.profile.tabBilling"),
+      content: <BillingTab overview={billingOverview?.data ?? null} error={billingOverview?.error} familyId={a.familyId} athleteId={a.id} />,
+    }] : []),
   ];
 
   return (
@@ -312,7 +306,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
           ) : undefined
         }
       />
-      <ProfileTabs tabs={tabs} label={t("media.profile.sectionsLabel")} />
+      <ProfileTabs tabs={tabs} label={t("media.profile.sectionsLabel")} initial={initialTab} param="tab" />
     </div>
   );
 }

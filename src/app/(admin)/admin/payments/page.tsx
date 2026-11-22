@@ -7,10 +7,41 @@ import { listReallocationTargets, type ReallocationTarget } from "@/lib/data/mon
 import { getFormatter, getTranslations } from "@/lib/i18n/server";
 import { METHOD_INFO, isKnownMethod } from "@/lib/payments/methods";
 import { PaymentBadges, PaymentRowActions } from "@/components/money/money-panels";
+import { Button } from "@/components/ui";
+import { listReceipts } from "@/lib/data/player-billing";
+import { ReceiptsSection } from "@/components/player-billing/receipts-section";
 
-export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
+/** Payments / Receipts switch (?view=receipts); the payments list itself is unchanged. */
+async function ViewTabs({ view }: { view: "payments" | "receipts" }) {
+  const t = await getTranslations();
+  return (
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <nav aria-label={t("playerBilling.receipts.viewsLabel")} className="flex gap-2">
+        {(["payments", "receipts"] as const).map((v) => (
+          <Link key={v} href={v === "payments" ? "/admin/payments" : "/admin/payments?view=receipts"} aria-current={view === v ? "page" : undefined}
+            className={`rounded-full px-3 py-1 text-sm ${view === v ? "bg-maroon-soft text-maroon" : "bg-surface-elevated text-ink-3 hover:text-ink"}`}>
+            {v === "payments" ? t("editMoney.paymentList.title") : t("playerBilling.receipts.title")}
+          </Link>
+        ))}
+      </nav>
+      <Link href="/admin/payments/record"><Button size="sm">{t("playerBilling.record.title")}</Button></Link>
+    </div>
+  );
+}
+
+export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string; view?: string }> }) {
   const [f, t] = await Promise.all([getFormatter(), getTranslations()]);
-  const { status, page: rawPage } = await searchParams;
+  const { status, page: rawPage, view } = await searchParams;
+  if (view === "receipts") {
+    const [open, recent] = await Promise.all([listReceipts({ onlyOpen: true, limit: 200 }), listReceipts({ limit: 50 })]);
+    return (
+      <div className="animate-fade-up">
+        <PageHeader title={t("playerBilling.receipts.title")} description={t("playerBilling.receipts.description")} />
+        <ViewTabs view="receipts" />
+        <ReceiptsSection open={open.data ?? []} recent={recent.data ?? []} error={open.error ?? recent.error} />
+      </div>
+    );
+  }
   const page = pageParam(rawPage);
   const filter: PaymentFilter = (PAYMENT_FILTERS as readonly string[]).includes(status ?? "") ? (status as PaymentFilter) : "all";
   const [list, collected] = await Promise.all([listPayments(filter, page), collectedTotals()]);
@@ -66,6 +97,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
   return (
     <div className="animate-fade-up">
       <PageHeader title={t("editMoney.paymentList.title")} description={t("editMoney.payment.pageHint")} />
+      <ViewTabs view="payments" />
       <Card className="mb-4">
         <CardBody className="flex flex-wrap items-center gap-2 py-3">
           {PAYMENT_FILTERS.map((k) => (

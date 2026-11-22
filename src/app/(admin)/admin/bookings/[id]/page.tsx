@@ -7,6 +7,7 @@ import { BookingActions } from "@/components/booking/booking-actions";
 import { BookingEditor } from "@/components/booking/booking-editor";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
+import { InvoiceBillingLine } from "@/components/player-billing/invoice-billing-line";
 
 export default async function AdminBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [{ t, f }, me] = await Promise.all([getI18n(), getSessionUser()]);
@@ -25,12 +26,26 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
         <Link href={`/admin/coaches/${data.coachId}`} className="flex items-center gap-3 pb-1 text-ink hover:text-maroon"><Avatar name={data.coachName} src={coachPhotos[data.coachId] ?? null} size="lg" /><span className="font-medium">{data.coachName}</span></Link>
         <div className="flex justify-between"><span className="text-ink-3">{t("editOps.bookings.when")}</span><span className="text-ink">{f.date(data.start)} · {f.time(data.start)}{data.end ? `–${f.time(data.end)}` : ""}</span></div>
         <div className="flex justify-between"><span className="text-ink-3">{t("editOps.bookings.payment")}</span><span className="text-ink">{data.creditsUsed > 0 ? t("editOps.bookings.credits", { count: data.creditsUsed }) : data.price !== null ? f.money(data.price) : "—"}</span></div>
-        {data.invoice && <div className="flex justify-between"><span className="text-ink-3">{t("editOps.bookings.invoice")}</span><Link href={`/admin/invoices/${data.invoice.id}`} className="text-maroon hover:underline">{data.invoice.number} ({data.invoice.status})</Link></div>}
+        <div className="flex justify-between"><span className="text-ink-3">{t("playerBilling.bookings.player")}</span><Link href={`/admin/athletes/${data.athleteId}?tab=bookings`} className="text-maroon hover:underline">{data.athleteName}</Link></div>
         {data.status === "cancelled" && (
           <div className="flex justify-between gap-4"><span className="text-ink-3">{t("editOps.bookings.cancelled")}</span>
             <span className="text-right text-ink">{data.cancelledAt ? f.dateTime(data.cancelledAt) : ""}{data.cancelReason ? ` · ${data.cancelReason}` : ""}</span></div>
         )}
       </CardBody></Card>
+      {data.invoice && (
+        <Card>
+          <CardHeader><CardTitle>{t("editOps.bookings.invoice")}</CardTitle></CardHeader>
+          <CardBody className="space-y-3">
+            <InvoiceBillingLine invoiceId={data.invoice.id} showPaymentStatus />
+            {data.status === "cancelled" && (
+              <p className="text-xs text-text-secondary">
+                {t("playerBilling.bookings.cancelledFinance")}{" "}
+                <Link href={`/admin/invoices/${data.invoice.id}`} className="text-brand-primary hover:underline">{t("playerBilling.bookings.openInvoiceActions")}</Link>
+              </p>
+            )}
+          </CardBody>
+        </Card>
+      )}
       {isAdmin && data.status !== "cancelled" && (
         <Card>
           <CardHeader><CardTitle>{t("editOps.bookings.editTitle")}</CardTitle></CardHeader>
