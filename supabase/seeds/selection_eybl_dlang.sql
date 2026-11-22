@@ -9,7 +9,11 @@
 --   Programme  "EYBL 2026-27" (slug eybl), kind selection, public, published,
 --              approval required, non-members may apply
 --   Divisions  U14 (born 2013 or later), U16 (born 2011-2012), each with its
---              own team "EYBL U14" / "EYBL U16" (roster on enrolment)
+--              own team "EYBL U14" / "EYBL U16" (roster on enrolment), in the
+--              club season containing the programme start (else the current
+--              season: public.default_team_season), so the Teams page lists
+--              them under the current season. A rerun puts division teams
+--              still without a season into it.
 --   Packages   1 tournament   1500  instalments 1-5   (300 / month x 5)
 --              2 tournaments  3000  instalments 1-10  (300 / month x 10)
 --              3 tournaments  4500  instalments 1-10  (450 / month x 10)
@@ -29,6 +33,7 @@ declare
   c_org  constant uuid := '00000000-0000-0000-0000-000000000001';
   v_prog uuid;
   v_team uuid;
+  v_season uuid;
   v_coach uuid;
   d      record;
   k      record;
@@ -54,8 +59,8 @@ begin
       select id into v_team from public.teams
        where org_id = c_org and lower(name) = lower('EYBL ' || d.name) and program_id = v_prog limit 1;
       if v_team is null then
-        insert into public.teams (org_id, program_id, name, sport, age_group, level)
-        values (c_org, v_prog, 'EYBL ' || d.name, 'basketball', d.name, 'EYBL')
+        insert into public.teams (org_id, program_id, season_id, name, sport, age_group, level)
+        values (c_org, v_prog, public.default_team_season(c_org, v_prog), 'EYBL ' || d.name, 'basketball', d.name, 'EYBL')
         on conflict do nothing
         returning id into v_team;
       end if;
@@ -63,6 +68,17 @@ begin
       values (c_org, v_prog, d.name, d.y_from, d.y_to, v_team, d.sort);
     end if;
   end loop;
+
+  -- Division teams without a season (created before seasons were set up, or
+  -- by an earlier version of this script): into the programme's season, when
+  -- the name is still free there.
+  v_season := public.default_team_season(c_org, v_prog);
+  if v_season is not null then
+    update public.teams t set season_id = v_season
+     where t.org_id = c_org and t.season_id is null
+       and t.id in (select team_id from public.program_divisions where program_id = v_prog and team_id is not null)
+       and not exists (select 1 from public.teams x where x.org_id = c_org and x.season_id = v_season and lower(x.name) = lower(t.name));
+  end if;
 
   for k in select * from (values
       ('1 tournament', 1500.00, array[1,2,3,4,5], 1),
