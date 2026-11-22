@@ -21,7 +21,7 @@
 -- admin or finance of the club and takes the org from the session
 -- (current_org_id()), never from an argument.
 --
--- Calculation rules of the membership report (docs/finance-reports.md):
+-- Calculation rules of the membership report:
 --   * Members: memberships kind 'season_fee' of the season, status <> cancelled.
 --   * Season-fee charges: invoices with membership_id = the membership and
 --     charge_kind 'season_fee', not draft / cancelled / void. Each invoice with

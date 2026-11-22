@@ -6,7 +6,7 @@
  * 20250420103700_finance_reports.sql); the screen and the Excel workbook both
  * read those rows, so they always agree. This module only maps rows, sums
  * totals per currency (in minor units, no float drift) and parses filters.
- * Calculation rules: docs/finance-reports.md.
+ * Calculation rules: header of migration 20250420103700_finance_reports.sql.
  */
 
 export const MEMBERSHIP_REPORT_STATUSES = ["paid", "partially_paid", "unpaid", "no_installment", "overdue", "sponsored"] as const;
