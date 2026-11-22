@@ -33,13 +33,16 @@ begin
   raise notice '%', case when coalesce(p_cond, false) then 'PASS — ' else 'FAIL — ' end || p_msg;
 end $$;
 
--- Run p_sql as user p (null = anon). Returns 'OK:<first column>' or 'ERR:<message>'.
-create function alu.run_as(p uuid, p_sql text) returns text language plpgsql as $$
+-- Run p_sql as user p (null = service_role, the website's server-side reader;
+-- p_anon = true: anonymous). Returns 'OK:<first column>' or 'ERR:<message>'.
+create function alu.run_as(p uuid, p_sql text, p_anon boolean default false) returns text language plpgsql as $$
 declare v_msg text; v_res text;
 begin
   begin
     perform set_config('request.jwt.claim.sub', coalesce(p::text, ''), true);
-    if p is null then execute 'set local role anon'; else execute 'set local role authenticated'; end if;
+    if p_anon then execute 'set local role anon';
+    elsif p is null then execute 'set local role service_role';
+    else execute 'set local role authenticated'; end if;
     execute p_sql into v_res;
     execute 'reset role';
     perform set_config('request.jwt.claim.sub', '', true);
@@ -120,8 +123,12 @@ begin
   perform alu.ok(v = 'OK:<null>', 'guardian cannot delete a placement (' || v || ')');
   v := alu.run_as(finance_a, $q$delete from public.alumni_contacts returning id$q$);
   perform alu.ok(v = 'OK:<null>', 'finance cannot delete contact log rows (' || v || ')');
-  v := alu.run_as(null, $q$select count(*)::text from public.alumni$q$);
+  v := alu.run_as(null, $q$select count(*)::text from public.alumni$q$, true);
   perform alu.ok(v like 'ERR:%' or v = 'OK:0', 'anonymous visitors cannot read alumni (' || v || ')');
+  v := alu.run_as(null, $q$select count(*)::text from public.alumni_public_showcase('00000000-0000-0000-0000-000000000001')$q$, true);
+  perform alu.ok(v like 'ERR:%permission denied%', 'anonymous callers cannot call the showcase directly (' || v || ')');
+  v := alu.run_as(null, $q$select public.alumni_staff_can()::text$q$, true);
+  perform alu.ok(v like 'ERR:%permission denied%', 'anonymous callers cannot call alumni_staff_can (' || v || ')');
 end $$;
 
 -- coach WITH the flag (set by the admin)

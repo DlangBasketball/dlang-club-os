@@ -21,7 +21,8 @@
 -- 6. Audit: alumni_audit() records ids, operation and the NAMES of changed
 --    columns only (no personal data), so a permanent delete leaves an
 --    anonymised trail.
--- 7. alumni_public_showcase(org)     the club website's "Our placements" block:
+-- 7. alumni_public_showcase(org)     the club website's "Our placements" block
+--                                   (called server-side by the website layer):
 --                                   only alumni with public-showcase consent,
 --                                   adults (or guardian consent recorded), and
 --                                   only when the club switched the
@@ -364,6 +365,9 @@ declare f text;
 begin
   foreach f in array array['public.alumni_is_minor(integer, date, date)', 'public.alumni_staff_can()', 'public.alumni_public_showcase(uuid, integer)'] loop
     execute format('revoke all on function %s from public', f);
+    if exists (select 1 from pg_roles where rolname = 'anon') then
+      execute format('revoke all on function %s from anon', f);
+    end if;
     if exists (select 1 from pg_roles where rolname = 'authenticated') then
       execute format('grant execute on function %s to authenticated', f);
     end if;
@@ -371,10 +375,8 @@ begin
       execute format('grant execute on function %s to service_role', f);
     end if;
   end loop;
-  -- Anonymous website visitors read the showcase (consented rows only).
-  if exists (select 1 from pg_roles where rolname = 'anon') then
-    execute 'grant execute on function public.alumni_public_showcase(uuid, integer) to anon';
-  end if;
+  -- The website reads the showcase server-side (service role); anonymous
+  -- callers get nothing directly.
   foreach f in array array['public.alumni_guard()', 'public.alumni_child_guard()', 'public.alumni_audit()'] loop
     execute format('revoke all on function %s from public', f);
   end loop;
