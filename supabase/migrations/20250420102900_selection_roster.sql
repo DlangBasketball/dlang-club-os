@@ -1217,7 +1217,7 @@ returns table (
   currency text, amount_due numeric, received numeric, balance numeric, next_due_on date, overdue boolean,
   overdue_amount numeric, payment_status text, show_money boolean, invoice_id uuid, jersey_number int,
   staff_notes text, accepted_at timestamptz, enrolled_at timestamptz, withdrawn_at timestamptz,
-  withdrawal_reason text, balance_at_withdrawal numeric, registration_ok boolean)
+  withdrawal_reason text, balance_at_withdrawal numeric, registration_ok boolean, sponsored numeric)
 language plpgsql
 stable
 security definer
@@ -1255,7 +1255,10 @@ begin
            case when v_fin then a.balance_at_withdrawal::numeric end,
            case when a.status <> 'enrolled' then null
                 else exists (select 1 from public.registrations g where g.athlete_id = a.athlete_id and g.program_id = a.program_id
-                              and g.camp_edition_id is null and g.status = 'confirmed') end
+                              and g.camp_edition_id is null and g.status = 'confirmed') end,
+           case when v_fin and a.invoice_id is not null then
+             (select coalesce(sum(e.amount), 0)::numeric from public.athlete_sponsorship_entries e
+               where e.invoice_id = a.invoice_id and e.voided_at is null) end
       from public.program_applications a
       join public.athletes t on t.id = a.athlete_id
       left join public.program_divisions d on d.id = a.division_id
@@ -1355,6 +1358,80 @@ begin
   return public.selection_ensure_registration(a.id);
 end $$;
 
+-- Enrol an accepted player now, without waiting for a payment (admin, with
+-- a reason: e.g. pays later on agreed terms). Reuses selection_enroll_internal.
+create or replace function public.selection_enroll_now(p_application uuid, p_reason text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare a public.program_applications; v_reason text := nullif(btrim(coalesce(p_reason, '')), '');
+begin
+  select * into a from public.program_applications where id = p_application;
+  if not found or a.org_id is distinct from public.current_org_id() or not public.selection_is_admin_of(a.org_id) then
+    raise exception 'APPLICATION_NOT_FOUND' using errcode = 'P0002';
+  end if;
+  if v_reason is null then raise exception 'REASON_REQUIRED' using errcode = 'P0001'; end if;
+  if a.status <> 'accepted' then raise exception 'INVALID_TRANSITION' using errcode = 'P0001'; end if;
+  perform public.selection_enroll_internal(a.id);
+  insert into public.audit_logs (org_id, actor_id, action, target_table, target_id, new_data)
+  values (a.org_id, auth.uid(), 'selection.enrolled_without_payment', 'program_applications', a.id,
+          jsonb_build_object('reason', left(v_reason, 500), 'invoice_id', a.invoice_id));
+  return (select jsonb_build_object('application_id', id, 'status', status, 'family_id', family_id)
+            from public.program_applications where id = a.id);
+end $$;
+
+-- Players on a programme's division team without a live enrolment (added
+-- by hand through the team picker): listed for staff to create the
+-- enrolment. Admin / finance and the programme's assigned coaches.
+create or replace function public.selection_unenrolled_team_members(p_program uuid default null)
+returns table (program_id uuid, program_name text, division_id uuid, division_name text, team_id uuid, team_name text,
+               athlete_id uuid, first_name text, last_name text, birth_year int, jersey_number int, joined_on date)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare v_org uuid := public.current_org_id();
+begin
+  if v_org is null then return; end if;
+  return query
+    select d.program_id, p.name, d.id, d.name, tm.team_id, tt.name, tm.athlete_id, t.first_name, t.last_name,
+           extract(year from t.dob)::int, tm.jersey_number::int, tm.joined_on
+      from public.team_memberships tm
+      join public.program_divisions d on d.team_id = tm.team_id and d.org_id = tm.org_id
+      join public.programs p on p.id = d.program_id
+      join public.teams tt on tt.id = tm.team_id
+      join public.athletes t on t.id = tm.athlete_id
+     where tm.org_id = v_org and tm.status <> 'inactive' and t.status <> 'archived'
+       and (p_program is null or d.program_id = p_program)
+       and (public.is_finance() or public.selection_coach_reviews(d.program_id, d.id))
+       and not exists (select 1 from public.program_applications a
+                        where a.program_id = d.program_id and a.athlete_id = tm.athlete_id
+                          and a.status not in ('declined', 'withdrawn'))
+     order by p.name, d.sort, t.last_name, t.first_name;
+end $$;
+
+-- Report (migration log) team members of selection programmes without an enrolment.
+do $$
+declare r record; n int := 0;
+begin
+  for r in
+    select p.org_id, p.name as program, d.name as division, tm.athlete_id
+      from public.team_memberships tm
+      join public.program_divisions d on d.team_id = tm.team_id
+      join public.programs p on p.id = d.program_id
+     where tm.status <> 'inactive'
+       and not exists (select 1 from public.program_applications a where a.program_id = d.program_id and a.athlete_id = tm.athlete_id
+                          and a.status not in ('declined', 'withdrawn'))
+  loop
+    n := n + 1;
+    raise notice 'selection team member without enrolment: org % programme "%" division % athlete %', r.org_id, r.program, r.division, r.athlete_id;
+  end loop;
+  raise notice 'selection team members without enrolment: % (listed on the roster for review; no invoice is created)', n;
+end $$;
+
 -- Grants -----------------------------------------------------------------------------------------------------
 do $$
 declare f text;
@@ -1386,7 +1463,9 @@ begin
     'public.selection_roster(uuid)',
     'public.selection_athlete_enrollments(uuid)',
     'public.selection_roster_health(uuid)',
-    'public.selection_repair_registration(uuid)'] loop
+    'public.selection_repair_registration(uuid)',
+    'public.selection_enroll_now(uuid, text)',
+    'public.selection_unenrolled_team_members(uuid)'] loop
     execute format('revoke all on function %s from public, anon', f);
     if exists (select 1 from pg_roles where rolname = 'authenticated') then
       execute format('grant execute on function %s to authenticated', f);

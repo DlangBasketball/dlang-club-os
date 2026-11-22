@@ -33,26 +33,32 @@ export async function SelectionRevenueCard() {
 }
 
 function ProgramBlock({ p, t, money }: { p: ProgramStats; t: Awaited<ReturnType<typeof getI18n>>["t"]; money: (n: number) => string }) {
-  const tiles: { label: string; value: string; tone?: string }[] = [
-    { label: t("selection.dashboard.invoiced"), value: money(p.invoiced) },
-    { label: t("selection.dashboard.collected"), value: money(p.collected), tone: "text-success" },
-    { label: t("selection.dashboard.outstanding"), value: money(p.outstanding), tone: p.outstanding > 0 ? "text-warning" : undefined },
-    { label: t("selection.dashboard.sponsored"), value: money(p.sponsored), tone: "text-brand-accent" },
+  // Every figure opens the roster (or the applications) already filtered.
+  const base = `/admin/selection/${p.programId}`;
+  const players = (q: Record<string, string> = {}) => `${base}?${new URLSearchParams({ tab: "players", ...q }).toString()}`;
+  const tiles: { label: string; value: string; tone?: string; href: string }[] = [
+    { label: t("selection.dashboard.invoiced"), value: money(p.invoiced), href: players({ status: "all" }) },
+    { label: t("selection.dashboard.collected"), value: money(p.collected), tone: "text-success", href: players({ status: "all" }) },
+    { label: t("selection.dashboard.outstanding"), value: money(p.outstanding), tone: p.outstanding > 0 ? "text-warning" : undefined, href: players({ status: "all", payment: "open" }) },
+    { label: t("selection.dashboard.sponsored"), value: money(p.sponsored), tone: "text-brand-accent", href: players({ status: "all", payment: "sponsored" }) },
   ];
+  const cell = (n: number, href: string, label: string) => (
+    <Link href={href} className="text-brand-primary hover:underline" aria-label={label}>{n}</Link>
+  );
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <Link href={`/admin/selection/${p.programId}`} className="font-display text-base text-text hover:underline">{p.name}</Link>
+        <Link href={players()} className="font-display text-base text-text hover:underline">{p.name}</Link>
         <span className="text-xs text-text-muted">{t("selection.dashboard.pipeline", { applicants: p.applicants, accepted: p.accepted, enrolled: p.enrolled })}</span>
       </div>
-      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {tiles.map((x) => (
-          <div key={x.label} className="rounded-lg border border-border bg-surface-elevated/40 p-3">
-            <dt className="text-[11px] uppercase tracking-[0.12em] text-text-muted">{x.label}</dt>
-            <dd className={`mt-1 font-display text-lg tnum ${x.tone ?? "text-text"}`}>{x.value}</dd>
-          </div>
+          <Link key={x.label} href={x.href} className="rounded-lg border border-border bg-surface-elevated/40 p-3 transition-colors hover:border-brand-primary">
+            <span className="block text-[11px] uppercase tracking-[0.12em] text-text-muted">{x.label}</span>
+            <span className={`mt-1 block font-display text-lg tnum ${x.tone ?? "text-text"}`}>{x.value}</span>
+          </Link>
         ))}
-      </dl>
+      </div>
       {p.divisions.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -66,17 +72,22 @@ function ProgramBlock({ p, t, money }: { p: ProgramStats; t: Awaited<ReturnType<
               </tr>
             </thead>
             <tbody className="tnum">
-              {p.divisions.map((d) => (
-                <tr key={d.divisionId ?? "none"} className="border-t border-border">
-                  <td className="py-1 pr-3 text-text">{d.name || t("selection.common.noDivision")}</td>
-                  <td className="py-1 pr-3 text-right">{d.applicants}</td>
-                  <td className="py-1 pr-3 text-right">{d.pending}</td>
-                  <td className="py-1 pr-3 text-right">{d.accepted}</td>
-                  <td className="py-1 text-right">{d.enrolled}</td>
-                </tr>
-              ))}
+              {p.divisions.map((d) => {
+                const div = d.divisionId ?? "none";
+                const name = d.name || t("selection.common.noDivision");
+                return (
+                  <tr key={div} className="border-t border-border">
+                    <td className="py-1 pr-3 text-text"><Link href={players({ division: div })} className="hover:underline">{name}</Link></td>
+                    <td className="py-1 pr-3 text-right">{cell(d.applicants, `${base}?tab=applications`, `${name}: ${t("selection.dashboard.applicants")}`)}</td>
+                    <td className="py-1 pr-3 text-right">{cell(d.pending, `${base}?tab=applications`, `${name}: ${t("selection.dashboard.toReview")}`)}</td>
+                    <td className="py-1 pr-3 text-right">{cell(d.accepted, players({ division: div }), `${name}: ${t("selection.dashboard.accepted")}`)}</td>
+                    <td className="py-1 text-right">{cell(d.enrolled, players({ division: div, status: "enrolled" }), `${name}: ${t("selection.dashboard.enrolled")}`)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          <p className="mt-2 text-xs text-text-muted">{t("roster.acceptedVsEnrolled")}</p>
         </div>
       )}
     </div>

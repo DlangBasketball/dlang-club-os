@@ -13,7 +13,7 @@ export type SetupDivision = {
   id: string; name: string; minBirthYear: number | null; maxBirthYear: number | null; ageUnder: number | null; ageCutoff: string | null;
   teamId: string | null; capacity: number | null; sort: number; isActive: boolean;
 };
-export type SetupPackage = { id: string; name: string; description: string | null; price: number; allowedCounts: number[]; showMonthly: boolean; sort: number; isActive: boolean };
+export type SetupPackage = { id: string; name: string; description: string | null; price: number; allowedCounts: number[]; showMonthly: boolean; sort: number; isActive: boolean; tournamentCount?: number | null; monthlyAmount?: number | null };
 export type SetupCoach = { id: string; coachId: string; coachName: string; divisionId: string | null; role: "head" | "assistant" };
 
 type Msg = { tone: "ok" | "err"; text: string } | null;
@@ -65,8 +65,8 @@ export function SelectionSettings({ programId, selectionEnabled, requiresApprova
 }
 
 // ---------------------------------------------------------------------------
-type PkgForm = { name: string; description: string; price: string; counts: string; showMonthly: boolean; sort: string; isActive: boolean };
-const emptyPkg: PkgForm = { name: "", description: "", price: "", counts: "1", showMonthly: true, sort: "0", isActive: true };
+type PkgForm = { name: string; description: string; price: string; counts: string; showMonthly: boolean; sort: string; isActive: boolean; tournamentCount: string; monthlyAmount: string };
+const emptyPkg: PkgForm = { name: "", description: "", price: "", counts: "1", showMonthly: true, sort: "0", isActive: true, tournamentCount: "", monthlyAmount: "" };
 
 export function PackagesEditor({ programId, packages, currency }: { programId: string; packages: SetupPackage[]; currency: string }) {
   const t = useT();
@@ -81,7 +81,8 @@ export function PackagesEditor({ programId, packages, currency }: { programId: s
   function open(p?: SetupPackage) {
     setErrors({});
     setEditing(p?.id ?? "new");
-    setForm(p ? { name: p.name, description: p.description ?? "", price: String(p.price), counts: formatCounts(p.allowedCounts), showMonthly: p.showMonthly, sort: String(p.sort), isActive: p.isActive }
+    setForm(p ? { name: p.name, description: p.description ?? "", price: String(p.price), counts: formatCounts(p.allowedCounts), showMonthly: p.showMonthly, sort: String(p.sort), isActive: p.isActive,
+      tournamentCount: p.tournamentCount == null ? "" : String(p.tournamentCount), monthlyAmount: p.monthlyAmount == null ? "" : String(p.monthlyAmount) }
       : { ...emptyPkg, sort: String(packages.length + 1) });
   }
   async function save() {
@@ -124,6 +125,8 @@ export function PackagesEditor({ programId, packages, currency }: { programId: s
               <div className="sm:col-span-2">
                 <Field label={t("selection.packages.description")} htmlFor="pkg-desc" error={errors.description}><Input id="pkg-desc" value={form.description} onChange={set("description")} /></Field>
               </div>
+              <Field label={t("roster.packages.tournamentCount")} htmlFor="pkg-tc" error={errors.tournamentCount} hint={t("roster.packages.tournamentCountHint")}><Input id="pkg-tc" inputMode="numeric" value={form.tournamentCount} onChange={set("tournamentCount")} /></Field>
+              <Field label={t("roster.packages.monthlyAmount", { currency })} htmlFor="pkg-ma" error={errors.monthlyAmount} hint={t("roster.packages.monthlyAmountHint")}><Input id="pkg-ma" inputMode="decimal" value={form.monthlyAmount} onChange={set("monthlyAmount")} /></Field>
               <Field label={t("selection.common.sort")} htmlFor="pkg-sort"><Input id="pkg-sort" inputMode="numeric" value={form.sort} onChange={set("sort")} /></Field>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.showMonthly} onChange={set("showMonthly")} /> {t("selection.packages.showMonthly")}</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isActive} onChange={set("isActive")} /> {t("selection.common.active")}</label>

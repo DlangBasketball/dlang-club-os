@@ -59,6 +59,12 @@ export async function assignToTeam(input: AssignToTeamInput): Promise<ActionResu
   if (!team) return { ok: false, error: t("media.roster.errors.teamNotFound") };
 
   const db = await sportsDb();
+  // A selection programme's division team: the roster follows the enrolment
+  // (application, registration, fee agreement), so add the player there.
+  const { data: div } = await (db.from("program_divisions" as never) as unknown as {
+    select: (c: string) => { eq: (k: string, v: string) => { eq: (k: string, v: string) => { limit: (n: number) => Promise<{ data: { program_id: string }[] | null }> } } };
+  }).select("program_id").eq("team_id", p.data.teamId).eq("org_id", me.orgId).limit(1);
+  if (div?.length) return { ok: false, error: t("roster.team.useEnrollment") };
   const { data, error } = await db
     .from("team_memberships")
     .insert({

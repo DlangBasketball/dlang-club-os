@@ -14,7 +14,7 @@ export type SelectionProgram = {
   open: boolean;
 };
 export type DivisionView = DivisionRule & { teamId: string | null; capacity: number | null };
-export type PackageView = PackageRule & { description: string | null; sort: number; isActive: boolean };
+export type PackageView = PackageRule & { description: string | null; sort: number; isActive: boolean; tournamentCount: number | null; monthlyAmount: number | null };
 export type CoachAssignment = { id: string; coachId: string; coachName: string; divisionId: string | null; role: "head" | "assistant" };
 export type SelectionSetup = { program: SelectionProgram; divisions: DivisionView[]; packages: PackageView[]; coaches: CoachAssignment[] };
 
@@ -50,6 +50,7 @@ export function toPackage(r: PackageRow): PackageView {
   return {
     id: r.id, name: r.name, description: r.description, price: Number(r.price), allowedCounts: normaliseCounts(r.allowed_counts ?? [1]),
     showMonthly: r.show_monthly, sort: r.sort, isActive: r.is_active,
+    tournamentCount: r.tournament_count ?? null, monthlyAmount: r.monthly_amount == null ? null : Number(r.monthly_amount),
   };
 }
 

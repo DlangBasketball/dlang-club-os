@@ -166,7 +166,7 @@ export function packageForTournamentCount<T extends { tournamentCount: number | 
 // ---------------------------------------------------------------------------
 export const ROSTER_STATUS_FILTERS = ["active", "all", "accepted", "enrolled", "waitlisted", "withdrawn"] as const;
 export type RosterStatusFilter = (typeof ROSTER_STATUS_FILTERS)[number];
-export const ROSTER_PAYMENT_FILTERS = ["all", "unpaid", "partial", "paid", "none"] as const;
+export const ROSTER_PAYMENT_FILTERS = ["all", "open", "unpaid", "partial", "paid", "sponsored", "none"] as const;
 export type RosterPaymentFilter = (typeof ROSTER_PAYMENT_FILTERS)[number];
 
 export type RosterFilters = {
@@ -196,7 +196,7 @@ export function rosterFiltersActive(f: RosterFilters): boolean {
 
 export type RosterFilterable = {
   name: string; divisionId: string | null; status: string; paymentStatus: PaymentStatus | null; overdue: boolean | null;
-  tournaments: { id: string; status: string }[];
+  tournaments: { id: string; status: string }[]; sponsored?: number | null;
 };
 
 const fold = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
@@ -208,7 +208,9 @@ export function filterRoster<T extends RosterFilterable>(rows: readonly T[], f: 
     if (f.status !== "active" && f.status !== "all" && r.status !== f.status) return false;
     if (f.division === "none" ? r.divisionId !== null : f.division && r.divisionId !== f.division) return false;
     if (f.tournament === "none" ? r.tournaments.some((t) => t.status === "covered") : f.tournament && !r.tournaments.some((t) => t.id === f.tournament)) return false;
-    if (f.payment !== "all" && r.paymentStatus !== f.payment) return false;
+    if (f.payment === "open") { if (r.paymentStatus !== "unpaid" && r.paymentStatus !== "partial") return false; }
+    else if (f.payment === "sponsored") { if (!(r.sponsored && r.sponsored > 0)) return false; }
+    else if (f.payment !== "all" && r.paymentStatus !== f.payment) return false;
     if (f.overdue && !r.overdue) return false;
     if (q && !fold(r.name).includes(q)) return false;
     return true;

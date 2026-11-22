@@ -9,6 +9,7 @@ import { PhotoManager } from "@/components/athlete/photo-manager";
 import { PlayerCard } from "@/components/athlete/player-card";
 import { ProfileTabs, type ProfileTab } from "@/components/athlete/profile-tabs";
 import { PlayerTeamsCard } from "@/components/teams/player-teams-card";
+import { AthleteProgrammesCard } from "@/components/selection/roster/athlete-programmes-card";
 import { photoUrlsForAthletes } from "@/lib/people/server";
 import { getAthleteCover } from "@/lib/media/server";
 import { getPlayerStats, getPlayerTeams } from "@/lib/data/player-profile";
@@ -82,6 +83,7 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
   const teamsTab = (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <PlayerTeamsCard athleteId={data.id} teams={teams} options={[]} editable={false} />
+      <AthleteProgrammesCard athleteId={data.id} />
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><ClipboardList className="h-4 w-4" aria-hidden /> {t("media.profile.registrationsTitle")}</CardTitle></CardHeader>
         <CardBody className="p-0">

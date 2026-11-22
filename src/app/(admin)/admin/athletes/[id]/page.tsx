@@ -15,6 +15,7 @@ import { formatPostalAddress } from "@/lib/people/licence";
 import { PlayerCard } from "@/components/athlete/player-card";
 import { ProfileTabs, type ProfileTab } from "@/components/athlete/profile-tabs";
 import { PlayerTeamsCard } from "@/components/teams/player-teams-card";
+import { AthleteProgrammesCard } from "@/components/selection/roster/athlete-programmes-card";
 import { DeletePersonButton } from "@/components/people/delete-person";
 import { isHiddenAthleteStatus } from "@/lib/people/person-delete";
 import { getAthleteDetail } from "@/lib/data/athletes";
@@ -138,6 +139,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
   const teamsTab = (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <PlayerTeamsCard athleteId={a.id} teams={teams} options={teamOptions} editable={isAdmin} />
+      <AthleteProgrammesCard athleteId={a.id} recordHref={(programId, applicationId) => `/admin/selection/${programId}/players/${applicationId}`} />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><ClipboardList className="h-4 w-4" aria-hidden /> {t("media.profile.programmesTitle")}</CardTitle>

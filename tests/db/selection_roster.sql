@@ -577,4 +577,42 @@ begin
   perform sr.ok(v like 'ERR:%APPLICATION_NOT_FOUND%', 'other org cannot save');
 end $$;
 
+-- ===========================================================================
+-- H. Enrol now (without payment), team members without enrolment, sponsored
+-- ===========================================================================
+do $$
+declare v text;
+  admin_a uuid := '00000000-0000-0000-0000-0000000000f1';
+  finance_a uuid := '00000000-0000-0000-0000-0000000000f2';
+  coach1 uuid := '00000000-0000-0000-0000-0000000000f3';
+begin
+  v := sr.run_as(admin_a, format($q$select public.selection_enroll_now(%L, '')::text$q$, sr.get('app3')));
+  perform sr.ok(v like 'ERR:%REASON_REQUIRED%', 'enrol now needs a reason');
+  v := sr.run_as(finance_a, format($q$select public.selection_enroll_now(%L, 'x')::text$q$, sr.get('app3')));
+  perform sr.ok(v like 'ERR:%APPLICATION_NOT_FOUND%', 'finance cannot enrol without payment');
+  v := sr.run_as(admin_a, format($q$select public.selection_enroll_now(%L, 'Pays on agreed terms')->>'status'$q$, sr.get('app3')));
+  perform sr.ok(v = 'OK:enrolled', 'accepted -> enrolled without payment (' || v || ')');
+  perform sr.ok(exists (select 1 from public.registrations where athlete_id = '00000000-0000-0000-0000-000000000071'
+                         and program_id = '00000000-0000-0000-0000-0000000004b1' and status = 'confirmed'), 'enrol now writes the registration');
+  perform sr.ok(exists (select 1 from public.audit_logs where target_id = sr.get('app3')::uuid and action = 'selection.enrolled_without_payment'), 'enrol now audited with the reason');
+
+  -- A player added to a division team by hand (no enrolment).
+  insert into public.athletes (id, org_id, family_id, first_name, last_name, dob)
+  values ('00000000-0000-0000-0000-0000000004c9', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000062', 'Hand', 'Added', '2014-02-02');
+  insert into public.team_memberships (org_id, team_id, athlete_id, jersey_number, status)
+  values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004a2', '00000000-0000-0000-0000-0000000004c9', 44, 'active');
+  v := sr.run_as(admin_a, $q$select string_agg(last_name || ':' || division_name, ',') from public.selection_unenrolled_team_members('00000000-0000-0000-0000-0000000004b1')$q$);
+  perform sr.ok(v = 'OK:Added:U16', 'team member without enrolment listed for review (' || v || ')');
+  v := sr.run_as(coach1, $q$select count(*)::text from public.selection_unenrolled_team_members('00000000-0000-0000-0000-0000000004b1')$q$);
+  perform sr.ok(v = 'OK:1', 'assigned coach sees the list (' || v || ')');
+  v := sr.run_as('b0000000-0000-0000-0000-0000000004f1', $q$select count(*)::text from public.selection_unenrolled_team_members(null)$q$);
+  perform sr.ok(v = 'OK:0', 'other org sees nothing (' || v || ')');
+  perform sr.ok(not exists (select 1 from public.invoices where athlete_id = '00000000-0000-0000-0000-0000000004c9'), 'no invoice is created for them');
+
+  v := sr.run_as(finance_a, $q$select coalesce(max(sponsored), 0)::text from public.selection_roster('00000000-0000-0000-0000-0000000004b1')$q$);
+  perform sr.ok(v = 'OK:0', 'roster carries the sponsored amount for finance (' || v || ')');
+  v := sr.run_as(coach1, $q$select coalesce(max(sponsored)::text, 'null') from public.selection_roster('00000000-0000-0000-0000-0000000004b1')$q$);
+  perform sr.ok(v = 'OK:null', 'no sponsored amount for coaches (' || v || ')');
+end $$;
+
 select 'selection_roster suite done' as done;

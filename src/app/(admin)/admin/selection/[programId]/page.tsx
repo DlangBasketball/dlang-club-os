@@ -10,15 +10,32 @@ import { CoachesEditor, PackagesEditor, SelectionSettings } from "@/components/s
 import { DivisionsEditor } from "@/components/selection/divisions-editor";
 import { getTeamPickerOptions } from "@/lib/data/player-profile";
 import { ReviewBoard } from "@/components/selection/review-board";
+import { RosterSection } from "@/components/selection/roster/roster-section";
+import { CoachPaymentBadgeToggle, TournamentsEditor } from "@/components/selection/roster/tournaments-editor";
+import { getTournaments } from "@/lib/selection/roster";
+import { programDivisionLabel } from "@/lib/selection/arrangement";
+
+const TABS = ["players", "applications", "setup"] as const;
+type Tab = (typeof TABS)[number];
 
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: t("selection.admin.title") };
 }
 
-/** One selection programme: applications to review, then the set-up (admins). */
-export default async function SelectionProgramPage({ params }: { params: Promise<{ programId: string }> }) {
+/**
+ * One selection programme. Tabs (URL ?tab=): Players (default: the roster of
+ * enrolments with fee and payment status), Applications (review), Set-up
+ * (admins: divisions, packages, tournaments, coaches).
+ */
+export default async function SelectionProgramPage({ params, searchParams }: {
+  params: Promise<{ programId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { programId } = await params;
+  const sp = await searchParams;
+  const tabParam = Array.isArray(sp.tab) ? sp.tab[0] : sp.tab;
+  const tab: Tab = (TABS as readonly string[]).includes(tabParam ?? "") ? (tabParam as Tab) : "players";
   const [me, { t, f }] = await Promise.all([getSessionUser(), getI18n()]);
   if (!me?.orgId) redirect("/admin/dashboard");
   if (!/^[0-9a-f-]{36}$/i.test(programId)) notFound();
@@ -26,12 +43,15 @@ export default async function SelectionProgramPage({ params }: { params: Promise
   if (!setup) notFound();
   const isAdmin = me.roles.includes("admin");
   const db = await selectionDb();
-  const [review, stats, teams, { data: coaches }] = await Promise.all([
+  const setupTab = tab === "setup" && isAdmin;
+  const [review, stats, teams, { data: coaches }, tournaments, { data: progRow }] = await Promise.all([
     getReviewList(programId),
     getProgramStats(programId),
     // Every team of the club (archived ones only to name a linked team), grouped in the picker.
-    isAdmin ? getTeamPickerOptions() : Promise.resolve([]),
-    isAdmin ? db.from("coaches").select("id,display_name").eq("org_id", me.orgId).order("display_name") : Promise.resolve({ data: [] as { id: string; display_name: string }[] }),
+    setupTab ? getTeamPickerOptions() : Promise.resolve([]),
+    setupTab ? db.from("coaches").select("id,display_name").eq("org_id", me.orgId).order("display_name") : Promise.resolve({ data: [] as { id: string; display_name: string }[] }),
+    setupTab ? getTournaments(me.orgId, [programId]) : Promise.resolve({ data: [], error: null }),
+    setupTab ? db.from("programs").select("*").eq("id", programId).eq("org_id", me.orgId).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   const p = setup.program;
   const currency = p.currency ?? f.currency;
@@ -67,19 +87,41 @@ export default async function SelectionProgramPage({ params }: { params: Promise
         </CardBody></Card>
       )}
 
-      <section className="space-y-3">
-        <h2 className="font-display text-xl text-text">{t("selection.review.title")}</h2>
-        {review.error ? <ErrorState message={review.error} /> : (
-          <ReviewBoard entries={review.data} divisions={divisions} canOverrideDivision={isAdmin} canSponsor canEnroll={isAdmin} invoiceHref="/admin/invoices/" />
-        )}
-      </section>
+      <nav aria-label={t("roster.tabs.label")} className="flex gap-1 border-b border-border">
+        {TABS.filter((k) => k !== "setup" || isAdmin).map((k) => (
+          <Link key={k} href={`/admin/selection/${p.id}?tab=${k}`} aria-current={tab === k ? "page" : undefined}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm ${tab === k ? "border-brand-primary text-text" : "border-transparent text-text-muted hover:text-text"}`}>
+            {t(`roster.tabs.${k}`)}
+          </Link>
+        ))}
+      </nav>
 
-      {isAdmin && (
+      {tab === "players" && (
+        <section className="space-y-3">
+          <h2 className="font-display text-xl text-text">{t("roster.title")}</h2>
+          <RosterSection orgId={me.orgId} programId={p.id} roles={me.roles}
+            seasonHref="/admin/selection/{id}?tab=players" playerHrefBase="/admin/selection/{id}/players/" addHref="/admin/selection/{id}/players/new" />
+        </section>
+      )}
+
+      {tab === "applications" && (
+        <section className="space-y-3">
+          <h2 className="font-display text-xl text-text">{t("selection.review.title")}</h2>
+          {review.error ? <ErrorState message={review.error} /> : (
+            <ReviewBoard entries={review.data} divisions={divisions} canOverrideDivision={isAdmin} canSponsor canEnroll={isAdmin} invoiceHref="/admin/invoices/" />
+          )}
+        </section>
+      )}
+
+      {setupTab && (
         <section className="space-y-4">
           <h2 className="font-display text-xl text-text">{t("selection.setup.title")}</h2>
           <SelectionSettings programId={p.id} selectionEnabled={p.selectionEnabled} requiresApproval={p.requiresApproval} allowNonMembers={p.allowNonMembers} />
           <DivisionsEditor programId={p.id} programName={p.name} divisions={setup.divisions} teams={teams} liveApplications={liveApplications} />
           <PackagesEditor programId={p.id} packages={setup.packages} currency={currency} />
+          <TournamentsEditor programId={p.id} tournaments={tournaments.data}
+            divisions={setup.divisions.map((d) => ({ id: d.id, label: programDivisionLabel(p.name, d.name) }))} />
+          <CoachPaymentBadgeToggle programId={p.id} value={Boolean((progRow as { roster_coach_payment_status?: boolean } | null)?.roster_coach_payment_status)} />
           <CoachesEditor programId={p.id} assigned={setup.coaches} divisions={divisions}
             coaches={(coaches ?? []).map((c) => ({ id: c.id, name: c.display_name }))} />
         </section>
