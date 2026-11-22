@@ -47,6 +47,9 @@ export type InvoicePdfData = {
   platformName?: string | null;
   /** Footer line on how to pay, built from the club's enabled methods (paymentFooterText). */
   paymentNote?: string | null;
+  /** Revenue category label (translated, or the programme series such as "EYBL") and what the invoice is for. */
+  categoryLabel?: string | null;
+  sourceLabel?: string | null;
   /** Instalment slip: translated line such as "Instalment 2 of 4 · due 1 May 2027 · CHF 250.00". */
   instalmentNote?: string | null;
   /** Reader's language and the club's formats (labels, dates, money). Default: English. */
@@ -133,6 +136,8 @@ export async function buildInvoicePdf(d: InvoicePdfData): Promise<Uint8Array> {
   text(page, place ? `${platform} · ${place}` : platform, M + 42, y - 5, font, 9, MUTE);
   right(upper(t("pdf.invoice.title")), width - M, y + 6, bold, 22, MAROON);
   right(d.number, width - M, y - 10, font, 11, MUTE);
+  const catLine = [d.categoryLabel, d.sourceLabel].map((x) => (x ?? "").trim()).filter(Boolean).join(" · ");
+  if (catLine) right(catLine.slice(0, 90), width - M, y - 23, font, 9, MUTE);
   y -= 54;
   page.drawLine({ start: { x: M, y }, end: { x: width - M, y }, thickness: 1, color: LINE });
   y -= 28;

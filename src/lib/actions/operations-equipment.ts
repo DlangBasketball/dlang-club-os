@@ -258,7 +258,8 @@ export async function invoiceKitDeposit(id: string): Promise<OpsResult<{ invoice
   const label = t("operations.kit.depositLine", { team: team?.name ?? "" });
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_manual_invoice", {
-    p_payload: { family_id: athlete.family_id, athlete_id: athlete.id, description: label, items: [{ description: label, quantity: 1, unit_price_chf: kit.deposit_amount }] } as unknown as Json,
+    // Kit deposits are billed under the shop revenue category (migration 20250420103500).
+    p_payload: { family_id: athlete.family_id, athlete_id: athlete.id, activity: "shop", description: label, items: [{ description: label, quantity: 1, unit_price_chf: kit.deposit_amount }] } as unknown as Json,
   });
   const invoiceId = (data as { invoice_id?: string } | null)?.invoice_id;
   if (error || !invoiceId) {

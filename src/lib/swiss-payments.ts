@@ -58,6 +58,53 @@ export type PaymentSettings = {
   referencePrefix: string;
 };
 
+/**
+ * Issuing entity of an invoice as snapshotted at issue
+ * (invoices.billing_entity_snapshot, migration 20250420103500).
+ */
+export type BillingEntitySnapshot = {
+  name?: string | null;
+  legal_name?: string | null;
+  street?: string | null;
+  building_number?: string | null;
+  postal_code?: string | null;
+  city?: string | null;
+  country?: string | null;
+  iban?: string | null;
+  qr_iban?: string | null;
+  vat_number?: string | null;
+};
+
+const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
+
+/**
+ * Creditor settings for one invoice: the issuing entity's name / address and
+ * bank account when the invoice has one, else the club's settings unchanged
+ * (today's behaviour). Name+address and the account are taken as blocks so a
+ * slip never mixes one entity's address with another's IBAN.
+ */
+export function applyBillingEntity(settings: PaymentSettings, snapshot: unknown): PaymentSettings {
+  if (!snapshot || typeof snapshot !== "object") return settings;
+  const e = snapshot as BillingEntitySnapshot;
+  const out: PaymentSettings = { ...settings };
+  const name = str(e.legal_name) || str(e.name);
+  if (name) {
+    out.creditorName = name;
+    out.creditorStreet = str(e.street);
+    out.creditorBuilding = str(e.building_number);
+    out.creditorZip = str(e.postal_code);
+    out.creditorCity = str(e.city);
+    out.creditorCountry = (str(e.country) || settings.creditorCountry || "CH").toUpperCase();
+  }
+  const iban = str(e.iban);
+  const qrIban = str(e.qr_iban);
+  if (iban || qrIban) {
+    out.iban = iban;
+    out.qrIban = qrIban;
+  }
+  return out;
+}
+
 export type QrBillInput = {
   settings: PaymentSettings;
   amount: number;

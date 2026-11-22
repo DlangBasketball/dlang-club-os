@@ -59,8 +59,9 @@ declare
 begin
   -- Finance drafts an invoice for the parent's family.
   perform me.as_user(c_fin);
+  -- Revenue category required for manual invoices (migration 20250420103500).
   v := public.create_manual_invoice(jsonb_build_object(
-         'family_id', '00000000-0000-0000-0000-000000000061', 'description', 'Draft for review',
+         'family_id', '00000000-0000-0000-0000-000000000061', 'description', 'Draft for review', 'activity', 'camp',
          'items', jsonb_build_array(jsonb_build_object('description', 'Fee', 'quantity', 1, 'unit_price_chf', 100))));
   perform me.as_super();
   v_inv := (v->>'invoice_id')::uuid;

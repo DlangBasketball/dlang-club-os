@@ -17,12 +17,15 @@ const CHUNK = 100; // invoices per payments query (URL length; stays under the r
  * large clubs.
  */
 export async function loadOpenInvoices(db: Db, opts: { familyId?: string; orgId?: string } = {}): Promise<Result<OpenInvoice[]>> {
-  type Row = { id: string; family_id: string | null; status: string; due_date: string | null; currency: string | null; total_chf: number | null; adjustments_total: number | null };
+  type Row = {
+    id: string; family_id: string | null; status: string; due_date: string | null; currency: string | null; total_chf: number | null;
+    adjustments_total: number | null; activity: string | null;
+  };
   const rows: Row[] = [];
   for (let from = 0; from < 100_000; from += PAGE) {
     let q = db
       .from("invoices")
-      .select("id,family_id,status,due_date,currency,total_chf,adjustments_total")
+      .select("id,family_id,status,due_date,currency,total_chf,adjustments_total,activity")
       .in("status", [...OPEN_INVOICE_STATUSES])
       .order("id")
       .range(from, from + PAGE - 1);
@@ -53,7 +56,10 @@ export async function loadOpenInvoices(db: Db, opts: { familyId?: string; orgId?
 
   return {
     data: openInvoices(
-      rows.map((r) => ({ id: r.id, familyId: r.family_id, status: r.status, dueDate: r.due_date, currency: r.currency, total: r.total_chf, adjustmentsTotal: r.adjustments_total })),
+      rows.map((r) => ({
+        id: r.id, familyId: r.family_id, status: r.status, dueDate: r.due_date, currency: r.currency, total: r.total_chf,
+        adjustmentsTotal: r.adjustments_total, activity: r.activity,
+      })),
       pays,
     ),
     error: null,

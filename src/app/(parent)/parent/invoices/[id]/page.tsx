@@ -15,6 +15,7 @@ import { ChoosePlanForm } from "@/components/plans/plan-widgets";
 import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
 import { getInvoiceSponsorships } from "@/lib/data/sponsorships";
 import { isSponsorshipLine } from "@/lib/people/sponsorship";
+import { InvoiceCategoryBadge } from "@/components/billing/category-badge";
 
 export default async function ParentInvoiceDetailPage({
   params, searchParams,
@@ -94,7 +95,12 @@ export default async function ParentInvoiceDetailPage({
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title={<span className="tnum">{data.number}</span>} description={data.description ?? t("invoices.invoice")}
-        actions={<Badge tone={statusTone(data.status)}>{t.dynamic(`status.${data.status}`, undefined, t.dynamic(`editMoney.status.${data.status}`, undefined, data.status.replace("_", " ")))}</Badge>} />
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <InvoiceCategoryBadge invoiceId={data.id} />
+            <Badge tone={statusTone(data.status)}>{t.dynamic(`status.${data.status}`, undefined, t.dynamic(`editMoney.status.${data.status}`, undefined, data.status.replace("_", " ")))}</Badge>
+          </div>
+        } />
 
       {paid === "1" && (
         <div className="flex items-center gap-2 rounded-md border border-success/40 bg-success-soft px-4 py-3 text-sm text-success">

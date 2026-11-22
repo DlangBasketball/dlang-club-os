@@ -948,5 +948,24 @@
       "badge": "Team member, no enrolment",
       "create": "Create enrolment"
     }
+  },
+  "billing": {
+    "activities": {
+      "selection": "Selection programmes"
+    },
+    "seasons": {
+      "description": "Club seasons and the defaults for club membership instalment plans.",
+      "firstInstallmentMonth": "First instalment month",
+      "installmentCount": "Number of instalments"
+    },
+    "errors": {
+      "INVALID_SETTINGS": "Check the values: 1 to 12 instalments, due day 1 to 31.",
+      "INVALID_INSTALLMENT_COUNT": "Choose between 1 and 24 instalments.",
+      "INVALID_FIRST_DUE_MONTH": "Choose the month of the first instalment.",
+      "SCHEDULE_AFTER_SEASON_END": "The last instalment would fall after the season ends. Use fewer instalments or start earlier.",
+      "SCHEDULE_BEFORE_SEASON_START": "The first instalment cannot fall before the season starts.",
+      "MEMBERSHIP_CANCELLED": "This membership is cancelled.",
+      "INSTALLMENT_NOT_FOUND": "This instalment is not open on that invoice."
+    }
   }
 }
