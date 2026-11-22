@@ -70,9 +70,10 @@ function query(table: string) {
   const preds: ((r: Row) => boolean)[] = [];
   let org: unknown;
   let limit = Infinity;
+  let offset = 0;
   const run = () => {
     state.queries.push({ table, org });
-    return (state.db[table] ?? []).filter((r) => preds.every((p) => p(r))).slice(0, limit);
+    return (state.db[table] ?? []).filter((r) => preds.every((p) => p(r))).slice(offset, offset + limit);
   };
   const b = {
     select: () => b,
@@ -89,6 +90,7 @@ function query(table: string) {
     or: () => b,
     order: () => b,
     limit: (n: number) => ((limit = n), b),
+    range: (from: number, to: number) => ((offset = from), (limit = to - from + 1), b),
     maybeSingle: async () => ({ data: run()[0] ?? null, error: null }),
     single: async () => ({ data: run()[0] ?? null, error: null }),
     then: (resolve: (v: { data: Row[]; error: null }) => unknown) => Promise.resolve({ data: run(), error: null }).then(resolve),
