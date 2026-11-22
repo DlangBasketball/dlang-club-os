@@ -5,6 +5,8 @@ import { myFamilyIds } from "./action-helpers";
 import { suggestMatches, type Suggestion } from "./carpool";
 import { logError } from "@/lib/log";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { getAlumniAccess } from "@/lib/alumni/data";
+import { alumniDb } from "@/lib/alumni/db";
 
 type Me = SessionUser & { orgId: string };
 
@@ -220,7 +222,23 @@ export type JourneyDetail = {
   seasons: { id: string; name: string }[];
   canWrite: boolean;
   isGuardian: boolean;
+  /** Alumni & placements: offered to staff with alumni access; links = placement target id -> alumni id. */
+  alumni: { app: "admin" | "coach"; links: Record<string, string> } | null;
 };
+
+/** Which "placed" targets already flow into alumni & placements (staff with alumni access only). */
+async function journeyAlumniLinks(me: Me, placementIds: string[]): Promise<JourneyDetail["alumni"]> {
+  if (me.roles.includes("parent") && !me.roles.includes("admin") && !me.roles.includes("coach")) return null;
+  const access = await getAlumniAccess().catch(() => null);
+  if (!access) return null;
+  const links: Record<string, string> = {};
+  if (placementIds.length) {
+    const db = await alumniDb();
+    const { data } = await db.from("alumni_placements").select("placement_target_id,alumni_id").in("placement_target_id", placementIds).eq("org_id", me.orgId);
+    for (const r of (data ?? []) as { placement_target_id: string | null; alumni_id: string }[]) if (r.placement_target_id) links[r.placement_target_id] = r.alumni_id;
+  }
+  return { app: access.isAdmin ? "admin" : "coach", links };
+}
 
 export async function getJourneyDetail(me: Me, athleteId: string): Promise<JourneyDetail | null> {
   const db = await familyDb();
@@ -249,5 +267,6 @@ export async function getJourneyDetail(me: Me, athleteId: string): Promise<Journ
     seasons: (seasons ?? []).map((s) => ({ id: s.id, name: s.name })),
     canWrite: Boolean(canWrite),
     isGuardian: mine.includes(a.family_id),
+    alumni: canWrite ? await journeyAlumniLinks(me, pIds) : null,
   };
 }

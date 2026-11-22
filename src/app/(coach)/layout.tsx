@@ -8,6 +8,7 @@ import { getBannerAlerts } from "@/lib/messaging/data";
 import { operationsHiddenHrefs } from "@/lib/operations/nav";
 import { upgradeNav } from "@/lib/upgrades/nav";
 import { FeatureGate } from "@/components/upgrades/feature-gate";
+import { alumniHiddenHrefs } from "@/lib/alumni/data";
 
 export default async function CoachGroupLayout({
   children,
@@ -15,9 +16,9 @@ export default async function CoachGroupLayout({
   children: React.ReactNode;
 }) {
   const user = await requireRole(["coach", "admin"]);
-  const [notifs, me, alerts, opsHidden, orgs, upg] = await Promise.all([getNavNotifications(), getMyCoachPhoto(user.id).catch(() => null), getBannerAlerts(user), operationsHiddenHrefs(user), getMyOrgs(), upgradeNav(user, "coach")]);
+  const [notifs, me, alerts, opsHidden, orgs, upg, alumniHidden] = await Promise.all([getNavNotifications(), getMyCoachPhoto(user.id).catch(() => null), getBannerAlerts(user), operationsHiddenHrefs(user), getMyOrgs(), upgradeNav(user, "coach"), alumniHiddenHrefs(user)]);
   return (
-    <AppShell navKey="coach" user={user} orgs={orgs} notifications={{ data: notifs }} profilePhotoUrl={me ? me.photoUrl : undefined} hiddenHrefs={[...opsHidden, ...upg.hidden]}>
+    <AppShell navKey="coach" user={user} orgs={orgs} notifications={{ data: notifs }} profilePhotoUrl={me ? me.photoUrl : undefined} hiddenHrefs={[...opsHidden, ...upg.hidden, ...alumniHidden]}>
       <AlertBanner alerts={alerts} />
       <FeatureGate feature="coach_app" area="coach">{children}</FeatureGate>
     </AppShell>

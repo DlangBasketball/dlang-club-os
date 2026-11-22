@@ -1,4 +1,4 @@
-import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2, ArchiveRestore, Medal } from "lucide-react";
+import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2, ArchiveRestore, Medal, School } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent";
@@ -13,7 +13,7 @@ export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: stri
 export const ASSISTANT_HREF = "/admin/assistant";
 /** Communication entries only admins use (finance shares the admin app). */
 /** Also: club-admin pages with minors' or staff data that finance must not open. */
-export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads", "/admin/media", "/admin/site", "/admin/waitlists", "/admin/js", "/admin/staff-compliance", "/admin/incidents", "/admin/deleted"];
+export const ADMIN_ONLY_COMMS = ["/admin/alerts", "/admin/leads", "/admin/media", "/admin/site", "/admin/waitlists", "/admin/js", "/admin/staff-compliance", "/admin/incidents", "/admin/deleted", "/admin/alumni"];
 
 export const NAV: Record<NavKey, NavItem[]> = {
   admin: [
@@ -64,6 +64,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Training", labelKey: "training", href: "/admin/training", icon: Coins },
     { label: "Development", labelKey: "development", href: "/admin/development", icon: TrendingUp },
     { label: "Player journey", labelKey: "journey", href: "/admin/journey", icon: GraduationCap },
+    { label: "Alumni & placements", labelKey: "alumni", href: "/admin/alumni", icon: School },
     { label: "Carpooling", labelKey: "carpool", href: "/admin/carpool", icon: Car },
     { label: "Invitations", labelKey: "invitations", href: "/admin/invitations", icon: Mail },
     { label: "Import", labelKey: "import", href: "/admin/import", icon: Upload },
@@ -86,6 +87,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Athletes", labelKey: "trainingAthletes", href: "/coach/training", icon: Dumbbell },
     { label: "Development", labelKey: "development", href: "/coach/development", icon: TrendingUp },
     { label: "Player journey", labelKey: "journey", href: "/coach/journey", icon: GraduationCap },
+    { label: "Alumni & placements", labelKey: "alumni", href: "/coach/alumni", icon: School },
     { label: "Carpooling", labelKey: "carpool", href: "/coach/carpool", icon: Car },
     { label: "Roll calls", labelKey: "rollCalls", href: "/coach/roll-calls", icon: ClipboardCheck },
     { label: "Equipment", labelKey: "equipment", href: "/coach/equipment", icon: Boxes },
