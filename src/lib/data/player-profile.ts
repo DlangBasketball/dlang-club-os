@@ -70,12 +70,20 @@ export async function getTeamPickerOptions(): Promise<TeamPickerOption[]> {
   try {
     const db = await sportsDb();
     const [{ data: teams }, { data: seasons }] = await Promise.all([
-      db.from("teams").select("id,name,season_id,is_active").order("name"),
+      db.from("teams").select("id,name,season_id,is_active,program_id").order("name"),
       db.from("seasons").select("id,name,is_current"),
     ]);
     const sMap = new Map((seasons ?? []).map((s) => [s.id, s]));
+    const programIds = Array.from(new Set((teams ?? []).map((t) => t.program_id).filter((x): x is string => !!x)));
+    type ProgramLite = { id: string; name: string; kind: string; selection_enabled: boolean | null };
+    const { data: programs } = programIds.length
+      ? await (db.from("programs") as unknown as { select: (c: string) => { in: (k: string, v: string[]) => Promise<{ data: ProgramLite[] | null }> } })
+        .select("id,name,kind,selection_enabled").in("id", programIds)
+      : { data: [] as ProgramLite[] };
+    const pMap = new Map((programs ?? []).map((p) => [p.id, p]));
     return (teams ?? []).map((t) => {
       const s = t.season_id ? sMap.get(t.season_id) : undefined;
+      const p = t.program_id ? pMap.get(t.program_id) : undefined;
       return {
         id: t.id,
         name: t.name,
@@ -83,6 +91,9 @@ export async function getTeamPickerOptions(): Promise<TeamPickerOption[]> {
         seasonName: s?.name ?? null,
         isCurrentSeason: !!s?.is_current,
         isActive: t.is_active,
+        programId: t.program_id,
+        programName: p?.name ?? null,
+        isSelectionProgram: !!p && (p.kind === "selection" || !!p.selection_enabled),
       };
     });
   } catch (e) {

@@ -10,6 +10,7 @@ import { useT } from "@/lib/i18n/client";
 import { assignToTeam, moveMembership, removeMembership, updateMembership } from "@/lib/actions/roster";
 import { parseJersey, POSITION_MAX, sortTeamsForPicker, type TeamPickerOption } from "@/lib/sportsops/roster-validation";
 import type { PlayerTeam } from "@/lib/data/player-profile";
+import { TeamOptionGroups } from "./team-option-groups";
 
 type Msg = { ok: boolean; text: string } | null;
 
@@ -28,25 +29,9 @@ function TeamDot({ color }: { color: string | null }) {
   );
 }
 
+/** Grouped options: current season, selection programmes (EYBL U14, EYBL U16 …), other seasons, no season. */
 function TeamOptions({ options }: { options: TeamPickerOption[] }) {
-  const t = useT();
-  const current = options.filter((o) => o.isCurrentSeason);
-  const other = options.filter((o) => !o.isCurrentSeason);
-  const label = (o: TeamPickerOption) => (o.seasonName && !o.isCurrentSeason ? `${o.name} · ${o.seasonName}` : o.name);
-  return (
-    <>
-      {current.length > 0 && (
-        <optgroup label={t("media.roster.currentSeason")}>
-          {current.map((o) => <option key={o.id} value={o.id}>{label(o)}</option>)}
-        </optgroup>
-      )}
-      {other.length > 0 && (
-        <optgroup label={current.length ? t("media.roster.otherTeams") : t("media.roster.allTeams")}>
-          {other.map((o) => <option key={o.id} value={o.id}>{label(o)}</option>)}
-        </optgroup>
-      )}
-    </>
-  );
+  return <TeamOptionGroups teams={options} />;
 }
 
 function ChipEditor({ m, moveOptions, onDone }: { m: PlayerTeam; moveOptions: TeamPickerOption[]; onDone: (msg: Msg) => void }) {

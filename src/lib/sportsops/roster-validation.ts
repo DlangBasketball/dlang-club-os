@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { PickerTeam } from "@/lib/teams/programme-teams";
 
 /**
  * Team assignment (roster) validation and pickers: pure helpers shared by
@@ -79,14 +80,8 @@ export function rosterErrorKey(message: string | null | undefined): string {
   return "media.roster.errors.generic";
 }
 
-export type TeamPickerOption = {
-  id: string;
-  name: string;
-  seasonId: string | null;
-  seasonName: string | null;
-  isCurrentSeason: boolean;
-  isActive: boolean;
-};
+/** A team in a picker (season and programme for the groups of groupTeamsForPicker). */
+export type TeamPickerOption = PickerTeam;
 
 /**
  * Teams for the "Add to team…" dropdown: active teams only, the current
