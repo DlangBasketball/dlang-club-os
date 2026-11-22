@@ -6,7 +6,7 @@ import { Pencil, Plus, Trash2, Wrench } from "lucide-react";
 import { Badge, Button, Input, Label, Select } from "@/components/ui";
 import { useFormat, useT } from "@/lib/i18n/client";
 import type { TournamentView } from "@/lib/selection/roster";
-import { deleteTournament, repairRosterRegistration, saveTournament, setCoachPaymentBadge } from "@/lib/actions/selection-roster";
+import { deleteTournament, repairRosterRegistration, saveTournament, setCoachPaymentBadge, setPaymentPeriod } from "@/lib/actions/selection-roster";
 
 const EMPTY = { name: "", divisionId: "", stage: "", city: "", location: "", startsOn: "", endsOn: "", sort: "0", status: "planned" };
 const STATUSES = ["planned", "confirmed", "completed", "cancelled"] as const;
@@ -130,6 +130,36 @@ export function CoachPaymentBadgeToggle({ programId, value }: { programId: strin
         {t("roster.settings.coachBadge")}
       </label>
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+    </div>
+  );
+}
+
+/** Programme payment period: monthly plans start here by default and must end by the end date. */
+export function PaymentPeriodEditor({ programId, startsOn, endsOn }: { programId: string; startsOn: string | null; endsOn: string | null }) {
+  const t = useT();
+  const router = useRouter();
+  const id = React.useId();
+  const [from, setFrom] = React.useState(startsOn ?? "");
+  const [to, setTo] = React.useState(endsOn ?? "");
+  const [busy, setBusy] = React.useState(false);
+  const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
+  return (
+    <div className="space-y-2 rounded-md border border-border p-4">
+      <h3 className="text-sm font-medium text-text">{t("roster.settings.paymentPeriod")}</h3>
+      <p className="text-xs text-text-muted">{t("roster.settings.paymentPeriodHint")}</p>
+      <div className="flex flex-wrap items-end gap-3">
+        <div><Label htmlFor={`${id}-from`}>{t("roster.settings.paymentStarts")}</Label>
+          <Input id={`${id}-from`} type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
+        <div><Label htmlFor={`${id}-to`}>{t("roster.settings.paymentEnds")}</Label>
+          <Input id={`${id}-to`} type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+        <Button type="button" variant="secondary" disabled={busy} onClick={async () => {
+          setBusy(true); setMsg(null);
+          const res = await setPaymentPeriod(programId, from || null, to || null);
+          setBusy(false);
+          if (!res.ok) setMsg({ ok: false, text: res.error }); else { setMsg({ ok: true, text: res.message ?? "" }); router.refresh(); }
+        }}>{t("common.save")}</Button>
+      </div>
+      {msg && <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{msg.text}</p>}
     </div>
   );
 }

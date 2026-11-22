@@ -85,7 +85,8 @@ export function EnrollmentForm({
   const [feeReason, setFeeReason] = React.useState("");
   const [feeConfirmed, setFeeConfirmed] = React.useState(false);
   const [monthly, setMonthly] = React.useState(init?.monthlyAmount != null ? String(init.monthlyAmount) : "");
-  const [firstDueOn, setFirstDueOn] = React.useState(init?.firstDueOn ?? today);
+  // Default first due date: the programme's payment period start (e.g. September).
+  const [firstDueOn, setFirstDueOn] = React.useState(init?.firstDueOn ?? program?.paymentStartsOn ?? today);
 
   // Details
   const [status, setStatus] = React.useState(init?.status && init.status !== "withdrawn" ? init.status : "enrolled");
@@ -124,6 +125,8 @@ export function EnrollmentForm({
   const feeNum = Number(fee);
   const monthlyNum = monthly === "" ? null : Number(monthly);
   const preview = Number.isFinite(feeNum) && feeNum > 0 ? tryArrangementSchedule(feeNum, kind, monthlyNum, firstDueOn, currency) : null;
+  const lastDue = preview?.ok ? preview.rows[preview.rows.length - 1]?.dueOn ?? null : null;
+  const pastPaymentEnd = !!program?.paymentEndsOn && !!lastDue && lastDue > program.paymentEndsOn;
   const feeDiffersFromPackage = !!pkg && Number.isFinite(feeNum) && Math.abs(feeNum - pkg.price) > 0.0001;
   const feeChanged = init?.agreedFee != null && Number.isFinite(feeNum) && Math.abs(feeNum - init.agreedFee) > 0.0001;
   const hasPayments = (init?.received ?? 0) > 0;
@@ -175,6 +178,7 @@ export function EnrollmentForm({
     setSaved(null);
     if (!athlete) { setError(t("roster.form.playerRequired")); return; }
     if (!packageId) { setError(t("roster.errors.PACKAGE_REQUIRED")); return; }
+    if (pastPaymentEnd) { setError(t("roster.errors.SCHEDULE_PAST_PAYMENT_END")); return; }
     if (preview && !preview.ok) { setError(t.dynamic(`roster.errors.${preview.code}`, undefined, t("roster.errors.invalid"))); return; }
     const input: EnrollmentInput = {
       programId, divisionId, packageId, tournamentIds, tournamentOverrideReason: overrideReason, ageConfirmed, kind,
@@ -426,6 +430,12 @@ export function EnrollmentForm({
             </ol>
           </div>
         ) : <p role="alert" className="text-sm text-danger">{t.dynamic(`roster.errors.${preview.code}`, undefined, t("roster.errors.invalid"))}</p>)}
+        {program?.paymentStartsOn && program.paymentEndsOn && (
+          <p className={pastPaymentEnd ? "text-sm text-danger" : "text-xs text-text-muted"} role={pastPaymentEnd ? "alert" : undefined}>
+            {t(pastPaymentEnd ? "roster.form.pastPaymentEnd" : "roster.form.paymentPeriod", {
+              from: f.date(program.paymentStartsOn), to: f.date(program.paymentEndsOn) })}
+          </p>
+        )}
       </fieldset>
 
       {canEditDetails && (

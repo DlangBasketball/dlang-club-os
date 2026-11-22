@@ -110,12 +110,15 @@ export async function getTournaments(orgId: string, programIds: string[]): Promi
 export type SeasonProgram = {
   id: string; name: string; seasonYear: number | null; season: string | null; series: string; currency: string | null;
   startsOn: string | null; isActive: boolean; status: string;
+  /** Payment period: default first due date, and no instalment after the end. */
+  paymentStartsOn: string | null; paymentEndsOn: string | null;
   divisions: (DivisionView & { label: string })[]; packages: (PackageView & { tournamentCount: number | null; monthlyAmount: number | null })[];
 };
 
 type ProgramLite = {
   id: string; name: string; slug: string | null; season: string | null; season_year: number | null; currency: string | null;
   starts_on: string | null; is_active: boolean; status: string; series?: string | null; selection_enabled: boolean; kind: string;
+  payment_starts_on?: string | null; payment_ends_on?: string | null;
 };
 
 /**
@@ -141,6 +144,7 @@ export async function getSeasonPrograms(orgId: string): Promise<{ data: SeasonPr
     data: rows.map((p) => ({
       id: p.id, name: p.name, seasonYear: p.season_year, season: p.season, series: seriesKey(p), currency: p.currency,
       startsOn: p.starts_on, isActive: p.is_active, status: p.status,
+      paymentStartsOn: p.payment_starts_on ?? null, paymentEndsOn: p.payment_ends_on ?? null,
       divisions: (divs ?? []).filter((d) => d.program_id === p.id).map((d) => ({ ...toDivision(d), label: programDivisionLabel(p.name, d.name) })),
       packages: (pkgs ?? []).filter((k) => k.program_id === p.id).map((k) => ({
         ...toPackage(k), tournamentCount: k.tournament_count ?? null, monthlyAmount: k.monthly_amount == null ? null : Number(k.monthly_amount),

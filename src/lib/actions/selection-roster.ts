@@ -35,7 +35,7 @@ const ROSTER_CODES = [
   "INVALID_ARRANGEMENT", "ARRANGEMENT_LOCKED", "MOVE_HAS_PAYMENTS", "SAME_PROGRAM", "PROGRAM_NOT_FOUND", "ENROLLMENT_WITHDRAWN",
   "JERSEY_TAKEN", "NO_TEAM_FOR_JERSEY", "NOT_ON_TEAM", "INVALID_JERSEY", "USE_WITHDRAW", "PERIOD_CLOSED", "REASON_REQUIRED",
   "NOT_ACCEPTED", "PACKAGE_REQUIRED", "DIVISION_REQUIRED", "DIVISION_NOT_FOUND", "INVALID_TRANSITION", "APPLICATION_NOT_FOUND",
-  "ATHLETE_NOT_FOUND", "NOT_AUTHORIZED", "NO_INVOICE",
+  "ATHLETE_NOT_FOUND", "NOT_AUTHORIZED", "NO_INVOICE", "SCHEDULE_PAST_PAYMENT_END",
 ] as const;
 
 function fail(t: Translator, error: { message?: string; code?: string } | string | null | undefined): { ok: false; error: string; code?: string } {
@@ -486,6 +486,22 @@ export async function setCoachPaymentBadge(programId: string, on: boolean): Prom
   if (!uuid.safeParse(programId).success) return invalid(t);
   const db = await createClient();
   const { data, error } = await db.from("programs").update({ roster_coach_payment_status: !!on } as never).eq("id", programId).eq("org_id", me.orgId).select("id");
+  if (error) return fail(t, error);
+  if (!data?.length) return denied(t);
+  revalidateRoster([programId]);
+  return { ok: true, message: t("roster.settings.saved") };
+}
+
+/** Programme payment period (e.g. September - June): default first due date; no instalment after the end. */
+export async function setPaymentPeriod(programId: string, startsOn: string | null, endsOn: string | null): Promise<RosterResult> {
+  const { me, t } = await session(["admin"]);
+  if (!me) return denied(t);
+  const optDate = isoDate.nullable();
+  if (!uuid.safeParse(programId).success || !optDate.safeParse(startsOn).success || !optDate.safeParse(endsOn).success) return invalid(t);
+  if (startsOn && endsOn && endsOn < startsOn) return { ok: false, error: t("roster.settings.paymentPeriodOrder") };
+  const db = await createClient();
+  const { data, error } = await db.from("programs").update({ payment_starts_on: startsOn, payment_ends_on: endsOn } as never)
+    .eq("id", programId).eq("org_id", me.orgId).select("id");
   if (error) return fail(t, error);
   if (!data?.length) return denied(t);
   revalidateRoster([programId]);

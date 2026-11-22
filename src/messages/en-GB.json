@@ -870,7 +870,8 @@
       "details": "Enrolment details",
       "status": "Enrolment status",
       "save": "Save enrolment",
-      "saved": "Enrolment saved."
+      "saved": "Enrolment saved.",
+      "pastPaymentEnd": "The last instalment falls after the payment period ({from} – {to}). Raise the monthly amount or choose an earlier first due date."
     },
     "money": {
       "installments": "Instalments"
@@ -908,6 +909,9 @@
     "packages": {
       "monthlyAmount": "Monthly instalment ({currency})",
       "monthlyAmountHint": "Default amount for monthly instalments; the last one is smaller when needed."
+    },
+    "settings": {
+      "paymentPeriodHint": "Monthly plans start on the first date by default; no instalment may fall after the last date."
     },
     "errors": {
       "APPLICATION_NOT_FOUND": "Enrolment not found, or you are not allowed to change it.",

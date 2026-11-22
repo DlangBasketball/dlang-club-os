@@ -10603,7 +10603,9 @@
       "notes": "Interne Notizen",
       "save": "Anmeldung speichern",
       "saving": "Speichern…",
-      "saved": "Anmeldung gespeichert."
+      "saved": "Anmeldung gespeichert.",
+      "paymentPeriod": "Zahlungszeitraum: {from} – {to}.",
+      "pastPaymentEnd": "Die letzte Rate fällt nach dem Zahlungszeitraum ({from} – {to}). Erhöhen Sie den Monatsbetrag oder wählen Sie eine frühere erste Fälligkeit."
     },
     "money": {
       "agreedFee": "Vereinbarte Gebühr",
@@ -10721,7 +10723,12 @@
     },
     "settings": {
       "coachBadge": "Zugewiesene Trainer sehen den Zahlungsstatus (nie Beträge)",
-      "saved": "Einstellung gespeichert."
+      "saved": "Einstellung gespeichert.",
+      "paymentPeriod": "Zahlungszeitraum",
+      "paymentPeriodHint": "Monatliche Pläne beginnen standardmässig am ersten Datum; keine Rate darf nach dem letzten Datum fällig sein.",
+      "paymentStarts": "Zahlungen ab",
+      "paymentEnds": "Zahlungen bis",
+      "paymentPeriodOrder": "Das Enddatum muss am oder nach dem Startdatum liegen."
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen. Ihre Eingaben bleiben erhalten; bitte erneut versuchen.",
@@ -10767,7 +10774,8 @@
       "tournamentName": "Geben Sie den Turniernamen ein.",
       "tournamentDates": "Das Enddatum darf nicht vor dem Beginn liegen.",
       "tournamentDuplicate": "In diesem Programm gibt es bereits ein Turnier mit diesem Namen.",
-      "tournamentCount": "Geben Sie eine Anzahl zwischen 1 und 50 ein."
+      "tournamentCount": "Geben Sie eine Anzahl zwischen 1 und 50 ein.",
+      "SCHEDULE_PAST_PAYMENT_END": "Der Zahlungsplan läuft über das Ende des Zahlungszeitraums hinaus. Erhöhen Sie den Monatsbetrag oder wählen Sie eine frühere erste Fälligkeit."
     },
     "nextStep": "Weiter: Gebühr, Zahlung oder jetzt anmelden",
     "acceptedVsEnrolled": "Angenommen = vom Trainerteam bestätigt. Angemeldet = erste Zahlung erhalten, Ratenplan gewählt, vollständig gesponsert oder von einem Admin angemeldet.",

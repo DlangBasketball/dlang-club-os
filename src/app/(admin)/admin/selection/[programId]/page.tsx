@@ -11,7 +11,7 @@ import { DivisionsEditor } from "@/components/selection/divisions-editor";
 import { getTeamPickerOptions } from "@/lib/data/player-profile";
 import { ReviewBoard } from "@/components/selection/review-board";
 import { RosterSection } from "@/components/selection/roster/roster-section";
-import { CoachPaymentBadgeToggle, TournamentsEditor } from "@/components/selection/roster/tournaments-editor";
+import { CoachPaymentBadgeToggle, PaymentPeriodEditor, TournamentsEditor } from "@/components/selection/roster/tournaments-editor";
 import { getTournaments } from "@/lib/selection/roster";
 import { programDivisionLabel } from "@/lib/selection/arrangement";
 
@@ -121,6 +121,9 @@ export default async function SelectionProgramPage({ params, searchParams }: {
           <PackagesEditor programId={p.id} packages={setup.packages} currency={currency} />
           <TournamentsEditor programId={p.id} tournaments={tournaments.data}
             divisions={setup.divisions.map((d) => ({ id: d.id, label: programDivisionLabel(p.name, d.name) }))} />
+          <PaymentPeriodEditor programId={p.id}
+            startsOn={(progRow as { payment_starts_on?: string | null } | null)?.payment_starts_on ?? null}
+            endsOn={(progRow as { payment_ends_on?: string | null } | null)?.payment_ends_on ?? null} />
           <CoachPaymentBadgeToggle programId={p.id} value={Boolean((progRow as { roster_coach_payment_status?: boolean } | null)?.roster_coach_payment_status)} />
           <CoachesEditor programId={p.id} assigned={setup.coaches} divisions={divisions}
             coaches={(coaches ?? []).map((c) => ({ id: c.id, name: c.display_name }))} />

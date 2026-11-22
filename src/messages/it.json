@@ -10603,7 +10603,9 @@
       "notes": "Note interne",
       "save": "Salva iscrizione",
       "saving": "Salvataggio…",
-      "saved": "Iscrizione salvata."
+      "saved": "Iscrizione salvata.",
+      "paymentPeriod": "Periodo di pagamento: {from} – {to}.",
+      "pastPaymentEnd": "L’ultima rata cade dopo il periodo di pagamento ({from} – {to}). Aumenta l’importo mensile o scegli una prima scadenza anticipata."
     },
     "money": {
       "agreedFee": "Quota concordata",
@@ -10721,7 +10723,12 @@
     },
     "settings": {
       "coachBadge": "Gli allenatori assegnati vedono lo stato del pagamento (mai gli importi)",
-      "saved": "Impostazione salvata."
+      "saved": "Impostazione salvata.",
+      "paymentPeriod": "Periodo di pagamento",
+      "paymentPeriodHint": "I piani mensili iniziano di default dalla prima data; nessuna rata può scadere dopo l’ultima data.",
+      "paymentStarts": "Inizio pagamenti",
+      "paymentEnds": "Fine pagamenti",
+      "paymentPeriodOrder": "La data di fine deve essere uguale o successiva a quella di inizio."
     },
     "errors": {
       "generic": "Si è verificato un errore. I dati inseriti sono conservati; riprova.",
@@ -10767,7 +10774,8 @@
       "tournamentName": "Inserisci il nome del torneo.",
       "tournamentDates": "La data di fine non può precedere l’inizio.",
       "tournamentDuplicate": "In questo programma esiste già un torneo con questo nome.",
-      "tournamentCount": "Inserisci un numero di tornei tra 1 e 50."
+      "tournamentCount": "Inserisci un numero di tornei tra 1 e 50.",
+      "SCHEDULE_PAST_PAYMENT_END": "Il piano di pagamento supera la fine del periodo di pagamento. Aumenta l’importo mensile o scegli una prima scadenza anticipata."
     },
     "nextStep": "Avanti: quota, pagamento o iscrivi ora",
     "acceptedVsEnrolled": "Accettato = approvato dallo staff tecnico. Iscritto = primo pagamento ricevuto, piano di pagamento scelto, interamente sponsorizzato o iscritto da un amministratore.",

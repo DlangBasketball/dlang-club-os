@@ -192,6 +192,8 @@ export type Database = {
           cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null;
           // selection programmes (20250420102600)
           selection_enabled: boolean; requires_approval: boolean; allow_non_members: boolean;
+          // selection payment period (20250420103400)
+          payment_starts_on: string | null; payment_ends_on: string | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;

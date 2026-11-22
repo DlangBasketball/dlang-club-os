@@ -666,4 +666,32 @@ begin
                 'the earlier reason is kept');
 end $$;
 
+-- ===========================================================================
+-- K. Payment period (September - June): default first due, no instalment after the end.
+-- ===========================================================================
+do $$
+declare v text;
+  admin_a uuid := '00000000-0000-0000-0000-0000000000f1';
+  v_start date := (date_trunc('month', current_date) - interval '2 months')::date;
+begin
+  update public.programs set payment_starts_on = v_start, payment_ends_on = (v_start + interval '10 months' - interval '1 day')::date
+   where id = '00000000-0000-0000-0000-0000000004b1';
+  -- Monthly 300 on 3000 from the period start: 10 instalments, the last on the final month -> fits.
+  v := sr.run_as(admin_a, format($q$select public.selection_save_enrollment(%L, jsonb_build_object(
+        'arrangement', jsonb_build_object('kind', 'monthly', 'monthly', 300, 'fee', 3000, 'first_due_on', %L)))->>'status'$q$,
+        sr.get('app3'), v_start));
+  perform sr.ok(v like 'OK:%', 'plan within the payment period saves (' || left(v, 60) || ')');
+  perform sr.ok((select first_due_on = v_start from public.program_applications where id = sr.get('app3')::uuid), 'first due date = period start');
+  -- Starting a month later the tenth instalment is after the end -> refused.
+  v := sr.run_as(admin_a, format($q$select public.selection_save_enrollment(%L, jsonb_build_object(
+        'arrangement', jsonb_build_object('kind', 'monthly', 'monthly', 300, 'fee', 3000, 'first_due_on', %L)))::text$q$,
+        sr.get('app3'), (v_start + interval '1 month')::date));
+  perform sr.ok(v like 'ERR:%SCHEDULE_PAST_PAYMENT_END%', 'plan past the payment period refused (' || left(v, 60) || ')');
+  begin
+    update public.programs set payment_starts_on = '2027-09-01', payment_ends_on = '2027-06-30' where id = '00000000-0000-0000-0000-0000000004b1';
+    perform sr.ok(false, 'end before start refused');
+  exception when check_violation then perform sr.ok(true, 'end before start refused'); end;
+  update public.programs set payment_starts_on = null, payment_ends_on = null where id = '00000000-0000-0000-0000-0000000004b1';
+end $$;
+
 select 'selection_roster suite done' as done;

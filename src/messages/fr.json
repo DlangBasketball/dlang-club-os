@@ -10603,7 +10603,9 @@
       "notes": "Notes internes",
       "save": "Enregistrer l’inscription",
       "saving": "Enregistrement…",
-      "saved": "Inscription enregistrée."
+      "saved": "Inscription enregistrée.",
+      "paymentPeriod": "Période de paiement : {from} – {to}.",
+      "pastPaymentEnd": "La dernière mensualité tombe après la période de paiement ({from} – {to}). Augmentez le montant mensuel ou choisissez une première échéance plus tôt."
     },
     "money": {
       "agreedFee": "Montant convenu",
@@ -10721,7 +10723,12 @@
     },
     "settings": {
       "coachBadge": "Les entraîneurs assignés voient le badge de statut de paiement (jamais les montants)",
-      "saved": "Paramètre enregistré."
+      "saved": "Paramètre enregistré.",
+      "paymentPeriod": "Période de paiement",
+      "paymentPeriodHint": "Les plans mensuels commencent par défaut à la première date ; aucune mensualité ne peut tomber après la dernière date.",
+      "paymentStarts": "Début des paiements",
+      "paymentEnds": "Fin des paiements",
+      "paymentPeriodOrder": "La date de fin doit être égale ou postérieure à la date de début."
     },
     "errors": {
       "generic": "Une erreur s’est produite. Vos saisies sont conservées ; réessayez.",
@@ -10767,7 +10774,8 @@
       "tournamentName": "Saisissez le nom du tournoi.",
       "tournamentDates": "La date de fin ne peut pas précéder le début.",
       "tournamentDuplicate": "Un tournoi de ce nom existe déjà dans ce programme.",
-      "tournamentCount": "Saisissez un nombre de tournois entre 1 et 50."
+      "tournamentCount": "Saisissez un nombre de tournois entre 1 et 50.",
+      "SCHEDULE_PAST_PAYMENT_END": "L’échéancier dépasse la fin de la période de paiement. Augmentez le montant mensuel ou choisissez une première échéance plus tôt."
     },
     "nextStep": "Suite : montant, paiement ou inscrire",
     "acceptedVsEnrolled": "Accepté = approuvé par le staff. Inscrit = premier paiement reçu, échéancier choisi, entièrement parrainé ou inscrit par un administrateur.",

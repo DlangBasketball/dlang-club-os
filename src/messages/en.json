@@ -10603,7 +10603,9 @@
       "notes": "Staff notes",
       "save": "Save enrollment",
       "saving": "Saving…",
-      "saved": "Enrollment saved."
+      "saved": "Enrollment saved.",
+      "paymentPeriod": "Payment period: {from} – {to}.",
+      "pastPaymentEnd": "The last installment falls after the payment period ({from} – {to}). Raise the monthly amount or choose an earlier first due date."
     },
     "money": {
       "agreedFee": "Agreed fee",
@@ -10721,7 +10723,12 @@
     },
     "settings": {
       "coachBadge": "Assigned coaches see each player’s payment status badge (never amounts)",
-      "saved": "Setting saved."
+      "saved": "Setting saved.",
+      "paymentPeriod": "Payment period",
+      "paymentPeriodHint": "Monthly plans start on the first date by default; no installment may fall after the last date.",
+      "paymentStarts": "Payments start",
+      "paymentEnds": "Payments end",
+      "paymentPeriodOrder": "The end date must be on or after the start date."
     },
     "errors": {
       "generic": "Something went wrong. Your entries are kept; please try again.",
@@ -10767,7 +10774,8 @@
       "tournamentName": "Enter the tournament name.",
       "tournamentDates": "The end date must not be before the start.",
       "tournamentDuplicate": "A tournament with this name already exists in this program.",
-      "tournamentCount": "Enter a number of tournaments between 1 and 50."
+      "tournamentCount": "Enter a number of tournaments between 1 and 50.",
+      "SCHEDULE_PAST_PAYMENT_END": "The payment schedule runs past the end of the payment period. Raise the monthly amount or choose an earlier first due date."
     },
     "nextStep": "Next: fee, payment or enroll now",
     "acceptedVsEnrolled": "Accepted = approved by the coaching staff. Enrolled = first payment received, payment plan chosen, fully sponsored, or enrolled by an admin.",

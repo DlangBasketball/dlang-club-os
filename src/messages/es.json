@@ -10603,7 +10603,9 @@
       "notes": "Notas internas",
       "save": "Guardar inscripción",
       "saving": "Guardando…",
-      "saved": "Inscripción guardada."
+      "saved": "Inscripción guardada.",
+      "paymentPeriod": "Periodo de pago: {from} – {to}.",
+      "pastPaymentEnd": "La última cuota cae después del periodo de pago ({from} – {to}). Aumente el importe mensual o elija un primer vencimiento anterior."
     },
     "money": {
       "agreedFee": "Cuota acordada",
@@ -10721,7 +10723,12 @@
     },
     "settings": {
       "coachBadge": "Los entrenadores asignados ven el estado de pago (nunca los importes)",
-      "saved": "Ajuste guardado."
+      "saved": "Ajuste guardado.",
+      "paymentPeriod": "Periodo de pago",
+      "paymentPeriodHint": "Los planes mensuales empiezan por defecto en la primera fecha; ninguna cuota puede vencer después de la última fecha.",
+      "paymentStarts": "Inicio de los pagos",
+      "paymentEnds": "Fin de los pagos",
+      "paymentPeriodOrder": "La fecha de fin debe ser igual o posterior a la de inicio."
     },
     "errors": {
       "generic": "Algo salió mal. Tus datos se conservan; inténtalo de nuevo.",
@@ -10767,7 +10774,8 @@
       "tournamentName": "Introduce el nombre del torneo.",
       "tournamentDates": "La fecha de fin no puede ser anterior al inicio.",
       "tournamentDuplicate": "Ya existe un torneo con este nombre en este programa.",
-      "tournamentCount": "Introduce un número de torneos entre 1 y 50."
+      "tournamentCount": "Introduce un número de torneos entre 1 y 50.",
+      "SCHEDULE_PAST_PAYMENT_END": "El calendario de pagos supera el final del periodo de pago. Aumente el importe mensual o elija un primer vencimiento anterior."
     },
     "nextStep": "Siguiente: cuota, pago o inscribir ahora",
     "acceptedVsEnrolled": "Aceptado = aprobado por el cuerpo técnico. Inscrito = primer pago recibido, plan de pago elegido, patrocinado por completo o inscrito por un administrador.",
