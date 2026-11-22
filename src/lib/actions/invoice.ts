@@ -19,6 +19,7 @@ import { moneyFail, moneyT, notPermitted, invalidInput, requireMoneyStaff, reval
 import { invoiceMoney } from "@/lib/payments/adjustments";
 import { guardianMayPay } from "@/lib/family/billing";
 import { getTranslations } from "@/lib/i18n/server";
+import { MANUAL_INVOICE_CATEGORIES, billingErrorCode } from "@/lib/billing/activities";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -36,6 +37,11 @@ const itemSchema = z.object({
 });
 const createSchema = z.object({
   family_id: z.string().uuid("Choose a family"),
+  // Revenue category (migration 20250420103500): required, never "other";
+  // club fees are issued through the membership flow.
+  activity: z.enum(MANUAL_INVOICE_CATEGORIES),
+  // Client-generated idempotency key: a retried submit returns the same invoice.
+  request_id: z.string().uuid().optional(),
   description: z.string().optional().default(""),
   due_date: z.string().optional().default(""),
   discount_chf: z.coerce.number().min(0).optional().default(0),
@@ -48,11 +54,22 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<ActionRe
   const me = await requireFinance();
   if (!me) return { ok: false, error: "Not permitted" };
   const parsed = createSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid invoice" };
+  if (!parsed.success) {
+    const t = await getTranslations();
+    if (parsed.error.issues.some((i) => i.path[0] === "activity")) return { ok: false, error: t("billing.errors.CATEGORY_REQUIRED") };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid invoice" };
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_manual_invoice", { p_payload: parsed.data as unknown as Json });
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    const code = billingErrorCode(error.message);
+    if (code) {
+      const t = await getTranslations();
+      return { ok: false, error: t.dynamic(`billing.errors.${code}`, undefined, t("billing.errors.generic")) };
+    }
+    return { ok: false, error: error.message };
+  }
   const invoiceId = (data as { invoice_id?: string } | null)?.invoice_id;
   revalidatePath("/admin/invoices");
   if (invoiceId) redirect(`/admin/invoices/${invoiceId}`);

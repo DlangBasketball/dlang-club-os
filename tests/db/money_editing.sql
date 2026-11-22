@@ -74,8 +74,9 @@ do $$
 declare v jsonb; v_inv uuid; v_ref text; r public.invoices; v_n int; v_err text;
 begin
   perform me.as_user('00000000-0000-0000-0000-0000000000f2');
+  -- Revenue category required for manual invoices (migration 20250420103500).
   v := public.create_manual_invoice(jsonb_build_object(
-         'family_id', '00000000-0000-0000-0000-000000000061', 'description', 'Draft',
+         'family_id', '00000000-0000-0000-0000-000000000061', 'description', 'Draft', 'activity', 'camp',
          'items', jsonb_build_array(jsonb_build_object('description', 'Fee', 'quantity', 1, 'unit_price_chf', 100))));
   perform me.as_super();
   v_inv := (v->>'invoice_id')::uuid;
@@ -291,7 +292,8 @@ begin
 
   -- re-allocate the 40 to another invoice of family …063
   perform me.as_user('00000000-0000-0000-0000-0000000000f2');
-  j := public.create_manual_invoice(jsonb_build_object('family_id', '00000000-0000-0000-0000-000000000063',
+  -- Revenue category required for manual invoices (migration 20250420103500).
+  j := public.create_manual_invoice(jsonb_build_object('family_id', '00000000-0000-0000-0000-000000000063', 'activity', 'camp',
          'items', jsonb_build_array(jsonb_build_object('description', 'Camp', 'quantity', 1, 'unit_price_chf', 40))));
   perform me.as_super();
   v_target := (j->>'invoice_id')::uuid;
@@ -361,7 +363,8 @@ do $$
 declare v_inv uuid; j jsonb; v text;
 begin
   perform me.as_user('00000000-0000-0000-0000-0000000000f2');
-  j := public.create_manual_invoice(jsonb_build_object('family_id', '00000000-0000-0000-0000-000000000062',
+  -- Revenue category required for manual invoices (migration 20250420103500).
+  j := public.create_manual_invoice(jsonb_build_object('family_id', '00000000-0000-0000-0000-000000000062', 'activity', 'shop',
          'items', jsonb_build_array(jsonb_build_object('description', 'Kit', 'quantity', 2, 'unit_price_chf', 35))));
   perform me.as_super();
   v_inv := (j->>'invoice_id')::uuid;

@@ -8,6 +8,11 @@
  * void / refunded invoices are closed. The amount still owed is the invoice
  * balance (total + credit/debit notes - net paid), never the issued total, and
  * money is summed per currency (a club can bill in more than one).
+ *
+ * Every invoice belongs to one billing activity (club_membership, selection,
+ * camp, …; migration 20250420103500): openByActivity / openByFamilyActivity
+ * give the same money split per activity, so club and selection balances are
+ * never shown as one figure.
  */
 import { isOpen } from "@/lib/finance/math";
 import { fromMinorUnits, toMinorUnits } from "./currency";
@@ -25,6 +30,8 @@ export type InvoiceRow = {
   currency: string | null;
   total: number | string | null;
   adjustmentsTotal: number | string | null;
+  /** Billing activity (invoices.activity); rows read before the migration count as "other". */
+  activity?: string | null;
 };
 
 export type OpenInvoice = {
@@ -37,6 +44,8 @@ export type OpenInvoice = {
   paid: number;
   /** What is still owed (never negative). */
   balance: number;
+  /** Billing activity of the invoice. */
+  activity: string;
 };
 
 /** Money per currency, e.g. { CHF: 120.5, EUR: 40 }. */
@@ -61,7 +70,10 @@ export function openInvoices(rows: InvoiceRow[], paymentsByInvoice: Map<string, 
       paid: netPaid(paymentsByInvoice.get(r.id) ?? [], currency),
       currency,
     });
-    out.push({ id: r.id, familyId: r.familyId, status: r.status, dueDate: r.dueDate, currency, amountDue: m.amountDue, paid: m.paid, balance: Math.max(0, m.balance) });
+    out.push({
+      id: r.id, familyId: r.familyId, status: r.status, dueDate: r.dueDate, currency, amountDue: m.amountDue, paid: m.paid,
+      balance: Math.max(0, m.balance), activity: r.activity || "other",
+    });
   }
   return out;
 }
@@ -90,6 +102,31 @@ export function openByFamily(invoices: OpenInvoice[]): Map<string, OpenBucket> {
     b.count += 1;
     addTo(b.totals, inv.currency, inv.balance);
     m.set(inv.familyId, b);
+  }
+  return m;
+}
+
+/** Open invoice count and balance per billing activity (per currency). */
+export function openByActivity(invoices: OpenInvoice[]): Record<string, OpenBucket> {
+  const out: Record<string, OpenBucket> = {};
+  for (const inv of invoices) {
+    const b = (out[inv.activity] ??= { count: 0, totals: {} });
+    b.count += 1;
+    addTo(b.totals, inv.currency, inv.balance);
+  }
+  return out;
+}
+
+/** Per family: open count and balance per billing activity (per currency). */
+export function openByFamilyActivity(invoices: OpenInvoice[]): Map<string, Record<string, OpenBucket>> {
+  const m = new Map<string, Record<string, OpenBucket>>();
+  for (const inv of invoices) {
+    if (!inv.familyId) continue;
+    const fam = m.get(inv.familyId) ?? {};
+    const b = (fam[inv.activity] ??= { count: 0, totals: {} });
+    b.count += 1;
+    addTo(b.totals, inv.currency, inv.balance);
+    m.set(inv.familyId, fam);
   }
   return m;
 }

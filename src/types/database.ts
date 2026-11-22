@@ -163,6 +163,24 @@ export type Database = {
           cancelled_at: string | null;
           cancel_reason: string | null;
           written_off_at: string | null;
+          // Family split billing (migration 20250420101400)
+          payer_profile_id: string | null;
+          split_group_id: string | null;
+          split_share_pct: number | null;
+          split_from_invoice_id: string | null;
+          // Billing foundation (migration 20250420103500)
+          activity: "club_membership" | "selection" | "camp" | "training" | "shop" | "other";
+          activity_source: "migration_rule" | "migration_default" | "set" | "derived" | "default" | "linked";
+          billing_entity_id: string | null;
+          billing_entity_snapshot: Json | null;
+          billing_entity_source: "route" | "default" | "set" | "migration_default" | null;
+          membership_id: string | null;
+          charge_kind: "season_fee" | "carry_forward" | "adjustment" | null;
+          request_id: string | null;
+          payer_kind: "guardian" | "family" | "sponsor" | "other" | null;
+          payer_name: string | null;
+          /** What the invoice is for, as printed (set at issue). */
+          source_label: string | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -456,6 +474,10 @@ export type Database = {
           reverses_payment_id: string | null;
           replaced_by_payment_id: string | null;
           admin_note: string | null;
+          // Billing foundation (migration 20250420103500)
+          receipt_id: string | null;
+          request_id: string | null;
+          installment_id: string | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -594,6 +616,8 @@ export type Database = {
           kind: "overpayment" | "applied" | "manual" | "reversal";
           invoice_id: string | null; payment_id: string | null; reason: string;
           created_by: string | null; created_at: string; updated_at: string;
+          /** Activity pool (migration 20250420103500); null = unassigned credit. */
+          activity: string | null;
         };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
@@ -708,6 +732,11 @@ export type Database = {
           payment_methods: string[];
           settings: Json;
           updated_at: string;
+          // Club season billing defaults (migration 20250420103500)
+          club_season_start_month?: number;
+          club_installment_count?: number;
+          club_installment_due_day?: number;
+          club_first_installment_month?: number | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -779,9 +808,124 @@ export type Database = {
         Update: Record<string, unknown>;
         Relationships: [];
       };
+      // ---- Billing foundation (migration 20250420103500) --------------------
+      billing_entities: {
+        Row: {
+          id: string; org_id: string; name: string; legal_name: string | null; street: string | null; building_number: string | null;
+          address_extra: string | null; postal_code: string | null; city: string | null; country: string; vat_number: string | null;
+          iban: string | null; qr_iban: string | null; email: string | null; phone: string | null; is_default: boolean; is_active: boolean;
+          created_by: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      billing_entity_routes: {
+        Row: { id: string; org_id: string; activity: string; billing_entity_id: string; created_by: string | null; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      membership_payers: {
+        Row: {
+          id: string; org_id: string; membership_id: string; sort: number; payer_kind: "guardian" | "family" | "sponsor" | "other";
+          payer_profile_id: string | null; family_id: string | null; payer_name: string | null; payer_email: string | null;
+          share_kind: "fixed" | "percent"; share_value: number; amount: number; currency: string; invoice_id: string | null;
+          created_by: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      payment_receipts: {
+        Row: {
+          id: string; org_id: string; family_id: string | null; payer_name: string | null; amount: number; currency: string;
+          received_on: string; method: string; reference: string | null; note: string | null; bank_entry_id: string | null;
+          request_id: string; status: "open" | "partially_allocated" | "allocated" | "void"; voided_at: string | null;
+          void_reason: string | null; created_by: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      data_review_flags: {
+        Row: {
+          id: string; org_id: string; entity_table: string; entity_id: string | null; reason_code: string; details: Json;
+          original_reference: string | null; resolved_at: string | null; resolved_by: string | null; resolution_note: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      invoice_number_series: {
+        Row: { id: string; org_id: string; category: string; prefix: string; is_active: boolean; created_by: string | null; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      invoice_number_counters: {
+        Row: { org_id: string; prefix: string; year: number; last_value: number; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      seasons: {
+        Row: { id: string; org_id: string; name: string; starts_on: string; ends_on: string; is_current: boolean; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      memberships: {
+        Row: {
+          id: string; org_id: string; membership_type_id: string | null; family_id: string; athlete_id: string | null;
+          valid_from: string; valid_until: string; status: "pending_payment" | "active" | "expired" | "cancelled";
+          price_amount: number; currency: string; invoice_id: string | null; renewed_from_id: string | null;
+          cancelled_at: string | null; cancel_reason: string | null; created_by: string | null; created_at: string; updated_at: string;
+          // Season fee (migration 20250420103500)
+          season_id: string | null; kind: "season_fee" | null; agreed_fee: number | null; installment_count: number | null;
+          first_due_month: string | null; due_day: number | null; sponsored: boolean; sponsored_notes: string | null;
+          request_id: string | null; source: "issue" | "migration" | null;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
+      // ---- Billing foundation (migration 20250420103500) --------------------
+      club_installment_schedule: {
+        Args: { p_total: number; p_count: number; p_first_due_month: string; p_due_day: number; p_season_end: string | null; p_currency?: string };
+        Returns: { seq: number; due_on: string; amount: number }[];
+      };
+      club_season_months_without_installment: {
+        Args: { p_first_due_month: string; p_count: number; p_season_start: string; p_season_end: string }; Returns: string[];
+      };
+      club_billing_settings: { Args: Record<string, never>; Returns: Json };
+      club_billing_settings_set: { Args: { p_payload: Json }; Returns: Json };
+      club_season_bounds: { Args: { p_on: string; p_start_month?: number | null }; Returns: { starts_on: string; ends_on: string }[] };
+      season_set_current: { Args: { p_season: string }; Returns: Json };
+      billing_entity_save: { Args: { p_payload: Json }; Returns: Json };
+      billing_entity_route_set: { Args: { p_activity: string; p_entity: string | null }; Returns: Json };
+      invoice_set_billing_entity: { Args: { p_invoice: string; p_entity: string }; Returns: Json };
+      invoice_set_activity: { Args: { p_invoice: string; p_activity: string; p_reason: string }; Returns: Json };
+      data_review_flag_resolve: { Args: { p_flag: string; p_note?: string | null }; Returns: Json };
+      family_credit_assign_activity: {
+        Args: { p_family: string; p_currency: string; p_activity: string; p_amount: number; p_reason: string }; Returns: Json;
+      };
+      family_balance_by_activity: {
+        Args: { p_family: string };
+        Returns: {
+          activity: string; currency: string; open_count: number; amount_due: number; paid: number; balance: number;
+          overdue_count: number; overdue_balance: number; credit: number;
+        }[];
+      };
+      receipt_record: { Args: { p_payload: Json }; Returns: Json };
+      receipt_allocate: { Args: { p_receipt: string; p_allocations: Json; p_request_id?: string | null }; Returns: Json };
+      receipt_void: { Args: { p_receipt: string; p_reason: string }; Returns: Json };
+      receipt_unallocated: {
+        Args: Record<string, never>;
+        Returns: {
+          receipt_id: string; family_id: string | null; payer_name: string | null; amount: number; allocated: number; unallocated: number;
+          currency: string; received_on: string; method: string; reference: string | null; bank_entry_id: string | null; created_at: string;
+        }[];
+      };
+      membership_preview: { Args: { p_payload: Json }; Returns: Json };
+      membership_issue: { Args: { p_payload: Json }; Returns: Json };
+      membership_carry_forward: {
+        Args: { p_from: string; p_to: string; p_amount: number; p_reason: string; p_request_id?: string | null }; Returns: Json;
+      };
+      membership_summary: { Args: { p_membership: string }; Returns: Json };
+      invoice_source: { Args: { p_invoice: string }; Returns: Json };
+      invoice_number_series_set: { Args: { p_category: string; p_prefix: string | null; p_is_active?: boolean }; Returns: Json };
+      invoice_totals_by_category: {
+        Args: { p_from: string | null; p_to: string | null; p_entity?: string | null; p_status?: string | null };
+        Returns: { category: string; currency: string; invoice_count: number; invoiced: number; received: number; outstanding: number }[];
+      };
+      billing_category_label: { Args: { p_invoice: string }; Returns: string | null };
       // sponsored players (20250420102400)
       sponsorship_apply_open_invoices: { Args: { p_athlete: string; p_dry_run?: boolean }; Returns: Json };
       sponsorship_apply_service: { Args: { p_invoice: string }; Returns: Json };
@@ -920,7 +1064,8 @@ export type Database = {
       annotate_payment: { Args: { p_payment: string; p_note: string }; Returns: Json };
       transfer_overpayment_to_credit: { Args: { p_invoice: string; p_amount?: number | null; p_reason?: string | null }; Returns: Json };
       apply_family_credit: { Args: { p_invoice: string; p_amount?: number | null; p_reason?: string | null }; Returns: Json };
-      adjust_family_credit: { Args: { p_family: string; p_currency: string; p_amount: number; p_reason: string }; Returns: Json };
+      // p_activity (migration 20250420103500): the 5-argument overload scopes the credit to an activity; without it the credit is unassigned.
+      adjust_family_credit: { Args: { p_family: string; p_currency: string; p_amount: number; p_reason: string; p_activity?: string | null }; Returns: Json };
       adjust_training_credits: {
         Args: { p_athlete: string; p_category: string; p_delta?: number | null; p_new_total?: number | null; p_reason: string };
         Returns: Json;

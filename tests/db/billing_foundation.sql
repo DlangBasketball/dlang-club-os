@@ -17,6 +17,13 @@
 --   G. Receipts: one transfer over several invoices, unallocated remainder,
 --      idempotent replay, limits, reversal, bank entry link, roles.
 --   H. Manual invoice idempotency; invoice_source; review flags; seasons.
+--   I. Revenue categories + invoice numbering: per-category prefix series,
+--      draft -> final number at issue, sequence per prefix/year, two
+--      concurrent issues (dblink) get distinct numbers, retry returns the same
+--      number, number/category locked after issue, inheritance (split,
+--      instalments, credit note), mixed categories refused, category
+--      required on manual invoices, link-time category + number in the
+--      creation transaction, totals by category, other-org isolation.
 --
 -- Fixtures (seed.sql): org A …0001 (admin …f1, finance …f2, coach …f3,
 -- guardian …f4 of family …061 / athlete …071; family …062 = athletes …072,
@@ -145,9 +152,14 @@ begin
   values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000071', '00000000-0000-0000-0000-000000000021',
           '00000000-0000-0000-0000-000000000011', now() + interval '20 days', now() + interval '20 days 1 hour', 'booked', 75, v_inv)
   returning id into v_bk;
-  perform bf.ok((select activity = 'booking' and activity_source = 'linked' from public.invoices where id = v_inv),
-                'linking a training booking classifies its invoice as booking (linked)');
-  perform bf.ok(public.billing_classify_invoice(v_inv) = 'booking', 'migration rule classifier: booking');
+  perform bf.ok((select activity = 'training' and activity_source = 'linked' from public.invoices where id = v_inv),
+                'linking a paid training booking classifies its invoice as training (linked)');
+  perform bf.ok(public.billing_classify_invoice(v_inv) = 'training', 'migration rule classifier: paid booking -> training');
+  perform bf.ok(exists (select 1 from public.data_review_flags where entity_id = v_inv and reason_code = 'CATEGORY_AMBIGUOUS' and resolved_at is not null),
+                'the review flag of the unclassified invoice is resolved by the link');
+  perform bf.ok(exists (select 1 from public.data_review_flags where entity_id = '00000000-0000-0000-0000-000000000093'
+                         and reason_code = 'CATEGORY_AMBIGUOUS' and resolved_at is null and original_reference = 'INV-2026-0182'),
+                'legacy invoice without a reliable category is flagged with its original number');
   perform bf.ok(public.billing_classify_invoice('00000000-0000-0000-0000-000000000091') = 'camp', 'migration rule classifier: camp');
   perform bf.ok(public.billing_classify_invoice('00000000-0000-0000-0000-000000000093') is null, 'migration rule classifier: no rule -> null');
   perform bf.put('booking_invoice', v_inv::text);
@@ -229,7 +241,7 @@ begin
   r := public.billing_migrate_club_fees('00000000-0000-0000-0000-000000000001');
   perform bf.ok((r->>'memberships')::int = 0, 'club-fee migration is idempotent (' || r::text || ')');
   perform bf.ok((select count(*) from public.data_review_flags where org_id = '00000000-0000-0000-0000-000000000001'
-                  and entity_table in ('athletes', 'invoices') and resolved_at is null) = 4,
+                  and reason_code in ('SEVERAL_SEASON_PATTERNS', 'SEVERAL_FAMILIES', 'FEE_PATTERN_MISMATCH', 'NO_ATHLETE') and resolved_at is null) = 4,
                 'no duplicate open flags after a re-run');
   perform bf.ok((select count(*) = 1 from public.memberships where athlete_id = '00000000-0000-0000-0000-000000000071' and kind = 'season_fee'),
                 'still one membership per athlete and season');
@@ -270,7 +282,7 @@ begin
   perform bf.ok(v like 'ERR:%REASON_REQUIRED%', 'reclassification needs a reason');
   v := bf.run_as(admin_a, $q$select public.invoice_set_activity('00000000-0000-0000-0000-000000000093', 'training', 'team fee')->>'activity'$q$);
   perform bf.ok(v = 'OK:training', 'admin reclassifies a migration_default invoice (' || v || ')');
-  v := bf.run_as(admin_a, format($q$select public.invoice_set_activity(%L, 'other', 'x')::text$q$, '00000000-0000-0000-0000-000000000502'));
+  v := bf.run_as(admin_a, format($q$select public.invoice_set_activity(%L, 'camp', 'x')::text$q$, '00000000-0000-0000-0000-000000000502'));
   perform bf.ok(v like 'ERR:%ACTIVITY_LOCKED%', 'a membership invoice cannot leave club_membership');
   v := bf.run_as('b0000000-0000-0000-0000-0000000005f1', $q$select public.invoice_set_activity('00000000-0000-0000-0000-000000000093', 'shop', 'x')::text$q$);
   perform bf.ok(v like 'ERR:%INVOICE_NOT_FOUND%', 'org B admin cannot reclassify an org A invoice');
@@ -785,15 +797,15 @@ declare v text; v2 text;
   finance_a uuid := '00000000-0000-0000-0000-0000000000f2';
   guardian uuid := '00000000-0000-0000-0000-0000000000f4';
 begin
-  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"request_id":"00000000-0000-0000-0000-0000000005f9","family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"Kit","quantity":1,"unit_price_chf":40}]}')->>'invoice_id'$q$);
-  v2 := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"request_id":"00000000-0000-0000-0000-0000000005f9","family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"Kit","quantity":1,"unit_price_chf":40}]}')->>'invoice_id'$q$);
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"request_id":"00000000-0000-0000-0000-0000000005f9","activity":"shop","family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"Kit","quantity":1,"unit_price_chf":40}]}')->>'invoice_id'$q$);
+  v2 := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"request_id":"00000000-0000-0000-0000-0000000005f9","activity":"shop","family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"Kit","quantity":1,"unit_price_chf":40}]}')->>'invoice_id'$q$);
   perform bf.ok(v like 'OK:%' and v = v2, 'manual invoice retry returns the same invoice');
   perform bf.ok((select count(*) = 1 from public.invoices where request_id = '00000000-0000-0000-0000-0000000005f9'), 'no duplicate manual invoice');
   v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"family_id":"00000000-0000-0000-0000-000000000061","activity":"club_membership","items":[]}')::text$q$);
   perform bf.ok(v like 'ERR:%USE_MEMBERSHIP_ISSUE%', 'club fees go through membership_issue');
   v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"family_id":"00000000-0000-0000-0000-000000000061","activity":"nonsense","items":[]}')::text$q$);
   perform bf.ok(v like 'ERR:%INVALID_ACTIVITY%', 'unknown activity refused');
-  v := bf.run_as('b0000000-0000-0000-0000-0000000005f2', $q$select public.create_manual_invoice('{"request_id":"00000000-0000-0000-0000-0000000005f9","family_id":"b0000000-0000-0000-0000-0000000005f3","items":[]}')->>'replayed'$q$);
+  v := bf.run_as('b0000000-0000-0000-0000-0000000005f2', $q$select public.create_manual_invoice('{"request_id":"00000000-0000-0000-0000-0000000005f9","activity":"shop","family_id":"b0000000-0000-0000-0000-0000000005f3","items":[]}')->>'replayed'$q$);
   perform bf.ok(v = 'OK:false', 'request ids are per org (org B gets its own invoice)');
 
   -- invoice_source
@@ -833,4 +845,189 @@ begin
   -- Season date fix moves the season-fee validity.
   update public.seasons set ends_on = '2027-06-30' where id = '00000000-0000-0000-0000-0000000005a1';
   perform bf.ok((select valid_until = '2027-06-30' from public.memberships where id = bf.uid('m071')), 'season date fix updates the membership validity');
+end $$;
+
+-- ===========================================================================
+-- I. Revenue categories + invoice numbering
+-- ===========================================================================
+do $$
+declare v text;
+  admin_a uuid := '00000000-0000-0000-0000-0000000000f1';
+  finance_a uuid := '00000000-0000-0000-0000-0000000000f2';
+  admin_b uuid := 'b0000000-0000-0000-0000-0000000005f1';
+begin
+  v := bf.run_as(finance_a, $q$select public.invoice_number_series_set('camp', 'BF CAMP')::text$q$);
+  perform bf.ok(v like 'ERR:%NOT_AUTHORIZED%', 'finance cannot set number prefixes');
+  v := bf.run_as(admin_a, $q$select public.invoice_number_series_set('other', 'BF X')::text$q$);
+  perform bf.ok(v like 'ERR:%OTHER_NOT_ALLOWED%', 'no series for the legacy category other');
+  v := bf.run_as(admin_a, $q$select public.invoice_number_series_set('camp', ' bad-prefix- ')::text$q$);
+  perform bf.ok(v like 'ERR:%INVALID_PREFIX%', 'malformed prefix refused (' || left(v, 50) || ')');
+  v := bf.run_as(admin_a, $q$select concat_ws(',', public.invoice_number_series_set('club_membership', 'BF CLUB')->>'prefix',
+                             public.invoice_number_series_set('selection', 'BF EYBL')->>'prefix',
+                             public.invoice_number_series_set('training', 'BF PT')->>'prefix',
+                             public.invoice_number_series_set('shop', 'BF Shop')->>'prefix',
+                             public.invoice_number_series_set('camp', 'BF CAMP')->>'prefix')$q$);
+  perform bf.ok(v = 'OK:BF CLUB,BF EYBL,BF PT,BF Shop,BF CAMP', 'admin configures one prefix per category (spaces allowed)');
+  v := bf.run_as(admin_a, $q$select public.invoice_number_series_set('shop', 'BF CAMP')::text$q$);
+  perform bf.ok(v like 'ERR:%PREFIX_IN_USE%', 'a prefix belongs to one category');
+  v := bf.run_as(admin_b, $q$select count(*)::text from public.invoice_number_series$q$);
+  perform bf.ok(v = 'OK:0', 'org B sees no org A series');
+  v := bf.run_as(admin_b, $q$insert into public.invoice_number_series (org_id, category, prefix) values ('00000000-0000-0000-0000-000000000001', 'shop', 'HIJACK') returning id$q$);
+  perform bf.ok(v like 'ERR:%', 'org B cannot add a series to org A');
+  v := bf.run_as(admin_a, $q$insert into public.invoice_number_counters (org_id, prefix, year, last_value) values ('00000000-0000-0000-0000-000000000001', 'BF CAMP', 2026, 99) returning prefix$q$);
+  perform bf.ok(v like 'ERR:%', 'counters are not writable by clients');
+  perform bf.put('year', extract(year from (now() at time zone 'Europe/Zurich'))::int::text);
+end $$;
+
+-- Manual invoice: category required; draft gets a provisional number; issue assigns the series number.
+do $$
+declare v text; v1 uuid; v2 uuid; v_num text;
+  finance_a uuid := '00000000-0000-0000-0000-0000000000f2';
+begin
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"x","quantity":1,"unit_price_chf":10}]}')::text$q$);
+  perform bf.ok(v like 'ERR:%CATEGORY_REQUIRED%', 'a manual invoice without a category is refused');
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"activity":"other","family_id":"00000000-0000-0000-0000-000000000061","items":[]}')::text$q$);
+  perform bf.ok(v like 'ERR:%OTHER_NOT_ALLOWED%', 'other is not selectable for a new invoice');
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"activity":"camp","program_id":"00000000-0000-0000-0000-0000000005b1","family_id":"00000000-0000-0000-0000-000000000061","items":[]}')::text$q$);
+  perform bf.ok(v like 'ERR:%ACTIVITY_MISMATCH%', 'mixed categories refused: camp category on a selection programme');
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"activity":"camp","request_id":"00000000-0000-0000-0000-0000000006a1","family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"Camp day","quantity":1,"unit_price_chf":120}]}')->>'invoice_id'$q$);
+  v1 := substr(v, 4)::uuid;
+  perform bf.ok((select number like 'DRAFT-%' and status::text = 'draft' from public.invoices where id = v1), 'a draft has no final number');
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"activity":"camp","family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"Camp day 2","quantity":1,"unit_price_chf":80}]}')->>'invoice_id'$q$);
+  v2 := substr(v, 4)::uuid;
+  v := bf.run_as(finance_a, format($q$update public.invoices set status = 'sent' where id = %L returning number$q$, v1));
+  perform bf.ok(v = 'OK:BF CAMP-' || bf.get('year') || '-0001', 'issue assigns <prefix>-<YYYY>-0001 (' || v || ')');
+  v := bf.run_as(finance_a, format($q$update public.invoices set status = 'sent' where id = %L returning number$q$, v2));
+  perform bf.ok(v = 'OK:BF CAMP-' || bf.get('year') || '-0002', 'next issue in the same category: 0002 (' || v || ')');
+  perform bf.ok((select payment_reference = public.billing_reference_for(org_id, number) from public.invoices where id = v1),
+                'payment reference follows the final number');
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"activity":"camp","request_id":"00000000-0000-0000-0000-0000000006a1","family_id":"00000000-0000-0000-0000-000000000061","items":[]}')->>'number'$q$);
+  perform bf.ok(v = 'OK:BF CAMP-' || bf.get('year') || '-0001', 'retry with the same request id returns the same invoice and number (' || v || ')');
+  v := bf.run_as('00000000-0000-0000-0000-0000000000f1', format($q$update public.invoices set number = 'BF CAMP-2000-0001' where id = %L returning number$q$, v1));
+  perform bf.ok(v like 'ERR:%NUMBER_LOCKED%', 'the number is locked after issue (' || left(v, 50) || ')');
+  v := bf.run_as('00000000-0000-0000-0000-0000000000f1', format($q$update public.invoices set activity = 'shop' where id = %L returning activity$q$, v1));
+  perform bf.ok(v like 'ERR:%ACTIVITY_LOCKED%', 'the category is locked after issue');
+  perform bf.put('camp1', v1::text);
+  perform bf.put('camp2', v2::text);
+
+  -- A shop invoice has its own sequence.
+  v := bf.run_as(finance_a, $q$select public.create_manual_invoice('{"activity":"shop","family_id":"00000000-0000-0000-0000-000000000061","items":[{"description":"Kit","quantity":1,"unit_price_chf":30}]}')->>'invoice_id'$q$);
+  v := bf.run_as(finance_a, format($q$update public.invoices set status = 'sent' where id = %L returning number$q$, substr(v, 4)));
+  perform bf.ok(v = 'OK:BF Shop-' || bf.get('year') || '-0001', 'each prefix has its own counter (' || v || ')');
+  -- Selection invoice issued directly (programme link) -> EYBL series + source label.
+  insert into public.invoices (org_id, number, family_id, athlete_id, program_id, description, total_chf, status, due_date)
+  values ('00000000-0000-0000-0000-000000000001', public.next_invoice_number('00000000-0000-0000-0000-000000000001'),
+          '00000000-0000-0000-0000-000000000061', '00000000-0000-0000-0000-000000000071', '00000000-0000-0000-0000-0000000005b1',
+          'EYBL fee', 500, 'sent', current_date + 30)
+  returning number into v_num;
+  perform bf.ok(v_num = 'BF EYBL-' || bf.get('year') || '-0001', 'selection invoice: EYBL series (' || v_num || ')');
+  perform bf.ok((select source_label = 'Synthetic EYBL' and public.billing_category_label(id) = 'Synthetic EYBL' from public.invoices where number = v_num),
+                'selection source label and category label from the programme');
+  -- Org without a series for a category keeps today's numbers.
+  perform bf.ok((select number = 'BF-CL-1' from public.invoices where id = bf.uid('booking_invoice')),
+                'invoices issued before a series existed keep their number');
+end $$;
+
+-- Membership invoices use the club series and the season as source label.
+do $$
+declare v text;
+begin
+  v := bf.run_as('00000000-0000-0000-0000-0000000000f1', $q$select public.membership_issue('{"request_id":"00000000-0000-0000-0000-0000000006b1","athlete_id":"00000000-0000-0000-0000-000000000072","season_id":"00000000-0000-0000-0000-0000000005a2","agreed_fee":100,"installment_count":1,"payers":[{"kind":"family","share_kind":"fixed","share_value":100}]}')->'invoices'->0->>'number'$q$);
+  perform bf.ok(v = 'OK:BF CLUB-' || bf.get('year') || '-0001', 'membership invoice numbered in the club series (' || v || ')');
+  perform bf.ok((select source_label = 'Synthetic season 2027-28' from public.invoices where number = substr(v, 4)), 'membership source label: the season');
+end $$;
+
+-- Link-time category inside the creation transaction (training booking path).
+do $$
+declare v_inv uuid;
+begin
+  insert into public.invoices (org_id, number, family_id, athlete_id, description, total_chf, status, due_date)
+  values ('00000000-0000-0000-0000-000000000001', public.next_invoice_number('00000000-0000-0000-0000-000000000001'),
+          '00000000-0000-0000-0000-000000000061', '00000000-0000-0000-0000-000000000071', 'Session', 75, 'sent', current_date + 7)
+  returning id into v_inv;
+  insert into public.training_bookings (org_id, athlete_id, service_id, coach_id, slot_start, slot_end, status, price_chf, invoice_id)
+  values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000071', '00000000-0000-0000-0000-000000000021',
+          '00000000-0000-0000-0000-000000000011', now() + interval '30 days', now() + interval '30 days 1 hour', 'booked', 75, v_inv);
+  perform bf.ok((select activity = 'training' and number = 'BF PT-' || bf.get('year') || '-0001' and source_label = '1-on-1 Personal Training'
+                   and payment_reference = public.billing_reference_for(org_id, number) from public.invoices where id = v_inv),
+                'booking invoice: training category, PT number and source label assigned in the creation transaction');
+  perform bf.ok(exists (select 1 from public.data_review_flags where entity_id = v_inv and reason_code = 'CATEGORY_AMBIGUOUS' and resolved_at is not null),
+                'its temporary review flag is resolved');
+end $$;
+
+-- Inheritance: split child, instalments, credit note.
+do $$
+declare v_child uuid; v text;
+begin
+  insert into public.invoices (org_id, number, family_id, description, total_chf, status, split_from_invoice_id)
+  values ('00000000-0000-0000-0000-000000000001', public.next_invoice_number('00000000-0000-0000-0000-000000000001'),
+          '00000000-0000-0000-0000-000000000061', 'Share', 10, 'sent', bf.uid('camp1'))
+  returning id into v_child;
+  perform bf.ok((select c.activity = p.activity and c.billing_entity_id = p.billing_entity_id and c.source_label is not distinct from p.source_label
+                        and c.number = 'BF CAMP-' || bf.get('year') || '-0003'
+                   from public.invoices c join public.invoices p on p.id = c.split_from_invoice_id where c.id = v_child),
+                'split child inherits category, entity and source; numbered in the parent''s series');
+  perform bf.ok(not exists (select 1 from public.payment_plan_installments pi where pi.invoice_id <> (select pp.invoice_id from public.payment_plans pp where pp.id = pi.plan_id)
+                              and pi.plan_id in (select id from public.payment_plans where invoice_id = bf.uid('inv_g1'))),
+                'instalments stay on their invoice (same category, entity, number)');
+  v := bf.run_as('00000000-0000-0000-0000-0000000000f2', format($q$select public.issue_invoice_adjustment(%L, 'credit_note', 20, 'goodwill')::text$q$, bf.get('camp1')));
+  perform bf.ok(v like 'OK:%', 'credit note on the camp invoice');
+end $$;
+
+do $$
+declare v text;
+  finance_a uuid := '00000000-0000-0000-0000-0000000000f2';
+begin
+  v := bf.run_as(finance_a, $q$select invoiced::text from public.invoice_totals_by_category(current_date - 1, current_date + 1) where category = 'camp' and currency = 'CHF'$q$);
+  -- camp: 120 - 20 (credit note) + 80 + 10 (split child) + the two camp invoices of section F (100 + 100)
+  perform bf.ok(v = 'OK:390.00', 'totals by category: the credit note counts under the original''s category (' || v || ')');
+  v := bf.run_as(finance_a, $q$select string_agg(category, ',' order by category) from public.invoice_totals_by_category(current_date - 1, current_date + 1)$q$);
+  perform bf.ok(v like 'OK:%club_membership%' and v like '%selection%' and v like '%training%' and v like '%shop%', 'totals per stored category (' || v || ')');
+  v := bf.run_as(finance_a, format($q$select count(*)::text from public.invoice_totals_by_category(null, null, %L)$q$, bf.get('ent2')));
+  perform bf.ok(v <> 'OK:0', 'totals filtered by issuing entity');
+  v := bf.run_as('00000000-0000-0000-0000-0000000000f4', $q$select count(*)::text from public.invoice_totals_by_category(null, null)$q$);
+  perform bf.ok(v like 'ERR:%NOT_AUTHORIZED%', 'guardians get no totals');
+  v := bf.run_as('b0000000-0000-0000-0000-0000000005f2', $q$select coalesce(sum(invoiced), 0)::text from public.invoice_totals_by_category(null, null) where category <> 'other'$q$);
+  perform bf.ok(v = 'OK:0', 'org B totals contain no org A money (' || v || ')');
+  v := bf.run_as('b0000000-0000-0000-0000-0000000005f2', $q$select public.create_manual_invoice('{"activity":"camp","family_id":"b0000000-0000-0000-0000-0000000005f3","items":[{"description":"x","quantity":1,"unit_price_chf":5}]}')->>'number'$q$);
+  perform bf.ok(v like 'OK:RHS-%', 'org B (no series) keeps its own invoice pattern (' || v || ')');
+end $$;
+
+-- Two concurrent issues get distinct, consecutive numbers (two real sessions).
+do $$
+declare v1 uuid; v2 uuid;
+begin
+  insert into public.invoices (org_id, number, family_id, description, total_chf, status, activity)
+  values ('00000000-0000-0000-0000-000000000001', 'tmp-c1', '00000000-0000-0000-0000-000000000061', 'Concurrent 1', 10, 'draft', 'shop') returning id into v1;
+  insert into public.invoices (org_id, number, family_id, description, total_chf, status, activity)
+  values ('00000000-0000-0000-0000-000000000001', 'tmp-c2', '00000000-0000-0000-0000-000000000061', 'Concurrent 2', 10, 'draft', 'shop') returning id into v2;
+  perform bf.put('cc1', v1::text);
+  perform bf.put('cc2', v2::text);
+end $$;
+
+do $$
+declare v_conn text; n2 text; n1 text; v_ok boolean := true;
+begin
+  begin
+    create extension if not exists dblink;
+    v_conn := format('dbname=%s host=localhost port=%s user=%s password=postgres', current_database(), current_setting('port'), current_user);
+    perform dblink_connect('bf_c1', v_conn);
+    perform dblink_connect('bf_c2', v_conn);
+  exception when others then
+    v_ok := false;
+    raise notice 'INFO — concurrency check skipped (no second session: %)', sqlerrm;
+  end;
+  if v_ok then
+    perform dblink_exec('bf_c1', 'begin');
+    select x into n1 from dblink('bf_c1', format('update public.invoices set status = ''sent'' where id = %L returning number', bf.get('cc1'))) as t(x text);
+    -- Session 2 waits on the counter row until session 1 commits.
+    perform dblink_send_query('bf_c2', format('update public.invoices set status = ''sent'' where id = %L returning number', bf.get('cc2')));
+    perform dblink_exec('bf_c1', 'commit');
+    select x into n2 from dblink_get_result('bf_c2') as t(x text);
+    perform dblink_disconnect('bf_c1');
+    perform dblink_disconnect('bf_c2');
+    perform bf.ok(n1 is not null and n2 is not null and n1 <> n2
+                  and right(n2, 4)::int = right(n1, 4)::int + 1 and n1 like 'BF Shop-%',
+                  'two concurrent issues get distinct consecutive numbers (' || coalesce(n1, '-') || ', ' || coalesce(n2, '-') || ')');
+  end if;
 end $$;

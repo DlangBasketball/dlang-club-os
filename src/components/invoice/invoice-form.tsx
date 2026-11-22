@@ -4,14 +4,19 @@ import * as React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Card, CardBody, Button, Input, Label } from "@/components/ui";
 import { createInvoice } from "@/lib/actions/invoice";
-import { useFormat } from "@/lib/i18n/client";
+import { useFormat, useT } from "@/lib/i18n/client";
+import { MANUAL_INVOICE_CATEGORIES, categoryLabelKey } from "@/lib/billing/activities";
 
 type Item = { description: string; quantity: string; unit_price_chf: string };
 const emptyItem = (): Item => ({ description: "", quantity: "1", unit_price_chf: "" });
 
 export function InvoiceForm({ families }: { families: { id: string; name: string }[] }) {
   const f = useFormat();
+  const t = useT();
   const [familyId, setFamilyId] = React.useState("");
+  const [category, setCategory] = React.useState("");
+  // One idempotency key per form: a double submit or retry returns the same invoice.
+  const [requestId] = React.useState(() => crypto.randomUUID());
   const [description, setDescription] = React.useState("");
   const [dueDate, setDueDate] = React.useState("");
   const [discount, setDiscount] = React.useState("");
@@ -31,6 +36,8 @@ export function InvoiceForm({ families }: { families: { id: string; name: string
     setError(null);
     const res = await createInvoice({
       family_id: familyId,
+      activity: category as (typeof MANUAL_INVOICE_CATEGORIES)[number],
+      request_id: requestId,
       description,
       due_date: dueDate,
       discount_chf: Number(discount) || 0,
@@ -50,6 +57,13 @@ export function InvoiceForm({ families }: { families: { id: string; name: string
               <select id="family" required value={familyId} onChange={(e) => setFamilyId(e.target.value)} className="h-10 w-full rounded border border-line bg-surface-input px-3 text-sm text-ink">
                 <option value="">Select a family…</option>
                 {families.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="category">{t("billing.invoice.category")}</Label>
+              <select id="category" required value={category} onChange={(e) => setCategory(e.target.value)} className="h-10 w-full rounded border border-line bg-surface-input px-3 text-sm text-ink">
+                <option value="">{t("billing.invoice.chooseCategory")}</option>
+                {MANUAL_INVOICE_CATEGORIES.map((c) => <option key={c} value={c}>{t(categoryLabelKey(c))}</option>)}
               </select>
             </div>
             <div><Label htmlFor="due">Due date</Label><Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></div>

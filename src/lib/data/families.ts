@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 import { loadOpenInvoices } from "@/lib/data/open-invoices";
-import { openByFamily, type CurrencyTotals } from "@/lib/payments/open-invoices";
+import { openByFamily, openByFamilyActivity, type CurrencyTotals, type OpenBucket } from "@/lib/payments/open-invoices";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(data: T): Result<T> => ({ data, error: null });
@@ -123,6 +123,8 @@ export type FamilyDetail = {
   /** Still owed on open invoices, per currency. */
   balance: CurrencyTotals;
   openInvoiceCount: number;
+  /** Open count and balance per billing activity (club_membership, selection, …), per currency. */
+  balanceByActivity: Record<string, OpenBucket>;
   registrationCount: number;
   documents: FamilyDocument[];
 };
@@ -169,6 +171,8 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
   const bucket = openByFamily(open.data).get(id);
   const balance = bucket?.totals ?? {};
   const openInvoiceCount = bucket?.count ?? 0;
+  // Club, selection, camp … balances side by side, never merged (billing activities).
+  const balanceByActivity: Record<string, OpenBucket> = openByFamilyActivity(open.data).get(id) ?? {};
 
   return ok({
     id: family.id,
@@ -210,6 +214,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
     })),
     balance,
     openInvoiceCount,
+    balanceByActivity,
     registrationCount: (regCount as { count: number | null }).count ?? 0,
     documents: Array.from(docMap.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   });

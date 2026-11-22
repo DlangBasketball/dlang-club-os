@@ -1,9 +1,12 @@
 -- ============================================================================
 -- Billing foundation (phase 1)
 --
---   1. Activities: every invoice belongs to exactly one billing activity
---      (club_membership, selection, camp, training, booking, shop, other).
+--   1. Revenue categories ("activity"): every invoice belongs to exactly one
+--      category (club_membership, selection, camp, training, shop; 'other'
+--      only for legacy rows no rule identifies, each one on the review list).
 --      Existing rows are classified by rule (activity_source records how).
+--      Per-org, per-category invoice numbers (<prefix>-<YYYY>-<NNNN>) from
+--      invoice_number_series; orgs without a series keep today's numbers.
 --   2. Billing entities: the issuing entity of every invoice (route per
 --      activity -> default entity), snapshotted at issue, locked afterwards.
 --   3. Strict separation: family credit is scoped to an activity; split /
@@ -31,7 +34,7 @@
 -- ===========================================================================
 create or replace function public.billing_activities()
 returns text[] language sql immutable set search_path = public as $$
-  select array['club_membership', 'selection', 'camp', 'training', 'booking', 'shop', 'other']::text[]
+  select array['club_membership', 'selection', 'camp', 'training', 'shop', 'other']::text[]
 $$;
 
 create or replace function public.is_billing_activity(p_activity text)
@@ -48,9 +51,14 @@ returns boolean language sql immutable set search_path = public as $$
 $$;
 
 -- Season label in a description: "2026-27", "2026/2027", "2026–27" -> 2026.
+-- The second year must follow the first (a date such as 2026-09-01 is not a
+-- season label).
 create or replace function public.billing_season_label_year(p_text text)
 returns integer language sql immutable set search_path = public as $$
-  select (regexp_match(coalesce(p_text, ''), '\m(20\d{2})\s*[-/–]\s*(?:20)?\d{2}\M'))[1]::int
+  select min(m[1]::int)
+    from regexp_matches(coalesce(p_text, ''), '\m(20\d{2})\s*[-/–]\s*(20\d{2}|\d{2})\M', 'g') as m
+   where (length(m[2]) = 4 and m[2]::int = m[1]::int + 1)
+      or (length(m[2]) = 2 and m[2]::int = (m[1]::int + 1) % 100)
 $$;
 
 -- Session flags used by the guards below (transaction-local).
@@ -161,6 +169,36 @@ create table if not exists public.billing_entity_routes (
 create index if not exists idx_billing_entity_routes_org on public.billing_entity_routes (org_id);
 create index if not exists idx_billing_entity_routes_entity on public.billing_entity_routes (billing_entity_id);
 
+-- Invoice numbering per revenue category: <prefix>-<YYYY>-<NNNN>, one
+-- counter per org + prefix + year. Rows are tenant data (admin, Settings ->
+-- Billing entities); an org without a series for a category keeps the
+-- existing app_settings invoice pattern (today's numbers).
+create table if not exists public.invoice_number_series (
+  id         uuid primary key default gen_random_uuid(),
+  org_id     uuid not null references public.organizations(id) on delete cascade,
+  category   text not null,
+  prefix     text not null,
+  is_active  boolean not null default true,
+  created_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint invoice_number_series_chk check (
+    public.is_billing_activity(category) and category <> 'other'
+    and prefix = btrim(prefix) and prefix ~ '^[A-Za-z0-9][A-Za-z0-9 ._/]{0,22}[A-Za-z0-9]$|^[A-Za-z0-9]$'),
+  constraint invoice_number_series_org_category_key unique (org_id, category)
+);
+create index if not exists idx_invoice_number_series_org on public.invoice_number_series (org_id);
+
+create table if not exists public.invoice_number_counters (
+  org_id     uuid not null references public.organizations(id) on delete cascade,
+  prefix     text not null,
+  year       integer not null,
+  last_value integer not null default 0,
+  updated_at timestamptz not null default now(),
+  primary key (org_id, prefix, year),
+  constraint invoice_number_counters_chk check (year between 2000 and 2200 and last_value >= 0)
+);
+
 -- ===========================================================================
 -- 3. Club season settings (app_settings) + seasons
 -- ===========================================================================
@@ -258,6 +296,8 @@ alter table public.invoices add column if not exists charge_kind text;
 alter table public.invoices add column if not exists request_id uuid;
 alter table public.invoices add column if not exists payer_kind text;
 alter table public.invoices add column if not exists payer_name text;
+-- What the invoice is for, as printed (e.g. "EYBL U14 – Istanbul"), set at issue.
+alter table public.invoices add column if not exists source_label text;
 create index if not exists idx_invoices_activity on public.invoices (org_id, activity);
 create index if not exists idx_invoices_membership on public.invoices (membership_id) where membership_id is not null;
 create index if not exists idx_invoices_billing_entity on public.invoices (billing_entity_id) where billing_entity_id is not null;
@@ -373,9 +413,107 @@ begin
     if v = 'camp' then return 'camp'; end if;
     return null;
   end if;
-  if public.billing_is_club_fee_text(p_description) then return 'club_membership'; end if;
+  if public.billing_is_club_fee_text(p_description) and public.billing_season_label_year(p_description) is not null then
+    return 'club_membership';
+  end if;
   return null;
 end $$;
+
+-- Numbering -------------------------------------------------------------------
+create or replace function public.billing_series_prefix(p_org uuid, p_category text)
+returns text language sql stable security definer set search_path = public as $$
+  select prefix from public.invoice_number_series where org_id = p_org and category = p_category and is_active
+$$;
+
+-- Next number for a prefix in the issue year (org time zone, else
+-- Europe/Zurich). The counter row is locked by the upsert, so concurrent
+-- issues serialise and never collide; an existing number is skipped.
+create or replace function public.billing_next_number(p_org uuid, p_prefix text, p_at timestamptz default now())
+returns text language plpgsql security definer set search_path = public as $$
+declare v_year int; v_n int; v_num text; v_tz text;
+begin
+  select coalesce(nullif(timezone, ''), 'Europe/Zurich') into v_tz from public.organizations where id = p_org;
+  begin
+    v_year := extract(year from (coalesce(p_at, now()) at time zone coalesce(v_tz, 'Europe/Zurich')))::int;
+  exception when others then
+    v_year := extract(year from (coalesce(p_at, now()) at time zone 'Europe/Zurich'))::int;
+  end;
+  loop
+    insert into public.invoice_number_counters as c (org_id, prefix, year, last_value)
+    values (p_org, p_prefix, v_year, 1)
+    on conflict (org_id, prefix, year) do update set last_value = c.last_value + 1, updated_at = now()
+    returning last_value into v_n;
+    v_num := p_prefix || '-' || v_year::text || '-' || lpad(v_n::text, 4, '0');
+    exit when not exists (select 1 from public.invoices where org_id = p_org and number = v_num);
+  end loop;
+  return v_num;
+end $$;
+
+-- Payment reference for a number (same rule as set_invoice_payment_reference).
+create or replace function public.billing_reference_for(p_org uuid, p_number text)
+returns text language plpgsql stable security definer set search_path = public as $$
+declare v_country text;
+begin
+  select upper(coalesce(country, 'CH')) into v_country from public.organizations where id = p_org;
+  if coalesce(v_country, 'CH') in ('CH', 'LI') then return public.gen_qr_reference(p_org, p_number); end if;
+  return public.scor_reference(p_number);
+end $$;
+
+-- Printed "what for" label from the linked records (null when none).
+create or replace function public.billing_source_label(p_invoice uuid, p_org uuid, p_program uuid, p_registration uuid, p_membership uuid)
+returns text language plpgsql stable security definer set search_path = public as $$
+declare v text;
+begin
+  if p_membership is not null then
+    select coalesce(s.name, mt.name) into v from public.memberships m
+      left join public.seasons s on s.id = m.season_id left join public.membership_types mt on mt.id = m.membership_type_id
+     where m.id = p_membership and m.org_id = p_org;
+    if v is not null then return left(v, 200); end if;
+  end if;
+  if p_invoice is not null then
+    -- Selection: series / programme, division, tournaments ("EYBL U14 – Istanbul").
+    select btrim(coalesce(nullif(btrim(p.series), ''), p.name) || coalesce(' ' || d.name, '')
+                 || coalesce(' – ' || (select string_agg(t.name, ', ' order by t.sort, t.starts_on, t.name)
+                                         from public.application_tournaments at join public.program_tournaments t on t.id = at.tournament_id
+                                        where at.application_id = a.id and at.status = 'covered'), ''))
+      into v
+      from public.program_applications a join public.programs p on p.id = a.program_id
+      left join public.program_divisions d on d.id = a.division_id
+     where a.invoice_id = p_invoice and a.org_id = p_org
+     order by a.created_at desc limit 1;
+    if v is not null then return left(v, 200); end if;
+    select coalesce(tp_pkg.name, ts.name) into v from public.training_package_purchases tp
+      left join public.training_services ts on ts.id = tp.service_id
+      left join public.credit_packages tp_pkg on tp_pkg.id = tp.package_id
+     where tp.invoice_id = p_invoice and tp.org_id = p_org limit 1;
+    if v is not null then return left(v, 200); end if;
+    select ts.name into v from public.training_bookings b join public.training_services ts on ts.id = b.service_id
+     where b.invoice_id = p_invoice and b.org_id = p_org order by b.slot_start limit 1;
+    if v is not null then return left(v, 200); end if;
+    select so.number into v from public.shop_orders so where so.invoice_id = p_invoice and so.org_id = p_org limit 1;
+    if v is not null then return left(v, 200); end if;
+    select string_agg(distinct p.name, ' · ') into v from public.registrations r join public.programs p on p.id = r.program_id
+     where r.invoice_id = p_invoice and r.org_id = p_org;
+    if v is not null then return left(v, 200); end if;
+  end if;
+  if p_registration is not null then
+    select p.name into v from public.registrations r join public.programs p on p.id = r.program_id where r.id = p_registration and r.org_id = p_org;
+    if v is not null then return left(v, 200); end if;
+  end if;
+  if p_program is not null then
+    select name into v from public.programs where id = p_program and org_id = p_org;
+  end if;
+  return left(v, 200);
+end $$;
+
+-- Category label printed for a selection invoice: the programme series
+-- (e.g. "EYBL"); other categories use the translated label (null here).
+create or replace function public.billing_category_label(p_invoice uuid)
+returns text language sql stable security invoker set search_path = public as $$
+  select case when i.activity = 'selection' then coalesce(nullif(btrim(p.series), ''), p.name) end
+    from public.invoices i left join public.programs p on p.id = i.program_id
+   where i.id = p_invoice
+$$;
 
 -- ===========================================================================
 -- 8. Invoice triggers: activity, issuing entity, inheritance, locks
@@ -385,6 +523,8 @@ returns trigger language plpgsql security definer set search_path = public as $$
 declare
   p public.invoices;
   v_entity uuid;
+  v_derived text;
+  v_prefix text;
 begin
   -- A split / child invoice inherits the parent's activity, membership,
   -- programme and issuing entity; it never carries the parent's request id.
@@ -400,6 +540,7 @@ begin
       new.activity := p.activity;
       new.activity_source := p.activity_source;
       new.charge_kind := p.charge_kind;
+      new.source_label := coalesce(new.source_label, p.source_label);
       if new.billing_entity_id is null then
         new.billing_entity_id := p.billing_entity_id;
         new.billing_entity_snapshot := p.billing_entity_snapshot;
@@ -416,6 +557,12 @@ begin
     new.activity := coalesce(new.activity, 'other');
   else
     new.activity_source := coalesce(new.activity_source, 'set');
+    -- One invoice = one category: a given category must agree with the
+    -- programme / registration / membership the invoice is linked to.
+    v_derived := public.billing_derive_activity(new.org_id, new.program_id, new.registration_id, new.membership_id, null, null);
+    if v_derived is not null and v_derived <> new.activity then
+      raise exception 'ACTIVITY_MISMATCH: the linked record belongs to %', v_derived using errcode = 'P0001';
+    end if;
   end if;
   if not public.is_billing_activity(new.activity) then raise exception 'INVALID_ACTIVITY' using errcode = 'P0001'; end if;
 
@@ -449,6 +596,22 @@ begin
   if new.billing_entity_id is not null and new.billing_entity_snapshot is null then
     new.billing_entity_snapshot := public.billing_entity_snapshot_of(new.billing_entity_id);
   end if;
+
+  -- Number: a category with a series gets <prefix>-<YYYY>-<NNNN> when issued;
+  -- a draft carries a provisional DRAFT- number (final number at issue).
+  -- Without a series the caller's number (app_settings pattern) stays.
+  v_prefix := public.billing_series_prefix(new.org_id, new.activity);
+  if v_prefix is not null then
+    if new.status::text = 'draft' then
+      new.number := 'DRAFT-' || upper(left(replace(new.id::text, '-', ''), 12));
+    else
+      new.number := public.billing_next_number(new.org_id, v_prefix, now());
+    end if;
+    new.payment_reference := public.billing_reference_for(new.org_id, new.number);
+  end if;
+  if new.status::text <> 'draft' and new.source_label is null then
+    new.source_label := public.billing_source_label(null, new.org_id, new.program_id, new.registration_id, new.membership_id);
+  end if;
   return new;
 end $$;
 
@@ -456,13 +619,49 @@ drop trigger if exists trg_invoices_0_billing on public.invoices;
 create trigger trg_invoices_0_billing before insert on public.invoices
   for each row execute function public.invoices_billing_before_insert();
 
+-- An invoice no rule could categorise goes on the review list.
+create or replace function public.invoices_billing_after_insert()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.activity = 'other' then
+    insert into public.data_review_flags (org_id, entity_table, entity_id, reason_code, details, original_reference)
+    values (new.org_id, 'invoices', new.id, 'CATEGORY_AMBIGUOUS',
+            jsonb_build_object('number', new.number, 'description', left(new.description, 200), 'source', new.activity_source),
+            new.number)
+    on conflict do nothing;
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists trg_invoices_billing_flag on public.invoices;
+create trigger trg_invoices_billing_flag after insert on public.invoices
+  for each row execute function public.invoices_billing_after_insert();
+
+create or replace function public.billing_resolve_category_flag(p_invoice uuid, p_note text)
+returns void language sql security definer set search_path = public as $$
+  update public.data_review_flags set resolved_at = now(), resolved_by = auth.uid(), resolution_note = left(p_note, 1000)
+   where entity_table = 'invoices' and entity_id = p_invoice and reason_code = 'CATEGORY_AMBIGUOUS' and resolved_at is null
+$$;
+
 create or replace function public.invoices_billing_guard()
 returns trigger language plpgsql security definer set search_path = public as $$
 declare
   v_edit   boolean := public.billing_flag_on('app.billing_edit');
   v_entity uuid;
+  v_prefix text;
 begin
   if not public.is_billing_activity(new.activity) then raise exception 'INVALID_ACTIVITY' using errcode = 'P0001'; end if;
+  if new.activity = 'other' and old.activity is distinct from 'other' then
+    raise exception 'OTHER_NOT_ALLOWED: choose a revenue category' using errcode = 'P0001';
+  end if;
+  -- The number of an issued invoice never changes (only the billing functions
+  -- may still replace a number given in the same creation transaction).
+  if new.number is distinct from old.number and old.status::text <> 'draft' and not public.billing_flag_on('app.billing_renumber') then
+    raise exception 'NUMBER_LOCKED: the number of an issued invoice cannot change' using errcode = 'P0001';
+  end if;
+  if new.source_label is distinct from old.source_label and old.status::text <> 'draft' and old.source_label is not null and not v_edit then
+    raise exception 'ACTIVITY_LOCKED: the source of an issued invoice cannot change' using errcode = 'P0001';
+  end if;
 
   -- Activity / membership: free on a draft; afterwards only through the
   -- billing functions (link triggers, invoice_set_activity).
@@ -512,9 +711,20 @@ begin
         new.billing_entity_snapshot := public.billing_entity_snapshot_of(v_entity);
       end if;
     end if;
-    -- Issuing a draft captures the entity as it is now.
+    -- Issuing a draft captures the entity as it is now, assigns the final
+    -- number of its category's series and the printed source label.
     if new.status::text <> 'draft' and new.billing_entity_id is not null then
       new.billing_entity_snapshot := public.billing_entity_snapshot_of(new.billing_entity_id);
+    end if;
+    if new.status::text <> 'draft' then
+      v_prefix := public.billing_series_prefix(new.org_id, new.activity);
+      if v_prefix is not null and new.number is not distinct from old.number then
+        new.number := public.billing_next_number(new.org_id, v_prefix, now());
+        new.payment_reference := public.billing_reference_for(new.org_id, new.number);
+      end if;
+      if new.source_label is null then
+        new.source_label := public.billing_source_label(new.id, new.org_id, new.program_id, new.registration_id, new.membership_id);
+      end if;
     end if;
   end if;
   return new;
@@ -530,30 +740,68 @@ create trigger trg_invoices_0_billing_guard before update on public.invoices
 -- the invoice is still being created (same transaction).
 create or replace function public.billing_link_invoice_activity(p_invoice uuid, p_activity text)
 returns void language plpgsql security definer set search_path = public as $$
-declare v public.invoices; v_entity uuid;
+declare
+  v public.invoices;
+  v_entity uuid;
+  v_fresh boolean;
+  v_act text;
+  v_prefix text;
+  v_number text;
+  v_label text;
 begin
-  if p_invoice is null or p_activity is null then return; end if;
+  if p_invoice is null then return; end if;
   select * into v from public.invoices where id = p_invoice;
-  if not found or v.activity = p_activity then return; end if;
-  if not (v.activity = 'other' and coalesce(v.activity_source, 'default') in ('default', 'migration_default')) then return; end if;
-  if v.membership_id is not null or v.split_from_invoice_id is not null then return; end if;
-  v_entity := v.billing_entity_id;
-  if coalesce(v.billing_entity_source, 'default') in ('route', 'default') and (v.status::text = 'draft' or v.created_at = now()) then
-    v_entity := coalesce(public.billing_entity_resolve(v.org_id, p_activity), v.billing_entity_id);
+  if not found then return; end if;
+  -- Created in this transaction (or still a draft): the creation path is
+  -- still running, so category, entity, number and label may follow the link.
+  v_fresh := v.status::text = 'draft' or v.created_at = now();
+  v_act := v.activity;
+  if p_activity is not null and v.activity <> p_activity
+     and v.activity = 'other' and coalesce(v.activity_source, 'default') in ('default', 'migration_default')
+     and v.membership_id is null and v.split_from_invoice_id is null then
+    v_act := p_activity;
   end if;
+  if v_act = v.activity and not v_fresh then return; end if;
+
+  v_entity := v.billing_entity_id;
+  if v_act <> v.activity and coalesce(v.billing_entity_source, 'default') in ('route', 'default') and v_fresh then
+    v_entity := coalesce(public.billing_entity_resolve(v.org_id, v_act), v.billing_entity_id);
+  end if;
+  v_number := v.number;
+  if v_fresh and v.status::text <> 'draft' then
+    v_prefix := public.billing_series_prefix(v.org_id, v_act);
+    if v_prefix is not null and v.number not like v_prefix || '-%' then
+      v_number := public.billing_next_number(v.org_id, v_prefix, now());
+    end if;
+  end if;
+  v_label := v.source_label;
+  if v_fresh and v.status::text <> 'draft' then
+    v_label := coalesce(public.billing_source_label(v.id, v.org_id, v.program_id, v.registration_id, v.membership_id), v.source_label);
+  end if;
+  if v_act = v.activity and v_number = v.number and v_label is not distinct from v.source_label and v_entity is not distinct from v.billing_entity_id then
+    return;
+  end if;
+
   perform set_config('app.billing_edit', 'on', true);
+  perform set_config('app.billing_renumber', 'on', true);
   update public.invoices
-     set activity = p_activity, activity_source = 'linked',
+     set activity = v_act,
+         activity_source = case when v_act <> v.activity then 'linked' else activity_source end,
          billing_entity_id = v_entity,
          billing_entity_snapshot = case when v_entity is distinct from v.billing_entity_id
-                                        then public.billing_entity_snapshot_of(v_entity) else billing_entity_snapshot end
+                                        then public.billing_entity_snapshot_of(v_entity) else billing_entity_snapshot end,
+         number = v_number,
+         payment_reference = case when v_number <> v.number then public.billing_reference_for(v.org_id, v_number) else payment_reference end,
+         source_label = v_label
    where id = p_invoice;
+  -- Split children follow their parent's category.
+  update public.invoices set activity = v_act, activity_source = 'linked'
+   where split_from_invoice_id = p_invoice and activity is distinct from v_act;
+  perform set_config('app.billing_renumber', 'off', true);
   perform set_config('app.billing_edit', 'off', true);
-  -- Split children follow their parent.
-  perform set_config('app.billing_edit', 'on', true);
-  update public.invoices set activity = p_activity, activity_source = 'linked'
-   where split_from_invoice_id = p_invoice and activity is distinct from p_activity;
-  perform set_config('app.billing_edit', 'off', true);
+  if v_act <> 'other' and v.activity = 'other' then
+    perform public.billing_resolve_category_flag(p_invoice, 'linked: ' || v_act);
+  end if;
 end $$;
 
 create or replace function public.billing_link_activity_trigger()
@@ -571,7 +819,7 @@ end $$;
 
 drop trigger if exists trg_billing_link_activity on public.training_bookings;
 create trigger trg_billing_link_activity after insert or update of invoice_id on public.training_bookings
-  for each row execute function public.billing_link_activity_trigger('booking');
+  for each row execute function public.billing_link_activity_trigger('training');
 drop trigger if exists trg_billing_link_activity on public.training_package_purchases;
 create trigger trg_billing_link_activity after insert or update of invoice_id on public.training_package_purchases
   for each row execute function public.billing_link_activity_trigger('training');
@@ -1088,9 +1336,9 @@ create trigger trg_organizations_default_billing_entity after insert on public.o
 
 -- Rule-based classification of an existing invoice (null = no rule matched).
 -- Order: legacy membership link, selection enrolment / programme, camp,
--- training booking (single paid session = 'booking'), training package
--- purchase (multi-session package = 'training'), shop order, imported
--- club-fee description without a programme.
+-- private training (paid single bookings AND packages = 'training'), shop
+-- order, imported club fee: no programme, a description starting with the
+-- membership-fee phrase AND a season label (2026-27). Anything else: null.
 create or replace function public.billing_classify_invoice(p_invoice uuid)
 returns text language sql stable security definer set search_path = public as $$
   select case
@@ -1099,10 +1347,11 @@ returns text language sql stable security definer set search_path = public as $$
     when p.kind::text = 'selection' or rp.kind::text = 'selection' then 'selection'
     when reg.camp_edition_id is not null or p.kind::text = 'camp' or rp.kind::text = 'camp'
          or exists (select 1 from public.registrations x where x.invoice_id = i.id and x.camp_edition_id is not null) then 'camp'
-    when exists (select 1 from public.training_bookings b where b.invoice_id = i.id) then 'booking'
+    when exists (select 1 from public.training_bookings b where b.invoice_id = i.id) then 'training'
     when exists (select 1 from public.training_package_purchases tp where tp.invoice_id = i.id) then 'training'
     when exists (select 1 from public.shop_orders so where so.invoice_id = i.id) then 'shop'
-    when i.program_id is null and public.billing_is_club_fee_text(i.description) then 'club_membership'
+    when i.program_id is null and public.billing_is_club_fee_text(i.description)
+         and public.billing_season_label_year(i.description) is not null then 'club_membership'
   end
   from public.invoices i
   left join public.programs p on p.id = i.program_id
@@ -1158,6 +1407,16 @@ begin
    where m.invoice_id = i.id and i.membership_id is null and i.activity = 'club_membership' and m.org_id = i.org_id;
 
   alter table public.invoices enable trigger user;
+
+  -- Legacy invoices no rule identifies: 'other' + a review flag each (the
+  -- original number is kept as the reference; numbers, payment references
+  -- and PDFs of issued invoices never change).
+  insert into public.data_review_flags (org_id, entity_table, entity_id, reason_code, details, original_reference)
+  select i.org_id, 'invoices', i.id, 'CATEGORY_AMBIGUOUS',
+         jsonb_build_object('number', i.number, 'description', left(i.description, 200), 'status', i.status, 'total', i.total_chf),
+         i.number
+    from public.invoices i where i.activity = 'other'
+  on conflict do nothing;
 
   for r in select org_id, count(*) as n,
                   jsonb_object_agg(activity, c) as by_activity
@@ -1471,6 +1730,7 @@ declare v public.invoices;
 begin
   if not public.is_admin() then raise exception 'NOT_AUTHORIZED' using errcode = 'P0001'; end if;
   if not public.is_billing_activity(p_activity) then raise exception 'INVALID_ACTIVITY' using errcode = 'P0001'; end if;
+  if p_activity = 'other' then raise exception 'OTHER_NOT_ALLOWED' using errcode = 'P0001'; end if;
   if coalesce(btrim(p_reason), '') = '' then raise exception 'REASON_REQUIRED' using errcode = 'P0001'; end if;
   select * into v from public.invoices where id = p_invoice and org_id = public.current_org_id() for update;
   if not found then raise exception 'INVOICE_NOT_FOUND' using errcode = 'P0002'; end if;
@@ -1484,6 +1744,7 @@ begin
   update public.invoices set activity = p_activity, activity_source = 'set' where id = v.id;
   update public.invoices set activity = p_activity, activity_source = 'set' where split_from_invoice_id = v.id;
   perform set_config('app.billing_edit', 'off', true);
+  perform public.billing_resolve_category_flag(v.id, 'set: ' || p_activity || ' — ' || left(btrim(p_reason), 900));
   insert into public.audit_logs (org_id, actor_id, action, target_table, target_id, old_data, new_data)
   values (v.org_id, auth.uid(), 'INVOICE_ACTIVITY_SET', 'invoices', v.id,
           jsonb_build_object('activity', v.activity, 'activity_source', v.activity_source),
@@ -1503,6 +1764,114 @@ begin
   update public.data_review_flags set resolved_at = now(), resolved_by = auth.uid(), resolution_note = nullif(btrim(coalesce(p_note, '')), '')
    where id = f.id returning * into f;
   return jsonb_build_object('id', f.id, 'resolved_at', f.resolved_at);
+end $$;
+
+-- ===========================================================================
+-- 16b. Invoice number series (admin) + reporting by category (finance)
+-- ===========================================================================
+do $$
+begin
+  execute 'drop trigger if exists trg_invoice_number_series_updated on public.invoice_number_series';
+  execute 'create trigger trg_invoice_number_series_updated before update on public.invoice_number_series for each row execute function public.set_updated_at()';
+  execute 'drop trigger if exists trg_audit_invoice_number_series on public.invoice_number_series';
+  execute 'create trigger trg_audit_invoice_number_series after insert or update or delete on public.invoice_number_series for each row execute function public.audit_trigger()';
+end $$;
+alter table public.invoice_number_series enable row level security;
+alter table public.invoice_number_series force row level security;
+alter table public.invoice_number_counters enable row level security;
+alter table public.invoice_number_counters force row level security;
+do $$
+declare t text;
+begin
+  foreach t in array array['invoice_number_series', 'invoice_number_counters'] loop
+    execute format('drop policy if exists platform_tenant_isolation on public.%1$s', t);
+    execute format('create policy platform_tenant_isolation on public.%1$s as restrictive for all using (org_id = (select public.current_org_id())) with check (org_id = (select public.current_org_id()))', t);
+  end loop;
+end $$;
+drop policy if exists invoice_number_series_select on public.invoice_number_series;
+create policy invoice_number_series_select on public.invoice_number_series for select
+  using (org_id = public.current_org_id() and public.is_finance());
+drop policy if exists invoice_number_series_insert on public.invoice_number_series;
+create policy invoice_number_series_insert on public.invoice_number_series for insert
+  with check (org_id = public.current_org_id() and public.is_admin());
+drop policy if exists invoice_number_series_update on public.invoice_number_series;
+create policy invoice_number_series_update on public.invoice_number_series for update
+  using (org_id = public.current_org_id() and public.is_admin())
+  with check (org_id = public.current_org_id() and public.is_admin());
+drop policy if exists invoice_number_series_delete on public.invoice_number_series;
+create policy invoice_number_series_delete on public.invoice_number_series for delete
+  using (org_id = public.current_org_id() and public.is_admin());
+-- Counters move only through billing_next_number (security definer).
+drop policy if exists invoice_number_counters_select on public.invoice_number_counters;
+create policy invoice_number_counters_select on public.invoice_number_counters for select
+  using (org_id = public.current_org_id() and public.is_finance());
+drop policy if exists invoice_number_counters_insert on public.invoice_number_counters;
+create policy invoice_number_counters_insert on public.invoice_number_counters for insert with check (false);
+drop policy if exists invoice_number_counters_update on public.invoice_number_counters;
+create policy invoice_number_counters_update on public.invoice_number_counters for update using (false) with check (false);
+drop policy if exists invoice_number_counters_delete on public.invoice_number_counters;
+create policy invoice_number_counters_delete on public.invoice_number_counters for delete using (false);
+do $$
+begin
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    grant select, insert, update, delete on public.invoice_number_series to authenticated;
+    grant select on public.invoice_number_counters to authenticated;
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    grant all on public.invoice_number_series, public.invoice_number_counters to service_role;
+  end if;
+end $$;
+
+-- Set (or clear with an empty prefix) the number prefix of a category (admin).
+create or replace function public.invoice_number_series_set(p_category text, p_prefix text, p_is_active boolean default true)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare v_org uuid := public.current_org_id(); v_prefix text := btrim(coalesce(p_prefix, ''));
+begin
+  if v_org is null or not public.is_admin() then raise exception 'NOT_AUTHORIZED' using errcode = 'P0001'; end if;
+  if not public.is_billing_activity(p_category) then raise exception 'INVALID_ACTIVITY' using errcode = 'P0001'; end if;
+  if p_category = 'other' then raise exception 'OTHER_NOT_ALLOWED' using errcode = 'P0001'; end if;
+  if v_prefix = '' then
+    delete from public.invoice_number_series where org_id = v_org and category = p_category;
+    return jsonb_build_object('category', p_category, 'prefix', null);
+  end if;
+  if v_prefix !~ '^[A-Za-z0-9][A-Za-z0-9 ._/]{0,22}[A-Za-z0-9]$|^[A-Za-z0-9]$' then
+    raise exception 'INVALID_PREFIX' using errcode = 'P0001';
+  end if;
+  if exists (select 1 from public.invoice_number_series where org_id = v_org and prefix = v_prefix and category <> p_category) then
+    raise exception 'PREFIX_IN_USE' using errcode = 'P0001';
+  end if;
+  insert into public.invoice_number_series (org_id, category, prefix, is_active, created_by)
+  values (v_org, p_category, v_prefix, coalesce(p_is_active, true), auth.uid())
+  on conflict (org_id, category) do update set prefix = excluded.prefix, is_active = excluded.is_active;
+  return jsonb_build_object('category', p_category, 'prefix', v_prefix, 'is_active', coalesce(p_is_active, true));
+end $$;
+
+-- Invoiced / received / outstanding per category (and currency) for issued
+-- invoices dated in [from, to] (issue date, org time zone ignored: date of
+-- issued_at in UTC+0 is close enough for month reports; pass inclusive
+-- dates). Credit / debit notes live on their original invoice
+-- (adjustments_total) and so count under its category. Cancelled and void
+-- invoices count 0. Optional filters: issuing entity, status.
+create or replace function public.invoice_totals_by_category(p_from date, p_to date, p_entity uuid default null, p_status text default null)
+returns table (category text, currency text, invoice_count integer, invoiced numeric, received numeric, outstanding numeric)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_finance() then raise exception 'NOT_AUTHORIZED' using errcode = 'P0001'; end if;
+  return query
+    with inv as (
+      select i.activity, i.currency,
+             case when i.status::text in ('cancelled', 'void') then 0 else i.total_chf + coalesce(i.adjustments_total, 0) end as due,
+             public.invoice_net_paid(i.id) as paid
+        from public.invoices i
+       where i.org_id = public.current_org_id()
+         and i.status::text <> 'draft'
+         and (p_from is null or (i.issued_at at time zone 'Europe/Zurich')::date >= p_from)
+         and (p_to is null or (i.issued_at at time zone 'Europe/Zurich')::date <= p_to)
+         and (p_entity is null or i.billing_entity_id = p_entity)
+         and (p_status is null or i.status::text = p_status)
+    )
+    select inv.activity, inv.currency, count(*)::int, sum(inv.due), sum(inv.paid), sum(greatest(inv.due - inv.paid, 0))
+      from inv group by inv.activity, inv.currency order by 1, 2;
 end $$;
 
 -- ===========================================================================
@@ -1529,6 +1898,7 @@ declare
   v_activity text := nullif(p_payload->>'activity','');
   v_entity   uuid := nullif(p_payload->>'billing_entity_id','')::uuid;
   v_prev     public.invoices;
+  v_source   text := 'set';
 begin
   if not public.is_finance() then raise exception 'NOT_AUTHORIZED' using errcode = 'P0001'; end if;
   v_org := public.current_org_id();
@@ -1543,6 +1913,7 @@ begin
     end if;
   end if;
   if v_activity is not null and not public.is_billing_activity(v_activity) then raise exception 'INVALID_ACTIVITY' using errcode = 'P0001'; end if;
+  if v_activity = 'other' then raise exception 'OTHER_NOT_ALLOWED' using errcode = 'P0001'; end if;
   if v_activity = 'club_membership' then raise exception 'USE_MEMBERSHIP_ISSUE' using errcode = 'P0001'; end if;
   if v_entity is not null and not public.is_admin() then raise exception 'NOT_AUTHORIZED' using errcode = 'P0001'; end if;
   if v_entity is not null and not exists (select 1 from public.billing_entities where id = v_entity and org_id = v_org and is_active) then
@@ -1559,6 +1930,12 @@ begin
   if v_program is not null and not exists (select 1 from public.programs where id = v_program and org_id = v_org) then
     raise exception 'PROGRAM_NOT_FOUND' using errcode = 'P0002';
   end if;
+  -- A revenue category is required (or follows from the programme).
+  if v_activity is null then
+    v_activity := public.billing_derive_activity(v_org, v_program, null, null, null, null);
+    v_source := 'derived';
+    if v_activity is null then raise exception 'CATEGORY_REQUIRED' using errcode = 'P0001'; end if;
+  end if;
 
   v_number := public.next_invoice_number(v_org);
 
@@ -1569,7 +1946,7 @@ begin
     nullif(p_payload->>'description',''),
     'draft',
     nullif(p_payload->>'due_date','')::date,
-    v_request, v_activity, case when v_activity is not null then 'set' end, v_entity
+    v_request, v_activity, v_source, v_entity
   ) returning id into v_invoice;
 
   for v_item in select * from jsonb_array_elements(coalesce(p_payload->'items','[]'::jsonb))
@@ -2364,7 +2741,7 @@ begin
   return jsonb_build_object('memberships', n_members, 'invoices_linked', n_linked, 'athletes_flagged', n_flags);
 end $$;
 
-select public.billing_migrate_club_fees(null);
+do $$ begin perform public.billing_migrate_club_fees(null); end $$;
 
 -- ===========================================================================
 -- 22. Grants
@@ -2387,7 +2764,12 @@ begin
     'public.membership_issue_result(uuid)',
     'public.family_credit_balance_activity(uuid, text, text)',
     'public.billing_classify_invoice(uuid)',
-    'public.billing_migrate_club_fees(uuid)'] loop
+    'public.billing_migrate_club_fees(uuid)',
+    'public.billing_series_prefix(uuid, text)',
+    'public.billing_next_number(uuid, text, timestamptz)',
+    'public.billing_reference_for(uuid, text)',
+    'public.billing_source_label(uuid, uuid, uuid, uuid, uuid)',
+    'public.billing_resolve_category_flag(uuid, text)'] loop
     execute format('revoke all on function %s from public, anon, authenticated', f);
     if exists (select 1 from pg_roles where rolname = 'service_role') then
       execute format('grant execute on function %s to service_role', f);
@@ -2397,7 +2779,7 @@ begin
   foreach f in array array[
     'public.invoices_billing_before_insert()', 'public.invoices_billing_guard()', 'public.billing_link_activity_trigger()',
     'public.family_credit_entries_activity()', 'public.payments_receipt_link()', 'public.payments_receipt_status()',
-    'public.payments_receipt_edit_guard()',
+    'public.payments_receipt_edit_guard()', 'public.invoices_billing_after_insert()',
     'public.memberships_season_guard()', 'public.seasons_sync_memberships()', 'public.organizations_default_billing_entity()'] loop
     execute format('revoke all on function %s from public, anon, authenticated', f);
   end loop;
@@ -2422,7 +2804,10 @@ begin
     'public.receipt_unallocated()',
     'public.membership_preview(jsonb)', 'public.membership_issue(jsonb)',
     'public.membership_carry_forward(uuid, uuid, numeric, text, uuid)', 'public.membership_summary(uuid)',
-    'public.invoice_source(uuid)'] loop
+    'public.invoice_source(uuid)',
+    'public.invoice_number_series_set(text, text, boolean)',
+    'public.invoice_totals_by_category(date, date, uuid, text)',
+    'public.billing_category_label(uuid)'] loop
     execute format('revoke all on function %s from public, anon', f);
     if exists (select 1 from pg_roles where rolname = 'authenticated') then
       execute format('grant execute on function %s to authenticated', f);

@@ -127,8 +127,9 @@ do $$
 declare v jsonb; v_inv uuid; v_total numeric; v_status text; v_items int; v_sum numeric;
 begin
   perform t.as_user('00000000-0000-0000-0000-0000000000f2');  -- finance
+  -- Revenue category required for manual invoices (migration 20250420103500).
   v := public.create_manual_invoice(jsonb_build_object(
-         'family_id', '00000000-0000-0000-0000-000000000061',
+         'family_id', '00000000-0000-0000-0000-000000000061', 'activity', 'camp',
          'description', 'Spring term',
          'due_date', (current_date + 30)::text,
          'items', jsonb_build_array(
