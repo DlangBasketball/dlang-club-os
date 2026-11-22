@@ -800,5 +800,30 @@
       "MEMBERS_ONLY": "This programme is for club members only.",
       "DIVISION_NOT_FOUND": "Choose a division of this programme."
     }
+  },
+  "teamAdmin": {
+    "form": {
+      "programme": "Programme (optional)",
+      "noProgramme": "No programme",
+      "programmeHint": "Link the team to a programme, such as a selection programme (EYBL), for billing and rosters. A programme team without a season joins the programme's season."
+    },
+    "team": {
+      "programme": "Programme: {name}"
+    },
+    "picker": {
+      "selection": "Selection programmes"
+    },
+    "delete": {
+      "archiveHelp": "Hidden from team lists and pickers. Roster, coaches, past games and stats are kept; upcoming events are cancelled. Restore it any time from the Teams page (Include archived).",
+      "deleteHelp": "Removes the team, its roster and coach assignments, its upcoming events and their replies, and unlinks its programme divisions. Players and invoices are kept. This cannot be undone.",
+      "divisionsList": "Linked programme divisions: {list}",
+      "impact": {
+        "linkedDivisions": "{count, plural, one {# programme division uses this team} other {# programme divisions use this team}}"
+      }
+    },
+    "division": {
+      "newTeamLink": "New team for this programme",
+      "teamNameHint": "Leave empty for the suggested name. Same sport, age group and level as the programme, in its season."
+    }
   }
 }

@@ -9759,5 +9759,127 @@
       "VPC_REQUIRED": "Children under 13 cannot apply online for this club. Please contact the club.",
       "CROSS_TENANT_REFERENCE": "This record belongs to another club."
     }
+  },
+  "teamAdmin": {
+    "list": {
+      "title": "Teams",
+      "description": "Squads by season, with coaches and rosters.",
+      "newTeam": "New team",
+      "season": "Season",
+      "allSeasons": "All seasons",
+      "currentSeasonOption": "{name} (current)",
+      "includeInactive": "Include archived",
+      "filter": "Filter",
+      "emptyTitle": "No teams yet",
+      "emptyHint": "Create your first team and add players to its roster.",
+      "emptyNoSeason": "Start by adding a season, then create teams.",
+      "noCoach": "No coach assigned",
+      "archived": "Archived",
+      "noSeasonGroup": "No season",
+      "noSeasonHint": "These teams belong to no season yet. Edit a team to put it in a season.",
+      "seasons": "Seasons",
+      "noSeasons": "No seasons yet.",
+      "current": "current"
+    },
+    "form": {
+      "newTitle": "New team",
+      "newDescription": "Teams work for any sport: name them the way your club does.",
+      "programme": "Program (optional)",
+      "noProgramme": "No program",
+      "programmeHint": "Link the team to a program, such as a selection program (EYBL), for billing and rosters. A program team without a season joins the program's season."
+    },
+    "team": {
+      "programme": "Program: {name}"
+    },
+    "picker": {
+      "selection": "Selection programs",
+      "noSeason": "No season"
+    },
+    "delete": {
+      "button": "Delete team",
+      "buttonAria": "Archive or delete {name}",
+      "title": "Remove {name}",
+      "intro": "Archive the team to hide it everywhere while keeping its roster and history, or delete it permanently.",
+      "loading": "Checking what this team is linked to…",
+      "modeLabel": "What should happen?",
+      "archive": "Archive (can be restored)",
+      "archiveHelp": "Hidden from team lists and pickers. Roster, coaches, past games and stats are kept; upcoming events are canceled. Restore it any time from the Teams page (Include archived).",
+      "alreadyArchived": "This team is already archived.",
+      "delete": "Delete permanently",
+      "deleteHelp": "Removes the team, its roster and coach assignments, its upcoming events and their replies, and unlinks its program divisions. Players and invoices are kept. This cannot be undone.",
+      "deleteBlocked": "Not possible for this team: archive it instead to keep its history.",
+      "typeToConfirm": "Type the team name \"{name}\" to confirm",
+      "confirmArchive": "Archive team",
+      "confirmDelete": "Delete permanently",
+      "restore": "Restore",
+      "restoreAria": "Restore {name}",
+      "doneArchived": "Team archived.",
+      "doneDeleted": "Team deleted.",
+      "doneRestored": "Team restored.",
+      "divisionsList": "Linked program divisions: {list}",
+      "impact": {
+        "nothing": "Nothing is linked to this team yet.",
+        "players": "{count, plural, one {# player on the roster} other {# players on the roster}}",
+        "coaches": "{count, plural, one {# coach assigned} other {# coaches assigned}}",
+        "upcomingEvents": "{count, plural, one {# upcoming event} other {# upcoming events}}",
+        "pastEvents": "{count, plural, one {# past event} other {# past events}}",
+        "pastGames": "{count, plural, one {# past game with results or stats} other {# past games with results or stats}}",
+        "linkedDivisions": "{count, plural, one {# program division uses this team} other {# program divisions use this team}}",
+        "messages": "{count, plural, one {# message in the team channel} other {# messages in the team channel}}",
+        "kitOutstanding": "{count, plural, one {# kit item ordered or handed out} other {# kit items ordered or handed out}}",
+        "billingLinks": "{count, plural, one {# payment plan or recurring fee refers to this team (kept)} other {# payment plans or recurring fees refer to this team (kept)}}"
+      },
+      "blockers": {
+        "past_events": "It has past events (games, results, stats or attendance).",
+        "messages": "Its team channel has messages.",
+        "kit": "Kit is still ordered or handed out to its players."
+      }
+    },
+    "division": {
+      "noTeam": "No team",
+      "openRoster": "Open the roster of {team}",
+      "newTeamLink": "New team for this program",
+      "mode": {
+        "create": "Create a team for this division",
+        "link": "Link an existing team",
+        "none": "No team"
+      },
+      "teamName": "Team name",
+      "teamNameHint": "Leave empty for the suggested name. Same sport, age group and level as the program, in its season.",
+      "existingTeam": "Team",
+      "chooseTeam": "Choose a team…",
+      "teamCreated": "Division saved and its team created.",
+      "deleteAria": "Delete division {name}",
+      "deleteTitle": "Delete division {name}",
+      "moveTo": "Move its applications to",
+      "moveHint": "{count, plural, one {# application is still open in this division: move it to another division first.} other {# applications are still open in this division: move them to another division first.}}",
+      "chooseDivision": "Choose a division…",
+      "noOtherDivision": "Add another division first, or decline or withdraw these applications.",
+      "noLiveApplications": "No open application in this division.",
+      "teamQuestion": "What about its team {team}?",
+      "teamChoice": {
+        "keep": "Keep the team",
+        "archive": "Archive the team",
+        "delete": "Delete the team permanently"
+      },
+      "teamChoiceHint": {
+        "keep": "The team stays as it is.",
+        "archive": "Hidden everywhere, roster and history kept, can be restored.",
+        "delete": "Only possible when the team has no history yet."
+      },
+      "confirmDelete": "Delete division"
+    },
+    "errors": {
+      "forbidden": "Only club admins can do that.",
+      "notFound": "This team no longer exists.",
+      "failed": "That did not work. Please try again.",
+      "confirmMismatch": "The team name you typed does not match.",
+      "blocked": "This team has history (past games, messages or kit in use) and cannot be deleted permanently. Archive it instead.",
+      "notArchived": "This team is not archived.",
+      "divisionHasApplications": "This division still has open applications: choose a division to move them to.",
+      "divisionHasTeam": "This division already has a team.",
+      "divisionNotFound": "That division no longer exists.",
+      "duplicateName": "A team with that name already exists in this season."
+    }
   }
 }

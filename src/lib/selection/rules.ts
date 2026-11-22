@@ -181,6 +181,9 @@ export const divisionSchema = z.object({
   ageCutoff: z.union([z.literal(""), z.null(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "selection.errors.date")])
     .optional().transform((v) => (v ? v : null)),
   teamId: z.union([z.literal(""), z.null(), z.string().uuid("selection.errors.invalid")]).optional().transform((v) => (v ? v : null)),
+  /** "create": a new team for the division (default name "<programme> <division>"); "link": teamId; "none": no team. */
+  teamMode: z.enum(["create", "link", "none"]).optional().default("link"),
+  teamName: z.string().trim().max(120, "selection.errors.tooLong").optional().default(""),
   capacity: z.union([z.literal(""), z.null(), z.coerce.number().int().min(1, "selection.errors.capacity").max(10000, "selection.errors.capacity")])
     .optional().transform((v) => (v === "" || v == null ? null : v)),
   sort: z.coerce.number().int().min(0).max(1000).optional().default(0),

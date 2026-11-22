@@ -68,6 +68,7 @@ export async function listAthleteOptions(): Promise<Result<Option[]>> {
 export type TeamSummary = {
   id: string; name: string; sport: string | null; ageGroup: string | null; gender: string | null; level: string | null;
   color: string | null; isActive: boolean; seasonId: string | null; seasonName: string | null; programId: string | null;
+  programName: string | null; isSelectionProgram: boolean;
   coaches: { id: string; name: string; role: string; title: string | null; photoUrl: string | null }[]; rosterCount: number;
 };
 
@@ -75,11 +76,18 @@ async function hydrateTeams(teams: TeamRow[]): Promise<Result<TeamSummary[]>> {
   const db = await sportsDb();
   const ids = teams.map((t) => t.id);
   if (!ids.length) return ok([]);
-  const [tc, tm, se] = await Promise.all([
+  type ProgramLite = { id: string; name: string; kind: string; selection_enabled: boolean | null };
+  const programIds = uniq(teams.map((t) => t.program_id));
+  const [tc, tm, se, pr] = await Promise.all([
     db.from("team_coaches").select("team_id,coach_id,role").in("team_id", ids),
     db.from("team_memberships").select("team_id,status").in("team_id", ids),
     db.from("seasons").select("id,name").in("id", uniq(teams.map((t) => t.season_id))),
+    programIds.length
+      ? (db.from("programs") as unknown as { select: (c: string) => { in: (k: string, v: string[]) => Promise<{ data: ProgramLite[] | null }> } })
+        .select("id,name,kind,selection_enabled").in("id", programIds)
+      : Promise.resolve({ data: [] as ProgramLite[] }),
   ]);
+  const program = new Map((pr.data ?? []).map((p) => [p.id, p]));
   if (tc.error) return fail(tc.error.message);
   const coachIds = uniq((tc.data ?? []).map((r) => r.coach_id));
   type CoachLite = { id: string; org_id: string; display_name: string; role_title: string | null; photo_path: string | null };
@@ -96,6 +104,8 @@ async function hydrateTeams(teams: TeamRow[]): Promise<Result<TeamSummary[]>> {
   return ok(teams.map((t) => ({
     id: t.id, name: t.name, sport: t.sport, ageGroup: t.age_group, gender: t.gender, level: t.level, color: t.color,
     isActive: t.is_active, seasonId: t.season_id, seasonName: t.season_id ? seasonName.get(t.season_id) ?? null : null, programId: t.program_id,
+    programName: t.program_id ? program.get(t.program_id)?.name ?? null : null,
+    isSelectionProgram: !!t.program_id && (program.get(t.program_id)?.kind === "selection" || !!program.get(t.program_id)?.selection_enabled),
     coaches: (tc.data ?? []).filter((r) => r.team_id === t.id).map((r) => ({
       id: r.coach_id, name: coachName.get(r.coach_id) ?? "Coach", role: r.role,
       title: coachTitle.get(r.coach_id) ?? null, photoUrl: coachPhoto.get(r.coach_id) ?? null,
@@ -104,10 +114,17 @@ async function hydrateTeams(teams: TeamRow[]): Promise<Result<TeamSummary[]>> {
   })));
 }
 
-export async function listTeams(opts: { seasonId?: string; includeInactive?: boolean } = {}): Promise<Result<TeamSummary[]>> {
+/**
+ * Teams of the club. With a season: that season's teams, plus (includeNoSeason)
+ * the teams without a season, so a team never silently disappears from the
+ * current-season list.
+ */
+export async function listTeams(opts: { seasonId?: string; includeInactive?: boolean; includeNoSeason?: boolean } = {}): Promise<Result<TeamSummary[]>> {
   const db = await sportsDb();
   let q = db.from("teams").select("*").order("name");
-  if (opts.seasonId) q = q.eq("season_id", opts.seasonId);
+  const seasonId = opts.seasonId && /^[0-9a-f-]{36}$/i.test(opts.seasonId) ? opts.seasonId : undefined;
+  if (opts.seasonId && !seasonId) return ok([]);
+  if (seasonId) q = opts.includeNoSeason ? q.or(`season_id.eq.${seasonId},season_id.is.null`) : q.eq("season_id", seasonId);
   if (!opts.includeInactive) q = q.eq("is_active", true);
   const { data, error } = await q;
   if (error) return fail(error.message);

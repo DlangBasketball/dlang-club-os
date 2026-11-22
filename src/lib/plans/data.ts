@@ -197,7 +197,7 @@ export type EnrolOptions = { teams: { id: string; name: string }[]; programs: { 
 export async function enrolOptions(orgId: string): Promise<EnrolOptions> {
   const db = await plansDb();
   const [{ data: teams }, { data: programs }, { data: athletes }] = await Promise.all([
-    db.from("teams").select("id,name").eq("org_id", orgId).order("name"),
+    db.from("teams").select("id,name").eq("org_id", orgId).eq("is_active", true).order("name"),
     db.from("programs").select("id,name").eq("org_id", orgId).order("name"),
     db.from("athletes").select("id,first_name,last_name").eq("org_id", orgId).eq("status", "active").order("last_name").limit(2000),
   ]);

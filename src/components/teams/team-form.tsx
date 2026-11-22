@@ -97,11 +97,12 @@ export function TeamForm({ teamId, initial, slugAuto = true, seasons, programs, 
             <option value="">No season</option>
             {seasons.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </Select></div>
-        <div><Label htmlFor="t-program">Linked program (billing)</Label>
-          <Select id="t-program" value={f.programId} onChange={(e) => set("programId", e.target.value)}>
-            <option value="">None</option>
+        <div><Label htmlFor="t-program">{tr("teamAdmin.form.programme")}</Label>
+          <Select id="t-program" value={f.programId} onChange={(e) => set("programId", e.target.value)} aria-describedby="t-program-hint">
+            <option value="">{tr("teamAdmin.form.noProgramme")}</option>
             {programs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </Select></div>
+          </Select>
+          <p id="t-program-hint" className="mt-1 text-xs text-ink-3">{tr("teamAdmin.form.programmeHint")}</p></div>
         <div><Label htmlFor="t-sport">Sport</Label><Input id="t-sport" maxLength={60} value={f.sport} onChange={(e) => set("sport", e.target.value)} placeholder="Basketball, soccer, swimming…" /></div>
         <div><Label htmlFor="t-age">Age group</Label><Input id="t-age" maxLength={40} value={f.ageGroup} onChange={(e) => set("ageGroup", e.target.value)} placeholder="U12, Varsity, Seniors" /></div>
         <div><Label htmlFor="t-gender">Gender</Label>

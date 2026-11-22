@@ -72,6 +72,9 @@ type SelectionFunctions = {
   };
   selection_head_coach: { Args: { p_program: string }; Returns: boolean };
   sponsorship_apply_service: { Args: { p_invoice: string }; Returns: Json };
+  // migration 20250420102700_team_delete.sql
+  create_division_team: { Args: { p_division: string; p_name?: string | null }; Returns: string };
+  selection_delete_division: { Args: { p_division: string; p_move_to?: string | null; p_team_mode?: string }; Returns: Json };
 };
 
 type Pub = Database["public"];

@@ -6,7 +6,9 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { getProgramStats, getReviewList, getSelectionSetup } from "@/lib/selection/data";
 import { selectionDb } from "@/lib/selection/db";
-import { CoachesEditor, DivisionsEditor, PackagesEditor, SelectionSettings } from "@/components/selection/setup-editor";
+import { CoachesEditor, PackagesEditor, SelectionSettings } from "@/components/selection/setup-editor";
+import { DivisionsEditor } from "@/components/selection/divisions-editor";
+import { getTeamPickerOptions } from "@/lib/data/player-profile";
 import { ReviewBoard } from "@/components/selection/review-board";
 
 export async function generateMetadata() {
@@ -24,16 +26,21 @@ export default async function SelectionProgramPage({ params }: { params: Promise
   if (!setup) notFound();
   const isAdmin = me.roles.includes("admin");
   const db = await selectionDb();
-  const [review, stats, { data: teams }, { data: coaches }] = await Promise.all([
+  const [review, stats, teams, { data: coaches }] = await Promise.all([
     getReviewList(programId),
     getProgramStats(programId),
-    isAdmin ? db.from("teams").select("id,name").eq("org_id", me.orgId).eq("is_active", true).order("name") : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    // Every team of the club (archived ones only to name a linked team), grouped in the picker.
+    isAdmin ? getTeamPickerOptions() : Promise.resolve([]),
     isAdmin ? db.from("coaches").select("id,display_name").eq("org_id", me.orgId).order("display_name") : Promise.resolve({ data: [] as { id: string; display_name: string }[] }),
   ]);
   const p = setup.program;
   const currency = p.currency ?? f.currency;
   const s = stats.data[0];
   const divisions = setup.divisions.map((d) => ({ id: d.id, name: d.name }));
+  const liveApplications: Record<string, number> = {};
+  for (const r of review.data) {
+    if (r.divisionId && r.status !== "declined" && r.status !== "withdrawn") liveApplications[r.divisionId] = (liveApplications[r.divisionId] ?? 0) + 1;
+  }
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -71,7 +78,7 @@ export default async function SelectionProgramPage({ params }: { params: Promise
         <section className="space-y-4">
           <h2 className="font-display text-xl text-text">{t("selection.setup.title")}</h2>
           <SelectionSettings programId={p.id} selectionEnabled={p.selectionEnabled} requiresApproval={p.requiresApproval} allowNonMembers={p.allowNonMembers} />
-          <DivisionsEditor programId={p.id} divisions={setup.divisions} teams={teams ?? []} />
+          <DivisionsEditor programId={p.id} programName={p.name} divisions={setup.divisions} teams={teams} liveApplications={liveApplications} />
           <PackagesEditor programId={p.id} packages={setup.packages} currency={currency} />
           <CoachesEditor programId={p.id} assigned={setup.coaches} divisions={divisions}
             coaches={(coaches ?? []).map((c) => ({ id: c.id, name: c.display_name }))} />

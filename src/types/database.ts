@@ -806,6 +806,12 @@ export type Database = {
       erase_person_deletion: { Args: { p_deletion: string }; Returns: Json };
       purge_due_person_deletions: { Args: { p_limit?: number }; Returns: Json };
       person_deletions_due_notice: { Args: { p_days?: number }; Returns: { org_id: string; deletion_id: string; kind: string; purge_after: string }[] };
+      // archive / delete a team, programme division teams (20250420102700)
+      preview_delete_team: { Args: { p_team: string }; Returns: Json };
+      delete_team: { Args: { p_team: string; p_mode?: string }; Returns: Json };
+      restore_team: { Args: { p_team: string }; Returns: Json };
+      create_division_team: { Args: { p_division: string; p_name?: string | null }; Returns: string };
+      selection_delete_division: { Args: { p_division: string; p_move_to?: string | null; p_team_mode?: string }; Returns: Json };
       set_coach_photo: { Args: { p_coach: string; p_path: string | null }; Returns: string | null };
       coach_usage: { Args: { p_coach: string }; Returns: Json };
       delete_coach_if_unused: { Args: { p_coach: string }; Returns: Json };

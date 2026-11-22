@@ -2,91 +2,115 @@ import Link from "next/link";
 import { Pencil, Plus, Shield } from "lucide-react";
 import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState, Avatar } from "@/components/ui";
 import { SeasonForm } from "@/components/teams/season-form";
-import { listSeasons, listTeams } from "@/lib/sportsops/data";
+import { DeleteTeamButton, RestoreTeamButton } from "@/components/teams/delete-team";
+import { listSeasons, listTeams, type TeamSummary } from "@/lib/sportsops/data";
 import { labelsFor } from "@/lib/sportsops/labels";
 import { getTenant } from "@/lib/tenant/server";
+import { getSessionUser } from "@/lib/auth/get-user";
 import { selectClass } from "@/components/teams/fields";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n, getTranslations } from "@/lib/i18n/server";
+import { splitTeamsBySeason } from "@/lib/teams/programme-teams";
 
-export const metadata = { title: "Teams" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("teamAdmin.list.title") };
+}
 
 export default async function TeamsPage({ searchParams }: { searchParams: Promise<{ season?: string; all?: string }> }) {
   const LABELS = labelsFor((await getTenant()).terminology);
-  const { t: tr, f } = await getI18n();
+  const [{ t: tr, f }, me] = await Promise.all([getI18n(), getSessionUser()]);
+  const isAdmin = !!me?.roles.includes("admin");
   const sp = await searchParams;
   const seasons = await listSeasons();
   if (seasons.error !== null) return <div className="animate-fade-up"><PageHeader title={LABELS.teams} /><ErrorState message={seasons.error} /></div>;
   const current = seasons.data.find((s) => s.isCurrent);
   const seasonId = sp.season === "all" ? undefined : sp.season ?? current?.id;
-  const teams = await listTeams({ seasonId, includeInactive: sp.all === "1" });
+  // A season filter also lists the teams without a season ("No season" group),
+  // so programme teams created without one never silently disappear.
+  const teams = await listTeams({ seasonId, includeInactive: sp.all === "1", includeNoSeason: true });
   if (teams.error !== null) return <div className="animate-fade-up"><PageHeader title={LABELS.teams} /><ErrorState message={teams.error} /></div>;
+  const { inSeason, noSeason } = splitTeamsBySeason(teams.data, seasonId);
+  const newTeam = <Link href="/admin/teams/new"><Button size="sm"><Plus className="h-4 w-4" /> {tr("teamAdmin.list.newTeam")}</Button></Link>;
+
+  const card = (t: TeamSummary) => (
+    <Card key={t.id} className="h-full transition-colors hover:border-maroon" style={t.color ? { borderTop: `3px solid ${t.color}` } : undefined}>
+      <CardBody>
+        <div className="flex items-start justify-between gap-2">
+          <Link href={`/admin/teams/${t.id}`} className="text-base font-semibold text-ink hover:text-maroon">{t.name}</Link>
+          <div className="flex shrink-0 items-center gap-1">
+            {!t.isActive && <Badge>{tr("teamAdmin.list.archived")}</Badge>}
+            <Link href={`/admin/teams/${t.id}/edit`} aria-label={tr("editOps.teams.editNamed", { name: t.name })}>
+              <Button size="sm" variant="ghost"><Pencil className="h-3.5 w-3.5" /> {tr("common.edit")}</Button>
+            </Link>
+            {isAdmin && t.isActive && <DeleteTeamButton teamId={t.id} name={t.name} variant="icon" />}
+          </div>
+        </div>
+        <div className="mt-1 flex flex-wrap gap-1.5 text-xs text-ink-3">
+          {t.programName && <Badge tone={t.isSelectionProgram ? "accent" : "neutral"}>{t.programName}</Badge>}
+          {[t.sport, t.ageGroup, t.gender, t.level].filter(Boolean).map((x) => <Badge key={x} tone="neutral">{x}</Badge>)}
+        </div>
+        <div className="mt-3 flex items-center justify-between text-sm text-ink-2">
+          <span className="flex min-w-0 items-center gap-2">
+            {t.coaches.length > 0 && (
+              <span className="flex -space-x-2">
+                {t.coaches.slice(0, 3).map((c) => <Avatar key={c.id} name={c.name} src={c.photoUrl} size="sm" className="ring-2 ring-[var(--surface)]" />)}
+              </span>
+            )}
+            <span className="truncate">{t.coaches.length ? t.coaches.map((c) => c.name).join(", ") : tr("teamAdmin.list.noCoach")}</span>
+          </span>
+          <span className="tnum text-ink">{f.number(t.rosterCount)} {t.rosterCount === 1 ? LABELS.athlete.toLowerCase() : LABELS.athletes.toLowerCase()}</span>
+        </div>
+        {t.seasonName && <div className="mt-1 text-xs text-ink-3">{t.seasonName}</div>}
+        {isAdmin && !t.isActive && <div className="mt-3"><RestoreTeamButton teamId={t.id} name={t.name} /></div>}
+      </CardBody>
+    </Card>
+  );
 
   return (
     <div className="animate-fade-up space-y-6">
-      <PageHeader title={LABELS.teams} description="Squads by season, with coaches and rosters."
-        actions={<Link href="/admin/teams/new"><Button size="sm"><Plus className="h-4 w-4" /> New team</Button></Link>} />
+      <PageHeader title={LABELS.teams} description={tr("teamAdmin.list.description")} actions={newTeam} />
 
       <form className="flex flex-wrap items-center gap-3" method="get">
-        <select name="season" defaultValue={sp.season ?? current?.id ?? "all"} className={`${selectClass} w-56`} aria-label="Season">
-          <option value="all">All seasons</option>
-          {seasons.data.map((s) => <option key={s.id} value={s.id}>{s.name}{s.isCurrent ? " (current)" : ""}</option>)}
+        <select name="season" defaultValue={sp.season ?? current?.id ?? "all"} className={`${selectClass} w-56`} aria-label={tr("teamAdmin.list.season")}>
+          <option value="all">{tr("teamAdmin.list.allSeasons")}</option>
+          {seasons.data.map((s) => <option key={s.id} value={s.id}>{s.isCurrent ? tr("teamAdmin.list.currentSeasonOption", { name: s.name }) : s.name}</option>)}
         </select>
-        <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" name="all" value="1" defaultChecked={sp.all === "1"} className="h-4 w-4 accent-[var(--red-primary)]" /> Include inactive</label>
-        <Button type="submit" size="sm" variant="secondary">Filter</Button>
+        <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" name="all" value="1" defaultChecked={sp.all === "1"} className="h-4 w-4 accent-[var(--red-primary)]" /> {tr("teamAdmin.list.includeInactive")}</label>
+        <Button type="submit" size="sm" variant="secondary">{tr("teamAdmin.list.filter")}</Button>
       </form>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-        <div>
+        <div className="space-y-6">
           {teams.data.length === 0 ? (
-            <EmptyState icon={<Shield className="h-5 w-5" />} title="No teams yet"
-              description={seasons.data.length ? "Create your first team and add athletes to its roster." : "Start by adding a season, then create teams."}
-              action={<Link href="/admin/teams/new"><Button size="sm"><Plus className="h-4 w-4" /> New team</Button></Link>} />
+            <EmptyState icon={<Shield className="h-5 w-5" />} title={tr("teamAdmin.list.emptyTitle")}
+              description={seasons.data.length ? tr("teamAdmin.list.emptyHint") : tr("teamAdmin.list.emptyNoSeason")}
+              action={newTeam} />
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {teams.data.map((t) => (
-                <Card key={t.id} className="h-full transition-colors hover:border-maroon" style={t.color ? { borderTop: `3px solid ${t.color}` } : undefined}>
-                    <CardBody>
-                      <div className="flex items-start justify-between gap-2">
-                        <Link href={`/admin/teams/${t.id}`} className="text-base font-semibold text-ink hover:text-maroon">{t.name}</Link>
-                        <div className="flex shrink-0 items-center gap-1">
-                          {!t.isActive && <Badge>inactive</Badge>}
-                          <Link href={`/admin/teams/${t.id}/edit`} aria-label={tr("editOps.teams.editNamed", { name: t.name })}>
-                            <Button size="sm" variant="ghost"><Pencil className="h-3.5 w-3.5" /> {tr("common.edit")}</Button>
-                          </Link>
-                        </div>
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-1.5 text-xs text-ink-3">
-                        {[t.sport, t.ageGroup, t.gender, t.level].filter(Boolean).map((x) => <Badge key={x} tone="neutral">{x}</Badge>)}
-                      </div>
-                      <div className="mt-3 flex items-center justify-between text-sm text-ink-2">
-                        <span className="flex min-w-0 items-center gap-2">
-                          {t.coaches.length > 0 && (
-                            <span className="flex -space-x-2">
-                              {t.coaches.slice(0, 3).map((c) => <Avatar key={c.id} name={c.name} src={c.photoUrl} size="sm" className="ring-2 ring-[var(--surface)]" />)}
-                            </span>
-                          )}
-                          <span className="truncate">{t.coaches.length ? t.coaches.map((c) => c.name).join(", ") : "No coach assigned"}</span>
-                        </span>
-                        <span className="tnum text-ink">{t.rosterCount} {t.rosterCount === 1 ? LABELS.athlete.toLowerCase() : LABELS.athletes.toLowerCase()}</span>
-                      </div>
-                      {t.seasonName && <div className="mt-1 text-xs text-ink-3">{t.seasonName}</div>}
-                    </CardBody>
-                  </Card>
-              ))}
-            </div>
+            <>
+              {inSeason.length > 0 && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{inSeason.map(card)}</div>}
+              {noSeason.length > 0 && (
+                <section className="space-y-3" aria-labelledby="teams-no-season">
+                  <div>
+                    <h2 id="teams-no-season" className="text-sm font-semibold uppercase tracking-[0.12em] text-ink-3">{tr("teamAdmin.list.noSeasonGroup")}</h2>
+                    <p className="text-xs text-ink-3">{tr("teamAdmin.list.noSeasonHint")}</p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{noSeason.map(card)}</div>
+                </section>
+              )}
+            </>
           )}
         </div>
 
         <aside className="space-y-4">
           <Card>
-            <CardHeader><CardTitle>Seasons</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{tr("teamAdmin.list.seasons")}</CardTitle></CardHeader>
             <CardBody className="space-y-4">
-              {seasons.data.length === 0 && <p className="text-sm text-ink-3">No seasons yet.</p>}
+              {seasons.data.length === 0 && <p className="text-sm text-ink-3">{tr("teamAdmin.list.noSeasons")}</p>}
               <ul className="space-y-2 text-sm">
                 {seasons.data.map((s) => (
                   <li key={s.id} className="flex items-center justify-between gap-2">
                     <span className="font-medium text-ink">{s.name}</span>
-                    <span className="text-xs text-ink-3">{f.date(s.startsOn)} – {f.date(s.endsOn)}{s.isCurrent && <Badge tone="maroon" className="ml-2">current</Badge>}</span>
+                    <span className="text-xs text-ink-3">{f.date(s.startsOn)} – {f.date(s.endsOn)}{s.isCurrent && <Badge tone="maroon" className="ml-2">{tr("teamAdmin.list.current")}</Badge>}</span>
                   </li>
                 ))}
               </ul>

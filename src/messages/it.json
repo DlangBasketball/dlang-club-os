@@ -9759,5 +9759,127 @@
       "VPC_REQUIRED": "I bambini sotto i 13 anni non possono candidarsi online per questo club. Contatta il club.",
       "CROSS_TENANT_REFERENCE": "Questo elemento appartiene a un altro club."
     }
+  },
+  "teamAdmin": {
+    "list": {
+      "title": "Squadre",
+      "description": "Squadre per stagione, con allenatori e rose.",
+      "newTeam": "Nuova squadra",
+      "season": "Stagione",
+      "allSeasons": "Tutte le stagioni",
+      "currentSeasonOption": "{name} (in corso)",
+      "includeInactive": "Mostra archiviate",
+      "filter": "Filtra",
+      "emptyTitle": "Ancora nessuna squadra",
+      "emptyHint": "Crea la tua prima squadra e aggiungi giocatori alla rosa.",
+      "emptyNoSeason": "Inizia aggiungendo una stagione, poi crea le squadre.",
+      "noCoach": "Nessun allenatore assegnato",
+      "archived": "Archiviata",
+      "noSeasonGroup": "Senza stagione",
+      "noSeasonHint": "Queste squadre non appartengono ancora a nessuna stagione. Modifica una squadra per assegnarla a una stagione.",
+      "seasons": "Stagioni",
+      "noSeasons": "Ancora nessuna stagione.",
+      "current": "in corso"
+    },
+    "form": {
+      "newTitle": "Nuova squadra",
+      "newDescription": "Le squadre vanno bene per ogni sport: chiamale come fa il tuo club.",
+      "programme": "Programma (facoltativo)",
+      "noProgramme": "Nessun programma",
+      "programmeHint": "Collega la squadra a un programma, per esempio un programma di selezione (EYBL), per fatture e rose. Una squadra di programma senza stagione entra nella stagione del programma."
+    },
+    "team": {
+      "programme": "Programma: {name}"
+    },
+    "picker": {
+      "selection": "Programmi di selezione",
+      "noSeason": "Senza stagione"
+    },
+    "delete": {
+      "button": "Elimina squadra",
+      "buttonAria": "Archivia o elimina {name}",
+      "title": "Rimuovi {name}",
+      "intro": "Archivia la squadra per nasconderla ovunque mantenendo rosa e storico, oppure eliminala definitivamente.",
+      "loading": "Verifica dei collegamenti di questa squadra…",
+      "modeLabel": "Cosa vuoi fare?",
+      "archive": "Archivia (ripristinabile)",
+      "archiveHelp": "Nascosta da elenchi e selettori di squadre. Rosa, allenatori, partite passate e statistiche restano; gli eventi futuri vengono annullati. Ripristinala in qualsiasi momento dalla pagina Squadre (Mostra archiviate).",
+      "alreadyArchived": "Questa squadra è già archiviata.",
+      "delete": "Elimina definitivamente",
+      "deleteHelp": "Rimuove la squadra, la rosa e gli allenatori assegnati, gli eventi futuri e le relative risposte, e la scollega dalle divisioni di programma. Giocatori e fatture restano. Operazione irreversibile.",
+      "deleteBlocked": "Non possibile per questa squadra: archiviala per mantenerne lo storico.",
+      "typeToConfirm": "Digita il nome della squadra «{name}» per confermare",
+      "confirmArchive": "Archivia squadra",
+      "confirmDelete": "Elimina definitivamente",
+      "restore": "Ripristina",
+      "restoreAria": "Ripristina {name}",
+      "doneArchived": "Squadra archiviata.",
+      "doneDeleted": "Squadra eliminata.",
+      "doneRestored": "Squadra ripristinata.",
+      "divisionsList": "Divisioni di programma collegate: {list}",
+      "impact": {
+        "nothing": "Ancora nulla è collegato a questa squadra.",
+        "players": "{count, plural, one {# giocatore in rosa} other {# giocatori in rosa}}",
+        "coaches": "{count, plural, one {# allenatore assegnato} other {# allenatori assegnati}}",
+        "upcomingEvents": "{count, plural, one {# evento futuro} other {# eventi futuri}}",
+        "pastEvents": "{count, plural, one {# evento passato} other {# eventi passati}}",
+        "pastGames": "{count, plural, one {# partita passata con risultati o statistiche} other {# partite passate con risultati o statistiche}}",
+        "linkedDivisions": "{count, plural, one {# divisione di programma usa questa squadra} other {# divisioni di programma usano questa squadra}}",
+        "messages": "{count, plural, one {# messaggio nel canale della squadra} other {# messaggi nel canale della squadra}}",
+        "kitOutstanding": "{count, plural, one {# capo di materiale ordinato o consegnato} other {# capi di materiale ordinati o consegnati}}",
+        "billingLinks": "{count, plural, one {# piano di pagamento o quota ricorrente si riferisce a questa squadra (mantenuto)} other {# piani di pagamento o quote ricorrenti si riferiscono a questa squadra (mantenuti)}}"
+      },
+      "blockers": {
+        "past_events": "Ha eventi passati (partite, risultati, statistiche o presenze).",
+        "messages": "Il suo canale di squadra contiene messaggi.",
+        "kit": "Del materiale è ancora ordinato o consegnato ai suoi giocatori."
+      }
+    },
+    "division": {
+      "noTeam": "Nessuna squadra",
+      "openRoster": "Apri la rosa di {team}",
+      "newTeamLink": "Nuova squadra per questo programma",
+      "mode": {
+        "create": "Crea una squadra per questa divisione",
+        "link": "Collega una squadra esistente",
+        "none": "Nessuna squadra"
+      },
+      "teamName": "Nome della squadra",
+      "teamNameHint": "Lascia vuoto per il nome proposto. Stesso sport, categoria d'età e livello del programma, nella sua stagione.",
+      "existingTeam": "Squadra",
+      "chooseTeam": "Scegli una squadra…",
+      "teamCreated": "Divisione salvata e squadra creata.",
+      "deleteAria": "Elimina la divisione {name}",
+      "deleteTitle": "Elimina la divisione {name}",
+      "moveTo": "Sposta le candidature in",
+      "moveHint": "{count, plural, one {# candidatura è ancora aperta in questa divisione: spostala prima in un'altra divisione.} other {# candidature sono ancora aperte in questa divisione: spostale prima in un'altra divisione.}}",
+      "chooseDivision": "Scegli una divisione…",
+      "noOtherDivision": "Aggiungi prima un'altra divisione, oppure rifiuta o ritira queste candidature.",
+      "noLiveApplications": "Nessuna candidatura aperta in questa divisione.",
+      "teamQuestion": "E la sua squadra {team}?",
+      "teamChoice": {
+        "keep": "Mantieni la squadra",
+        "archive": "Archivia la squadra",
+        "delete": "Elimina la squadra definitivamente"
+      },
+      "teamChoiceHint": {
+        "keep": "La squadra resta com'è.",
+        "archive": "Nascosta ovunque, rosa e storico mantenuti, ripristinabile.",
+        "delete": "Possibile solo se la squadra non ha ancora uno storico."
+      },
+      "confirmDelete": "Elimina divisione"
+    },
+    "errors": {
+      "forbidden": "Solo gli amministratori del club possono farlo.",
+      "notFound": "Questa squadra non esiste più.",
+      "failed": "Non ha funzionato. Riprova.",
+      "confirmMismatch": "Il nome della squadra digitato non corrisponde.",
+      "blocked": "Questa squadra ha uno storico (partite passate, messaggi o materiale in uso) e non può essere eliminata definitivamente. Archiviala invece.",
+      "notArchived": "Questa squadra non è archiviata.",
+      "divisionHasApplications": "Questa divisione ha ancora candidature aperte: scegli una divisione in cui spostarle.",
+      "divisionHasTeam": "Questa divisione ha già una squadra.",
+      "divisionNotFound": "Questa divisione non esiste più.",
+      "duplicateName": "In questa stagione esiste già una squadra con questo nome."
+    }
   }
 }
