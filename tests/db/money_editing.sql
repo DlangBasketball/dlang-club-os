@@ -228,7 +228,10 @@ begin
 
   -- New invoice for the same family, paid from the credit.
   perform me.as_user('00000000-0000-0000-0000-0000000000f2');
-  j := public.create_manual_invoice(jsonb_build_object('family_id', '00000000-0000-0000-0000-000000000061',
+  -- Same activity as the overpaid camp invoice: family credit is scoped to
+  -- its activity (migration 20250420103500; cross-activity use is refused,
+  -- tests/db/billing_foundation.sql).
+  j := public.create_manual_invoice(jsonb_build_object('family_id', '00000000-0000-0000-0000-000000000061', 'activity', 'camp',
          'items', jsonb_build_array(jsonb_build_object('description', 'Clinic', 'quantity', 1, 'unit_price_chf', 100))));
   perform me.as_super();
   v2 := (j->>'invoice_id')::uuid;
