@@ -82,9 +82,23 @@ grant all on sb.ctx to authenticated;
 create function sb.get(p text) returns uuid language sql as $$ select v::uuid from sb.ctx where k = p $$;
 grant execute on function sb.get(text) to authenticated, anon;
 
+-- Anchor for the test camps (weeks at +40..+58 days). Multi-week positions are
+-- counted per child per calendar year and the fixtures below register the child
+-- in 2027, so the test weeks must sit inside one calendar year other than 2027.
+-- Normally that is simply today; near a year end or in 2027 it moves to the
+-- next suitable January (ages stay within the 8-12 group).
+create function sb.d0() returns date language plpgsql as $$
+declare y int := extract(year from current_date + 40)::int;
+begin
+  if y <> 2027 and extract(year from current_date + 58)::int = y then return current_date; end if;
+  y := greatest(y + 1, 2028);
+  return make_date(y, 1, 10);
+end $$;
+grant execute on function sb.d0() to authenticated, anon;
+
 create function sb.days(p_from int, p_n int) returns jsonb language sql as $$
   select jsonb_agg(to_char(d, 'YYYY-MM-DD') order by d)
-    from (select (current_date + p_from + g)::date d from generate_series(0, p_n - 1) g) x
+    from (select (sb.d0() + p_from + g)::date d from generate_series(0, p_n - 1) g) x
 $$;
 
 -- Org B admin
@@ -249,11 +263,11 @@ begin
   perform public.camp_copy_config(v_org, v_src, v_a);
   perform public.camp_copy_config(v_org, v_src, v_b);
   insert into public.camp_editions (org_id, program_id, name, starts_on, ends_on, city, capacity, status, registration_opens_at, registration_closes_at)
-  values (v_org, v_a, 'Week 1', current_date + 40, current_date + 44, 'Lausanne', 3, 'published', now() - interval '1 day', now() + interval '30 days') returning id into v_e1;
+  values (v_org, v_a, 'Week 1', sb.d0() + 40, sb.d0() + 44, 'Lausanne', 3, 'published', now() - interval '1 day', now() + interval '30 days') returning id into v_e1;
   insert into public.camp_editions (org_id, program_id, name, starts_on, ends_on, city, capacity, status, registration_opens_at, registration_closes_at)
-  values (v_org, v_a, 'Week 2', current_date + 47, current_date + 51, 'Lausanne', 10, 'published', now() - interval '1 day', now() + interval '30 days') returning id into v_e2;
+  values (v_org, v_a, 'Week 2', sb.d0() + 47, sb.d0() + 51, 'Lausanne', 10, 'published', now() - interval '1 day', now() + interval '30 days') returning id into v_e2;
   insert into public.camp_editions (org_id, program_id, name, starts_on, ends_on, city, capacity, status, registration_opens_at, registration_closes_at)
-  values (v_org, v_b, 'Week 3', current_date + 54, current_date + 58, 'Zurich', 1, 'published', now() - interval '1 day', now() + interval '30 days') returning id into v_e3;
+  values (v_org, v_b, 'Week 3', sb.d0() + 54, sb.d0() + 58, 'Zurich', 1, 'published', now() - interval '1 day', now() + interval '30 days') returning id into v_e3;
   insert into sb.ctx values ('A', v_a::text), ('B', v_b::text), ('e1', v_e1::text), ('e2', v_e2::text), ('e3', v_e3::text);
   insert into sb.ctx select 'a5l', id::text from public.camp_price_options where program_id = v_a and days_count = 5 and includes_lunch and edition_id is null;
   insert into sb.ctx select 'a2n', id::text from public.camp_price_options where program_id = v_a and days_count = 2 and not includes_lunch and edition_id is null;
@@ -361,7 +375,7 @@ begin
                   where f.key = 'media' and ca.athlete_id = '00000000-0000-0000-0000-000000000071' and ca.program_id in (sb.get('A'), sb.get('B'))) = 2,
                 'basket: consent recorded per child and camp');
   perform sb.ok(exists (select 1 from public.audit_logs where action = 'camp.basket_checkout' and target_id = v_inv), 'basket: audit log row');
-  perform sb.ok(public.invoice_activity_start(v_inv) = current_date + 40, 'basket: instalment activity start = first week');
+  perform sb.ok(public.invoice_activity_start(v_inv) = sb.d0() + 40, 'basket: instalment activity start = first week');
 end $$;
 
 -- ===========================================================================
