@@ -71,10 +71,10 @@ values ('00000000-0000-0000-0000-0000000004b1', '00000000-0000-0000-0000-0000000
         true, true, 'published', true, true, 2026, now() - interval '1 day', 'roster'),
        ('00000000-0000-0000-0000-0000000004b2', '00000000-0000-0000-0000-000000000001', 'roster-s2', 'Roster season 2', 'selection', 0,
         false, true, 'published', true, true, 2027, null, 'roster');
-insert into public.program_divisions (id, org_id, program_id, name, min_birth_year, team_id, sort) values
-  ('00000000-0000-0000-0000-0000000004c1', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b1', 'U14', 2013, '00000000-0000-0000-0000-0000000004a1', 1),
-  ('00000000-0000-0000-0000-0000000004c2', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b1', 'U16', 2010, '00000000-0000-0000-0000-0000000004a2', 2),
-  ('00000000-0000-0000-0000-0000000004c3', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b2', 'All', null, null, 1);
+insert into public.program_divisions (id, org_id, program_id, name, min_birth_year, max_birth_year, team_id, sort) values
+  ('00000000-0000-0000-0000-0000000004c1', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b1', 'U14', 2013, 2017, '00000000-0000-0000-0000-0000000004a1', 1),
+  ('00000000-0000-0000-0000-0000000004c2', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b1', 'U16', 2009, 2014, '00000000-0000-0000-0000-0000000004a2', 2),
+  ('00000000-0000-0000-0000-0000000004c3', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b2', 'All', null, null, null, 1);
 insert into public.program_packages (id, org_id, program_id, name, price, allowed_counts, tournament_count, monthly_amount) values
   ('00000000-0000-0000-0000-0000000004d1', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b1', '1 tournament', 1500, '{1}', 1, 300),
   ('00000000-0000-0000-0000-0000000004d2', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b1', '2 tournaments', 3000, '{1}', 2, 300),
@@ -506,6 +506,75 @@ begin
   v := sr.run_as(admin_a, $q$select public.selection_staff_add('00000000-0000-0000-0000-0000000004b1', '00000000-0000-0000-0000-000000000071',
         '00000000-0000-0000-0000-0000000004c1', '00000000-0000-0000-0000-0000000004d1', '{}'::uuid[], 'full', null, current_date, 'accepted', 'later')->>'status'$q$);
   perform sr.ok(v = 'OK:accepted', 're-enrolment after withdrawal allowed (' || v || ')');
+  perform sr.put('app3', (select id::text from public.program_applications where athlete_id = '00000000-0000-0000-0000-000000000071'
+                            and program_id = '00000000-0000-0000-0000-0000000004b1' and status = 'accepted'));
+end $$;
+
+-- ===========================================================================
+-- G. Single enrolment form: age group, tournaments per division, fee, save
+-- ===========================================================================
+do $$
+declare v text;
+  admin_a uuid := '00000000-0000-0000-0000-0000000000f1';
+  finance_a uuid := '00000000-0000-0000-0000-0000000000f2';
+begin
+  -- Age group: athlete …073 (born 2016) is outside U16 (2009-2014).
+  perform sr.ok(public.selection_division_fits('00000000-0000-0000-0000-0000000004c2', '2016-01-01') = false
+                and public.selection_division_fits('00000000-0000-0000-0000-0000000004c1', '2016-01-01') = true
+                and public.selection_division_fits('00000000-0000-0000-0000-0000000004c3', '2016-01-01') is null, 'division fit: false / true / no rule');
+  v := sr.run_as(admin_a, $q$select public.selection_staff_add('00000000-0000-0000-0000-0000000004b1', '00000000-0000-0000-0000-000000000073',
+        '00000000-0000-0000-0000-0000000004c2', '00000000-0000-0000-0000-0000000004d1', '{}'::uuid[], 'full', null, current_date, 'enrolled', 'later')::text$q$);
+  perform sr.ok(v like 'ERR:%AGE_GROUP_MISMATCH%', 'age group mismatch flagged, not silently accepted (' || left(v, 50) || ')');
+  -- Fee different from the package needs a reason; then the agreed fee is the invoice amount.
+  v := sr.run_as(admin_a, $q$select public.selection_staff_add('00000000-0000-0000-0000-0000000004b1', '00000000-0000-0000-0000-000000000073',
+        '00000000-0000-0000-0000-0000000004c2', '00000000-0000-0000-0000-0000000004d1', '{}'::uuid[], 'full', null, current_date, 'enrolled', 'later',
+        null, 1200, null, true)::text$q$);
+  perform sr.ok(v like 'ERR:%FEE_REASON_REQUIRED%', 'custom fee needs a reason (' || left(v, 50) || ')');
+  v := sr.run_as(admin_a, $q$select public.selection_staff_add('00000000-0000-0000-0000-0000000004b1', '00000000-0000-0000-0000-000000000073',
+        '00000000-0000-0000-0000-0000000004c2', '00000000-0000-0000-0000-0000000004d1', '{}'::uuid[], 'full', null, current_date, 'enrolled', 'later',
+        null, 1200, 'Sibling discount', true)->>'application_id'$q$);
+  perform sr.ok(v like 'OK:%' and v <> 'OK:<null>', 'confirmed age group + custom fee with reason (' || left(v, 50) || ')');
+  perform sr.put('app4', substr(v, 4));
+  perform sr.ok((select a.agreed_fee = 1200 and i.total_chf = 1200 from public.program_applications a join public.invoices i on i.id = a.invoice_id
+                  where a.id = sr.get('app4')::uuid), 'agreed fee 1200 = invoice amount');
+
+  -- Tournaments scoped to an age group.
+  insert into public.program_tournaments (id, org_id, program_id, division_id, name, stage, city, starts_on, ends_on)
+  values ('00000000-0000-0000-0000-0000000004b9', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004b1',
+          '00000000-0000-0000-0000-0000000004c2', 'U16 only', 'Stage 4', 'Synthetic Town', '2027-01-10', '2027-01-12');
+  v := sr.run_as(admin_a, format($q$select public.selection_set_tournaments(%L, array['00000000-0000-0000-0000-0000000004b9']::uuid[])::text$q$, sr.get('app3')));
+  perform sr.ok(v like 'ERR:%TOURNAMENT_DIVISION_MISMATCH%', 'U16 tournament refused for a U14 enrolment (' || left(v, 50) || ')');
+  v := sr.run_as(admin_a, format($q$select public.selection_set_tournaments(%L, array['00000000-0000-0000-0000-0000000004b9']::uuid[])->>'covered'$q$, sr.get('app4')));
+  perform sr.ok(v = 'OK:1', 'U16 tournament for the U16 enrolment (' || v || ')');
+  perform sr.ok((select athlete_id = '00000000-0000-0000-0000-000000000073' from public.application_tournaments
+                  where application_id = sr.get('app4')::uuid), 'coverage carries the athlete (duplicate guard)');
+  begin
+    insert into public.application_tournaments (org_id, application_id, tournament_id, status)
+    values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000004a9', '00000000-0000-0000-0000-0000000004b9', 'covered');
+    perform sr.ok(false, 'one active coverage per player and tournament');
+  exception when unique_violation then
+    perform sr.ok(true, 'one active coverage per player and tournament');
+  end;
+
+  -- Save from the single form: tournaments + package change need fee confirmation.
+  v := sr.run_as(admin_a, format($q$select public.selection_save_enrollment(%L, jsonb_build_object(
+        'package_id', '00000000-0000-0000-0000-0000000004d2', 'tournaments', jsonb_build_array(%L, %L),
+        'arrangement', jsonb_build_object('kind', 'monthly', 'monthly', 300, 'first_due_on', current_date)))::text$q$,
+        sr.get('app3'), sr.get('t1'), sr.get('t2')));
+  perform sr.ok(v like 'ERR:%FEE_CONFIRMATION_REQUIRED%', 'fee change on save needs explicit confirmation (' || left(v, 60) || ')');
+  v := sr.run_as(admin_a, format($q$select public.selection_save_enrollment(%L, jsonb_build_object(
+        'package_id', '00000000-0000-0000-0000-0000000004d2', 'tournaments', jsonb_build_array(%L, %L), 'fee_confirmed', true,
+        'arrangement', jsonb_build_object('kind', 'monthly', 'monthly', 300, 'first_due_on', current_date)))->>'status'$q$,
+        sr.get('app3'), sr.get('t1'), sr.get('t2')));
+  perform sr.ok(v = 'OK:accepted', 'enrolment saved (' || v || ')');
+  perform sr.ok((select agreed_fee = 3000 and arrangement_installments = 10 and tournaments_covered_count = 2
+                  from public.program_applications where id = sr.get('app3')::uuid)
+                and (select count(*) = 2 from public.application_tournaments where application_id = sr.get('app3')::uuid and status = 'covered'),
+                'saved: 2 tournaments, 3000 in 10 x 300');
+  v := sr.run_as(finance_a, format($q$select public.selection_save_enrollment(%L, '{}'::jsonb)::text$q$, sr.get('app3')));
+  perform sr.ok(v like 'ERR:%APPLICATION_NOT_FOUND%', 'finance cannot save enrolment details');
+  v := sr.run_as('b0000000-0000-0000-0000-0000000004f1', format($q$select public.selection_save_enrollment(%L, '{}'::jsonb)::text$q$, sr.get('app3')));
+  perform sr.ok(v like 'ERR:%APPLICATION_NOT_FOUND%', 'other org cannot save');
 end $$;
 
 select 'selection_roster suite done' as done;

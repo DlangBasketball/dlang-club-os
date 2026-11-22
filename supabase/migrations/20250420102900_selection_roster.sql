@@ -273,7 +273,10 @@ create table if not exists public.program_tournaments (
   id          uuid primary key default gen_random_uuid(),
   org_id      uuid not null references public.organizations(id) on delete cascade,
   program_id  uuid not null references public.programs(id) on delete cascade,
+  division_id uuid references public.program_divisions(id) on delete set null,
   name        text not null,
+  stage       text,
+  city        text,
   starts_on   date,
   ends_on     date,
   location    text,
@@ -284,6 +287,8 @@ create table if not exists public.program_tournaments (
   constraint program_tournaments_chk check (
     char_length(btrim(name)) between 1 and 120
     and (location is null or char_length(location) <= 160)
+    and (stage is null or char_length(stage) <= 80)
+    and (city is null or char_length(city) <= 120)
     and (starts_on is null or ends_on is null or ends_on >= starts_on)
     and status in ('planned', 'confirmed', 'completed', 'cancelled'))
 );
@@ -291,12 +296,14 @@ create index if not exists idx_program_tournaments_org on public.program_tournam
 create index if not exists idx_program_tournaments_program on public.program_tournaments(program_id, sort, starts_on);
 create unique index if not exists uq_program_tournaments_name on public.program_tournaments(program_id, lower(name));
 comment on table public.program_tournaments is 'Tournaments / stages of a programme (selection programmes).';
+comment on column public.program_tournaments.division_id is 'Age group the tournament is for (null = every division of the programme).';
 
 create table if not exists public.application_tournaments (
   id              uuid primary key default gen_random_uuid(),
   org_id          uuid not null references public.organizations(id) on delete cascade,
   application_id  uuid not null references public.program_applications(id) on delete cascade,
   tournament_id   uuid not null references public.program_tournaments(id) on delete cascade,
+  athlete_id      uuid references public.athletes(id) on delete cascade,
   status          text not null default 'covered',
   withdrawn_at    timestamptz,
   withdrawn_by    uuid references public.profiles(id) on delete set null,
@@ -311,6 +318,9 @@ create table if not exists public.application_tournaments (
 create index if not exists idx_application_tournaments_org on public.application_tournaments(org_id);
 create index if not exists idx_application_tournaments_tournament on public.application_tournaments(tournament_id);
 create unique index if not exists uq_application_tournaments on public.application_tournaments(application_id, tournament_id);
+-- A player is enrolled at most once per tournament (active coverage).
+create unique index if not exists uq_application_tournaments_athlete
+  on public.application_tournaments(tournament_id, athlete_id) where status = 'covered';
 comment on table public.application_tournaments is 'Tournaments an enrolment covers (written only by the selection RPCs).';
 
 do $$
@@ -332,15 +342,20 @@ language plpgsql
 security definer
 set search_path = public
 as $$
-declare v_prog uuid;
+declare v_prog uuid; v_ath uuid;
 begin
   if tg_table_name = 'program_tournaments' then
     if not exists (select 1 from public.programs where id = new.program_id and org_id = new.org_id) then
       raise exception 'CROSS_TENANT_REFERENCE: program' using errcode = '42501';
     end if;
+    if new.division_id is not null and not exists (
+         select 1 from public.program_divisions where id = new.division_id and program_id = new.program_id and org_id = new.org_id) then
+      raise exception 'CROSS_TENANT_REFERENCE: division' using errcode = '42501';
+    end if;
   else
-    select program_id into v_prog from public.program_applications where id = new.application_id and org_id = new.org_id;
+    select program_id, athlete_id into v_prog, v_ath from public.program_applications where id = new.application_id and org_id = new.org_id;
     if v_prog is null then raise exception 'CROSS_TENANT_REFERENCE: application' using errcode = '42501'; end if;
+    new.athlete_id := v_ath;
     if not exists (select 1 from public.program_tournaments where id = new.tournament_id and org_id = new.org_id and program_id = v_prog) then
       raise exception 'CROSS_TENANT_REFERENCE: tournament' using errcode = '42501';
     end if;
@@ -514,11 +529,70 @@ stable
 security definer
 set search_path = public
 as $$
-  select coalesce(jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'starts_on', t.starts_on, 'ends_on', t.ends_on,
+  select coalesce(jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'stage', t.stage, 'city', t.city,
+                                               'location', t.location, 'starts_on', t.starts_on, 'ends_on', t.ends_on,
                                                'status', x.status, 'withdrawn_at', x.withdrawn_at, 'note', x.note)
                             order by t.sort, t.starts_on nulls last, lower(t.name)), '[]'::jsonb)
     from public.application_tournaments x join public.program_tournaments t on t.id = x.tournament_id
    where x.application_id = p_application;
+$$;
+
+-- 5a) Package invoice for an agreed amount (body of selection_issue_invoice
+-- with the amount as a parameter).
+create or replace function public.selection_issue_invoice(p_application uuid, p_amount numeric)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  a      public.program_applications;
+  pkg    public.program_packages;
+  prog   public.programs;
+  v_div  text;
+  v_cur  text;
+  v_num  text;
+  v_inv  uuid;
+  v_desc text;
+begin
+  select * into a from public.program_applications where id = p_application for update;
+  if not found then raise exception 'APPLICATION_NOT_FOUND' using errcode = 'P0002'; end if;
+  if a.package_id is null then raise exception 'PACKAGE_REQUIRED' using errcode = 'P0001'; end if;
+  if p_amount is null or p_amount <= 0 then raise exception 'INVALID_AMOUNT' using errcode = 'P0001'; end if;
+  select * into pkg from public.program_packages where id = a.package_id;
+  select * into prog from public.programs where id = a.program_id;
+  select name into v_div from public.program_divisions where id = a.division_id;
+  v_cur := upper(coalesce(nullif(prog.currency, ''), (select currency from public.app_settings where org_id = a.org_id),
+                          (select currency from public.organizations where id = a.org_id), 'CHF'));
+  v_desc := left(prog.name || ' · ' || pkg.name || coalesce(' · ' || v_div, ''), 500);
+  v_num := public.next_invoice_number(a.org_id);
+  insert into public.invoices (org_id, number, family_id, athlete_id, program_id, description, status, due_date, currency, total_chf)
+  values (a.org_id, v_num, a.family_id, a.athlete_id, a.program_id, v_desc, 'sent', current_date + 14, v_cur, p_amount)
+  returning id into v_inv;
+  insert into public.invoice_items (org_id, invoice_id, description, quantity, unit_price_chf, amount_chf)
+  values (a.org_id, v_inv, v_desc, 1, p_amount, p_amount);
+  update public.program_applications set invoice_id = v_inv where id = a.id;
+  return v_inv;
+end $$;
+
+-- Division fit for a date of birth (same rule as selection_suggest_division):
+-- true / false; null = the division has no age rule or no date of birth.
+-- Staff adding / moving a player confirm anything but true.
+create or replace function public.selection_division_fits(p_division uuid, p_dob date, p_today date default current_date)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case
+    when p_dob is null or d.id is null then null
+    when d.min_birth_year is null and d.max_birth_year is null and d.age_under is null then null
+    else (d.min_birth_year is null or extract(year from p_dob)::int >= d.min_birth_year)
+     and (d.max_birth_year is null or extract(year from p_dob)::int <= d.max_birth_year)
+     and (d.age_under is null or extract(year from age(coalesce(d.age_cutoff, p_today), p_dob))::int < d.age_under)
+  end
+  from (select 1) one left join public.program_divisions d on d.id = p_division;
 $$;
 
 -- 5) Fee arrangement ------------------------------------------------------------------------
@@ -529,7 +603,7 @@ $$;
 -- covers a fee difference, and the instalment plan is rebuilt on the amount
 -- due (payments already received settle the first instalments).
 create or replace function public.selection_apply_arrangement_internal(
-  p_application uuid, p_kind text, p_package uuid, p_monthly numeric, p_first date, p_reason text)
+  p_application uuid, p_kind text, p_package uuid, p_monthly numeric, p_first date, p_reason text, p_fee numeric)
 returns jsonb
 language plpgsql
 security definer
@@ -562,7 +636,12 @@ begin
   select * into prog from public.programs where id = a.program_id;
   v_cur := upper(coalesce(nullif(prog.currency, ''), (select currency from public.app_settings where org_id = a.org_id),
                           (select currency from public.organizations where id = a.org_id), 'CHF'));
-  v_fee := round(pkg.price, public.currency_exponent(v_cur));
+  v_fee := round(coalesce(p_fee, pkg.price), public.currency_exponent(v_cur));
+  if v_fee <= 0 then raise exception 'INVALID_AMOUNT' using errcode = 'P0001'; end if;
+  -- A fee other than the package price needs a reason (admin / finance only: callers check).
+  if v_fee <> round(pkg.price, public.currency_exponent(v_cur)) and v_reason is null then
+    raise exception 'FEE_REASON_REQUIRED' using errcode = 'P0001';
+  end if;
   -- Validates the schedule (monthly amount, count <= 24) before anything changes.
   select array_agg(s.due_on order by s.seq), array_agg(s.amount order by s.seq)
     into v_dates, v_amts
@@ -589,7 +668,7 @@ begin
   update public.program_applications set package_id = pkg.id where id = a.id;
 
   if v_inv is null then
-    v_inv := public.selection_issue_invoice(a.id);
+    v_inv := public.selection_issue_invoice(a.id, v_fee);
     update public.invoices set due_date = v_first where id = v_inv;
   else
     -- Money received: the paid invoice is never edited.
@@ -642,7 +721,7 @@ end $$;
 -- Finance / admin: set or change the fee arrangement.
 create or replace function public.selection_set_arrangement(
   p_application uuid, p_kind text, p_package uuid default null, p_monthly numeric default null,
-  p_first date default null, p_reason text default null)
+  p_first date default null, p_reason text default null, p_fee numeric default null)
 returns jsonb
 language plpgsql
 security definer
@@ -654,7 +733,7 @@ begin
   if not found or a.org_id is distinct from public.current_org_id() or not public.is_finance_of(a.org_id) then
     raise exception 'APPLICATION_NOT_FOUND' using errcode = 'P0002';
   end if;
-  return public.selection_apply_arrangement_internal(a.id, p_kind, p_package, p_monthly, p_first, p_reason);
+  return public.selection_apply_arrangement_internal(a.id, p_kind, p_package, p_monthly, p_first, p_reason, p_fee);
 end $$;
 
 -- 6) Tournaments of an enrolment ----------------------------------------------------------------
@@ -679,6 +758,15 @@ begin
               where not exists (select 1 from public.program_tournaments t
                                  where t.id = x and t.program_id = a.program_id and t.org_id = a.org_id)) then
     raise exception 'TOURNAMENT_NOT_FOUND' using errcode = 'P0001';
+  end if;
+  if exists (select 1 from unnest(v_ids) x join public.program_tournaments t on t.id = x
+              where t.division_id is not null and t.division_id is distinct from a.division_id) then
+    raise exception 'TOURNAMENT_DIVISION_MISMATCH' using errcode = 'P0001';
+  end if;
+  if exists (select 1 from public.application_tournaments x
+              where x.tournament_id = any(v_ids) and x.athlete_id = a.athlete_id and x.status = 'covered'
+                and x.application_id <> a.id) then
+    raise exception 'DUPLICATE_TOURNAMENT' using errcode = 'P0001';
   end if;
   v_need := coalesce(a.tournaments_covered_count, (select tournament_count from public.program_packages where id = a.package_id));
   if v_need is not null and v_n <> v_need and v_reason is null then
@@ -741,7 +829,8 @@ end $$;
 create or replace function public.selection_staff_add(
   p_program uuid, p_athlete uuid, p_division uuid, p_package uuid, p_tournaments uuid[] default '{}',
   p_kind text default 'full', p_monthly numeric default null, p_first date default null,
-  p_status text default 'enrolled', p_override_reason text default null, p_notes text default null)
+  p_status text default 'enrolled', p_override_reason text default null, p_notes text default null,
+  p_fee numeric default null, p_fee_reason text default null, p_age_confirmed boolean default false)
 returns jsonb
 language plpgsql
 security definer
@@ -779,6 +868,9 @@ begin
   if p_package is null or not exists (select 1 from public.program_packages where id = p_package and program_id = p_program) then
     raise exception 'PACKAGE_REQUIRED' using errcode = 'P0001';
   end if;
+  if p_division is not null and public.selection_division_fits(p_division, ath.dob) is distinct from true and not coalesce(p_age_confirmed, false) then
+    raise exception 'AGE_GROUP_MISMATCH' using errcode = 'P0001';
+  end if;
   select * into v_fam from public.families where id = ath.family_id;
 
   insert into public.program_applications
@@ -789,7 +881,7 @@ begin
           left(nullif(btrim(coalesce(p_notes, '')), ''), 2000), auth.uid(), auth.uid(), now(), now())
   returning id into v_id;
 
-  v_arr := public.selection_apply_arrangement_internal(v_id, p_kind, p_package, p_monthly, p_first, null);
+  v_arr := public.selection_apply_arrangement_internal(v_id, p_kind, p_package, p_monthly, p_first, p_fee_reason, p_fee);
   perform public.selection_set_tournaments_internal(v_id, coalesce(p_tournaments, '{}'::uuid[]), p_override_reason);
   if p_status = 'enrolled' then perform public.selection_enroll_internal(v_id); end if;
 
@@ -878,6 +970,15 @@ begin
     if v_div is distinct from a.division_id then
       if v_div is null or not exists (select 1 from public.program_divisions where id = v_div and program_id = a.program_id and org_id = a.org_id) then
         raise exception 'DIVISION_NOT_FOUND' using errcode = 'P0001';
+      end if;
+      if public.selection_division_fits(v_div, (select dob from public.athletes where id = a.athlete_id)) is distinct from true
+         and not coalesce((p_payload->>'age_confirmed')::boolean, false) then
+        raise exception 'AGE_GROUP_MISMATCH' using errcode = 'P0001';
+      end if;
+      -- Tournaments of another age group no longer apply.
+      if exists (select 1 from public.application_tournaments x join public.program_tournaments t on t.id = x.tournament_id
+                  where x.application_id = a.id and x.status = 'covered' and t.division_id is not null and t.division_id <> v_div) then
+        raise exception 'TOURNAMENT_DIVISION_MISMATCH' using errcode = 'P0001';
       end if;
       select team_id into v_old_t from public.program_divisions where id = a.division_id;
       select team_id into v_new_t from public.program_divisions where id = v_div;
@@ -996,7 +1097,7 @@ begin
   if v_was <> 'waitlisted' then
     if a.arrangement_kind is not null then
       perform public.selection_apply_arrangement_internal(a.id, a.arrangement_kind, p_package, a.monthly_amount,
-                                                          greatest(coalesce(a.first_due_on, current_date), current_date), 'Moved to another season');
+                                                          greatest(coalesce(a.first_due_on, current_date), current_date), 'Moved to another season', null);
     else
       perform public.selection_issue_invoice(a.id);
     end if;
@@ -1008,6 +1109,98 @@ begin
           jsonb_build_object('program_id', p_program, 'division_id', p_division, 'package_id', p_package));
   return (select jsonb_build_object('application_id', id, 'program_id', program_id, 'status', status, 'invoice_id', invoice_id)
             from public.program_applications where id = a.id);
+end $$;
+
+-- 10b) Save an enrolment from the single staff form (admin), atomically:
+-- season / programme (move, only without payments), division, tournaments,
+-- fee arrangement, jersey, notes, status. payload:
+--   program_id, division_id, package_id, tournaments (uuid[]),
+--   tournament_override_reason, age_confirmed, jersey_number, staff_notes,
+--   status, arrangement {kind, fee, monthly, first_due_on, reason},
+--   fee_confirmed (required when the agreed fee changes).
+create or replace function public.selection_save_enrollment(p_application uuid, p_payload jsonb)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  a        public.program_applications;
+  v_prog   uuid := nullif(p_payload->>'program_id', '')::uuid;
+  v_div    uuid := nullif(p_payload->>'division_id', '')::uuid;
+  v_pkg    uuid := nullif(p_payload->>'package_id', '')::uuid;
+  v_arr    jsonb := p_payload->'arrangement';
+  v_tids   uuid[];
+  v_kind   text;
+  v_fee    numeric;
+  v_mon    numeric;
+  v_first  date;
+  v_upd    jsonb := '{}'::jsonb;
+  v_status text := nullif(p_payload->>'status', '');
+  v_cur_fee numeric;
+begin
+  select * into a from public.program_applications where id = p_application;
+  if not found or a.org_id is distinct from public.current_org_id() or not public.selection_is_admin_of(a.org_id) then
+    raise exception 'APPLICATION_NOT_FOUND' using errcode = 'P0002';
+  end if;
+  if a.status = 'withdrawn' then raise exception 'ENROLLMENT_WITHDRAWN' using errcode = 'P0001'; end if;
+
+  -- Season / programme.
+  if v_prog is not null and v_prog <> a.program_id then
+    perform public.selection_move_enrollment(a.id, v_prog, v_div, coalesce(v_pkg, a.package_id));
+    select * into a from public.program_applications where id = p_application;
+  end if;
+
+  -- Tournaments no longer selected leave first (a division change may need it).
+  if p_payload ? 'tournaments' then
+    select coalesce(array_agg(distinct x::uuid), '{}'::uuid[]) into v_tids
+      from jsonb_array_elements_text(coalesce(p_payload->'tournaments', '[]'::jsonb)) x;
+    delete from public.application_tournaments where application_id = a.id and status = 'covered' and not (tournament_id = any(v_tids));
+  end if;
+
+  -- Division, jersey, notes (status last).
+  if v_div is not null and v_div is distinct from a.division_id then
+    v_upd := v_upd || jsonb_build_object('division_id', v_div, 'age_confirmed', coalesce((p_payload->>'age_confirmed')::boolean, false));
+  end if;
+  if p_payload ? 'jersey_number' then v_upd := v_upd || jsonb_build_object('jersey_number', p_payload->'jersey_number'); end if;
+  if p_payload ? 'staff_notes' then v_upd := v_upd || jsonb_build_object('staff_notes', p_payload->'staff_notes'); end if;
+  if v_upd <> '{}'::jsonb then perform public.selection_update_enrollment(a.id, v_upd); end if;
+  select * into a from public.program_applications where id = p_application;
+
+  -- Fee arrangement, when it changes.
+  if v_arr is not null and jsonb_typeof(v_arr) = 'object' and a.status in ('accepted', 'enrolled') then
+    v_kind := coalesce(nullif(v_arr->>'kind', ''), a.arrangement_kind, 'full');
+    v_fee := nullif(v_arr->>'fee', '')::numeric;
+    v_mon := nullif(v_arr->>'monthly', '')::numeric;
+    v_first := coalesce(nullif(v_arr->>'first_due_on', '')::date, a.first_due_on, current_date);
+    v_cur_fee := coalesce(a.agreed_fee, (select total_chf from public.invoices where id = a.invoice_id));
+    if v_kind is distinct from a.arrangement_kind or coalesce(v_pkg, a.package_id) is distinct from a.package_id
+       or (v_fee is not null and v_fee is distinct from v_cur_fee)
+       or (v_kind = 'monthly' and v_mon is distinct from a.monthly_amount)
+       or v_first is distinct from a.first_due_on then
+      if v_fee is distinct from v_cur_fee and v_cur_fee is not null and not coalesce((p_payload->>'fee_confirmed')::boolean, false)
+         and coalesce(v_fee, (select price from public.program_packages where id = coalesce(v_pkg, a.package_id))) is distinct from v_cur_fee then
+        raise exception 'FEE_CONFIRMATION_REQUIRED' using errcode = 'P0001';
+      end if;
+      perform public.selection_apply_arrangement_internal(a.id, v_kind, coalesce(v_pkg, a.package_id), v_mon, v_first,
+                                                          nullif(btrim(coalesce(v_arr->>'reason', '')), ''), v_fee);
+    end if;
+  end if;
+
+  if p_payload ? 'tournaments' then
+    perform public.selection_set_tournaments_internal(a.id, v_tids, p_payload->>'tournament_override_reason');
+  end if;
+
+  if v_status is not null and v_status <> a.status then
+    if v_status = 'withdrawn' then raise exception 'USE_WITHDRAW' using errcode = 'P0001'; end if;
+    perform public.selection_update_enrollment(a.id, jsonb_build_object('status', v_status));
+  end if;
+
+  insert into public.audit_logs (org_id, actor_id, action, target_table, target_id, new_data)
+  values (a.org_id, auth.uid(), 'selection.enrollment_saved', 'program_applications', a.id, p_payload);
+  return (select jsonb_build_object('application_id', x.id, 'program_id', x.program_id, 'status', x.status, 'invoice_id', x.invoice_id,
+                                    'family_id', x.family_id)
+            from public.program_applications x where x.id = a.id);
 end $$;
 
 -- 11) Reading -----------------------------------------------------------------------------------------------
@@ -1168,7 +1361,8 @@ declare f text;
 begin
   foreach f in array array[
     'public.selection_ensure_registration(uuid)',
-    'public.selection_apply_arrangement_internal(uuid, text, uuid, numeric, date, text)',
+    'public.selection_apply_arrangement_internal(uuid, text, uuid, numeric, date, text, numeric)',
+    'public.selection_issue_invoice(uuid, numeric)',
     'public.selection_set_tournaments_internal(uuid, uuid[], text)',
     'public.selection_invoice_summary(uuid)',
     'public.selection_application_tournaments_json(uuid)'] loop
@@ -1180,10 +1374,12 @@ begin
   foreach f in array array[
     'public.selection_arrangement_schedule(numeric, text, numeric, date, text)',
     'public.selection_can_see_money(uuid, uuid)',
-    'public.selection_set_arrangement(uuid, text, uuid, numeric, date, text)',
+    'public.selection_set_arrangement(uuid, text, uuid, numeric, date, text, numeric)',
+    'public.selection_division_fits(uuid, date, date)',
+    'public.selection_save_enrollment(uuid, jsonb)',
     'public.selection_set_tournaments(uuid, uuid[], text)',
     'public.selection_withdraw_tournament(uuid, uuid, text)',
-    'public.selection_staff_add(uuid, uuid, uuid, uuid, uuid[], text, numeric, date, text, text, text)',
+    'public.selection_staff_add(uuid, uuid, uuid, uuid, uuid[], text, numeric, date, text, text, text, numeric, text, boolean)',
     'public.selection_withdraw_enrollment(uuid, text, date)',
     'public.selection_update_enrollment(uuid, jsonb)',
     'public.selection_move_enrollment(uuid, uuid, uuid, uuid)',
