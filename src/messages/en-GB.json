@@ -5,7 +5,10 @@
   "nav": {
     "programs": "Programmes",
     "selection": "Selection programmes",
-    "programmes": "Programmes"
+    "programmes": "Programmes",
+    "groups": {
+      "selection": "Selection programmes"
+    }
   },
   "dashboard": {
     "widgets": {

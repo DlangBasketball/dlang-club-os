@@ -3,7 +3,7 @@
 import { getSessionUser } from "@/lib/auth/get-user";
 import { tenantMatchesOrg } from "@/lib/tenant/server";
 import { getTranslations } from "@/lib/i18n/server";
-import { NAV } from "@/components/layout/nav-config";
+import { ADMIN_NAV_FLAT, NAV } from "@/components/layout/nav-config";
 import { shopDb } from "@/lib/shop/db";
 import { logError } from "@/lib/log";
 import {
@@ -19,7 +19,8 @@ import {
  * user's own areas.
  */
 const PAGES: SearchPage[] = [
-  ...NAV.admin.map((i) => ({ href: i.href, labelKey: `nav.${i.labelKey}`, keywords: i.label, roles: ["admin", "finance"] as SearchPage["roles"] })),
+  // Same roles as the admin menu (finance only finds the pages its menu shows).
+  ...ADMIN_NAV_FLAT.map((i) => ({ href: i.href, labelKey: `nav.${i.labelKey}`, keywords: i.label, roles: [...i.roles] as SearchPage["roles"] })),
   ...NAV.coach.map((i) => ({ href: i.href, labelKey: `nav.${i.labelKey}`, keywords: i.label, roles: ["coach"] as SearchPage["roles"] })),
   ...NAV.parent.map((i) => ({ href: i.href, labelKey: `nav.${i.labelKey}`, keywords: i.label, roles: ["parent"] as SearchPage["roles"] })),
 ];

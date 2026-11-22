@@ -203,7 +203,33 @@
     "selection": "Selection programs",
     "selectionReview": "Applications",
     "programmes": "Programs",
-    "alumni": "Alumni & placements"
+    "alumni": "Alumni & placements",
+    "parentsPayers": "Parents & payers",
+    "teamsRosters": "Teams & rosters",
+    "clubMemberships": "Club memberships",
+    "selectionRosters": "Selection rosters",
+    "selectionTournaments": "Tournaments",
+    "paymentsAllocations": "Payments & allocations",
+    "clubMembershipPayments": "Club membership payments",
+    "selectionPayments": "Selection payments",
+    "selectionPaymentsFor": "{name} payments",
+    "creditsRefunds": "Credits & refunds",
+    "accountingExports": "Accounting & exports",
+    "financeOverview": "Finance overview",
+    "seasons": "Seasons",
+    "feesPaymentPlans": "Fees & payment plans",
+    "billingEntities": "Billing entities",
+    "staffPermissions": "Staff & permissions",
+    "clubSettings": "Club settings",
+    "groups": {
+      "players": "Players & families",
+      "operations": "Club operations",
+      "selection": "Selection programs",
+      "calendar": "Calendar & bookings",
+      "finance": "Finance",
+      "settings": "Settings",
+      "more": "More"
+    }
   },
   "shell": {
     "openMenu": "Open menu",
@@ -335,6 +361,16 @@
         "openAttendance": "Open attendance",
         "trainingService": "Training bookings",
         "exportData": "Export data"
+      },
+      "shortcuts": {
+        "title": "Shortcuts",
+        "label": "Dashboard shortcuts",
+        "findPlayer": "Find {label}",
+        "addMembership": "Add a club membership",
+        "addToRoster": "Add to a selection roster",
+        "addToRosterFor": "Add to the {name} roster",
+        "recordPayment": "Record a payment",
+        "monthlyReport": "View monthly report"
       }
     }
   },

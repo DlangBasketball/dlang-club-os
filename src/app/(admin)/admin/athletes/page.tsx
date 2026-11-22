@@ -19,7 +19,7 @@ type Row = { id: string; name: string; family: string; dob: string; status: stri
 
 const PAGE_SIZE = 100;
 
-export default async function AthletesPage({ searchParams }: { searchParams: Promise<{ licence?: string | string[]; sponsored?: string | string[]; q?: string; page?: string }> }) {
+export default async function AthletesPage({ searchParams }: { searchParams: Promise<{ licence?: string | string[]; sponsored?: string | string[]; q?: string; page?: string; focus?: string }> }) {
   const sp = await searchParams;
   const q = (typeof sp.q === "string" ? sp.q : "").trim().replace(/[%,()*\\]/g, " ").trim().slice(0, 80);
   const page = pageParam(typeof sp.page === "string" ? sp.page : undefined);
@@ -160,7 +160,8 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
       <form method="get" className="mb-4 flex flex-wrap items-center gap-2" role="search">
         {licenceFilter && <input type="hidden" name="licence" value={licenceFilter} />}
         {sponsoredFilter && <input type="hidden" name="sponsored" value={sponsoredFilter} />}
-        <Input name="q" defaultValue={q} placeholder={t("editPeople.athleteList.searchPlaceholder")} aria-label={t("common.search")} className="w-64" />
+        {/* "Find a player" shortcut (dashboard) lands here with ?focus=search */}
+        <Input name="q" defaultValue={q} placeholder={t("editPeople.athleteList.searchPlaceholder")} aria-label={t("common.search")} className="w-64" autoFocus={sp.focus === "search"} />
         <Button type="submit" size="sm" variant="secondary">{t("common.search")}</Button>
       </form>
       <BulkSelect kind="athlete">

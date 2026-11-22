@@ -203,7 +203,33 @@
     "selection": "Programas de selección",
     "selectionReview": "Solicitudes",
     "programmes": "Programas",
-    "alumni": "Exjugadores y colocaciones"
+    "alumni": "Exjugadores y colocaciones",
+    "parentsPayers": "Padres y pagadores",
+    "teamsRosters": "Equipos y plantillas",
+    "clubMemberships": "Membresías del club",
+    "selectionRosters": "Plantillas de selección",
+    "selectionTournaments": "Torneos",
+    "paymentsAllocations": "Pagos y asignaciones",
+    "clubMembershipPayments": "Pagos de membresías",
+    "selectionPayments": "Pagos de selección",
+    "selectionPaymentsFor": "Pagos {name}",
+    "creditsRefunds": "Créditos y reembolsos",
+    "accountingExports": "Contabilidad y exportaciones",
+    "financeOverview": "Resumen financiero",
+    "seasons": "Temporadas",
+    "feesPaymentPlans": "Tarifas y planes de pago",
+    "billingEntities": "Entidades de facturación",
+    "staffPermissions": "Personal y permisos",
+    "clubSettings": "Ajustes del club",
+    "groups": {
+      "players": "Jugadores y familias",
+      "operations": "Operaciones del club",
+      "selection": "Programas de selección",
+      "calendar": "Calendario y reservas",
+      "finance": "Finanzas",
+      "settings": "Ajustes",
+      "more": "Más"
+    }
   },
   "shell": {
     "openMenu": "Abrir menú",
@@ -335,6 +361,16 @@
         "openAttendance": "Abrir asistencia",
         "trainingService": "Reservas de entrenamiento",
         "exportData": "Exportar datos"
+      },
+      "shortcuts": {
+        "title": "Atajos",
+        "label": "Atajos del panel",
+        "findPlayer": "Buscar: {label}",
+        "addMembership": "Añadir una membresía",
+        "addToRoster": "Añadir a una plantilla de selección",
+        "addToRosterFor": "Añadir a la plantilla {name}",
+        "recordPayment": "Registrar un pago",
+        "monthlyReport": "Ver informe mensual"
       }
     }
   },

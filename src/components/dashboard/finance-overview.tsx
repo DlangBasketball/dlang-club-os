@@ -76,12 +76,15 @@ export async function FinanceOverview() {
         </Card>
       </div>
       <Card>
-        <CardHeader><div><CardTitle>{t("finance.dashboard.registrationsChart")}</CardTitle><p className="mt-0.5 text-xs text-ink-3">{t("finance.dashboard.last12Months")}</p></div></CardHeader>
+        <CardHeader>
+          <div><CardTitle>{t("finance.dashboard.registrationsChart")}</CardTitle><p className="mt-0.5 text-xs text-ink-3">{t("finance.dashboard.last12Months")}</p></div>
+          <Link href="/admin/registrations" className="text-xs text-ink-2 hover:text-ink">{t("dashboard.widgets.registrations.viewAll")}</Link>
+        </CardHeader>
         <CardBody>
           {regs.length === 0
             ? <p className="text-sm text-ink-3">{t("finance.dashboard.noRegistrations")}</p>
             : <HBarChart title={t("finance.dashboard.registrationsChart")} format={count}
-                rows={regs.slice(0, 8).map((r) => ({ label: programName.get(r.programId) ?? "—", value: r.count }))} />}
+                rows={regs.slice(0, 8).map((r) => ({ label: programName.get(r.programId) ?? "—", value: r.count, href: `/admin/registrations?program=${r.programId}` }))} />}
         </CardBody>
       </Card>
     </section>

@@ -203,7 +203,33 @@
     "selection": "Auswahlprogramme",
     "selectionReview": "Bewerbungen",
     "programmes": "Programme",
-    "alumni": "Ehemalige & Platzierungen"
+    "alumni": "Ehemalige & Platzierungen",
+    "parentsPayers": "Eltern & Zahlende",
+    "teamsRosters": "Teams & Kader",
+    "clubMemberships": "Vereinsmitgliedschaften",
+    "selectionRosters": "Auswahlkader",
+    "selectionTournaments": "Turniere",
+    "paymentsAllocations": "Zahlungen & Zuordnungen",
+    "clubMembershipPayments": "Mitgliedschaftszahlungen",
+    "selectionPayments": "Auswahlzahlungen",
+    "selectionPaymentsFor": "Zahlungen {name}",
+    "creditsRefunds": "Guthaben & Rückerstattungen",
+    "accountingExports": "Buchhaltung & Exporte",
+    "financeOverview": "Finanzübersicht",
+    "seasons": "Saisons",
+    "feesPaymentPlans": "Gebühren & Zahlungspläne",
+    "billingEntities": "Rechnungssteller",
+    "staffPermissions": "Team & Berechtigungen",
+    "clubSettings": "Vereinseinstellungen",
+    "groups": {
+      "players": "Spieler & Familien",
+      "operations": "Vereinsbetrieb",
+      "selection": "Auswahlprogramme",
+      "calendar": "Kalender & Buchungen",
+      "finance": "Finanzen",
+      "settings": "Einstellungen",
+      "more": "Mehr"
+    }
   },
   "shell": {
     "openMenu": "Menü öffnen",
@@ -335,6 +361,16 @@
         "openAttendance": "Anwesenheit öffnen",
         "trainingService": "Trainingsbuchungen",
         "exportData": "Daten exportieren"
+      },
+      "shortcuts": {
+        "title": "Direktzugriff",
+        "label": "Direktzugriff im Dashboard",
+        "findPlayer": "{label} suchen",
+        "addMembership": "Mitgliedschaft hinzufügen",
+        "addToRoster": "Zu einem Auswahlkader hinzufügen",
+        "addToRosterFor": "Zum Kader {name} hinzufügen",
+        "recordPayment": "Zahlung erfassen",
+        "monthlyReport": "Monatsbericht anzeigen"
       }
     }
   },

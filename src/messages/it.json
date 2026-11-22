@@ -203,7 +203,33 @@
     "selection": "Programmi di selezione",
     "selectionReview": "Candidature",
     "programmes": "Programmi",
-    "alumni": "Ex giocatori & piazzamenti"
+    "alumni": "Ex giocatori & piazzamenti",
+    "parentsPayers": "Genitori e paganti",
+    "teamsRosters": "Squadre e rose",
+    "clubMemberships": "Tessere del club",
+    "selectionRosters": "Rose di selezione",
+    "selectionTournaments": "Tornei",
+    "paymentsAllocations": "Pagamenti e allocazioni",
+    "clubMembershipPayments": "Pagamenti tessere",
+    "selectionPayments": "Pagamenti selezione",
+    "selectionPaymentsFor": "Pagamenti {name}",
+    "creditsRefunds": "Crediti e rimborsi",
+    "accountingExports": "Contabilità ed esportazioni",
+    "financeOverview": "Panoramica finanziaria",
+    "seasons": "Stagioni",
+    "feesPaymentPlans": "Tariffe e piani di pagamento",
+    "billingEntities": "Enti di fatturazione",
+    "staffPermissions": "Staff e permessi",
+    "clubSettings": "Impostazioni del club",
+    "groups": {
+      "players": "Giocatori e famiglie",
+      "operations": "Gestione del club",
+      "selection": "Programmi di selezione",
+      "calendar": "Calendario e prenotazioni",
+      "finance": "Finanze",
+      "settings": "Impostazioni",
+      "more": "Altro"
+    }
   },
   "shell": {
     "openMenu": "Apri menu",
@@ -335,6 +361,16 @@
         "openAttendance": "Apri presenze",
         "trainingService": "Prenotazioni allenamenti",
         "exportData": "Esporta dati"
+      },
+      "shortcuts": {
+        "title": "Scorciatoie",
+        "label": "Scorciatoie della panoramica",
+        "findPlayer": "Cerca: {label}",
+        "addMembership": "Aggiungi una tessera",
+        "addToRoster": "Aggiungi a una rosa di selezione",
+        "addToRosterFor": "Aggiungi alla rosa {name}",
+        "recordPayment": "Registra un pagamento",
+        "monthlyReport": "Vedi il report mensile"
       }
     }
   },
