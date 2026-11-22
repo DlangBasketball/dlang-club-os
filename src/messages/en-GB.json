@@ -967,5 +967,40 @@
       "MEMBERSHIP_CANCELLED": "This membership is cancelled.",
       "INSTALLMENT_NOT_FOUND": "This instalment is not open on that invoice."
     }
+  },
+  "playerBilling": {
+    "tabs": {
+      "selection": "Selection Programmes"
+    },
+    "installmentStatus": {
+      "cancelled": "Cancelled"
+    },
+    "membership": {
+      "plan": "{count, plural, one {Payment plan · # instalment} other {Payment plan · # instalments}}"
+    },
+    "form": {
+      "description": "One membership per player and season. Preview the payers and instalments, then confirm to issue the invoices.",
+      "installments": "Number of instalments",
+      "firstMonth": "First instalment month",
+      "previewSummary": "{player} · {season} · {fee} in {count} instalments",
+      "noInstallment": "No instalment",
+      "monthsWithout": "No instalment in: {months}.",
+      "balanced": "The instalments add up exactly to {fee}.",
+      "unbalanced": "The instalments do not add up to the agreed fee. Check the payers."
+    },
+    "bookings": {
+      "cancelledFinance": "This booking was cancelled; its invoice and history are kept. Finance credits or refunds it from the invoice (credit note or refund)."
+    },
+    "record": {
+      "description": "One received amount, allocated to the payer's open invoices. Club Membership, selection programmes and other categories stay separate; what you don't allocate stays unallocated.",
+      "settles": "Settles instalments: {list}"
+    },
+    "related": {
+      "bookingCancelled": "The booking was cancelled. Use the credit note or refund actions on this invoice if money must go back.",
+      "kinds": {
+        "programme": "Programme enrolment",
+        "registration": "Registration (programme or camp)"
+      }
+    }
   }
 }

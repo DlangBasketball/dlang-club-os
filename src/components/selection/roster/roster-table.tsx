@@ -27,7 +27,7 @@ const PAY_TONE: Record<PaymentStatus, "success" | "warning" | "danger" | "neutra
  * rendered by the page, never as "no players".
  */
 export function RosterTable({
-  entries, divisions, tournaments, seasons, currentSeasonId, playerHrefBase, addHref, canAdd,
+  entries, divisions, tournaments, seasons, currentSeasonId, playerHrefBase, addHref, canAdd, profileHrefBase = null,
 }: {
   entries: RosterEntry[];
   divisions: { id: string; label: string }[];
@@ -38,6 +38,8 @@ export function RosterTable({
   playerHrefBase: string | null;
   addHref: string | null;
   canAdd: boolean;
+  /** Link prefix of the player profile (admin pages; null = none, e.g. coaches). */
+  profileHrefBase?: string | null;
 }) {
   const t = useT();
   const f = useFormat();
@@ -161,6 +163,11 @@ export function RosterTable({
                   <tr key={r.id} className="border-t border-border align-top">
                     <td className="px-3 py-2">
                       {href ? <Link href={href} className="font-medium text-text hover:underline">{r.name}</Link> : <span className="font-medium text-text">{r.name}</span>}
+                      {profileHrefBase && (
+                        <Link href={`${profileHrefBase}${r.athleteId}`} className="ml-2 text-xs text-brand-primary hover:underline" aria-label={t("playerBilling.roster.openProfileAria", { name: r.name })}>
+                          {t("playerBilling.roster.openProfile")}
+                        </Link>
+                      )}
                       <span className="block text-xs text-text-muted">
                         {r.birthYear ?? "—"}{r.jerseyNumber != null ? ` · #${r.jerseyNumber}` : ""}
                       </span>

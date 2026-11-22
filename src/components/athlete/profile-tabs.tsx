@@ -7,12 +7,15 @@ export type ProfileTab = { id: string; label: string; content: React.ReactNode; 
 
 /**
  * Section tabs for the player profile. Panels are rendered on the server and
- * only toggled here; the selected tab is kept in the URL hash (#teams, ...)
- * so a reload or a shared link lands on the same section. Scrolls
- * horizontally on phones.
+ * only toggled here. With `param` (admin profile) the selected tab lives in
+ * the query string (?tab=membership), so other screens can link straight to
+ * a tab; otherwise in the URL hash (#teams). Either way a reload or a shared
+ * link lands on the same section. Scrolls horizontally on phones.
  */
-export function ProfileTabs({ tabs, label }: { tabs: ProfileTab[]; label: string }) {
-  const [active, setActive] = React.useState(tabs[0]?.id ?? "");
+export function ProfileTabs({ tabs, label, initial, param }: { tabs: ProfileTab[]; label: string; initial?: string | null; param?: string }) {
+  const [active, setActive] = React.useState(
+    initial && tabs.some((t) => t.id === initial) ? initial : tabs[0]?.id ?? "",
+  );
   const baseId = React.useId();
 
   React.useEffect(() => {
@@ -23,7 +26,14 @@ export function ProfileTabs({ tabs, label }: { tabs: ProfileTab[]; label: string
   function select(id: string) {
     setActive(id);
     try {
-      window.history.replaceState(null, "", `#${id}`);
+      if (param) {
+        const url = new URL(window.location.href);
+        url.searchParams.set(param, id);
+        url.hash = "";
+        window.history.replaceState(null, "", `${url.pathname}?${url.searchParams.toString()}`);
+      } else {
+        window.history.replaceState(null, "", `#${id}`);
+      }
     } catch {
       /* ignore */
     }
