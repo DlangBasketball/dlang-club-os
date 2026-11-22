@@ -106,8 +106,9 @@ export async function saveDivision(programId: string, divisionId: string | null,
   const createTeam = v.teamMode === "create";
   const row = {
     name: v.name, min_birth_year: v.minBirthYear, max_birth_year: v.maxBirthYear, age_under: v.ageUnder, age_cutoff: v.ageCutoff,
-    // "create": the team is created and linked below, in SQL (create_division_team).
-    ...(createTeam ? {} : { team_id: v.teamMode === "none" ? null : v.teamId }),
+    // "create": the team is created and linked below, in SQL (create_division_team);
+    // a team linked before is unlinked (kept, never deleted here).
+    team_id: createTeam || v.teamMode === "none" ? null : v.teamId,
     capacity: v.capacity, sort: v.sort, is_active: v.isActive,
   };
   const db = await selectionDb();
