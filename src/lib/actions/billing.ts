@@ -322,7 +322,7 @@ export async function issueMembership(input: MembershipInput & { requestId: stri
 export async function carryForwardMembership(input: {
   fromMembershipId: string; toMembershipId: string; amount: number; reason: string; requestId: string;
 }): Promise<BillingResult<{ invoice_id: string; number: string; amount: number; replayed: boolean }>> {
-  const { me, t } = await session(["admin"]);
+  const { me, t } = await session(["admin", "finance"]);
   if (!me) return denied(t);
   const p = z.object({
     fromMembershipId: uuid, toMembershipId: uuid, amount: money.positive(), reason: z.string().trim().min(1).max(500), requestId: uuid,

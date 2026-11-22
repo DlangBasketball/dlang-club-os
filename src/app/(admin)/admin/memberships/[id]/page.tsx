@@ -22,13 +22,14 @@ export default async function MembershipDetailPage({ params }: { params: Promise
   const [{ id }, me, { t }] = await Promise.all([params, getSessionUser(), getI18n()]);
   if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("finance"))) redirect("/admin/dashboard");
   const isAdmin = me.roles.includes("admin");
+  const canCarry = isAdmin || me.roles.includes("finance");
   const res = await getMembershipDetail(id);
   if (res.error !== null) return <ErrorState title={t("playerBilling.errors.loadFailedTitle")} message={t("playerBilling.errors.loadFailed")} />;
   const m = res.data;
   if (!m) notFound();
 
   // Later seasons of the same player (carry-forward targets).
-  const others = m.athleteId && isAdmin && m.kind === "season_fee" ? await getPlayerMemberships(m.athleteId) : null;
+  const others = m.athleteId && canCarry && m.kind === "season_fee" ? await getPlayerMemberships(m.athleteId) : null;
   const targets = (others?.data ?? [])
     .filter((x) => x.id !== m.id && x.kind === "season_fee" && x.status !== "cancelled" && (x.seasonStartsOn ?? "") > (m.seasonStartsOn ?? ""))
     .map((x) => ({ id: x.id, seasonName: x.seasonName ?? "" }));
@@ -53,7 +54,7 @@ export default async function MembershipDetailPage({ params }: { params: Promise
         <Card><CardBody className="space-y-2">
           <h2 className="font-display text-lg text-text">{t("playerBilling.carry.section")}</h2>
           <p className="text-sm text-text-secondary">{t("playerBilling.membership.carryForwardHint")}</p>
-          {isAdmin
+          {canCarry
             ? <CarryForwardButton fromMembershipId={m.id} targets={targets} currency={m.currency} balance={m.seasonFee.balance} />
             : <p className="text-xs text-text-muted">{t("playerBilling.carry.adminOnly")}</p>}
         </CardBody></Card>

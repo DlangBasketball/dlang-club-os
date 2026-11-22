@@ -570,8 +570,8 @@ begin
   j := substr(v, 4)::jsonb;
   perform bf.ok((j->'season_fee'->>'invoiced')::numeric = 1500.01 and (j->'carry_forward'->>'invoiced')::numeric = 150,
                 'season-fee totals exclude the carry-forward (' || coalesce(j::text, v) || ')');
-  v := bf.run_as('00000000-0000-0000-0000-0000000000f2', format($q$select public.membership_carry_forward(%L, %L, 10, 'x')::text$q$, bf.get('m071'), bf.get('m072x')));
-  perform bf.ok(v like 'ERR:%NOT_AUTHORIZED%', 'finance cannot carry forward');
+  v := bf.run_as('00000000-0000-0000-0000-0000000000f2', format($q$select public.membership_carry_forward(%L, %L, 10, 'Finance carry-forward')::text$q$, bf.get('m071'), bf.get('m072x')));
+  perform bf.ok(v like 'OK:%', 'finance can carry forward (' || left(v, 60) || ')');
 end $$;
 
 -- Team assignment never bills.
