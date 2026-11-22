@@ -6,6 +6,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { getCoachSelectionPrograms, getReviewList, getSelectionSetup } from "@/lib/selection/data";
 import { selectionDb } from "@/lib/selection/db";
 import { ReviewBoard } from "@/components/selection/review-board";
+import { RosterSection } from "@/components/selection/roster/roster-section";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -31,6 +32,12 @@ export default async function CoachSelectionProgramPage({ params }: { params: Pr
         <ReviewBoard entries={review.data} divisions={(setup?.divisions ?? []).map((d) => ({ id: d.id, name: d.name }))}
           canOverrideDivision={false} canSponsor={head === true} canEnroll={false} invoiceHref={null} />
       )}
+      <section className="space-y-3">
+        <h2 className="font-display text-xl text-text">{t("roster.title")}</h2>
+        {/* Assigned coaches: their divisions, no amounts (payment badge only if the club allows it). */}
+        <RosterSection orgId={me.orgId} programId={programId} roles={me.roles}
+          seasonHref="/coach/selection/{id}" playerHrefBase={null} addHref={null} />
+      </section>
     </div>
   );
 }

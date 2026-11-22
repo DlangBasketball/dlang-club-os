@@ -204,6 +204,11 @@ export const packageSchema = z.object({
   showMonthly: z.boolean().optional().default(true),
   sort: z.coerce.number().int().min(0).max(1000).optional().default(0),
   isActive: z.boolean().optional().default(true),
+  // Roster fee arrangements (migration 20250420102900): optional.
+  tournamentCount: z.union([z.literal(""), z.null(), z.coerce.number().int().min(1, "roster.errors.tournamentCount").max(50, "roster.errors.tournamentCount")])
+    .optional().transform((v) => (v === "" || v == null ? null : v)),
+  monthlyAmount: z.union([z.literal(""), z.null(), z.coerce.number().positive("roster.errors.INVALID_MONTHLY_AMOUNT").max(1_000_000, "roster.errors.INVALID_MONTHLY_AMOUNT")])
+    .optional().transform((v) => (v === "" || v == null ? null : v)),
 });
 export type PackageInput = z.input<typeof packageSchema>;
 

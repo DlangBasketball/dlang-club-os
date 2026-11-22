@@ -15,17 +15,49 @@ import { CampHero } from "@/components/camps/camp-hero";
 import { CampSeasonTools } from "@/components/camps/camp-season-tools";
 import { CampEditor } from "@/components/camps/camp-editor";
 import { CampSummaryView } from "@/components/camps/camp-summary";
+import { selectionDb } from "@/lib/selection/db";
+import { RosterSection } from "@/components/selection/roster/roster-section";
 
 const TONE = { draft: "warning", published: "success", archived: "neutral" } as const;
 
-export default async function ProgramDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProgramDetailPage({ params, searchParams }: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { id } = await params;
+  const sp = await searchParams;
   const [me, { t, f }] = await Promise.all([getSessionUser(), getI18n()]);
   if (!me?.orgId) redirect("/admin/programs");
   const { data: p, error } = await getProgram(me.orgId, id);
   if (error) return <div className="animate-fade-up"><PageHeader title={t("editOps.programs.title")} /><ErrorState message={error} /></div>;
   if (!p) notFound();
   const isAdmin = me.roles.includes("admin");
+  // Selection programmes open on their roster ("Players"), the default tab.
+  const { data: sel } = await (await selectionDb()).from("programs").select("selection_enabled").eq("id", p.id).eq("org_id", me.orgId).maybeSingle();
+  const isSelection = p.kind === "selection" || !!sel?.selection_enabled;
+  const tabParam = Array.isArray(sp.tab) ? sp.tab[0] : sp.tab;
+  const tab = isSelection && tabParam !== "overview" ? "players" : "overview";
+  const tabs = isSelection ? (
+    <nav aria-label={t("roster.tabs.label")} className="flex gap-1 border-b border-border">
+      {(["players", "overview"] as const).map((k) => (
+        <Link key={k} href={`/admin/programs/${p.id}?tab=${k}`} aria-current={tab === k ? "page" : undefined}
+          className={`-mb-px border-b-2 px-3 py-2 text-sm ${tab === k ? "border-brand-primary text-text" : "border-transparent text-text-muted hover:text-text"}`}>
+          {t(`roster.tabs.${k}`)}
+        </Link>
+      ))}
+    </nav>
+  ) : null;
+  if (tab === "players") {
+    return (
+      <div className="animate-fade-up space-y-5">
+        <PageHeader title={p.name} description={t.dynamic(`programKind.${p.kind}`, undefined, p.kind)}
+          actions={<Link href={`/admin/selection/${p.id}`}><Button size="sm" variant="secondary"><Medal className="h-4 w-4" /> {t("selection.admin.manageLink")}</Button></Link>} />
+        {tabs}
+        <RosterSection orgId={me.orgId} programId={p.id} roles={me.roles}
+          seasonHref="/admin/programs/{id}?tab=players" playerHrefBase="/admin/selection/{id}/players/" addHref="/admin/selection/{id}/players/new" />
+      </div>
+    );
+  }
   const camp = p.kind === "camp" ? await getCampAdmin(me.orgId, p.id) : null;
   // Camp extras: season, cover (hero), the club's other camps (move a week).
   const cdb = await campsDb();
@@ -60,6 +92,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             <Link href={`/admin/programs/${p.id}/edit`}><Button size="sm"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button></Link>
           </>
         ) : undefined} />
+      {tabs}
       {isAdmin && <SportTagPicker kind="program" recordId={p.id} value={sportId} sports={sports} />}
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone={TONE[p.status]}>{t.dynamic(`editOps.programs.statuses.${p.status}`, undefined, p.status)}</Badge>

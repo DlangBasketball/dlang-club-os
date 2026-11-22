@@ -182,7 +182,7 @@ export async function savePackage(programId: string, packageId: string | null, i
   const v = p.data;
   const row = {
     name: v.name, description: v.description || null, price: v.price, allowed_counts: v.counts, show_monthly: v.showMonthly,
-    sort: v.sort, is_active: v.isActive,
+    sort: v.sort, is_active: v.isActive, tournament_count: v.tournamentCount, monthly_amount: v.monthlyAmount,
   };
   const db = await selectionDb();
   const { error } = packageId

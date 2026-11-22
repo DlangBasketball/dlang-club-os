@@ -830,5 +830,99 @@
     "types": {
       "national_team": "National team programme"
     }
+  },
+  "roster": {
+    "empty": "No players in this programme yet. Add a player or accept applications.",
+    "seasonsFailed": "The seasons of this programme could not be loaded.",
+    "tabs": {
+      "label": "Programme sections"
+    },
+    "filters": {
+      "status": "Enrolment status"
+    },
+    "form": {
+      "seasonProgram": "Season and programme",
+      "program": "Programme",
+      "chooseProgram": "Choose the programme and age group",
+      "alreadyEnrolledHint": "Open the player’s existing enrolment from the roster to change it.",
+      "ageMismatch": "Age group mismatch: the player is {group}, the programme is {division}.",
+      "ageUnverified": "The age group could not be checked (player {group}, programme {division}): set the age group’s birth years in Set-up or confirm.",
+      "ageConfirm": "Enrol in this age group anyway",
+      "chooseProgramFirst": "Choose the programme and age group to see its tournaments.",
+      "monthly": "{amount} monthly instalments",
+      "details": "Enrolment details",
+      "status": "Enrolment status",
+      "save": "Save enrolment",
+      "saved": "Enrolment saved."
+    },
+    "money": {
+      "installments": "Instalments"
+    },
+    "payments": {
+      "recordHint": "Outstanding: {balance}. The payment is allocated to the instalments in order."
+    },
+    "withdraw": {
+      "sectionHint": "Withdrawing keeps the enrolment, invoice, payments and plan. Change the fee only with a credit note or write-off on the invoice.",
+      "tournamentHint": "The player stays enrolled in the programme; the fee is unchanged."
+    },
+    "record": {
+      "title": "Enrolment",
+      "enrollment": "Enrolment",
+      "stepArrangement": "Set the fee arrangement below: pay in full or monthly instalments with a first due date.",
+      "stepPayment": "Record a payment received: the first payment enrols the player.",
+      "stepEnrollNow": "Or enrol now without a payment, with a reason."
+    },
+    "card": {
+      "title": "Programmes",
+      "loadFailed": "The programme enrolments could not be loaded."
+    },
+    "health": {
+      "title": "Some enrolled players are missing from the programme roster",
+      "missing": "{count} enrolled player(s) have no confirmed programme registration (attendance, coach lists and counts). Use “Fix” or contact support.",
+      "rowMissing": "Not on the programme roster"
+    },
+    "tournaments": {
+      "hint": "Tournaments or stages of this season, optionally for one age group. Players are assigned to them on their enrolment.",
+      "statuses": {
+        "cancelled": "Cancelled"
+      },
+      "cancelledInUse": "Players are assigned to this tournament: it was marked cancelled instead (history kept)."
+    },
+    "packages": {
+      "monthlyAmount": "Monthly instalment ({currency})",
+      "monthlyAmountHint": "Default amount for monthly instalments; the last one is smaller when needed."
+    },
+    "errors": {
+      "APPLICATION_NOT_FOUND": "Enrolment not found, or you are not allowed to change it.",
+      "PROGRAM_NOT_FOUND": "Programme not found.",
+      "ALREADY_ENROLLED": "This player already has an active enrolment in this programme.",
+      "TOURNAMENT_NOT_FOUND": "Choose tournaments of this programme.",
+      "AGE_GROUP_MISMATCH": "The player’s age does not match this age group. Confirm to enrol anyway.",
+      "TOO_MANY_INSTALLMENTS": "At most 24 instalments: raise the monthly amount.",
+      "INVALID_ARRANGEMENT": "Choose pay in full or monthly instalments.",
+      "MOVE_HAS_PAYMENTS": "Payments were received for this season: the player cannot be moved. Withdraw and enrol in the other season instead.",
+      "ENROLLMENT_WITHDRAWN": "This enrolment was withdrawn and can no longer change.",
+      "NOT_ON_TEAM": "The player is not on the team yet (enrol first).",
+      "DIVISION_REQUIRED": "Choose the programme and age group.",
+      "DIVISION_NOT_FOUND": "Choose an age group of this programme.",
+      "tournamentDuplicate": "A tournament with this name already exists in this programme."
+    },
+    "nextStep": "Next: fee, payment or enrol now",
+    "team": {
+      "useEnrollment": "This team belongs to a selection programme: add the player through the programme’s enrolment form (Players → Add player).",
+      "selectionHint": "Selection programme teams are joined through an enrolment (age group, tournaments and fee stay connected).",
+      "enrollIn": "Enrol in {program}…"
+    },
+    "enrollNow": {
+      "button": "Enrol now",
+      "title": "Enrol without a payment",
+      "hint": "The player joins the team roster and the programme now; the invoice stays open and is paid later on the agreed terms."
+    },
+    "unenrolled": {
+      "title": "Team members without an enrolment: {count}",
+      "hint": "These players were added to a division team directly. Create their enrolment so tournaments, registration and billing are connected. No invoice is created automatically.",
+      "badge": "Team member, no enrolment",
+      "create": "Create enrolment"
+    }
   }
 }

@@ -141,7 +141,12 @@ export function PlayerTeamsCard({
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<Msg>(null);
   const onTeams = teams.map((m) => m.teamId);
-  const addable = sortTeamsForPicker(options, onTeams);
+  // Selection programme teams (e.g. a programme's age-group teams) are joined
+  // through the enrolment form, never as a bare team membership.
+  const plainOptions = options.filter((o) => !o.isSelectionProgram);
+  const addable = sortTeamsForPicker(plainOptions, onTeams);
+  const selectionPrograms = Array.from(new Map(options.filter((o) => o.isSelectionProgram && o.programId && o.isActive)
+    .map((o) => [o.programId as string, o.programName ?? o.name])).entries());
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -210,7 +215,7 @@ export function PlayerTeamsCard({
             <ChipEditor
               key={m.membershipId}
               m={m}
-              moveOptions={sortTeamsForPicker(options, onTeams)}
+              moveOptions={sortTeamsForPicker(options.find((o) => o.id === m.teamId)?.isSelectionProgram ? [] : plainOptions, onTeams)}
               onDone={(res) => {
                 setMsg(res);
                 setOpenId(null);
@@ -244,6 +249,20 @@ export function PlayerTeamsCard({
               </Button>
             </form>
           )
+        )}
+        {editable && selectionPrograms.length > 0 && (
+          <div className="space-y-1 border-t border-border pt-3">
+            <p className="text-xs text-text-muted">{t("roster.team.selectionHint")}</p>
+            <ul className="flex flex-wrap gap-2">
+              {selectionPrograms.map(([programId, name]) => (
+                <li key={programId}>
+                  <Link href={`/admin/selection/${programId}/players/new?athlete=${athleteId}`} className="text-sm text-brand-primary hover:underline">
+                    {t("roster.team.enrollIn", { program: name })}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
         {msg && <p role="status" className={msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{msg.text}</p>}
       </CardBody>

@@ -17,7 +17,9 @@
 --   Packages   1 tournament   1500  instalments 1-5   (300 / month x 5)
 --              2 tournaments  3000  instalments 1-10  (300 / month x 10)
 --              3 tournaments  4500  instalments 1-10  (450 / month x 10)
---              (currency: the club's)
+--              (currency: the club's; tournament count and monthly amount
+--              set where empty — roster fee arrangements)
+--   Tournaments not seeded: entered by the club in the app (Set-up tab)
 --   Coaches    "Derrick Lang" head coach, "Ademir Sunj" assistant (looked up
 --              by display name; skipped when absent)
 --
@@ -81,13 +83,23 @@ begin
   end if;
 
   for k in select * from (values
-      ('1 tournament', 1500.00, array[1,2,3,4,5], 1),
-      ('2 tournaments', 3000.00, array[1,2,3,4,5,6,7,8,9,10], 2),
-      ('3 tournaments', 4500.00, array[1,2,3,4,5,6,7,8,9,10], 3)) as x(name, price, counts, sort) loop
+      ('1 tournament', 1500.00, array[1,2,3,4,5], 1, 1, 300.00),
+      ('2 tournaments', 3000.00, array[1,2,3,4,5,6,7,8,9,10], 2, 2, 300.00),
+      ('3 tournaments', 4500.00, array[1,2,3,4,5,6,7,8,9,10], 3, 3, 450.00)) as x(name, price, counts, sort, tournaments, monthly) loop
     insert into public.program_packages (org_id, program_id, name, price, allowed_counts, show_monthly, sort)
     select c_org, v_prog, k.name, k.price, k.counts, true, k.sort
      where not exists (select 1 from public.program_packages where program_id = v_prog and lower(name) = lower(k.name));
+    -- Roster fee arrangements (migration 20250420102900): tournaments covered
+    -- and default monthly amount, only where the club has not set them.
+    if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'program_packages' and column_name = 'tournament_count') then
+      execute 'update public.program_packages set tournament_count = coalesce(tournament_count, $1), monthly_amount = coalesce(monthly_amount, $2)
+                where program_id = $3 and lower(name) = lower($4) and (tournament_count is null or monthly_amount is null)'
+        using k.tournaments, k.monthly, v_prog, k.name;
+    end if;
   end loop;
+  -- Tournaments / stages are NOT seeded: the club enters them in
+  -- Admin -> Selection -> EYBL -> Set-up -> Tournaments (name, dates,
+  -- location), then assigns them per player on the roster.
 
   for c in select * from (values ('Derrick Lang', 'head'), ('Ademir Sunj', 'assistant')) as x(display_name, role) loop
     select id into v_coach from public.coaches where org_id = c_org and lower(display_name) = lower(c.display_name) limit 1;
