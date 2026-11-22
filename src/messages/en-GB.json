@@ -967,5 +967,26 @@
       "MEMBERSHIP_CANCELLED": "This membership is cancelled.",
       "INSTALLMENT_NOT_FOUND": "This instalment is not open on that invoice."
     }
+  },
+  "financeReports": {
+    "membership": {
+      "rulesHint": "Due this month = scheduled instalments with a due date in the month (after credit notes). Payments settle instalments in order, oldest first. Overdue = instalments still open after their due date, at month end.",
+      "statuses": {
+        "no_installment": "No instalment this month"
+      },
+      "legendNoInstallment": "No instalment scheduled this month",
+      "legendMissed": "Missed: instalment still open after the month ended"
+    },
+    "selection": {
+      "description": "Enrolment fees of a selection programme (for example EYBL): agreed fee, plan, paid, balance and next due date. The programme's payment schedule is independent of the club season.",
+      "programme": "Programme",
+      "empty": "No enrolment matches the filters.",
+      "noPrograms": "No selection programme yet.",
+      "enrollments": "{count, plural, one {# enrolment} other {# enrolments}}",
+      "cols": {
+        "programme": "Programme",
+        "enrolment": "Enrolment"
+      }
+    }
   }
 }

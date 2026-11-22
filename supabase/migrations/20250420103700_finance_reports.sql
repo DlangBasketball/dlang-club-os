@@ -258,7 +258,8 @@ $$;
 -- expected (due), received (cash in the month), applied, open, status.
 create or replace function public.club_membership_season_overview(p_season uuid, p_team uuid default null)
 returns table (membership_id uuid, month date, due_in_month numeric, received_in_month numeric,
-               applied_to_month numeric, open_for_month numeric, report_status text)
+               applied_to_month numeric, open_for_month numeric, overdue_amount numeric, paid_to_date numeric,
+               season_balance numeric, report_status text)
 language plpgsql
 stable
 security definer
@@ -275,7 +276,8 @@ begin
   m := date_trunc('month', se.starts_on)::date;
   while m <= se.ends_on loop
     return query
-      select r.membership_id, m, r.due_in_month, r.received_in_month, r.applied_to_month, r.open_for_month, r.report_status
+      select r.membership_id, m, r.due_in_month, r.received_in_month, r.applied_to_month, r.open_for_month,
+             r.overdue_amount, r.paid_to_date, r.season_balance, r.report_status
         from public.club_membership_report_internal(v_org, p_season, m, p_team) r;
     m := (m + interval '1 month')::date;
   end loop;

@@ -10988,5 +10988,208 @@
       "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       "invalid": "Bitte prüfe die eingegebenen Werte."
     }
+  },
+  "financeReports": {
+    "common": {
+      "season": "Saison",
+      "month": "Monat",
+      "team": "Mannschaft",
+      "status": "Stand",
+      "allTeams": "Alle Mannschaften",
+      "allStatuses": "Alle Stände",
+      "apply": "Anzeigen",
+      "downloadXlsx": "Excel herunterladen",
+      "total": "Summe {currency}",
+      "members": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+      "loadError": "Der Bericht konnte nicht geladen werden.",
+      "noSeasons": "Noch keine Saison. Legen Sie eine unter Einstellungen → Saisons an."
+    },
+    "membership": {
+      "title": "Zahlungen der Mitgliederbeiträge",
+      "description": "Alle Mitgliedschaften der Saison für einen Monat: was fällig war, was eingegangen ist und was noch offen ist.",
+      "empty": "Keine Mitgliedschaft dieser Saison passt zu den Filtern.",
+      "rulesHint": "Fällig in diesem Monat = geplante Raten mit Fälligkeit im Monat (nach Gutschriften). Zahlungen begleichen die Raten der Reihe nach, die älteste zuerst. Überfällig = Raten, die am Monatsende nach ihrer Fälligkeit noch offen sind.",
+      "carryForwardHint": "Aus einer früheren Saison übertragene Beträge stehen in eigenen Spalten und gehören nicht zum Saisonbeitrag.",
+      "cols": {
+        "player": "Spieler",
+        "teams": "Mannschaften",
+        "payers": "Zahlende",
+        "invoices": "Rechnungen",
+        "currency": "Währung",
+        "agreedFee": "Vereinbarter Saisonbeitrag",
+        "dueInMonth": "Fällig im Monat",
+        "receivedInMonth": "Eingegangen im Monat",
+        "appliedToMonth": "Diesem Monat zugeordnet",
+        "openForMonth": "Offen für den Monat",
+        "overdueAmount": "Überfällig am Monatsende",
+        "paidToDate": "Bisher bezahlt",
+        "seasonBalance": "Offener Saisonbetrag",
+        "carryForwardDue": "Übertrag",
+        "carryForwardReceivedInMonth": "Übertrag eingegangen im Monat",
+        "carryForwardOpen": "Übertrag offen",
+        "status": "Stand"
+      },
+      "statuses": {
+        "paid": "Bezahlt",
+        "partially_paid": "Teilweise bezahlt",
+        "unpaid": "Unbezahlt",
+        "no_installment": "Keine Rate in diesem Monat",
+        "overdue": "Überfällig",
+        "sponsored": "Gesponsert"
+      },
+      "sheetMonthly": "Monatsbericht",
+      "sheetOverview": "Saisonübersicht",
+      "xlsxTitle": "Zahlungen Mitgliederbeiträge · {season} · {month}",
+      "expected": "erwartet",
+      "received": "eingegangen",
+      "totalPaid": "Total bezahlt",
+      "remainingBalance": "Offener Betrag",
+      "legendNoInstallment": "Keine Rate in diesem Monat geplant",
+      "legendMissed": "Verpasst: Rate nach Monatsende noch offen",
+      "membersOverdue": "Mitglieder mit Rückstand"
+    },
+    "selection": {
+      "title": "Zahlungen Auswahlprogramme",
+      "description": "Einschreibegebühren eines Auswahlprogramms (zum Beispiel EYBL): vereinbarter Betrag, Zahlungsplan, bezahlt, Saldo und nächste Fälligkeit. Der Zahlungsplan des Programms ist unabhängig von der Vereinssaison.",
+      "programme": "Programm",
+      "division": "Altersklasse / Division",
+      "tournament": "Turnier",
+      "allDivisions": "Alle Altersklassen",
+      "allTournaments": "Alle Turniere",
+      "empty": "Keine Einschreibung passt zu den Filtern.",
+      "noPrograms": "Noch kein Auswahlprogramm.",
+      "enrollments": "{count, plural, one {# Einschreibung} other {# Einschreibungen}}",
+      "cols": {
+        "player": "Spieler",
+        "programme": "Programm",
+        "division": "Altersklasse",
+        "package": "Paket",
+        "tournaments": "Turniere",
+        "enrolment": "Einschreibung",
+        "plan": "Zahlungsplan",
+        "currency": "Währung",
+        "agreedFee": "Vereinbarter Betrag",
+        "amountDue": "Geschuldet",
+        "received": "Bezahlt",
+        "balance": "Saldo",
+        "nextDue": "Nächste Fälligkeit",
+        "overdue": "Überfällig",
+        "status": "Zahlungsstand"
+      },
+      "plans": {
+        "full": "Einmalzahlung",
+        "monthly": "Monatlich: {count} × {amount}",
+        "monthlyOpen": "Monatlich"
+      },
+      "statuses": {
+        "none": "Keine Rechnung",
+        "unpaid": "Unbezahlt",
+        "partial": "Teilweise bezahlt",
+        "paid": "Bezahlt",
+        "overdue": "Überfällig"
+      },
+      "enrolments": {
+        "accepted": "Angenommen",
+        "enrolled": "Eingeschrieben",
+        "withdrawn": "Zurückgezogen"
+      },
+      "sheet": "Zahlungen Auswahl",
+      "xlsxTitle": "Zahlungen Auswahlprogramme · {program} · {date}"
+    },
+    "invoices": {
+      "category": "Kategorie",
+      "entity": "Rechnungssteller",
+      "from": "Ausgestellt ab",
+      "to": "Ausgestellt bis",
+      "searchPlaceholder": "Nummer oder Präfix (z. B. DL EYBL)",
+      "allCategories": "Alle Kategorien",
+      "allEntities": "Alle Rechnungssteller",
+      "colCategory": "Kategorie",
+      "colEntity": "Rechnungssteller",
+      "colSource": "Wofür",
+      "colPayer": "Familie / Zahler",
+      "colPaid": "Bezahlt",
+      "colOutstanding": "Offen",
+      "totalsTitle": "Summen nach Kategorie",
+      "totalsSubtitle": "Fakturiert, eingegangen und offen je Ertragskategorie für die gewählte Periode, den Rechnungssteller und den Stand. Gutschriften zählen zur Kategorie der ursprünglichen Rechnung.",
+      "invoiced": "Fakturiert",
+      "received": "Eingegangen",
+      "outstanding": "Offen",
+      "count": "{count, plural, one {# Rechnung} other {# Rechnungen}}",
+      "totalsEmpty": "Keine ausgestellte Rechnung passt zu den Filtern.",
+      "pageInfo": "{count, plural, one {# Rechnung} other {# Rechnungen}} · Seite {page}"
+    },
+    "overview": {
+      "categoryTitle": "Nach Ertragskategorie",
+      "categorySubtitle": "Ausgestellte Rechnungen jeder Kategorie, alle Daten. Jede Aktivität wird getrennt ausgewiesen."
+    },
+    "accounting": {
+      "transactionsTitle": "Buchungsdaten für Ihre Treuhand",
+      "transactionsHint": "Rechnungen, Gutschriften und andere Korrekturen, Zahlungen und Rückerstattungen der Periode, jeweils mit ursprünglicher Rechnungsnummer, Zahlungsreferenz, Ertragskategorie, Rechnungssteller und Zweck.",
+      "from": "Von",
+      "to": "Bis",
+      "transactionsCsv": "Buchungsdaten CSV",
+      "transactionsXlsx": "Buchungsdaten Excel",
+      "count": "{count, plural, one {# Buchung} other {# Buchungen}} in dieser Periode",
+      "previewEmpty": "Keine Buchung in dieser Periode.",
+      "previewTruncated": "Die ersten {count} werden angezeigt. Der Download enthält alle Buchungen.",
+      "integrationTitle": "Buchhaltungssoftware",
+      "noIntegration": "Keine Buchhaltungssoftware verbunden — laden Sie den Export für Ihre Treuhand herunter.",
+      "lastExport": "Letzter Export: {kind}, {date}",
+      "lastExportRows": "{count, plural, one {# Zeile} other {# Zeilen}}",
+      "lastExportFailed": "Letzter Export fehlgeschlagen: {kind}, {date}",
+      "neverExported": "Noch kein Export heruntergeladen.",
+      "exportKinds": {
+        "bexio": "Bexio-Export (CSV)",
+        "journal": "Buchungsjournal (CSV)",
+        "journal_xlsx": "Buchungsjournal (Excel)",
+        "open_items": "Offene Posten",
+        "collection": "Inkassoliste",
+        "reimbursements": "Rückerstattungen",
+        "transactions_csv": "Buchungsdaten CSV",
+        "transactions_xlsx": "Buchungsdaten Excel"
+      },
+      "cols": {
+        "date": "Datum",
+        "kind": "Art",
+        "documentNumber": "Beleg-Nr.",
+        "invoiceNumber": "Rechnungs-Nr.",
+        "invoiceReference": "Zahlungsreferenz der Rechnung",
+        "paymentReference": "Referenz der Zahlung",
+        "category": "Kategorie",
+        "entity": "Rechnungssteller",
+        "sourceLabel": "Wofür",
+        "family": "Familie",
+        "payer": "Zahler",
+        "method": "Zahlungsart",
+        "status": "Stand",
+        "amount": "Betrag",
+        "currency": "Währung",
+        "description": "Beschreibung"
+      },
+      "kinds": {
+        "invoice": "Rechnung",
+        "credit_note": "Gutschrift",
+        "debit_note": "Belastungsanzeige",
+        "write_off": "Abschreibung",
+        "cancellation": "Stornierung",
+        "payment": "Zahlung",
+        "refund": "Rückerstattung",
+        "reversal": "Storno"
+      },
+      "docStatuses": {
+        "active": "Aktiv",
+        "void": "Aufgehoben"
+      },
+      "sheet": "Buchungen"
+    },
+    "errors": {
+      "NOT_AUTHORIZED": "Nur Admins und Finanzverantwortliche sehen diesen Bericht.",
+      "SEASON_NOT_FOUND": "Diese Saison gibt es nicht.",
+      "MONTH_OUTSIDE_SEASON": "Dieser Monat gehört nicht zur Saison.",
+      "TEAM_NOT_FOUND": "Diese Mannschaft gibt es nicht.",
+      "INVALID_DATE": "Prüfen Sie die Periode.",
+      "generic": "Etwas ist schiefgelaufen. Bitte erneut versuchen."
+    }
   }
 }

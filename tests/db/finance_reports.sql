@@ -301,7 +301,8 @@ declare v text;
 begin
   v := fr.run_as('00000000-0000-0000-0000-0000000000f2', format($q$
     select (count(*) = 72 and bool_and(o.due_in_month = r.due_in_month and o.received_in_month = r.received_in_month
-                                       and o.applied_to_month = r.applied_to_month and o.report_status = r.report_status))::text
+                                       and o.applied_to_month = r.applied_to_month and o.report_status = r.report_status
+                                       and o.paid_to_date = r.paid_to_date and o.season_balance = r.season_balance))::text
       from public.club_membership_season_overview(%L) o
       join fr.rep r on r.membership_id = o.membership_id and r.month = o.month$q$, fr.uid('season')));
   perform fr.ok(v = 'OK:true', 'season overview: 12 months x 6 members, same numbers as the month report ' || v);
