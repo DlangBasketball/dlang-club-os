@@ -344,6 +344,21 @@ function LiveBody({ data, ctx }: { data: LiveData; ctx: RenderCtx }) {
         </ul>
       );
     }
+    case "placements": {
+      if (!data.items.length) return <Empty ctx={ctx} />;
+      return (
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {data.items.map((p) => (
+            <li key={p.id} className="site-reveal site-card flex flex-col p-6">
+              <p className="site-eyebrow">{p.type_label}</p>
+              <h3 className="site-h mt-2 text-2xl text-text">{p.institution}</h3>
+              <p className="mt-1 text-text-secondary">{p.name}</p>
+              <p className="mt-4 text-sm text-text-muted">{[p.league, p.level, p.country, p.year ? String(p.year) : null].filter(Boolean).join(" · ")}</p>
+            </li>
+          ))}
+        </ul>
+      );
+    }
     case "calendar": {
       const c = data.items[0]!;
       return (

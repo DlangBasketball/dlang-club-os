@@ -12,7 +12,7 @@ import { PUBLIC_API_LIMIT, PUBLIC_API_WINDOW_MS, clientIp, createRateLimiter } f
 import { resolvePublicClub, type PublicClub } from "./server";
 import type { PublicSection } from "./settings-shape";
 import {
-  buildCampaigns, buildCamps, buildClub, buildCoaches, buildNews, buildPrograms, buildShop, buildTeams, buildTraining,
+  buildCampaigns, buildCamps, buildClub, buildCoaches, buildNews, buildPlacements, buildPrograms, buildShop, buildTeams, buildTraining,
   clubEnvelope, loadPublicEvents, type Ctx,
 } from "./public-data";
 
@@ -22,12 +22,12 @@ import {
  * enabled), CORS, caching + ETag. The builders in ./public-data read the data.
  */
 
-export const PUBLIC_RESOURCES = ["club", "programs", "camps", "events", "results", "teams", "coaches", "training", "shop", "campaigns", "news", "calendar.ics"] as const;
+export const PUBLIC_RESOURCES = ["club", "programs", "camps", "events", "results", "teams", "coaches", "training", "shop", "campaigns", "news", "calendar.ics", "placements"] as const;
 export type PublicResource = (typeof PUBLIC_RESOURCES)[number];
 
 const SECTION: Record<PublicResource, PublicSection | null> = {
   club: null, programs: "programs", camps: "camps", events: "events", results: "results", teams: "teams", coaches: "coaches",
-  training: "training", shop: "shop", campaigns: "campaigns", news: "news", "calendar.ics": "events",
+  training: "training", shop: "shop", campaigns: "campaigns", news: "news", "calendar.ics": "events", placements: "placements",
 };
 
 const CACHE_CONTROL = "public, s-maxage=60, stale-while-revalidate=300";
@@ -59,6 +59,7 @@ const QUERY: Record<PublicResource, z.ZodTypeAny> = {
   shop: baseQuery.extend({ category: z.string().trim().min(1).max(80).optional() }),
   campaigns: baseQuery,
   news: baseQuery.extend({ limit: z.coerce.number().int().min(1).max(50).optional() }),
+  placements: baseQuery.extend({ limit: z.coerce.number().int().min(1).max(100).optional() }),
   "calendar.ics": baseQuery.extend({ from: dateLike.optional(), to: dateLike.optional(), team: slugLike.optional(), type: csv(["game", "training", "event", "tournament"]).optional() }),
 };
 
@@ -102,6 +103,7 @@ export async function buildResource(resource: PublicResource, ctx: Ctx, q: Recor
     case "shop": return buildShop(ctx, { category: (q.category as string) ?? null });
     case "campaigns": return buildCampaigns(ctx);
     case "news": return buildNews(ctx, { limit: q.limit as number | undefined });
+    case "placements": return buildPlacements(ctx, { limit: q.limit as number | undefined });
   }
 }
 
