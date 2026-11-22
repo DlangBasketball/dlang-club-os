@@ -644,4 +644,26 @@ begin
   perform sr.ok(v like 'ERR:%REASON_REQUIRED%', 'an amount change after payment still needs a reason (' || left(v, 60) || ')');
 end $$;
 
+-- ===========================================================================
+-- J. Tournament count: unchanged or empty selection saves without a reason.
+-- ===========================================================================
+do $$
+declare v text;
+  admin_a uuid := '00000000-0000-0000-0000-0000000000f1';
+begin
+  -- app3 covers 2 tournaments on a 2-tournament package; switch to the 1-tournament package price-wise is not needed:
+  v := sr.run_as(admin_a, format($q$select public.selection_set_tournaments(%L, array[]::uuid[])::text$q$, sr.get('app3')));
+  perform sr.ok(v like 'OK:%', 'no tournaments assigned yet: saved without a reason (' || left(v, 60) || ')');
+  v := sr.run_as(admin_a, format($q$select public.selection_set_tournaments(%L, array[]::uuid[])::text$q$, sr.get('app3')));
+  perform sr.ok(v like 'OK:%', 'unchanged empty selection saves again (' || left(v, 60) || ')');
+  v := sr.run_as(admin_a, format($q$select public.selection_set_tournaments(%L, array[%L]::uuid[])::text$q$, sr.get('app3'), sr.get('t1')));
+  perform sr.ok(v like 'ERR:%TOURNAMENT_COUNT_MISMATCH%', 'changed selection of 1 on a 2-tournament package still needs a reason (' || left(v, 60) || ')');
+  v := sr.run_as(admin_a, format($q$select public.selection_set_tournaments(%L, array[%L]::uuid[], 'Second stage not decided')::text$q$, sr.get('app3'), sr.get('t1')));
+  perform sr.ok(v like 'OK:%', 'with a reason it saves (' || left(v, 60) || ')');
+  v := sr.run_as(admin_a, format($q$select public.selection_set_tournaments(%L, array[%L]::uuid[])::text$q$, sr.get('app3'), sr.get('t1')));
+  perform sr.ok(v like 'OK:%', 'unchanged selection saves without repeating the reason (' || left(v, 60) || ')');
+  perform sr.ok((select tournament_override_reason = 'Second stage not decided' from public.program_applications where id = sr.get('app3')::uuid),
+                'the earlier reason is kept');
+end $$;
+
 select 'selection_roster suite done' as done;

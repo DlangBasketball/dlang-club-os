@@ -134,7 +134,9 @@ export function EnrollmentForm({
   const ageWarning = !!athlete && !!division && fits !== true && (mode.kind === "add" || divisionId !== init?.divisionId);
 
   const required = pkg?.tournamentCount ?? null;
-  const countMismatch = required != null && tournamentIds.length !== required;
+  // Same rule as the server: an unchanged or empty selection needs no reason.
+  const selectionChanged = [...tournamentIds].sort().join() !== [...(init?.tournamentIds ?? [])].sort().join();
+  const countMismatch = required != null && tournamentIds.length > 0 && tournamentIds.length !== required && selectionChanged;
 
   async function runSearch(e?: React.FormEvent) {
     e?.preventDefault();
