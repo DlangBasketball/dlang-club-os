@@ -526,7 +526,22 @@
     "excused": "Excused",
     "noSessions": "No sessions today.",
     "roster": "Roster",
-    "summary": "{present} of {total} present"
+    "summary": "{present} of {total} present",
+    "admin": {
+      "description": "Review attendance by session, coach and date.",
+      "loadError": "Couldn't load attendance",
+      "colSession": "Session",
+      "colCoach": "Coach",
+      "colDate": "Date",
+      "colCounts": "Counts",
+      "colStatus": "Status",
+      "counts": "{present} present · {late} late · {absent} absent · {excused} excused",
+      "untitled": "Session",
+      "filterDate": "Show",
+      "clear": "All dates",
+      "emptyTitle": "No attendance recorded",
+      "emptyBody": "Sessions appear here once coaches submit."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -1730,6 +1745,24 @@
       "searchPlaceholder": "Invoice number or family",
       "familyFilter": "Family: {name}",
       "clearFilters": "Clear filters"
+    },
+    "paymentList": {
+      "title": "Payments",
+      "loadError": "Couldn't load payments",
+      "colInvoice": "Invoice",
+      "colMethod": "Method",
+      "colDate": "Date",
+      "colStatus": "Status",
+      "colAmount": "Amount",
+      "totalCollected": "Total collected:",
+      "empty": "No payments yet",
+      "filters": {
+        "all": "All",
+        "succeeded": "Succeeded",
+        "pending": "Pending",
+        "failed": "Failed",
+        "refunded": "Refunded"
+      }
     }
   },
   "coaches": {

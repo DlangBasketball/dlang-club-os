@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { zonedWallTimeToUtc } from "@/lib/format";
+import { addDayKey } from "@/lib/staff/hours";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -16,35 +18,69 @@ export type AttendanceSessionRow = {
   present: number; late: number; absent: number; excused: number; injuries: number; total: number;
 };
 
-export async function listAttendanceSessions(dateFilter?: string): Promise<Result<AttendanceSessionRow[]>> {
+/**
+ * One page of attendance sessions, newest first (optionally one club-local
+ * day). Paged instead of a 200-row cut, and the marks are read in chunks: a
+ * single read of all marks stopped at the ~1000-row response cap, so older
+ * sessions on the list showed 0 present / 0 absent.
+ */
+export async function listAttendanceSessions(
+  dateFilter?: string,
+  opts: { page?: number; pageSize?: number; timeZone?: string } = {},
+): Promise<Result<AttendanceSessionRow[]> & { hasMore?: boolean }> {
   const supabase = await createClient();
-  let q = supabase.from("attendance_sessions").select("id,program_id,coach_id,session_date,status").order("session_date", { ascending: false }).limit(200);
-  if (dateFilter) {
-    const start = new Date(dateFilter); start.setHours(0, 0, 0, 0);
-    const end = new Date(dateFilter); end.setHours(23, 59, 59, 999);
-    q = q.gte("session_date", start.toISOString()).lte("session_date", end.toISOString());
+  const size = Math.min(Math.max(opts.pageSize ?? 50, 1), 200);
+  const from = (Math.max(1, Math.floor(opts.page ?? 1)) - 1) * size;
+  let q = supabase
+    .from("attendance_sessions")
+    .select("id,program_id,coach_id,session_date,status")
+    .order("session_date", { ascending: false })
+    .order("id", { ascending: false })
+    .range(from, from + size);
+  if (dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
+    const tz = opts.timeZone ?? "UTC";
+    const start = zonedWallTimeToUtc(dateFilter, "00:00", tz) ?? new Date(`${dateFilter}T00:00:00Z`);
+    const end = zonedWallTimeToUtc(addDayKey(dateFilter, 1), "00:00", tz) ?? new Date(start.getTime() + 864e5);
+    q = q.gte("session_date", start.toISOString()).lt("session_date", end.toISOString());
   }
-  const { data: sessions, error } = await q;
+  const { data: all, error } = await q;
   if (error) return fail(error.message);
+  const hasMore = (all ?? []).length > size;
+  const sessions = (all ?? []).slice(0, size);
 
-  const ids = (sessions ?? []).map((s) => s.id);
-  const [marks, progs, coaches] = await Promise.all([
-    ids.length ? supabase.from("attendance_marks").select("attendance_session_id,status,injury_flag").in("attendance_session_id", ids) : Promise.resolve({ data: [] as { attendance_session_id: string; status: string; injury_flag: boolean }[] }),
-    supabase.from("programs").select("id,name").in("id", uniq((sessions ?? []).map((s) => s.program_id))),
-    supabase.from("coaches").select("id,display_name").in("id", uniq((sessions ?? []).map((s) => s.coach_id))),
+  const ids = sessions.map((s) => s.id);
+  const marks: { attendance_session_id: string; status: string; injury_flag: boolean }[] = [];
+  for (let i = 0; i < ids.length; i += 25) {
+    for (let mFrom = 0; mFrom < 100_000; mFrom += 1000) {
+      const { data, error: mErr } = await supabase
+        .from("attendance_marks")
+        .select("attendance_session_id,status,injury_flag")
+        .in("attendance_session_id", ids.slice(i, i + 25))
+        .order("attendance_session_id")
+        .order("athlete_id")
+        .range(mFrom, mFrom + 999);
+      if (mErr) return fail(mErr.message);
+      marks.push(...(data ?? []));
+      if (!data || data.length < 1000) break;
+    }
+  }
+  const [progs, coaches] = await Promise.all([
+    supabase.from("programs").select("id,name").in("id", uniq(sessions.map((s) => s.program_id))),
+    supabase.from("coaches").select("id,display_name").in("id", uniq(sessions.map((s) => s.coach_id))),
   ]);
   const pName = new Map((progs.data ?? []).map((p) => [p.id, p.name]));
   const cName = new Map((coaches.data ?? []).map((c) => [c.id, c.display_name]));
   const byS = new Map<string, { present: number; late: number; absent: number; excused: number; injuries: number; total: number }>();
-  for (const m of marks.data ?? []) {
+  for (const m of marks) {
     const agg = byS.get(m.attendance_session_id) ?? { present: 0, late: 0, absent: 0, excused: 0, injuries: 0, total: 0 };
     agg[m.status as "present" | "late" | "absent" | "excused"]++; agg.total++; if (m.injury_flag) agg.injuries++;
     byS.set(m.attendance_session_id, agg);
   }
-  return ok((sessions ?? []).map((s) => {
+  const rows = sessions.map((s) => {
     const a = byS.get(s.id) ?? { present: 0, late: 0, absent: 0, excused: 0, injuries: 0, total: 0 };
-    return { id: s.id, programName: pName.get(s.program_id ?? "") ?? "Session", coachName: cName.get(s.coach_id ?? "") ?? "—", coachId: s.coach_id ?? null, date: s.session_date, status: s.status, ...a };
-  }));
+    return { id: s.id, programName: pName.get(s.program_id ?? "") ?? "", coachName: cName.get(s.coach_id ?? "") ?? "—", coachId: s.coach_id ?? null, date: s.session_date, status: s.status, ...a };
+  });
+  return { data: rows, error: null, hasMore };
 }
 
 export type SessionMark = { athleteId: string; name: string; status: string; notes: string | null; injury: boolean; correctedAt: string | null };

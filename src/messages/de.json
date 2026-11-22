@@ -526,7 +526,22 @@
     "excused": "Entschuldigt",
     "noSessions": "Heute keine Trainings.",
     "roster": "Teilnehmerliste",
-    "summary": "{present} von {total} anwesend"
+    "summary": "{present} von {total} anwesend",
+    "admin": {
+      "description": "Anwesenheit nach Einheit, Trainer und Datum prüfen.",
+      "loadError": "Anwesenheit konnte nicht geladen werden",
+      "colSession": "Einheit",
+      "colCoach": "Trainer",
+      "colDate": "Datum",
+      "colCounts": "Zählung",
+      "colStatus": "Stand",
+      "counts": "{present} anwesend · {late} verspätet · {absent} abwesend · {excused} entschuldigt",
+      "untitled": "Einheit",
+      "filterDate": "Anzeigen",
+      "clear": "Alle Daten",
+      "emptyTitle": "Keine Anwesenheit erfasst",
+      "emptyBody": "Einheiten erscheinen hier, sobald Trainer sie einreichen."
+    }
   },
   "notifications": {
     "title": "Mitteilungen",
@@ -1730,6 +1745,24 @@
       "searchPlaceholder": "Rechnungsnummer oder Familie",
       "familyFilter": "Familie: {name}",
       "clearFilters": "Filter zurücksetzen"
+    },
+    "paymentList": {
+      "title": "Zahlungen",
+      "loadError": "Zahlungen konnten nicht geladen werden",
+      "colInvoice": "Rechnung",
+      "colMethod": "Zahlungsart",
+      "colDate": "Datum",
+      "colStatus": "Stand",
+      "colAmount": "Betrag",
+      "totalCollected": "Total eingenommen:",
+      "empty": "Noch keine Zahlungen",
+      "filters": {
+        "all": "Alle",
+        "succeeded": "Erfolgreich",
+        "pending": "Ausstehend",
+        "failed": "Fehlgeschlagen",
+        "refunded": "Rückerstattet"
+      }
     }
   },
   "coaches": {

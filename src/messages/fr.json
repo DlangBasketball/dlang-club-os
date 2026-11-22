@@ -526,7 +526,22 @@
     "excused": "Excusé·e",
     "noSessions": "Aucune séance aujourd'hui.",
     "roster": "Liste des participants",
-    "summary": "{present} présents sur {total}"
+    "summary": "{present} présents sur {total}",
+    "admin": {
+      "description": "Consulter les présences par séance, entraîneur et date.",
+      "loadError": "Impossible de charger les présences",
+      "colSession": "Séance",
+      "colCoach": "Entraîneur",
+      "colDate": "Date",
+      "colCounts": "Décompte",
+      "colStatus": "Statut",
+      "counts": "{present} présents · {late} en retard · {absent} absents · {excused} excusés",
+      "untitled": "Séance",
+      "filterDate": "Afficher",
+      "clear": "Toutes les dates",
+      "emptyTitle": "Aucune présence enregistrée",
+      "emptyBody": "Les séances apparaissent ici dès que les entraîneurs les envoient."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -1730,6 +1745,24 @@
       "searchPlaceholder": "Numéro de facture ou famille",
       "familyFilter": "Famille : {name}",
       "clearFilters": "Effacer les filtres"
+    },
+    "paymentList": {
+      "title": "Paiements",
+      "loadError": "Impossible de charger les paiements",
+      "colInvoice": "Facture",
+      "colMethod": "Moyen",
+      "colDate": "Date",
+      "colStatus": "Statut",
+      "colAmount": "Montant",
+      "totalCollected": "Total encaissé :",
+      "empty": "Aucun paiement pour l'instant",
+      "filters": {
+        "all": "Tous",
+        "succeeded": "Réussis",
+        "pending": "En attente",
+        "failed": "Échoués",
+        "refunded": "Remboursés"
+      }
     }
   },
   "coaches": {

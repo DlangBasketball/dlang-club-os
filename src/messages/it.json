@@ -526,7 +526,22 @@
     "excused": "Giustificato",
     "noSessions": "Nessuna sessione oggi.",
     "roster": "Elenco partecipanti",
-    "summary": "{present} presenti su {total}"
+    "summary": "{present} presenti su {total}",
+    "admin": {
+      "description": "Consulta le presenze per sessione, allenatore e data.",
+      "loadError": "Impossibile caricare le presenze",
+      "colSession": "Sessione",
+      "colCoach": "Allenatore",
+      "colDate": "Data",
+      "colCounts": "Conteggio",
+      "colStatus": "Stato",
+      "counts": "{present} presenti · {late} in ritardo · {absent} assenti · {excused} giustificati",
+      "untitled": "Sessione",
+      "filterDate": "Mostra",
+      "clear": "Tutte le date",
+      "emptyTitle": "Nessuna presenza registrata",
+      "emptyBody": "Le sessioni compaiono qui quando gli allenatori le inviano."
+    }
   },
   "notifications": {
     "title": "Notifiche",
@@ -1730,6 +1745,24 @@
       "searchPlaceholder": "Numero fattura o famiglia",
       "familyFilter": "Famiglia: {name}",
       "clearFilters": "Azzera filtri"
+    },
+    "paymentList": {
+      "title": "Pagamenti",
+      "loadError": "Impossibile caricare i pagamenti",
+      "colInvoice": "Fattura",
+      "colMethod": "Metodo",
+      "colDate": "Data",
+      "colStatus": "Stato",
+      "colAmount": "Importo",
+      "totalCollected": "Totale incassato:",
+      "empty": "Ancora nessun pagamento",
+      "filters": {
+        "all": "Tutti",
+        "succeeded": "Riusciti",
+        "pending": "In attesa",
+        "failed": "Non riusciti",
+        "refunded": "Rimborsati"
+      }
     }
   },
   "coaches": {

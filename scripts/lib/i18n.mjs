@@ -170,6 +170,8 @@ export const SAME_AS_EN_OK = new Set([
   "de:editMoney.invoiceList.colStatus",
   "fr:common.pager.page",
   "fr:editPeople.familyDetail.documents",
+  "fr:attendance.admin.colDate",
+  "fr:editMoney.paymentList.colDate",
   "fr:editPeople.registrationList.colAthlete",
   "fr:editPeople.registrationDetail.participant",
   "shell.clubOs",

@@ -526,7 +526,22 @@
     "excused": "Justificado",
     "noSessions": "Hoy no hay sesiones.",
     "roster": "Lista de participantes",
-    "summary": "{present} de {total} presentes"
+    "summary": "{present} de {total} presentes",
+    "admin": {
+      "description": "Revisa la asistencia por sesión, entrenador y fecha.",
+      "loadError": "No se pudo cargar la asistencia",
+      "colSession": "Sesión",
+      "colCoach": "Entrenador",
+      "colDate": "Fecha",
+      "colCounts": "Recuento",
+      "colStatus": "Estado",
+      "counts": "{present} presentes · {late} tarde · {absent} ausentes · {excused} justificados",
+      "untitled": "Sesión",
+      "filterDate": "Mostrar",
+      "clear": "Todas las fechas",
+      "emptyTitle": "No hay asistencia registrada",
+      "emptyBody": "Las sesiones aparecen aquí cuando los entrenadores las envían."
+    }
   },
   "notifications": {
     "title": "Notificaciones",
@@ -1730,6 +1745,24 @@
       "searchPlaceholder": "Número de factura o familia",
       "familyFilter": "Familia: {name}",
       "clearFilters": "Borrar filtros"
+    },
+    "paymentList": {
+      "title": "Pagos",
+      "loadError": "No se pudieron cargar los pagos",
+      "colInvoice": "Factura",
+      "colMethod": "Método",
+      "colDate": "Fecha",
+      "colStatus": "Estado",
+      "colAmount": "Importe",
+      "totalCollected": "Total cobrado:",
+      "empty": "Aún no hay pagos",
+      "filters": {
+        "all": "Todos",
+        "succeeded": "Completados",
+        "pending": "Pendientes",
+        "failed": "Fallidos",
+        "refunded": "Reembolsados"
+      }
     }
   },
   "coaches": {
