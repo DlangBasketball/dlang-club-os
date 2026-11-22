@@ -50,10 +50,12 @@ begin
   end;
 end $$;
 
--- Monday of next week at hh:mm in org A's time zone.
+-- Monday in two weeks at hh:mm in org A's time zone (always outside the
+-- booking / reschedule notice windows; "next Monday" is tomorrow on a Sunday,
+-- which made the reschedule and cancel-credit checks fail every Sunday).
 create function tp.mon(p_h integer, p_m integer default 0) returns timestamptz language sql stable as $$
   select ((date_trunc('week', now() at time zone public.training_org_tz('00000000-0000-0000-0000-000000000001'))
-           + interval '7 days' + make_interval(hours => p_h, mins => p_m))
+           + interval '14 days' + make_interval(hours => p_h, mins => p_m))
           at time zone public.training_org_tz('00000000-0000-0000-0000-000000000001'));
 $$;
 grant execute on all functions in schema tp to authenticated, anon, service_role;
