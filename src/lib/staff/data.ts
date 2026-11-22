@@ -2,6 +2,7 @@ import "server-only";
 import { staffDb, type EntryStatus, type GeoStatusDb, type StaffHoursRow } from "./db";
 import { addDayKey, windowFor, zonedDayKey } from "./hours";
 import { logError } from "@/lib/log";
+import { pagedIn } from "@/lib/data/paged";
 
 /**
  * Server-side reads for staff time, lesson plans and roll-call history.
@@ -239,7 +240,7 @@ export async function listMyRollCalls(orgId: string, coachId: string, limit = 50
   const programIds = Array.from(new Set(rows.map((r) => r.program_id).filter((x): x is string => !!x)));
   const [{ data: programs }, { data: marks }] = await Promise.all([
     programIds.length ? db.from("programs").select("id,name").in("id", programIds) : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-    db.from("attendance_marks").select("attendance_session_id,status").eq("org_id", orgId).in("attendance_session_id", rows.map((r) => r.id)),
+    pagedIn(rows.map((r) => r.id), (c, a, b) => db.from("attendance_marks").select("attendance_session_id,athlete_id,status").eq("org_id", orgId).in("attendance_session_id", c).order("attendance_session_id").order("athlete_id").range(a, b), 50).then((r) => ({ data: r.rows })),
   ]);
   const name = new Map((programs ?? []).map((p) => [p.id, p.name]));
   const counts = new Map<string, Record<string, number>>();

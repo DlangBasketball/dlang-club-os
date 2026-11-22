@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { must } from "@/lib/data/must";
 
 export type ConsentForm = { id: string; key: string; title: string; version: number; isRequired: boolean; isActive: boolean; bodyLength: number; acceptedCount: number };
 
@@ -9,9 +10,14 @@ export async function listConsentForms(): Promise<ConsentForm[]> {
   const me = await getSessionUser();
   if (!me?.orgId) return [];
   const admin = createAdminClient();
-  const { data } = await admin.from("consent_forms").select("id,key,title,version,is_required,is_active,body").eq("org_id", me.orgId).order("key").order("version", { ascending: false });
-  const forms = data ?? [];
-  const counts = (await admin.from("consent_acceptances").select("consent_form_id").eq("org_id", me.orgId).eq("status", "accepted")).data ?? [];
+  const forms = must(await admin.from("consent_forms").select("id,key,title,version,is_required,is_active,body").eq("org_id", me.orgId).order("key").order("version", { ascending: false }), "consent forms");
+  // Acceptance counts, paged past the ~1000-row response cap.
+  const counts: { consent_form_id: string }[] = [];
+  for (let from = 0; from < 500_000; from += 1000) {
+    const page = must(await admin.from("consent_acceptances").select("consent_form_id").eq("org_id", me.orgId).eq("status", "accepted").order("id").range(from, from + 999), "consent acceptances");
+    counts.push(...page);
+    if (page.length < 1000) break;
+  }
   const byForm = new Map<string, number>();
   for (const c of counts) byForm.set(c.consent_form_id, (byForm.get(c.consent_form_id) ?? 0) + 1);
   return forms.map((f) => ({ id: f.id, key: f.key, title: f.title, version: f.version, isRequired: f.is_required, isActive: f.is_active, bodyLength: (f.body ?? "").length, acceptedCount: byForm.get(f.id) ?? 0 }));
@@ -27,8 +33,7 @@ export async function consentAudit(formId: string): Promise<AuditResult> {
   const { data: form } = await admin.from("consent_forms").select("id,key,title,version").eq("id", formId).eq("org_id", me.orgId).maybeSingle();
   if (!form) return { form: null, accepted: [], notAccepted: [] };
 
-  const { data: accs } = await admin.from("consent_acceptances").select("athlete_id,accepted_by,accepted_version,accepted_at,ip_address,accepted_text,signer_name,source").eq("org_id", me.orgId).eq("consent_form_id", formId).eq("status", "accepted").order("accepted_at", { ascending: false });
-  const rows = accs ?? [];
+  const rows = must(await admin.from("consent_acceptances").select("athlete_id,accepted_by,accepted_version,accepted_at,ip_address,accepted_text,signer_name,source").eq("org_id", me.orgId).eq("consent_form_id", formId).eq("status", "accepted").order("accepted_at", { ascending: false }), "consent acceptances");
   const aIds = Array.from(new Set(rows.map((r) => r.athlete_id).filter((x): x is string => !!x)));
   const pIds = Array.from(new Set(rows.map((r) => r.accepted_by).filter((x): x is string => !!x)));
   const allAthletes = (await admin.from("athletes").select("id,first_name,last_name").eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER)).data ?? [];

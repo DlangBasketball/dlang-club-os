@@ -5,6 +5,7 @@ import type { WebsiteDb } from "@/lib/website/server";
 import { clubMediaUrl, shopAdminDb, shopDb, type MovementRow, type OrderItemRow, type OrderRow, type ProductRow, type VariantRow } from "./db";
 import type { CatalogVariant } from "./cart";
 import { isLowStock } from "./cart";
+import { must } from "@/lib/data/must";
 
 /**
  * Shop reads. Public catalogue: service role pinned to the org resolved
@@ -75,10 +76,12 @@ export async function getPickupVenues(orgId: string): Promise<{ id: string; name
 // ---------------------------------------------------------------------------
 export async function listAdminProducts(orgId: string): Promise<ShopProduct[]> {
   const db = await shopDb();
-  const [{ data: products }, { data: variants }] = await Promise.all([
+  const [pRes, vRes] = await Promise.all([
     db.from("shop_products").select("*").eq("org_id", orgId).order("sort_order").order("name"),
     db.from("shop_product_variants").select("*").eq("org_id", orgId),
   ]);
+  const products = must(pRes, "shop products");
+  const variants = must(vRes, "shop variants");
   return ((products ?? []) as ProductRow[]).map((p) => mapProduct(p, (variants ?? []) as VariantRow[]));
 }
 
@@ -109,8 +112,7 @@ export async function listOrders(orgId: string, filter: OrderFilter = {}, limit 
   if (filter.status) q = q.eq("status", filter.status);
   const term = (filter.q ?? "").trim().replace(/[%_,()]/g, "");
   if (term) q = q.or(`number.ilike.%${term}%,buyer_name.ilike.%${term}%,buyer_email.ilike.%${term}%`);
-  const { data } = await q.order("created_at", { ascending: false }).limit(limit);
-  return (data ?? []) as OrderRow[];
+  return must(await q.order("created_at", { ascending: false }).limit(limit), "shop orders") as OrderRow[];
 }
 
 export async function getOrder(orgId: string, id: string): Promise<{ order: OrderRow; items: OrderItemRow[]; invoiceNumber: string | null; venueName: string | null } | null> {

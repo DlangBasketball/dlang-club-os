@@ -1,6 +1,7 @@
 import "server-only";
 import { sportsDb } from "./db";
 import type { Result } from "./data";
+import { pagedIn } from "@/lib/data/paged";
 
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
 const fail = (e: string): Result<never> => ({ data: null, error: e });
@@ -29,12 +30,11 @@ export async function attendanceReport(range: Range): Promise<Result<{ byTeam: A
   const sIds = (sessions ?? []).map((s) => s.id);
   if (!sIds.length) return ok({ byTeam: [], byAthlete: [] });
 
-  const marks: { attendance_session_id: string; athlete_id: string; status: string }[] = [];
-  for (let i = 0; i < sIds.length; i += 300) {
-    const { data, error: mErr } = await db.from("attendance_marks").select("attendance_session_id,athlete_id,status").in("attendance_session_id", sIds.slice(i, i + 300));
-    if (mErr) return fail(mErr.message);
-    marks.push(...(data ?? []));
-  }
+  // Chunked and paged: 300 sessions' marks in one read passed the ~1000-row
+  // response cap, so attendance rates in the report came out wrong.
+  const m = await pagedIn(sIds, (c, a, b) => db.from("attendance_marks").select("attendance_session_id,athlete_id,status").in("attendance_session_id", c).order("attendance_session_id").order("athlete_id").range(a, b), 50);
+  if (m.error) return fail(m.error);
+  const marks: { attendance_session_id: string; athlete_id: string; status: string }[] = m.rows;
   const programIds = uniq((sessions ?? []).map((s) => s.program_id));
   const athleteIds = uniq(marks.map((m) => m.athlete_id));
   const [teams, programs, athletes, mems] = await Promise.all([

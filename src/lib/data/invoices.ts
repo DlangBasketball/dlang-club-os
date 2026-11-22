@@ -26,39 +26,91 @@ export type InvoiceListItem = {
   remindersPaused: boolean;
 };
 
-export async function listInvoices(statusFilter?: string): Promise<Result<InvoiceListItem[]>> {
+export type InvoiceFilter = {
+  /** all | open | overdue | an invoice_status. */
+  status?: string;
+  familyId?: string;
+  /** Invoice number or family name. */
+  q?: string;
+  /** 1-based page. */
+  page?: number;
+  pageSize?: number;
+  /** "YYYY-MM-DD" in the club's time zone (past-due check for the overdue filter). */
+  todayKey?: string;
+};
+
+export type InvoicePage = { rows: InvoiceListItem[]; hasMore: boolean; page: number };
+
+const OPEN_LIST = "pending,sent,partially_paid";
+const UUID = /^[0-9a-f-]{36}$/i;
+const KNOWN_STATUSES = new Set(["draft", "pending", "sent", "partially_paid", "paid", "overdue", "void", "refunded", "cancelled", "written_off"]);
+
+/**
+ * One page of the club's invoices (RLS scopes the rows), newest first, with
+ * filters: status (incl. "open" = still owed and "overdue" = flagged overdue
+ * OR open and past its due date, like the dashboard), family and a search on
+ * the invoice number or family name. Older invoices stay reachable through
+ * paging instead of being cut off at a fixed row limit.
+ */
+export async function findInvoices(filter: InvoiceFilter = {}): Promise<Result<InvoicePage>> {
   const supabase = await createClient();
+  const pageSize = Math.min(Math.max(filter.pageSize ?? 100, 1), 999); // +1 probe row stays within the 1000-row response cap
+  const page = Math.max(1, Math.floor(filter.page ?? 1));
+  const from = (page - 1) * pageSize;
+  const today = filter.todayKey && /^\d{4}-\d{2}-\d{2}$/.test(filter.todayKey) ? filter.todayKey : new Date().toISOString().slice(0, 10);
   let q = supabase
     .from("invoices")
     .select("id,number,family_id,total_chf,adjustments_total,currency,status,due_date,issued_at,reminders_paused")
     .order("issued_at", { ascending: false })
-    .limit(300);
-  if (statusFilter && statusFilter !== "all") q = q.eq("status", statusFilter as never);
+    .order("id", { ascending: false })
+    .range(from, from + pageSize); // one extra row tells whether there is a next page
+  const status = filter.status ?? "all";
+  if (status === "open") q = q.in("status", ["pending", "sent", "partially_paid", "overdue"]);
+  else if (status === "overdue") q = q.or(`status.eq.overdue,and(status.in.(${OPEN_LIST}),due_date.lt.${today})`);
+  else if (status !== "all" && KNOWN_STATUSES.has(status)) q = q.eq("status", status as never);
+  if (filter.familyId && UUID.test(filter.familyId)) q = q.eq("family_id", filter.familyId);
+  const term = (filter.q ?? "").trim().replace(/[%,()*\\]/g, " ").trim().slice(0, 80);
+  if (term) {
+    const { data: fams, error: famErr } = await supabase.from("families").select("id").ilike("name", `%${term}%`).limit(200);
+    if (famErr) return fail(famErr.message);
+    const ids = (fams ?? []).map((f) => f.id);
+    q = ids.length ? q.or(`number.ilike.%${term}%,family_id.in.(${ids.join(",")})`) : q.ilike("number", `%${term}%`);
+  }
   const { data: invoices, error } = await q;
   if (error) return fail(error.message);
+  const hasMore = (invoices ?? []).length > pageSize;
+  const pageRows = (invoices ?? []).slice(0, pageSize);
+  const rows = await withMoney(supabase, pageRows);
+  if (rows.error !== null) return fail(rows.error);
+  return ok({ rows: rows.data, hasMore, page });
+}
 
-  const ids = uniq((invoices ?? []).map((i) => i.id));
-  const familyIds = uniq((invoices ?? []).map((i) => i.family_id));
-  const [payments, families] = await Promise.all([
-    ids.length
-      ? supabase.from("payments").select("invoice_id,amount_chf,status").in("invoice_id", ids).in("status", ["succeeded", "refunded", "partially_refunded"])
-      : Promise.resolve({ data: [] as { invoice_id: string; amount_chf: number; status: string }[] }),
-    familyIds.length
-      ? supabase.from("families").select("id,name").in("id", familyIds)
-      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-  ]);
-  // Net paid as public.invoice_net_paid(): succeeded rows (incl. reversals and
-  // credit transfers) plus negative refund rows.
+type InvoiceRow = { id: string; number: string; family_id: string; total_chf: number | null; adjustments_total: number | null; currency: string | null; status: string; due_date: string | null; issued_at: string; reminders_paused: boolean | null };
+
+async function withMoney(supabase: Awaited<ReturnType<typeof createClient>>, invoices: InvoiceRow[]): Promise<Result<InvoiceListItem[]>> {
+  const ids = uniq(invoices.map((i) => i.id));
+  const familyIds = uniq(invoices.map((i) => i.family_id));
   const paysByInvoice = new Map<string, { amount: number; status: string }[]>();
-  for (const p of payments.data ?? []) {
-    const arr = paysByInvoice.get(p.invoice_id) ?? [];
-    arr.push({ amount: Number(p.amount_chf ?? 0), status: p.status });
-    paysByInvoice.set(p.invoice_id, arr);
+  for (let i = 0; i < ids.length; i += 200) {
+    const { data, error } = await supabase.from("payments").select("invoice_id,amount_chf,status").in("invoice_id", ids.slice(i, i + 200)).in("status", ["succeeded", "refunded", "partially_refunded"]);
+    if (error) return fail(error.message);
+    // Net paid as public.invoice_net_paid(): succeeded rows (incl. reversals and
+    // credit transfers) plus negative refund rows.
+    for (const p of data ?? []) {
+      const arr = paysByInvoice.get(p.invoice_id) ?? [];
+      arr.push({ amount: Number(p.amount_chf ?? 0), status: p.status });
+      paysByInvoice.set(p.invoice_id, arr);
+    }
   }
-  const fName = new Map((families.data ?? []).map((f) => [f.id, f.name]));
+  const fName = new Map<string, string>();
+  for (let i = 0; i < familyIds.length; i += 200) {
+    const { data, error } = await supabase.from("families").select("id,name").in("id", familyIds.slice(i, i + 200));
+    if (error) return fail(error.message);
+    for (const f of data ?? []) fName.set(f.id, f.name);
+  }
 
   return ok(
-    (invoices ?? []).map((i) => {
+    invoices.map((i) => {
       const currency = (i.currency ?? "CHF").toUpperCase();
       const m = invoiceMoney({
         total: Number(i.total_chf ?? 0),
@@ -83,6 +135,24 @@ export async function listInvoices(statusFilter?: string): Promise<Result<Invoic
       };
     }),
   );
+}
+
+/** First page of invoices (parent app and legacy callers). */
+export async function listInvoices(statusFilter?: string): Promise<Result<InvoiceListItem[]>> {
+  const r = await findInvoices({ status: statusFilter, pageSize: 300 });
+  return r.error !== null ? fail(r.error) : ok(r.data.rows);
+}
+
+/** Every invoice the caller can see (CSV export): pages through all of them. */
+export async function listAllInvoices(): Promise<Result<InvoiceListItem[]>> {
+  const out: InvoiceListItem[] = [];
+  for (let page = 1; page <= 200; page++) {
+    const r = await findInvoices({ status: "all", page, pageSize: 999 });
+    if (r.error !== null) return fail(r.error);
+    out.push(...r.data.rows);
+    if (!r.data.hasMore) break;
+  }
+  return ok(out);
 }
 
 export type InvoiceItem = { id: string; description: string; quantity: number; unitPrice: number; amount: number };

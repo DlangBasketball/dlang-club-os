@@ -5,6 +5,7 @@ import { accountingDb, type AccountRow, type BankEntryRow, type DunningCaseRow, 
 import { buildJournal, type Journal, type JournalSource, type Mapping } from "./journal";
 import type { OpenInvoice } from "./matching";
 import { DEFAULT_DUNNING, type DunningSettings } from "./dunning";
+import { pagedIn } from "@/lib/data/paged";
 
 /**
  * Server-side reads for the accounting screens. Every read uses the user's
@@ -79,9 +80,11 @@ export async function openInvoicesForMatching(orgId: string): Promise<OpenInvoic
   const list = (invs ?? []) as { id: string; number: string; family_id: string; currency: string; total_chf: number; adjustments_total: number; payment_reference: string | null }[];
   if (!list.length) return [];
   const ids = list.map((i) => i.id);
-  const [{ data: pays }, { data: inst }, fams] = await Promise.all([
-    db.from("payments").select("invoice_id,amount_chf,status").in("invoice_id", ids),
-    db.from("payment_plan_installments").select("invoice_id,amount,amount_paid,status").in("invoice_id", ids).eq("status", "scheduled"),
+  // Up to 2000 invoices: chunked (URL length) and paged (row cap), else paid
+  // amounts went missing and paid invoices looked open for matching.
+  const [{ rows: pays }, { rows: inst }, fams] = await Promise.all([
+    pagedIn(ids, (c, a, b) => db.from("payments").select("id,invoice_id,amount_chf,status").in("invoice_id", c).order("id").range(a, b)),
+    pagedIn(ids, (c, a, b) => db.from("payment_plan_installments").select("id,invoice_id,amount,amount_paid,status").in("invoice_id", c).eq("status", "scheduled").order("id").range(a, b)),
     familyNames(list.map((i) => i.family_id)),
   ]);
   const paid = new Map<string, number>();

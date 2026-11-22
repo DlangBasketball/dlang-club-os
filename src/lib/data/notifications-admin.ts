@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
+import { must } from "@/lib/data/must";
 
 async function orgOf(): Promise<string | null> {
   const me = await getSessionUser();
@@ -20,22 +21,23 @@ export async function listEmailLogs(filter: "all" | "failed" | "sent" = "all", l
   let q = admin.from("email_logs").select("id,to_email,subject,template,status,attempts,error,created_at,sent_at").eq("org_id", orgId).order("created_at", { ascending: false }).limit(limit);
   if (filter === "failed") q = q.eq("status", "failed");
   if (filter === "sent") q = q.in("status", ["sent", "delivered"]);
-  const { data } = await q;
-  return (data ?? []).map((r) => ({ id: r.id, toEmail: r.to_email, subject: r.subject, template: r.template, status: r.status, attempts: r.attempts ?? 0, error: r.error, createdAt: r.created_at, sentAt: r.sent_at }));
+  return must(await q, "email log").map((r) => ({ id: r.id, toEmail: r.to_email, subject: r.subject, template: r.template, status: r.status, attempts: r.attempts ?? 0, error: r.error, createdAt: r.created_at, sentAt: r.sent_at }));
 }
 
 export async function emailStats(): Promise<{ sent: number; failed: number; queued: number; total: number }> {
   const orgId = await orgOf();
   if (!orgId) return { sent: 0, failed: 0, queued: 0, total: 0 };
   const admin = createAdminClient();
-  const { data } = await admin.from("email_logs").select("status").eq("org_id", orgId);
-  const rows = data ?? [];
-  return {
-    sent: rows.filter((r) => r.status === "sent" || r.status === "delivered").length,
-    failed: rows.filter((r) => r.status === "failed" || r.status === "bounced").length,
-    queued: rows.filter((r) => r.status === "queued").length,
-    total: rows.length,
+  // Counted in the database: fetching the rows stopped at the ~1000-row cap.
+  const count = async (statuses: ("queued" | "sent" | "delivered" | "bounced" | "failed")[] | null) => {
+    let q = admin.from("email_logs").select("id", { count: "exact", head: true }).eq("org_id", orgId);
+    if (statuses) q = q.in("status", statuses);
+    const { count: n, error } = await q;
+    if (error) throw new Error(`email stats: ${error.message}`);
+    return n ?? 0;
   };
+  const [sent, failed, queued, total] = await Promise.all([count(["sent", "delivered"]), count(["failed", "bounced"]), count(["queued"]), count(null)]);
+  return { sent, failed, queued, total };
 }
 
 export type AdminNotif = { id: string; title: string; body: string | null; type: string; recipientName: string; createdAt: string; readAt: string | null };
@@ -44,7 +46,7 @@ export async function listRecentNotifications(limit = 25): Promise<AdminNotif[]>
   const orgId = await orgOf();
   if (!orgId) return [];
   const admin = createAdminClient();
-  const { data } = await admin.from("notifications").select("id,title,body,type,recipient_id,created_at,read_at").eq("org_id", orgId).order("created_at", { ascending: false }).limit(limit);
+  const data = must(await admin.from("notifications").select("id,title,body,type,recipient_id,created_at,read_at").eq("org_id", orgId).order("created_at", { ascending: false }).limit(limit), "notifications");
   const ids = Array.from(new Set((data ?? []).map((n) => n.recipient_id).filter((x): x is string => Boolean(x))));
   const profs = ids.length ? (await admin.from("profiles").select("id,full_name,email").in("id", ids)).data ?? [] : [];
   const nameById = new Map(profs.map((p) => [p.id, p.full_name ?? p.email]));

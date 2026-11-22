@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/get-user";
-import { listInvoices } from "@/lib/data/invoices";
+import { listAllInvoices } from "@/lib/data/invoices";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export async function GET() {
   if (!me || !(me.roles.includes("admin") || me.roles.includes("finance"))) {
     return new NextResponse("Forbidden", { status: 403 });
   }
-  const { data, error } = await listInvoices("all");
+  const { data, error } = await listAllInvoices();
   if (error) return new NextResponse(error, { status: 500 });
 
   const header = ["Invoice", "Family", "Status", "Total CHF", "Paid CHF", "Balance CHF", "Due date", "Issued"];

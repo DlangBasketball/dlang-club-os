@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getFormatter } from "@/lib/i18n/server";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
+import { loadOpenInvoices } from "@/lib/data/open-invoices";
+import { summarizeOpenInvoices, totalsList } from "@/lib/payments/open-invoices";
 
 export type Bundle = { text: string; hasData: boolean };
 
@@ -81,9 +83,13 @@ export async function buildAdminContext(): Promise<Bundle> {
     count("invoices", (q: any) => q.eq("status", "overdue")),
     count("training_bookings", (q: any) => q.eq("status", "booked")),
   ]);
-  // outstanding amount (sent + overdue)
-  const { data: openInv } = await admin.from("invoices").select("total_chf").eq("org_id", org).in("status", ["sent", "overdue"]);
-  const outstanding = (openInv ?? []).reduce((s, r) => s + Number(r.total_chf), 0);
+  // Outstanding = what is still owed on open invoices (sent, partially paid,
+  // overdue), per currency; not the issued totals of sent + overdue only.
+  const open = await loadOpenInvoices(admin, { orgId: org });
+  const owed = summarizeOpenInvoices(open.data ?? [], new Date().toISOString().slice(0, 10));
+  const totals: Record<string, number> = {};
+  for (const b of [owed.open, owed.overdue]) for (const [c, v] of Object.entries(b.totals)) totals[c] = (totals[c] ?? 0) + v;
+  const outstanding = totalsList(totals, f.currency).map((m) => f.money(m.amount, m.currency)).join(" + ");
   const { data: recentReg } = await admin.from("registrations").select("created_at,status").eq("org_id", org).order("created_at", { ascending: false }).limit(5);
   const { data: recentSessions } = await admin.from("attendance_sessions").select("id,created_at").eq("org_id", org).order("created_at", { ascending: false }).limit(5);
 
@@ -93,7 +99,7 @@ export async function buildAdminContext(): Promise<Bundle> {
     `- Athletes: ${athletes}`,
     `- Confirmed registrations: ${activeRegs}`,
     `- Invoices: ${invPaid} paid, ${invSent} sent, ${invOverdue} overdue`,
-    `- Outstanding (sent + overdue): ${f.money(outstanding)}`,
+    `- Outstanding on open invoices: ${outstanding} (${owed.open.count + owed.overdue.count} invoices, ${owed.overdue.count} past due)`,
     `- Active bookings: ${bookings}`,
     `- Recent registrations (last 5): ${(recentReg ?? []).map((r) => `${r.status} ${f.date(r.created_at)}`).join("; ") || "none"}`,
     `- Recent attendance sessions: ${(recentSessions ?? []).length}`,

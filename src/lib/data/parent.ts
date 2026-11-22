@@ -4,6 +4,7 @@ import { listInvoices } from "@/lib/data/invoices";
 import { licenceFromRow, type Licence } from "@/lib/people/licence";
 import { sponsorshipFromRow, type Sponsorship } from "@/lib/people/sponsorship";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { getChildrenSchedule } from "@/lib/sportsops/data";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -44,13 +45,26 @@ export async function getParentDashboard(): Promise<Result<ParentDashboard>> {
 
   const open = (invRes.data ?? []).filter((i) => i.balance > 0 && i.status !== "cancelled");
   const programIds = uniq((sessRes.data ?? []).map((s) => s.program_id));
-  const progs = programIds.length ? await supabase.from("programs").select("id,name").in("id", programIds) : { data: [] as { id: string; name: string }[] };
+  const [progs, teamEvents] = await Promise.all([
+    programIds.length ? supabase.from("programs").select("id,name").in("id", programIds) : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    // The children's team trainings / games: the card used to list programme
+    // sessions only, so families of teams saw "no upcoming sessions".
+    getChildrenSchedule(5),
+  ]);
   const pName = new Map((progs.data ?? []).map((p) => [p.id, p.name]));
+  const upcoming = [
+    ...(sessRes.data ?? []).map((s) => ({ id: s.id, programName: pName.get(s.program_id) ?? "", startsAt: s.starts_at, location: s.location })),
+    ...(teamEvents.data?.events ?? [])
+      .filter((e) => e.status === "scheduled" || e.status === "postponed")
+      .map((e) => ({ id: e.id, programName: e.title ?? e.teamName ?? "", startsAt: e.startsAt, location: e.locationName ?? e.venueName ?? e.locationText })),
+  ]
+    .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))
+    .slice(0, 5);
 
   return ok({
     children: (kidsRes.data ?? []).map((k) => ({ id: k.id, name: `${k.first_name} ${k.last_name}`, age: ageFromDob(k.dob) })),
     openInvoices: { count: open.length, balance: open.reduce((s, i) => s + i.balance, 0) },
-    upcomingSessions: (sessRes.data ?? []).map((s) => ({ id: s.id, programName: pName.get(s.program_id) ?? "Session", startsAt: s.starts_at, location: s.location })),
+    upcomingSessions: upcoming,
     activeRegistrations: (regRes.data ?? []).length,
     unreadNotifications: (notifRes.data ?? []).length,
     documentCount: (docRes.data ?? []).length,

@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
+import { must } from "@/lib/data/must";
 
 export type DocScope = "global" | "program" | "family" | "athlete";
 export type AdminDoc = { id: string; title: string | null; fileName: string | null; kind: string; scope: DocScope; targetId: string | null; targetName: string; sizeBytes: number | null; createdAt: string; expiresAt: string | null };
@@ -17,8 +18,7 @@ export async function listAllDocuments(): Promise<AdminDoc[]> {
   const me = await getSessionUser();
   if (!me?.orgId) return [];
   const admin = createAdminClient();
-  const { data } = await admin.from("documents").select("id,title,file_name,kind,athlete_id,family_id,program_id,size_bytes,created_at,expires_at").eq("org_id", me.orgId).order("created_at", { ascending: false });
-  const rows = data ?? [];
+  const rows = must(await admin.from("documents").select("id,title,file_name,kind,athlete_id,family_id,program_id,size_bytes,created_at,expires_at").eq("org_id", me.orgId).order("created_at", { ascending: false }), "documents");
   const aIds = rows.map((r) => r.athlete_id).filter((x): x is string => !!x);
   const fIds = rows.map((r) => r.family_id).filter((x): x is string => !!x);
   const pIds = rows.map((r) => r.program_id).filter((x): x is string => !!x);

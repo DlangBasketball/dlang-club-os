@@ -77,10 +77,10 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
   // If the user already exists, the invite email errors. The invitation row
   // is in place; link an existing user immediately so they're ready on login.
   if (inviteError) {
-    const { data: list } = await admin.auth.admin.listUsers();
-    const existing = list?.users.find(
-      (u) => u.email?.toLowerCase() === input.email.toLowerCase(),
-    );
+    // listUsers() returns one page (50 accounts): on a platform with more
+    // users an existing account was "not found" and the invitation failed.
+    // The profile row carries the account id and e-mail.
+    const existing = await findAccountByEmail(admin, input.email);
     if (!existing) return { ok: false, error: inviteError.message };
 
     // An existing account may only be linked when it belongs to this club or
@@ -119,23 +119,27 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
     }
 
     if (input.familyId) {
-      await admin.from("family_members").upsert({
-        family_id: input.familyId,
-        profile_id: existing.id,
-        relation: input.relation ?? "guardian",
-      });
+      const { error: famErr } = await admin.from("family_members").upsert(
+        { family_id: input.familyId, profile_id: existing.id, relation: input.relation ?? "guardian" },
+        { onConflict: "family_id,profile_id", ignoreDuplicates: true },
+      );
+      if (famErr) return { ok: false, error: famErr.message };
     }
     if (input.role !== "parent") {
-      await admin
+      // Unique (org_id, profile_id, role): re-inviting someone who already
+      // holds the role is a no-op, not an error.
+      const { error: roleErr } = await admin
         .from("staff_roles")
-        .upsert({ org_id: orgId, profile_id: existing.id, role: input.role });
+        .upsert({ org_id: orgId, profile_id: existing.id, role: input.role }, { onConflict: "org_id,profile_id,role", ignoreDuplicates: true });
+      if (roleErr) return { ok: false, error: roleErr.message };
     }
     if (input.coachId) {
-      await admin
+      const { error: coachErr } = await admin
         .from("coaches")
         .update({ profile_id: existing.id })
         .eq("id", input.coachId)
         .eq("org_id", orgId);
+      if (coachErr) return { ok: false, error: coachErr.message };
     }
     await admin
       .from("invitations")
@@ -164,4 +168,23 @@ export async function revokeInvitation(id: string): Promise<ActionResult> {
   if (error) return { ok: false, error: error.message };
   revalidatePath("/admin/invitations");
   return { ok: true };
+}
+
+/**
+ * The auth account of an e-mail address: its profile row (same id), else a
+ * paged search of the auth users (an account whose profile is missing).
+ */
+async function findAccountByEmail(admin: ReturnType<typeof createAdminClient>, email: string): Promise<{ id: string } | null> {
+  const wanted = email.trim().toLowerCase();
+  const { data: profs } = await admin.from("profiles").select("id,email").ilike("email", wanted.replace(/[\\%_]/g, (c) => `\\${c}`)).limit(5);
+  const hit = (profs ?? []).find((p) => (p.email ?? "").toLowerCase() === wanted);
+  if (hit) return { id: hit.id };
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error || !data) return null;
+    const u = data.users.find((x) => x.email?.toLowerCase() === wanted);
+    if (u) return { id: u.id };
+    if (data.users.length < 1000) return null;
+  }
+  return null;
 }

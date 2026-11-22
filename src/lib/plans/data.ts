@@ -3,6 +3,7 @@ import { fromMinorUnits, toMinorUnits } from "@/lib/payments/currency";
 import { instalmentStatus, planDisplayStatus, planOffer, todayIn, upcomingPeriods, type InstalmentStatus, type PlanOffer, type PlanSettings } from "@/lib/payments/plans";
 import { plansAdminDb, plansDb, type ChargeRow, type InstalmentRow, type MandateRow, type PauseRow, type PlanRow, type TemplateRow } from "./db";
 import { loadPlanSettings, orgTimeZone } from "./settings";
+import { must } from "@/lib/data/must";
 
 export type InstalmentView = {
   id: string; seq: number; dueDate: string; amount: number; amountPaid: number; outstanding: number; currency: string;
@@ -130,8 +131,7 @@ export async function listPlans(orgId: string, filter: PlanFilter = "all", kind:
   let q = db.from("payment_plans").select("*").eq("org_id", orgId).eq("kind", kind).order("created_at", { ascending: false }).limit(500);
   if (filter === "paused" || filter === "completed" || filter === "cancelled") q = q.eq("status", filter);
   else if (filter !== "all") q = q.in("status", ["active", "paused"]);
-  const { data: plans } = await q;
-  const list = (plans ?? []) as PlanRow[];
+  const list = must(await q, "payment plans") as PlanRow[];
   if (!list.length) return [];
   const ids = list.map((p) => p.id);
   const [{ data: rows }, { data: charges }] = await Promise.all([
@@ -172,12 +172,13 @@ export type TemplateView = TemplateRow & { enrolled: number; teamName: string | 
 
 export async function listTemplates(orgId: string): Promise<TemplateView[]> {
   const db = await plansDb();
-  const [{ data: tpls }, { data: plans }, { data: teams }, { data: programs }] = await Promise.all([
+  const [tplRes, { data: plans }, { data: teams }, { data: programs }] = await Promise.all([
     db.from("recurring_fee_templates").select("*").eq("org_id", orgId).order("created_at"),
     db.from("payment_plans").select("template_id").eq("org_id", orgId).eq("kind", "recurring").in("status", ["active", "paused"]).not("template_id", "is", null),
     db.from("teams").select("id,name").eq("org_id", orgId),
     db.from("programs").select("id,name").eq("org_id", orgId),
   ]);
+  const tpls = must(tplRes, "recurring fee templates");
   const count = new Map<string, number>();
   for (const p of (plans ?? []) as { template_id: string | null }[]) if (p.template_id) count.set(p.template_id, (count.get(p.template_id) ?? 0) + 1);
   const tn = new Map(((teams ?? []) as { id: string; name: string }[]).map((t) => [t.id, t.name]));

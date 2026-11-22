@@ -21,6 +21,9 @@ export async function loadPayableInvoice(invoiceId: string): Promise<PayableInvo
     .maybeSingle();
   if (!inv) return { ok: false, error: "Invoice not found" };
   if (inv.status === "paid") return { ok: false, error: "This invoice is already paid" };
+  // A draft can still change: like record_payment (INVOICE_NOT_PAYABLE),
+  // nobody pays it before it is sent.
+  if (inv.status === "draft") return { ok: false, error: "This invoice has not been issued yet" };
   if (inv.status === "cancelled" || inv.status === "void") return { ok: false, error: "This invoice was cancelled" };
   if (inv.status === "written_off") return { ok: false, error: "Nothing left to pay" };
 

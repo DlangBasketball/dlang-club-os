@@ -1,20 +1,23 @@
 import Link from "next/link";
 import { CreditCard } from "lucide-react";
 import { PageHeader, DataTable, EmptyState, ErrorState, Badge, statusTone, Card, CardBody, type Column } from "@/components/ui";
-import { listPayments, collectedByCurrency, PAYMENT_FILTERS, type PaymentFilter, type PaymentRow } from "@/lib/data/payments-admin";
+import { listPayments, collectedTotals, PAYMENT_FILTERS, type PaymentFilter, type PaymentRow } from "@/lib/data/payments-admin";
+import { Pager, pageParam } from "@/components/ui/pager";
 import { listReallocationTargets, type ReallocationTarget } from "@/lib/data/money-edit";
 import { getFormatter, getTranslations } from "@/lib/i18n/server";
 import { METHOD_INFO, isKnownMethod } from "@/lib/payments/methods";
 import { PaymentBadges, PaymentRowActions } from "@/components/money/money-panels";
 
-export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
   const [f, t] = await Promise.all([getFormatter(), getTranslations()]);
-  const { status } = await searchParams;
+  const { status, page: rawPage } = await searchParams;
+  const page = pageParam(rawPage);
   const filter: PaymentFilter = (PAYMENT_FILTERS as readonly string[]).includes(status ?? "") ? (status as PaymentFilter) : "all";
-  const { data, error } = await listPayments(filter);
-  if (error) return (<div className="animate-fade-up"><PageHeader title="Payments" /><ErrorState title="Couldn't load payments" message={error} /></div>);
-  const rows = data!;
-  const totals = collectedByCurrency(rows);
+  const [list, collected] = await Promise.all([listPayments(filter, page), collectedTotals()]);
+  const error = list.error ?? collected.error;
+  if (error) return (<div className="animate-fade-up"><PageHeader title={t("editMoney.paymentList.title")} /><ErrorState title={t("editMoney.paymentList.loadError")} message={error} /></div>);
+  const rows = list.data!;
+  const totals = collected.data!;
 
   // Open invoices per currency, for re-allocating manual payments.
   const currencies = Array.from(new Set(rows.filter((r) => r.canEdit).map((r) => r.currency)));
@@ -23,10 +26,10 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
   );
 
   const columns: Column<PaymentRow>[] = [
-    { key: "invoiceNumber", header: "Invoice", render: (r) => <Link href={`/admin/invoices/${r.invoiceId}`} className="tnum font-medium text-ink hover:text-maroon">{r.invoiceNumber}</Link> },
+    { key: "invoiceNumber", header: t("editMoney.paymentList.colInvoice"), render: (r) => <Link href={`/admin/invoices/${r.invoiceId}`} className="tnum font-medium text-ink hover:text-maroon">{r.invoiceNumber}</Link> },
     {
       key: "method",
-      header: "Method",
+      header: t("editMoney.paymentList.colMethod"),
       render: (r) => (
         <span className="inline-flex flex-wrap items-center gap-1">
           {isKnownMethod(r.method) ? METHOD_INFO[r.method].label : r.method}
@@ -34,11 +37,11 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
         </span>
       ),
     },
-    { key: "at", header: "Date", render: (r) => f.date(r.at) },
-    { key: "status", header: "Status", render: (r) => <Badge tone={statusTone(r.status)}>{r.status.replace("_", " ")}</Badge> },
+    { key: "at", header: t("editMoney.paymentList.colDate"), render: (r) => f.date(r.at) },
+    { key: "status", header: t("editMoney.paymentList.colStatus"), render: (r) => <Badge tone={statusTone(r.status)}>{t.dynamic(`status.${r.status}`, undefined, r.status.replace("_", " "))}</Badge> },
     {
       key: "amount",
-      header: "Amount",
+      header: t("editMoney.paymentList.colAmount"),
       align: "right",
       render: (r) => <span className={`tnum ${r.voidedAt ? "text-ink-3 line-through" : ""}`}>{f.money(r.amount, r.currency)}</span>,
     },
@@ -62,24 +65,25 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Payments" description={t("editMoney.payment.pageHint")} />
+      <PageHeader title={t("editMoney.paymentList.title")} description={t("editMoney.payment.pageHint")} />
       <Card className="mb-4">
         <CardBody className="flex flex-wrap items-center gap-2 py-3">
           {PAYMENT_FILTERS.map((k) => (
             <Link key={k} href={`/admin/payments?status=${k}`}
               className={`rounded-full px-3 py-1 text-xs ${filter === k ? "bg-maroon-soft text-maroon" : "bg-surface-elevated text-ink-3 hover:text-ink"}`}>
-              {k}
+              {t(`editMoney.paymentList.filters.${k}`)}
             </Link>
           ))}
           {totals.length > 0 && (
             <span className="ml-auto text-xs text-ink-3">
-              Total collected: {totals.map((x) => <span key={x.currency} className="tnum ml-1 text-ink">{f.money(x.amount, x.currency)}</span>)}
+              {t("editMoney.paymentList.totalCollected")} {totals.map((x) => <span key={x.currency} className="tnum ml-1 text-ink">{f.money(x.amount, x.currency)}</span>)}
             </span>
           )}
         </CardBody>
       </Card>
       <DataTable columns={columns} rows={rows} getRowKey={(r) => r.id}
-        empty={<EmptyState icon={<CreditCard className="h-5 w-5" />} title="No payments yet" />} />
+        empty={<EmptyState icon={<CreditCard className="h-5 w-5" />} title={t("editMoney.paymentList.empty")} />} />
+      <Pager basePath="/admin/payments" params={{ status: filter === "all" ? undefined : filter }} page={page} hasMore={Boolean(list.hasMore)} />
     </div>
   );
 }

@@ -7,6 +7,16 @@
     "selection": "Selection programmes",
     "programmes": "Programmes"
   },
+  "dashboard": {
+    "widgets": {
+      "registrations": {
+        "unknownProgram": "Unknown programme"
+      },
+      "quick": {
+        "createProgram": "Create programme"
+      }
+    }
+  },
   "parentHome": {
     "noChildrenHint": "Register for a programme to add your child."
   },
@@ -79,6 +89,13 @@
       "filterLabel": "Filter by federation licence",
       "filterHas": "Has licence",
       "filterMissing": "Licence missing"
+    },
+    "registrationList": {
+      "colProgram": "Programme",
+      "allPrograms": "All programmes"
+    },
+    "registrationDetail": {
+      "program": "Programme: {name}"
     }
   },
   "personDelete": {

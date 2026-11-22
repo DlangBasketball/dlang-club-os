@@ -39,11 +39,20 @@ export async function listPrograms(orgId: string): Promise<Result<ProgramListIte
   if (error) return { data: null, error: error.message };
 
   const ids = (data ?? []).map((p) => p.id);
-  const { data: regs } = ids.length
-    ? await supabase.from("registrations").select("program_id,status").in("program_id", ids).in("status", ["pending", "confirmed"])
-    : { data: [] as { program_id: string; status: string }[] };
+  // Active registrations per programme. Paged: one response is capped at
+  // ~1000 rows, which made counts of big clubs stop at 1000 in total.
   const count = new Map<string, number>();
-  for (const r of regs ?? []) count.set(r.program_id, (count.get(r.program_id) ?? 0) + 1);
+  for (let i = 0; i < ids.length; i += 200) {
+    const chunk = ids.slice(i, i + 200);
+    for (let from = 0; from < 200_000; from += 1000) {
+      const { data: regs, error: regErr } = await supabase
+        .from("registrations").select("id,program_id").in("program_id", chunk).in("status", ["pending", "confirmed"])
+        .order("id").range(from, from + 999);
+      if (regErr) return { data: null, error: regErr.message };
+      for (const r of regs ?? []) count.set(r.program_id, (count.get(r.program_id) ?? 0) + 1);
+      if (!regs || regs.length < 1000) break;
+    }
+  }
   // Camps: first week (season grouping when no season is set on the programme).
   const campIds = (data ?? []).filter((p) => p.kind === "camp").map((p) => p.id);
   const { data: weeks } = campIds.length

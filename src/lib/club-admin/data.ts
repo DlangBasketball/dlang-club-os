@@ -3,6 +3,7 @@ import { caAdminDb, caDb, type CertificateRow, type ClubAdminSettingsRow, type I
 import { DEFAULT_MANDATORY, DEFAULT_REMINDER_DAYS, type CertKind } from "./compliance";
 import { isExpiringSoon, effectiveStatus, type MembershipStatus } from "./membership";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS, isHiddenAthleteStatus } from "@/lib/people/person-delete";
+import { must } from "@/lib/data/must";
 
 /**
  * Server reads for the club-admin pages. Everything goes through the signed-
@@ -48,8 +49,7 @@ export type MembershipView = MembershipRow & {
 };
 
 export async function listMembershipTypes(orgId: string): Promise<MembershipTypeRow[]> {
-  const { data } = await (await caDb()).from("membership_types").select("*").eq("org_id", orgId).order("sort").order("name");
-  return (data ?? []) as MembershipTypeRow[];
+  return must(await (await caDb()).from("membership_types").select("*").eq("org_id", orgId).order("sort").order("name"), "membership types") as MembershipTypeRow[];
 }
 
 async function decorateMemberships(orgId: string, rows: MembershipRow[], today: string): Promise<MembershipView[]> {
@@ -86,8 +86,8 @@ async function decorateMemberships(orgId: string, rows: MembershipRow[], today: 
 export async function listMemberships(orgId: string, today: string, status?: string | null): Promise<MembershipView[]> {
   let q = (await caDb()).from("memberships").select("*").eq("org_id", orgId).order("valid_until", { ascending: false }).limit(500);
   if (status && ["pending_payment", "active", "expired", "cancelled"].includes(status)) q = q.eq("status", status as MembershipRow["status"]);
-  const { data } = await q;
-  return decorateMemberships(orgId, (data ?? []) as MembershipRow[], today);
+  const data = must(await q, "memberships");
+  return decorateMemberships(orgId, data as MembershipRow[], today);
 }
 
 export function expiring(rows: MembershipView[], today: string, windowDays: number): MembershipView[] {
@@ -156,7 +156,7 @@ export async function listWaitlists(orgId: string, includeClosed = false): Promi
   const db = await caDb();
   let q = db.from("waitlist_entries").select("*").eq("org_id", orgId).order("position").order("created_at").limit(2000);
   if (!includeClosed) q = q.in("status", ["waiting", "offered"]);
-  const { data } = await q;
+  const data = must(await q, "waitlists");
   const rows = (data ?? []) as WaitlistRow[];
   if (!rows.length) return [];
   const athIds = Array.from(new Set(rows.map((r) => r.athlete_id)));
@@ -354,7 +354,7 @@ export async function listIncidents(orgId: string, opts: { from?: string | null;
   let q = db.from("incident_reports").select("*").eq("org_id", orgId).order("occurred_at", { ascending: false }).limit(opts.limit ?? 300);
   if (opts.from) q = q.gte("occurred_at", opts.from);
   if (opts.to) q = q.lte("occurred_at", opts.to);
-  const { data } = await q;
+  const data = must(await q, "incidents");
   return decorateIncidents((data ?? []) as IncidentRow[]);
 }
 

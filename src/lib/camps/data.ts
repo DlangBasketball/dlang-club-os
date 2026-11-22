@@ -60,8 +60,18 @@ async function editionCounts(db: Db, editionIds: string[]) {
   const active = new Map<string, number>();
   const all = new Map<string, number>();
   if (!editionIds.length) return { active, all };
-  const { data } = await db.from("registrations").select("camp_edition_id,status").in("camp_edition_id", editionIds);
-  for (const r of data ?? []) {
+  // Paged: all weeks of a camp over the years easily pass the ~1000-row
+  // response cap, which made places taken (and places left) come out low.
+  const data: { camp_edition_id: string | null; status: string }[] = [];
+  for (let i = 0; i < editionIds.length; i += 100) {
+    for (let from = 0; from < 200_000; from += 1000) {
+      const { data: page, error } = await db.from("registrations").select("id,camp_edition_id,status").in("camp_edition_id", editionIds.slice(i, i + 100)).order("id").range(from, from + 999);
+      if (error) throw new Error(`camp registration counts: ${error.message}`);
+      data.push(...((page ?? []) as { camp_edition_id: string | null; status: string }[]));
+      if (!page || page.length < 1000) break;
+    }
+  }
+  for (const r of data) {
     const id = r.camp_edition_id as string;
     all.set(id, (all.get(id) ?? 0) + 1);
     if (r.status === "pending" || r.status === "confirmed") active.set(id, (active.get(id) ?? 0) + 1);

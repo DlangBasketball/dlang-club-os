@@ -75,7 +75,7 @@ export default async function ParentHomePage() {
           <Card><CardBody className="p-0">
             {d.upcomingSessions.map((s) => (
               <div key={s.id} className="flex items-center justify-between border-b border-line-soft px-4 py-3 last:border-0">
-                <div><div className="text-sm text-ink">{s.programName}</div><div className="text-xs text-ink-3">{f.date(s.startsAt, { weekday: true })} · {f.time(s.startsAt)}{s.location ? ` · ${s.location}` : ""}</div></div>
+                <div><div className="text-sm text-ink">{s.programName || t("dashboard.widgets.upcoming.untitled")}</div><div className="text-xs text-ink-3">{f.date(s.startsAt, { weekday: true })} · {f.time(s.startsAt)}{s.location ? ` · ${s.location}` : ""}</div></div>
               </div>
             ))}
           </CardBody></Card>

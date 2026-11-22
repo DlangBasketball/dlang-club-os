@@ -5,7 +5,6 @@ import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, E
 import { getRegistrationDetail } from "@/lib/data/registrations";
 import { RegistrationStatusControl } from "../registration-status-control";
 import { RegistrationEditForm } from "../registration-edit-form";
-import { timeAgo } from "@/lib/utils";
 import { getI18n } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { listProgramOptions } from "@/lib/data/people-edit";
@@ -18,17 +17,17 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
   const [{ data, error }, user] = await Promise.all([getRegistrationDetail(id), getSessionUser()]);
   const isAdmin = !!user?.roles.includes("admin");
   const programs = isAdmin ? await listProgramOptions() : [];
-  if (error) return <ErrorState title="Couldn't load registration" message={error} />;
+  if (error) return <ErrorState title={t("editPeople.registrationDetail.loadError")} message={error} />;
   if (!data) notFound();
 
   return (
     <div className="animate-fade-up space-y-6">
-      <PageHeader title={`Registration · ${data.athlete.name}`} description={`Submitted ${timeAgo(data.createdAt)}`} />
+      <PageHeader title={t("editPeople.registrationDetail.title", { name: data.athlete.name })} description={t("editPeople.registrationDetail.submitted", { when: f.relative(data.createdAt) })} />
 
       <Card>
         <CardHeader>
-          <CardTitle>Status</CardTitle>
-          <Badge tone={statusTone(data.status)}>{data.status}</Badge>
+          <CardTitle>{t("editPeople.registrationDetail.status")}</CardTitle>
+          <Badge tone={statusTone(data.status)}>{t.dynamic(`status.${data.status}`, undefined, data.status)}</Badge>
         </CardHeader>
         <CardBody className="space-y-3">
           <RegistrationStatusControl id={data.id} current={data.status} />
@@ -63,21 +62,22 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>Participant</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("editPeople.registrationDetail.participant")}</CardTitle></CardHeader>
           <CardBody className="space-y-2 text-sm">
             <Link href={`/admin/athletes/${data.athlete.id}`} className="flex items-center gap-2 font-medium text-ink hover:text-maroon">
               <UserCircle className="h-4 w-4" /> {data.athlete.name}
             </Link>
-            <div className="text-ink-3">Born {f.date(data.athlete.dob)}</div>
-            <div className="pt-2 text-ink-2">Program: <span className="text-ink">{data.program.name}</span></div>
-            {data.notes && <div className="text-ink-3">Notes: {data.notes}</div>}
+            <div className="text-ink-3">{t("editPeople.registrationDetail.born", { date: f.date(data.athlete.dob) })}</div>
+            <div className="pt-2 text-ink-2"><Link href={`/admin/programs/${data.program.id}`} className="hover:text-maroon">{t("editPeople.registrationDetail.program", { name: data.program.name })}</Link></div>
+            {data.edition && <div className="text-ink-2">{t("editPeople.registrationDetail.week", { name: data.edition.name ?? f.dateRange(data.edition.startsOn, data.edition.endsOn) })}</div>}
+            {data.notes && <div className="text-ink-3">{t("editPeople.registrationDetail.notes", { notes: data.notes })}</div>}
           </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Family</CardTitle>
-            <Link href={`/admin/families/${data.family.id}`} className="text-xs text-maroon hover:underline">Open</Link>
+            <CardTitle>{t("editPeople.registrationDetail.family")}</CardTitle>
+            {data.family.id && <Link href={`/admin/families/${data.family.id}`} className="text-xs text-maroon hover:underline">{t("editPeople.registrationDetail.open")}</Link>}
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
             <div className="font-medium text-ink">{data.family.name}</div>
@@ -89,16 +89,18 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Invoice</CardTitle><Link href="/admin/invoices" className="text-xs text-maroon hover:underline">All invoices</Link></CardHeader>
+        <CardHeader><CardTitle>{t("editPeople.registrationDetail.invoices")}</CardTitle>{data.family.id && <Link href={`/admin/invoices?family=${data.family.id}`} className="text-xs text-maroon hover:underline">{t("editPeople.registrationDetail.familyInvoices")}</Link>}</CardHeader>
         <CardBody className="p-0">
           {data.invoices.length === 0 ? (
-            <div className="p-5"><EmptyState icon={<FileText className="h-5 w-5" />} title="No invoice linked" /></div>
+            <div className="p-5"><EmptyState icon={<FileText className="h-5 w-5" />} title={t("editPeople.registrationDetail.noInvoice")} /></div>
           ) : (
             <ul>
               {data.invoices.map((i) => (
-                <li key={i.id} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
-                  <div><div className="tnum text-sm font-medium text-ink">{i.number}</div><div className="text-xs text-ink-3">Due {f.date(i.dueDate)}</div></div>
-                  <div className="flex items-center gap-3"><span className="tnum text-sm">{f.money(i.total)}</span><Badge tone={statusTone(i.status)}>{i.status}</Badge></div>
+                <li key={i.id} className="border-b border-line-soft last:border-0">
+                  <Link href={`/admin/invoices/${i.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-surface-elevated/50">
+                    <div><div className="tnum text-sm font-medium text-ink">{i.number}</div><div className="text-xs text-ink-3">{t("editPeople.registrationDetail.due", { date: f.date(i.dueDate) })}</div></div>
+                    <div className="flex items-center gap-3"><span className="tnum text-sm">{f.money(i.total, i.currency)}</span><Badge tone={statusTone(i.status)}>{t.dynamic(`status.${i.status}`, undefined, i.status)}</Badge></div>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -107,10 +109,10 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Consents accepted</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("editPeople.registrationDetail.consents")}</CardTitle></CardHeader>
         <CardBody className="p-0">
           {data.consents.length === 0 ? (
-            <div className="p-5"><EmptyState icon={<ShieldCheck className="h-5 w-5" />} title="No consents recorded" /></div>
+            <div className="p-5"><EmptyState icon={<ShieldCheck className="h-5 w-5" />} title={t("editPeople.registrationDetail.noConsents")} /></div>
           ) : (
             <ul>
               {data.consents.map((c) => (
@@ -118,7 +120,7 @@ export default async function RegistrationDetailPage({ params }: { params: Promi
                   <div className="flex items-center gap-2 text-sm text-ink"><ShieldCheck className="h-4 w-4 text-success" />{c.title}</div>
                   <div className="text-right text-xs text-ink-3">
                     <div>{f.date(c.acceptedAt)}</div>
-                    {c.ip && <div className="tnum">IP {c.ip}</div>}
+                    {c.ip && <div className="tnum">{t("editPeople.registrationDetail.ip", { ip: c.ip })}</div>}
                   </div>
                 </li>
               ))}

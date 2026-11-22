@@ -64,7 +64,18 @@
     "notFound": "Not found",
     "unknown": "Unknown",
     "perParticipant": "{price} / participant",
-    "ageYears": "Age {age}"
+    "ageYears": "Age {age}",
+    "routeError": {
+      "title": "Something went wrong",
+      "body": "This page couldn't load its data. Nothing was changed: try again, or reload the page in a moment.",
+      "reference": "Reference: {ref}",
+      "retry": "Try again"
+    },
+    "pager": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page}"
+    }
   },
   "status": {
     "draft": "Draft",
@@ -257,7 +268,75 @@
     "quickActions": "Quick actions",
     "noUpcomingSessions": "No upcoming sessions scheduled.",
     "noRecentPayments": "No payments yet.",
-    "loadError": "Couldn't load your dashboard"
+    "loadError": "Couldn't load your dashboard",
+    "widgets": {
+      "kpi": {
+        "activeAthletes": "Active {label}",
+        "activeFamilies": "Active families",
+        "openInvoices": "Open invoices",
+        "overdue": "Overdue",
+        "upcomingSessions": "Upcoming sessions",
+        "sessionsToday": "Sessions today",
+        "loadError": "Couldn't load the key figures"
+      },
+      "invoices": {
+        "title": "Invoices",
+        "manage": "Manage",
+        "open": "Open",
+        "overdue": "Overdue",
+        "count": "{count, plural, one {# invoice} other {# invoices}}",
+        "paidAllTime": "Paid (all time)",
+        "loadError": "Couldn't load invoices"
+      },
+      "upcoming": {
+        "title": "Upcoming sessions",
+        "viewCalendar": "Calendar",
+        "emptyTitle": "Nothing scheduled",
+        "emptyBody": "No upcoming sessions or team events on the calendar.",
+        "untitled": "Session",
+        "loadError": "Couldn't load sessions"
+      },
+      "attendance": {
+        "title": "Today's attendance",
+        "open": "Open",
+        "sessions": "Sessions",
+        "submitted": "Submitted",
+        "pending": "Open",
+        "none": "No attendance sessions today.",
+        "loadError": "Couldn't load attendance"
+      },
+      "registrations": {
+        "title": "Recent registrations",
+        "viewAll": "View all",
+        "empty": "No registrations yet",
+        "unknownAthlete": "Unknown athlete",
+        "unknownProgram": "Unknown program",
+        "loadError": "Couldn't load registrations"
+      },
+      "payments": {
+        "title": "Recent payments",
+        "viewAll": "View all",
+        "empty": "No payments yet",
+        "loadError": "Couldn't load payments"
+      },
+      "activity": {
+        "title": "Activity",
+        "emptyTitle": "No activity yet",
+        "emptyBody": "Registrations, payments and reminders will appear here.",
+        "loadError": "Couldn't load activity"
+      },
+      "quick": {
+        "title": "Quick actions",
+        "addFamily": "Add family",
+        "addAthlete": "Add {label}",
+        "createProgram": "Create program",
+        "createInvoice": "Create invoice",
+        "sendReminder": "Overdue invoices",
+        "openAttendance": "Open attendance",
+        "trainingService": "Training bookings",
+        "exportData": "Export data"
+      }
+    }
   },
   "parentHome": {
     "balanceDue": "Balance due",
@@ -447,7 +526,22 @@
     "excused": "Excused",
     "noSessions": "No sessions today.",
     "roster": "Roster",
-    "summary": "{present} of {total} present"
+    "summary": "{present} of {total} present",
+    "admin": {
+      "description": "Review attendance by session, coach and date.",
+      "loadError": "Couldn't load attendance",
+      "colSession": "Session",
+      "colCoach": "Coach",
+      "colDate": "Date",
+      "colCounts": "Counts",
+      "colStatus": "Status",
+      "counts": "{present} present · {late} late · {absent} absent · {excused} excused",
+      "untitled": "Session",
+      "filterDate": "Show",
+      "clear": "All dates",
+      "emptyTitle": "No attendance recorded",
+      "emptyBody": "Sessions appear here once coaches submit."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -859,6 +953,87 @@
       "filterLabel": "Filter by federation license",
       "filterHas": "Has license",
       "filterMissing": "License missing"
+    },
+    "familyDetail": {
+      "loadError": "Couldn't load the family",
+      "addAthlete": "Add {label}",
+      "balanceDue": "Balance due",
+      "openInvoices": "Open invoices",
+      "registrations": "Registrations",
+      "add": "Add",
+      "noAthletes": "No {label} yet",
+      "born": "Born {date}",
+      "invoices": "Invoices",
+      "allInvoices": "All invoices of this family",
+      "noInvoices": "No invoices",
+      "due": "Due {date}",
+      "documents": "Documents",
+      "noDocuments": "No documents"
+    },
+    "familyList": {
+      "description": "Households grouping {athletes} and their guardians.",
+      "new": "New {label}",
+      "loadError": "Couldn't load families",
+      "phone": "Phone",
+      "open": "Open invoices",
+      "balance": "Balance",
+      "emptyTitle": "No families yet",
+      "emptyBody": "Create a family to start adding {athletes}.",
+      "noMatch": "No family matches “{q}”.",
+      "searchPlaceholder": "Name, phone or e-mail"
+    },
+    "registrationList": {
+      "title": "Registrations",
+      "description": "Programme and camp sign-ups, current and past.",
+      "loadError": "Couldn't load registrations",
+      "colAthlete": "Participant",
+      "colProgram": "Program",
+      "colFamily": "Family",
+      "colSubmitted": "Submitted",
+      "colStatus": "Status",
+      "allStatuses": "All statuses",
+      "allPrograms": "All programs",
+      "archivedProgram": "{name} (archived)",
+      "searchPlaceholder": "Participant or family name",
+      "filter": "Filter",
+      "clear": "Clear filters",
+      "familyFilter": "Family: {name}",
+      "week": "Week of {date}",
+      "emptyTitle": "No registrations yet",
+      "emptyBody": "Public sign-ups will appear here.",
+      "noMatch": "No registration matches these filters.",
+      "unknown": "Unknown"
+    },
+    "registrationDetail": {
+      "title": "Registration · {name}",
+      "submitted": "Submitted {when}",
+      "loadError": "Couldn't load the registration",
+      "status": "Status",
+      "participant": "Participant",
+      "born": "Born {date}",
+      "program": "Program: {name}",
+      "week": "Camp week: {name}",
+      "notes": "Notes: {notes}",
+      "family": "Family",
+      "open": "Open",
+      "invoices": "Invoices",
+      "familyInvoices": "All invoices of the family",
+      "noInvoice": "No invoice linked",
+      "due": "Due {date}",
+      "consents": "Consents accepted",
+      "noConsents": "No consents recorded",
+      "ip": "IP {ip}"
+    },
+    "athleteList": {
+      "searchPlaceholder": "Name or licence number"
+    },
+    "contact": {
+      "title": "Parent / guardian contact",
+      "noGuardians": "No guardians linked",
+      "noGuardiansBody": "Invite a parent to link them to this family.",
+      "guardian": "Guardian",
+      "primary": "primary",
+      "emergency": "Emergency: {name}{phone}"
     }
   },
   "personDelete": {
@@ -1560,6 +1735,45 @@
       "TAX_LOCKED": "Tax and currency cannot change once payments exist.",
       "REMINDERS_PAUSED": "Reminders are paused for this invoice.",
       "INVALID_KIND": "Choose the type of adjustment."
+    },
+    "invoiceList": {
+      "title": "Invoices",
+      "description": "Issue, track and reconcile club invoices.",
+      "loadError": "Couldn't load invoices",
+      "exportCsv": "Export CSV",
+      "reconcile": "Reconcile",
+      "new": "New invoice",
+      "filterOpen": "Open",
+      "colInvoice": "Invoice",
+      "colFamily": "Family",
+      "colTotal": "Total",
+      "colBalance": "Balance",
+      "colDue": "Due",
+      "colStatus": "Status",
+      "emptyTitle": "No invoices",
+      "emptyBody": "Create one or let registrations generate them.",
+      "noMatch": "No invoice matches these filters.",
+      "searchPlaceholder": "Invoice number or family",
+      "familyFilter": "Family: {name}",
+      "clearFilters": "Clear filters"
+    },
+    "paymentList": {
+      "title": "Payments",
+      "loadError": "Couldn't load payments",
+      "colInvoice": "Invoice",
+      "colMethod": "Method",
+      "colDate": "Date",
+      "colStatus": "Status",
+      "colAmount": "Amount",
+      "totalCollected": "Total collected:",
+      "empty": "No payments yet",
+      "filters": {
+        "all": "All",
+        "succeeded": "Succeeded",
+        "pending": "Pending",
+        "failed": "Failed",
+        "refunded": "Refunded"
+      }
     }
   },
   "coaches": {
