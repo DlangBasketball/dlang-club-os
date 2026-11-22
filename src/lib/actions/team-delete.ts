@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { callRpc } from "@/lib/supabase/rpc";
 import { requireRole, type ActionResult } from "@/lib/people/server";
 import { confirmationMatches } from "@/lib/people/person-delete";
 import { revalidateTeamsEverywhere } from "@/lib/people/revalidate";
@@ -21,8 +22,8 @@ const uuid = z.string().uuid();
 type RpcClient = Awaited<ReturnType<typeof createClient>>;
 
 async function rpc(db: RpcClient, fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: { message: string } | null }> {
-  const call = db.rpc as unknown as (f: string, a: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
-  return call(fn, args);
+  // Bound call (callRpc): a detached db.rpc threw, so every preview / delete failed.
+  return callRpc(db, fn, args);
 }
 
 export async function previewTeamDelete(teamId: string): Promise<ActionResult<TeamImpact>> {

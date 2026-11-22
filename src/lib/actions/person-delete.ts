@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { callRpc } from "@/lib/supabase/rpc";
 import { requireRole, type ActionResult } from "@/lib/people/server";
 import { logError } from "@/lib/log";
 import {
@@ -29,8 +30,8 @@ const modeSchema = z.enum(["archive", "erase"]);
 type RpcClient = Awaited<ReturnType<typeof createClient>>;
 
 async function rpc(db: RpcClient, fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: { message: string } | null }> {
-  const call = db.rpc as unknown as (f: string, a: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
-  return call(fn, args);
+  // Bound call (callRpc): a detached db.rpc threw, so every preview / delete failed.
+  return callRpc(db, fn, args);
 }
 
 async function displayName(db: RpcClient, kind: PersonKind, id: string, orgId: string): Promise<string | null> {

@@ -6,6 +6,7 @@ import { getTranslations } from "@/lib/i18n/server";
 import type { Translator } from "@/lib/i18n/translator";
 import { logError } from "@/lib/log";
 import { createClient } from "@/lib/supabase/server";
+import { callRpc } from "@/lib/supabase/rpc";
 import { confirmationMatches } from "@/lib/people/person-delete";
 import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 import { revalidateSiteLive } from "@/lib/site/revalidate";
@@ -336,8 +337,8 @@ export async function moveAthleteToAlumni(input: { athleteId: string; archive: b
   await copyTargets(db, orgId, res.id, ((targets ?? []) as { id: string; status: string }[]).filter((x) => x.status === "placed").map((x) => x.id));
   let message = t("alumni.messages.moved");
   if (input.archive) {
-    const rpc = (await createClient()).rpc as unknown as (f: string, a: Record<string, unknown>) => Promise<{ error: { message: string } | null }>;
-    const { error } = await rpc("delete_athlete", { p_athlete: a.id, p_mode: "archive" });
+    // callRpc keeps rpc bound to its client (a detached one threw).
+    const { error } = await callRpc(await createClient(), "delete_athlete", { p_athlete: a.id, p_mode: "archive" });
     if (error) {
       logError("alumni.moveArchive", error);
       message = t("alumni.messages.movedNotArchived");
