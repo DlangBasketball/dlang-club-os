@@ -8,6 +8,7 @@ import { APP_NAME } from "@/lib/constants";
 import { applyBillingEntity, buildSpcPayload, formatQrReference, resolveQrBillAccount } from "@/lib/swiss-payments";
 import { getI18n } from "@/lib/i18n/server";
 import { plansDb } from "@/lib/plans/db";
+import { categoryLabelKey } from "@/lib/billing/activities";
 
 /** Builds and returns the invoice PDF. getInvoiceDetail is RLS-scoped, so the
  *  caller only ever gets a PDF for an invoice they're entitled to see.
@@ -43,7 +44,7 @@ export async function renderInvoicePdf(id: string, opts: { installmentId?: strin
   const [profile, { data: org }, { data: billing }] = await Promise.all([
     getOrgPaymentProfile(data.orgId),
     admin.from("organizations").select("branding").eq("id", data.orgId).maybeSingle(),
-    admin.from("invoices").select("billing_entity_snapshot,payer_name,payer_kind").eq("id", id).eq("org_id", data.orgId).maybeSingle(),
+    admin.from("invoices").select("billing_entity_snapshot,payer_name,payer_kind,activity,source_label,program_id,programs(series,name)").eq("id", id).eq("org_id", data.orgId).maybeSingle(),
   ]);
   const settings = applyBillingEntity(profile.swiss, billing?.billing_entity_snapshot ?? null);
   // A sponsor / third-party share is addressed to that payer, not the family.
@@ -75,6 +76,13 @@ export async function renderInvoicePdf(id: string, opts: { installmentId?: strin
 
   const branding = normalizeBranding((org as { branding?: unknown } | null)?.branding);
   const { t, f } = await getI18n(data.orgId);
+  // Revenue category (selection: the programme series, e.g. "EYBL") and the printed source.
+  type Prog = { series: string | null; name: string } | null;
+  const prog = (billing as { programs?: Prog | Prog[] } | null)?.programs;
+  const series = (Array.isArray(prog) ? prog[0] : prog)?.series?.trim() || (Array.isArray(prog) ? prog[0] : prog)?.name || null;
+  const activity = (billing as { activity?: string } | null)?.activity ?? "other";
+  const categoryLabel = activity === "selection" && series ? series : activity === "other" ? null : t(categoryLabelKey(activity));
+  const sourceLabel = (billing as { source_label?: string | null } | null)?.source_label ?? null;
   const instalmentNote = inst
     ? t("plans.pdf.note", { seq: inst.seq, count: inst.count, date: f.date(inst.due_date), amount: f.money(instOpen ?? 0, currency) })
     : null;
@@ -97,6 +105,8 @@ export async function renderInvoicePdf(id: string, opts: { installmentId?: strin
     platformName: APP_NAME,
     paymentNote,
     instalmentNote,
+    categoryLabel,
+    sourceLabel,
     i18n: { t, f },
   });
   return new NextResponse(Buffer.from(bytes), {

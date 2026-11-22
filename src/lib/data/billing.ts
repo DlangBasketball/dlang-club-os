@@ -211,7 +211,7 @@ export async function getMembershipSummary(membershipId: string): Promise<Result
   const { data, error } = await db.rpc("membership_summary", { p_membership: membershipId });
   if (error) return fail(error.message);
   if (!data) return ok(null);
-  const j = data as Record<string, Record<string, unknown> & unknown>;
+  const j = data as unknown as Record<string, unknown>;
   const money = (o: unknown): MembershipMoney => {
     const m = (o ?? {}) as Record<string, unknown>;
     return { invoiced: num(m.invoiced), paid: num(m.paid), balance: num(m.balance) };
@@ -219,7 +219,7 @@ export async function getMembershipSummary(membershipId: string): Promise<Result
   return ok({
     membershipId: String(j.membership_id), seasonId: (j.season_id as string | null) ?? null,
     agreedFee: j.agreed_fee == null ? null : num(j.agreed_fee), currency: String(j.currency ?? "CHF"), sponsored: Boolean(j.sponsored),
-    seasonFee: money(j.season_fee), carryForward: money(j.carry_forward), invoiceIds: ((j as Record<string, unknown>).invoice_ids as string[] | undefined) ?? [],
+    seasonFee: money(j.season_fee), carryForward: money(j.carry_forward), invoiceIds: (j.invoice_ids as string[] | undefined) ?? [],
   });
 }
 

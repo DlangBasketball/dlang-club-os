@@ -4,12 +4,14 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/client";
 
-const TABS: { href: string; label?: string; labelKey?: "appSettings.tab" | "website.admin.tab" | "languageSettings.tab" }[] = [
+const TABS: { href: string; label?: string; labelKey?: "appSettings.tab" | "website.admin.tab" | "languageSettings.tab" | "billing.entities.tab" | "billing.seasons.tab" }[] = [
   { href: "/admin/settings", label: "Club profile" },
   { href: "/admin/settings/branding", label: "Branding & venues" },
   { href: "/admin/settings/app", labelKey: "appSettings.tab" },
   { href: "/admin/settings/languages", labelKey: "languageSettings.tab" },
   { href: "/admin/settings/billing", label: "Billing & tax" },
+  { href: "/admin/settings/billing-entities", labelKey: "billing.entities.tab" },
+  { href: "/admin/settings/seasons", labelKey: "billing.seasons.tab" },
   { href: "/admin/settings/payments", label: "Online payments" },
   { href: "/admin/settings/website", labelKey: "website.admin.tab" },
   { href: "/admin/settings/staff", label: "Staff & roles" },

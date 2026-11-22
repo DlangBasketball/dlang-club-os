@@ -166,6 +166,13 @@ export function placeholderDiff(source, target) {
  */
 export const SAME_AS_EN_OK = new Set([
   "meta.direction",
+  // Billing foundation: bank account terms, and German / French words spelled like English.
+  "billing.entities.fields.iban",
+  "billing.entities.fields.qrIban",
+  "de:billing.activities.shop",
+  "de:billing.activities.camp",
+  "fr:billing.entities.inactive",
+  "fr:billing.entities.fields.isActive",
   "editMoney.invoiceList.colTotal",
   "de:editMoney.invoiceList.colStatus",
   "fr:common.pager.page",

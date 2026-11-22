@@ -17,6 +17,7 @@ import { getFormatter, getTranslations } from "@/lib/i18n/server";
 import { clubToday, getInvoicePlan, getInvoicePlanOffer } from "@/lib/plans/data";
 import { InstalmentTable } from "@/components/plans/instalment-table";
 import { AdminCreatePlan } from "@/components/plans/plan-widgets";
+import { InvoiceCategoryBadge } from "@/components/billing/category-badge";
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [f, t] = await Promise.all([getFormatter(), getTranslations()]);
@@ -52,6 +53,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         description={data.description ?? (data.programName ? `Program: ${data.programName}` : "Invoice")}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <InvoiceCategoryBadge invoiceId={data.id} />
             {data.remindersPaused && <Badge tone="neutral">{t("editMoney.invoice.remindersPausedBadge")}</Badge>}
             <Badge tone={data.status === "written_off" ? "neutral" : statusTone(data.status)}>{statusLabel}</Badge>
           </div>
