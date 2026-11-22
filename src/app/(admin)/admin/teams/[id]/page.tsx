@@ -13,6 +13,7 @@ import { SportTagPicker } from "@/components/sports/sports-manager";
 import { currentSportId, sportOptions } from "@/lib/sports/data";
 import { CoverImage } from "@/components/media/cover-image";
 import { getTeamCover } from "@/lib/media/server";
+import { DeleteTeamButton, RestoreTeamButton } from "@/components/teams/delete-team";
 
 export const metadata = { title: "Team" };
 
@@ -46,6 +47,8 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Link href={`/admin/schedule/new?team=${t.id}`}><Button size="sm" variant="secondary"><CalendarPlus className="h-4 w-4" /> {tr("media.team.addEvent")}</Button></Link>
         <Link href={`/admin/teams/${t.id}/edit`}><Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> {tr("common.edit")}</Button></Link>
+        {isAdmin && !t.isActive && <RestoreTeamButton teamId={t.id} name={t.name} />}
+        {isAdmin && <DeleteTeamButton teamId={t.id} name={t.name} redirectTo="/admin/teams" />}
       </div>
 
       <SportTagPicker kind="team" recordId={t.id} value={sportId} sports={sports} />
@@ -62,7 +65,12 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
             </span>
           </Link>
         ))}
-        {!t.isActive && <Badge>inactive</Badge>}
+        {!t.isActive && <Badge>{tr("teamAdmin.list.archived")}</Badge>}
+        {t.programName && t.programId && (
+          <Link href={t.isSelectionProgram ? `/admin/selection/${t.programId}` : `/admin/programs/${t.programId}`}>
+            <Badge tone={t.isSelectionProgram ? "accent" : "neutral"}>{tr("teamAdmin.team.programme", { name: t.programName })}</Badge>
+          </Link>
+        )}
         <Link href="/admin/coaches" className="text-xs text-ink-3 hover:text-ink">{tr("coaches.team.editCoaches")} →</Link>
       </div>
 

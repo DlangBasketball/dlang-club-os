@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Select } from "@/components/ui";
 import { useFormat, useT } from "@/lib/i18n/client";
-import { assignCoach, deleteDivision, deletePackage, removeCoach, saveDivision, savePackage, saveSelectionSettings } from "@/lib/actions/selection";
+import { assignCoach, deletePackage, removeCoach, savePackage, saveSelectionSettings } from "@/lib/actions/selection";
 import { formatCounts } from "@/lib/selection/rules";
 import { Field, Notice, PackageSummary } from "./shared";
 
@@ -18,7 +18,7 @@ export type SetupCoach = { id: string; coachId: string; coachName: string; divis
 
 type Msg = { tone: "ok" | "err"; text: string } | null;
 
-function useRun() {
+export function useRun() {
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<Msg>(null);
@@ -59,99 +59,6 @@ export function SelectionSettings({ programId, selectionEnabled, requiresApprova
           <Button size="sm" disabled={busy} onClick={() => run(() => saveSelectionSettings(programId, v))}>{t("common.save")}</Button>
           <Notice msg={msg} />
         </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-// ---------------------------------------------------------------------------
-type DivForm = { name: string; minBirthYear: string; maxBirthYear: string; ageUnder: string; ageCutoff: string; teamId: string; capacity: string; sort: string; isActive: boolean };
-const emptyDiv: DivForm = { name: "", minBirthYear: "", maxBirthYear: "", ageUnder: "", ageCutoff: "", teamId: "", capacity: "", sort: "0", isActive: true };
-const s = (n: number | null | undefined) => (n == null ? "" : String(n));
-
-export function DivisionsEditor({ programId, divisions, teams }: { programId: string; divisions: SetupDivision[]; teams: { id: string; name: string }[] }) {
-  const t = useT();
-  const [editing, setEditing] = React.useState<string | "new" | null>(null);
-  const [form, setForm] = React.useState<DivForm>(emptyDiv);
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
-  const { busy, msg, run } = useRun();
-  const teamName = new Map(teams.map((x) => [x.id, x.name]));
-  const set = (k: keyof DivForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? (e.target as HTMLInputElement).checked : e.target.value }));
-
-  function open(d?: SetupDivision) {
-    setErrors({});
-    setEditing(d?.id ?? "new");
-    setForm(d ? {
-      name: d.name, minBirthYear: s(d.minBirthYear), maxBirthYear: s(d.maxBirthYear), ageUnder: s(d.ageUnder), ageCutoff: d.ageCutoff ?? "",
-      teamId: d.teamId ?? "", capacity: s(d.capacity), sort: String(d.sort), isActive: d.isActive,
-    } : { ...emptyDiv, sort: String(divisions.length + 1) });
-  }
-  async function save() {
-    const res = await saveDivision(programId, editing === "new" ? null : editing, form);
-    if (!res.ok) { setErrors(("errors" in res && res.errors) || {}); }
-    await run(async () => res, () => setEditing(null));
-  }
-  const rule = (d: SetupDivision) => {
-    const parts: string[] = [];
-    if (d.minBirthYear != null || d.maxBirthYear != null) parts.push(t("selection.divisions.bornRange", { from: d.minBirthYear ?? "…", to: d.maxBirthYear ?? "…" }));
-    if (d.ageUnder != null) parts.push(t("selection.divisions.underAge", { age: d.ageUnder }));
-    return parts.join(" · ") || t("selection.divisions.anyAge");
-  };
-
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-2">
-        <CardTitle>{t("selection.divisions.title")}</CardTitle>
-        <Button size="sm" variant="secondary" onClick={() => open()}><Plus className="h-4 w-4" /> {t("selection.divisions.add")}</Button>
-      </CardHeader>
-      <CardBody className="space-y-3">
-        {divisions.length === 0 && <p className="text-sm text-text-muted">{t("selection.divisions.empty")}</p>}
-        <ul className="divide-y divide-border">
-          {divisions.map((d) => (
-            <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-              <div>
-                <span className="font-medium text-text">{d.name}</span>{" "}
-                {!d.isActive && <Badge>{t("selection.common.inactive")}</Badge>}
-                <span className="block text-xs text-text-muted">
-                  {rule(d)}
-                  {d.teamId && <> · {t("selection.divisions.team")}: {teamName.get(d.teamId) ?? "—"}</>}
-                  {d.capacity != null && <> · {t("selection.divisions.capacity")}: {d.capacity}</>}
-                </span>
-              </div>
-              <div className="flex gap-1">
-                <Button size="sm" variant="ghost" aria-label={t("common.edit")} onClick={() => open(d)}><Pencil className="h-4 w-4" /></Button>
-                <Button size="sm" variant="ghost" aria-label={t("common.delete")} disabled={busy}
-                  onClick={() => window.confirm(t("selection.divisions.confirmDelete")) && run(() => deleteDivision(programId, d.id))}><Trash2 className="h-4 w-4" /></Button>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {editing && (
-          <div className="space-y-3 rounded-lg border border-border p-3">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Field label={t("selection.divisions.name")} htmlFor="div-name" error={errors.name}><Input id="div-name" value={form.name} onChange={set("name")} placeholder="U14" /></Field>
-              <Field label={t("selection.divisions.minBirthYear")} htmlFor="div-min" error={errors.minBirthYear}><Input id="div-min" inputMode="numeric" value={form.minBirthYear} onChange={set("minBirthYear")} /></Field>
-              <Field label={t("selection.divisions.maxBirthYear")} htmlFor="div-max" error={errors.maxBirthYear}><Input id="div-max" inputMode="numeric" value={form.maxBirthYear} onChange={set("maxBirthYear")} /></Field>
-              <Field label={t("selection.divisions.ageUnder")} htmlFor="div-under" error={errors.ageUnder} hint={t("selection.divisions.ageUnderHint")}><Input id="div-under" inputMode="numeric" value={form.ageUnder} onChange={set("ageUnder")} /></Field>
-              <Field label={t("selection.divisions.ageCutoff")} htmlFor="div-cut" error={errors.ageCutoff}><Input id="div-cut" type="date" value={form.ageCutoff} onChange={set("ageCutoff")} /></Field>
-              <Field label={t("selection.divisions.capacity")} htmlFor="div-cap" error={errors.capacity}><Input id="div-cap" inputMode="numeric" value={form.capacity} onChange={set("capacity")} /></Field>
-              <Field label={t("selection.divisions.team")} htmlFor="div-team" hint={t("selection.divisions.teamHint")}>
-                <Select id="div-team" value={form.teamId} onChange={set("teamId")}>
-                  <option value="">{t("selection.common.none")}</option>
-                  {teams.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
-                </Select>
-              </Field>
-              <Field label={t("selection.common.sort")} htmlFor="div-sort"><Input id="div-sort" inputMode="numeric" value={form.sort} onChange={set("sort")} /></Field>
-              <label className="flex items-center gap-2 self-end pb-2 text-sm"><input type="checkbox" checked={form.isActive} onChange={set("isActive")} /> {t("selection.common.active")}</label>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" disabled={busy} onClick={save}>{t("common.save")}</Button>
-              <Button size="sm" variant="ghost" onClick={() => setEditing(null)}><X className="h-4 w-4" /> {t("common.cancel")}</Button>
-            </div>
-          </div>
-        )}
-        <Notice msg={msg} />
       </CardBody>
     </Card>
   );

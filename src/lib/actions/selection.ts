@@ -14,6 +14,10 @@ import { applicationExtrasSchema, decisionSchema, divisionSchema, packageSchema,
 import { notifySelection, notifyStaffNewApplication, type SelectionNoticeKind } from "@/lib/selection/notify";
 import { getPublicSelection } from "@/lib/selection/data";
 import { createGuestAccount, type GuestAccountChoice } from "@/lib/camps/checkout-helpers";
+import { sportsDb } from "@/lib/sportsops/db";
+import { confirmationMatches } from "@/lib/people/person-delete";
+import { revalidateTeamsEverywhere } from "@/lib/people/revalidate";
+import { teamErrorKey } from "@/lib/teams/team-delete";
 
 /*
  * Selection programmes — server actions. The org always comes from the
@@ -99,32 +103,72 @@ export async function saveDivision(programId: string, divisionId: string | null,
   const p = divisionSchema.safeParse(input);
   if (!p.success) return issues(t, p.error);
   const v = p.data;
+  const createTeam = v.teamMode === "create";
   const row = {
     name: v.name, min_birth_year: v.minBirthYear, max_birth_year: v.maxBirthYear, age_under: v.ageUnder, age_cutoff: v.ageCutoff,
-    team_id: v.teamId, capacity: v.capacity, sort: v.sort, is_active: v.isActive,
+    // "create": the team is created and linked below, in SQL (create_division_team).
+    ...(createTeam ? {} : { team_id: v.teamMode === "none" ? null : v.teamId }),
+    capacity: v.capacity, sort: v.sort, is_active: v.isActive,
   };
   const db = await selectionDb();
-  const { error } = divisionId
-    ? await db.from("program_divisions").update(row).eq("id", divisionId).eq("program_id", pid.data).eq("org_id", me.orgId)
-    : await db.from("program_divisions").insert({ ...row, org_id: me.orgId, program_id: pid.data });
-  if (error) return fail(t, error);
+  let id = divisionId;
+  if (divisionId) {
+    const { error } = await db.from("program_divisions").update(row).eq("id", divisionId).eq("program_id", pid.data).eq("org_id", me.orgId);
+    if (error) return fail(t, error);
+  } else {
+    const { data, error } = await db.from("program_divisions").insert({ ...row, org_id: me.orgId, program_id: pid.data }).select("id").single();
+    if (error) return fail(t, error);
+    id = data.id;
+  }
+  if (createTeam && id) {
+    // Team "<programme short name> <division>" (or the typed name): same sport,
+    // age group, level, the programme's / current season. Org and admin role
+    // are checked again in SQL.
+    const { error } = await db.rpc("create_division_team", { p_division: id, p_name: v.teamName || null });
+    if (error) {
+      logError("selection.createDivisionTeam", error.message);
+      revalidate(pid.data);
+      return { ok: false, error: t.dynamic(teamErrorKey(error.message), undefined, t("selection.errors.generic")) };
+    }
+    revalidateTeamsEverywhere(me.orgId);
+  }
   revalidate(pid.data);
-  return { ok: true, message: t("selection.setup.saved") };
+  return { ok: true, message: t(createTeam ? "teamAdmin.division.teamCreated" : "selection.setup.saved") };
 }
 
-export async function deleteDivision(programId: string, divisionId: string): Promise<SelectionResult> {
+const deleteDivisionSchema = z.object({
+  moveTo: z.union([z.literal(""), z.null(), uuid]).optional().transform((v) => (v ? v : null)),
+  teamMode: z.enum(["keep", "archive", "delete"]).optional().default("keep"),
+  confirmTeamName: z.string().max(300).optional(),
+});
+
+/**
+ * Delete a division. Live applications (not declined / withdrawn) block it
+ * unless `moveTo` names another division of the programme; the division's
+ * team is kept, archived or deleted permanently (typed team name). One
+ * transaction in SQL (selection_delete_division).
+ */
+export async function deleteDivision(programId: string, divisionId: string, opts: z.input<typeof deleteDivisionSchema> = {}): Promise<SelectionResult> {
   const { me, t } = await session(["admin"]);
   if (!me) return { ok: false, error: t("selection.errors.NOT_AUTHORIZED") };
-  if (!uuid.safeParse(programId).success || !uuid.safeParse(divisionId).success) return { ok: false, error: t("selection.errors.invalid") };
+  const o = deleteDivisionSchema.safeParse(opts);
+  if (!uuid.safeParse(programId).success || !uuid.safeParse(divisionId).success || !o.success) return { ok: false, error: t("selection.errors.invalid") };
   const db = await selectionDb();
-  // A division with applications is deactivated, never deleted (history).
-  const { count } = await db.from("program_applications").select("id", { count: "exact", head: true }).eq("division_id", divisionId).eq("org_id", me.orgId);
-  const { error } = (count ?? 0) > 0
-    ? await db.from("program_divisions").update({ is_active: false }).eq("id", divisionId).eq("org_id", me.orgId)
-    : await db.from("program_divisions").delete().eq("id", divisionId).eq("program_id", programId).eq("org_id", me.orgId);
-  if (error) return fail(t, error);
+  if (o.data.teamMode === "delete") {
+    const { data: div } = await db.from("program_divisions").select("team_id").eq("id", divisionId).eq("org_id", me.orgId).maybeSingle();
+    const { data: team } = div?.team_id
+      ? await (await sportsDb()).from("teams").select("name").eq("id", div.team_id).eq("org_id", me.orgId).maybeSingle()
+      : { data: null };
+    if (team && !confirmationMatches(o.data.confirmTeamName ?? "", team.name)) return { ok: false, error: t("teamAdmin.errors.confirmMismatch") };
+  }
+  const { error } = await db.rpc("selection_delete_division", { p_division: divisionId, p_move_to: o.data.moveTo, p_team_mode: o.data.teamMode });
+  if (error) {
+    if (!/DIVISION_HAS_APPLICATIONS|TEAM_DELETE_BLOCKED|DIVISION_NOT_FOUND/.test(error.message)) logError("selection.deleteDivision", error.message);
+    return { ok: false, error: t.dynamic(teamErrorKey(error.message), undefined, t("selection.errors.generic")) };
+  }
   revalidate(programId);
-  return { ok: true, message: t((count ?? 0) > 0 ? "selection.setup.deactivated" : "selection.setup.deleted") };
+  if (o.data.teamMode !== "keep") revalidateTeamsEverywhere(me.orgId);
+  return { ok: true, message: t("selection.setup.deleted") };
 }
 
 export async function savePackage(programId: string, packageId: string | null, input: PackageInput | Record<string, unknown>): Promise<SelectionResult> {
