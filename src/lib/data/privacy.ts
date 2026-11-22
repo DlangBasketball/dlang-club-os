@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { must } from "@/lib/data/must";
 
 export type DeletionRequest = { id: string; familyName: string; requestedBy: string; reason: string | null; status: string; createdAt: string };
 
@@ -8,8 +9,7 @@ export async function listDeletionRequests(): Promise<DeletionRequest[]> {
   const me = await getSessionUser();
   if (!me?.orgId || !me.roles.includes("admin")) return [];
   const admin = createAdminClient();
-  const { data } = await admin.from("deletion_requests").select("id,family_id,requested_by,reason,status,created_at").eq("org_id", me.orgId).order("created_at", { ascending: false });
-  const rows = data ?? [];
+  const rows = must(await admin.from("deletion_requests").select("id,family_id,requested_by,reason,status,created_at").eq("org_id", me.orgId).order("created_at", { ascending: false }), "deletion requests");
   const fam = rows.map((r) => r.family_id);
   const prof = rows.map((r) => r.requested_by).filter((x): x is string => !!x);
   const [families, profiles] = await Promise.all([

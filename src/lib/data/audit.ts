@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { must } from "@/lib/data/must";
 
 export type AuditEntry = { id: string; actorName: string; action: string; targetTable: string | null; targetId: string | null; createdAt: string };
 
@@ -10,8 +11,7 @@ export async function listAuditLogs(opts?: { table?: string; limit?: number }): 
   const admin = createAdminClient();
   let q = admin.from("audit_logs").select("id,actor_id,action,target_table,target_id,created_at").eq("org_id", me.orgId).order("created_at", { ascending: false }).limit(opts?.limit ?? 100);
   if (opts?.table) q = q.eq("target_table", opts.table);
-  const { data } = await q;
-  const rows = data ?? [];
+  const rows = must(await q, "audit log");
   const ids = Array.from(new Set(rows.map((r) => r.actor_id).filter((x): x is string => !!x)));
   const profs = ids.length ? (await admin.from("profiles").select("id,full_name,email").in("id", ids)).data ?? [] : [];
   const name = new Map(profs.map((p) => [p.id, p.full_name ?? p.email]));

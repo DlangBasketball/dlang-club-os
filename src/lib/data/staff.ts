@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/get-user";
 import type { AppRole } from "@/lib/auth/roles";
+import { must } from "@/lib/data/must";
 
 export type StaffMember = { profileId: string; name: string; email: string; roles: string[] };
 export type PendingInvite = { id: string; email: string; role: string; status: string; expiresAt: string | null };
@@ -12,7 +13,7 @@ export async function listStaff(): Promise<StaffMember[]> {
   const me = await getSessionUser();
   if (!me?.orgId) return [];
   const admin = createAdminClient();
-  const { data: roles } = await admin.from("staff_roles").select("profile_id,role").eq("org_id", me.orgId);
+  const roles = must(await admin.from("staff_roles").select("profile_id,role").eq("org_id", me.orgId), "staff roles");
   const ids = Array.from(new Set((roles ?? []).map((r) => r.profile_id)));
   const profs = ids.length ? (await admin.from("profiles").select("id,full_name,email").in("id", ids)).data ?? [] : [];
   const pById = new Map(profs.map((p) => [p.id, p]));
@@ -25,6 +26,6 @@ export async function listPendingStaffInvites(): Promise<PendingInvite[]> {
   const me = await getSessionUser();
   if (!me?.orgId) return [];
   const admin = createAdminClient();
-  const { data } = await admin.from("invitations").select("id,email,role,status,expires_at").eq("org_id", me.orgId).in("role", STAFF_ROLES).neq("status", "accepted").order("created_at", { ascending: false });
-  return (data ?? []).map((i) => ({ id: i.id, email: i.email, role: i.role, status: i.status, expiresAt: i.expires_at }));
+  const data = must(await admin.from("invitations").select("id,email,role,status,expires_at").eq("org_id", me.orgId).in("role", STAFF_ROLES).neq("status", "accepted").order("created_at", { ascending: false }), "staff invitations");
+  return data.map((i) => ({ id: i.id, email: i.email, role: i.role, status: i.status, expiresAt: i.expires_at }));
 }
