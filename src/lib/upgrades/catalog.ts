@@ -134,6 +134,10 @@ export const FEATURE_CATALOG: readonly FeatureDef[] = [
     key: "player_journey", category: "training", tier: "academy", addon: p(39, 39, 43), requires: ["player_development"], label: "Player journey & scout profile",
     routes: { admin: ["/admin/journey"], coach: ["/coach/journey"], parent: ["/parent/journey"], public: ["/scout"] },
   },
+  {
+    key: "alumni_network", category: "training", tier: "academy", addon: p(29, 29, 32), label: "Alumni & placements",
+    routes: { admin: ["/admin/alumni"], coach: ["/coach/alumni"] },
+  },
   { key: "lesson_plans", category: "training", tier: "club", addon: p(15, 15, 17), requires: ["coach_app"], label: "Lesson plans", routes: { admin: ["/admin/lesson-plans"], coach: ["/coach/lesson-plans"] } },
 
   // ---- People & staff --------------------------------------------------------------

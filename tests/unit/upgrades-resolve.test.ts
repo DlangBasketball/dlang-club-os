@@ -76,7 +76,7 @@ describe("feature catalog", () => {
 
   it("is mirrored exactly in the migration (keys, dependencies, prices)", () => {
     // The catalog seed (20250420102100) plus later migrations that add a feature key.
-    const sql = ["20250420102100_feature_upgrades.sql", "20250420102600_selection_programs.sql"]
+    const sql = ["20250420102100_feature_upgrades.sql", "20250420102600_selection_programs.sql", "20250420102800_alumni_placements.sql"]
       .map((f) => readFileSync(path.resolve(__dirname, "../../supabase/migrations", f), "utf8")).join("\n");
     const seeded = Array.from(sql.matchAll(/^\s+\('([a-z_]+)', '[a-z]+', (true|false), /gm)).map((m) => m[1]);
     expect(new Set(seeded)).toEqual(new Set(ALL_FEATURE_KEYS));
