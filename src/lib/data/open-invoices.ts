@@ -1,13 +1,14 @@
 import "server-only";
 import type { createClient } from "@/lib/supabase/server";
+import type { createAdminClient } from "@/lib/supabase/admin";
 import type { PaymentLike } from "@/lib/payments/adjustments";
 import { OPEN_INVOICE_STATUSES, openInvoices, type OpenInvoice } from "@/lib/payments/open-invoices";
 
-type Db = Awaited<ReturnType<typeof createClient>>;
+type Db = Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createAdminClient>;
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 
 const PAGE = 1000; // PostgREST caps a response at ~1000 rows
-const CHUNK = 200; // ids per .in() filter (URL length)
+const CHUNK = 100; // invoices per payments query (URL length; stays under the row cap)
 
 /**
  * The open invoices of the caller's club (RLS scopes the rows; a family filter
@@ -15,7 +16,7 @@ const CHUNK = 200; // ids per .in() filter (URL length)
  * stopping at the server's response cap, so counts and totals stay right for
  * large clubs.
  */
-export async function loadOpenInvoices(db: Db, opts: { familyId?: string } = {}): Promise<Result<OpenInvoice[]>> {
+export async function loadOpenInvoices(db: Db, opts: { familyId?: string; orgId?: string } = {}): Promise<Result<OpenInvoice[]>> {
   type Row = { id: string; family_id: string | null; status: string; due_date: string | null; currency: string | null; total_chf: number | null; adjustments_total: number | null };
   const rows: Row[] = [];
   for (let from = 0; from < 100_000; from += PAGE) {
@@ -26,6 +27,8 @@ export async function loadOpenInvoices(db: Db, opts: { familyId?: string } = {})
       .order("id")
       .range(from, from + PAGE - 1);
     if (opts.familyId) q = q.eq("family_id", opts.familyId);
+    // Required with the service-role client (no RLS): scope to the club explicitly.
+    if (opts.orgId) q = q.eq("org_id", opts.orgId);
     const { data, error } = await q;
     if (error) return { data: null, error: error.message };
     rows.push(...((data ?? []) as Row[]));
