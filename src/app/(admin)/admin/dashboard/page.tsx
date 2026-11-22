@@ -5,6 +5,7 @@ import { Button } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { KpiCards, KpiCardsSkeleton } from "@/components/dashboard/kpi-cards";
 import { QuickActions } from "@/components/dashboard/quick-actions";
+import { DashboardShortcuts } from "@/components/dashboard/shortcuts";
 import { ActivityFeed, ActivityFeedSkeleton } from "@/components/dashboard/activity-feed";
 import { InvoiceSummary, InvoiceSummarySkeleton } from "@/components/dashboard/invoice-summary";
 import { TodaysAttendance, TodaysAttendanceSkeleton } from "@/components/dashboard/todays-attendance";
@@ -35,6 +36,11 @@ export default async function DashboardPage() {
       >
         <Link href="/admin/families"><Button><Plus className="h-4 w-4" /> {t("media.dashboard.addFamily")}</Button></Link>
       </CoverImage>
+
+      {/* Shortcuts: everyday jumps, filtered by role and plan */}
+      <Suspense fallback={null}>
+        <DashboardShortcuts />
+      </Suspense>
 
       {/* Students & money: KPI tiles + charts */}
       <Suspense fallback={<FinanceOverviewSkeleton />}>

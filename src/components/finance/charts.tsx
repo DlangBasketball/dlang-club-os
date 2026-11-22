@@ -127,7 +127,8 @@ export function LineChart({ title, labels, series, values, format }: {
 
 /** Horizontal bars for ranked categories (e.g. registrations by programme). */
 export function HBarChart({ title, rows, format, barClassName = "bg-brand-primary" }: {
-  title: string; rows: { label: string; value: number }[]; format: (n: number) => string; barClassName?: string;
+  /** `href`: the row's label opens the matching filtered list. */
+  title: string; rows: { label: string; value: number; href?: string }[]; format: (n: number) => string; barClassName?: string;
 }) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
@@ -136,7 +137,9 @@ export function HBarChart({ title, rows, format, barClassName = "bg-brand-primar
       <ul className="space-y-2">
         {rows.map((r, i) => (
           <li key={r.label + i} className="grid grid-cols-[minmax(0,10rem)_1fr_auto] items-center gap-3 text-sm">
-            <span className="truncate text-ink-2" title={r.label}>{r.label}</span>
+            {r.href
+              ? <a href={r.href} className="truncate text-ink-2 hover:text-ink hover:underline" title={r.label}>{r.label}</a>
+              : <span className="truncate text-ink-2" title={r.label}>{r.label}</span>}
             <span className="h-2 overflow-hidden rounded-full bg-surface-elevated" aria-hidden>
               <span className={cn("block h-full rounded-full", barClassName)} style={{ width: `${(Math.max(0, r.value) / max) * 100}%` }} />
             </span>

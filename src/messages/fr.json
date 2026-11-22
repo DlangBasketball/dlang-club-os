@@ -203,7 +203,33 @@
     "selection": "Programmes de sélection",
     "selectionReview": "Candidatures",
     "programmes": "Programmes",
-    "alumni": "Anciens & placements"
+    "alumni": "Anciens & placements",
+    "parentsPayers": "Parents et payeurs",
+    "teamsRosters": "Équipes et effectifs",
+    "clubMemberships": "Adhésions au club",
+    "selectionRosters": "Effectifs de sélection",
+    "selectionTournaments": "Tournois",
+    "paymentsAllocations": "Paiements et affectations",
+    "clubMembershipPayments": "Paiements des adhésions",
+    "selectionPayments": "Paiements de sélection",
+    "selectionPaymentsFor": "Paiements {name}",
+    "creditsRefunds": "Crédits et remboursements",
+    "accountingExports": "Comptabilité et exports",
+    "financeOverview": "Vue d'ensemble financière",
+    "seasons": "Saisons",
+    "feesPaymentPlans": "Tarifs et plans de paiement",
+    "billingEntities": "Entités de facturation",
+    "staffPermissions": "Équipe et autorisations",
+    "clubSettings": "Paramètres du club",
+    "groups": {
+      "players": "Joueurs et familles",
+      "operations": "Gestion du club",
+      "selection": "Programmes de sélection",
+      "calendar": "Calendrier et réservations",
+      "finance": "Finances",
+      "settings": "Paramètres",
+      "more": "Plus"
+    }
   },
   "shell": {
     "openMenu": "Ouvrir le menu",
@@ -335,6 +361,16 @@
         "openAttendance": "Ouvrir les présences",
         "trainingService": "Réservations d'entraînement",
         "exportData": "Exporter les données"
+      },
+      "shortcuts": {
+        "title": "Raccourcis",
+        "label": "Raccourcis du tableau de bord",
+        "findPlayer": "Rechercher : {label}",
+        "addMembership": "Ajouter une adhésion",
+        "addToRoster": "Ajouter à un effectif de sélection",
+        "addToRosterFor": "Ajouter à l'effectif {name}",
+        "recordPayment": "Enregistrer un paiement",
+        "monthlyReport": "Voir le rapport mensuel"
       }
     }
   },

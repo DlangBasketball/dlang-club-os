@@ -12,22 +12,11 @@ import { Avatar } from "@/components/ui/avatar";
 import { NotificationBell } from "./notification-bell";
 import type { NavNotification } from "@/lib/data/notifications";
 import { useT } from "@/lib/i18n/client";
-import { useTenant } from "@/lib/tenant/context";
-import { NAV_TERM, termOr } from "@/lib/tenant/terms";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { CommandPalette } from "@/components/search/command-palette";
 import { OrgSwitcher, type SwitcherOrg } from "@/components/family/org-switcher";
-
-/** Nav label in the tenant's vocabulary ("Students" for a school that renamed athletes). */
-function useNavLabel() {
-  const t = useT();
-  const { terminology } = useTenant();
-  return (labelKey: NavItem["labelKey"]) => {
-    const translated = t(`nav.${labelKey}`);
-    const m = NAV_TERM[labelKey];
-    return m ? termOr(terminology, m.key, translated, { plural: m.plural }) : translated;
-  };
-}
+import { AdminSidebarNav, useNavLabel } from "./admin-sidebar-nav";
+import type { AdminNavModel } from "./admin-nav";
 
 type NotifProp = { data: { items: NavNotification[]; unread: number }; viewAllHref?: string } | undefined;
 
@@ -47,6 +36,7 @@ export function AppShell({
   lockedHrefs,
   profilePhotoUrl,
   orgs,
+  adminNav,
   children,
 }: {
   navKey: NavKey;
@@ -63,6 +53,8 @@ export function AppShell({
    * photo in the coach app). undefined = no header avatar; null = initials.
    */
   profilePhotoUrl?: string | null;
+  /** Grouped admin menu built on the server (admin app); without it the flat list renders. */
+  adminNav?: AdminNavModel;
   children: React.ReactNode;
 }) {
   const variant = navKey === "admin" ? "sidebar" : "bottom";
@@ -76,7 +68,7 @@ export function AppShell({
       <LockedNavContext.Provider value={lockedHrefs ?? NO_HIDDEN}>
       <OrgsContext.Provider value={orgs ?? NO_ORGS}>
       {variant === "sidebar" ? (
-        <SidebarShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl}>
+        <SidebarShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl} adminNav={adminNav}>
           {children}
         </SidebarShell>
       ) : (
@@ -186,6 +178,22 @@ function NavLinks({
   );
 }
 
+/** Grouped admin menu when the server built one, else the flat list. */
+function SidebarLinks({
+  navKey,
+  adminNav,
+  userId,
+  onNavigate,
+}: {
+  navKey: NavKey;
+  adminNav?: AdminNavModel;
+  userId: string;
+  onNavigate?: () => void;
+}) {
+  if (!adminNav) return <NavLinks navKey={navKey} onNavigate={onNavigate} />;
+  return <AdminSidebarNav model={adminNav} userId={userId} onNavigate={onNavigate} />;
+}
+
 function SignOutButton({ className }: { className?: string }) {
   const t = useT();
   return (
@@ -226,12 +234,14 @@ function SidebarShell({
   user,
   notifications,
   profilePhotoUrl,
+  adminNav,
   children,
 }: {
   navKey: NavKey;
   user: SessionUser;
   notifications?: NotifProp;
   profilePhotoUrl?: string | null;
+  adminNav?: AdminNavModel;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -247,7 +257,7 @@ function SidebarShell({
           <BrandMark />
         </div>
         <nav aria-label={t("shell.mainNavigation")} className="flex-1 overflow-y-auto px-2 py-3">
-          <NavLinks navKey={navKey} />
+          <SidebarLinks navKey={navKey} adminNav={adminNav} userId={user.id} />
         </nav>
         <UserMenu user={user} photoUrl={profilePhotoUrl} />
       </aside>
@@ -264,7 +274,7 @@ function SidebarShell({
               </button>
             </div>
             <nav aria-label={t("shell.mainNavigation")} className="flex-1 overflow-y-auto px-2 py-3">
-              <NavLinks navKey={navKey} onNavigate={close} />
+              <SidebarLinks navKey={navKey} adminNav={adminNav} userId={user.id} onNavigate={close} />
             </nav>
             <UserMenu user={user} photoUrl={profilePhotoUrl} />
           </aside>
