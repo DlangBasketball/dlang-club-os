@@ -11,6 +11,7 @@ import type { PlacementRow } from "@/lib/family/db";
 import { PLACEMENT_KINDS, PLACEMENT_STATUSES, SCOUT_FIELDS, type ScoutField } from "@/lib/family/validation";
 import { evaluationTrend } from "@/lib/family/journey";
 import { StatusLine, useFamilyAction } from "./use-family-action";
+import { AddToAlumniButton } from "@/components/alumni/tools";
 
 /** Tiny trend line (currentColor, themed by the parent's text colour). */
 function Sparkline({ points, label }: { points: { date: string; score: number }[]; label: string }) {
@@ -254,7 +255,10 @@ function Placements({ detail }: { detail: JourneyDetail }) {
                     </p>
                   )}
                   {detail.canWrite && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {p.status === "placed" && detail.alumni && (
+                        <AddToAlumniButton placementTargetId={p.id} linked={detail.alumni.links[p.id] ?? null} app={detail.alumni.app} />
+                      )}
                       <Button size="sm" variant="ghost" onClick={() => setEditing(p.id)}>{t("common.edit")}</Button>
                       <Button size="sm" variant="ghost" disabled={busy} onClick={() => run(() => deletePlacement({ id: p.id, athleteId: detail.athlete.id }))}>{t("common.delete")}</Button>
                     </div>

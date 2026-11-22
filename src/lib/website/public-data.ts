@@ -11,6 +11,7 @@ import type { Formatter } from "@/lib/format";
 import type { Translator } from "@/lib/i18n/translator";
 import { LOCALES } from "@/lib/i18n/config";
 import { logError } from "@/lib/log";
+import { hasFeature } from "@/lib/upgrades/server";
 import { escapeHtml, htmlToText, sanitizeHtml } from "./sanitize";
 import { sanitizeRosterRows, type PublicRosterEntry } from "./roster";
 import { embedThemeVars } from "./theme";
@@ -521,4 +522,39 @@ export async function getPublicNewsItem(orgId: string, id: string) {
   const r = a as { id: string; title: string; body: string | null; starts_at: string; expires_at: string | null };
   if (r.expires_at && r.expires_at <= now) return null;
   return { id: r.id, title: r.title, html: textHtml(r.body) ?? "", publishedAt: r.starts_at, linkUrl: null };
+}
+
+// ---------------------------------------------------------------------------
+// placements (alumni showcase)
+// ---------------------------------------------------------------------------
+type ShowcaseRow = {
+  id: string; display_name: string; institution: string; institution_type: string; level: string | null; league: string | null;
+  country: string | null; sport: string | null; start_year: number | null; end_year: number | null; status: string;
+};
+
+/**
+ * "Our placements": former players with PUBLIC-SHOWCASE CONSENT only (adults,
+ * or minors with recorded guardian consent), first name + last initial or the
+ * full name as consented, institution, type / level and year. No photos,
+ * contact details or birth data. alumni_public_showcase() in SQL applies the
+ * consent rules and the club's "placements" section switch; the module must
+ * be on (alumni_network).
+ */
+export async function buildPlacements(c: Ctx, q: { limit?: number | null; type?: string | null } = {}) {
+  const orgId = orgOf(c);
+  if (!(await hasFeature(orgId, "alumni_network"))) return [];
+  const { data, error } = await db(c).rpc("alumni_public_showcase", { p_org: orgId, p_limit: Math.min(Math.max(q.limit ?? 24, 1), 100) });
+  if (error) {
+    logError("website.placements", error);
+    return [];
+  }
+  return ((data ?? []) as ShowcaseRow[])
+    .filter((r) => !q.type || r.institution_type === q.type)
+    .map((r) => ({
+      id: r.id, name: r.display_name, institution: r.institution, type: r.institution_type,
+      type_label: c.t.dynamic(`alumni.types.${r.institution_type}`, undefined, r.institution_type),
+      level: r.level, league: r.league, country: r.country, sport: r.sport,
+      year: r.start_year ?? r.end_year ?? null, class_of: r.end_year,
+      status: r.status, status_label: c.t.dynamic(`alumni.placementStatuses.${r.status}`, undefined, r.status),
+    }));
 }

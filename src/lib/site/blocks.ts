@@ -22,7 +22,7 @@ export const BLOCK_TYPES = [
 export type BlockType = (typeof BLOCK_TYPES)[number];
 
 export const LIVE_SOURCES = [
-  "camps", "programs", "schedule", "results", "teams", "team", "coaches", "training", "shop", "campaigns", "news", "calendar",
+  "camps", "programs", "schedule", "results", "teams", "team", "coaches", "training", "shop", "campaigns", "news", "calendar", "placements",
 ] as const;
 export type LiveSource = (typeof LIVE_SOURCES)[number];
 

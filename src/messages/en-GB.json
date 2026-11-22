@@ -825,5 +825,10 @@
       "newTeamLink": "New team for this programme",
       "teamNameHint": "Leave empty for the suggested name. Same sport, age group and level as the programme, in its season."
     }
+  },
+  "alumni": {
+    "types": {
+      "national_team": "National team programme"
+    }
   }
 }

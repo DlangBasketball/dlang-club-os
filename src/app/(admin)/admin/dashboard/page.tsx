@@ -16,6 +16,7 @@ import { CoverImage } from "@/components/media/cover-image";
 import { getOrgCover } from "@/lib/media/server";
 import { getTranslations } from "@/lib/i18n/server";
 import { SelectionRevenueCard } from "@/components/selection/revenue-card";
+import { PlacementsDashboardCard } from "@/components/alumni/placements-card";
 
 export default async function DashboardPage() {
   const [user, t] = await Promise.all([getSessionUser(), getTranslations()]);
@@ -43,6 +44,11 @@ export default async function DashboardPage() {
       {/* Revenue straight from selection programmes (e.g. an international team) */}
       <Suspense fallback={null}>
         <SelectionRevenueCard />
+      </Suspense>
+
+      {/* Where former players went (alumni & placements) */}
+      <Suspense fallback={null}>
+        <PlacementsDashboardCard />
       </Suspense>
 
       {/* KPIs */}

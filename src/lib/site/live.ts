@@ -5,7 +5,7 @@ import { logError } from "@/lib/log";
 import { getWebsiteSettings, websiteDb } from "@/lib/website/server";
 import type { PublicSection } from "@/lib/website/settings-shape";
 import {
-  buildCampaigns, buildCamps, buildCoaches, buildNews, buildPrograms, buildShop, buildTeams, buildTraining, loadPublicEvents, type Ctx,
+  buildCampaigns, buildCamps, buildCoaches, buildNews, buildPlacements, buildPrograms, buildShop, buildTeams, buildTraining, loadPublicEvents, type Ctx,
 } from "@/lib/website/public-data";
 import type { BlockOf, LiveSource } from "./blocks";
 import { listPublicPosts, siteI18n, siteLiveTag, siteTag, SITE_REVALIDATE_SECONDS, libraryUrl } from "./server";
@@ -26,7 +26,7 @@ import { postPath } from "./paths";
 
 const SECTION: Record<LiveSource, PublicSection | null> = {
   camps: "camps", programs: "programs", schedule: "events", results: "results", teams: "teams", team: "teams", coaches: "coaches",
-  training: "training", shop: "shop", campaigns: "campaigns", news: "news", calendar: "events",
+  training: "training", shop: "shop", campaigns: "campaigns", news: "news", calendar: "events", placements: "placements",
 };
 
 type Awaited2<T> = T extends Promise<infer U> ? U : T;
@@ -40,7 +40,8 @@ export type LiveData =
   | { source: "shop"; items: Awaited2<ReturnType<typeof buildShop>> }
   | { source: "campaigns"; items: Awaited2<ReturnType<typeof buildCampaigns>> }
   | { source: "news"; items: NewsCard[] }
-  | { source: "calendar"; items: { icsUrl: string; webcalUrl: string }[] };
+  | { source: "calendar"; items: { icsUrl: string; webcalUrl: string }[] }
+  | { source: "placements"; items: Awaited2<ReturnType<typeof buildPlacements>> };
 
 export type NewsCard = { id: string; title: string; excerpt: string | null; date: string; dateFormatted: string; url: string; imageUrl: string | null; internal: boolean };
 
@@ -119,6 +120,8 @@ async function compute(
       ];
       return { source: "news", items: cards.sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, limit) };
     }
+    case "placements":
+      return { source: "placements", items: await buildPlacements(ctx, { limit, type: filter }) };
     case "calendar": {
       const ics = `${site.origin.replace(/\/+$/, "")}/api/site/calendar`;
       return { source: "calendar", items: [{ icsUrl: ics, webcalUrl: ics.replace(/^https?:/, "webcal:") }] };

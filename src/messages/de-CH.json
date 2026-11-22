@@ -386,5 +386,13 @@
     "payment_overdue": {
       "line": "Gemäss unseren Unterlagen war die Rechnung {invoice} über {amount} am {date} fällig und ist noch offen."
     }
+  },
+  "alumni": {
+    "form": {
+      "birthDateHint": "Leer lassen, ausser es wurde angegeben."
+    },
+    "import": {
+      "tooLarge": "Die Datei ist grösser als 1 MB."
+    }
   }
 }

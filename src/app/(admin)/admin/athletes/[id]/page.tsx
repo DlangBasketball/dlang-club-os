@@ -28,6 +28,8 @@ import { getAthleteCover } from "@/lib/media/server";
 import { getPlayerBilling, getPlayerStats, getPlayerTeams, getTeamPickerOptions } from "@/lib/data/player-profile";
 import { MemberCardPanel } from "@/components/member-card/member-card-panel";
 import { shopDb } from "@/lib/shop/db";
+import { MoveToAlumniButton } from "@/components/alumni/tools";
+import { hasFeature } from "@/lib/upgrades/server";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -60,7 +62,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
   const optionLabel = (group: "gender" | "hand", v: string | null) =>
     v ? t.dynamic(`editPeople.${group}.${v.trim().toLowerCase()}`, undefined, v) : null;
 
-  const [photos, cover, family, attendanceRes, teams, teamOptions, billing, cardTag] = await Promise.all([
+  const [photos, cover, family, attendanceRes, teams, teamOptions, billing, cardTag, alumniOn] = await Promise.all([
     signAthletePhotos([{ id: a.id, photoPath: a.photoPath }], a.orgId),
     getAthleteCover(a.id),
     getFamily(a.familyId),
@@ -71,6 +73,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
     isAdmin
       ? shopDb().then(async (db) => (await db.from("member_cards").select("nfc_tag_id").eq("athlete_id", id).maybeSingle()).data?.nfc_tag_id ?? null)
       : Promise.resolve(null),
+    isAdmin ? hasFeature(a.orgId, "alumni_network") : Promise.resolve(false),
   ]);
   const attendanceHistory = attendanceRes.data ?? [];
   const stats = await getPlayerStats(a.id, attendanceHistory, { includeCredits: isAdmin, includeDevelopment: isAdmin });
@@ -176,6 +179,7 @@ export default async function AthleteDetailPage({ params }: { params: Promise<{ 
               <Button variant="secondary" size="sm"><Dumbbell className="h-4 w-4" aria-hidden /> {t("training.profile.link")}</Button>
             </Link>
           )}
+          {isAdmin && alumniOn && !isHiddenAthleteStatus(a.status) && <MoveToAlumniButton athleteId={id} />}
         </div>
       </CardBody>
     </Card>

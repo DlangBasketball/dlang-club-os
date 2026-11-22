@@ -7,7 +7,7 @@ import { MAX_ORIGINS, isValidOrigin } from "./origins";
  * API and the embeds. Pure.
  */
 
-export const PUBLIC_SECTIONS = ["programs", "camps", "events", "results", "teams", "coaches", "training", "shop", "campaigns", "news", "contact"] as const;
+export const PUBLIC_SECTIONS = ["programs", "camps", "events", "results", "teams", "coaches", "training", "shop", "campaigns", "news", "contact", "placements"] as const;
 export type PublicSection = (typeof PUBLIC_SECTIONS)[number];
 
 export const EMBED_THEMES = ["club", "light", "dark"] as const;
@@ -19,6 +19,8 @@ export type SocialKey = (typeof SOCIAL_KEYS)[number];
 export const DEFAULT_SECTIONS: Record<PublicSection, boolean> = {
   programs: true, camps: true, events: true, results: true, teams: true, coaches: false,
   training: true, shop: true, campaigns: true, news: true, contact: true,
+  // Alumni placements: opt-in (only alumni with public-showcase consent are ever shown).
+  placements: false,
 };
 
 export type NavLink = { label: string; url: string };
