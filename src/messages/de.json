@@ -64,7 +64,18 @@
     "notFound": "Nicht gefunden",
     "unknown": "Unbekannt",
     "perParticipant": "{price} pro Teilnehmer:in",
-    "ageYears": "{age} Jahre"
+    "ageYears": "{age} Jahre",
+    "routeError": {
+      "title": "Etwas ist schiefgelaufen",
+      "body": "Diese Seite konnte ihre Daten nicht laden. Es wurde nichts geändert: Versuchen Sie es erneut oder laden Sie die Seite gleich neu.",
+      "reference": "Referenz: {ref}",
+      "retry": "Erneut versuchen"
+    },
+    "pager": {
+      "previous": "Zurück",
+      "next": "Weiter",
+      "page": "Seite {page}"
+    }
   },
   "status": {
     "draft": "Entwurf",
@@ -257,7 +268,75 @@
     "quickActions": "Schnellzugriff",
     "noUpcomingSessions": "Keine Trainings geplant.",
     "noRecentPayments": "Noch keine Zahlungen.",
-    "loadError": "Die Übersicht konnte nicht geladen werden"
+    "loadError": "Die Übersicht konnte nicht geladen werden",
+    "widgets": {
+      "kpi": {
+        "activeAthletes": "Aktive {label}",
+        "activeFamilies": "Aktive Familien",
+        "openInvoices": "Offene Rechnungen",
+        "overdue": "Überfällig",
+        "upcomingSessions": "Kommende Einheiten",
+        "sessionsToday": "Einheiten heute",
+        "loadError": "Die Kennzahlen konnten nicht geladen werden"
+      },
+      "invoices": {
+        "title": "Rechnungen",
+        "manage": "Verwalten",
+        "open": "Offen",
+        "overdue": "Überfällig",
+        "count": "{count, plural, one {# Rechnung} other {# Rechnungen}}",
+        "paidAllTime": "Bezahlt (gesamt)",
+        "loadError": "Rechnungen konnten nicht geladen werden"
+      },
+      "upcoming": {
+        "title": "Kommende Einheiten",
+        "viewCalendar": "Kalender",
+        "emptyTitle": "Nichts geplant",
+        "emptyBody": "Keine kommenden Einheiten oder Teamtermine im Kalender.",
+        "untitled": "Einheit",
+        "loadError": "Einheiten konnten nicht geladen werden"
+      },
+      "attendance": {
+        "title": "Anwesenheit heute",
+        "open": "Öffnen",
+        "sessions": "Einheiten",
+        "submitted": "Eingereicht",
+        "pending": "Offen",
+        "none": "Heute keine Anwesenheitslisten.",
+        "loadError": "Anwesenheit konnte nicht geladen werden"
+      },
+      "registrations": {
+        "title": "Neueste Anmeldungen",
+        "viewAll": "Alle anzeigen",
+        "empty": "Noch keine Anmeldungen",
+        "unknownAthlete": "Unbekannte Person",
+        "unknownProgram": "Unbekanntes Angebot",
+        "loadError": "Anmeldungen konnten nicht geladen werden"
+      },
+      "payments": {
+        "title": "Neueste Zahlungen",
+        "viewAll": "Alle anzeigen",
+        "empty": "Noch keine Zahlungen",
+        "loadError": "Zahlungen konnten nicht geladen werden"
+      },
+      "activity": {
+        "title": "Aktivität",
+        "emptyTitle": "Noch keine Aktivität",
+        "emptyBody": "Anmeldungen, Zahlungen und Erinnerungen erscheinen hier.",
+        "loadError": "Aktivität konnte nicht geladen werden"
+      },
+      "quick": {
+        "title": "Schnellzugriff",
+        "addFamily": "Familie hinzufügen",
+        "addAthlete": "{label} hinzufügen",
+        "createProgram": "Angebot erstellen",
+        "createInvoice": "Rechnung erstellen",
+        "sendReminder": "Überfällige Rechnungen",
+        "openAttendance": "Anwesenheit öffnen",
+        "trainingService": "Trainingsbuchungen",
+        "exportData": "Daten exportieren"
+      }
+    }
   },
   "parentHome": {
     "balanceDue": "Offener Betrag",
@@ -859,6 +938,34 @@
       "filterLabel": "Nach Verbandslizenz filtern",
       "filterHas": "Mit Lizenz",
       "filterMissing": "Lizenz fehlt"
+    },
+    "familyDetail": {
+      "loadError": "Familie konnte nicht geladen werden",
+      "addAthlete": "{label} hinzufügen",
+      "balanceDue": "Offener Betrag",
+      "openInvoices": "Offene Rechnungen",
+      "registrations": "Anmeldungen",
+      "add": "Hinzufügen",
+      "noAthletes": "Noch keine {label}",
+      "born": "Geboren am {date}",
+      "invoices": "Rechnungen",
+      "allInvoices": "Alle Rechnungen dieser Familie",
+      "noInvoices": "Keine Rechnungen",
+      "due": "Fällig am {date}",
+      "documents": "Dokumente",
+      "noDocuments": "Keine Dokumente"
+    },
+    "familyList": {
+      "description": "Haushalte mit {athletes} und ihren Erziehungsberechtigten.",
+      "new": "Neu: {label}",
+      "loadError": "Familien konnten nicht geladen werden",
+      "phone": "Telefon",
+      "open": "Offene Rechnungen",
+      "balance": "Saldo",
+      "emptyTitle": "Noch keine Familien",
+      "emptyBody": "Legen Sie eine Familie an, um {athletes} hinzuzufügen.",
+      "noMatch": "Keine Familie passt zu «{q}».",
+      "searchPlaceholder": "Name, Telefon oder E-Mail"
     }
   },
   "personDelete": {
@@ -1560,6 +1667,27 @@
       "TAX_LOCKED": "Steuer und Währung können nach Zahlungseingang nicht mehr geändert werden.",
       "REMINDERS_PAUSED": "Die Mahnungen für diese Rechnung sind pausiert.",
       "INVALID_KIND": "Wählen Sie die Art der Anpassung."
+    },
+    "invoiceList": {
+      "title": "Rechnungen",
+      "description": "Rechnungen des Vereins ausstellen, verfolgen und abgleichen.",
+      "loadError": "Rechnungen konnten nicht geladen werden",
+      "exportCsv": "CSV exportieren",
+      "reconcile": "Abgleichen",
+      "new": "Neue Rechnung",
+      "filterOpen": "Offen",
+      "colInvoice": "Rechnung",
+      "colFamily": "Familie",
+      "colTotal": "Total",
+      "colBalance": "Saldo",
+      "colDue": "Fällig",
+      "colStatus": "Status",
+      "emptyTitle": "Keine Rechnungen",
+      "emptyBody": "Erstellen Sie eine oder lassen Sie sie von Anmeldungen erzeugen.",
+      "noMatch": "Keine Rechnung entspricht diesen Filtern.",
+      "searchPlaceholder": "Rechnungsnummer oder Familie",
+      "familyFilter": "Familie: {name}",
+      "clearFilters": "Filter zurücksetzen"
     }
   },
   "coaches": {

@@ -1,13 +1,26 @@
 import { createClient } from "@/lib/supabase/server";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
+import { loadOpenInvoices } from "@/lib/data/open-invoices";
+import { openByFamily, type CurrencyTotals } from "@/lib/payments/open-invoices";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(data: T): Result<T> => ({ data, error: null });
 const fail = (error: string): Result<never> => ({ data: null, error });
 
-const UNPAID: ("pending" | "draft" | "overdue")[] = ["pending", "draft", "overdue"];
 const uniq = (ids: (string | null | undefined)[]) =>
   Array.from(new Set(ids.filter((x): x is string => Boolean(x))));
+
+/** Pages through a query: PostgREST caps one response at ~1000 rows. */
+async function allRows<R>(page: (from: number, to: number) => PromiseLike<{ data: R[] | null; error: { message: string } | null }>): Promise<{ rows: R[]; error: string | null }> {
+  const rows: R[] = [];
+  for (let from = 0; from < 100_000; from += 1000) {
+    const { data, error } = await page(from, from + 999);
+    if (error) return { rows, error: error.message };
+    rows.push(...(data ?? []));
+    if (!data || data.length < 1000) break;
+  }
+  return { rows, error: null };
+}
 
 export type FamilyListItem = {
   id: string;
@@ -16,41 +29,48 @@ export type FamilyListItem = {
   membership: "member" | "guest";
   athleteCount: number;
   openInvoices: number;
-  balance: number;
+  /** What the family still owes on open invoices, per currency. */
+  balance: CurrencyTotals;
 };
 
-export async function listFamilies(membership?: "member" | "guest" | null): Promise<Result<FamilyListItem[]>> {
+/**
+ * Every visible family of the club (paged past the 1000-row response cap),
+ * optionally narrowed by membership and a name / phone / e-mail search, with
+ * athlete counts and the real balance of their open invoices (sent, partially
+ * paid, overdue; drafts are not owed yet).
+ */
+export async function listFamilies(membership?: "member" | "guest" | null, search?: string | null): Promise<Result<FamilyListItem[]>> {
   const supabase = await createClient();
-  const [families, athletes, invoices] = await Promise.all([
-    membership
-      ? supabase.from("families").select("id,name,phone,membership_status").eq("status", VISIBLE_FAMILY_STATUS).eq("membership_status", membership).order("name")
-      : supabase.from("families").select("id,name,phone,membership_status").eq("status", VISIBLE_FAMILY_STATUS).order("name"),
-    supabase.from("athletes").select("id,family_id").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER),
-    supabase.from("invoices").select("family_id,total_chf,status").in("status", UNPAID),
+  const q = (search ?? "").trim().replace(/[%,()*\\]/g, " ").trim().slice(0, 80);
+  const [families, athletes, open] = await Promise.all([
+    allRows<{ id: string; name: string; phone: string | null; membership_status: "member" | "guest" | null }>((from, to) => {
+      let qb = supabase.from("families").select("id,name,phone,membership_status").eq("status", VISIBLE_FAMILY_STATUS);
+      if (membership) qb = qb.eq("membership_status", membership);
+      if (q) qb = qb.or(`name.ilike.%${q}%,phone.ilike.%${q}%,contact_email.ilike.%${q}%,contact_name.ilike.%${q}%`);
+      return qb.order("name").order("id").range(from, to);
+    }),
+    allRows<{ id: string; family_id: string }>((from, to) =>
+      supabase.from("athletes").select("id,family_id").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("id").range(from, to)),
+    loadOpenInvoices(supabase),
   ]);
-  if (families.error) return fail(families.error.message);
+  if (families.error) return fail(families.error);
+  if (athletes.error) return fail(athletes.error);
+  if (open.error !== null) return fail(open.error);
 
   const countByFamily = new Map<string, number>();
-  for (const a of athletes.data ?? [])
+  for (const a of athletes.rows)
     countByFamily.set(a.family_id, (countByFamily.get(a.family_id) ?? 0) + 1);
-
-  const balByFamily = new Map<string, { count: number; total: number }>();
-  for (const inv of invoices.data ?? []) {
-    const e = balByFamily.get(inv.family_id) ?? { count: 0, total: 0 };
-    e.count++;
-    e.total += Number(inv.total_chf ?? 0);
-    balByFamily.set(inv.family_id, e);
-  }
+  const balByFamily = openByFamily(open.data);
 
   return ok(
-    (families.data ?? []).map((f) => ({
+    families.rows.map((f) => ({
       id: f.id,
       name: f.name,
       phone: f.phone,
       membership: f.membership_status ?? "member",
       athleteCount: countByFamily.get(f.id) ?? 0,
       openInvoices: balByFamily.get(f.id)?.count ?? 0,
-      balance: balByFamily.get(f.id)?.total ?? 0,
+      balance: balByFamily.get(f.id)?.totals ?? {},
     })),
   );
 }
@@ -76,6 +96,7 @@ export type FamilyInvoice = {
   id: string;
   number: string;
   total: number;
+  currency: string;
   status: string;
   dueDate: string | null;
 };
@@ -99,7 +120,9 @@ export type FamilyDetail = {
   guardians: Guardian[];
   athletes: FamilyAthlete[];
   invoices: FamilyInvoice[];
-  balance: number;
+  /** Still owed on open invoices, per currency. */
+  balance: CurrencyTotals;
+  openInvoiceCount: number;
   registrationCount: number;
   documents: FamilyDocument[];
 };
@@ -117,7 +140,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
   const [members, athletes, invoices, famDocs] = await Promise.all([
     supabase.from("family_members").select("profile_id,relation,is_primary").eq("family_id", id),
     supabase.from("athletes").select("id,first_name,last_name,dob,status,sponsorship_kind,sponsorship_percent").eq("family_id", id).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name"),
-    supabase.from("invoices").select("id,number,total_chf,status,due_date,issued_at").eq("family_id", id).order("issued_at", { ascending: false }),
+    supabase.from("invoices").select("id,number,total_chf,currency,status,due_date,issued_at").eq("family_id", id).order("issued_at", { ascending: false }),
     supabase.from("documents").select("id,kind,file_name,created_at,athlete_id").eq("family_id", id),
   ]);
 
@@ -141,9 +164,11 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
   for (const d of [...(famDocs.data ?? []), ...((athleteDocs as { data: { id: string; kind: string; file_name: string | null; created_at: string }[] }).data ?? [])])
     docMap.set(d.id, { id: d.id, kind: d.kind, fileName: d.file_name, createdAt: d.created_at });
 
-  const balance = (invoices.data ?? [])
-    .filter((i) => (UNPAID as readonly string[]).includes(i.status))
-    .reduce((sum, i) => sum + Number(i.total_chf ?? 0), 0);
+  const open = await loadOpenInvoices(supabase, { familyId: id });
+  if (open.error !== null) return fail(open.error);
+  const bucket = openByFamily(open.data).get(id);
+  const balance = bucket?.totals ?? {};
+  const openInvoiceCount = bucket?.count ?? 0;
 
   return ok({
     id: family.id,
@@ -179,10 +204,12 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
       id: i.id,
       number: i.number,
       total: Number(i.total_chf ?? 0),
+      currency: (i.currency ?? "CHF").toUpperCase(),
       status: i.status,
       dueDate: i.due_date,
     })),
     balance,
+    openInvoiceCount,
     registrationCount: (regCount as { count: number | null }).count ?? 0,
     documents: Array.from(docMap.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   });

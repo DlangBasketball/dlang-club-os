@@ -64,7 +64,18 @@
     "notFound": "Introuvable",
     "unknown": "Inconnu",
     "perParticipant": "{price} / participant·e",
-    "ageYears": "{age} ans"
+    "ageYears": "{age} ans",
+    "routeError": {
+      "title": "Une erreur s'est produite",
+      "body": "Cette page n'a pas pu charger ses données. Rien n'a été modifié : réessayez ou rechargez la page dans un instant.",
+      "reference": "Référence : {ref}",
+      "retry": "Réessayer"
+    },
+    "pager": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {page}"
+    }
   },
   "status": {
     "draft": "Brouillon",
@@ -257,7 +268,75 @@
     "quickActions": "Actions rapides",
     "noUpcomingSessions": "Aucun entraînement prévu.",
     "noRecentPayments": "Aucun paiement pour le moment.",
-    "loadError": "Impossible de charger le tableau de bord"
+    "loadError": "Impossible de charger le tableau de bord",
+    "widgets": {
+      "kpi": {
+        "activeAthletes": "{label} actifs",
+        "activeFamilies": "Familles actives",
+        "openInvoices": "Factures ouvertes",
+        "overdue": "En retard",
+        "upcomingSessions": "Séances à venir",
+        "sessionsToday": "Séances aujourd'hui",
+        "loadError": "Impossible de charger les chiffres clés"
+      },
+      "invoices": {
+        "title": "Factures",
+        "manage": "Gérer",
+        "open": "Ouvertes",
+        "overdue": "En retard",
+        "count": "{count, plural, one {# facture} other {# factures}}",
+        "paidAllTime": "Payées (depuis le début)",
+        "loadError": "Impossible de charger les factures"
+      },
+      "upcoming": {
+        "title": "Séances à venir",
+        "viewCalendar": "Calendrier",
+        "emptyTitle": "Rien de prévu",
+        "emptyBody": "Aucune séance ni aucun événement d'équipe à venir dans le calendrier.",
+        "untitled": "Séance",
+        "loadError": "Impossible de charger les séances"
+      },
+      "attendance": {
+        "title": "Présences du jour",
+        "open": "Ouvrir",
+        "sessions": "Séances",
+        "submitted": "Envoyées",
+        "pending": "Ouvertes",
+        "none": "Aucune feuille de présence aujourd'hui.",
+        "loadError": "Impossible de charger les présences"
+      },
+      "registrations": {
+        "title": "Inscriptions récentes",
+        "viewAll": "Tout voir",
+        "empty": "Aucune inscription pour l'instant",
+        "unknownAthlete": "Athlète inconnu",
+        "unknownProgram": "Programme inconnu",
+        "loadError": "Impossible de charger les inscriptions"
+      },
+      "payments": {
+        "title": "Paiements récents",
+        "viewAll": "Tout voir",
+        "empty": "Aucun paiement pour l'instant",
+        "loadError": "Impossible de charger les paiements"
+      },
+      "activity": {
+        "title": "Activité",
+        "emptyTitle": "Aucune activité pour l'instant",
+        "emptyBody": "Les inscriptions, paiements et rappels apparaîtront ici.",
+        "loadError": "Impossible de charger l'activité"
+      },
+      "quick": {
+        "title": "Actions rapides",
+        "addFamily": "Ajouter une famille",
+        "addAthlete": "Ajouter : {label}",
+        "createProgram": "Créer un programme",
+        "createInvoice": "Créer une facture",
+        "sendReminder": "Factures en retard",
+        "openAttendance": "Ouvrir les présences",
+        "trainingService": "Réservations d'entraînement",
+        "exportData": "Exporter les données"
+      }
+    }
   },
   "parentHome": {
     "balanceDue": "Solde à payer",
@@ -859,6 +938,34 @@
       "filterLabel": "Filtrer par licence fédérale",
       "filterHas": "Avec licence",
       "filterMissing": "Licence manquante"
+    },
+    "familyDetail": {
+      "loadError": "Impossible de charger la famille",
+      "addAthlete": "Ajouter : {label}",
+      "balanceDue": "Solde dû",
+      "openInvoices": "Factures ouvertes",
+      "registrations": "Inscriptions",
+      "add": "Ajouter",
+      "noAthletes": "Pas encore de {label}",
+      "born": "Né(e) le {date}",
+      "invoices": "Factures",
+      "allInvoices": "Toutes les factures de cette famille",
+      "noInvoices": "Aucune facture",
+      "due": "Échéance {date}",
+      "documents": "Documents",
+      "noDocuments": "Aucun document"
+    },
+    "familyList": {
+      "description": "Foyers regroupant les {athletes} et leurs représentants légaux.",
+      "new": "Nouveau : {label}",
+      "loadError": "Impossible de charger les familles",
+      "phone": "Téléphone",
+      "open": "Factures ouvertes",
+      "balance": "Solde",
+      "emptyTitle": "Pas encore de familles",
+      "emptyBody": "Créez une famille pour commencer à ajouter des {athletes}.",
+      "noMatch": "Aucune famille ne correspond à « {q} ».",
+      "searchPlaceholder": "Nom, téléphone ou e-mail"
     }
   },
   "personDelete": {
@@ -1560,6 +1667,27 @@
       "TAX_LOCKED": "La TVA et la devise ne peuvent plus changer une fois des paiements reçus.",
       "REMINDERS_PAUSED": "Les rappels sont suspendus pour cette facture.",
       "INVALID_KIND": "Choisissez le type d'ajustement."
+    },
+    "invoiceList": {
+      "title": "Factures",
+      "description": "Émettre, suivre et rapprocher les factures du club.",
+      "loadError": "Impossible de charger les factures",
+      "exportCsv": "Exporter en CSV",
+      "reconcile": "Rapprocher",
+      "new": "Nouvelle facture",
+      "filterOpen": "Ouvertes",
+      "colInvoice": "Facture",
+      "colFamily": "Famille",
+      "colTotal": "Total",
+      "colBalance": "Solde",
+      "colDue": "Échéance",
+      "colStatus": "Statut",
+      "emptyTitle": "Aucune facture",
+      "emptyBody": "Créez-en une ou laissez les inscriptions les générer.",
+      "noMatch": "Aucune facture ne correspond à ces filtres.",
+      "searchPlaceholder": "Numéro de facture ou famille",
+      "familyFilter": "Famille : {name}",
+      "clearFilters": "Effacer les filtres"
     }
   },
   "coaches": {

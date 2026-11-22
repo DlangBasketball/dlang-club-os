@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Users, Plus, Pencil } from "lucide-react";
-import { PageHeader, Button, Badge, DataTable, EmptyState, ErrorState, type Column } from "@/components/ui";
+import { PageHeader, Button, Badge, DataTable, EmptyState, ErrorState, Input, type Column } from "@/components/ui";
+import { totalsList } from "@/lib/payments/open-invoices";
 import { listFamilies, type FamilyListItem } from "@/lib/data/families";
 import { getI18n } from "@/lib/i18n/server";
 import { getTenant } from "@/lib/tenant/server";
@@ -8,17 +9,18 @@ import { term, termOr } from "@/lib/tenant/terms";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { BulkCheckbox, BulkDeleteBar, BulkSelect, DeletePersonButton } from "@/components/people/delete-person";
 
-export default async function FamiliesPage({ searchParams }: { searchParams: Promise<{ membership?: string }> }) {
-  const { membership: m } = await searchParams;
+export default async function FamiliesPage({ searchParams }: { searchParams: Promise<{ membership?: string; q?: string }> }) {
+  const { membership: m, q: rawQ } = await searchParams;
+  const q = (rawQ ?? "").trim().slice(0, 80);
   const membership = m === "guest" || m === "member" ? m : null;
   const [{ t, f }, tenant, me] = await Promise.all([getI18n(), getTenant(), getSessionUser()]);
   const isAdmin = !!me?.roles.includes("admin");
   const title = termOr(tenant.terminology, "family", t("nav.families"), { plural: true });
-  const { data, error } = await listFamilies(membership);
+  const { data, error } = await listFamilies(membership, q);
   if (error) return (
     <div className="animate-fade-up">
       <PageHeader title={title} />
-      <ErrorState title="Couldn't load families" message={error} />
+      <ErrorState title={t("editPeople.familyList.loadError")} message={error} />
     </div>
   );
   const rows = data!;
@@ -31,9 +33,9 @@ export default async function FamiliesPage({ searchParams }: { searchParams: Pro
       </span>
     ) },
     { key: "athleteCount", header: term(tenant.terminology, "athlete", { plural: true }) },
-    { key: "phone", header: "Phone", render: (r) => r.phone ?? "—" },
-    { key: "openInvoices", header: "Open" },
-    { key: "balance", header: "Balance", align: "right", render: (r) => <span className="tnum">{f.money(r.balance)}</span> },
+    { key: "phone", header: t("editPeople.familyList.phone"), render: (r) => r.phone ?? "—" },
+    { key: "openInvoices", header: t("editPeople.familyList.open"), render: (r) => <span className="tnum">{f.number(r.openInvoices)}</span> },
+    { key: "balance", header: t("editPeople.familyList.balance"), align: "right", render: (r) => <span className="tnum">{totalsList(r.balance, f.currency).map((m) => f.money(m.amount, m.currency)).join(" + ")}</span> },
     {
       key: "actions",
       header: t("common.actions"),
@@ -52,24 +54,29 @@ export default async function FamiliesPage({ searchParams }: { searchParams: Pro
     <div className="animate-fade-up">
       <PageHeader
         title={title}
-        description="Households grouping athletes and their guardians."
-        actions={<Link href="/admin/families/new"><Button><Plus className="h-4 w-4" /> New {term(tenant.terminology, "family", { case: "lower" })}</Button></Link>}
+        description={t("editPeople.familyList.description", { athletes: term(tenant.terminology, "athlete", { plural: true, case: "lower" }) })}
+        actions={<Link href="/admin/families/new"><Button><Plus className="h-4 w-4" /> {t("editPeople.familyList.new", { label: term(tenant.terminology, "family", { case: "lower" }) })}</Button></Link>}
       />
       <nav aria-label={t("camps.membership.filter")} className="mb-4 flex flex-wrap gap-2">
         {([null, "member", "guest"] as const).map((k) => (
-          <Link key={k ?? "all"} href={k ? `/admin/families?membership=${k}` : "/admin/families"} aria-current={membership === k ? "page" : undefined}
+          <Link key={k ?? "all"} href={`/admin/families?${new URLSearchParams({ ...(k ? { membership: k } : {}), ...(q ? { q } : {}) }).toString()}`} aria-current={membership === k ? "page" : undefined}
             className={`rounded-full border px-3 py-1 text-xs ${membership === k ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-3 hover:border-maroon/40"}`}>
             {k ? t(`camps.membership.${k}s`) : t("common.all")}
           </Link>
         ))}
       </nav>
+      <form method="get" className="mb-4 flex flex-wrap items-center gap-2" role="search">
+        {membership && <input type="hidden" name="membership" value={membership} />}
+        <Input name="q" defaultValue={q} placeholder={t("editPeople.familyList.searchPlaceholder")} aria-label={t("common.search")} className="w-64" />
+        <Button type="submit" size="sm" variant="secondary">{t("common.search")}</Button>
+      </form>
       <BulkSelect kind="family">
         {isAdmin && <BulkDeleteBar allIds={rows.map((r) => r.id)} />}
         <DataTable
           columns={columns}
           rows={rows}
           getRowKey={(r) => r.id}
-          empty={<EmptyState icon={<Users className="h-5 w-5" />} title="No families yet" description="Create a family to start adding athletes." action={<Link href="/admin/families/new"><Button size="sm">New family</Button></Link>} />}
+          empty={q ? <EmptyState icon={<Users className="h-5 w-5" />} title={t("editPeople.familyList.noMatch", { q })} /> : <EmptyState icon={<Users className="h-5 w-5" />} title={t("editPeople.familyList.emptyTitle")} description={t("editPeople.familyList.emptyBody", { athletes: term(tenant.terminology, "athlete", { plural: true, case: "lower" }) })} action={<Link href="/admin/families/new"><Button size="sm">{t("editPeople.familyList.new", { label: term(tenant.terminology, "family", { case: "lower" }) })}</Button></Link>} />}
         />
       </BulkSelect>
       {isAdmin && (

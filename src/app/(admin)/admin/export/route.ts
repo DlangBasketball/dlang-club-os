@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
+import { loadOpenInvoices } from "@/lib/data/open-invoices";
 
 /** Minimal RFC-4180-ish CSV escaping. */
 function toCsv(headers: string[], rows: (string | number | null)[][]): string {
@@ -38,17 +39,24 @@ export async function GET(request: Request) {
     filename = "athletes.csv";
     csv = toCsv(["First name", "Last name", "DOB", "Status"], (data ?? []).map((a) => [a.first_name, a.last_name, a.dob, a.status]));
   } else {
-    // default: outstanding invoices
-    const { data, error } = await supabase
-      .from("invoices")
-      .select("number,total_chf,status,due_date,issued_at")
-      .in("status", ["pending", "draft", "overdue"])
-      .order("due_date", { ascending: true });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    // default: outstanding invoices = open (sent, partially paid, overdue,
+    // legacy pending) with what is still owed; drafts are not owed yet.
+    const open = await loadOpenInvoices(supabase);
+    if (open.error !== null) return NextResponse.json({ error: open.error }, { status: 500 });
+    const byId = new Map(open.data.map((o) => [o.id, o]));
+    const meta = new Map<string, { number: string; issued_at: string | null }>();
+    const ids = open.data.map((o) => o.id);
+    for (let i = 0; i < ids.length; i += 200) {
+      const { data, error } = await supabase.from("invoices").select("id,number,issued_at").in("id", ids.slice(i, i + 200));
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      for (const r of data ?? []) meta.set(r.id, { number: r.number, issued_at: r.issued_at });
+    }
     filename = "outstanding-invoices.csv";
     csv = toCsv(
-      ["Invoice", "Amount CHF", "Status", "Due", "Issued"],
-      (data ?? []).map((i) => [i.number, i.total_chf, i.status, i.due_date, i.issued_at]),
+      ["Invoice", "Currency", "Amount due", "Paid", "Balance", "Status", "Due", "Issued"],
+      Array.from(byId.values())
+        .sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"))
+        .map((o) => [meta.get(o.id)?.number ?? o.id, o.currency, o.amountDue, o.paid, o.balance, o.status, o.dueDate, meta.get(o.id)?.issued_at ?? null]),
     );
   }
 

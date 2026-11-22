@@ -166,6 +166,10 @@ export function placeholderDiff(source, target) {
  */
 export const SAME_AS_EN_OK = new Set([
   "meta.direction",
+  "editMoney.invoiceList.colTotal",
+  "de:editMoney.invoiceList.colStatus",
+  "fr:common.pager.page",
+  "fr:editPeople.familyDetail.documents",
   "shell.clubOs",
   "registration.review.lineItem",
   "payments.methods.twint",
