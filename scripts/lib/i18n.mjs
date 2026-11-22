@@ -354,6 +354,21 @@ export const SAME_AS_EN_OK = new Set([
   "fr:sponsorship.scopes.camp",
   "de:sponsorship.scopes.camp",
   "de:sponsorship.scopes.shop",
+  // Alumni & placements: US / Canadian programme names and words spelled the same.
+  "alumni.counts.line",
+  "alumni.types.junior_college",
+  "fr:alumni.types.u_sports",
+  "it:alumni.types.u_sports",
+  "fr:alumni.types.club_amateur",
+  "fr:alumni.groups.clubs",
+  "fr:alumni.fields.consentOn",
+  "fr:alumni.compose.body",
+  "fr:alumni.contact.kind",
+  "de:alumni.form.identity",
+  "de:alumni.placement.position",
+  "de:alumni.placement.status",
+  "de:alumni.filters.status",
+  "de:alumni.move.name",
 ]);
 
 /** A value counts as translated when it differs from English, is allow-listed, or has no words. */

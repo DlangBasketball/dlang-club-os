@@ -800,5 +800,10 @@
       "MEMBERS_ONLY": "This programme is for club members only.",
       "DIVISION_NOT_FOUND": "Choose a division of this programme."
     }
+  },
+  "alumni": {
+    "types": {
+      "national_team": "National team programme"
+    }
   }
 }

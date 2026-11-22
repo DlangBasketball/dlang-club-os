@@ -191,7 +191,8 @@
     "recentlyDeleted": "Kürzlich gelöscht",
     "selection": "Auswahlprogramme",
     "selectionReview": "Bewerbungen",
-    "programmes": "Programme"
+    "programmes": "Programme",
+    "alumni": "Ehemalige & Platzierungen"
   },
   "shell": {
     "openMenu": "Menü öffnen",
@@ -7600,7 +7601,8 @@
       "shop": "Shop",
       "campaigns": "Spendenaktionen",
       "news": "Neuigkeiten",
-      "contact": "Kontaktangaben"
+      "contact": "Kontaktangaben",
+      "placements": "Platzierungen (Ehemalige mit Einwilligung)"
     },
     "social": {
       "facebook": "Facebook",
@@ -8517,7 +8519,8 @@
         "shop": "Fanshop",
         "campaigns": "Spendenaktionen",
         "news": "News",
-        "calendar": "Kalender-Abonnement"
+        "calendar": "Kalender-Abonnement",
+        "placements": "Platzierungen der Ehemaligen"
       },
       "tone": {
         "brand": "Markenfarbe",
@@ -8559,7 +8562,8 @@
       "shop": "Shop-Artikel. Filter: Kategorie.",
       "campaigns": "Aktive öffentliche Spendenaktionen.",
       "news": "Website-News und Vereinsnews. Filter: Stichwort.",
-      "calendar": "Schaltflächen zum Abonnieren des Vereinskalenders."
+      "calendar": "Schaltflächen zum Abonnieren des Vereinskalenders.",
+      "placements": "Ehemalige, die einer Anzeige zugestimmt haben, mit Schule, College oder Verein."
     },
     "live": {
       "titles": {
@@ -8574,7 +8578,8 @@
         "shop": "Fanshop",
         "campaigns": "Unterstützen Sie uns",
         "news": "News",
-        "calendar": "Vereinskalender"
+        "calendar": "Vereinskalender",
+        "placements": "Unsere Platzierungen"
       },
       "empty": "Zurzeit nichts anzuzeigen. Schauen Sie bald wieder vorbei.",
       "sectionOff": "Dieser Bereich ist verborgen: Machen Sie ihn in den Einstellungen der Website-Verbindung öffentlich.",
@@ -9234,6 +9239,11 @@
         "name": "Auswahlprogramme",
         "description": "Teams, für die sich Spieler bewerben: Altersklassen, Pakete mit eigenen Ratenplänen, Freigabe durch den Trainer, externe Bewerber und gesponserte Spieler.",
         "pitch": "Führen Sie Auswahl- und internationale Teams mit klarem Umsatz pro Programm."
+      },
+      "alumni_network": {
+        "name": "Ehemalige & Platzierungen",
+        "description": "Ehemalige an Schulen, Akademien, Colleges und Profiteams: Platzierungsverlauf, Kontaktprotokoll, Nachfassen, E-Mails vom Verein und eine öffentliche Anzeige mit Einwilligung.",
+        "pitch": "Bleiben Sie mit allen vermittelten Spielern in Kontakt und zeigen Sie Ihre Erfolge."
       }
     }
   },
@@ -9758,6 +9768,358 @@
       "INVALID_CHILD": "Prüfen Sie Name und Geburtsdatum des Spielers.",
       "VPC_REQUIRED": "Kinder unter 13 Jahren können sich bei diesem Verein nicht online bewerben. Bitte kontaktieren Sie den Verein.",
       "CROSS_TENANT_REFERENCE": "Dieser Eintrag gehört zu einem anderen Verein."
+    }
+  },
+  "alumni": {
+    "title": "Ehemalige & Platzierungen",
+    "description": "Ehemalige Spielerinnen und Spieler, die Sie an Schulen, Akademien, Colleges, Universitäten, Vereine und Profiteams vermittelt haben: wo sie sind, wie Sie sie erreichen und jeder Kontakt.",
+    "add": "Ehemalige erfassen",
+    "export": "CSV exportieren",
+    "privacyNote": "Kontaktdaten dienen nur der Nachbetreuung durch den Verein. Minderjährige werden über die Erziehungsberechtigten kontaktiert; «Nicht kontaktieren» sperrt jede Kontaktaufnahme; ohne erfasste Einwilligung wird nichts öffentlich gezeigt.",
+    "types": {
+      "high_school": "High School / Gymnasium",
+      "prep_academy": "Prep School / Akademie",
+      "junior_college": "Junior College (NJCAA / JUCO)",
+      "ncaa_d1": "NCAA Division I (D1)",
+      "ncaa_d2": "NCAA Division II (D2)",
+      "ncaa_d3": "NCAA Division III (D3)",
+      "naia": "NAIA (USA)",
+      "u_sports": "U SPORTS (Kanada)",
+      "club_amateur": "Verein (Amateur)",
+      "pro_club": "Profiverein",
+      "national_team": "Nationalmannschafts-Programm",
+      "other": "Andere"
+    },
+    "groups": {
+      "ncaa_d1": "NCAA D1 (USA)",
+      "ncaa_d2": "NCAA D2 (USA)",
+      "ncaa_d3": "NCAA D3 (USA)",
+      "naia": "NAIA (USA)",
+      "junior_college": "Junior Colleges",
+      "u_sports": "U SPORTS (Kanada)",
+      "schools": "Schulen / Akademien",
+      "pro": "Profis",
+      "national_team": "Nationalmannschaften",
+      "clubs": "Vereine",
+      "other": "Andere"
+    },
+    "scholarships": {
+      "full": "Vollstipendium",
+      "partial": "Teilstipendium",
+      "walk_on": "Walk-on (ohne Stipendium im Team)",
+      "none": "Kein Stipendium",
+      "unknown": "Stipendium unbekannt"
+    },
+    "placementStatuses": {
+      "committed": "Zugesagt",
+      "signed": "Unterschrieben",
+      "enrolled": "Eingeschrieben",
+      "transferred": "Gewechselt",
+      "graduated": "Abgeschlossen",
+      "turned_pro": "Profi geworden",
+      "left": "Ausgetreten"
+    },
+    "statuses": {
+      "active": "Aktiver Kontakt",
+      "lost_touch": "Kontakt verloren",
+      "do_not_contact": "Nicht kontaktieren"
+    },
+    "contactKinds": {
+      "email": "E-Mail",
+      "call": "Anruf",
+      "whatsapp": "WhatsApp-Nachricht",
+      "meeting": "Treffen",
+      "note": "Notiz"
+    },
+    "directions": {
+      "outbound": "Wir haben uns gemeldet",
+      "inbound": "Sie haben sich gemeldet",
+      "none": "Intern"
+    },
+    "genders": {
+      "female": "Weiblich",
+      "male": "Männlich",
+      "other": "Divers"
+    },
+    "nameStyles": {
+      "initial": "Vorname + Initiale des Nachnamens (z. B. Alex E.)",
+      "full": "Voller Name"
+    },
+    "fields": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "birthYear": "Jahrgang",
+      "birthDate": "Geburtsdatum (optional)",
+      "gender": "Geschlecht",
+      "nationality": "Nationalität",
+      "photo": "Foto (Medienbibliothek des Vereins)",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "whatsapp": "Unter dieser Nummer per WhatsApp erreichbar",
+      "instagram": "Instagram-Konto",
+      "xHandle": "X-Konto (Twitter)",
+      "linkedinUrl": "LinkedIn-Profil",
+      "highlightUrl": "Highlight-Video",
+      "guardianName": "Erziehungsberechtigte Person",
+      "guardianEmail": "E-Mail der erziehungsberechtigten Person",
+      "guardianPhone": "Telefon der erziehungsberechtigten Person",
+      "contactConsent": "Einverstanden, vom Verein kontaktiert zu werden",
+      "consentOn": "Datum",
+      "consentSource": "Wie sie eingeholt wurde",
+      "showcaseConsent": "Einverstanden, in den öffentlichen Platzierungen des Vereins zu erscheinen",
+      "showcaseGuardianConsent": "Einwilligung der Erziehungsberechtigten für die öffentliche Anzeige erfasst",
+      "nameStyle": "Öffentlich angezeigter Name",
+      "status": "Kontaktstatus",
+      "tags": "Stichworte",
+      "notes": "Notizen"
+    },
+    "form": {
+      "description": "Nur was nötig ist, um in Kontakt zu bleiben. Der Jahrgang genügt; ein vollständiges Geburtsdatum nur, wenn die Person es angegeben hat.",
+      "identity": "Person",
+      "contact": "Kontaktdaten",
+      "guardian": "Kontakt der Erziehungsberechtigten",
+      "consent": "Einwilligungen",
+      "followUp": "Status & Notizen",
+      "birthYearHint": "Damit wir wissen, ob die Person noch minderjährig sein kann.",
+      "birthDateHint": "Leer lassen, außer es wurde angegeben.",
+      "notSaid": "Keine Angabe",
+      "noPhoto": "Kein Foto",
+      "photoHint": "Wählen Sie ein Bild aus der Medienbibliothek des Vereins.",
+      "phoneHint": "Internationales Format (+41 …) aktiviert den WhatsApp-Link.",
+      "guardianRequired": "Kann noch minderjährig sein: Name der erziehungsberechtigten Person und E-Mail oder Telefon sind Pflicht; jeder Kontakt läuft über sie.",
+      "guardianOptional": "Für Erwachsene optional.",
+      "contactConsentHint": "Nötig, bevor der Verein E-Mails von seiner eigenen Adresse sendet. Erfassen Sie, wann und wie sie gegeben wurde.",
+      "consentSourcePlaceholder": "z. B. persönlich, per E-Mail, unterschriebenes Formular",
+      "showcaseHint": "Pflicht, bevor die Person unter «Unsere Platzierungen» auf der Vereinswebsite erscheint. Minderjährige brauchen zusätzlich die Einwilligung der Erziehungsberechtigten.",
+      "tagsHint": "Durch Kommas getrennt, z. B. jahrgang-2024, stipendium",
+      "firstPlacement": "Aktuelle Platzierung (optional)",
+      "firstPlacementHint": "Weitere Platzierungen können Sie später im Profil hinzufügen."
+    },
+    "placement": {
+      "add": "Platzierung hinzufügen",
+      "none": "Noch keine Platzierung",
+      "institution": "Schule, Akademie, College oder Verein",
+      "type": "Art der Institution",
+      "country": "Land",
+      "region": "Ort / Bundesstaat",
+      "league": "Liga / Conference",
+      "level": "Stufe",
+      "sport": "Sportart",
+      "position": "Position",
+      "startDate": "Beginn",
+      "endYear": "Abschlussjahr / geplantes Ende",
+      "scholarship": "Stipendium",
+      "status": "Status",
+      "isCurrent": "Aktuelle Platzierung",
+      "current": "Aktuell",
+      "rosterUrl": "Offizielle Kaderseite",
+      "sourceNote": "Quelle der Information",
+      "sourceValue": "Quelle: {note}",
+      "roster": "Kaderseite",
+      "since": "seit {date}",
+      "classOf": "Jahrgang {year}",
+      "confirmDelete": "Platzierung bei {name} löschen?"
+    },
+    "profile": {
+      "placements": "Platzierungsverlauf",
+      "contact": "Kontaktieren",
+      "contactLog": "Kontaktprotokoll",
+      "details": "Angaben",
+      "viaGuardian": "Kann noch minderjährig sein: Kontakt über die erziehungsberechtigte Person ({name}).",
+      "guardianUnknown": "erziehungsberechtigte Person nicht erfasst",
+      "minor": "Minderjährig",
+      "consentYes": "Ja, {date} ({source})",
+      "consentNo": "Nein",
+      "showcaseOn": "Ja, seit {date}: wird auf der Website gezeigt, wenn der Bereich aktiv ist",
+      "showcaseBlocked": "Ja, seit {date}: noch nicht gezeigt (minderjährig ohne Einwilligung der Erziehungsberechtigten, Alter unbekannt oder «Nicht kontaktieren»)",
+      "linkedPlayer": "Ehemaliger Spieler in der App:",
+      "linkedArchived": "Ehemaliger Spieler in der App (archiviert)."
+    },
+    "actions": {
+      "mailto": "E-Mail schreiben",
+      "call": "Anrufen",
+      "whatsapp": "Per WhatsApp schreiben",
+      "sendFromClub": "E-Mail vom Verein senden",
+      "logCall": "Anruf erfassen"
+    },
+    "blocked": {
+      "do_not_contact": "Markiert als «Nicht kontaktieren»: keine E-Mails, Anrufe oder Nachrichten.",
+      "no_consent": "Keine Kontakteinwilligung erfasst: Der Verein kann noch keine E-Mails von seiner Adresse senden.",
+      "no_email": "Keine E-Mail-Adresse erfasst.",
+      "no_phone": "Keine Telefonnummer erfasst."
+    },
+    "compose": {
+      "to": "An: {email}",
+      "subject": "Betreff",
+      "body": "Nachricht",
+      "send": "Senden",
+      "hint": "Wird von der Vereinsadresse mit Ihrem Namen gesendet; Antworten gehen an Ihre E-Mail. Wird im Kontaktprotokoll erfasst."
+    },
+    "contact": {
+      "add": "Kontakt erfassen",
+      "none": "Noch kein Kontakt erfasst",
+      "kind": "Art",
+      "direction": "Richtung",
+      "happenedAt": "Wann",
+      "summary": "Zusammenfassung",
+      "followUpOn": "Nachfassen am",
+      "followUpHint": "Sie erhalten an diesem Tag eine Erinnerung.",
+      "followUpValue": "Nachfassen am {date}",
+      "followUpDoneOn": "Nachfassen vom {date} erledigt",
+      "markDone": "Als erledigt markieren",
+      "reopen": "Wieder öffnen",
+      "confirmDelete": "Diesen Eintrag im Kontaktprotokoll löschen?"
+    },
+    "delete": {
+      "button": "Löschen",
+      "title": "{name} endgültig löschen?",
+      "body": "Die Person, alle Platzierungen und das Kontaktprotokoll werden endgültig gelöscht. Das Audit-Protokoll hält nur fest, dass ein Eintrag gelöscht wurde, ohne Personendaten.",
+      "typeName": "Zur Bestätigung «{name}» eingeben",
+      "confirm": "Endgültig löschen"
+    },
+    "dsar": {
+      "export": "Daten exportieren",
+      "note": "Auskunftsbegehren: «Daten exportieren» lädt alles herunter, was über diese Person gespeichert ist; «Löschen» entfernt es endgültig."
+    },
+    "counts": {
+      "total": "Ehemalige",
+      "followUpsDue": "Fällige Nachfassungen",
+      "line": "{count} {group}"
+    },
+    "filters": {
+      "label": "Ehemalige filtern",
+      "search": "Name, E-Mail, Schule, Stichwort suchen",
+      "type": "Art",
+      "allTypes": "Alle Arten",
+      "country": "Land",
+      "allCountries": "Alle Länder",
+      "gradYear": "Abschlussjahr",
+      "allYears": "Alle Jahre",
+      "status": "Status",
+      "allStatuses": "Alle Status",
+      "followUpDue": "Nachfassen fällig",
+      "apply": "Filtern",
+      "clear": "Zurücksetzen",
+      "noMatch": "Keine Ehemaligen passen zu diesen Filtern."
+    },
+    "list": {
+      "count": "{count, plural, one {# Person} other {# Personen}}",
+      "lastContact": "letzter Kontakt {when}"
+    },
+    "empty": {
+      "title": "Noch keine Ehemaligen",
+      "body": "Erfassen Sie die vermittelten Spielerinnen und Spieler, importieren Sie eine CSV-Datei oder nutzen Sie «Zu den Ehemaligen» im Spielerprofil."
+    },
+    "access": {
+      "title": "Zugriff für Trainer",
+      "toggle": "Darf Ehemalige öffnen",
+      "body": "Admins haben immer Zugriff. Wählen Sie, welche Trainer Ehemalige sehen und kontaktieren dürfen. Finanzen und Familien haben nie Zugriff.",
+      "none": "Noch kein Trainer mit Login."
+    },
+    "import": {
+      "button": "CSV importieren",
+      "title": "Ehemalige & Platzierungen importieren",
+      "body": "Eine Zeile pro Person und Platzierung. Mehrere Zeilen für dieselbe Person (gleiche E-Mail oder gleicher Name und Jahrgang) ergeben mehrere Platzierungen.",
+      "template": "CSV-Vorlage herunterladen",
+      "file": "CSV-Datei",
+      "dateOrder": "Daten in der Datei",
+      "dmy": "Tag / Monat / Jahr (31.12.2024)",
+      "mdy": "Monat / Tag / Jahr (12/31/2024)",
+      "check": "Datei prüfen",
+      "run": "Importieren",
+      "checked": "Datei geprüft. Ergebnis kontrollieren, dann importieren.",
+      "done": "{created} Personen und {placements} Platzierungen importiert.",
+      "previewLine": "{people} Personen in der Datei: {created} neu, {matched} bereits in der Liste, {placements} neue Platzierungen.",
+      "resultLine": "Importiert: {created} neue Personen, {matched} um Platzierungen ergänzt, {placements} Platzierungen.",
+      "issueRow": "Zeile {row}:",
+      "backToList": "Zurück zur Liste",
+      "tooLarge": "Die Datei ist größer als 1 MB.",
+      "columnsTitle": "Spalten",
+      "columnsBody": "first_name, last_name, birth_year, email, phone, whatsapp, guardian_name / guardian_email / guardian_phone, contact_consent (ja/nein), showcase_consent, status, tags, notes, institution, institution_type, country, city_state, league, level, sport, position, start_date, graduation_year, scholarship (full / partial / walk-on / none), placement_status, current, roster_url. Französische und deutsche Spaltennamen funktionieren auch (prénom, nom, Vorname, Nachname, établissement, Schule, …).",
+      "typesBody": "Die Art der Institution akzeptiert z. B. «NCAA D1», «Division II», «D-II», «D3», «NAIA», «JUCO», «High School», «Prep», «Akademie», «Profi», «Nationalmannschaft», «U SPORTS».",
+      "minorsBody": "Personen, die vor weniger als 19 Jahren geboren sind, brauchen eine erziehungsberechtigte Person mit E-Mail oder Telefon; sonst wird die Zeile übersprungen.",
+      "issues": {
+        "empty": "Die Datei ist leer.",
+        "missingColumn": "Spalte {field} fehlt.",
+        "tooManyRows": "Zu viele Zeilen (max. {value}).",
+        "invalid": "{field}: «{value}» ist ungültig und wurde leer gelassen.",
+        "required": "{field} ist Pflicht; Zeile übersprungen.",
+        "guardianRequired": "Möglicherweise minderjährig ohne Kontakt der Erziehungsberechtigten; Zeile übersprungen.",
+        "unknownType": "Unbekannte Art «{value}»; als Andere gespeichert.",
+        "placementFailed": "Die Platzierung konnte nicht gespeichert werden.",
+        "rowFailed": "Die Zeile konnte nicht gespeichert werden."
+      }
+    },
+    "move": {
+      "button": "Zu den Ehemaligen",
+      "title": "Zu Ehemalige & Platzierungen verschieben",
+      "loading": "Wird geladen…",
+      "exists": "Diese Person ist bereits bei den Ehemaligen; platzierte Ziele werden dort ergänzt.",
+      "name": "Name: {name}",
+      "birthYear": "Jahrgang: {year}",
+      "noBirthYear": "Jahrgang unbekannt",
+      "guardian": "Familienkontakt als erziehungsberechtigte Person übernommen: {name}",
+      "noGuardian": "Kein Familienkontakt zum Übernehmen",
+      "placements": "{count, plural, =0 {Kein platziertes Ziel aus dem Spielerweg} one {# platziertes Ziel aus dem Spielerweg} other {# platzierte Ziele aus dem Spielerweg}}",
+      "minorNeedsGuardian": "Die Person kann noch minderjährig sein und die Familie hat keinen Kontakt: Erfassen Sie zuerst einen Kontakt bei der Familie.",
+      "archive": "Spielerprofil zusätzlich archivieren",
+      "archiveHint": "Entfernt die Person aus Teams und Listen (30 Tage wiederherstellbar), wie Löschen > Archivieren.",
+      "confirm": "Zu den Ehemaligen"
+    },
+    "journey": {
+      "add": "Zu Ehemalige & Platzierungen hinzufügen",
+      "open": "Bei Ehemalige & Platzierungen"
+    },
+    "dashboard": {
+      "title": "Platzierungen der Ehemaligen",
+      "open": "Ehemalige öffnen",
+      "newSeason": "Neu in {season}",
+      "new12m": "Neu in den letzten 12 Monaten"
+    },
+    "email": {
+      "signature": "{name} – {club}"
+    },
+    "followUp": {
+      "subject": "Nachfassen fällig: {name}",
+      "intro": "Sie wollten am {date} bei {name} nachfassen.",
+      "cta": "Profil öffnen"
+    },
+    "messages": {
+      "saved": "Gespeichert.",
+      "deleted": "Endgültig gelöscht.",
+      "placementSaved": "Platzierung gespeichert.",
+      "placementDeleted": "Platzierung gelöscht.",
+      "contactSaved": "Kontakt erfasst.",
+      "contactDeleted": "Eintrag gelöscht.",
+      "followUpDone": "Nachfassen erledigt.",
+      "followUpReopened": "Nachfassen wieder geöffnet.",
+      "emailSent": "E-Mail gesendet und erfasst.",
+      "emailSentGuardian": "E-Mail an die erziehungsberechtigte Person gesendet und erfasst.",
+      "accessGranted": "Der Trainer kann jetzt Ehemalige öffnen.",
+      "accessRemoved": "Zugriff des Trainers entfernt.",
+      "moved": "Zu Ehemalige & Platzierungen hinzugefügt.",
+      "movedArchived": "Zu Ehemalige & Platzierungen hinzugefügt; das Spielerprofil ist archiviert.",
+      "movedNotArchived": "Zu Ehemalige & Platzierungen hinzugefügt, aber die Person konnte nicht archiviert werden. Nutzen Sie Löschen im Profil.",
+      "addedFromJourney": "Zu Ehemalige & Platzierungen hinzugefügt."
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "forbidden": "Sie haben keinen Zugriff auf Ehemalige & Platzierungen.",
+      "invalid": "Bitte prüfen Sie die markierten Felder.",
+      "notFound": "Nicht gefunden.",
+      "confirmMismatch": "Der Name stimmt nicht überein.",
+      "email": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "phone": "Geben Sie eine gültige Telefonnummer ein.",
+      "url": "Geben Sie einen vollständigen Link ein, der mit https:// beginnt.",
+      "birthMismatch": "Jahrgang und Geburtsdatum stimmen nicht überein.",
+      "ALUMNI_GUARDIAN_REQUIRED": "Kann noch minderjährig sein: Geben Sie den Namen der erziehungsberechtigten Person und eine E-Mail oder Telefonnummer an.",
+      "ALUMNI_DO_NOT_CONTACT": "Diese Person ist als «Nicht kontaktieren» markiert.",
+      "CROSS_ORG_REFERENCE": "Dieser Eintrag gehört zu einem anderen Verein.",
+      "ALUMNI_IMMUTABLE": "Das kann nicht geändert werden.",
+      "alreadyAlumni": "Diese Person ist bereits bei den Ehemaligen.",
+      "notPlaced": "Nur ein platziertes Ziel kann hinzugefügt werden.",
+      "emailNotConfigured": "Der E-Mail-Versand ist für diesen Verein noch nicht eingerichtet.",
+      "emailFailed": "Die E-Mail konnte nicht gesendet werden. Nichts wurde erfasst."
     }
   }
 }
