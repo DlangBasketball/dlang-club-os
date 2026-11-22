@@ -125,7 +125,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="space-y-6">
-          <ParentContactSection guardians={data.guardians} familyPhone={data.phone} familyAddress={formatPostalAddress(data)} />
+          <ParentContactSection guardians={data.guardians} familyPhone={data.phone} familyAddress={formatPostalAddress(data)} contactName={data.contactName} contactEmail={data.contactEmail} />
           {canDelete && data.guardians.length > 0 && (
             <Card>
               <CardHeader><CardTitle>{t("personDelete.guardian.confirm")}</CardTitle></CardHeader>

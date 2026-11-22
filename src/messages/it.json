@@ -1026,6 +1026,14 @@
     },
     "athleteList": {
       "searchPlaceholder": "Nome o numero di licenza"
+    },
+    "contact": {
+      "title": "Contatto genitore / tutore",
+      "noGuardians": "Nessun tutore collegato",
+      "noGuardiansBody": "Invita un genitore per collegarlo a questa famiglia.",
+      "guardian": "Tutore",
+      "primary": "principale",
+      "emergency": "Emergenza: {name}{phone}"
     }
   },
   "personDelete": {

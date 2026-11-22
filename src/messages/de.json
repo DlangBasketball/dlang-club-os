@@ -1026,6 +1026,14 @@
     },
     "athleteList": {
       "searchPlaceholder": "Name oder Lizenznummer"
+    },
+    "contact": {
+      "title": "Kontakt Eltern / Erziehungsberechtigte",
+      "noGuardians": "Keine Erziehungsberechtigten verknüpft",
+      "noGuardiansBody": "Laden Sie einen Elternteil ein, um ihn mit dieser Familie zu verknüpfen.",
+      "guardian": "Erziehungsberechtigte Person",
+      "primary": "Hauptkontakt",
+      "emergency": "Notfall: {name}{phone}"
     }
   },
   "personDelete": {

@@ -1026,6 +1026,14 @@
     },
     "athleteList": {
       "searchPlaceholder": "Name or licence number"
+    },
+    "contact": {
+      "title": "Parent / guardian contact",
+      "noGuardians": "No guardians linked",
+      "noGuardiansBody": "Invite a parent to link them to this family.",
+      "guardian": "Guardian",
+      "primary": "primary",
+      "emergency": "Emergency: {name}{phone}"
     }
   },
   "personDelete": {
