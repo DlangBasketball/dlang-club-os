@@ -615,4 +615,33 @@ begin
   perform sr.ok(v = 'OK:null', 'no sponsored amount for coaches (' || v || ')');
 end $$;
 
+-- ===========================================================================
+-- I. Older enrolment without an arrangement snapshot (imports): saving the
+--    unchanged form after money was received must not ask for a reason.
+-- ===========================================================================
+do $$
+declare v text; v_inv uuid;
+  admin_a uuid := '00000000-0000-0000-0000-0000000000f1';
+  finance_a uuid := '00000000-0000-0000-0000-0000000000f2';
+begin
+  select invoice_id into v_inv from public.program_applications where id = sr.get('app3')::uuid;
+  v := sr.run_as(finance_a, format($q$select public.record_offline_payment(%L, 300, 'bank_transfer', current_date, 'SYN-LEGACY')->>'payment_id'$q$, v_inv));
+  perform sr.ok(v like 'OK:%', 'payment on the enrolment invoice (' || left(v, 40) || ')');
+  -- Simulate an imported record: no arrangement snapshot.
+  update public.program_applications set arrangement_kind = null, first_due_on = null, monthly_amount = null
+   where id = sr.get('app3')::uuid;
+  v := sr.run_as(admin_a, format($q$select public.selection_save_enrollment(%L, jsonb_build_object(
+        'arrangement', jsonb_build_object('kind', 'monthly', 'monthly', 300, 'fee', 3000, 'first_due_on', current_date + 3)))->>'status'$q$,
+        sr.get('app3')));
+  perform sr.ok(v = 'OK:enrolled', 'unchanged fee after payment saves without a reason (' || left(v, 60) || ')');
+  perform sr.ok(not exists (select 1 from public.invoice_adjustments where invoice_id = v_inv and voided_at is null),
+                'no credit / debit note when the amount is unchanged');
+  perform sr.ok((select arrangement_kind = 'monthly' and monthly_amount = 300 from public.program_applications where id = sr.get('app3')::uuid),
+                'arrangement snapshot filled in on save');
+  v := sr.run_as(admin_a, format($q$select public.selection_save_enrollment(%L, jsonb_build_object('fee_confirmed', true,
+        'arrangement', jsonb_build_object('kind', 'monthly', 'monthly', 300, 'fee', 3500, 'first_due_on', current_date + 3)))::text$q$,
+        sr.get('app3')));
+  perform sr.ok(v like 'ERR:%REASON_REQUIRED%', 'an amount change after payment still needs a reason (' || left(v, 60) || ')');
+end $$;
+
 select 'selection_roster suite done' as done;
