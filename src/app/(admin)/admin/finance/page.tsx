@@ -12,6 +12,8 @@ import {
 } from "@/lib/finance/data";
 import { inRange, invoiceOutstanding, isIssued, paidByInvoice, paymentsRecorded, reconciledEarnings, sumMoney } from "@/lib/finance/math";
 import { isCurrency, isUuid, qs, rangeFrom } from "@/lib/finance/params";
+import { getInvoiceTotalsByCategory } from "@/lib/data/billing";
+import { categoryLabelKey } from "@/lib/billing/activities";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -26,7 +28,10 @@ export default async function FinanceHubPage({ searchParams }: { searchParams: P
   const tab: HubTab = (HUB_TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as HubTab) : "balances";
   const range = rangeFrom(sp, todayKey());
 
-  const factsRes = await loadFacts(me.orgId, ctx.currency);
+  const [factsRes, byCategory] = await Promise.all([
+    loadFacts(me.orgId, ctx.currency),
+    tab === "balances" ? getInvoiceTotalsByCategory({}) : Promise.resolve(null),
+  ]);
   if (factsRes.error !== null) {
     return <div className="animate-fade-up"><PageHeader title={t("finance.title")} /><ErrorState message={factsRes.error} /></div>;
   }
@@ -63,6 +68,26 @@ export default async function FinanceHubPage({ searchParams }: { searchParams: P
               <StatCard label={t("finance.balances.credits")} value={money(tot("credits"))} tone="accent" />
               <StatCard label={t("finance.balances.outstanding")} value={money(tot("outstanding"))} tone={tot("outstanding") > 0 ? "warning" : "brand"} />
             </div>
+            {byCategory && (
+              <FinTable
+                title={t("financeReports.overview.categoryTitle")} subtitle={t("financeReports.overview.categorySubtitle")}
+                caption={t("financeReports.overview.categoryTitle")}
+                actions={<Link href="/admin/invoices" className="text-xs text-ink-2 hover:text-ink">{t("finance.invoices.manage")}</Link>}
+                rows={(byCategory.data ?? []).filter((r) => r.currency === currency)} rowKey={(r) => `${r.category}|${r.currency}`}
+                empty={byCategory.error ?? t("financeReports.invoices.totalsEmpty")}
+                cols={[
+                  { key: "cat", header: t("financeReports.invoices.colCategory"), cell: (r) => (
+                    <Link href={`/admin/invoices?category=${r.category}`} className="text-ink hover:text-maroon">{t(categoryLabelKey(r.category))}</Link>
+                  ) },
+                  { key: "n", header: t("finance.balances.invoices"), align: "right", cell: (r) => f.number(r.invoiceCount) },
+                  { key: "inv", header: t("financeReports.invoices.invoiced"), align: "right", cell: (r) => money(r.invoiced, r.currency) },
+                  { key: "rec", header: t("financeReports.invoices.received"), align: "right", cell: (r) => money(r.received, r.currency) },
+                  { key: "out", header: t("financeReports.invoices.outstanding"), align: "right", cell: (r) => (
+                    <span className={r.outstanding > 0 ? "text-warning" : "text-ink-3"}>{money(r.outstanding, r.currency)}</span>
+                  ) },
+                ]}
+              />
+            )}
             <FinTable
               title={t("finance.balances.title")} subtitle={t("finance.balances.subtitle")} caption={t("finance.balances.title")}
               actions={<ExportLink href={exportHref("balances")} label={t("finance.exportCsv")} />}

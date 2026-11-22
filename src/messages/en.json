@@ -11268,5 +11268,208 @@
       "openProfile": "Profile",
       "openProfileAria": "Open player profile of {name}"
     }
+  },
+  "financeReports": {
+    "common": {
+      "season": "Season",
+      "month": "Month",
+      "team": "Team",
+      "status": "Status",
+      "allTeams": "All teams",
+      "allStatuses": "All statuses",
+      "apply": "Show",
+      "downloadXlsx": "Download Excel",
+      "total": "Total {currency}",
+      "members": "{count, plural, one {# member} other {# members}}",
+      "loadError": "The report could not be loaded.",
+      "noSeasons": "No season yet. Create one under Settings → Seasons."
+    },
+    "membership": {
+      "title": "Club membership payments",
+      "description": "Every membership of the season for one month: what was due, what came in, and what is still open.",
+      "empty": "No membership in this season matches the filters.",
+      "rulesHint": "Due this month = scheduled installments with a due date in the month (after credit notes). Payments settle installments in order, oldest first. Overdue = installments still open after their due date, at month end.",
+      "carryForwardHint": "Amounts carried forward from an earlier season are shown in separate columns and are not part of the season fee.",
+      "cols": {
+        "player": "Player",
+        "teams": "Teams",
+        "payers": "Payers",
+        "invoices": "Invoices",
+        "currency": "Currency",
+        "agreedFee": "Agreed season fee",
+        "dueInMonth": "Due this month",
+        "receivedInMonth": "Received this month",
+        "appliedToMonth": "Applied to this month",
+        "openForMonth": "Still open this month",
+        "overdueAmount": "Overdue at month end",
+        "paidToDate": "Paid to date",
+        "seasonBalance": "Remaining season balance",
+        "carryForwardDue": "Carried forward",
+        "carryForwardReceivedInMonth": "Carry-forward received this month",
+        "carryForwardOpen": "Carry-forward open",
+        "status": "Status"
+      },
+      "statuses": {
+        "paid": "Paid",
+        "partially_paid": "Partially paid",
+        "unpaid": "Unpaid",
+        "no_installment": "No installment this month",
+        "overdue": "Overdue",
+        "sponsored": "Sponsored"
+      },
+      "sheetMonthly": "Monthly Report",
+      "sheetOverview": "Season Overview",
+      "xlsxTitle": "Club membership payments · {season} · {month}",
+      "expected": "expected",
+      "received": "received",
+      "totalPaid": "Total paid",
+      "remainingBalance": "Remaining balance",
+      "legendNoInstallment": "No installment scheduled this month",
+      "legendMissed": "Missed: installment still open after the month ended",
+      "membersOverdue": "Members with arrears"
+    },
+    "selection": {
+      "title": "Selection payments",
+      "description": "Enrollment fees of a selection program (for example EYBL): agreed fee, plan, paid, balance and next due date. The program's payment schedule is independent of the club season.",
+      "programme": "Program",
+      "division": "Age group / division",
+      "tournament": "Tournament",
+      "allDivisions": "All age groups",
+      "allTournaments": "All tournaments",
+      "empty": "No enrollment matches the filters.",
+      "noPrograms": "No selection program yet.",
+      "enrollments": "{count, plural, one {# enrollment} other {# enrollments}}",
+      "cols": {
+        "player": "Player",
+        "programme": "Program",
+        "division": "Age group",
+        "package": "Package",
+        "tournaments": "Tournaments",
+        "enrolment": "Enrollment",
+        "plan": "Plan",
+        "currency": "Currency",
+        "agreedFee": "Agreed fee",
+        "amountDue": "Amount due",
+        "received": "Paid",
+        "balance": "Balance",
+        "nextDue": "Next due",
+        "overdue": "Overdue",
+        "status": "Payment status"
+      },
+      "plans": {
+        "full": "Paid in full",
+        "monthly": "Monthly: {count} × {amount}",
+        "monthlyOpen": "Monthly"
+      },
+      "statuses": {
+        "none": "No invoice",
+        "unpaid": "Unpaid",
+        "partial": "Partially paid",
+        "paid": "Paid",
+        "overdue": "Overdue"
+      },
+      "enrolments": {
+        "accepted": "Accepted",
+        "enrolled": "Enrolled",
+        "withdrawn": "Withdrawn"
+      },
+      "sheet": "Selection payments",
+      "xlsxTitle": "Selection payments · {program} · {date}"
+    },
+    "invoices": {
+      "category": "Category",
+      "entity": "Issuing entity",
+      "from": "Issued from",
+      "to": "Issued until",
+      "searchPlaceholder": "Number or prefix (e.g. DL EYBL)",
+      "allCategories": "All categories",
+      "allEntities": "All entities",
+      "colCategory": "Category",
+      "colEntity": "Entity",
+      "colSource": "For",
+      "colPayer": "Family / payer",
+      "colPaid": "Paid",
+      "colOutstanding": "Outstanding",
+      "totalsTitle": "Totals by category",
+      "totalsSubtitle": "Invoiced, received and outstanding per revenue category for the selected period, issuing entity and status. Credit notes count under the original invoice's category.",
+      "invoiced": "Invoiced",
+      "received": "Received",
+      "outstanding": "Outstanding",
+      "count": "{count, plural, one {# invoice} other {# invoices}}",
+      "totalsEmpty": "No issued invoice matches the filters.",
+      "pageInfo": "{count, plural, one {# invoice} other {# invoices}} · page {page}"
+    },
+    "overview": {
+      "categoryTitle": "By revenue category",
+      "categorySubtitle": "Issued invoices of every category, all dates. Each activity is reported on its own."
+    },
+    "accounting": {
+      "transactionsTitle": "Transactions for your accountant",
+      "transactionsHint": "Invoices, credit notes and other adjustments, payments and refunds of the period, each with the original invoice number, payment reference, revenue category, issuing entity and what it was for.",
+      "from": "From",
+      "to": "To",
+      "transactionsCsv": "Transactions CSV",
+      "transactionsXlsx": "Transactions Excel",
+      "count": "{count, plural, one {# transaction} other {# transactions}} in this period",
+      "previewEmpty": "No transaction in this period.",
+      "previewTruncated": "Showing the first {count}. The download contains every transaction.",
+      "integrationTitle": "Accounting software",
+      "noIntegration": "No accounting software connected — download the export for your accountant.",
+      "lastExport": "Last export: {kind}, {date}",
+      "lastExportRows": "{count, plural, one {# row} other {# rows}}",
+      "lastExportFailed": "Last export failed: {kind}, {date}",
+      "neverExported": "No export has been downloaded yet.",
+      "exportKinds": {
+        "bexio": "Bexio export (CSV)",
+        "journal": "Accounting journal (CSV)",
+        "journal_xlsx": "Accounting journal (Excel)",
+        "open_items": "Open items",
+        "collection": "Collection list",
+        "reimbursements": "Reimbursements",
+        "transactions_csv": "Transactions CSV",
+        "transactions_xlsx": "Transactions Excel"
+      },
+      "cols": {
+        "date": "Date",
+        "kind": "Kind",
+        "documentNumber": "Document no.",
+        "invoiceNumber": "Invoice no.",
+        "invoiceReference": "Invoice payment reference",
+        "paymentReference": "Payment reference",
+        "category": "Category",
+        "entity": "Issuing entity",
+        "sourceLabel": "For",
+        "family": "Family",
+        "payer": "Payer",
+        "method": "Method",
+        "status": "Status",
+        "amount": "Amount",
+        "currency": "Currency",
+        "description": "Description"
+      },
+      "kinds": {
+        "invoice": "Invoice",
+        "credit_note": "Credit note",
+        "debit_note": "Debit note",
+        "write_off": "Write-off",
+        "cancellation": "Cancellation",
+        "payment": "Payment",
+        "refund": "Refund",
+        "reversal": "Reversal"
+      },
+      "docStatuses": {
+        "active": "Active",
+        "void": "Voided"
+      },
+      "sheet": "Transactions"
+    },
+    "errors": {
+      "NOT_AUTHORIZED": "Only admins and finance staff can see this report.",
+      "SEASON_NOT_FOUND": "This season does not exist.",
+      "MONTH_OUTSIDE_SEASON": "This month is not part of the season.",
+      "TEAM_NOT_FOUND": "This team does not exist.",
+      "INVALID_DATE": "Check the period.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

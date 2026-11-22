@@ -24,6 +24,16 @@ export type InvoiceListItem = {
   dueDate: string | null;
   issuedAt: string;
   remindersPaused: boolean;
+  /** Revenue category (invoices.activity). */
+  category: string;
+  /** Selection invoices: the programme series (e.g. "EYBL"); null otherwise. */
+  categoryLabel: string | null;
+  /** Issuing entity name (snapshot taken at issue). */
+  entityName: string | null;
+  /** What the invoice is for, as printed. */
+  sourceLabel: string | null;
+  /** Individual payer of a membership share (guardian / sponsor / other). */
+  payerName: string | null;
 };
 
 export type InvoiceFilter = {
@@ -37,6 +47,13 @@ export type InvoiceFilter = {
   pageSize?: number;
   /** "YYYY-MM-DD" in the club's time zone (past-due check for the overdue filter). */
   todayKey?: string;
+  /** Revenue category (invoices.activity). */
+  category?: string;
+  /** Issuing entity (invoices.billing_entity_id). */
+  entityId?: string;
+  /** Issued at >= / < these instants (ISO; club-local day bounds computed by the caller). */
+  issuedFrom?: string;
+  issuedBefore?: string;
 };
 
 export type InvoicePage = { rows: InvoiceListItem[]; hasMore: boolean; page: number };
@@ -60,7 +77,7 @@ export async function findInvoices(filter: InvoiceFilter = {}): Promise<Result<I
   const today = filter.todayKey && /^\d{4}-\d{2}-\d{2}$/.test(filter.todayKey) ? filter.todayKey : new Date().toISOString().slice(0, 10);
   let q = supabase
     .from("invoices")
-    .select("id,number,family_id,total_chf,adjustments_total,currency,status,due_date,issued_at,reminders_paused")
+    .select("id,number,family_id,total_chf,adjustments_total,currency,status,due_date,issued_at,reminders_paused,activity,program_id,billing_entity_snapshot,source_label,payer_name")
     .order("issued_at", { ascending: false })
     .order("id", { ascending: false })
     .range(from, from + pageSize); // one extra row tells whether there is a next page
@@ -69,6 +86,10 @@ export async function findInvoices(filter: InvoiceFilter = {}): Promise<Result<I
   else if (status === "overdue") q = q.or(`status.eq.overdue,and(status.in.(${OPEN_LIST}),due_date.lt.${today})`);
   else if (status !== "all" && KNOWN_STATUSES.has(status)) q = q.eq("status", status as never);
   if (filter.familyId && UUID.test(filter.familyId)) q = q.eq("family_id", filter.familyId);
+  if (filter.category && /^[a-z_]{2,40}$/.test(filter.category)) q = q.eq("activity", filter.category as never);
+  if (filter.entityId && UUID.test(filter.entityId)) q = q.eq("billing_entity_id", filter.entityId);
+  if (filter.issuedFrom && !Number.isNaN(Date.parse(filter.issuedFrom))) q = q.gte("issued_at", filter.issuedFrom);
+  if (filter.issuedBefore && !Number.isNaN(Date.parse(filter.issuedBefore))) q = q.lt("issued_at", filter.issuedBefore);
   const term = (filter.q ?? "").trim().replace(/[%,()*\\]/g, " ").trim().slice(0, 80);
   if (term) {
     const { data: fams, error: famErr } = await supabase.from("families").select("id").ilike("name", `%${term}%`).limit(200);
@@ -85,7 +106,11 @@ export async function findInvoices(filter: InvoiceFilter = {}): Promise<Result<I
   return ok({ rows: rows.data, hasMore, page });
 }
 
-type InvoiceRow = { id: string; number: string; family_id: string; total_chf: number | null; adjustments_total: number | null; currency: string | null; status: string; due_date: string | null; issued_at: string; reminders_paused: boolean | null };
+type InvoiceRow = {
+  id: string; number: string; family_id: string; total_chf: number | null; adjustments_total: number | null; currency: string | null; status: string;
+  due_date: string | null; issued_at: string; reminders_paused: boolean | null; activity?: string | null; program_id?: string | null;
+  billing_entity_snapshot?: unknown; source_label?: string | null; payer_name?: string | null;
+};
 
 async function withMoney(supabase: Awaited<ReturnType<typeof createClient>>, invoices: InvoiceRow[]): Promise<Result<InvoiceListItem[]>> {
   const ids = uniq(invoices.map((i) => i.id));
@@ -101,6 +126,13 @@ async function withMoney(supabase: Awaited<ReturnType<typeof createClient>>, inv
       arr.push({ amount: Number(p.amount_chf ?? 0), status: p.status });
       paysByInvoice.set(p.invoice_id, arr);
     }
+  }
+  const seriesIds = uniq(invoices.filter((i) => i.activity === "selection").map((i) => i.program_id));
+  const series = new Map<string, string>();
+  for (let i = 0; i < seriesIds.length; i += 200) {
+    const { data, error } = await supabase.from("programs").select("id,name,series").in("id", seriesIds.slice(i, i + 200));
+    if (error) return fail(error.message);
+    for (const p of (data ?? []) as unknown as { id: string; name: string; series: string | null }[]) series.set(p.id, p.series?.trim() || p.name);
   }
   const fName = new Map<string, string>();
   for (let i = 0; i < familyIds.length; i += 200) {
@@ -132,6 +164,11 @@ async function withMoney(supabase: Awaited<ReturnType<typeof createClient>>, inv
         dueDate: i.due_date,
         issuedAt: i.issued_at,
         remindersPaused: Boolean(i.reminders_paused),
+        category: i.activity ?? "other",
+        categoryLabel: i.activity === "selection" && i.program_id ? series.get(i.program_id) ?? null : null,
+        entityName: ((i.billing_entity_snapshot ?? null) as { name?: string } | null)?.name ?? null,
+        sourceLabel: i.source_label ?? null,
+        payerName: i.payer_name ?? null,
       };
     }),
   );

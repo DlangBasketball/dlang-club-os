@@ -11268,5 +11268,208 @@
       "openProfile": "Perfil",
       "openProfileAria": "Abrir el perfil de {name}"
     }
+  },
+  "financeReports": {
+    "common": {
+      "season": "Temporada",
+      "month": "Mes",
+      "team": "Equipo",
+      "status": "Estado",
+      "allTeams": "Todos los equipos",
+      "allStatuses": "Todos los estados",
+      "apply": "Mostrar",
+      "downloadXlsx": "Descargar Excel",
+      "total": "Total en {currency}",
+      "members": "{count, plural, one {# socio} other {# socios}}",
+      "loadError": "No se pudo cargar el informe.",
+      "noSeasons": "Todavía no hay temporadas. Cree una en Ajustes → Temporadas."
+    },
+    "membership": {
+      "title": "Pagos de las cuotas del club",
+      "description": "Todas las cuotas de la temporada para un mes: lo que vencía, lo que se cobró y lo que sigue pendiente.",
+      "empty": "Ninguna cuota de esta temporada coincide con los filtros.",
+      "rulesHint": "Vence este mes = plazos previstos con vencimiento en el mes (tras las notas de crédito). Los pagos saldan los plazos por orden, el más antiguo primero. Vencido = plazos aún pendientes tras su vencimiento, a fin de mes.",
+      "carryForwardHint": "Los importes trasladados de una temporada anterior aparecen en columnas aparte y no forman parte de la cuota de la temporada.",
+      "cols": {
+        "player": "Jugador",
+        "teams": "Equipos",
+        "payers": "Pagadores",
+        "invoices": "Facturas",
+        "currency": "Moneda",
+        "agreedFee": "Cuota acordada",
+        "dueInMonth": "Vence este mes",
+        "receivedInMonth": "Cobrado este mes",
+        "appliedToMonth": "Aplicado a este mes",
+        "openForMonth": "Pendiente de este mes",
+        "overdueAmount": "Vencido a fin de mes",
+        "paidToDate": "Pagado hasta la fecha",
+        "seasonBalance": "Saldo pendiente de la temporada",
+        "carryForwardDue": "Traspaso",
+        "carryForwardReceivedInMonth": "Traspaso cobrado este mes",
+        "carryForwardOpen": "Traspaso pendiente",
+        "status": "Estado"
+      },
+      "statuses": {
+        "paid": "Pagado",
+        "partially_paid": "Pagado en parte",
+        "unpaid": "Impagado",
+        "no_installment": "Sin plazo este mes",
+        "overdue": "Vencido",
+        "sponsored": "Patrocinado"
+      },
+      "sheetMonthly": "Informe mensual",
+      "sheetOverview": "Resumen de temporada",
+      "xlsxTitle": "Pagos de cuotas · {season} · {month}",
+      "expected": "previsto",
+      "received": "cobrado",
+      "totalPaid": "Total pagado",
+      "remainingBalance": "Saldo pendiente",
+      "legendNoInstallment": "Ningún plazo previsto este mes",
+      "legendMissed": "Impagado: plazo aún pendiente al terminar el mes",
+      "membersOverdue": "Socios con atrasos"
+    },
+    "selection": {
+      "title": "Pagos de selecciones",
+      "description": "Cuotas de inscripción de un programa de selección (por ejemplo EYBL): importe acordado, plan, pagado, saldo y próximo vencimiento. El calendario de pagos del programa es independiente de la temporada del club.",
+      "programme": "Programa",
+      "division": "Categoría / división",
+      "tournament": "Torneo",
+      "allDivisions": "Todas las categorías",
+      "allTournaments": "Todos los torneos",
+      "empty": "Ninguna inscripción coincide con los filtros.",
+      "noPrograms": "Todavía no hay programas de selección.",
+      "enrollments": "{count, plural, one {# inscripción} other {# inscripciones}}",
+      "cols": {
+        "player": "Jugador",
+        "programme": "Programa",
+        "division": "Categoría",
+        "package": "Paquete",
+        "tournaments": "Torneos",
+        "enrolment": "Inscripción",
+        "plan": "Plan de pago",
+        "currency": "Moneda",
+        "agreedFee": "Importe acordado",
+        "amountDue": "Importe debido",
+        "received": "Pagado",
+        "balance": "Saldo",
+        "nextDue": "Próximo vencimiento",
+        "overdue": "Vencido",
+        "status": "Estado del pago"
+      },
+      "plans": {
+        "full": "Pago único",
+        "monthly": "Mensual: {count} × {amount}",
+        "monthlyOpen": "Mensual"
+      },
+      "statuses": {
+        "none": "Sin factura",
+        "unpaid": "Impagado",
+        "partial": "Pagado en parte",
+        "paid": "Pagado",
+        "overdue": "Vencido"
+      },
+      "enrolments": {
+        "accepted": "Aceptado",
+        "enrolled": "Inscrito",
+        "withdrawn": "Retirado"
+      },
+      "sheet": "Pagos selecciones",
+      "xlsxTitle": "Pagos de selecciones · {program} · {date}"
+    },
+    "invoices": {
+      "category": "Categoría",
+      "entity": "Entidad emisora",
+      "from": "Emitida desde",
+      "to": "Emitida hasta",
+      "searchPlaceholder": "Número o prefijo (p. ej. DL EYBL)",
+      "allCategories": "Todas las categorías",
+      "allEntities": "Todas las entidades",
+      "colCategory": "Categoría",
+      "colEntity": "Entidad",
+      "colSource": "Concepto",
+      "colPayer": "Familia / pagador",
+      "colPaid": "Pagado",
+      "colOutstanding": "Pendiente",
+      "totalsTitle": "Totales por categoría",
+      "totalsSubtitle": "Facturado, cobrado y pendiente por categoría de ingresos para el periodo, la entidad emisora y el estado elegidos. Las notas de crédito cuentan en la categoría de la factura original.",
+      "invoiced": "Facturado",
+      "received": "Cobrado",
+      "outstanding": "Pendiente",
+      "count": "{count, plural, one {# factura} other {# facturas}}",
+      "totalsEmpty": "Ninguna factura emitida coincide con los filtros.",
+      "pageInfo": "{count, plural, one {# factura} other {# facturas}} · página {page}"
+    },
+    "overview": {
+      "categoryTitle": "Por categoría de ingresos",
+      "categorySubtitle": "Facturas emitidas de cada categoría, todas las fechas. Cada actividad se presenta por separado."
+    },
+    "accounting": {
+      "transactionsTitle": "Movimientos para su gestoría",
+      "transactionsHint": "Facturas, notas de crédito y otros ajustes, pagos y reembolsos del periodo, cada uno con el número de factura original, la referencia de pago, la categoría de ingresos, la entidad emisora y su concepto.",
+      "from": "Desde",
+      "to": "Hasta",
+      "transactionsCsv": "Movimientos CSV",
+      "transactionsXlsx": "Movimientos Excel",
+      "count": "{count, plural, one {# movimiento} other {# movimientos}} en el periodo",
+      "previewEmpty": "Ningún movimiento en este periodo.",
+      "previewTruncated": "Se muestran los primeros {count}. La descarga contiene todos los movimientos.",
+      "integrationTitle": "Software de contabilidad",
+      "noIntegration": "Ningún software de contabilidad conectado: descargue la exportación para su gestoría.",
+      "lastExport": "Última exportación: {kind}, {date}",
+      "lastExportRows": "{count, plural, one {# fila} other {# filas}}",
+      "lastExportFailed": "La última exportación falló: {kind}, {date}",
+      "neverExported": "Todavía no se ha descargado ninguna exportación.",
+      "exportKinds": {
+        "bexio": "Exportación Bexio (CSV)",
+        "journal": "Diario contable (CSV)",
+        "journal_xlsx": "Diario contable (Excel)",
+        "open_items": "Partidas abiertas",
+        "collection": "Lista de cobro",
+        "reimbursements": "Reembolsos",
+        "transactions_csv": "Movimientos CSV",
+        "transactions_xlsx": "Movimientos Excel"
+      },
+      "cols": {
+        "date": "Fecha",
+        "kind": "Tipo",
+        "documentNumber": "N.º de documento",
+        "invoiceNumber": "N.º de factura",
+        "invoiceReference": "Referencia de pago de la factura",
+        "paymentReference": "Referencia del pago",
+        "category": "Categoría",
+        "entity": "Entidad emisora",
+        "sourceLabel": "Concepto",
+        "family": "Familia",
+        "payer": "Pagador",
+        "method": "Método",
+        "status": "Estado",
+        "amount": "Importe",
+        "currency": "Moneda",
+        "description": "Descripción"
+      },
+      "kinds": {
+        "invoice": "Factura",
+        "credit_note": "Nota de crédito",
+        "debit_note": "Nota de débito",
+        "write_off": "Cancelación de deuda",
+        "cancellation": "Anulación",
+        "payment": "Pago",
+        "refund": "Reembolso",
+        "reversal": "Reversión"
+      },
+      "docStatuses": {
+        "active": "Activo",
+        "void": "Anulado"
+      },
+      "sheet": "Movimientos"
+    },
+    "errors": {
+      "NOT_AUTHORIZED": "Solo los administradores y finanzas pueden ver este informe.",
+      "SEASON_NOT_FOUND": "Esta temporada no existe.",
+      "MONTH_OUTSIDE_SEASON": "Este mes no forma parte de la temporada.",
+      "TEAM_NOT_FOUND": "Este equipo no existe.",
+      "INVALID_DATE": "Revise el periodo.",
+      "generic": "Algo salió mal. Inténtelo de nuevo."
+    }
   }
 }

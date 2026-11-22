@@ -11268,5 +11268,208 @@
       "openProfile": "Profilo",
       "openProfileAria": "Apri il profilo di {name}"
     }
+  },
+  "financeReports": {
+    "common": {
+      "season": "Stagione",
+      "month": "Mese",
+      "team": "Squadra",
+      "status": "Stato",
+      "allTeams": "Tutte le squadre",
+      "allStatuses": "Tutti gli stati",
+      "apply": "Mostra",
+      "downloadXlsx": "Scarica Excel",
+      "total": "Totale {currency}",
+      "members": "{count, plural, one {# socio} other {# soci}}",
+      "loadError": "Impossibile caricare il rapporto.",
+      "noSeasons": "Ancora nessuna stagione. Creane una in Impostazioni → Stagioni."
+    },
+    "membership": {
+      "title": "Pagamenti delle quote sociali",
+      "description": "Tutte le quote della stagione per un mese: quanto era dovuto, quanto è stato incassato e quanto resta aperto.",
+      "empty": "Nessuna quota di questa stagione corrisponde ai filtri.",
+      "rulesHint": "Dovuto nel mese = rate previste con scadenza nel mese (dopo le note di credito). I pagamenti saldano le rate in ordine, dalla più vecchia. Scaduto = rate ancora aperte dopo la scadenza, a fine mese.",
+      "carryForwardHint": "Gli importi riportati da una stagione precedente sono in colonne separate e non fanno parte della quota stagionale.",
+      "cols": {
+        "player": "Giocatore",
+        "teams": "Squadre",
+        "payers": "Paganti",
+        "invoices": "Fatture",
+        "currency": "Valuta",
+        "agreedFee": "Quota stagionale concordata",
+        "dueInMonth": "Dovuto nel mese",
+        "receivedInMonth": "Incassato nel mese",
+        "appliedToMonth": "Imputato al mese",
+        "openForMonth": "Ancora aperto nel mese",
+        "overdueAmount": "Scaduto a fine mese",
+        "paidToDate": "Pagato finora",
+        "seasonBalance": "Saldo residuo della stagione",
+        "carryForwardDue": "Riporto",
+        "carryForwardReceivedInMonth": "Riporto incassato nel mese",
+        "carryForwardOpen": "Riporto aperto",
+        "status": "Stato"
+      },
+      "statuses": {
+        "paid": "Pagato",
+        "partially_paid": "Pagato in parte",
+        "unpaid": "Non pagato",
+        "no_installment": "Nessuna rata nel mese",
+        "overdue": "Scaduto",
+        "sponsored": "Sponsorizzato"
+      },
+      "sheetMonthly": "Rapporto mensile",
+      "sheetOverview": "Panoramica stagione",
+      "xlsxTitle": "Pagamenti quote sociali · {season} · {month}",
+      "expected": "previsto",
+      "received": "incassato",
+      "totalPaid": "Totale pagato",
+      "remainingBalance": "Saldo residuo",
+      "legendNoInstallment": "Nessuna rata prevista nel mese",
+      "legendMissed": "Mancato: rata ancora aperta a mese concluso",
+      "membersOverdue": "Soci in ritardo"
+    },
+    "selection": {
+      "title": "Pagamenti selezioni",
+      "description": "Quote di iscrizione di un programma di selezione (per esempio EYBL): importo concordato, piano, pagato, saldo e prossima scadenza. Il piano di pagamento del programma è indipendente dalla stagione del club.",
+      "programme": "Programma",
+      "division": "Categoria / divisione",
+      "tournament": "Torneo",
+      "allDivisions": "Tutte le categorie",
+      "allTournaments": "Tutti i tornei",
+      "empty": "Nessuna iscrizione corrisponde ai filtri.",
+      "noPrograms": "Ancora nessun programma di selezione.",
+      "enrollments": "{count, plural, one {# iscrizione} other {# iscrizioni}}",
+      "cols": {
+        "player": "Giocatore",
+        "programme": "Programma",
+        "division": "Categoria",
+        "package": "Pacchetto",
+        "tournaments": "Tornei",
+        "enrolment": "Iscrizione",
+        "plan": "Piano",
+        "currency": "Valuta",
+        "agreedFee": "Importo concordato",
+        "amountDue": "Importo dovuto",
+        "received": "Pagato",
+        "balance": "Saldo",
+        "nextDue": "Prossima scadenza",
+        "overdue": "Scaduto",
+        "status": "Stato del pagamento"
+      },
+      "plans": {
+        "full": "Pagamento unico",
+        "monthly": "Mensile: {count} × {amount}",
+        "monthlyOpen": "Mensile"
+      },
+      "statuses": {
+        "none": "Nessuna fattura",
+        "unpaid": "Non pagato",
+        "partial": "Pagato in parte",
+        "paid": "Pagato",
+        "overdue": "Scaduto"
+      },
+      "enrolments": {
+        "accepted": "Accettato",
+        "enrolled": "Iscritto",
+        "withdrawn": "Ritirato"
+      },
+      "sheet": "Pagamenti selezioni",
+      "xlsxTitle": "Pagamenti selezioni · {program} · {date}"
+    },
+    "invoices": {
+      "category": "Categoria",
+      "entity": "Ente emittente",
+      "from": "Emessa dal",
+      "to": "Emessa fino al",
+      "searchPlaceholder": "Numero o prefisso (es. DL EYBL)",
+      "allCategories": "Tutte le categorie",
+      "allEntities": "Tutti gli enti",
+      "colCategory": "Categoria",
+      "colEntity": "Ente",
+      "colSource": "Oggetto",
+      "colPayer": "Famiglia / pagante",
+      "colPaid": "Pagato",
+      "colOutstanding": "Aperto",
+      "totalsTitle": "Totali per categoria",
+      "totalsSubtitle": "Fatturato, incassato e aperto per categoria di ricavo per il periodo, l'ente emittente e lo stato scelti. Le note di credito contano nella categoria della fattura originale.",
+      "invoiced": "Fatturato",
+      "received": "Incassato",
+      "outstanding": "Aperto",
+      "count": "{count, plural, one {# fattura} other {# fatture}}",
+      "totalsEmpty": "Nessuna fattura emessa corrisponde ai filtri.",
+      "pageInfo": "{count, plural, one {# fattura} other {# fatture}} · pagina {page}"
+    },
+    "overview": {
+      "categoryTitle": "Per categoria di ricavo",
+      "categorySubtitle": "Fatture emesse di ogni categoria, tutte le date. Ogni attività è riportata separatamente."
+    },
+    "accounting": {
+      "transactionsTitle": "Movimenti per il fiduciario",
+      "transactionsHint": "Fatture, note di credito e altre rettifiche, pagamenti e rimborsi del periodo, ciascuno con numero di fattura originale, riferimento di pagamento, categoria di ricavo, ente emittente e oggetto.",
+      "from": "Dal",
+      "to": "Al",
+      "transactionsCsv": "Movimenti CSV",
+      "transactionsXlsx": "Movimenti Excel",
+      "count": "{count, plural, one {# movimento} other {# movimenti}} nel periodo",
+      "previewEmpty": "Nessun movimento nel periodo.",
+      "previewTruncated": "Sono mostrati i primi {count}. Il download contiene tutti i movimenti.",
+      "integrationTitle": "Software di contabilità",
+      "noIntegration": "Nessun software di contabilità collegato — scarica l'esportazione per il fiduciario.",
+      "lastExport": "Ultima esportazione: {kind}, {date}",
+      "lastExportRows": "{count, plural, one {# riga} other {# righe}}",
+      "lastExportFailed": "Ultima esportazione non riuscita: {kind}, {date}",
+      "neverExported": "Nessuna esportazione ancora scaricata.",
+      "exportKinds": {
+        "bexio": "Esportazione Bexio (CSV)",
+        "journal": "Giornale contabile (CSV)",
+        "journal_xlsx": "Giornale contabile (Excel)",
+        "open_items": "Partite aperte",
+        "collection": "Elenco incasso",
+        "reimbursements": "Rimborsi",
+        "transactions_csv": "Movimenti CSV",
+        "transactions_xlsx": "Movimenti Excel"
+      },
+      "cols": {
+        "date": "Data",
+        "kind": "Tipo",
+        "documentNumber": "N. documento",
+        "invoiceNumber": "N. fattura",
+        "invoiceReference": "Riferimento di pagamento della fattura",
+        "paymentReference": "Riferimento del pagamento",
+        "category": "Categoria",
+        "entity": "Ente emittente",
+        "sourceLabel": "Oggetto",
+        "family": "Famiglia",
+        "payer": "Pagante",
+        "method": "Metodo",
+        "status": "Stato",
+        "amount": "Importo",
+        "currency": "Valuta",
+        "description": "Descrizione"
+      },
+      "kinds": {
+        "invoice": "Fattura",
+        "credit_note": "Nota di credito",
+        "debit_note": "Nota di debito",
+        "write_off": "Stralcio",
+        "cancellation": "Annullamento",
+        "payment": "Pagamento",
+        "refund": "Rimborso",
+        "reversal": "Storno"
+      },
+      "docStatuses": {
+        "active": "Attivo",
+        "void": "Annullato"
+      },
+      "sheet": "Movimenti"
+    },
+    "errors": {
+      "NOT_AUTHORIZED": "Solo amministratori e finanza possono vedere questo rapporto.",
+      "SEASON_NOT_FOUND": "Questa stagione non esiste.",
+      "MONTH_OUTSIDE_SEASON": "Questo mese non fa parte della stagione.",
+      "TEAM_NOT_FOUND": "Questa squadra non esiste.",
+      "INVALID_DATE": "Controlla il periodo.",
+      "generic": "Qualcosa è andato storto. Riprova."
+    }
   }
 }

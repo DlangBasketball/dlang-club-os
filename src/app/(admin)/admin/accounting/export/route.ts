@@ -10,6 +10,10 @@ import { isDay } from "@/lib/finance/params";
 import { accountingDb } from "@/lib/accounting/db";
 import { getSupport, loadJournal, loadOpenItems, reimbursementReport } from "@/lib/accounting/data";
 import { formatAmount, journalRows, toBexioCsv } from "@/lib/accounting/journal";
+import { categoryLabelKey, isBillingActivity } from "@/lib/billing/activities";
+import { isUuid } from "@/lib/finance/params";
+import { getAccountingTransactions } from "@/lib/finance-reports/data";
+import { buildTransactionsWorkbook, transactionCsvRows, TRANSACTION_COLUMNS, type TransactionLabels } from "@/lib/finance-reports/transactions";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +26,11 @@ export const dynamic = "force-dynamic";
  *   open_items   debtors with an open balance at `at`
  *   collection   dunning cases flagged for collection (marks them exported)
  *   reimbursements  external reimbursements + totals per funder kind
+ *   transactions_csv / transactions_xlsx  invoices, adjustments, payments, refunds of from..to
+ *                with original invoice number, payment reference, category, entity, source label
+ *                (filters: entity, category)
+ * Every run is recorded in audit_logs (accounting.export.<kind>, counts only);
+ * a failed run as accounting.export_failed.<kind> (the exports page shows the last one).
  * Admin / finance only; every read is scoped to the session's club (RLS +
  * explicit org filter). Headers are translated; amounts are plain decimals.
  */
@@ -41,7 +50,10 @@ export async function GET(request: Request) {
   const from = isDay(p("from")) ? p("from")! : `${today.slice(0, 7)}-01`;
   const to = isDay(p("to")) ? p("to")! : today;
   if (to < from) return NextResponse.json({ error: "Bad range" }, { status: 400 });
-  const fail = (e: string) => NextResponse.json({ error: e }, { status: 500 });
+  const fail = async (e: string) => {
+    await writeAudit(actor, `accounting.export_failed.${kind.replace(/[^a-z_]/g, "").slice(0, 40)}`, "invoices", null, { from, to });
+    return NextResponse.json({ error: e }, { status: 500 });
+  };
   const csv = (name: string, body: string) => {
     const res = new NextResponse(body, { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${name}"`, "Cache-Control": "no-store" } });
     return res;
@@ -64,6 +76,32 @@ export async function GET(request: Request) {
     return new NextResponse(buf as ArrayBuffer, { headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="journal_${from}_${to}.xlsx"`, "Cache-Control": "no-store",
+    } });
+  }
+
+  if (kind === "transactions_csv" || kind === "transactions_xlsx") {
+    const entityId = isUuid(p("entity")) ? p("entity")! : null;
+    const category = isBillingActivity(p("category")) ? p("category")! : null;
+    const r = await getAccountingTransactions({ from, to, entityId, category });
+    if (r.error !== null) return fail(r.error);
+    const labels: TransactionLabels = {
+      sheet: t("financeReports.accounting.sheet"),
+      columns: Object.fromEntries(TRANSACTION_COLUMNS.map((c) => [c, t.dynamic(`financeReports.accounting.cols.${c}`)])) as TransactionLabels["columns"],
+      kind: (k) => t.dynamic(`financeReports.accounting.kinds.${k}`),
+      category: (x) => x.categoryLabel ?? t(categoryLabelKey(x.category)),
+      method: (m) => t.dynamic(`payments.methods.${m}`, undefined, m),
+      status: (s) => t.dynamic(`financeReports.accounting.docStatuses.${s}`, undefined, t.dynamic(`status.${s}`, undefined, s)),
+    };
+    await writeAudit(actor, `accounting.export.${kind}`, "invoices", null, { from, to, entity_id: entityId, category, rows: r.data.length });
+    const suffix = [from, to, category].filter(Boolean).join("_");
+    if (kind === "transactions_csv") {
+      const c = transactionCsvRows(r.data, labels);
+      return csv(`transactions_${suffix}.csv`, "﻿" + toCsv(c.headers, c.rows));
+    }
+    const buf = await buildTransactionsWorkbook(r.data, labels).xlsx.writeBuffer();
+    return new NextResponse(buf as ArrayBuffer, { headers: {
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": `attachment; filename="transactions_${suffix}.xlsx"`, "Cache-Control": "no-store",
     } });
   }
 
