@@ -1023,6 +1023,9 @@
       "consents": "Consents accepted",
       "noConsents": "No consents recorded",
       "ip": "IP {ip}"
+    },
+    "athleteList": {
+      "searchPlaceholder": "Name or licence number"
     }
   },
   "personDelete": {

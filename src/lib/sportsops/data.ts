@@ -80,7 +80,20 @@ async function hydrateTeams(teams: TeamRow[]): Promise<Result<TeamSummary[]>> {
   const programIds = uniq(teams.map((t) => t.program_id));
   const [tc, tm, se, pr] = await Promise.all([
     db.from("team_coaches").select("team_id,coach_id,role").in("team_id", ids),
-    db.from("team_memberships").select("team_id,status").in("team_id", ids),
+    // Roster sizes: paged, a single read stopped at the ~1000-row response cap
+    // (all seasons of a big club), so counts came out too low.
+    (async () => {
+      const rows: { team_id: string; status: string }[] = [];
+      for (let i = 0; i < ids.length; i += 100) {
+        for (let from = 0; from < 100_000; from += 1000) {
+          const { data, error } = await db.from("team_memberships").select("id,team_id,status").in("team_id", ids.slice(i, i + 100)).neq("status", "inactive").order("id").range(from, from + 999);
+          if (error) return { data: null, error };
+          rows.push(...(data ?? []));
+          if (!data || data.length < 1000) break;
+        }
+      }
+      return { data: rows, error: null };
+    })(),
     db.from("seasons").select("id,name").in("id", uniq(teams.map((t) => t.season_id))),
     programIds.length
       ? (db.from("programs") as unknown as { select: (c: string) => { in: (k: string, v: string[]) => Promise<{ data: ProgramLite[] | null }> } })
@@ -89,6 +102,7 @@ async function hydrateTeams(teams: TeamRow[]): Promise<Result<TeamSummary[]>> {
   ]);
   const program = new Map((pr.data ?? []).map((p) => [p.id, p]));
   if (tc.error) return fail(tc.error.message);
+  if (tm.error) return fail(tm.error.message);
   const coachIds = uniq((tc.data ?? []).map((r) => r.coach_id));
   type CoachLite = { id: string; org_id: string; display_name: string; role_title: string | null; photo_path: string | null };
   const co = coachIds.length
