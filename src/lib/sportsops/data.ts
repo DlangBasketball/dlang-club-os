@@ -5,6 +5,7 @@ import { rangeBounds } from "./time";
 import { signCoachPhotos } from "@/lib/people/server";
 import { isPhotoPathFor } from "@/lib/people/validation";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { pagedIn } from "@/lib/data/paged";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 const ok = <T>(d: T): Result<T> => ({ data: d, error: null });
@@ -273,8 +274,8 @@ export async function rsvpCounts(eventIds: string[]): Promise<Map<string, Record
   const out = new Map<string, Record<RsvpStatus, number>>();
   if (!eventIds.length) return out;
   const db = await sportsDb();
-  const { data } = await db.from("event_rsvps").select("event_id,status").in("event_id", eventIds);
-  for (const r of data ?? []) {
+  const { rows: data } = await pagedIn(eventIds, (c, a, b) => db.from("event_rsvps").select("event_id,athlete_id,status").in("event_id", c).order("event_id").order("athlete_id").range(a, b));
+  for (const r of data) {
     const c = out.get(r.event_id) ?? { going: 0, maybe: 0, not_going: 0 };
     c[r.status] += 1;
     out.set(r.event_id, c);

@@ -7,6 +7,7 @@ import { athleteLevel, type AthleteFacts, type PlanCriteria } from "./matching";
 import { wellnessFlags, readiness, type WellnessFlag } from "./wellness";
 import { currentWeek } from "./plan";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { pagedIn } from "@/lib/data/paged";
 
 /**
  * Server reads for athlete development. RLS decides what each caller sees
@@ -404,7 +405,7 @@ export async function getCoachRankings(): Promise<Result<(CoachRankRow & { name:
   if (coaches.error) return fail(coaches.error.message);
   const sessionIds = (sessions.data ?? []).map((s) => s.id);
   const [marks, assigns] = await Promise.all([
-    sessionIds.length ? db.from("attendance_marks").select("attendance_session_id,status").in("attendance_session_id", sessionIds) : Promise.resolve({ data: [] as { attendance_session_id: string; status: string }[] }),
+    pagedIn(sessionIds, (c, a, b) => db.from("attendance_marks").select("attendance_session_id,athlete_id,status").in("attendance_session_id", c).order("attendance_session_id").order("athlete_id").range(a, b), 50).then((r) => ({ data: r.rows })),
     db.from("training_plan_assignments").select("id,assigned_by"),
   ]);
   const assignIds = (assigns.data ?? []).map((a) => a.id);
