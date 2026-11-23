@@ -27,7 +27,7 @@ import { signAthletePhotos } from "@/lib/people/server";
 import { ageOn } from "@/lib/people/player-stats";
 import { getAthleteCover } from "@/lib/media/server";
 import { getPlayerStats, getPlayerTeams, getTeamPickerOptions } from "@/lib/data/player-profile";
-import { MemberCardPanel } from "@/components/member-card/member-card-panel";
+import { CourtsideCardSection } from "@/components/member-card/courtside-section";
 import { shopDb } from "@/lib/shop/db";
 import { MoveToAlumniButton } from "@/components/alumni/tools";
 import { hasFeature } from "@/lib/upgrades/server";
@@ -157,7 +157,7 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
           <Card>
             <CardHeader><CardTitle>{t("sports.cards.title")}</CardTitle></CardHeader>
             <CardBody>
-              <MemberCardPanel athleteId={id} pdfHref={`/admin/athletes/${id}/card`} admin initialTag={cardTag} />
+              <CourtsideCardSection athleteId={id} name={fullName} pdfHref={`/admin/athletes/${id}/card`} admin initialTag={cardTag} />
             </CardBody>
           </Card>
         )}

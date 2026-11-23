@@ -424,5 +424,18 @@
     "warnings": {
       "AVAILABILITY_OVERRIDDEN": "Ausserhalb der Verfügbarkeit des Coaches gebucht (Ausnahme erfasst)."
     }
+  },
+  "memberCard": {
+    "tapToEnlarge": "Zum Vergrössern tippen",
+    "close": "Schliessen",
+    "crop": {
+      "frameLabel": "Zuschneidebereich. Ziehen oder Pfeiltasten zum Verschieben, Plus und Minus zum Vergrössern.",
+      "zoom": "Vergrösserung"
+    },
+    "brands": {
+      "errors": {
+        "size": "Das Bild ist grösser als 1 MB."
+      }
+    }
   }
 }

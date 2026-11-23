@@ -13571,5 +13571,94 @@
     "rangeHeading": "{from} – {to}",
     "statusRule": "Counts show each player's current saved status, also while a sheet is a draft. Totals and rates on player pages use finalized values only.",
     "truncated": "Showing the latest 300 sessions. Narrow the dates to see more."
+  },
+  "memberCard": {
+    "memberLabel": "Member",
+    "tapToEnlarge": "Tap to enlarge",
+    "enlargeQr": "Show the QR code full screen",
+    "inactive": "Card inactive",
+    "cardAria": "Member card of {name}, {brand}",
+    "switchBrand": "Choose the card",
+    "swipeHint": "Card {current} of {total} · swipe to switch",
+    "close": "Close",
+    "brightnessHint": "Turn your screen brightness up for the scanner",
+    "playerTitle": "My member card",
+    "readOnlyHint": "Your guardian or the club manages the photo on your card.",
+    "errors": {
+      "forbidden": "You don't have access to this member card.",
+      "load": "The member card could not be loaded. Please try again."
+    },
+    "photo": {
+      "add": "Add photo",
+      "hint": "The card photo is cropped and resized on your device before upload.",
+      "privacy": "Card photos are for identification inside the club only, never on public pages.",
+      "keptRetry": "Your current photo was kept. Please try again."
+    },
+    "crop": {
+      "title": "Crop the photo",
+      "shape": "Photo shape",
+      "portrait": "Portrait",
+      "square": "Square",
+      "frameLabel": "Photo crop area. Drag or use the arrow keys to move, plus and minus to zoom.",
+      "zoom": "Zoom",
+      "hint": "Drag the photo to place the face in the frame.",
+      "use": "Use photo"
+    },
+    "checkIn": {
+      "done": "{name} checked in",
+      "already": "{name} is already checked in",
+      "cancelled": "This session is cancelled.",
+      "codes": {
+        "UNKNOWN_CARD": "Unknown or replaced card.",
+        "NOT_ON_SHEET": "{name} is not on this session's roster. Add them as a guest first.",
+        "SHEET_FINAL": "Attendance for this session is final. Reopen it to make changes.",
+        "CONFLICT": "Someone else just changed this player's mark. Check the sheet."
+      }
+    },
+    "brands": {
+      "title": "Member card brands",
+      "previewLink": "Preview all cards",
+      "intro": "Each billing entity has its own card design. Athletes get the card of the entity behind their club membership, selection enrolment or training package; athletes eligible under two entities can switch between both cards.",
+      "noEntities": "No billing entities yet.",
+      "default": "Default",
+      "inactive": "Inactive",
+      "displayName": "Name on the card",
+      "subtitle": "Second line (optional)",
+      "subtitlePlaceholder": "e.g. Powered by …",
+      "logo": "Logo",
+      "watermark": "Watermark (optional)",
+      "chooseImage": "Choose image",
+      "replaceImage": "Replace image",
+      "removeImage": "Remove",
+      "logoHint": "PNG, JPEG or WebP, max 1 MB. Without a logo the card shows a clean text-only lockup.",
+      "watermarkHint": "Shown faintly behind the card. Defaults to the logo.",
+      "pendingPreview": "Shown in the preview, not saved yet.",
+      "upload": "Save image",
+      "preview": "Preview",
+      "previewAria": "Preview of the {brand} member card",
+      "sampleQr": "QR code",
+      "saved": "Card brand saved",
+      "logoSaved": "Image saved",
+      "logoRemoved": "Image removed",
+      "errors": {
+        "forbidden": "Only club administrators can change card brands.",
+        "entityNotFound": "Billing entity not found.",
+        "logoPath": "This image cannot be used for this entity.",
+        "tooLong": "The name is limited to 60 characters and the second line to 80.",
+        "generic": "The card brand could not be saved. Please try again.",
+        "noFile": "Choose an image.",
+        "size": "The image is larger than 1 MB.",
+        "type": "Use a PNG, JPEG or WebP image.",
+        "uploadFailed": "The image could not be saved. The previous image was kept."
+      }
+    },
+    "preview": {
+      "title": "Member card preview",
+      "back": "Back to billing entities",
+      "intro": "Every active brand in both layouts, with sample names. The QR codes here are not member credentials.",
+      "withPhoto": "With photo",
+      "withoutPhoto": "Without photo",
+      "phoneWidth": "Narrow phone (320 px)"
+    }
   }
 }

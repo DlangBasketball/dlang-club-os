@@ -8,6 +8,8 @@ import { getSessionUser, type SessionUser } from "@/lib/auth/get-user";
 import { tenantMatchesOrg } from "@/lib/tenant/server";
 import { getTranslations } from "@/lib/i18n/server";
 import { shopDb } from "@/lib/shop/db";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { logError } from "@/lib/log";
 import { normalizeTagId, scanPayload } from "@/lib/member-cards/token";
 
@@ -85,6 +87,45 @@ export async function assignMemberTag(id: string, tag: string | null): Promise<C
   if (error) return fail(dbKey(error.message), me.orgId);
   revalidatePath(`/admin/athletes/${id}`);
   return { ok: true, data: { tag: norm } };
+}
+
+/**
+ * Card check-in on a team / booked-session attendance sheet: the coach (or
+ * admin) who can run the event scans a card; the database resolves it in the
+ * caller's club and marks the athlete present on THE sheet of that event
+ * (attendance_open + attendance_save: same marks, history, stats and
+ * follow-ups as a tap on the sheet). A repeated scan is a no-op.
+ */
+export type CheckInOutcome = { outcome: "checkedIn" | "already"; athleteId: string; name: string };
+const CHECK_IN_CODES = ["UNKNOWN_CARD", "NOT_ON_SHEET", "SHEET_FINAL", "CONFLICT"] as const;
+
+export async function checkInWithCard(eventId: string, raw: string, requestId: string): Promise<CardResult<CheckInOutcome>> {
+  await assertFeature("member_cards");
+  const me = await requireRole(["admin", "coach"]);
+  if (!me) return fail("notPermitted");
+  const t = await getTranslations(me.orgId);
+  if (!athleteId.safeParse(eventId).success || !athleteId.safeParse(requestId).success) return fail("generic", me.orgId);
+  const payload = scanPayload(typeof raw === "string" ? raw.slice(0, 300) : "");
+  if (!payload) return fail("unknownCard", me.orgId);
+  try {
+    const db = (await createClient()) as unknown as SupabaseClient;
+    const { data, error } = await db.rpc("member_card_check_in", { p_event: eventId, p_token: payload, p_request_id: requestId });
+    if (error) {
+      if (/NOT_AUTHORIZED|EVENT_NOT_FOUND|permission denied/.test(error.message)) return fail("notPermitted", me.orgId);
+      if (/EVENT_CANCELLED/.test(error.message)) return { ok: false, error: t("memberCard.checkIn.cancelled") };
+      throw error;
+    }
+    const r = data as { ok: boolean; code?: string; already?: boolean; athlete_id?: string | null; name?: string | null };
+    if (r.ok && r.athlete_id) {
+      revalidatePath(`/coach/trainings/${eventId}/attendance`);
+      return { ok: true, data: { outcome: r.already ? "already" : "checkedIn", athleteId: r.athlete_id, name: r.name ?? "" } };
+    }
+    const code = (CHECK_IN_CODES as readonly string[]).includes(r.code ?? "") ? r.code! : "UNKNOWN_CARD";
+    return { ok: false, error: t.dynamic(`memberCard.checkIn.codes.${code}`, { name: r.name ?? "" }, t("memberCard.checkIn.codes.UNKNOWN_CARD")) };
+  } catch (e) {
+    logError("cards.checkIn", e);
+    return fail("generic", me.orgId);
+  }
 }
 
 /** A coach / admin scanned a QR code or an NFC tag: which athlete is it? */

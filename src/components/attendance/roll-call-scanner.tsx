@@ -12,9 +12,13 @@ import { barcodeDetector, hasCamera, nfcReader, ndefText, type NdefReadingEvent 
  * code, Web NFC (Android Chrome) reading a bracelet / tag, or typing the
  * code as a fallback. Every scan is resolved server-side (own club, athletes
  * the coach may access only); the roster decides what "present" means.
+ *
+ * `check` (team / session sheets): the scan is sent as-is to a server check-in
+ * that saves the mark itself; its message is shown instead of `onResolved`.
  */
-export function RollCallScanner({ onResolved, disabled }: {
-  onResolved: (athleteId: string, name: string) => "marked" | "notOnRoster";
+export function RollCallScanner({ onResolved, check, disabled }: {
+  onResolved?: (athleteId: string, name: string) => "marked" | "notOnRoster";
+  check?: (raw: string) => Promise<{ ok: boolean; text: string }>;
   disabled?: boolean;
 }) {
   const t = useT();
@@ -42,6 +46,13 @@ export function RollCallScanner({ onResolved, disabled }: {
     const now = Date.now();
     if (lastRef.current && lastRef.current.value === raw && now - lastRef.current.at < 4000) return;
     lastRef.current = { value: raw, at: now };
+    if (check) {
+      const r = await check(raw);
+      setMsg(r);
+      if (r.ok && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(80);
+      return;
+    }
+    if (!onResolved) return;
     const res = await resolveScan(raw);
     if (!res.ok || !res.data) { setMsg({ ok: false, text: res.ok ? t("sports.cards.errors.unknownCard") : res.error }); return; }
     const outcome = onResolved(res.data.athleteId, res.data.name);
@@ -49,7 +60,7 @@ export function RollCallScanner({ onResolved, disabled }: {
       ? { ok: true, text: t("sports.rollCall.marked", { name: res.data.name }) }
       : { ok: false, text: t("sports.rollCall.notOnRoster", { name: res.data.name }) });
     if (outcome === "marked" && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(80);
-  }, [onResolved, t]);
+  }, [onResolved, check, t]);
 
   function stopCamera() {
     if (timerRef.current) window.clearInterval(timerRef.current);

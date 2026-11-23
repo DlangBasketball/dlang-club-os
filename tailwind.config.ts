@@ -87,8 +87,18 @@ const config: Config = {
         "cover-text-muted": token("cover-text-muted"),
         "cover-chip": token("cover-chip-bg"),
         "cover-chip-border": token("cover-chip-border"),
+        // ---- Member card ("Courtside") -----------------------------------
+        "courtside-bg": token("card-courtside-bg"),
+        "courtside-deep": token("card-courtside-deep"),
+        "courtside-cream": token("card-courtside-cream"),
+        "courtside-cream-muted": token("card-courtside-cream-muted"),
+        "courtside-red": token("card-courtside-red"),
+        "courtside-line": token("card-courtside-line"),
+        "card-qr": token("card-qr-bg"),
+        "card-qr-ink": token("card-qr-ink"),
       },
       backgroundImage: {
+        "courtside": "var(--card-courtside-surface)",
         "cover-scrim": "var(--cover-scrim)",
         "cover-scrim-subtle": "var(--cover-scrim-subtle)",
         "cover-fallback": "var(--cover-fallback)",
