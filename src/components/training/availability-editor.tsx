@@ -267,6 +267,19 @@ export function TrainingSettingsForm({ settings }: { settings: TrainingSettings 
         <div><Label htmlFor="ts-lead">{t("training.settings.leadHours")}</Label><Input id="ts-lead" type="number" min={0} max={720} value={f.leadHours} onChange={num("leadHours")} /></div>
         <div><Label htmlFor="ts-horizon">{t("training.settings.horizonDays")}</Label><Input id="ts-horizon" type="number" min={1} max={120} value={f.horizonDays} onChange={num("horizonDays")} /></div>
       </div>
+      <fieldset className="space-y-2 rounded-lg border border-line p-3">
+        <legend className="px-1 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">{t("bookingRequests.settings.title")}</legend>
+        <label className="flex items-start gap-2 text-sm text-ink-2">
+          <input type="radio" name="ts-mode" className="mt-0.5 accent-[var(--red-primary)]" checked={f.availabilityMode === "declared"} onChange={() => setF({ ...f, availabilityMode: "declared" })} />
+          <span>{t("bookingRequests.settings.declared")}<span className="block text-xs text-text-muted">{t("bookingRequests.settings.declaredHint")}</span></span>
+        </label>
+        <label className="flex items-start gap-2 text-sm text-ink-2">
+          <input type="radio" name="ts-mode" className="mt-0.5 accent-[var(--red-primary)]" checked={f.availabilityMode === "open_confirm"} onChange={() => setF({ ...f, availabilityMode: "open_confirm" })} />
+          <span>{t("bookingRequests.settings.openConfirm")}<span className="block text-xs text-text-muted">{t("bookingRequests.settings.openConfirmHint")}</span></span>
+        </label>
+        <div className="max-w-[12rem]"><Label htmlFor="ts-followup">{t("bookingRequests.settings.followupHours")}</Label>
+          <Input id="ts-followup" type="number" min={1} max={720} value={f.requestFollowupHours} onChange={num("requestFollowupHours")} /></div>
+      </fieldset>
       <div className="flex items-center gap-2">
         <Button size="sm" disabled={busy} onClick={() => { setMsg(null); run(() => updateTrainingSettings(f), () => setMsg(t("training.common.saved"))); }}>{busy ? t("common.saving") : t("common.save")}</Button>
         {msg && <span role="status" className="text-sm text-success">{msg}</span>}

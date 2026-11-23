@@ -6,11 +6,12 @@ import { photoUrlsForCoaches } from "@/lib/people/server";
 import { getParentBookingDetail } from "@/lib/data/booking";
 import { getTrainingWizardData } from "@/lib/training/data";
 import { TrainingBookingActions } from "@/components/training/admin-widgets";
+import { WithdrawRequestButton } from "@/components/booking/request-decision";
 import { getI18n } from "@/lib/i18n/server";
 
-export default async function ParentBookingDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirmed?: string }> }) {
+export default async function ParentBookingDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirmed?: string; requested?: string }> }) {
   const { t, f } = await getI18n();
-  const [{ id }, { confirmed }] = await Promise.all([params, searchParams]);
+  const [{ id }, { confirmed, requested }] = await Promise.all([params, searchParams]);
   const { data, error } = await getParentBookingDetail(id);
   if (error) return <ErrorState title={t("training.common.loadFailed")} message={error} />;
   if (!data) notFound();
@@ -19,11 +20,19 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
     // Club-made bookings are changed by the club (it reschedules / cancels and notifies); family bookings keep self-service.
     data.status === "booked" && data.createdVia === "legacy" ? getTrainingWizardData() : Promise.resolve(null),
   ]);
-  const statusLabel = t.dynamic(`training.bookingStatus.${data.status}`, undefined, data.status);
+  const statusLabel = data.status === "requested" ? t("bookingWorkflow.state.requested")
+    : data.status === "booked" && data.attendanceStatus === "excused" ? t("bookingWorkflow.state.excused")
+    : t.dynamic(`training.bookingStatus.${data.status}`, undefined, data.status);
 
   return (
     <div className="animate-fade-up max-w-xl space-y-5">
       <Link href="/parent/bookings" className="inline-flex items-center gap-1 text-xs text-ink-3 hover:text-ink"><ChevronLeft className="h-3.5 w-3.5" /> {t("training.book.back")}</Link>
+      {requested && data.status === "requested" && (
+        <div role="status" className="flex items-start gap-3 rounded-xl border border-success/30 bg-success-soft/40 p-4">
+          <CheckCircle2 className="mt-0.5 h-5 w-5 text-success" aria-hidden />
+          <p className="font-medium text-ink">{t("bookingWorkflow.messages.requestSent")}</p>
+        </div>
+      )}
       {confirmed && (
         <div className="flex items-start gap-3 rounded-xl border border-success/30 bg-success-soft/40 p-4">
           <CheckCircle2 className="mt-0.5 h-5 w-5 text-success" />
@@ -40,9 +49,18 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
         )}
         {data.invoice && <div className="flex justify-between"><span className="text-ink-3">{t("training.purchases.invoice")}</span><Link href={`/parent/invoices/${data.invoice.id}`} className="inline-flex items-center gap-1 text-maroon hover:underline"><Receipt className="h-3.5 w-3.5" />{data.invoice.number}</Link></div>}
       </CardBody></Card>
+      {data.status === "requested" && (
+        <div role="status" className="space-y-2 rounded-md border border-dashed border-warning/60 bg-warning-soft p-3 text-sm text-text">
+          <p>{t("bookingRequests.family.awaitingHint")}</p>
+          {data.requestSource === "family" && <WithdrawRequestButton bookingId={data.id} />}
+        </div>
+      )}
       {data.status === "cancelled" && (
         <p role="status" className="rounded-md border border-danger/30 bg-danger-soft p-3 text-sm text-text">
-          {data.cancelReason ? t("bookingPortal.family.cancelledReason", { reason: data.cancelReason }) : t("bookingPortal.family.cancelled")}
+          {data.requestDecision === "declined"
+            ? (data.cancelReason ? t("bookingRequests.family.declinedReason", { reason: data.cancelReason }) : t("bookingRequests.family.declined"))
+            : data.requestDecision === "withdrawn" ? t("bookingRequests.family.withdrawn")
+            : data.cancelReason ? t("bookingPortal.family.cancelledReason", { reason: data.cancelReason }) : t("bookingPortal.family.cancelled")}
           {data.cancelledAt && <span className="block text-xs text-text-muted">{t("bookingPortal.family.changedOn", { date: f.date(data.cancelledAt) })}</span>}
         </p>
       )}

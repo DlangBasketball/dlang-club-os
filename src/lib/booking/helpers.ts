@@ -1,4 +1,5 @@
-import type { BillingStatus, BookingQuote, BookingRow, BookingState, BookingStatus } from "./types";
+import type { AvailabilityMode, BillingStatus, BookingQuote, BookingRow, BookingState, BookingStatus } from "./types";
+import { AVAILABILITY_MODES, DEFAULT_REQUEST_FOLLOWUP_HOURS } from "./types";
 
 /*
  * Booking workflow — pure helpers shared by the UI and the server actions.
@@ -56,7 +57,7 @@ export function slotEnd(startIso: string, durationMin: number): string {
 }
 
 /** Blocking codes an admin can lift with an override + reason. */
-export const OVERRIDABLE_ERRORS = ["COACH_UNAVAILABLE", "COACH_NOT_ELIGIBLE"] as const;
+export const OVERRIDABLE_ERRORS = ["COACH_UNAVAILABLE", "COACH_NOT_ELIGIBLE", "VENUE_CLOSED"] as const;
 
 export function quoteSummary(q: Pick<BookingQuote, "errors" | "warnings" | "billing">) {
   const errors = q.errors ?? [];
@@ -66,7 +67,71 @@ export function quoteSummary(q: Pick<BookingQuote, "errors" | "warnings" | "bill
     needsOverride: overridable,
     warnings: (q.warnings ?? []).map((w) => w.code),
     invoiceBlocked: q.billing.billing_mode === "invoice" && (q.billing.setup_missing ?? []).length > 0,
+    /** Confirming creates a request the coach confirms (open availability). */
+    createsRequest: (q as { creates?: string }).creates === "requested",
+    discount: Number(q.billing.discount_total ?? 0),
   };
+}
+
+// ---------------------------------------------------------------------------
+// Booking requests (20250420104700)
+// ---------------------------------------------------------------------------
+/** The club's availability mode from app_settings.settings.booking (unknown values = declared). */
+export function availabilityMode(raw: unknown): AvailabilityMode {
+  return (AVAILABILITY_MODES as readonly string[]).includes(String(raw)) ? (raw as AvailabilityMode) : "declared";
+}
+
+/** Follow-up hours setting, clamped as in SQL bk_settings (1..720, default 48). */
+export function requestFollowupHours(raw: unknown): number {
+  const n = typeof raw === "number" ? raw : typeof raw === "string" && raw.trim() ? Number(raw) : NaN;
+  if (!Number.isFinite(n)) return DEFAULT_REQUEST_FOLLOWUP_HOURS;
+  return Math.min(720, Math.max(1, Math.round(n)));
+}
+
+export const isRequest = (b: Pick<BookingRow, "status">) => b.status === "requested";
+
+/** Whole hours a request has waited (0 when unknown). */
+export function hoursWaiting(requestedAtIso: string | null | undefined, nowIso: string): number {
+  if (!requestedAtIso) return 0;
+  const ms = new Date(nowIso).getTime() - new Date(requestedAtIso).getTime();
+  return ms > 0 ? Math.floor(ms / 3_600_000) : 0;
+}
+
+/** Is an unanswered request due for staff follow-up (mirrors SQL: requested_at older than the hours)? */
+export function isStaleRequest(requestedAtIso: string | null | undefined, nowIso: string, followupHours: number): boolean {
+  if (!requestedAtIso) return false;
+  return new Date(nowIso).getTime() - new Date(requestedAtIso).getTime() > followupHours * 3_600_000;
+}
+
+/** A decline needs a reason (trimmed, at most 500 characters), as booking_request_decline. */
+export function declineReasonOk(reason: string): boolean {
+  const r = reason.trim();
+  return r.length > 0 && r.length <= 500;
+}
+
+/**
+ * Booking status after the finalized attendance mark (mirrors the SQL
+ * trigger bk_attendance_booking_sync): present / late -> completed,
+ * unexcused -> no_show, excused -> booked (with the excused marker).
+ */
+export function statusFromAttendance(mark: string | null | undefined): BookingStatus | null {
+  switch (mark) {
+    case "present": case "late": return "completed";
+    case "unexcused": return "no_show";
+    case "excused": return "booked";
+    default: return null;
+  }
+}
+
+/** Label key of a booking for people: requests wait for the coach; an excused booked session says so. */
+export function bookingDisplayKey(b: { status: BookingStatus; attendance_status?: string | null }): BookingState | "excused" {
+  if (b.status === "booked" && b.attendance_status === "excused") return "excused";
+  return bookingState(b.status);
+}
+
+/** Promo code as typed into a form: upper case, letters / digits / - / _ only, at most 40. */
+export function normalizePromoCode(v: string): string {
+  return v.toUpperCase().replace(/[^A-Z0-9_-]/g, "").slice(0, 40);
 }
 
 /**

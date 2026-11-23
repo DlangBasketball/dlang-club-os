@@ -20,11 +20,12 @@ export function sessionKindLabel(kind: string, t: Translator): string {
 /** Kind badge + roster names + places, shown inside a training card. */
 export function BookedSessionDetails({ session, t, f }: { session: BookedSessionInfo; t: Translator; f: Formatter }) {
   const places = placesTaken(session);
-  const names = session.participants.map((p) => p.name);
+  const names = session.participants.map((p) => (p.status === "requested" ? t("bookingRequests.nameRequested", { name: p.name }) : p.name));
   return (
     <div className="mt-3 space-y-1.5 text-sm text-text-secondary">
       <p className="flex flex-wrap items-center gap-1.5">
         <Badge tone="accent">{sessionKindLabel(session.kind, t)}</Badge>
+        {session.pending && <Badge tone="warning">{t("bookingWorkflow.state.requested")}</Badge>}
         {places.capacity > 1 && (
           <Badge tone={places.full ? "warning" : "neutral"}>
             {t("bookingPortal.coach.places", { taken: places.taken, capacity: places.capacity })}
@@ -50,7 +51,7 @@ export function BookedSessionCard({ session, t, f, showDate }: { session: Booked
   const cancelled = session.status === "cancelled";
   const href = session.eventId ? `/coach/trainings/${session.eventId}` : null;
   return (
-    <article className={cn("rounded-lg border bg-surface p-4", cancelled ? "border-border opacity-80" : "border-border-strong")}
+    <article className={cn("rounded-lg border bg-surface p-4", cancelled ? "border-border opacity-80" : session.pending ? "border-dashed border-warning/60" : "border-border-strong")}
              aria-labelledby={`session-${session.sessionId}`}>
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
@@ -75,7 +76,7 @@ export function BookedSessionCard({ session, t, f, showDate }: { session: Booked
         </li>
       </ul>
       <BookedSessionDetails session={session} t={t} f={f} />
-      {href && !cancelled && (
+      {href && !cancelled && !session.pending && (
         <Link href={`${href}/attendance`} className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "mt-4 w-full")}>
           {t("coachTrainings.card.take")} <ChevronRight className="h-4 w-4" aria-hidden />
         </Link>

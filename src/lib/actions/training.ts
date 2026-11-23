@@ -300,12 +300,14 @@ export async function updateTrainingSettings(input: TrainingSettingsInput): Prom
       ...((before.booking as Record<string, unknown>) ?? {}),
       cancellation_hours: v.cancellationHours, refund_credits_on_cancel: v.refundCreditsOnCancel,
       slot_step_min: v.slotStepMin, lead_hours: v.leadHours, horizon_days: v.horizonDays,
+      availability_mode: v.availabilityMode, request_followup_hours: v.requestFollowupHours,
     },
   };
   const { error } = await admin.from("app_settings").update({ settings: settings as Json }).eq("org_id", me.orgId);
   if (error) return dbFail(error.message);
   await audit(me, "TRAINING_SETTINGS_UPDATED", "app_settings", null, { bookings_enabled: v.enabled, booking: settings.booking });
   revalidateTraining();
+  revalidatePath("/admin/bookings", "layout");
   return { ok: true };
 }
 

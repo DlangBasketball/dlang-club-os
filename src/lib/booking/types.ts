@@ -10,15 +10,15 @@ export const SERVICE_KINDS = ["private", "group", "trial", "package"] as const;
 export type ServiceKind = (typeof SERVICE_KINDS)[number];
 
 /** Database booking status (training_bookings.status). */
-export const BOOKING_STATUSES = ["booked", "completed", "no_show", "cancelled"] as const;
+export const BOOKING_STATUSES = ["requested", "booked", "completed", "no_show", "cancelled"] as const;
 export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 /** Status shown to people: "booked" is a confirmed booking. */
-export const BOOKING_STATES = ["confirmed", "completed", "no_show", "cancelled"] as const;
+export const BOOKING_STATES = ["requested", "confirmed", "completed", "no_show", "cancelled"] as const;
 export type BookingState = (typeof BOOKING_STATES)[number];
 
 /** Billing status, derived from the billing mode, the invoice and its payments. */
 export const BILLING_STATUSES = [
-  "not_billable", "package", "to_invoice", "invoice_draft", "invoiced", "partially_paid", "paid", "credited",
+  "awaiting_confirmation", "not_billable", "package", "to_invoice", "invoice_draft", "invoiced", "partially_paid", "paid", "credited",
 ] as const;
 export type BillingStatus = (typeof BILLING_STATUSES)[number];
 
@@ -33,11 +33,21 @@ export type RefundMode = (typeof REFUND_MODES)[number];
 export const PAYER_KINDS = ["athlete", "guardian", "sponsor", "other"] as const;
 export type PayerKind = (typeof PAYER_KINDS)[number];
 
-export const NOTIFICATION_KINDS = ["confirmed", "rescheduled", "cancelled"] as const;
+export const NOTIFICATION_KINDS = [
+  "confirmed", "rescheduled", "cancelled", "requested", "request_confirmed", "request_declined", "request_withdrawn",
+] as const;
 export type BookingNotificationKind = (typeof NOTIFICATION_KINDS)[number];
 export const NOTIFICATION_STATUSES = ["pending", "sending", "sent", "failed", "no_contact", "skipped"] as const;
 export type BookingNotificationStatus = (typeof NOTIFICATION_STATUSES)[number];
-export const RECIPIENT_KINDS = ["payer", "guardian", "family", "coach", "player"] as const;
+export const RECIPIENT_KINDS = ["payer", "guardian", "family", "coach", "player", "admin"] as const;
+
+/** Club setting app_settings.settings.booking.availability_mode (default "declared"). */
+export const AVAILABILITY_MODES = ["declared", "open_confirm"] as const;
+export type AvailabilityMode = (typeof AVAILABILITY_MODES)[number];
+/** Default hours after which an unanswered request is listed in the booking follow-ups. */
+export const DEFAULT_REQUEST_FOLLOWUP_HOURS = 48;
+export type RequestSource = "staff" | "family";
+export type RequestDecision = "confirmed" | "declined" | "withdrawn";
 export type RecipientKind = (typeof RECIPIENT_KINDS)[number];
 
 /** Delivery attempts of one notification row before it needs staff follow-up (= SQL claim limit). */
@@ -59,12 +69,18 @@ export const BOOKING_ERROR_CODES = [
   // money functions reused by cancel / reschedule / payments
   "HAS_PAYMENTS", "CANNOT_CANCEL", "CREDIT_EXCEEDS_AMOUNT_DUE", "INVALID_AMOUNT", "INVALID_METHOD", "INVOICE_CANCELLED",
   "INVALID_DATE",
+  // booking requests (20250420104700)
+  "VENUE_CLOSED", "REQUEST_PENDING", "NOT_A_REQUEST", "BOOKING_REQUEST_MANAGED", "BOOKINGS_DISABLED", "SLOT_IN_PAST",
+  "PROMO_UNKNOWN_CODE", "PROMO_OUT_OF_SCOPE", "PROMO_NOT_YET_VALID", "PROMO_EXPIRED", "PROMO_CURRENCY_MISMATCH",
+  "PROMO_LIMIT_REACHED", "PROMO_FAMILY_LIMIT_REACHED", "PROMO_NOT_COMBINABLE", "PROMO_NOT_APPLICABLE",
+  "PROMO_WITH_PRICE_OVERRIDE", "PROMO_CHANGED",
 ] as const;
 export type BookingErrorCode = (typeof BOOKING_ERROR_CODES)[number];
 
 /** Non-blocking findings of a quote / confirm / reschedule. Translations: bookingWorkflow.warnings.<CODE>. */
 export const BOOKING_WARNING_CODES = [
   "ATHLETE_OVERLAP", "AVAILABILITY_OVERRIDDEN", "COACH_NOT_ELIGIBLE_OVERRIDDEN", "COACH_TEAM_EVENT_OVERLAP", "SLOT_IN_PAST",
+  "VENUE_CLOSED_OVERRIDDEN", "NEEDS_COACH_CONFIRMATION",
 ] as const;
 export type BookingWarningCode = (typeof BOOKING_WARNING_CODES)[number];
 
@@ -89,6 +105,7 @@ const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const text = (max: number) => z.string().trim().max(max);
 const optText = (max: number) => text(max).nullish().transform((v) => (v ? v : null));
 const money = z.coerce.number().finite().min(0).max(100000);
+const promoCode = z.string().trim().toUpperCase().max(40).regex(/^[A-Z0-9_-]*$/).nullish().transform((v) => (v ? v : null));
 
 export const bookingPayloadSchema = z.object({
   athleteId: uuid,
@@ -110,6 +127,8 @@ export const bookingPayloadSchema = z.object({
   overrideReason: optText(500),
   notes: optText(2000),
   notify: z.boolean().default(true),
+  /** Promo code (shared discount engine); single paid sessions at list price only. */
+  promoCode,
 }).refine((v) => Boolean(v.sessionId) || (Boolean(v.coachId) && Boolean(v.startsAt)), { message: "slot_required", path: ["startsAt"] });
 export type BookingPayloadInput = z.input<typeof bookingPayloadSchema>;
 export type BookingPayload = z.output<typeof bookingPayloadSchema>;
@@ -127,6 +146,25 @@ export const reschedulePayloadSchema = z.object({
   notify: z.boolean().default(true),
 }).refine((v) => Boolean(v.sessionId) || Boolean(v.startsAt), { message: "slot_required", path: ["startsAt"] });
 export type ReschedulePayloadInput = z.input<typeof reschedulePayloadSchema>;
+
+/** Family request (parent portal): own child, family payer, auto billing, no overrides. */
+export const familyRequestSchema = z.object({
+  athleteId: uuid,
+  serviceId: uuid,
+  coachId: optUuid,
+  sessionId: optUuid,
+  startsAt: isoInstant.nullish(),
+  notes: optText(1000),
+  promoCode,
+}).refine((v) => Boolean(v.sessionId) || Boolean(v.startsAt), { message: "slot_required", path: ["startsAt"] });
+export type FamilyRequestInput = z.input<typeof familyRequestSchema>;
+
+export const declinePayloadSchema = z.object({
+  bookingId: uuid,
+  reason: text(500).min(1),
+  notify: z.boolean().default(true),
+});
+export type DeclinePayloadInput = z.input<typeof declinePayloadSchema>;
 
 export const cancelPayloadSchema = z.object({
   bookingId: uuid,
@@ -192,7 +230,14 @@ export function toBookingRpcPayload(p: BookingPayload): Record<string, unknown> 
     starts_at: p.startsAt ? new Date(p.startsAt).toISOString() : null, venue_space_id: p.venueSpaceId, payer_id: p.payerId,
     billing: p.billing, purchase_id: p.purchaseId, price: p.price, price_reason: p.priceReason,
     override_availability: p.overrideAvailability || null, override_reason: p.overrideReason, notes: p.notes,
-    notify: p.notify,
+    notify: p.notify, promo_code: p.promoCode,
+  });
+}
+
+export function toFamilyRequestRpcPayload(p: z.output<typeof familyRequestSchema>): Record<string, unknown> {
+  return compact({
+    athlete_id: p.athleteId, service_id: p.serviceId, coach_id: p.coachId, session_id: p.sessionId,
+    starts_at: p.startsAt ? new Date(p.startsAt).toISOString() : null, notes: p.notes, promo_code: p.promoCode,
   });
 }
 
@@ -229,16 +274,22 @@ export type BookingQuote = {
   slot: {
     session_id: string | null; coach_id: string | null; starts_at: string | null; ends_at: string | null;
     venue_id: string | null; venue_space_id: string | null; capacity: number | null; participants: number; places_left: number | null;
+    within_availability?: boolean; needs_confirmation?: boolean; session_pending?: boolean; availability_mode?: AvailabilityMode;
   };
   billing: {
     billing_mode: BillingMode; price: number; list_price: number; currency: string; price_override: boolean;
     purchase_id: string | null; package_remaining: number | null; billing_status: BillingStatus; setup_missing: SetupMissingCode[];
+    discount_total?: number; discount_lines?: DiscountLine[]; promo?: "none" | "applied" | "rejected"; promo_code?: string | null;
   };
+  /** What confirming creates: a confirmed booking, or a request the coach confirms. */
+  creates?: "booked" | "requested";
   service: { id: string; name: string; kind: ServiceKind; duration_min: number; billing_category: string; max_participants: number };
   billing_entity: { id: string; name: string } | null;
   number_prefix: string | null;
   payer: PayerSnapshot;
 };
+
+export type DiscountLine = { discount_id: string; name: string; rule: string; code: string | null; kind: string; value: number; amount: number };
 
 export type PayerSnapshot = {
   payer_id: string | null; kind: PayerKind | "family"; invoice_payer_kind: "guardian" | "family" | "sponsor" | "other";
@@ -251,6 +302,47 @@ export type ConfirmResult = {
   ok: true; booking_id: string; session_id: string; event_id: string; starts_at: string; ends_at: string; coach_id: string;
   billing_mode: BillingMode; billing_status: BillingStatus; price: number; currency: string; purchase_id: string | null;
   invoice_id: string | null; warnings: BookingWarning[]; setup_missing: SetupMissingCode[]; replayed: boolean;
+  status?: "booked" | "requested"; requested?: boolean; discount_total?: number;
+};
+
+export type RequestDecisionResult = {
+  ok: true; booking_id: string; status: BookingStatus; session_id?: string | null; session_status?: string | null;
+  package_restored?: boolean; billing_status?: BillingStatus; already_decided?: boolean; replayed?: boolean;
+};
+
+export type FamilyCatalogService = {
+  id: string; name: string; kind: ServiceKind; duration_min: number; price: number; currency: string; max_participants: number;
+  venue_name: string | null; coaches: { id: string; display_name: string }[]; package_remaining: number;
+  sessions: { session_id: string; starts_at: string; ends_at: string; coach_id: string; coach_name: string | null; places_left: number; pending: boolean }[];
+};
+
+export type FamilyCatalog = {
+  athlete: { id: string; first_name: string; last_name: string };
+  timezone: string;
+  availability_mode: AvailabilityMode;
+  enabled: boolean;
+  services: FamilyCatalogService[];
+};
+
+export type FamilyQuote = {
+  ok: boolean; errors: string[]; warnings: BookingWarning[]; creates: "requested";
+  slot: { session_id: string | null; coach_id: string | null; coach_name: string | null; starts_at: string | null; ends_at: string | null;
+          places_left: number | null; capacity: number | null; within_availability: boolean };
+  billing: { billing_mode: BillingMode | null; price: number | null; list_price: number | null; currency: string | null;
+             package_remaining: number | null; discount_total: number | null; promo: "none" | "applied" | "rejected" | null; promo_code: string | null };
+  service: { id: string; name: string; kind: ServiceKind; duration_min: number };
+};
+
+export type FamilyRequestResult = {
+  ok: true; booking_id: string; status: "requested"; session_id: string; starts_at: string; ends_at: string; coach_id: string;
+  billing_mode: BillingMode; price: number; currency: string; discount_total: number; replayed?: boolean;
+};
+
+export type CoachBookingRequest = {
+  booking_id: string; session_id: string | null; event_id: string | null; service_id: string; service_name: string; kind: ServiceKind;
+  coach_id: string; coach_name: string | null; starts_at: string; ends_at: string | null; location: string | null;
+  athlete_first_name: string; athlete_last_name: string; source: RequestSource | null; requested_at: string | null; stale: boolean;
+  participants_count: number; capacity: number | null;
 };
 
 export type InvoiceResult =
@@ -286,6 +378,11 @@ export type BookingRow = {
   location: string | null; price: number | null; list_price: number | null; currency: string; price_override_reason: string | null;
   invoice: { id: string; number: string; status: string; due_date: string | null; total: number; paid: number; balance: number } | null;
   warnings: BookingWarning[]; cancel_reason: string | null; cancelled_at: string | null;
+  discount_total?: number; promo_code?: string | null;
+  request?: { source: RequestSource | null; requested_at: string; requested_by_name: string | null; decision: RequestDecision | null;
+              decided_at: string | null; decided_by_name: string | null; stale: boolean } | null;
+  /** Finalized attendance mirrored on the booking: present / late / excused / unexcused. */
+  attendance_status?: "present" | "late" | "excused" | "unexcused" | null;
 };
 
 export type BookingDetail = BookingRow & {
@@ -299,21 +396,28 @@ export type BookingDetail = BookingRow & {
   invoice_deliveries: { email_log_id: string; to_email: string; status: string; error: string | null; attempts: number;
                         sent_at: string | null; created_at: string }[];
   invoice_preview: Record<string, unknown> | null;
+  can_decide?: boolean;
+  discounts?: { name: string; code: string | null; amount: number; currency: string; invoice_id: string | null; voided_at: string | null }[];
+  absence_report?: { report_id: string; status: string; reason_category: string; created_at: string } | null;
 };
 
 export type CoachAgendaSession = {
   session_id: string; event_id: string | null; service_id: string; service_name: string; kind: ServiceKind;
   starts_at: string; ends_at: string; status: string; rescheduled_from: string | null; location: string | null;
   venue_space: string | null; capacity: number; participants_count: number; sheet_status: string | null;
+  /** Only requests so far (awaiting the coach). */
+  pending?: boolean; requests_count?: number;
   participants: { athlete_id: string; first_name: string; last_name: string; booking_status: BookingStatus }[];
 };
 
 export type PortalBookings = {
   athlete: { id: string; first_name: string; last_name: string };
   upcoming: { booking_id: string; service_name: string; coach_name: string | null; starts_at: string; ends_at: string | null;
-              status: BookingStatus; rescheduled_from: string | null; rescheduled_at: string | null; location: string | null }[];
-  changes: { booking_id: string; service_name: string; starts_at: string; change: "cancelled" | "rescheduled"; at: string }[];
-  attendance: { event_id: string; service_name: string; starts_at: string; status: string }[];
+              status: BookingStatus; rescheduled_from: string | null; rescheduled_at: string | null; location: string | null;
+              awaiting_confirmation?: boolean; can_withdraw?: boolean; requested_at?: string | null; event_id?: string | null;
+              can_report_absence?: boolean; absence_report?: { report_id: string; status: string; reason_category: string } | null }[];
+  changes: { booking_id: string; service_name: string; starts_at: string; change: "cancelled" | "rescheduled" | "declined" | "withdrawn"; at: string }[];
+  attendance: { event_id: string; service_name: string; starts_at: string; status: string; booking_status?: BookingStatus | null }[];
   /** Only invoices the viewer may see as the payer (always empty for players). */
   invoices: { invoice_id: string; number: string; status: string; due_date: string | null; currency: string; total: number;
               balance: number; booking_id: string; service_name: string }[];
@@ -321,5 +425,6 @@ export type PortalBookings = {
 
 export type DashboardCounts = {
   today: number; next_7_days: number; awaiting_invoice: number; failed_notifications: number;
+  awaiting_confirmation?: number; stale_requests?: number;
   outstanding: { currency: string; amount: number; count: number }[];
 };

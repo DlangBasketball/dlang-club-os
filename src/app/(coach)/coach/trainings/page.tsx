@@ -3,8 +3,9 @@ import { CalendarClock, ChevronRight, ClipboardList } from "lucide-react";
 import { Badge, EmptyState, ErrorState, PageHeader, buttonVariants } from "@/components/ui";
 import { TrainingCardView, eventTypeLabel } from "@/components/attendance/coach/training-card";
 import { BookedSessionCard } from "@/components/booking/portal/coach-session";
+import { CoachBookingRequests } from "@/components/booking/portal/coach-requests";
 import { getTrainingCards, type TrainingCard } from "@/lib/attendance/coach-data";
-import { getCoachAgenda } from "@/lib/booking/data";
+import { getCoachAgenda, getCoachBookingRequests } from "@/lib/booking/data";
 import { mergeCoachTrainings, type CoachListEntry } from "@/lib/booking/portal";
 import { getAwaitingSessions } from "@/lib/attendance/data";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -36,11 +37,13 @@ export default async function CoachTrainingsPage() {
   const today = zonedDayKey(new Date(), tz);
   const from = zonedWallTimeToUtc(today, "00:00", tz) ?? new Date();
   const to = zonedWallTimeToUtc(addDayKey(today, DAYS_AHEAD + 1), "00:00", tz) ?? new Date(Date.now() + (DAYS_AHEAD + 1) * 86400000);
-  const [cards, awaiting, agenda] = await Promise.all([
+  const [cards, awaiting, agenda, requests] = await Promise.all([
     getTrainingCards({ from: from.toISOString(), to: to.toISOString() }),
     getAwaitingSessions({ limit: 50 }),
     // Not every coach leads booked sessions: a refusal (no coach profile) just means none.
     getCoachAgenda({ from: from.toISOString(), to: to.toISOString() }),
+    // Requests waiting for this coach (an admin without a coach profile sees none here).
+    me.roles.includes("coach") ? getCoachBookingRequests() : Promise.resolve({ data: [], error: null }),
   ]);
 
   const list = mergeCoachTrainings(cards.data ?? [], agenda.data ?? []);
@@ -70,6 +73,8 @@ export default async function CoachTrainingsPage() {
         <ErrorState title={t("coachTrainings.loadError")} message={t("coachTrainings.loadErrorHint")}
                     action={<Link href="/coach/trainings" className={buttonVariants({ variant: "secondary", size: "sm" })}>{t("coachTrainings.retry")}</Link>} />
       )}
+
+      <CoachBookingRequests rows={requests.data ?? []} t={t} f={f} />
 
       {overdue.length > 0 && (
         <section aria-labelledby="awaiting-h" className="space-y-2">

@@ -72,12 +72,13 @@ export default async function AttendanceRecordPage({ params, searchParams }: {
   const cancelled = ev.status === "cancelled";
   const lastAlert = rec.alerts.find((a) => a.sent_at);
   const statusLabel = (s: string) => t.dynamic(`teamAttendance.statuses.${s}`, undefined, s);
+  const booked = Boolean(ev.training_session_id);
 
   return (
     <div className="animate-fade-up space-y-5">
       {back}
       <PageHeader
-        eyebrow={`${t.dynamic(`familyAttendance.upcoming.types.${ev.type}`, undefined, ev.type)} · ${ev.team_name ?? ""}`}
+        eyebrow={`${booked ? t("bookingPortal.bookedSession") : t.dynamic(`familyAttendance.upcoming.types.${ev.type}`, undefined, ev.type)} · ${ev.team_name ?? ""}`}
         title={name}
         description={f.dateTime(ev.starts_at, "full")}
       />
@@ -100,8 +101,14 @@ export default async function AttendanceRecordPage({ params, searchParams }: {
               </dd>
             </div>
             <div>
-              <dt className="eyebrow">{t("familyAttendance.record.team")}</dt>
-              <dd className="mt-1.5 text-sm text-text">{ev.team_name ?? "—"}</dd>
+              <dt className="eyebrow">{booked ? t("bookingPortal.bookedSession") : t("familyAttendance.record.team")}</dt>
+              <dd className="mt-1.5 text-sm text-text">
+                {ev.team_name ?? "—"}
+                {booked && rec.session?.coach_name && <span className="block text-xs text-text-muted">{rec.session.coach_name}</span>}
+                {booked && rec.session?.booking_id && (
+                  <Link href={`/parent/bookings/${rec.session.booking_id}`} className="mt-1 block text-xs text-brand-primary hover:underline">{t("bookingRequests.viewBooking")}</Link>
+                )}
+              </dd>
             </div>
             <div>
               <dt className="eyebrow">{t("familyAttendance.record.when")}</dt>

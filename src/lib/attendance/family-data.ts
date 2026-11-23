@@ -41,8 +41,12 @@ export type FamilyOverview = {
 export type AttendanceRecord = {
   athlete: { id: string; first_name: string; last_name: string };
   timezone: string;
-  event: { id: string; team_id: string; team_name: string | null; type: string; title: string | null; starts_at: string; ends_at: string;
-           status: string; cancel_reason: string | null; rescheduled_from: string | null; location: string | null; ended: boolean };
+  event: { id: string; team_id: string | null; team_name: string | null; type: string; title: string | null; starts_at: string; ends_at: string;
+           status: string; cancel_reason: string | null; rescheduled_from: string | null; location: string | null; ended: boolean;
+           /** Booked training session (no team): the record page shows the service and coach (since 20250420104700). */
+           training_session_id?: string | null };
+  session?: null | { service_name: string | null; coach_name: string | null; booking_id: string | null; booking_status: string | null;
+                     attendance_status: string | null };
   attendance: null | { status: string; is_guest: boolean; finalized_at: string | null; corrected: boolean };
   final: boolean;
   can_request_correction: boolean;

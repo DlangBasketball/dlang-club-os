@@ -19,6 +19,7 @@ type ClaimRow = {
   recipient_kind: ClaimedBookingNotification["recipientKind"]; recipient_profile_id: string | null; recipient_email: string | null;
   recipient_name: string | null; attempts: number; service_name: string; coach_name: string | null; athlete_first_name: string;
   starts_at: string; ends_at: string | null; previous_starts_at: string | null; location_name: string | null; timezone: string;
+  reason?: string | null;
 };
 
 export function bookingNotificationStore(): BookingNotificationStore {
@@ -32,6 +33,7 @@ export function bookingNotificationStore(): BookingNotificationStore {
         recipientProfileId: r.recipient_profile_id, recipientEmail: r.recipient_email, recipientName: r.recipient_name,
         attempts: r.attempts, serviceName: r.service_name, coachName: r.coach_name, athleteFirstName: r.athlete_first_name,
         startsAt: r.starts_at, endsAt: r.ends_at, previousStartsAt: r.previous_starts_at, locationName: r.location_name, timeZone: r.timezone,
+        reason: r.reason ?? null,
       }));
     },
     async record(id, status, error, notificationId, emailLogId) {

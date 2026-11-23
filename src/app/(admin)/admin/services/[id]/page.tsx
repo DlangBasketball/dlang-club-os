@@ -31,7 +31,7 @@ export default async function EditServicePage({ params }: { params: Promise<{ id
           <CardBody>
             <ServiceBookingSetup serviceId={service.id} canEdit={!!me?.roles.includes("admin")} coaches={bookingCoaches} spaces={spaces}
               setupMissing={entry.setup_missing} numberPrefix={entry.number_prefix}
-              initial={{ kind: entry.kind, billingCategory: entry.billing_category, defaultVenueSpaceId: entry.default_venue_space_id, maxParticipants: entry.max_participants, coachIds: entry.coaches.map((c) => c.id) }} />
+              initial={{ kind: entry.kind, billingCategory: entry.billing_category, defaultVenueSpaceId: entry.default_venue_space_id, maxParticipants: entry.max_participants, coachIds: entry.coaches.map((c) => c.id), bookableByFamilies: entry.bookable_by_families }} />
           </CardBody>
         </Card>
       )}

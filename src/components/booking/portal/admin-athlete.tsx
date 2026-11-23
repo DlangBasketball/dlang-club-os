@@ -15,7 +15,7 @@ import type { Translator } from "@/lib/i18n/translator";
  */
 
 const BILLING_TONE: Record<BillingStatus, "neutral" | "info" | "warning" | "success" | "danger" | "accent"> = {
-  not_billable: "neutral", package: "accent", to_invoice: "warning", invoice_draft: "info", invoiced: "info",
+  awaiting_confirmation: "accent", not_billable: "neutral", package: "accent", to_invoice: "warning", invoice_draft: "info", invoiced: "info",
   partially_paid: "warning", paid: "success", credited: "neutral",
 };
 

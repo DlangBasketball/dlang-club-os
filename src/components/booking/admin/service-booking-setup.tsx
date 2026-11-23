@@ -18,7 +18,7 @@ import { useT } from "@/lib/i18n/client";
  */
 export function ServiceBookingSetup({ serviceId, initial, coaches, spaces, setupMissing, numberPrefix, canEdit }: {
   serviceId: string; canEdit: boolean;
-  initial: { kind: ServiceKind; billingCategory: string; defaultVenueSpaceId: string | null; maxParticipants: number; coachIds: string[] };
+  initial: { kind: ServiceKind; billingCategory: string; defaultVenueSpaceId: string | null; maxParticipants: number; coachIds: string[]; bookableByFamilies?: boolean };
   coaches: CoachOption[]; spaces: SpaceOption[]; setupMissing: SetupMissingCode[]; numberPrefix: string | null;
 }) {
   const t = useT();
@@ -27,6 +27,7 @@ export function ServiceBookingSetup({ serviceId, initial, coaches, spaces, setup
     kind: initial.kind,
     billingCategory: ((SELECTABLE_CATEGORIES as readonly string[]).includes(initial.billingCategory) ? initial.billingCategory : "training") as RevenueCategory,
     defaultVenueSpaceId: initial.defaultVenueSpaceId ?? "", maxParticipants: String(initial.maxParticipants), coachIds: initial.coachIds,
+    bookableByFamilies: initial.bookableByFamilies ?? initial.kind !== "package",
   });
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
@@ -37,7 +38,7 @@ export function ServiceBookingSetup({ serviceId, initial, coaches, spaces, setup
     setBusy(true); setMsg(null);
     const res = await saveServiceBookingSetup({
       serviceId, kind: v.kind, billingCategory: v.billingCategory, defaultVenueSpaceId: v.defaultVenueSpaceId || null,
-      maxParticipants: Number(v.maxParticipants) || 1, coachIds: v.coachIds,
+      maxParticipants: Number(v.maxParticipants) || 1, coachIds: v.coachIds, bookableByFamilies: v.bookableByFamilies,
     });
     setBusy(false);
     setMsg({ ok: res.ok, text: res.ok ? res.message ?? t("common.saved") : res.error });
@@ -94,6 +95,11 @@ export function ServiceBookingSetup({ serviceId, initial, coaches, spaces, setup
           </div>
           <FieldHint>{t("adminBooking.services.coachesHint")}</FieldHint>
         </fieldset>
+        <label className="flex items-start gap-2 text-sm text-ink-2">
+          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-[var(--red-primary)]" checked={v.bookableByFamilies}
+            onChange={(e) => set("bookableByFamilies", e.target.checked)} />
+          <span>{t("bookingRequests.services.bookableByFamilies")}<span className="block text-xs text-text-muted">{t("bookingRequests.services.bookableHint")}</span></span>
+        </label>
       </fieldset>
       {msg && <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{msg.text}</p>}
       {canEdit && <Button type="submit" disabled={busy}>{busy ? t("common.saving") : t("adminBooking.services.save")}</Button>}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { CalendarPlus, Plus } from "lucide-react";
 import { Button, ErrorState, PageHeader } from "@/components/ui";
 import { BookedAttendance, BookingChanges, BookingInvoices, UpcomingBookings } from "@/components/booking/portal/family-bookings";
 import { getGuardianBookings } from "@/lib/booking/data";
@@ -26,7 +26,12 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
   const [{ t, f }, overview, settings] = await Promise.all([getI18n(), getGuardianBookings(), getBookingSettings()]);
   const title = t("bookingPortal.family.title");
   const action = settings.enabled
-    ? <Link href="/parent/bookings/new"><Button size="sm"><Plus className="h-4 w-4" aria-hidden /> {t("bookingPortal.family.book")}</Button></Link>
+    ? (
+      <div className="flex flex-wrap gap-2">
+        <Link href="/parent/bookings/request"><Button size="sm" variant="secondary"><CalendarPlus className="h-4 w-4" aria-hidden /> {t("bookingRequests.family.requestCta")}</Button></Link>
+        <Link href="/parent/bookings/new"><Button size="sm"><Plus className="h-4 w-4" aria-hidden /> {t("bookingPortal.family.book")}</Button></Link>
+      </div>
+    )
     : undefined;
 
   if (overview.error || !overview.data) {
@@ -68,7 +73,7 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
         </nav>
       )}
 
-      <UpcomingBookings rows={flattenUpcoming(kids)} t={t} f={f} showChild={showChild}
+      <UpcomingBookings rows={flattenUpcoming(kids)} t={t} f={f} showChild={showChild} familyActions
         detailHref={(id) => `/parent/bookings/${id}`} invoiceFor={(id) => invoices.get(id)} />
       <BookingChanges rows={flattenChanges(kids)} t={t} f={f} showChild={showChild} />
       <BookedAttendance rows={flattenAttendance(kids)} t={t} f={f} showChild={showChild} />

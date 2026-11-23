@@ -2601,7 +2601,8 @@
       "booked": "Prenotato",
       "completed": "Presente",
       "no_show": "Assente",
-      "cancelled": "Annullato"
+      "cancelled": "Annullato",
+      "requested": "In attesa di conferma"
     },
     "adminBookings": {
       "title": "Prenotazioni di allenamento",
@@ -8290,6 +8291,25 @@
       "line": "La sessione {service} di {athlete} ha un nuovo orario.",
       "when": "Nuovo orario: {when} (prima {before}).",
       "cta": "Vedi prenotazione"
+    },
+    "booking_requested": {
+      "title": "Nuova richiesta di prenotazione",
+      "body": "{athlete} · {service} · {when}: confermate o rifiutate, per favore.",
+      "subject": "Richiesta di prenotazione — {service}",
+      "heading": "Una seduta attende la vostra conferma",
+      "line": "{athlete} ha richiesto {service} il {when}.",
+      "action": "Il posto resta riservato finché non confermate o rifiutate la richiesta.",
+      "cta": "Vedi la richiesta"
+    },
+    "booking_request_declined": {
+      "title": "Richiesta di prenotazione rifiutata",
+      "body": "{service} · {when} non ha potuto essere confermato.",
+      "bodyReason": "{service} · {when} non ha potuto essere confermato: {reason}",
+      "subject": "Richiesta rifiutata — {service}",
+      "heading": "La vostra richiesta non ha potuto essere confermata",
+      "line": "La richiesta per {athlete} ({service}, {when}) è stata rifiutata. Non si fattura nulla.",
+      "reason": "Motivo: {reason}",
+      "cta": "Richiedi un altro orario"
     }
   },
   "pdf": {
@@ -11826,7 +11846,8 @@
       "TRAINING_IN_BREAK": "Questa data cade in una pausa allenamenti del club.",
       "LABEL_REQUIRED": "Dai un nome alla pausa.",
       "BREAK_DATES_INVALID": "Controlla le date della pausa (al massimo un anno).",
-      "BREAK_NOT_FOUND": "Questa pausa non è stata trovata."
+      "BREAK_NOT_FOUND": "Questa pausa non è stata trovata.",
+      "NOT_BOOKED": "Solo una prenotazione confermata può essere segnalata come assenza."
     },
     "messages": {
       "saved": "Salvato.",
@@ -12471,14 +12492,33 @@
       "INVOICE_CANCELLED": "La fattura è annullata.",
       "INVALID_DATE": "Scegli una data valida.",
       "generic": "Si è verificato un errore. Riprova.",
-      "invalid": "Controlla i campi evidenziati."
+      "invalid": "Controlla i campi evidenziati.",
+      "VENUE_CLOSED": "La struttura è chiusa a quest'ora. Scegliete un orario nell'orario di apertura.",
+      "REQUEST_PENDING": "Questa prenotazione attende ancora la conferma dell'allenatore.",
+      "NOT_A_REQUEST": "Questa prenotazione non è più una richiesta aperta.",
+      "BOOKING_REQUEST_MANAGED": "Le richieste si confermano o rifiutano dalle schermate delle prenotazioni.",
+      "BOOKINGS_DISABLED": "La prenotazione online è disattivata per questo club.",
+      "SLOT_IN_PAST": "Questo orario è già passato.",
+      "PROMO_WITH_PRICE_OVERRIDE": "Un codice promozionale non si può combinare con un prezzo manuale.",
+      "PROMO_CHANGED": "Lo sconto è cambiato nel frattempo. Controllate il prezzo e riprovate.",
+      "PROMO_UNKNOWN_CODE": "Questo codice non è valido.",
+      "PROMO_OUT_OF_SCOPE": "Questo codice non vale qui.",
+      "PROMO_NOT_YET_VALID": "Questo codice non è ancora valido.",
+      "PROMO_EXPIRED": "Questo codice è scaduto.",
+      "PROMO_CURRENCY_MISMATCH": "Questo codice è per un'altra valuta.",
+      "PROMO_LIMIT_REACHED": "Questo codice è esaurito.",
+      "PROMO_FAMILY_LIMIT_REACHED": "La tua famiglia ha già usato questo codice.",
+      "PROMO_NOT_COMBINABLE": "Questo codice non è cumulabile con uno sconto migliore già applicato.",
+      "PROMO_NOT_APPLICABLE": "Un codice vale solo se paghi ora (non con le sessioni del pacchetto)."
     },
     "warnings": {
       "ATHLETE_OVERLAP": "L'atleta ha un'altra prenotazione alla stessa ora.",
       "AVAILABILITY_OVERRIDDEN": "Prenotato fuori dalla disponibilità dell'allenatore (eccezione registrata).",
       "COACH_NOT_ELIGIBLE_OVERRIDDEN": "L'allenatore di solito non offre questo servizio (eccezione registrata).",
       "COACH_TEAM_EVENT_OVERLAP": "L'allenatore ha un evento di squadra alla stessa ora.",
-      "SLOT_IN_PAST": "Questo orario è nel passato."
+      "SLOT_IN_PAST": "Questo orario è nel passato.",
+      "VENUE_CLOSED_OVERRIDDEN": "Prenotato fuori dall'orario di apertura (deroga registrata).",
+      "NEEDS_COACH_CONFIRMATION": "Fuori dalla disponibilità dell'allenatore: il posto resta riservato fino alla sua conferma."
     },
     "setup": {
       "BILLING_CATEGORY_MISSING": "Scegli una categoria di ricavo per questo servizio.",
@@ -12493,14 +12533,16 @@
       "invoiced": "Fatturato",
       "partially_paid": "Pagato in parte",
       "paid": "Pagato",
-      "credited": "Accreditato"
+      "credited": "Accreditato",
+      "awaiting_confirmation": "Non fatturato fino alla conferma"
     },
     "state": {
-      "requested": "Richiesta",
+      "requested": "In attesa di conferma dell'allenatore",
       "confirmed": "Confermata",
       "completed": "Completata",
       "no_show": "Assente",
-      "cancelled": "Annullata"
+      "cancelled": "Annullata",
+      "excused": "Assenza giustificata"
     },
     "notificationStatus": {
       "pending": "In coda",
@@ -12521,7 +12563,12 @@
       "payerSaved": "Pagante salvato.",
       "athleteCreated": "Atleta creato.",
       "notificationRequeued": "Notifica rimessa in coda.",
-      "coachesSaved": "Allenatori salvati."
+      "coachesSaved": "Allenatori salvati.",
+      "requested": "Richiesta inviata: l'allenatore conferma questo orario.",
+      "requestConfirmed": "Richiesta confermata.",
+      "requestDeclined": "Richiesta rifiutata.",
+      "requestSent": "La richiesta è stata inviata. Vi avvisiamo quando l'allenatore la conferma.",
+      "requestWithdrawn": "Richiesta ritirata."
     }
   },
   "adminBooking": {
@@ -12789,14 +12836,19 @@
       "notifyKind": {
         "confirmed": "Conferma",
         "rescheduled": "Cambio d'orario",
-        "cancelled": "Annullamento"
+        "cancelled": "Annullamento",
+        "requested": "Richiesta di prenotazione",
+        "request_confirmed": "Richiesta confermata",
+        "request_declined": "Richiesta rifiutata",
+        "request_withdrawn": "Richiesta ritirata"
       },
       "recipientKind": {
         "payer": "Pagatore",
         "guardian": "Tutore",
         "family": "Contatto della famiglia",
         "coach": "Allenatore",
-        "player": "Giocatore"
+        "player": "Giocatore",
+        "admin": "Amministratore"
       }
     },
     "toInvoice": {
@@ -12921,6 +12973,102 @@
       "sessionAttendanceHint": "Presenze registrate sui fogli delle sessioni individuali e di gruppo prenotate.",
       "bookingInvoices": "Fatture da prenotazioni",
       "bookingInvoicesHint": "Ogni fattura rimanda alla prenotazione fatturata."
+    }
+  },
+  "bookingRequests": {
+    "confirm": "Conferma",
+    "decline": "Rifiuta",
+    "declineReason": "Motivo (inviato alla famiglia)",
+    "declineHint": "Il posto si libera, la seduta del pacchetto viene restituita e non si fattura nulla.",
+    "declineConfirm": "Rifiuta la richiesta",
+    "withdraw": "Ritira la richiesta",
+    "withdrawConfirm": "Sì, ritira",
+    "detailTitle": "Richiesta di prenotazione",
+    "stale": "In attesa da troppo",
+    "source": "Richiesta da",
+    "sourceKind": {
+      "staff": "Staff del club",
+      "family": "Famiglia"
+    },
+    "requestedAt": "Richiesta il",
+    "waiting": "In attesa da",
+    "hours": "{count, plural, one {# ora} other {# ore}}",
+    "decision": "Decisione",
+    "decisionKind": {
+      "confirmed": "Confermata",
+      "declined": "Rifiutata",
+      "withdrawn": "Ritirata"
+    },
+    "adminHint": "Di solito conferma l'allenatore. Come amministratore potete decidere al suo posto.",
+    "coachDecides": "L'allenatore o un amministratore conferma o rifiuta questa richiesta.",
+    "attendanceStatus": "Presenza",
+    "absenceReported": "Assenza segnalata",
+    "filterAwaiting": "In attesa dell'allenatore",
+    "adminCreatesRequest": "Fuori dalla disponibilità dichiarata dell'allenatore: diventa una richiesta che riserva il posto fino alla conferma. Prima non si fattura.",
+    "adminSendRequest": "Invia all'allenatore per la conferma",
+    "coachTitle": "Richieste di prenotazione",
+    "coachHint": "Questi orari sono riservati per voi. Confermateli o rifiutateli con un motivo per la famiglia.",
+    "requestedOn": "Richiesta il {when}",
+    "nameRequested": "{name} (richiesta)",
+    "viewBooking": "Vedi la prenotazione",
+    "dashboard": {
+      "awaiting": "In attesa dell'allenatore",
+      "stale": "{count, plural, one {# in attesa da troppo} other {# in attesa da troppo}}",
+      "waiting": "{count, plural, one {in attesa da # ora} other {in attesa da # ore}}"
+    },
+    "promo": {
+      "discount": "Sconto",
+      "remove": "Rimuovi",
+      "hint": "Vale per una seduta al prezzo di listino; compare in fattura come riga di sconto."
+    },
+    "services": {
+      "bookableByFamilies": "Le famiglie possono richiedere questo servizio dal portale genitori",
+      "bookableHint": "Le richieste delle famiglie attendono sempre la conferma dell'allenatore (o del club)."
+    },
+    "settings": {
+      "title": "Disponibilità degli allenatori",
+      "declared": "Le prenotazioni devono rientrare nella disponibilità dichiarata dell'allenatore",
+      "declaredHint": "Gli orari fuori vengono rifiutati.",
+      "openConfirm": "Disponibilità aperta, confermata dall'allenatore",
+      "openConfirmHint": "Si può prenotare qualsiasi orario nell'orario di apertura; fuori dalla disponibilità dichiarata la prenotazione tiene il posto fino alla conferma dell'allenatore.",
+      "followupHours": "Sollecitare le richieste senza risposta dopo (ore)"
+    },
+    "family": {
+      "title": "Richiedi una seduta",
+      "description": "Scegliete un servizio e l'orario preferito. L'allenatore conferma la richiesta; vi avvisiamo in ogni caso.",
+      "back": "Torna alle prenotazioni",
+      "noChildren": "Nessun figlio è collegato al vostro account.",
+      "loadError": "Non è stato possibile caricare il modulo di richiesta.",
+      "disabled": "Al momento il club non accetta richieste online.",
+      "noServices": "Al momento nessun servizio si può richiedere online.",
+      "child": "Figlio/a",
+      "packageLeft": "{count, plural, one {Pacchetto: resta # seduta} other {Pacchetto: restano # sedute}}",
+      "packageCovers": "{count, plural, one {Coperto dal pacchetto (resta # seduta)} other {Coperto dal pacchetto (restano # sedute)}}",
+      "openSessions": "Sedute di gruppo con posti liberi",
+      "newTime": "Un altro orario",
+      "placesLeft": "{count, plural, one {# posto libero} other {# posti liberi}}",
+      "anyCoach": "Qualsiasi allenatore disponibile",
+      "preferredTime": "Orario preferito",
+      "declaredHint": "Orari dichiarati dall'allenatore quel giorno (di solito confermati rapidamente):",
+      "noDeclared": "Nessun orario dichiarato quel giorno: potete comunque chiedere un orario nell'orario di apertura.",
+      "notes": "Messaggio all'allenatore (facoltativo)",
+      "notesHint": "Niente dati sanitari qui: per informazioni sensibili contattate il club.",
+      "summary": "La vostra richiesta",
+      "incomplete": "Scegliete un servizio e un orario.",
+      "payerFamily": "La vostra famiglia",
+      "withinAvailability": "Nella disponibilità dell'allenatore: di solito confermato rapidamente.",
+      "outsideAvailability": "Fuori dalla disponibilità dichiarata: l'allenatore verifica e conferma o rifiuta.",
+      "send": "Invia richiesta",
+      "sending": "Invio…",
+      "sendHint": "Nulla viene fatturato prima della conferma dell'allenatore. Fino ad allora potete ritirare la richiesta.",
+      "requestCta": "Richiedi una seduta",
+      "awaitingHint": "In attesa della conferma dell'allenatore. Il posto è riservato per voi.",
+      "declined": "L'allenatore ha rifiutato questa richiesta.",
+      "declinedReason": "Rifiutata: {reason}",
+      "withdrawn": "Avete ritirato questa richiesta.",
+      "absenceReported": "Assenza segnalata",
+      "reportAbsence": "Segnala un'assenza",
+      "changeAbsence": "Vedi o modifica la segnalazione di assenza"
     }
   }
 }

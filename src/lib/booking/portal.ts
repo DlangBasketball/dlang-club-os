@@ -28,7 +28,11 @@ export type BookedSessionInfo = {
   capacity: number;
   participantsCount: number;
   rescheduledFrom: string | null;
-  /** Confirmed / completed / no-show bookings, last name order (as the RPC returns them). */
+  /** Only requests so far: the slot is held until the coach confirms. */
+  pending: boolean;
+  /** Requests on the roster (awaiting the coach). */
+  requestsCount: number;
+  /** Live bookings incl. requests (status "requested"), last name order (as the RPC returns them). */
   participants: { athleteId: string; name: string; status: string }[];
 };
 
@@ -46,6 +50,8 @@ export function toBookedSessionInfo(s: CoachAgendaSession): BookedSessionInfo {
     capacity: s.capacity,
     participantsCount: s.participants_count,
     rescheduledFrom: s.rescheduled_from,
+    pending: Boolean(s.pending),
+    requestsCount: s.requests_count ?? (s.participants ?? []).filter((p) => p.booking_status === "requested").length,
     participants: (s.participants ?? []).map((p) => ({
       athleteId: p.athlete_id,
       name: `${p.first_name} ${p.last_name}`.trim(),
@@ -90,6 +96,16 @@ export function mergeCoachTrainings<C extends { event_id: string; starts_at: str
     .map((e, i) => ({ e, i }))
     .sort((a, b) => (a.e.startsAt === b.e.startsAt ? a.i - b.i : a.e.startsAt < b.e.startsAt ? -1 : 1))
     .map((x) => x.e);
+}
+
+/** Requests of the coach, soonest session first; stale ones (unanswered past the follow-up hours) flagged by the RPC. */
+export function sortRequests<R extends { starts_at: string; requested_at: string | null }>(rows: R[]): R[] {
+  return [...rows].sort((a, b) => (a.starts_at === b.starts_at ? (a.requested_at ?? "").localeCompare(b.requested_at ?? "") : a.starts_at < b.starts_at ? -1 : 1));
+}
+
+/** Upcoming row label key: requests wait for the coach; a confirmed booking is confirmed. */
+export function upcomingStateKey(u: { status: string; awaiting_confirmation?: boolean }): "requested" | "confirmed" {
+  return u.awaiting_confirmation || u.status === "requested" ? "requested" : "confirmed";
 }
 
 /** Places label input: participants / capacity (capacity 1 = private, no "of" shown). */
@@ -152,7 +168,9 @@ export function invoiceByBooking(overviews: PortalBookings[]): Map<string, Porta
 
 /** Kind of change for the label: cancelled, moved (with the previous time) or moved (previous time unknown). */
 export function changeLabel(c: Pick<PortalChange, "change" | "reason" | "previous_starts_at">):
-  { key: "cancelledReason" | "cancelled" | "movedFrom" | "moved"; reason?: string; previous?: string } {
+  { key: "cancelledReason" | "cancelled" | "movedFrom" | "moved" | "declined" | "declinedReason" | "withdrawn"; reason?: string; previous?: string } {
+  if (c.change === "declined") return c.reason?.trim() ? { key: "declinedReason", reason: c.reason.trim() } : { key: "declined" };
+  if (c.change === "withdrawn") return { key: "withdrawn" };
   if (c.change === "cancelled") return c.reason?.trim() ? { key: "cancelledReason", reason: c.reason.trim() } : { key: "cancelled" };
   return c.previous_starts_at ? { key: "movedFrom", previous: c.previous_starts_at } : { key: "moved" };
 }

@@ -62,11 +62,9 @@ export async function UpcomingSessions({ overview, athleteId }: { overview: Fami
                       <Badge tone="warning">{t("familyAttendance.upcoming.postponed")}</Badge>
                     ) : null}
                   </div>
-                  {!cancelled && !booked && (
+                  {/* Team sessions and booked sessions (since 20250420104700) take absence reports until they start. */}
+                  {!cancelled && (
                     <AbsenceControl eventId={s.event_id} athleteId={athleteId} report={s.report} canReport={s.can_report} />
-                  )}
-                  {!cancelled && booked && s.starts_at > new Date().toISOString() && (
-                    <p className="mt-2 text-xs text-text-muted">{t("bookingPortal.family.absenceHint")}</p>
                   )}
                 </li>
               );
@@ -145,8 +143,8 @@ export async function AttendanceHistory({ overview, basePath, hidden, teamId, se
             <ul>
               {rows.map((r) => {
                 const booked = isBookedSession(r);
-                // Booked sessions have no team record page (correction requests are for team sessions).
-                const link = recordLinks && !booked;
+                // Team and booked sessions share the record page (correction requests included).
+                const link = recordLinks;
                 const inner = (
                   <>
                     <div className="min-w-0">

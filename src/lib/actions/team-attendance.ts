@@ -311,11 +311,24 @@ export async function requestAttendanceCorrection(input: CorrectionRequestInput)
   });
   if (error) return fail(t, error);
   const teamId = (data as { team_id?: string } | null)?.team_id;
-  if (teamId) {
+  {
     const admin = createAdminClient();
-    const { data: tc } = await admin.from("team_coaches").select("coaches(profile_id)").eq("team_id", teamId).eq("org_id", me.orgId);
-    const coachProfiles = ((tc ?? []) as unknown as { coaches: { profile_id: string | null } | null }[])
-      .map((r) => r.coaches?.profile_id).filter((x): x is string => Boolean(x));
+    let coachProfiles: string[] = [];
+    if (teamId) {
+      const { data: tc } = await admin.from("team_coaches").select("coaches(profile_id)").eq("team_id", teamId).eq("org_id", me.orgId);
+      coachProfiles = ((tc ?? []) as unknown as { coaches: { profile_id: string | null } | null }[])
+        .map((r) => r.coaches?.profile_id).filter((x): x is string => Boolean(x));
+    } else {
+      // Booked session (no team): the session coach resolves it.
+      const { data: ev } = await admin.from("events").select("training_session_id").eq("id", p.data.eventId).eq("org_id", me.orgId).maybeSingle();
+      const sessionId = (ev as { training_session_id?: string | null } | null)?.training_session_id;
+      if (sessionId) {
+        const { data: ss } = await (admin as unknown as import("@supabase/supabase-js").SupabaseClient)
+          .from("training_sessions").select("coaches(profile_id)").eq("id", sessionId).eq("org_id", me.orgId).maybeSingle();
+        const pid = (ss as unknown as { coaches: { profile_id: string | null } | null } | null)?.coaches?.profile_id;
+        if (pid) coachProfiles = [pid];
+      }
+    }
     await notifyMembers({
       orgId: me.orgId, profileIds: [...(await adminProfiles(me.orgId)), ...coachProfiles], category: "events", type: "practice",
       tag: `correction-${p.data.eventId}-${p.data.athleteId}`,

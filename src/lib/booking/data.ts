@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { Database, Json } from "@/types/database";
 import { getInvoiceTotalsByCategory } from "@/lib/data/billing";
 import {
-  bookingErrorCode, type BookingDetail, type BookingErrorCode, type BookingRow, type CoachAgendaSession, type DashboardCounts,
-  type PayerSnapshot, type PortalBookings, type ServiceKind, type SetupMissingCode,
+  bookingErrorCode, type BookingDetail, type BookingErrorCode, type BookingRow, type CoachAgendaSession, type CoachBookingRequest,
+  type DashboardCounts, type FamilyCatalog, type PayerSnapshot, type PortalBookings, type ServiceKind, type SetupMissingCode,
 } from "./types";
 
 /*
@@ -30,6 +30,7 @@ export type CatalogService = {
   billing_category: string; price: number; currency: string; duration_min: number; max_participants: number; min_participants: number;
   venue_id: string | null; venue_name: string | null; default_venue_space_id: string | null; default_venue_space_name: string | null;
   location_text: string | null; credits_required: number; coaches: { id: string; display_name: string }[];
+  bookable_by_families?: boolean;
   packages: { id: string; name: string }[]; setup_missing: SetupMissingCode[]; number_prefix: string | null;
 };
 
@@ -57,8 +58,13 @@ export const getBookingsToInvoice = (limit = 100) => call<BookingRow[]>("booking
 export const getAthleteBookingHistory = (athleteId: string) =>
   call<{ upcoming: BookingRow[]; past: BookingRow[] }>("athlete_booking_history", { p_athlete: athleteId });
 export const getBookingDashboardCounts = () => call<DashboardCounts>("booking_dashboard_counts", {});
+export type RequestFollowup = {
+  booking_id: string; athlete_name: string; service_name: string; coach_name: string | null; starts_at: string;
+  requested_at: string; source: "staff" | "family" | null; hours_waiting: number;
+};
 export const getBookingFollowups = (limit = 100) =>
-  call<{ notifications: Record<string, unknown>[]; invoice_emails: Record<string, unknown>[] }>("booking_followups", { p_limit: limit });
+  call<{ notifications: Record<string, unknown>[]; invoice_emails: Record<string, unknown>[]; requests?: RequestFollowup[];
+         request_followup_hours?: number }>("booking_followups", { p_limit: limit });
 export const getInvoicePreview = (bookingId: string) => call<Record<string, unknown>>("booking_invoice_preview", { p_booking: bookingId });
 export const getPayerCandidates = (athleteId: string) =>
   call<{ payers: Record<string, unknown>[]; guardians: Record<string, unknown>[]; family_default: PayerSnapshot }>(
@@ -67,6 +73,21 @@ export const getPayerCandidates = (athleteId: string) =>
 /** Sessions the signed-in coach leads (admins may pass a coach). Roster names only. */
 export const getCoachAgenda = (range: { from?: string | null; to?: string | null; coachId?: string | null } = {}) =>
   call<CoachAgendaSession[]>("coach_booking_agenda", { p_from: range.from ?? null, p_to: range.to ?? null, p_coach: range.coachId ?? null });
+
+/** Requests waiting for the signed-in coach (admins: one coach, or the club with no coach). Names and times only. */
+export const getCoachBookingRequests = (coachId?: string | null) =>
+  call<CoachBookingRequest[]>("coach_booking_requests", { p_coach: coachId ?? null });
+
+/** What a guardian may request for their own child: services, coaches, open group sessions, package coverage. */
+export const getFamilyBookingCatalog = (athleteId: string) => call<FamilyCatalog>("family_booking_catalog", { p_athlete: athleteId });
+
+/** Event ids (of the given ones) whose booked session only holds requests (calendar style). */
+export async function getPendingSessionEvents(eventIds: string[]): Promise<Set<string>> {
+  if (!eventIds.length) return new Set();
+  const db = await createClient();
+  const { data } = await db.rpc("session_events_pending", { p_events: eventIds.slice(0, 1000) });
+  return new Set(((data ?? []) as unknown as string[]).map(String));
+}
 
 /** Guardian portal: own children (or one child). Invoices only where the guardian is the payer. */
 export const getGuardianBookings = (athleteId?: string | null) =>
