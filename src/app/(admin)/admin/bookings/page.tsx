@@ -78,10 +78,13 @@ export default async function AdminBookingsPage({ searchParams }: { searchParams
 
   const columns: Column<BookingRow & Record<string, unknown>>[] = [
     { key: "slot_start", header: t("adminBooking.list.appointment"), render: (b) => (
+      <>
       <Link href={`/admin/bookings/${b.booking_id}`} className="block hover:text-maroon">
         <span className="block font-medium text-ink">{f.date(b.slot_start, { weekday: true })} · {f.time(b.slot_start)}{b.slot_end ? `–${f.time(b.slot_end)}` : ""}</span>
         <span className="block text-xs text-ink-3">{[b.service.name, b.location].filter(Boolean).join(" · ")}</span>
       </Link>
+      {b.order_id && <Link href={`/admin/bookings/orders/${b.order_id}`} className="text-xs text-maroon hover:underline">{t("bookingOrders.list.order")}</Link>}
+      </>
     ) },
     { key: "athlete", header: t("adminBooking.list.athlete"), render: (b) => (
       <Link href={`/admin/athletes/${b.athlete.id}?tab=bookings`} className="text-ink hover:text-maroon">{b.athlete.first_name} {b.athlete.last_name}</Link>

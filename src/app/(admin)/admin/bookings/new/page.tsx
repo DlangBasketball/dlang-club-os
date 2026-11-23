@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { ErrorState, PageHeader } from "@/components/ui";
 import { NewBookingForm } from "@/components/booking/admin/new-booking-form";
+import { NewOrderForm } from "@/components/booking/admin/new-order-form";
 import { getServiceCatalog } from "@/lib/booking/data";
 import { getCoachOptions, getSpaceOptions } from "@/lib/booking/admin-data";
 import { requireRole } from "@/lib/auth/get-user";
@@ -16,10 +17,15 @@ export async function generateMetadata() {
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
-/** New booking (admin / finance) on the booking workflow contract. ?athlete=<id> preselects the athlete. */
-export default async function AdminNewBookingPage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
+/**
+ * New booking (admin / finance): a booking order (single session, package,
+ * group; one or several dates or a weekly rule) — docs/booking-workflow.md §13.
+ * ?athlete=<id> preselects the athlete; ?classic=1 opens the single-booking
+ * form (promo codes, joining one open group session).
+ */
+export default async function AdminNewBookingPage({ searchParams }: { searchParams: Promise<{ athlete?: string; classic?: string }> }) {
   const me = await requireRole(["admin", "finance"]);
-  const [{ athlete }, { t, f }] = await Promise.all([searchParams, getI18n()]);
+  const [{ athlete, classic }, { t, f }] = await Promise.all([searchParams, getI18n()]);
   const orgId = me.orgId as string;
   const [catalog, coaches, spaces] = await Promise.all([getServiceCatalog(), getCoachOptions(orgId), getSpaceOptions(orgId)]);
   const back = (
@@ -42,8 +48,16 @@ export default async function AdminNewBookingPage({ searchParams }: { searchPara
       {catalog.data.length === 0 ? (
         <ErrorState title={t("adminBooking.form.noServices")} message={t("adminBooking.form.noServicesHint")} />
       ) : (
-        <NewBookingForm services={catalog.data} coaches={coaches} spaces={spaces} isAdmin={me.roles.includes("admin")}
-          scope={orgId} todayKey={zonedDayKey(new Date(), f.timeZone)} initialAthlete={initialAthlete} />
+        classic === "1" ? (
+          <>
+            <p className="mb-4 text-xs text-ink-3"><Link href="/admin/bookings/new" className="underline">{t("bookingOrders.form.backToOrders")}</Link></p>
+            <NewBookingForm services={catalog.data} coaches={coaches} spaces={spaces} isAdmin={me.roles.includes("admin")}
+              scope={orgId} todayKey={zonedDayKey(new Date(), f.timeZone)} initialAthlete={initialAthlete} />
+          </>
+        ) : (
+          <NewOrderForm services={catalog.data} coaches={coaches} spaces={spaces} isAdmin={me.roles.includes("admin")}
+            scope={orgId} todayKey={zonedDayKey(new Date(), f.timeZone)} initialAthlete={initialAthlete} />
+        )
       )}
     </div>
   );

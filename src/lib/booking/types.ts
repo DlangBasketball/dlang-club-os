@@ -74,6 +74,13 @@ export const BOOKING_ERROR_CODES = [
   "PROMO_UNKNOWN_CODE", "PROMO_OUT_OF_SCOPE", "PROMO_NOT_YET_VALID", "PROMO_EXPIRED", "PROMO_CURRENCY_MISMATCH",
   "PROMO_LIMIT_REACHED", "PROMO_FAMILY_LIMIT_REACHED", "PROMO_NOT_COMBINABLE", "PROMO_NOT_APPLICABLE",
   "PROMO_WITH_PRICE_OVERRIDE", "PROMO_CHANGED",
+  // booking orders (20250420104800)
+  "OPTION_REQUIRED", "OPTION_NOT_OFFERED", "PACKAGE_NOT_FOUND", "PRICING_MISSING", "DESCRIPTION_TOO_LONG", "DUPLICATE_DATE",
+  "TOO_MANY_DATES", "SINGLE_ONE_DATE", "DATES_REQUIRED", "PACKAGE_TOO_MANY_DATES", "TOO_MANY_PARTICIPANTS", "ONE_ATHLETE_ONLY",
+  "DUPLICATE_ATHLETE", "PARTICIPANT_DATE_UNKNOWN", "PARTICIPANT_NO_DATES", "DATE_WITHOUT_PLAYERS", "ORDER_DATES_OVERLAP",
+  "DATES_UNAVAILABLE", "ORDER_NOT_FOUND", "ORDER_NOT_ACTIVE", "ORDER_SINGLE_DATE", "CATEGORY_MIXED", "CURRENCY_MIXED",
+  "INVOICE_SHARED", "ORDER_INVOICING", "INVALID_SCOPE", "NOTHING_TO_CANCEL", "NOTHING_TO_RESCHEDULE", "INVALID_PRICING_BASIS",
+  "TOO_MANY_PACKAGES", "DUPLICATE_PACKAGE", "INVALID_PACKAGE", "INVOICE_IS_DRAFT", "USE_CANCEL",
 ] as const;
 export type BookingErrorCode = (typeof BOOKING_ERROR_CODES)[number];
 
@@ -369,6 +376,8 @@ export type DuplicateCheck = {
 export type BookingRow = {
   booking_id: string; status: BookingStatus; state: BookingState; billing_status: BillingStatus; billing_mode: BillingMode | null;
   slot_start: string; slot_end: string | null; created_via: "legacy" | "workflow"; created_at: string;
+  /** The booking order this booking belongs to (20250420104800), if any. */
+  order_id?: string | null;
   service: { id: string; name: string; kind: ServiceKind; billing_category: string };
   coach: { id: string; display_name: string };
   athlete: { id: string; first_name: string; last_name: string; family_id: string };
@@ -420,7 +429,7 @@ export type PortalBookings = {
   attendance: { event_id: string; service_name: string; starts_at: string; status: string; booking_status?: BookingStatus | null }[];
   /** Only invoices the viewer may see as the payer (always empty for players). */
   invoices: { invoice_id: string; number: string; status: string; due_date: string | null; currency: string; total: number;
-              balance: number; booking_id: string; service_name: string }[];
+              balance: number; booking_id: string | null; service_name: string; starts_at?: string | null }[];
 };
 
 export type DashboardCounts = {
