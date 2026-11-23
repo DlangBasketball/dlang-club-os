@@ -18,6 +18,7 @@ import { getOrgCover } from "@/lib/media/server";
 import { getTranslations } from "@/lib/i18n/server";
 import { SelectionRevenueCard } from "@/components/selection/revenue-card";
 import { PlacementsDashboardCard } from "@/components/alumni/placements-card";
+import { TeamAttendanceDashboard } from "@/components/attendance/admin/dashboard-cards";
 
 export default async function DashboardPage() {
   const [user, t] = await Promise.all([getSessionUser(), getTranslations()]);
@@ -81,6 +82,11 @@ export default async function DashboardPage() {
           </Suspense>
         </div>
       </div>
+
+      {/* Team attendance (admin): today's sessions, awaiting sheets, no-shows, follow-ups */}
+      <Suspense fallback={<UpcomingSessionsSkeleton rows={3} />}>
+        <TeamAttendanceDashboard />
+      </Suspense>
 
       {/* Operational lists */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

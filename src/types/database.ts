@@ -1056,6 +1056,16 @@ export type Database = {
       guardian_attendance_overview: { Args: { p_athlete: string; p_from?: string | null; p_to?: string | null }; Returns: Json };
       player_attendance_overview: { Args: { p_from?: string | null; p_to?: string | null }; Returns: Json };
       attendance_review_flags: { Args: { p_org: string }; Returns: number };
+      // Admin attendance UI (migration 20250420104200)
+      admin_session_attendance: {
+        Args: { p_team?: string | null; p_athlete?: string | null; p_from?: string | null; p_to?: string | null; p_season?: string | null; p_limit?: number };
+        Returns: { event_id: string; team_id: string | null; team_name: string | null; event_type: string; title: string | null; starts_at: string;
+                   ends_at: string; event_status: string; cancel_reason: string | null; local_date: string;
+                   sheet_status: "draft" | "final" | "reopened" | null; finalized: boolean; tracked: boolean; present: number; late: number;
+                   excused: number; unexcused: number; unmarked: number; total: number; athlete_status: string | null;
+                   athlete_is_guest: boolean | null }[];
+      };
+      attendance_alert_retry: { Args: { p_alert: string }; Returns: Json };
       attendance_due_alerts: { Args: Record<string, never>; Returns: number };
       team_memberships_apply_due: { Args: Record<string, never>; Returns: number };
       attendance_alerts_claim: {

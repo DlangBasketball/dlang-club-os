@@ -1040,5 +1040,45 @@
       "cancelledCount": "{count, plural, =0 {No cancelled sessions} one {# cancelled session} other {# cancelled sessions}}",
       "stillCancelled": "{count, plural, one {# session in these dates is still cancelled:} other {# sessions in these dates are still cancelled:}}"
     }
+  },
+  "adminAttendance": {
+    "sheetState": {
+      "cancelled": "Cancelled"
+    },
+    "totals": {
+      "rule": "Counts finalised sessions only. Cancelled sessions and sheets that were never finalised are not included. Rate = (present + late) / marked players."
+    },
+    "history": {
+      "noFinal": "No finalised attendance in this period yet.",
+      "notCounted": "not counted until finalised",
+      "cancelReason": "Cancelled: {reason}"
+    },
+    "roster": {
+      "selectionManaged": "This roster is managed through the selection programme enrolment.",
+      "openProgramme": "Open the programme"
+    },
+    "session": {
+      "finalizedBy": "Finalised by",
+      "firstFinalized": "First finalised",
+      "legacyLink": "Open the earlier programme attendance for this session"
+    },
+    "sheet": {
+      "cancelled": "This session was cancelled, so no attendance is taken.",
+      "finalize": "Finalise",
+      "notEnded": "The session has not ended yet. If you finalise now, families are only alerted about unexcused absences after it ends.",
+      "reportedNeedAck": "These players had reported an absence: {names}. Check the box to confirm, then finalise again."
+    },
+    "corrections": {
+      "description": "Families who asked to correct a finalised attendance record."
+    },
+    "review": {
+      "codes": {
+        "LEGACY_ATTENDANCE_SESSION": "Earlier programme attendance linked to a team session",
+        "ATTENDANCE_UNFINISHED": "Attendance not finalised"
+      },
+      "hints": {
+        "LEGACY_ATTENDANCE_SESSION": "Attendance was taken in the earlier programme module for this session. Check that both records agree."
+      }
+    }
   }
 }

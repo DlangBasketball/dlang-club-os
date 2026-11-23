@@ -13,7 +13,7 @@
 --      it as usual (claim + record). Audited 'attendance.alert_retry'.
 --
 -- Additive and idempotent (create or replace). No table changes.
--- Contract: docs/team-attendance.md (section "Admin UI").
+-- Base contract: docs/team-attendance.md. Tests: tests/db/admin_attendance_ui.sql.
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------

@@ -8,12 +8,14 @@ import { getEvent, listEvents } from "@/lib/sportsops/data";
 import { eventTitle, eventTone, eventTypeLabel, RSVP_LABEL } from "@/lib/sportsops/labels";
 import { dayKey, fmtRange, fmtTime } from "@/lib/sportsops/time";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { getTranslations } from "@/lib/i18n/server";
+import { SHEET_EVENT_TYPES } from "@/lib/attendance/types";
 
 export const metadata = { title: "Event" };
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [ev, me] = await Promise.all([getEvent(id), getSessionUser()]);
+  const [ev, me, tr] = await Promise.all([getEvent(id), getSessionUser(), getTranslations()]);
   if (ev.error !== null) return <div className="animate-fade-up"><PageHeader title="Event" /><ErrorState message={ev.error} /></div>;
   const e = ev.data;
   if (!e) notFound();
@@ -77,6 +79,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         </Card>
 
         <div className="space-y-4">
+          {isAdmin && e.teamId && (SHEET_EVENT_TYPES as readonly string[]).includes(e.type) && (
+            <Card>
+              <CardHeader><CardTitle>{tr("adminAttendance.session.cardTitle")}</CardTitle></CardHeader>
+              <CardBody className="space-y-2">
+                <p className="text-sm text-ink-2">{tr("adminAttendance.session.cardBody")}</p>
+                <Link href={`/admin/schedule/${e.id}/attendance`}><Button size="sm" variant="secondary">{tr("adminAttendance.session.cardOpen")}</Button></Link>
+              </CardBody>
+            </Card>
+          )}
           {isGame && (
             <Card>
               <CardHeader><CardTitle>Result</CardTitle>{e.result && <Badge tone={e.result.outcome === "win" ? "success" : e.result.outcome === "loss" ? "danger" : "neutral"}>{e.result.outcome}</Badge>}</CardHeader>

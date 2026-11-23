@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Pencil, Plus, Shield } from "lucide-react";
-import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState, Avatar } from "@/components/ui";
+import { Pencil, Plus, Search, Shield } from "lucide-react";
+import { PageHeader, Button, Card, CardHeader, CardTitle, CardBody, Badge, EmptyState, ErrorState, Avatar, Input } from "@/components/ui";
 import { SeasonForm } from "@/components/teams/season-form";
 import { DeleteTeamButton, RestoreTeamButton } from "@/components/teams/delete-team";
 import { listSeasons, listTeams, type TeamSummary } from "@/lib/sportsops/data";
@@ -10,13 +10,16 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { selectClass } from "@/components/teams/fields";
 import { getI18n, getTranslations } from "@/lib/i18n/server";
 import { splitTeamsBySeason } from "@/lib/teams/programme-teams";
+import { groupTeamsByCategory, type TeamGroup } from "@/lib/teams/categories";
+import { searchPlayersWithTeams } from "@/lib/data/team-attendance-admin";
+import { zonedDayKey } from "@/lib/staff/hours";
 
 export async function generateMetadata() {
   const t = await getTranslations();
   return { title: t("teamAdmin.list.title") };
 }
 
-export default async function TeamsPage({ searchParams }: { searchParams: Promise<{ season?: string; all?: string }> }) {
+export default async function TeamsPage({ searchParams }: { searchParams: Promise<{ season?: string; all?: string; q?: string }> }) {
   const LABELS = labelsFor((await getTenant()).terminology);
   const [{ t: tr, f }, me] = await Promise.all([getI18n(), getSessionUser()]);
   const isAdmin = !!me?.roles.includes("admin");
@@ -30,6 +33,11 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
   const teams = await listTeams({ seasonId, includeInactive: sp.all === "1", includeNoSeason: true });
   if (teams.error !== null) return <div className="animate-fade-up"><PageHeader title={LABELS.teams} /><ErrorState message={teams.error} /></div>;
   const { inSeason, noSeason } = splitTeamsBySeason(teams.data, seasonId);
+  // Club teams and selection teams in separate sections, grouped by category
+  // derived from the team data (age group / name / level); empty teams stay listed.
+  const sections = groupTeamsByCategory(inSeason);
+  const q = (sp.q ?? "").trim().slice(0, 80);
+  const hits = q ? await searchPlayersWithTeams(q, zonedDayKey(new Date(), f.timeZone)) : null;
   const newTeam = <Link href="/admin/teams/new"><Button size="sm"><Plus className="h-4 w-4" /> {tr("teamAdmin.list.newTeam")}</Button></Link>;
 
   const card = (t: TeamSummary) => (
@@ -70,6 +78,41 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
     <div className="animate-fade-up space-y-6">
       <PageHeader title={LABELS.teams} description={tr("teamAdmin.list.description")} actions={newTeam} />
 
+      <form className="flex flex-wrap items-center gap-2" method="get" role="search">
+        <label className="relative w-full sm:w-80">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden />
+          <Input name="q" defaultValue={q} placeholder={tr("adminAttendance.teams.searchPlaceholder")} aria-label={tr("adminAttendance.teams.searchLabel")} className="pl-9" />
+        </label>
+        {sp.season && <input type="hidden" name="season" value={sp.season} />}
+        <Button type="submit" size="sm" variant="secondary">{tr("adminAttendance.teams.search")}</Button>
+        {q && <Link href="/admin/teams" className="text-xs text-maroon hover:underline">{tr("adminAttendance.teams.clearSearch")}</Link>}
+      </form>
+
+      {hits && (
+        <Card>
+          <CardHeader><CardTitle>{tr("adminAttendance.teams.results", { query: q })}</CardTitle></CardHeader>
+          <CardBody className="p-0">
+            {hits.error !== null ? <div className="p-5"><ErrorState message={tr("teamAttendance.errors.generic")} /></div>
+              : hits.data.length === 0 ? <p className="px-5 py-5 text-sm text-ink-3">{tr("adminAttendance.teams.noResults")}</p> : (
+                <ul>
+                  {hits.data.map((h) => (
+                    <li key={h.id} className="flex flex-col gap-1 border-b border-line-soft px-5 py-3 last:border-0 sm:flex-row sm:items-center sm:justify-between">
+                      <Link href={`/admin/athletes/${h.id}?tab=teams`} className="text-sm font-medium text-ink hover:text-maroon">{h.name}</Link>
+                      <span className="flex flex-wrap gap-1.5">
+                        {h.teams.length === 0 ? <span className="text-xs text-ink-3">{tr("adminAttendance.teams.noTeam")}</span> : h.teams.map((a) => (
+                          <Link key={a.teamId} href={`/admin/teams/${a.teamId}`}>
+                            <Badge tone={a.isCurrentSeason ? "maroon" : "neutral"}>{a.teamName}{a.jerseyNumber !== null ? ` · #${a.jerseyNumber}` : ""}{a.seasonName && !a.isCurrentSeason ? ` · ${a.seasonName}` : ""}</Badge>
+                          </Link>
+                        ))}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+          </CardBody>
+        </Card>
+      )}
+
       <form className="flex flex-wrap items-center gap-3" method="get">
         <select name="season" defaultValue={sp.season ?? current?.id ?? "all"} className={`${selectClass} w-56`} aria-label={tr("teamAdmin.list.season")}>
           <option value="all">{tr("teamAdmin.list.allSeasons")}</option>
@@ -87,7 +130,21 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
               action={newTeam} />
           ) : (
             <>
-              {inSeason.length > 0 && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{inSeason.map(card)}</div>}
+              {([["club", sections.club], ["selection", sections.selection]] as const).map(([kind, groups]) => groups.length > 0 && (
+                <section key={kind} className="space-y-4" aria-labelledby={`teams-${kind}`}>
+                  <h2 id={`teams-${kind}`} className="text-lg font-semibold text-ink">
+                    {kind === "club" ? tr("adminAttendance.teams.clubTeams") : tr("adminAttendance.teams.selectionTeams")}
+                  </h2>
+                  {groups.map((g: TeamGroup<TeamSummary>) => (
+                    <div key={g.key} className="space-y-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-ink-3">
+                        {g.label ?? tr("adminAttendance.teams.otherGroup")} <span className="font-normal normal-case tracking-normal">· {tr("adminAttendance.teams.teamCount", { count: g.teams.length })}</span>
+                      </h3>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{g.teams.map(card)}</div>
+                    </div>
+                  ))}
+                </section>
+              ))}
               {noSeason.length > 0 && (
                 <section className="space-y-3" aria-labelledby="teams-no-season">
                   <div>

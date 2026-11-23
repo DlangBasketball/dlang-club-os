@@ -11659,5 +11659,367 @@
       "repeatUntilHint": "Trainings werden nur innerhalb der Trainingsdaten der Saison und nie in Vereinspausen erstellt.",
       "createSeries": "Wöchentliche Einheiten erstellen"
     }
+  },
+  "adminAttendance": {
+    "errors": {
+      "ALERT_NOT_FOUND": "Diese Benachrichtigung wurde nicht gefunden.",
+      "ALERT_NOT_RETRYABLE": "Nur fehlgeschlagene Benachrichtigungen (oder solche ohne Zustellkanal) können erneut gesendet werden.",
+      "ALERT_NO_GUARDIAN": "Für diese Spielerin bzw. diesen Spieler ist keine erreichbare erziehungsberechtigte Person hinterlegt. Ergänzen Sie zuerst die Familie.",
+      "FLAG_NOT_FOUND": "Dieser Prüfeintrag wurde nicht gefunden."
+    },
+    "messages": {
+      "alertRetried": "Die Benachrichtigung wurde erneut eingeplant und wenn möglich gesendet.",
+      "flagResolved": "Als erledigt markiert.",
+      "flagsRefreshed": "{count, plural, =0 {Prüfung abgeschlossen: nichts Neues zu prüfen.} one {Prüfung abgeschlossen: # neuer Eintrag.} other {Prüfung abgeschlossen: # neue Einträge.}}"
+    },
+    "mark": {
+      "present": "Anwesend",
+      "late": "Verspätet",
+      "excused": "Entschuldigt",
+      "unexcused": "Unentschuldigt",
+      "unmarked": "Nicht erfasst"
+    },
+    "sheetStatus": {
+      "draft": "Entwurf",
+      "final": "Abgeschlossen",
+      "reopened": "Wieder geöffnet",
+      "none": "Nicht begonnen"
+    },
+    "sheetState": {
+      "final": "Abgeschlossen",
+      "reopened": "Für Korrekturen geöffnet",
+      "draft": "In Bearbeitung",
+      "missing": "Nicht erfasst",
+      "upcoming": "Bevorstehend",
+      "cancelled": "Abgesagt"
+    },
+    "eventType": {
+      "training": "Trainingseinheit",
+      "game": "Spiel",
+      "tournament": "Turnier",
+      "meeting": "Sitzung",
+      "other": "Anderer Anlass"
+    },
+    "category": {
+      "illness": "Krankheit",
+      "injury": "Verletzung",
+      "school": "Schule",
+      "family": "Familie",
+      "travel": "Reise",
+      "other": "Anderer Grund"
+    },
+    "phase": {
+      "draft": "bei der Erfassung",
+      "reopened": "nach Wiedereröffnung",
+      "correction": "Korrektur"
+    },
+    "coverage": {
+      "assigned": "Trainer zugeteilt",
+      "substitute": "Vertretung zugeteilt",
+      "missing": "Kein Trainer",
+      "roleSubstitute": "Vertretung",
+      "roleLead": "Leitender Trainer"
+    },
+    "totals": {
+      "sessions": "Einheiten",
+      "rate": "Anwesenheitsquote",
+      "rule": "Gezählt werden nur abgeschlossene Einheiten. Abgesagte Einheiten und nie abgeschlossene Listen zählen nicht. Quote = (anwesend + verspätet) / erfasste Spieler."
+    },
+    "filters": {
+      "from": "Von",
+      "to": "Bis",
+      "season": "Saison",
+      "allSeasons": "Alle Saisons",
+      "team": "Mannschaft",
+      "allTeams": "Alle Mannschaften",
+      "apply": "Anwenden"
+    },
+    "history": {
+      "byDate": "Einheiten nach Datum",
+      "byPlayer": "Nach Spieler",
+      "emptyTitle": "Keine Einheiten in diesem Zeitraum",
+      "emptyHint": "Einheiten erscheinen hier, sobald ihre Anwesenheitsliste geöffnet wurde.",
+      "noFinal": "In diesem Zeitraum gibt es noch keine abgeschlossene Anwesenheit.",
+      "notCounted": "zählt erst nach Abschluss",
+      "cancelReason": "Abgesagt: {reason}",
+      "counts": "{present} anwesend · {late} verspätet · {excused} entschuldigt · {unexcused} unentschuldigt",
+      "unmarked": "{count, plural, one {# nicht erfasst} other {# nicht erfasst}}"
+    },
+    "teams": {
+      "clubTeams": "Vereinsmannschaften",
+      "selectionTeams": "Auswahlmannschaften",
+      "otherGroup": "Weitere Mannschaften",
+      "teamCount": "{count, plural, one {# Mannschaft} other {# Mannschaften}}",
+      "searchLabel": "Spieler in allen Mannschaften suchen",
+      "searchPlaceholder": "Spieler nach Namen suchen",
+      "search": "Suchen",
+      "clearSearch": "Suche zurücksetzen",
+      "results": "Spieler zu „{query}“",
+      "noResults": "Kein Spieler entspricht dieser Suche.",
+      "noTeam": "In keiner Mannschaft"
+    },
+    "athletes": {
+      "teamsColumn": "Mannschaften"
+    },
+    "team": {
+      "metaTitle": "Mannschaft",
+      "sectionsLabel": "Bereiche der Mannschaft",
+      "tabRoster": "Kader",
+      "tabCoaches": "Trainer",
+      "tabSchedule": "Trainingsplan",
+      "tabAttendance": "Anwesenheit",
+      "coaches": "Trainer der Mannschaft",
+      "noCoach": "Kein Trainer zugeteilt",
+      "substituteHint": "Vertretungen werden pro Einheit auf der Seite der Einheit zugeteilt.",
+      "schedule": "Nächste Einheiten",
+      "fullSchedule": "Ganzer Plan",
+      "noUpcoming": "Für diese Mannschaft ist noch nichts geplant.",
+      "substitutes": "{count, plural, one {# Vertretung} other {# Vertretungen}}",
+      "adminOnly": "Die Anwesenheit ist nur für Vereinsadministratoren sichtbar."
+    },
+    "roster": {
+      "current": "Aktueller Kader",
+      "asOf": "Kader am {date}",
+      "asOfLabel": "Kader an einem Datum anzeigen",
+      "show": "Anzeigen",
+      "today": "Zurück zu heute",
+      "empty": "An diesem Datum ist niemand im Kader.",
+      "since": "seit {date}",
+      "until": "bis {date}",
+      "alsoOn": "Auch in {team}",
+      "addPlayer": "Spieler hinzufügen",
+      "effectiveFrom": "Gültig ab",
+      "offFrom": "Nicht mehr im Team ab",
+      "jersey": "Trikot",
+      "add": "Zum Kader hinzufügen",
+      "added": "{name} wurde dem Kader hinzugefügt.",
+      "multiTeamHint": "Ein Spieler kann mehreren Mannschaften angehören. Das Hinzufügen hier entfernt ihn nicht aus seinen anderen Mannschaften.",
+      "transfer": "Wechsel",
+      "leave": "Entfernen",
+      "transferName": "{name} in eine andere Mannschaft wechseln",
+      "leaveName": "{name} aus der Mannschaft entfernen",
+      "toTeam": "Neue Mannschaft",
+      "chooseTeam": "Mannschaft wählen",
+      "reason": "Grund",
+      "transferHint": "Der Spieler verlässt diese Mannschaft am Vortag und gehört ab diesem Datum zur neuen Mannschaft. Der Verlauf bleibt erhalten.",
+      "leaveHint": "Der Spieler ist ab diesem Datum nicht mehr im Kader. Frühere Anwesenheiten bleiben erhalten.",
+      "confirmTransfer": "Spieler wechseln",
+      "confirmLeave": "Aus der Mannschaft entfernen",
+      "past": "Frühere Mitglieder",
+      "noPast": "Keine früheren Spieler in dieser Mannschaft.",
+      "editDetails": "Trikotnummern, Positionen und Stand",
+      "selectionManaged": "Dieser Kader wird über die Anmeldungen des Auswahlprogramms verwaltet.",
+      "openProgramme": "Programm öffnen"
+    },
+    "profile": {
+      "assignments": "Mannschaftsverlauf",
+      "noAssignments": "Noch in keiner Mannschaft.",
+      "current": "Aktuell",
+      "past": "Früher",
+      "open": "unbefristet",
+      "teamAttendance": "Anwesenheit in Mannschaften",
+      "teamRate": "{sessions} Einheiten · {rate}"
+    },
+    "session": {
+      "metaTitle": "Anwesenheit der Einheit",
+      "backToEvent": "Zurück zum Termin",
+      "notTracked": "Vor dem Start der Anwesenheitserfassung",
+      "cardTitle": "Anwesenheit",
+      "cardBody": "Anwesenheit erfassen oder korrigieren, Benachrichtigungen an Familien und Trainerabdeckung ansehen.",
+      "cardOpen": "Anwesenheit öffnen",
+      "history": "Änderungsverlauf",
+      "noHistory": "Noch keine Änderungen an der Anwesenheit.",
+      "unknownUser": "Unbekannte Person",
+      "status": "Liste",
+      "ledBy": "Geleitet von",
+      "openedBy": "Geöffnet von",
+      "submittedBy": "Eingereicht von",
+      "finalizedBy": "Abgeschlossen von",
+      "firstFinalized": "Erstmals abgeschlossen",
+      "reopened": "Wieder geöffnet",
+      "corrections": "Korrekturen",
+      "legacyLink": "Frühere Programm-Anwesenheit dieser Einheit öffnen",
+      "coaches": "Trainer",
+      "assignCoach": "Dieser Einheit einen Trainer zuteilen",
+      "chooseCoach": "Trainer wählen",
+      "role": "Rolle",
+      "assign": "Zuteilen"
+    },
+    "sheet": {
+      "title": "Anwesenheitsliste",
+      "version": "Fassung {version}",
+      "preview": "{count, plural, one {Kadervorschau: # Spieler. Gespeichert wird erst, wenn die Liste geöffnet ist.} other {Kadervorschau: # Spieler. Gespeichert wird erst, wenn die Liste geöffnet ist.}}",
+      "open": "Erfassung starten",
+      "cancelled": "Diese Einheit wurde abgesagt, es wird keine Anwesenheit erfasst.",
+      "reported": "Gemeldete Absenzen",
+      "guest": "Gast",
+      "reportedAbsence": "Absenz gemeldet ({category})",
+      "lastBy": "Zuletzt geändert von {name}, {date}",
+      "statusFor": "Anwesenheit von {name}",
+      "correct": "Korrigieren",
+      "empty": "Für diese Einheit ist niemand im Kader.",
+      "ackReported": "Ich habe die von Familien gemeldeten Absenzen gesehen",
+      "save": "Änderungen speichern",
+      "allPresent": "Alle übrigen als anwesend markieren",
+      "ledBy": "Geleitet von",
+      "ledByNone": "Nicht erfasst",
+      "finalize": "Abschliessen",
+      "notEnded": "Die Einheit ist noch nicht vorbei. Wenn Sie jetzt abschliessen, werden Familien erst nach dem Ende über unentschuldigte Absenzen benachrichtigt.",
+      "reopen": "Für Korrekturen öffnen",
+      "reopenReason": "Warum wieder öffnen?",
+      "correctionReason": "Grund der Korrektur",
+      "applyCorrection": "Korrektur übernehmen",
+      "conflicts": "{count, plural, one {# Eintrag wurde inzwischen von jemand anderem geändert und nicht überschrieben.} other {# Einträge wurden inzwischen von jemand anderem geändert und nicht überschrieben.}}",
+      "reportedWarning": "Einige als unentschuldigt markierte Spieler hatten eine Absenz gemeldet. Bestätigen Sie mit dem Kästchen.",
+      "unmarkedLeft": "Erfassen Sie alle Spieler vor dem Abschluss: {names}",
+      "reportedNeedAck": "Diese Spieler hatten eine Absenz gemeldet: {names}. Bestätigen Sie mit dem Kästchen und schliessen Sie erneut ab."
+    },
+    "reports": {
+      "title": "Gemeldete Absenzen",
+      "none": "Für diese Einheit wurde keine Absenz gemeldet.",
+      "acknowledge": "Bestätigen",
+      "needsReview": "Zeit geändert, bitte prüfen",
+      "status": {
+        "reported": "Gemeldet",
+        "acknowledged": "Bestätigt",
+        "superseded": "Ersetzt",
+        "withdrawn": "Zurückgezogen"
+      },
+      "by": {
+        "guardian": "von Erziehungsberechtigten",
+        "player": "vom Spieler"
+      }
+    },
+    "alerts": {
+      "title": "Benachrichtigungen an Familien",
+      "followupTitle": "Benachrichtigungen mit Handlungsbedarf",
+      "none": "Keine Benachrichtigungen für diese Einheit.",
+      "noGuardian": "keine erziehungsberechtigte Person hinterlegt",
+      "attempts": "{count, plural, one {# Versuch} other {# Versuche}}",
+      "sentAt": "gesendet am {date}",
+      "retry": "Erneut senden",
+      "fixContact": "Erziehungsberechtigte ergänzen",
+      "status": {
+        "pending": "Ausstehend",
+        "sent": "Gesendet",
+        "failed": "Fehlgeschlagen",
+        "no_contact": "Kein Kontakt",
+        "suppressed": "Unterdrückt",
+        "superseded": "Ersetzt"
+      },
+      "kind": {
+        "initial": "Absenzmeldung",
+        "correction": "Korrekturmeldung"
+      }
+    },
+    "access": {
+      "title": "Zugriffsanfragen von Trainern",
+      "description": "Trainer, die eine Einheit einer Mannschaft leiten möchten, die sie nicht trainieren.",
+      "none": "Keine offenen Anfragen.",
+      "approve": "Genehmigen",
+      "reject": "Ablehnen",
+      "revoke": "Zugriff entziehen",
+      "status": {
+        "pending": "Offen",
+        "approved": "Genehmigt",
+        "rejected": "Abgelehnt"
+      }
+    },
+    "corrections": {
+      "title": "Korrekturanfragen",
+      "description": "Familien, die eine abgeschlossene Anwesenheit korrigieren lassen möchten.",
+      "none": "Keine offenen Korrekturanfragen.",
+      "newStatus": "Neuer Wert",
+      "note": "Notiz an die Familie",
+      "notePlaceholder": "Notiz (zum Ablehnen nötig)",
+      "accept": "Annehmen",
+      "reject": "Ablehnen",
+      "rejectNeedsNote": "Fügen Sie eine Notiz hinzu, um die Anfrage abzulehnen",
+      "resolution": "Antwort: {note}",
+      "status": {
+        "open": "Offen",
+        "accepted": "Angenommen",
+        "rejected": "Abgelehnt",
+        "withdrawn": "Zurückgezogen"
+      }
+    },
+    "followup": {
+      "title": "Anwesenheit nachbearbeiten",
+      "description": "Einheiten ohne Anwesenheit, unentschuldigte Absenzen, nicht zugestellte Benachrichtigungen und offene Anfragen."
+    },
+    "dashboard": {
+      "section": "Anwesenheit der Mannschaften",
+      "today": "Heutige Einheiten",
+      "schedule": "Terminplan",
+      "noToday": "Heute keine Mannschaftseinheiten.",
+      "subNames": "Vertretung: {names}",
+      "pendingRequests": "{count, plural, one {# Zugriffsanfrage} other {# Zugriffsanfragen}}",
+      "awaiting": "Einheiten ohne Anwesenheit",
+      "noAwaiting": "Alle beendeten Einheiten haben ihre Anwesenheit.",
+      "daysSince": "{count, plural, =0 {heute beendet} one {vor # Tag beendet} other {vor # Tagen beendet}}",
+      "viewAll": "Alle anzeigen",
+      "noShows": "Bestätigte unentschuldigte Absenzen",
+      "noNoShows": "Keine unentschuldigten Absenzen in den letzten 14 Tagen.",
+      "alerts": "Benachrichtigungen mit Handlungsbedarf",
+      "noAlerts": "Alle Benachrichtigungen wurden zugestellt.",
+      "review": "Datenprüfung",
+      "reviewCount": "{count, plural, one {Datenprüfung (# offen)} other {Datenprüfung (# offen)}}",
+      "requests": "Offene Anfragen",
+      "noRequests": "Keine offenen Anfragen von Trainern oder Familien.",
+      "accessRequest": "{coach} möchte diese Einheit leiten",
+      "correctionRequest": "Korrektur angefragt für {name}"
+    },
+    "review": {
+      "title": "Datenprüfung",
+      "description": "Datensätze, die das System nicht sicher zuordnen konnte. Öffnen Sie jeden Datensatz, korrigieren Sie ihn und markieren Sie ihn als erledigt.",
+      "filterLabel": "Prüfeinträge filtern",
+      "group": {
+        "all": "Alle",
+        "attendance": "Anwesenheit und Kader",
+        "billing": "Rechnungen",
+        "other": "Weitere"
+      },
+      "showResolved": "Erledigte Einträge anzeigen",
+      "hideResolved": "Erledigte Einträge ausblenden",
+      "emptyTitle": "Nichts zu prüfen",
+      "emptyHint": "Neue Einträge erscheinen hier, wenn die täglichen Prüfungen etwas finden.",
+      "resolved": "Erledigt",
+      "resolvedOn": "erledigt am {date}",
+      "openRecord": "Datensatz öffnen",
+      "note": "Erledigungsnotiz",
+      "notePlaceholder": "Notiz (optional)",
+      "resolve": "Erledigen",
+      "refresh": "Jetzt prüfen",
+      "codes": {
+        "ATHLETE_WITHOUT_GUARDIAN": "Spieler ohne erreichbare erziehungsberechtigte Person",
+        "TEAM_WITHOUT_COACH": "Mannschaft ohne Trainer",
+        "TRAINING_WITHOUT_TEAM": "Trainingseinheit ohne Mannschaft",
+        "MEMBERSHIP_INACTIVE_NO_END": "Inaktiver Kadereintrag ohne Enddatum",
+        "MEMBERSHIP_DATE_UNCERTAIN": "Eintrittsdatum in den Kader unsicher",
+        "LEGACY_ATTENDANCE_SESSION": "Frühere Programm-Anwesenheit mit einer Mannschaftseinheit verknüpft",
+        "ATTENDANCE_UNFINISHED": "Anwesenheit nicht abgeschlossen",
+        "CATEGORY_AMBIGUOUS": "Rechnungskategorie unklar",
+        "CREDIT_ACTIVITY_UNRESOLVED": "Familienguthaben ohne Kategorie",
+        "NO_ATHLETE": "Rechnung ohne Spieler",
+        "NO_CURRENT_SEASON": "Keine aktuelle Saison für eine Rechnung",
+        "MEMBERSHIP_EXISTS": "Saisonbeitrag besteht bereits",
+        "MIGRATION_ERROR": "Problem bei der Datenübernahme"
+      },
+      "hints": {
+        "ATHLETE_WITHOUT_GUARDIAN": "Absenzmeldungen zu diesem Spieler erreichen niemanden. Ergänzen Sie die Familie um eine erziehungsberechtigte Person mit aktivem Login.",
+        "TEAM_WITHOUT_COACH": "Diese Mannschaft hat Trainingseinheiten, aber keinen Trainer. Teilen Sie einen Trainer zu, damit die Anwesenheit erfasst wird.",
+        "TRAINING_WITHOUT_TEAM": "Diese Trainingseinheit hat keine Mannschaft, daher gibt es keinen Kader für die Anwesenheit.",
+        "MEMBERSHIP_INACTIVE_NO_END": "Der Kadereintrag ist inaktiv, hat aber kein Enddatum und fehlt daher in jedem Kader. Tragen Sie das Austrittsdatum ein.",
+        "MEMBERSHIP_DATE_UNCERTAIN": "Das Eintrittsdatum des Spielers in die Mannschaft ist nicht sicher bekannt. Prüfen Sie die Kaderdaten.",
+        "LEGACY_ATTENDANCE_SESSION": "Für diese Einheit wurde die Anwesenheit im früheren Programm-Modul erfasst. Prüfen Sie, ob beide übereinstimmen.",
+        "ATTENDANCE_UNFINISHED": "Die Einheit ist seit über zwei Tagen vorbei und ihre Anwesenheit ist nicht abgeschlossen.",
+        "CATEGORY_AMBIGUOUS": "Wählen Sie die Ertragskategorie dieser Rechnung.",
+        "CREDIT_ACTIVITY_UNRESOLVED": "Ordnen Sie das Familienguthaben einer Ertragskategorie zu.",
+        "NO_ATHLETE": "Verknüpfen Sie diese Rechnung mit einem Spieler.",
+        "NO_CURRENT_SEASON": "Legen Sie die aktuelle Saison fest und prüfen Sie danach diese Rechnung.",
+        "MEMBERSHIP_EXISTS": "Für diesen Spieler besteht bereits ein Saisonbeitrag. Prüfen Sie auf Doppelungen.",
+        "MIGRATION_ERROR": "Dieser Datensatz konnte nicht automatisch übernommen werden. Prüfen Sie ihn von Hand."
+      }
+    }
   }
 }

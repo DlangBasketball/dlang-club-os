@@ -11659,5 +11659,367 @@
       "repeatUntilHint": "Trainings are only created inside the season's training dates and never during club breaks.",
       "createSeries": "Create weekly sessions"
     }
+  },
+  "adminAttendance": {
+    "errors": {
+      "ALERT_NOT_FOUND": "This alert could not be found.",
+      "ALERT_NOT_RETRYABLE": "Only failed alerts (or alerts without a delivery channel) can be retried.",
+      "ALERT_NO_GUARDIAN": "This player has no reachable guardian. Add a guardian to the family first.",
+      "FLAG_NOT_FOUND": "This review item could not be found."
+    },
+    "messages": {
+      "alertRetried": "The alert was queued again and sent if possible.",
+      "flagResolved": "Marked as resolved.",
+      "flagsRefreshed": "{count, plural, =0 {Checks finished: nothing new to review.} one {Checks finished: # new item to review.} other {Checks finished: # new items to review.}}"
+    },
+    "mark": {
+      "present": "Present",
+      "late": "Late",
+      "excused": "Excused",
+      "unexcused": "Unexcused",
+      "unmarked": "Not marked"
+    },
+    "sheetStatus": {
+      "draft": "Draft",
+      "final": "Final",
+      "reopened": "Reopened",
+      "none": "Not started"
+    },
+    "sheetState": {
+      "final": "Final",
+      "reopened": "Reopened for corrections",
+      "draft": "In progress",
+      "missing": "Not taken",
+      "upcoming": "Upcoming",
+      "cancelled": "Canceled"
+    },
+    "eventType": {
+      "training": "Practice",
+      "game": "Game",
+      "tournament": "Tournament",
+      "meeting": "Meeting",
+      "other": "Other event"
+    },
+    "category": {
+      "illness": "Illness",
+      "injury": "Injury",
+      "school": "School",
+      "family": "Family",
+      "travel": "Travel",
+      "other": "Other reason"
+    },
+    "phase": {
+      "draft": "while taking attendance",
+      "reopened": "after reopening",
+      "correction": "correction"
+    },
+    "coverage": {
+      "assigned": "Coach assigned",
+      "substitute": "Substitute assigned",
+      "missing": "No coach",
+      "roleSubstitute": "Substitute",
+      "roleLead": "Lead coach"
+    },
+    "totals": {
+      "sessions": "Sessions",
+      "rate": "Attendance rate",
+      "rule": "Counts finalized sessions only. Canceled sessions and sheets that were never finalized are not included. Rate = (present + late) / marked players."
+    },
+    "filters": {
+      "from": "From",
+      "to": "To",
+      "season": "Season",
+      "allSeasons": "All seasons",
+      "team": "Team",
+      "allTeams": "All teams",
+      "apply": "Apply"
+    },
+    "history": {
+      "byDate": "Sessions by date",
+      "byPlayer": "By player",
+      "emptyTitle": "No sessions in this period",
+      "emptyHint": "Sessions appear here once attendance has been opened for them.",
+      "noFinal": "No finalized attendance in this period yet.",
+      "notCounted": "not counted until finalized",
+      "cancelReason": "Canceled: {reason}",
+      "counts": "{present} present · {late} late · {excused} excused · {unexcused} unexcused",
+      "unmarked": "{count, plural, one {# not marked} other {# not marked}}"
+    },
+    "teams": {
+      "clubTeams": "Club teams",
+      "selectionTeams": "Selection teams",
+      "otherGroup": "Other teams",
+      "teamCount": "{count, plural, one {# team} other {# teams}}",
+      "searchLabel": "Search players across teams",
+      "searchPlaceholder": "Find a player by name",
+      "search": "Search",
+      "clearSearch": "Clear search",
+      "results": "Players matching “{query}”",
+      "noResults": "No player matches this search.",
+      "noTeam": "Not on a team"
+    },
+    "athletes": {
+      "teamsColumn": "Teams"
+    },
+    "team": {
+      "metaTitle": "Team",
+      "sectionsLabel": "Team sections",
+      "tabRoster": "Roster",
+      "tabCoaches": "Coaches",
+      "tabSchedule": "Practice schedule",
+      "tabAttendance": "Attendance",
+      "coaches": "Team coaches",
+      "noCoach": "No coach assigned",
+      "substituteHint": "Substitute coaches are assigned per session on the session page.",
+      "schedule": "Upcoming sessions",
+      "fullSchedule": "Full schedule",
+      "noUpcoming": "Nothing scheduled for this team yet.",
+      "substitutes": "{count, plural, one {# substitute} other {# substitutes}}",
+      "adminOnly": "Attendance is available to club admins only."
+    },
+    "roster": {
+      "current": "Current roster",
+      "asOf": "Roster on {date}",
+      "asOfLabel": "Show the roster on a date",
+      "show": "Show",
+      "today": "Back to today",
+      "empty": "Nobody is on this roster on that date.",
+      "since": "since {date}",
+      "until": "until {date}",
+      "alsoOn": "Also on {team}",
+      "addPlayer": "Add player",
+      "effectiveFrom": "Effective from",
+      "offFrom": "Off the team from",
+      "jersey": "Jersey",
+      "add": "Add to roster",
+      "added": "{name} was added to the roster.",
+      "multiTeamHint": "A player can be on more than one team. Adding a player here does not remove them from their other teams.",
+      "transfer": "Transfer",
+      "leave": "Remove",
+      "transferName": "Transfer {name} to another team",
+      "leaveName": "Remove {name} from the team",
+      "toTeam": "New team",
+      "chooseTeam": "Choose a team",
+      "reason": "Reason",
+      "transferHint": "The player leaves this team the day before and joins the new team on this date. History is kept.",
+      "leaveHint": "The player is off the roster from this date. Past attendance stays on record.",
+      "confirmTransfer": "Transfer player",
+      "confirmLeave": "Remove from team",
+      "past": "Past members",
+      "noPast": "No former players on this team.",
+      "editDetails": "Jersey numbers, positions and status",
+      "selectionManaged": "This roster is managed through the selection program enrollment.",
+      "openProgramme": "Open the program"
+    },
+    "profile": {
+      "assignments": "Team history",
+      "noAssignments": "Not on any team yet.",
+      "current": "Current",
+      "past": "Past",
+      "open": "open-ended",
+      "teamAttendance": "Team attendance",
+      "teamRate": "{sessions} sessions · {rate}"
+    },
+    "session": {
+      "metaTitle": "Session attendance",
+      "backToEvent": "Back to the event",
+      "notTracked": "Before attendance tracking started",
+      "cardTitle": "Attendance",
+      "cardBody": "Take or correct attendance, see alerts sent to families and coach coverage.",
+      "cardOpen": "Open attendance",
+      "history": "Change history",
+      "noHistory": "No attendance changes yet.",
+      "unknownUser": "Unknown user",
+      "status": "Sheet",
+      "ledBy": "Led by",
+      "openedBy": "Opened by",
+      "submittedBy": "Submitted by",
+      "finalizedBy": "Finalized by",
+      "firstFinalized": "First finalized",
+      "reopened": "Reopened",
+      "corrections": "Corrections",
+      "legacyLink": "Open the earlier program attendance for this session",
+      "coaches": "Coaches",
+      "assignCoach": "Assign a coach to this session",
+      "chooseCoach": "Choose a coach",
+      "role": "Role",
+      "assign": "Assign"
+    },
+    "sheet": {
+      "title": "Attendance sheet",
+      "version": "Version {version}",
+      "preview": "{count, plural, one {Roster preview: # player. Nothing is saved until the sheet is opened.} other {Roster preview: # players. Nothing is saved until the sheet is opened.}}",
+      "open": "Start attendance",
+      "cancelled": "This session was canceled, so no attendance is taken.",
+      "reported": "Reported absences",
+      "guest": "Guest",
+      "reportedAbsence": "Absence reported ({category})",
+      "lastBy": "Last change by {name}, {date}",
+      "statusFor": "Attendance for {name}",
+      "correct": "Correct",
+      "empty": "No players on the roster for this session.",
+      "ackReported": "I have seen the absences reported by families",
+      "save": "Save changes",
+      "allPresent": "Mark everyone else present",
+      "ledBy": "Led by",
+      "ledByNone": "Not recorded",
+      "finalize": "Finalize",
+      "notEnded": "The session has not ended yet. If you finalize now, families are only alerted about unexcused absences after it ends.",
+      "reopen": "Reopen for corrections",
+      "reopenReason": "Why reopen?",
+      "correctionReason": "Reason for the correction",
+      "applyCorrection": "Apply correction",
+      "conflicts": "{count, plural, one {# mark was changed by someone else meanwhile and was not overwritten.} other {# marks were changed by someone else meanwhile and were not overwritten.}}",
+      "reportedWarning": "Some players marked unexcused had reported an absence. Check the box to confirm.",
+      "unmarkedLeft": "Mark every player before finalizing: {names}",
+      "reportedNeedAck": "These players had reported an absence: {names}. Check the box to confirm, then finalize again."
+    },
+    "reports": {
+      "title": "Absence reports",
+      "none": "No absence reported for this session.",
+      "acknowledge": "Acknowledge",
+      "needsReview": "session time changed, please review",
+      "status": {
+        "reported": "Reported",
+        "acknowledged": "Acknowledged",
+        "superseded": "Replaced",
+        "withdrawn": "Withdrawn"
+      },
+      "by": {
+        "guardian": "by a guardian",
+        "player": "by the player"
+      }
+    },
+    "alerts": {
+      "title": "Alerts to families",
+      "followupTitle": "Alerts needing follow-up",
+      "none": "No alerts for this session.",
+      "noGuardian": "no guardian on file",
+      "attempts": "{count, plural, one {# attempt} other {# attempts}}",
+      "sentAt": "sent {date}",
+      "retry": "Retry",
+      "fixContact": "Add a guardian contact",
+      "status": {
+        "pending": "Pending",
+        "sent": "Sent",
+        "failed": "Failed",
+        "no_contact": "No contact",
+        "suppressed": "Suppressed",
+        "superseded": "Superseded"
+      },
+      "kind": {
+        "initial": "No-show notice",
+        "correction": "Correction notice"
+      }
+    },
+    "access": {
+      "title": "Coach access requests",
+      "description": "Coaches who asked to run a session of a team they do not coach.",
+      "none": "No pending requests.",
+      "approve": "Approve",
+      "reject": "Reject",
+      "revoke": "Revoke",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    },
+    "corrections": {
+      "title": "Correction requests",
+      "description": "Families who asked to correct a finalized attendance record.",
+      "none": "No open correction requests.",
+      "newStatus": "New status",
+      "note": "Note to the family",
+      "notePlaceholder": "Note (required to reject)",
+      "accept": "Accept",
+      "reject": "Reject",
+      "rejectNeedsNote": "Add a note to reject the request",
+      "resolution": "Answer: {note}",
+      "status": {
+        "open": "Open",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "withdrawn": "Withdrawn"
+      }
+    },
+    "followup": {
+      "title": "Attendance follow-up",
+      "description": "Sessions waiting for attendance, no-shows, alerts that could not be delivered and open requests."
+    },
+    "dashboard": {
+      "section": "Team attendance",
+      "today": "Today's sessions",
+      "schedule": "Schedule",
+      "noToday": "No team sessions today.",
+      "subNames": "Substitute: {names}",
+      "pendingRequests": "{count, plural, one {# access request} other {# access requests}}",
+      "awaiting": "Sessions awaiting attendance",
+      "noAwaiting": "Every finished session has its attendance.",
+      "daysSince": "{count, plural, =0 {ended today} one {ended # day ago} other {ended # days ago}}",
+      "viewAll": "View all",
+      "noShows": "Confirmed no-shows",
+      "noNoShows": "No unexcused absences in the last 14 days.",
+      "alerts": "Alerts requiring follow-up",
+      "noAlerts": "Every alert was delivered.",
+      "review": "Data review",
+      "reviewCount": "{count, plural, one {Data review (# open)} other {Data review (# open)}}",
+      "requests": "Pending requests",
+      "noRequests": "No pending coach or family requests.",
+      "accessRequest": "{coach} asks to run this session",
+      "correctionRequest": "Correction requested for {name}"
+    },
+    "review": {
+      "title": "Data review",
+      "description": "Records the system could not match reliably. Open each record, fix it, then mark it resolved.",
+      "filterLabel": "Filter review items",
+      "group": {
+        "all": "All",
+        "attendance": "Attendance and rosters",
+        "billing": "Billing",
+        "other": "Other"
+      },
+      "showResolved": "Show resolved items",
+      "hideResolved": "Hide resolved items",
+      "emptyTitle": "Nothing to review",
+      "emptyHint": "New items appear here when the daily checks find something.",
+      "resolved": "Resolved",
+      "resolvedOn": "resolved {date}",
+      "openRecord": "Open the record",
+      "note": "Resolution note",
+      "notePlaceholder": "Note (optional)",
+      "resolve": "Resolve",
+      "refresh": "Run checks now",
+      "codes": {
+        "ATHLETE_WITHOUT_GUARDIAN": "Player without a reachable guardian",
+        "TEAM_WITHOUT_COACH": "Team without a coach",
+        "TRAINING_WITHOUT_TEAM": "Practice without a team",
+        "MEMBERSHIP_INACTIVE_NO_END": "Inactive roster entry without an end date",
+        "MEMBERSHIP_DATE_UNCERTAIN": "Roster start date uncertain",
+        "LEGACY_ATTENDANCE_SESSION": "Earlier program attendance linked to a team session",
+        "ATTENDANCE_UNFINISHED": "Attendance not finalized",
+        "CATEGORY_AMBIGUOUS": "Invoice category unclear",
+        "CREDIT_ACTIVITY_UNRESOLVED": "Family credit without a category",
+        "NO_ATHLETE": "Invoice without a player",
+        "NO_CURRENT_SEASON": "No current season for an invoice",
+        "MEMBERSHIP_EXISTS": "Season membership already exists",
+        "MIGRATION_ERROR": "Data migration problem"
+      },
+      "hints": {
+        "ATHLETE_WITHOUT_GUARDIAN": "No-show alerts for this player cannot reach anyone. Add a guardian with an active login to the family.",
+        "TEAM_WITHOUT_COACH": "This team has practices but no coach. Assign a coach so attendance gets taken.",
+        "TRAINING_WITHOUT_TEAM": "This practice has no team, so there is no roster to take attendance on.",
+        "MEMBERSHIP_INACTIVE_NO_END": "The roster entry is inactive but has no end date, so it is off every roster. Set the date the player left.",
+        "MEMBERSHIP_DATE_UNCERTAIN": "The date the player joined the team is not known for sure. Check the roster dates.",
+        "LEGACY_ATTENDANCE_SESSION": "Attendance was taken in the earlier program module for this session. Check that both records agree.",
+        "ATTENDANCE_UNFINISHED": "The session ended more than two days ago and its attendance is not final.",
+        "CATEGORY_AMBIGUOUS": "Choose the revenue category of this invoice.",
+        "CREDIT_ACTIVITY_UNRESOLVED": "Assign the family credit to a revenue category.",
+        "NO_ATHLETE": "Link this invoice to a player.",
+        "NO_CURRENT_SEASON": "Set the current season, then review this invoice.",
+        "MEMBERSHIP_EXISTS": "A season membership already exists for this player. Check for duplicates.",
+        "MIGRATION_ERROR": "This record could not be migrated automatically. Review it by hand."
+      }
+    }
   }
 }
