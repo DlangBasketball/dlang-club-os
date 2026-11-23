@@ -100,7 +100,7 @@ export default async function TrainingDetailsPage({ params }: { params: Promise<
     <div className="mx-auto max-w-3xl space-y-5">
       <SessionHeader t={t} f={f} teamName={ev.team_name} title={ev.title} type={ev.type} startsAt={ev.starts_at} endsAt={ev.ends_at}
                      location={ev.location_name} cancelled={cancelled} sheetStatus={sheet.sheet?.status ?? null}
-                     substitute={sheet.access.is_substitute} booked={!!ev.training_session_id}
+                     substitute={sheet.access.is_substitute && !ev.training_session_id} booked={!!ev.training_session_id}
                      links={!cancelled && (
                        <Link href={`/coach/trainings/${eventId}/attendance`} className={buttonVariants({ variant: final ? "secondary" : "primary", size: "lg" })}>
                          {actionLabel}

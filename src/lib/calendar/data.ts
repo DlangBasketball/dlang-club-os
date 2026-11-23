@@ -236,8 +236,9 @@ export async function loadCalendarItems(
   }
 
   // A booked training session is one calendar event (events.training_session_id);
-  // its bookings are not listed again for the coach and parent calendars.
-  const sessionWithEvent = new Set(isAdmin ? [] : events.map((e) => e.training_session_id).filter((x): x is string => !!x));
+  // its bookings are not listed again on any calendar (the session page lists the
+  // participants and links each booking).
+  const sessionWithEvent = new Set(events.map((e) => e.training_session_id).filter((x): x is string => !!x));
   for (const b of bookings) {
     if (b.session_id && sessionWithEvent.has(b.session_id)) continue;
     const svc = serviceById.get(b.service_id);

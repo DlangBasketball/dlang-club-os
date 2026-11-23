@@ -148,7 +148,7 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
         <CardHeader><CardTitle>{t("adminBooking.detail.actions")}</CardTitle></CardHeader>
         <CardBody>
           <BookingDetailActions bookingId={b.booking_id} isAdmin={isAdmin} todayKey={zonedDayKey(new Date(), f.timeZone)}
-            canInvoice={canInvoice(b)} canReschedule={canReschedule(b)} canCancel={canCancel(b)}
+            canInvoice={canInvoice(b)} canReschedule={canReschedule(b) && b.attendance?.sheet_status !== "final"} canCancel={canCancel(b)}
             invoice={b.invoice ? { id: b.invoice.id, number: b.invoice.number, status: b.invoice.status, balance: b.invoice.balance, currency: cur } : null}
             preview={preview ? {
               amount: preview.amount ?? null, currency: preview.currency ?? cur, recipientName: preview.recipient?.name ?? null, recipientEmail: preview.recipient?.email ?? null,
