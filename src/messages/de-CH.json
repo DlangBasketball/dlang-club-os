@@ -412,5 +412,10 @@
       "reportedConfirm": "Bestätigen und abschliessen",
       "confirm": "Abschliessen"
     }
+  },
+  "bookingWorkflow": {
+    "warnings": {
+      "AVAILABILITY_OVERRIDDEN": "Ausserhalb der Verfügbarkeit des Coaches gebucht (Ausnahme erfasst)."
+    }
   }
 }

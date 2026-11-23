@@ -44,12 +44,16 @@ export async function renderInvoicePdf(id: string, opts: { installmentId?: strin
   const [profile, { data: org }, { data: billing }] = await Promise.all([
     getOrgPaymentProfile(data.orgId),
     admin.from("organizations").select("branding").eq("id", data.orgId).maybeSingle(),
-    admin.from("invoices").select("billing_entity_snapshot,payer_name,payer_kind,activity,source_label,program_id,programs(series,name)").eq("id", id).eq("org_id", data.orgId).maybeSingle(),
+    admin.from("invoices").select("billing_entity_snapshot,payer_name,payer_kind,payer_id,payer_address,activity,source_label,program_id,programs(series,name)").eq("id", id).eq("org_id", data.orgId).maybeSingle(),
   ]);
   const settings = applyBillingEntity(profile.swiss, billing?.billing_entity_snapshot ?? null);
   // A sponsor / third-party share is addressed to that payer, not the family.
-  const payerName = billing && (billing.payer_kind === "sponsor" || billing.payer_kind === "other") ? billing.payer_name : null;
+  // A payer record (booking workflow, 20250420104400) is addressed by its snapshot name + address.
+  const payerName = billing && (billing.payer_kind === "sponsor" || billing.payer_kind === "other" || billing.payer_id)
+    ? billing.payer_name : null;
   const debtor = payerName ?? data.family.contactName ?? data.family.name;
+  const addr = (billing?.payer_id ? billing.payer_address : null) as { street?: string | null; postal_code?: string | null; city?: string | null } | null;
+  const debtorAddress = addr ? [addr.street ?? "", `${addr.postal_code ?? ""} ${addr.city ?? ""}`.trim()].filter(Boolean) : [];
   let qrBill: QrBillSection | null = null;
   // Swiss QR-bill: CHF or EUR only, CH/LI account matching the invoice's own
   // reference type (SIX implementation guidelines). Only for an open balance:
@@ -68,7 +72,7 @@ export async function renderInvoicePdf(id: string, opts: { installmentId?: strin
       iban: account.iban,
       reference: account.referenceType === "QRR" ? formatQrReference(account.reference) : account.reference,
       creditorLines: [settings.creditorName, `${settings.creditorStreet} ${settings.creditorBuilding}`.trim(), `${settings.creditorZip} ${settings.creditorCity}`.trim()].filter(Boolean),
-      debtorLines: [debtor].filter(Boolean) as string[],
+      debtorLines: [debtor, ...debtorAddress].filter(Boolean) as string[],
       amount,
       currency,
     };

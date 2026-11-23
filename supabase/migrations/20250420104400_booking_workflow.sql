@@ -20,6 +20,10 @@
 
 create extension if not exists btree_gist;
 
+-- Notification type of the reschedule notice (only used by the application;
+-- never compared in this migration, so adding it here is safe).
+alter type public.notification_type add value if not exists 'booking_rescheduled';
+
 -- ---------------------------------------------------------------------------
 -- 0. Small helpers
 -- ---------------------------------------------------------------------------
@@ -1022,6 +1026,27 @@ begin
   return null;
 end $$;
 
+-- A deleted booking (person erasure, cascades) releases its place too.
+create or replace function public.bk_bookings_after_delete()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if old.session_id is not null then
+    begin
+      perform public.bk_session_refresh(old.session_id);
+    exception when others then null;
+    end;
+  end if;
+  return null;
+end $$;
+
+drop trigger if exists trg_bookings_bk_after_delete on public.training_bookings;
+create trigger trg_bookings_bk_after_delete after delete on public.training_bookings
+  for each row execute function public.bk_bookings_after_delete();
+
 drop trigger if exists trg_bookings_bk_legacy_sync on public.training_bookings;
 create trigger trg_bookings_bk_legacy_sync after insert or update of status, slot_start, coach_id on public.training_bookings
   for each row execute function public.bk_bookings_legacy_sync();
@@ -1035,7 +1060,9 @@ security definer
 set search_path = public
 as $$
 begin
-  if old.training_session_id is null or public.billing_flag_on('app.bk_internal') or public.is_service_caller() then
+  -- pg_trigger_depth() > 1: a cascade (venue / space deleted, org deleted) is not a calendar edit.
+  if old.training_session_id is null or public.billing_flag_on('app.bk_internal') or public.is_service_caller()
+     or pg_trigger_depth() > 1 then
     return new;
   end if;
   if new.starts_at is distinct from old.starts_at or new.ends_at is distinct from old.ends_at
@@ -1059,6 +1086,7 @@ set search_path = public
 as $$
 begin
   if old.training_session_id is not null and not public.billing_flag_on('app.bk_internal') and not public.is_service_caller()
+     and pg_trigger_depth() = 1
      and exists (select 1 from public.training_sessions s where s.id = old.training_session_id and s.status = 'scheduled') then
     raise exception 'SESSION_EVENT_MANAGED' using errcode = 'P0001';
   end if;
@@ -3133,7 +3161,7 @@ begin
     'public.booking_billing_status(uuid)',
     'public.bk_session_create(uuid, public.training_services, uuid, timestamptz, timestamptz, uuid, uuid, integer)',
     'public.bk_session_refresh(uuid)', 'public.bk_sync_event_sheet(uuid)', 'public.bk_attach_legacy(uuid)',
-    'public.bk_bookings_legacy_sync()', 'public.events_session_guard()', 'public.events_session_delete_guard()',
+    'public.bk_bookings_legacy_sync()', 'public.bk_bookings_after_delete()', 'public.events_session_guard()', 'public.events_session_delete_guard()',
     'public.training_services_bk_guard()', 'public.bk_enqueue_notifications(uuid, text)',
     'public.bk_read_payload(jsonb)', 'public.bk_first_error(jsonb)', 'public.bk_create_invoice(uuid, boolean)',
     'public.bk_payer_upsert(jsonb, uuid)', 'public.bk_row(public.training_bookings)',

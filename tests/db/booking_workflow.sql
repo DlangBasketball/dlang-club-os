@@ -806,4 +806,16 @@ begin
                 'reschedule: a lower price becomes a credit note on the existing invoice');
 end $$;
 
+do $$
+declare r jsonb; v_s uuid;
+begin
+  r := bk.j(bk.uid('admin'), format('select public.booking_confirm(%L, %L)::text',
+             jsonb_build_object('athlete_id', bk.get('aNova'), 'service_id', bk.get('svcTrial'), 'coach_id', bk.get('coachRow'), 'starts_at', bk.at('d2', 18)),
+             gen_random_uuid()));
+  v_s := (r->>'session_id')::uuid;
+  delete from public.training_bookings where id = (r->>'booking_id')::uuid;
+  perform bk.ok((select s.status = 'cancelled' and e.status = 'cancelled' from public.training_sessions s join public.events e on e.id = s.event_id where s.id = v_s),
+                'delete: a deleted booking (erasure) releases its session');
+end $$;
+
 select 'PASS — booking workflow suite finished' as result;

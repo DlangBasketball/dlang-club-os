@@ -17,6 +17,7 @@ export type NotifType =
   | "payment_overdue"
   | "booking_confirmation"
   | "booking_cancellation"
+  | "booking_rescheduled"
   | "attendance_submitted"
   | "document_uploaded"
   | "consent_required"
@@ -31,6 +32,7 @@ export const ENUM_FOR: Record<NotifType, string> = {
   payment_overdue: "payment_overdue",
   booking_confirmation: "booking_confirmation",
   booking_cancellation: "booking_cancellation",
+  booking_rescheduled: "booking_rescheduled",
   attendance_submitted: "attendance_submitted",
   document_uploaded: "document_uploaded",
   consent_required: "consent_required",
@@ -72,6 +74,11 @@ export type NotifVars = {
    * asks them to contact the club instead of linking the parent portal.
    */
   has_account?: boolean;
+  // Booking workflow (src/lib/booking/notify.ts)
+  /** ISO instant of the previous start (reschedule notice). */
+  previous_starts_at?: string;
+  /** In-app link / call to action of a booking notice (coach, player or parent app); none without an account. */
+  portal_path?: string;
 };
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
@@ -207,10 +214,13 @@ export const TEMPLATES: Record<NotifType, Builder> = {
   }),
   booking_confirmation: (v) => {
     const service = v.service_name ?? tr(`${N}.fallback.session`);
+    const when = v.when ?? (v.starts_at ? at(v.starts_at) : "");
+    const link = v.portal_path ?? "/parent/bookings";
+    const cta = v.has_account === false ? undefined : { label: txt(`${N}.booking_confirmation.cta`), href: link };
     return {
       title: txt(`${N}.booking_confirmation.title`),
-      body: txt(`${N}.booking_confirmation.body`, { service, coach: v.coach_name ?? tr(`${N}.fallback.yourCoach`), when: v.when ?? "" }),
-      link: "/parent/bookings",
+      body: txt(`${N}.booking_confirmation.body`, { service, coach: v.coach_name ?? tr(`${N}.fallback.yourCoach`), when }),
+      link,
       subject: txt(`${N}.booking_confirmation.subject`, { service: v.service_name ?? tr(`${N}.fallback.training`) }),
       html: shell(txt(`${N}.booking_confirmation.heading`), [
         greeting(v),
@@ -219,20 +229,45 @@ export const TEMPLATES: Record<NotifType, Builder> = {
           service: v.service_name ?? tr(`${N}.fallback.aSession`),
           coach: v.coach_name ?? tr(`${N}.fallback.aCoach`),
         }, ["athlete", "coach"]),
-        html(`${N}.booking_confirmation.when`, { when: v.when ?? "—" }),
-      ], { label: txt(`${N}.booking_confirmation.cta`), href: "/parent/bookings" }),
+        html(`${N}.booking_confirmation.when`, { when: when || "—" }),
+      ], cta),
     };
   },
-  booking_cancellation: (v) => ({
-    title: txt(`${N}.booking_cancellation.title`),
-    body: txt(`${N}.booking_cancellation.body`, { service: v.service_name ?? tr(`${N}.fallback.session`), when: v.when ?? "" }),
-    link: "/parent/bookings",
-    subject: txt(`${N}.booking_cancellation.subject`, { service: v.service_name ?? tr(`${N}.fallback.training`) }),
-    html: shell(txt(`${N}.booking_cancellation.heading`), [
-      greeting(v),
-      html(`${N}.booking_cancellation.line`, { service: v.service_name ?? tr(`${N}.fallback.aSession`), when: v.when ?? "—" }, ["when"]),
-    ], { label: txt(`${N}.booking_cancellation.cta`), href: "/parent/bookings/new" }),
-  }),
+  booking_rescheduled: (v) => {
+    const service = v.service_name ?? tr(`${N}.fallback.session`);
+    const when = v.when ?? (v.starts_at ? at(v.starts_at) : "—");
+    const before = v.previous_starts_at ? at(v.previous_starts_at) : "—";
+    const link = v.portal_path ?? "/parent/bookings";
+    return {
+      title: txt(`${N}.booking_rescheduled.title`),
+      body: txt(`${N}.booking_rescheduled.body`, { service, when }),
+      link,
+      subject: txt(`${N}.booking_rescheduled.subject`, { service: v.service_name ?? tr(`${N}.fallback.training`) }),
+      html: shell(txt(`${N}.booking_rescheduled.heading`), [
+        greeting(v),
+        html(`${N}.booking_rescheduled.line`, {
+          athlete: v.athlete_name ?? tr(`${N}.fallback.child`),
+          service: v.service_name ?? tr(`${N}.fallback.aSession`),
+        }, ["athlete"]),
+        html(`${N}.booking_rescheduled.when`, { when, before }),
+      ], v.has_account === false ? undefined : { label: txt(`${N}.booking_rescheduled.cta`), href: link }),
+    };
+  },
+  booking_cancellation: (v) => {
+    const when = v.when ?? (v.starts_at ? at(v.starts_at) : "");
+    const link = v.portal_path ?? "/parent/bookings";
+    return {
+      title: txt(`${N}.booking_cancellation.title`),
+      body: txt(`${N}.booking_cancellation.body`, { service: v.service_name ?? tr(`${N}.fallback.session`), when }),
+      link,
+      subject: txt(`${N}.booking_cancellation.subject`, { service: v.service_name ?? tr(`${N}.fallback.training`) }),
+      html: shell(txt(`${N}.booking_cancellation.heading`), [
+        greeting(v),
+        html(`${N}.booking_cancellation.line`, { service: v.service_name ?? tr(`${N}.fallback.aSession`), when: when || "—" }, ["when"]),
+      ], v.has_account === false ? undefined
+        : { label: txt(`${N}.booking_cancellation.cta`), href: v.portal_path ?? "/parent/bookings/new" }),
+    };
+  },
   attendance_submitted: (v) => {
     const athlete = v.athlete_name ?? tr(`${N}.fallback.childLower`);
     const p = v.program_name;
