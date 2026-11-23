@@ -1031,3 +1031,16 @@ begin
                   'two concurrent issues get distinct consecutive numbers (' || coalesce(n1, '-') || ', ' || coalesce(n2, '-') || ')');
   end if;
 end $$;
+
+-- QR references are unique across categories that share the same running number;
+-- numbers outside any series keep the previous rule.
+do $$
+declare o uuid := '00000000-0000-0000-0000-000000000001'; a text; c text; e text;
+begin
+  a := public.billing_reference_for(o, 'BF CLUB-2026-0001');
+  c := public.billing_reference_for(o, 'BF CAMP-2026-0001');
+  e := public.billing_reference_for(o, 'BF EYBL-2026-0001');
+  perform bf.ok(a <> c and a <> e and c <> e, 'same running number in two categories -> different QR references (' || a || ', ' || c || ')');
+  perform bf.ok(public.billing_reference_for(o, 'XX-2026-0001') = public.gen_qr_reference(o, 'XX-2026-0001'),
+                'numbers outside any series keep the previous reference rule');
+end $$;
