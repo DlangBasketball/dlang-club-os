@@ -19,7 +19,7 @@ invoicing from the booking, payments and booking notifications. This is the cont
 | Source of truth | `training_services` is the catalogue. New columns: `billing_category` (revenue category, default `training`, never `other`), `kind` (`private` / `group` / `trial` / `package`), `default_venue_space_id`. Price (`price_chf` + `currency`), duration, capacity (`max_participants`) and venue stay where they were. Existing services: `kind` = `group` when `session_type = 'group'`, else `private`. |
 | Eligible coaches | New table `training_service_coaches`, backfilled from `coaches.serves` (slug lists). Once a service has rows they are authoritative; a service without rows falls back to the slug list (`bk_coach_eligible`). The legacy parent booking flow still checks `coaches.serves`. |
 | Sessions | New `training_sessions` (service, coach, venue, venue space, `starts_at`/`ends_at` UTC, capacity, status `scheduled`/`cancelled`/`completed`). Each session has one `events` row: **type `training`, `team_id` null, `training_session_id` set, title = service name** (no athlete name). The enum is not extended: the team-training rules ignore these events (see §5). Participants = bookings with status `booked`/`completed`/`no_show`. |
-| Booking status vs billing status | `training_bookings.status` keeps its enum: `booked` (shown as **confirmed**), `completed`, `no_show`, `cancelled`. `requested` is translated (`bookingWorkflow.state.requested`) but not created in phase A: staff confirm directly. Billing status is derived (`booking_billing_status`, §3). |
+| Booking status vs billing status | `training_bookings.status`: `requested` (held place awaiting the coach, since 20250420104700, §12), `booked` (shown as **confirmed**), `completed`, `no_show`, `cancelled`. Billing status is derived (`booking_billing_status`, §3). |
 | Billing is explicit | `booking_confirm` never invoices, unless the club turns on `app_settings.settings.booking.auto_invoice` (default off; then a staff-only draft is created). |
 | Times | Stored UTC (`timestamptz`); labels and invoice source labels use the club time zone (`organizations.timezone`, fallback via `ta_tz`). `formatSlot()` formats with `Intl` in the viewer's locale. |
 | Date of birth | `athletes.dob` is NOT NULL in the schema, so `athlete_quick_create` always requires it (`DOB_REQUIRED`). It decides the minor rule: under 18 on the club's today → a guardian link is required. |
@@ -60,10 +60,12 @@ Concurrency:
 
 ## 3. Statuses
 
-- Booking: `booked` (confirmed) → `completed` / `no_show` (existing `mark_training_booking`) or `cancelled`. History is kept (the row
-  stays; cancel reason, `cancelled_at`, `cancelled_by`).
+- Booking: `requested` → `booked` (coach / admin confirms) or `cancelled` (declined / withdrawn, §12); `booked` (confirmed) →
+  `completed` / `no_show` (from the finalized attendance sheet since 20250420104700, or `mark_training_booking`) or `cancelled`.
+  An excused booked session stays `booked` with `attendance_status = 'excused'`. History is kept (the row stays; cancel reason,
+  `cancelled_at`, `cancelled_by`).
 - Session: `scheduled` → `cancelled` (last participant left) / `completed`.
-- Billing (`booking_billing_status`): `not_billable` (free / trial / price 0 / cancelled before invoicing) · `package`
+- Billing (`booking_billing_status`): `awaiting_confirmation` (a request: never invoiced) · `not_billable` (free / trial / price 0 / cancelled before invoicing) · `package`
   (package-covered or legacy credits) · `to_invoice` · `invoice_draft` · `invoiced` · `partially_paid` · `paid` · `credited`
   (invoice cancelled / refunded, or credited down to 0).
 - Notification row: `pending` → `sending` → `sent` / `failed` / `no_contact` (`skipped` reserved).
@@ -134,7 +136,7 @@ stored, so the same id can be retried after fixing the input) except the data-ca
   guardian saw team-less events). `player_sees_event` likewise.
 - History: `ta_athlete_overview` (guardian / player attendance overview) includes booked sessions (upcoming and finalized).
 - A session event cannot be moved, cancelled or deleted directly (`SESSION_EVENT_MANAGED`): reschedule or cancel the bookings.
-- Not in phase A: absence reports for session events (`absence_report` checks team rosters) — cancel the booking instead.
+- Since 20250420104700: absence reports and correction requests for session events (§12); the finalized sheet sets the booking status.
 
 ## 6. Server actions (`src/lib/actions/booking-workflow.ts`)
 
@@ -216,10 +218,10 @@ location; no price, list price, currency, payer, invoice, package, credits or no
 
 ## 10. Not done in phase A
 
-- No pages (admin booking form / detail / finance, portals, athlete profile) — the UI tracks build them on this contract.
-- `requested` bookings (parent requests awaiting staff confirmation), discounts / promo codes on workflow bookings (legacy
-  `book_training` keeps them), legacy training credits as a billing mode of the new path.
-- Absence reports for session events; automatic `completed` / `no_show` from the finalized sheet (use `mark_training_booking`).
+- (Done in the UI tracks) pages: admin booking form / detail / finance, portals, athlete profile.
+- (Done in 20250420104700, §12) `requested` bookings, family requests, promo codes on workflow bookings, absence reports for
+  session events, `completed` / `no_show` from the finalized sheet.
+- Still open: legacy training credits as a billing mode of the new path.
 - (Done in 20250420104600) coach table access to booking money columns, see §7.
 
 ## 11. Portals (coach, parent, player, athlete profile)
@@ -241,6 +243,91 @@ components `src/components/booking/portal/`.
 | `/player/bookings`, `/player/attendance`, `/player/notifications` | Own bookings / changes / attendance, never money; notification list | `player_booking_overview` |
 | `/admin/athletes/<id>` | Bookings tab (upcoming + history, booking detail links, state, billing status, invoice number / status, "New booking" → `/admin/bookings/new?athlete=<id>`), Attendance tab "Booked sessions" (admin), Billing tab "Invoices from bookings" | `athlete_booking_history`, `team_attendance_marks` (admin RLS) |
 
-Not in this phase: absence reports and correction requests for booked sessions in the portals (the parent is asked to contact the
-club); the parent record page `/parent/attendance/team/<event>` stays team-only.
+Since 20250420104700 (§12): absence reports and correction requests for booked sessions in the portals; the parent record page
+`/parent/attendance/team/<event>` also serves session events.
 
+
+## 12. Booking requests (open availability, family requests, promo codes, attendance)
+
+Migration `20250420104700_booking_requests.sql` (additive, idempotent; no new table). DB tests `tests/db/booking_requests.sql`
+(`DB_TEST_PREFIX=br scripts/db-test.sh tests/db/booking_requests.sql`), unit tests `tests/unit/booking-requests.test.ts`.
+The enum value `booking_status 'requested'` is only compared as text in the migration (usable after its transaction commits).
+
+### Settings (app_settings.settings.booking, admin: Services → Online booking)
+| Key | Default | Meaning |
+|---|---|---|
+| `availability_mode` | `declared` | `declared`: a slot must fit the coach's declared availability (today's rule). `open_confirm`: any time inside the venue opening hours; a slot outside the declared availability is created as `requested`. Inside the declared availability bookings are confirmed at once in both modes. |
+| `request_followup_hours` | 48 (1..720) | Requests unanswered longer appear in `booking_followups.requests`, the dashboard (`stale_requests`) and are flagged `stale`. |
+
+The migration keeps `declared` for every club; the founder's club is switched to `open_confirm` as data.
+
+### Slot rules (`bk_evaluate`, same signature)
+- Outside the venue opening hours (`venues.opening_hours` of the facility's venue, else the service venue; club-wide or venue
+  blackouts; a slot across midnight) → **`VENUE_CLOSED`** (before: `COACH_UNAVAILABLE`). An admin override lifts it
+  (`VENUE_CLOSED_OVERRIDDEN` warning, audited like the availability override).
+- Inside the venue hours but outside the declared availability: `declared` → `COACH_UNAVAILABLE`; `open_confirm` (or a family
+  request) → allowed with the warning `NEEDS_COACH_CONFIRMATION`, `slot.needs_confirmation = true`, `creates = 'requested'`. A coach
+  blackout stays `COACH_UNAVAILABLE` in every mode.
+- Requests hold the place: they count for capacity (`bk_session_count` = every non-cancelled booking), create / join the session
+  (coach and space exclusion constraints apply), and the unique "one live place per athlete and session" includes them
+  (`training_bookings_session_athlete_live_uidx`). Joining a session that only holds requests is a request too.
+- Quote / slot also return `within_availability`, `session_pending`, `availability_mode`.
+
+### Lifecycle RPCs (security definer, `search_path` set, tenant + role checked, idempotent with `request_id`)
+| RPC | Who | Notes |
+|---|---|---|
+| `booking_confirm` (changed) | staff | Returns `status` `booked` / `requested`. A request: no auto-invoice, notifications `requested` (coach) instead of `confirmed`. |
+| `booking_request_confirm(booking, request_id, notify=true)` | the session coach, admins | `requested` → `booked`, decision recorded (`request_decision`, `request_decided_at/by`), sheet synced, `request_confirmed` to the family (and the coach when an admin decided). A confirmed booking returns `already_decided`; others `NOT_A_REQUEST`. Another coach / org: `BOOKING_NOT_FOUND`; finance / guardian: `NOT_AUTHORIZED`. |
+| `booking_request_decline(booking, reason, request_id, notify=true)` | the session coach, admins | Reason required (`REASON_REQUIRED`, ≤ 500). → `cancelled` with the reason, place released (empty session + event cancelled), package entitlement restored (`restore_reason 'declined'`), promo redemption voided, never invoiced. `request_declined` to the family (+ coach when an admin decided). |
+| `booking_request_withdraw(booking, request_id)` | a guardian of the athlete | Only family requests that are still open; → `cancelled` (`request_decision 'withdrawn'`), place / package / promo released, `request_withdrawn` to the coach. Other families: `BOOKING_NOT_FOUND`. |
+| `family_booking_catalog(athlete)` | guardian of the athlete | Services with `bookable_by_families` (new column, default true; package services false), eligible coaches, package sessions left, open group sessions (times + free places only), `availability_mode`, `enabled` (`bookings_enabled`). |
+| `booking_family_quote(payload)` / `booking_family_request(payload, request_id)` | guardian of the athlete | Payload `{athlete_id, service_id, coach_id?, session_id?, starts_at?, notes?, promo_code?}`. Always `requested` (any mode), source `family`, payer forced to the family default (any `payer_id` is ignored), billing `auto` (package when the child has one), no price / availability override, future slots only (`SLOT_IN_PAST`), venue hours apply (`VENUE_CLOSED`). Without a coach the first eligible coach that can take it is picked (inside declared availability first). Notifications `requested` to the coach and the club admins. |
+| `coach_booking_requests(coach?)` | coach (own), admin (one coach or the club) | Waiting requests: service, time, place, athlete name, source, `stale`, places. No payer, price or notes. |
+| `session_events_pending(event_ids[])` | visible events only | Session events that only hold requests (calendar style "awaiting coach confirmation"). |
+
+`booking_create_invoice` / `bk_create_invoice` refuse a request (`REQUEST_PENDING`); `bookings_to_invoice` and the dashboard
+"awaiting invoice" count only confirmed / completed / no-show bookings. `booking_cancel` / `booking_reschedule` refuse requests
+(decide them instead). A guardian cannot create or change a request with a direct table write (`BOOKING_REQUEST_MANAGED`,
+trigger `trg_bookings_request_guard`).
+
+### Promo codes (shared discount engine)
+`promo_code` in the quote / confirm payload (staff) and in family requests (as the legacy `book_training`: families may use
+codes, never manual discounts). Applies to a single paid session billed by invoice at the list price (`PROMO_NOT_APPLICABLE`
+for package / free, `PROMO_WITH_PRICE_OVERRIDE` with a manual price); `discount_evaluate` decides (scope, validity, usage
+limits under lock at confirm; refusals `PROMO_<REASON>` as the shop / training codes). The booking stores `list_price`,
+`price_chf` (net), `discount_total`, `promo_code`; `applied_discounts` rows (`source 'booking'`). The invoice gets the list
+price line plus one negative line per discount (linked in `applied_discounts.invoice_id / invoice_item_id`). A booking cancelled
+/ declined / withdrawn before invoicing voids its redemption.
+
+### Absence reports, corrections, attendance status
+- `absence_report` accepts session events: a guardian of the athlete (or the player) with a **confirmed** booking on the session
+  (`NOT_BOOKED` otherwise), until the start. Shown on the coach sheet (`attendance_sheet` now previews session events too), on the
+  booking detail (`absence_report`) and in the portals (`upcoming[].absence_report`, `can_report_absence`).
+- `guardian_attendance_record` serves session events (`session{service_name, coach_name, booking_id, booking_status}`); correction
+  requests work on session sheets (`attendance_correction_requests.team_id` is now nullable) and are resolved by an admin or the
+  session coach (`attendance_correction_resolve`, `attendance_correction_requests_list`).
+- Trigger `trg_marks_booking_status` (on `team_attendance_marks.finalized_status`): present / late → `completed`, unexcused →
+  `no_show`, excused → stays `booked` with `attendance_status = 'excused'`; corrections update it. Billing is unaffected.
+
+### Notifications
+Kinds `requested`, `request_confirmed`, `request_declined`, `request_withdrawn`; recipient kind `admin`. Templates
+`booking_requested` (coach / admins, link `/coach/trainings#booking-requests` or `/admin/bookings/<id>`),
+`booking_request_declined` (family, with the reason), `request_confirmed` reuses `booking_confirmation`, `request_withdrawn` reuses
+`booking_cancellation`. `booking_notifications_claim` also returns `reason`.
+
+### Screens
+| Route | What |
+|---|---|
+| Services → Online booking (`/admin/services`) | Availability mode + follow-up hours. Service detail: "Families can request this service". |
+| `/admin/bookings/new` | Promo code (live discounted quote), "becomes a request" notice, `VENUE_CLOSED` message. |
+| `/admin/bookings` | "Awaiting coach confirmation" filter, `stale` marker. |
+| `/admin/bookings/<id>` | Request card (source, waiting time, decision) with Confirm / Decline (reason) for admins; discount, attendance marker, absence report. |
+| Dashboard bookings card | "Awaiting coach confirmation" tile, stale requests in the follow-up list. |
+| `/coach/trainings` | "Booking requests" section with count badge, Confirm / Decline; pending sessions dashed, requests named "(request)". |
+| `/parent/bookings` | "Request a session" (→ `/parent/bookings/request`), requests "awaiting coach confirmation" (dashed) with Withdraw, "Report an absence" for confirmed sessions, declined / withdrawn in the changes. |
+| `/parent/bookings/request` | Child, service, open group sessions, coach (optional), preferred date / time with the coach's declared times as hints, promo code, package coverage, live quote. |
+| `/parent/attendance`, `/parent/attendance/team/<event>`, `/player` | Absence reports and the record page (correction requests) for booked sessions. |
+| Calendars | Pending session events in a dashed style with "awaiting coach confirmation". |
+
+Known limitation: the legacy parent booking flow (`book_training`, `/parent/bookings/new`) does not see held requests in its slot
+computation (`training_busy`); a conflicting legacy booking joins the held session or is flagged `BOOKING_WITHOUT_SESSION`.
