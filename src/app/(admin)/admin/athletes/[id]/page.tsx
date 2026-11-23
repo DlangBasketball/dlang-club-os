@@ -26,7 +26,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { signAthletePhotos } from "@/lib/people/server";
 import { ageOn } from "@/lib/people/player-stats";
 import { getAthleteCover } from "@/lib/media/server";
-import { getPlayerStats, getPlayerTeams, getTeamPickerOptions } from "@/lib/data/player-profile";
+import { getFinalisedSheetMarks, getPlayerStats, getPlayerTeams, getTeamPickerOptions } from "@/lib/data/player-profile";
 import { CourtsideCardSection } from "@/components/member-card/courtside-section";
 import { shopDb } from "@/lib/shop/db";
 import { MoveToAlumniButton } from "@/components/alumni/tools";
@@ -118,7 +118,8 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     : null;
   const sessionRows = toSessionRows((teamSessions?.data ?? []).filter((r) => !seasonIds || seasonIds.has(r.session_id)))
     .filter((r) => Date.parse(r.starts_at) <= Date.now());
-  const stats = await getPlayerStats(a.id, attendanceHistory, { includeCredits: isAdmin, includeDevelopment: isAdmin });
+  const sheetMarks = isAdmin ? await getFinalisedSheetMarks(a.id) : [];
+  const stats = await getPlayerStats(a.id, attendanceHistory, { includeCredits: isAdmin, includeDevelopment: isAdmin, sheetMarks });
   const emergencyName = medical?.emergencyContactName ?? safety?.emergencyContactName ?? null;
   const emergencyPhone = medical?.emergencyContactPhone ?? safety?.emergencyContactPhone ?? null;
   const consents = timeline.filter((e) => e.kind === "consent");
@@ -336,7 +337,8 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     <div className="space-y-6">
       {teamAttendance}
       {isAdmin && bookingRows.length > 0 && <BookedSessionAttendance rows={bookedMarks} t={t} f={f} />}
-      {programmeAttendance}
+      {/* Earlier programme marks: shown when there are any, or when there is no sheet history above. */}
+      {(attendanceHistory.length > 0 || !teamAttendance) && programmeAttendance}
     </div>
   );
 

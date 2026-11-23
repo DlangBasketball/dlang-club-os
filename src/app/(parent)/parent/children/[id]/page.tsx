@@ -12,7 +12,7 @@ import { PlayerTeamsCard } from "@/components/teams/player-teams-card";
 import { AthleteProgrammesCard } from "@/components/selection/roster/athlete-programmes-card";
 import { photoUrlsForAthletes } from "@/lib/people/server";
 import { getAthleteCover } from "@/lib/media/server";
-import { getPlayerStats, getPlayerTeams } from "@/lib/data/player-profile";
+import { getFinalisedSheetMarks, getPlayerStats, getPlayerTeams } from "@/lib/data/player-profile";
 import { CourtsideCardSection } from "@/components/member-card/courtside-section";
 import { LicenceCard } from "@/components/athlete/licence-card";
 import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
@@ -30,12 +30,18 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
   if (error) return <ErrorState title={t("media.profile.loadError")} message={error} />;
   if (!data) notFound();
   const m = data.medical;
-  const [photos, cover, teams] = await Promise.all([
+  const [photos, cover, teams, sheetMarks] = await Promise.all([
     photoUrlsForAthletes([data.id]),
     getAthleteCover(data.id),
     getPlayerTeams(data.id),
+    getFinalisedSheetMarks(data.id),
   ]);
-  const stats = await getPlayerStats(data.id, data.attendance, { familyView: true });
+  const stats = await getPlayerStats(data.id, data.attendance, { familyView: true, sheetMarks });
+  // One list, newest first: finalised attendance sheets and earlier programme marks.
+  const recent = [
+    ...sheetMarks.map((m) => ({ date: m.date, name: m.groupName, label: t.dynamic(`teamAttendance.statuses.${m.status}`, undefined, m.status), tone: m.status === "unexcused" ? "absent" : m.status })),
+    ...data.attendance.map((a) => ({ date: a.date, name: a.programName, label: t.dynamic(`status.${a.status}`, undefined, a.status), tone: a.status })),
+  ].sort((x, y) => (y.date ?? "").localeCompare(x.date ?? ""));
 
   const overview = (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -125,11 +131,11 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
     <Card>
       <CardHeader><CardTitle>{t("media.profile.recentAttendance")}</CardTitle></CardHeader>
       <CardBody className="p-0">
-        {data.attendance.length === 0 ? (<div className="p-5 text-sm text-text-muted">{t("media.profile.noPublishedAttendance")}</div>) : (
-          <ul>{data.attendance.slice(0, 20).map((a, i) => (
+        {recent.length === 0 ? (<div className="p-5 text-sm text-text-muted">{t("media.profile.noPublishedAttendance")}</div>) : (
+          <ul>{recent.slice(0, 20).map((a, i) => (
             <li key={i} className="flex items-center justify-between gap-3 border-b border-border-soft px-5 py-2.5 last:border-0">
-              <span className="min-w-0 truncate text-sm text-text">{a.programName ?? t("media.profile.session")}<span className="ml-2 text-xs text-text-muted">{f.date(a.date)}</span></span>
-              <Badge tone={statusTone(a.status)}>{t.dynamic(`status.${a.status}`, undefined, a.status)}</Badge>
+              <span className="min-w-0 truncate text-sm text-text">{a.name ?? t("media.profile.session")}<span className="ml-2 text-xs text-text-muted">{f.date(a.date)}</span></span>
+              <Badge tone={statusTone(a.tone)}>{a.label}</Badge>
             </li>
           ))}</ul>
         )}
@@ -160,7 +166,7 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
     { id: "overview", label: t("media.profile.tabOverview"), content: overview },
     { id: "teams", label: t("media.profile.tabTeams"), content: teamsTab, count: teams.length + data.registrations.length },
     { id: "development", label: t("media.profile.tabDevelopment"), content: developmentTab },
-    { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: data.attendance.length },
+    { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: recent.length },
     { id: "documents", label: t("media.profile.tabDocuments"), content: documentsTab, count: data.consents.length },
   ];
 

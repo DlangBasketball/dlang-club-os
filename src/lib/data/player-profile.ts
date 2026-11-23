@@ -6,6 +6,7 @@ import { getAthleteTraining } from "@/lib/training/data";
 import { logError } from "@/lib/log";
 import { attendanceStats, seasonStartFor, type MarkRow } from "@/lib/people/player-stats";
 import type { TeamPickerOption } from "@/lib/sportsops/roster-validation";
+import { getGuardianOverview } from "@/lib/attendance/data";
 
 /**
  * Player card (admin / parent / coach profile): teams, quick stats.
@@ -127,9 +128,12 @@ export type PlayerStats = {
 export async function getPlayerStats(
   athleteId: string,
   marks: MarkRow[],
-  opts: { familyView?: boolean; includeCredits?: boolean; includeDevelopment?: boolean } = {},
+  opts: { familyView?: boolean; includeCredits?: boolean; includeDevelopment?: boolean; sheetMarks?: SheetMark[] } = {},
 ): Promise<PlayerStats> {
   const today = new Date().toISOString().slice(0, 10);
+  // Attendance sheets (team trainings, games, booked sessions) count next to the
+  // earlier programme marks; an unexcused absence counts like an absence.
+  marks = [...marks, ...(opts.sheetMarks ?? []).map((m) => ({ date: m.date, status: m.status === "unexcused" ? "absent" : m.status }))];
   const [seasonStart, dev, training] = await Promise.all([
     currentSeasonStart(),
     opts.includeDevelopment === false
@@ -154,6 +158,23 @@ export async function getPlayerStats(
   const tr = training && training.error === null ? training.data : null;
   const credits = tr ? tr.balances.reduce((sum, b) => sum + (Number(b.remaining) || 0), 0) : null;
   return { attendanceRate: att.rate30, seasonSessions: att.seasonSessions, evaluation, credits };
+}
+
+export type SheetMark = { eventId: string; date: string; groupName: string | null; status: string };
+
+/**
+ * Finalised attendance-sheet values of one player (the same values the
+ * Attendance tab, Dashboard and family app show). The RPC allows the player's
+ * guardians and admins of the org; anyone else gets an empty list.
+ */
+export async function getFinalisedSheetMarks(athleteId: string): Promise<SheetMark[]> {
+  const res = await getGuardianOverview(athleteId).catch(() => null);
+  const o = res && res.error === null ? res.data : null;
+  if (!o) return [];
+  const day = new Intl.DateTimeFormat("en-CA", { timeZone: o.timezone || "UTC", year: "numeric", month: "2-digit", day: "2-digit" });
+  return (o.history ?? [])
+    .filter((h) => h.status && h.status !== "unmarked")
+    .map((h) => ({ eventId: h.event_id, date: day.format(new Date(h.starts_at)), groupName: h.team_name ?? null, status: h.status }));
 }
 
 export type PlayerInvoice = { id: string; number: string; status: string; total: number; currency: string; dueDate: string | null; issuedAt: string; forThisPlayer: boolean };
