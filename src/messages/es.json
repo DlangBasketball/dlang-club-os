@@ -8261,12 +8261,14 @@
       "line": "{athlete} quedó registrado con ausencia injustificada en el entrenamiento de {team} el {when}.",
       "correction": "Si no es correcto, puedes pedir una corrección desde el registro en el portal de familias.",
       "cta": "Ver registro",
-      "fallbackTeam": "el equipo"
+      "fallbackTeam": "el equipo",
+      "correctionNoAccount": "Si no es correcto, contacte con {club} para que se pueda corregir.",
+      "why": "Informamos a las familias el mismo día para que ninguna ausencia pase desapercibida. Este mensaje se refiere solo a su hijo o hija."
     },
     "attendance_no_show_correction": {
-      "title": "Asistencia actualizada de {athlete}",
-      "body": "La asistencia de {athlete} en {team} el {when} se corrigió a: {status}.",
-      "subject": "Asistencia corregida — {athlete}, {team}",
+      "title": "Corrección: {athlete} figura ahora como {status}",
+      "body": "Corrección de nuestro mensaje anterior: la asistencia de {athlete} en {team} el {when} figura ahora como {status}.",
+      "subject": "Corrección: {athlete} figura ahora como {status} — {team}",
       "heading": "Asistencia corregida",
       "line": "La asistencia de {athlete} en el entrenamiento de {team} el {when} se corrigió a: {status}.",
       "status": {
@@ -8274,7 +8276,10 @@
         "late": "tarde",
         "excused": "ausencia justificada",
         "unexcused": "ausencia injustificada"
-      }
+      },
+      "earlier": "Este mensaje corrige nuestro mensaje anterior sobre esta sesión.",
+      "whyCleared": "Ya no cuenta como ausencia injustificada en el registro de asistencia; no tiene que hacer nada.",
+      "whyUnexcused": "Ahora cuenta como ausencia injustificada en el registro de asistencia."
     }
   },
   "pdf": {
@@ -11891,6 +11896,136 @@
       "repeatUntil": "Repetir hasta",
       "repeatUntilHint": "Los entrenamientos solo se crean dentro de las fechas de entrenamiento de la temporada y nunca en las pausas del club.",
       "createSeries": "Crear sesiones semanales"
+    }
+  },
+  "familyAttendance": {
+    "title": "Asistencia",
+    "description": "Próximas sesiones, ausencias comunicadas y el registro definitivo de asistencia de sus hijos.",
+    "loadError": "No se pudo cargar la asistencia. Inténtelo de nuevo.",
+    "childTabs": "Hijos",
+    "noChildren": {
+      "title": "Todavía no hay hijos vinculados",
+      "body": "Cuando el club vincule a sus hijos con su cuenta, aquí aparecerán sus sesiones y su asistencia."
+    },
+    "upcoming": {
+      "title": "Próximas sesiones",
+      "hint": "Próximos 30 días, en la zona horaria del club.",
+      "empty": "No hay sesiones en los próximos 30 días.",
+      "cancelled": "Cancelada",
+      "cancelledReason": "Cancelada: {reason}",
+      "rescheduled": "Cambiada (antes {when})",
+      "postponed": "Aplazada",
+      "types": {
+        "training": "Entrenamiento",
+        "game": "Partido",
+        "tournament": "Torneo"
+      }
+    },
+    "absence": {
+      "report": "Comunicar ausencia",
+      "edit": "Cambiar",
+      "withdraw": "Retirar",
+      "reported": "Ausencia comunicada",
+      "acknowledged": "Vista por el entrenador",
+      "needsReview": "El horario de esta sesión cambió después del aviso. Revíselo, por favor.",
+      "category": "Motivo",
+      "reason": "Nota para el entrenador (opcional)",
+      "reasonHint": "No hace falta dar datos médicos: el entrenador solo necesita saber que habrá una ausencia.",
+      "submit": "Enviar",
+      "cancel": "Cancelar",
+      "closed": "Los avisos se cierran cuando empieza la sesión.",
+      "byPlayer": "Comunicada por el jugador",
+      "byGuardian": "Comunicada por un familiar"
+    },
+    "history": {
+      "title": "Registro de asistencia",
+      "hint": "Solo se muestra la asistencia definitiva.",
+      "empty": "Todavía no hay asistencia definitiva para estos filtros.",
+      "team": "Equipo",
+      "season": "Temporada",
+      "allTeams": "Todos los equipos",
+      "allSeasons": "Todas las temporadas",
+      "guest": "Invitado",
+      "view": "Abrir",
+      "correctionOpen": "Corrección solicitada",
+      "filter": "Filtrar"
+    },
+    "totals": {
+      "sessions": "Sesiones",
+      "present": "Presente",
+      "late": "Tarde",
+      "excused": "Justificada",
+      "unexcused": "Injustificada",
+      "rate": "Tasa de asistencia",
+      "rateHint": "Presente o tarde, sobre todas las sesiones definitivas"
+    },
+    "record": {
+      "back": "Volver a asistencia",
+      "status": "Estado",
+      "team": "Equipo",
+      "when": "Fecha y hora",
+      "location": "Lugar",
+      "notFinal": "La asistencia de esta sesión aún no es definitiva.",
+      "notStarted": "Esta sesión aún no ha tenido lugar.",
+      "guest": "{name} participó en esta sesión como invitado.",
+      "corrected": "El club corrigió este registro.",
+      "alertSent": "Le enviamos un aviso sobre esta sesión el {date}.",
+      "chooseChild": "¿De qué hijo se trata?",
+      "notFound": {
+        "title": "Registro no encontrado",
+        "body": "Esta sesión no está vinculada a ninguno de sus hijos o el enlace ya no es válido."
+      }
+    },
+    "correction": {
+      "title": "Solicitar una corrección",
+      "intro": "Si este registro es incorrecto, comuníqueselo al club. Un entrenador o un administrador revisa la solicitud y se le informa del resultado.",
+      "message": "Mensaje",
+      "messageHint": "¿Qué pasó? No hace falta dar datos médicos.",
+      "requested": "Estado correcto (opcional)",
+      "noPreference": "Que decida el club",
+      "submit": "Enviar solicitud",
+      "withdraw": "Retirar solicitud",
+      "withdrawn": "Solicitud retirada.",
+      "requests": "Solicitudes de corrección",
+      "requestedStatus": "Solicitado: {status}",
+      "outcome": "Respuesta del club: {note}",
+      "decidedOn": "Decidido el {date}",
+      "sentOn": "Enviada el {date}",
+      "status": {
+        "open": "Pendiente de revisión",
+        "accepted": "Aceptada",
+        "rejected": "Rechazada",
+        "withdrawn": "Retirada"
+      }
+    },
+    "programmes": {
+      "title": "Sesiones de programa",
+      "session": "Sesión"
+    },
+    "player": {
+      "greeting": "Hola, {name}",
+      "description": "Tus equipos, tus próximas sesiones y tu asistencia.",
+      "teams": "Mis equipos",
+      "noTeams": "Todavía no estás en ningún equipo.",
+      "jersey": "N.º {number}",
+      "historyTitle": "Mi asistencia",
+      "historyDescription": "Tu asistencia definitiva por equipo y temporada.",
+      "seeHistory": "Ver mi asistencia",
+      "notLinked": {
+        "title": "Tu cuenta de jugador aún no está vinculada",
+        "body": "Pide a tu club que vincule tu cuenta con tu perfil de jugador."
+      }
+    },
+    "notifications": {
+      "description": "Novedades del club, recordatorios de pago y avisos de asistencia.",
+      "tabs": {
+        "active": "Todas",
+        "unread": "No leídas",
+        "archived": "Archivadas"
+      },
+      "emptyArchived": "No hay notificaciones archivadas",
+      "emptyArchivedHint": "Los elementos archivados aparecerán aquí.",
+      "archive": "Archivar"
     }
   }
 }

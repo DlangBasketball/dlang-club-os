@@ -8261,12 +8261,14 @@
       "line": "{athlete} wurde beim Training von {team} am {when} als unentschuldigt abwesend erfasst.",
       "correction": "Falls das nicht stimmt, können Sie im Elternportal beim Eintrag eine Korrektur anfragen.",
       "cta": "Eintrag ansehen",
-      "fallbackTeam": "dem Team"
+      "fallbackTeam": "dem Team",
+      "correctionNoAccount": "Falls das nicht stimmt, wenden Sie sich bitte an {club}, damit der Eintrag korrigiert werden kann.",
+      "why": "Wir informieren Familien noch am selben Tag, damit kein verpasstes Training unbemerkt bleibt. Diese Nachricht betrifft nur Ihr Kind."
     },
     "attendance_no_show_correction": {
-      "title": "Anwesenheit von {athlete} aktualisiert",
-      "body": "Die Anwesenheit von {athlete} bei {team} am {when} wurde korrigiert: {status}.",
-      "subject": "Anwesenheit korrigiert — {athlete}, {team}",
+      "title": "Korrektur: {athlete} ist jetzt als {status} erfasst",
+      "body": "Korrektur unserer früheren Nachricht: Die Anwesenheit von {athlete} bei {team} am {when} ist jetzt als {status} erfasst.",
+      "subject": "Korrektur: {athlete} ist jetzt als {status} erfasst — {team}",
       "heading": "Anwesenheit korrigiert",
       "line": "Die Anwesenheit von {athlete} beim Training von {team} am {when} wurde korrigiert: {status}.",
       "status": {
@@ -8274,7 +8276,10 @@
         "late": "verspätet",
         "excused": "entschuldigt abwesend",
         "unexcused": "unentschuldigt abwesend"
-      }
+      },
+      "earlier": "Diese Nachricht korrigiert unsere frühere Nachricht zu dieser Einheit.",
+      "whyCleared": "Sie zählt nicht mehr als unentschuldigte Abwesenheit in der Anwesenheitsliste; Sie müssen nichts tun.",
+      "whyUnexcused": "Sie zählt jetzt als unentschuldigte Abwesenheit in der Anwesenheitsliste."
     }
   },
   "pdf": {
@@ -11891,6 +11896,136 @@
       "repeatUntil": "Wiederholen bis",
       "repeatUntilHint": "Trainings werden nur innerhalb der Trainingsdaten der Saison und nie in Vereinspausen erstellt.",
       "createSeries": "Wöchentliche Einheiten erstellen"
+    }
+  },
+  "familyAttendance": {
+    "title": "Anwesenheit",
+    "description": "Nächste Einheiten, gemeldete Abwesenheiten und die definitive Anwesenheit Ihrer Kinder.",
+    "loadError": "Die Anwesenheit konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "childTabs": "Kinder",
+    "noChildren": {
+      "title": "Noch keine Kinder verknüpft",
+      "body": "Sobald der Verein Ihre Kinder mit Ihrem Konto verknüpft hat, erscheinen hier ihre Einheiten und ihre Anwesenheit."
+    },
+    "upcoming": {
+      "title": "Nächste Einheiten",
+      "hint": "Die nächsten 30 Tage, in der Zeitzone des Vereins.",
+      "empty": "Keine Einheiten in den nächsten 30 Tagen.",
+      "cancelled": "Abgesagt",
+      "cancelledReason": "Abgesagt: {reason}",
+      "rescheduled": "Verschoben (ursprünglich {when})",
+      "postponed": "Verschoben",
+      "types": {
+        "training": "Trainingseinheit",
+        "game": "Spiel",
+        "tournament": "Turnier"
+      }
+    },
+    "absence": {
+      "report": "Abwesenheit melden",
+      "edit": "Ändern",
+      "withdraw": "Zurückziehen",
+      "reported": "Abwesenheit gemeldet",
+      "acknowledged": "Vom Trainer gesehen",
+      "needsReview": "Die Zeit dieser Einheit hat sich nach der Meldung geändert. Bitte prüfen Sie die Meldung.",
+      "category": "Grund",
+      "reason": "Notiz für den Trainer (optional)",
+      "reasonHint": "Keine medizinischen Angaben nötig: Der Trainer muss nur von der Abwesenheit wissen.",
+      "submit": "Senden",
+      "cancel": "Abbrechen",
+      "closed": "Meldungen sind bis zum Beginn der Einheit möglich.",
+      "byPlayer": "Vom Spieler gemeldet",
+      "byGuardian": "Von einem Elternteil gemeldet"
+    },
+    "history": {
+      "title": "Anwesenheitsliste",
+      "hint": "Es wird nur die definitive Anwesenheit angezeigt.",
+      "empty": "Noch keine definitive Anwesenheit für diese Filter.",
+      "team": "Mannschaft",
+      "season": "Saison",
+      "allTeams": "Alle Teams",
+      "allSeasons": "Alle Saisons",
+      "guest": "Gast",
+      "view": "Öffnen",
+      "correctionOpen": "Korrektur angefragt",
+      "filter": "Filtern"
+    },
+    "totals": {
+      "sessions": "Einheiten",
+      "present": "Anwesend",
+      "late": "Verspätet",
+      "excused": "Entschuldigt",
+      "unexcused": "Unentschuldigt",
+      "rate": "Anwesenheitsquote",
+      "rateHint": "Anwesend und verspätet, von allen definitiven Einheiten"
+    },
+    "record": {
+      "back": "Zurück zur Anwesenheit",
+      "status": "Anwesenheitsstatus",
+      "team": "Mannschaft",
+      "when": "Datum und Zeit",
+      "location": "Ort",
+      "notFinal": "Die Anwesenheit dieser Einheit ist noch nicht definitiv.",
+      "notStarted": "Diese Einheit hat noch nicht stattgefunden.",
+      "guest": "{name} war als Gast bei dieser Einheit.",
+      "corrected": "Dieser Eintrag wurde vom Verein korrigiert.",
+      "alertSent": "Wir haben Ihnen am {date} eine Nachricht zu dieser Einheit geschickt.",
+      "chooseChild": "Um welches Kind geht es?",
+      "notFound": {
+        "title": "Eintrag nicht gefunden",
+        "body": "Diese Einheit gehört zu keinem Ihrer Kinder, oder der Link ist nicht mehr gültig."
+      }
+    },
+    "correction": {
+      "title": "Korrektur anfragen",
+      "intro": "Wenn dieser Eintrag falsch ist, melden Sie es dem Verein. Ein Trainer oder eine Administratorin prüft die Anfrage, und Sie werden über das Ergebnis informiert.",
+      "message": "Nachricht",
+      "messageHint": "Was ist passiert? Keine medizinischen Angaben nötig.",
+      "requested": "Richtiger Status (optional)",
+      "noPreference": "Der Verein entscheidet",
+      "submit": "Anfrage senden",
+      "withdraw": "Anfrage zurückziehen",
+      "withdrawn": "Anfrage zurückgezogen.",
+      "requests": "Korrekturanfragen",
+      "requestedStatus": "Gewünscht: {status}",
+      "outcome": "Antwort des Vereins: {note}",
+      "decidedOn": "Entschieden am {date}",
+      "sentOn": "Gesendet am {date}",
+      "status": {
+        "open": "Wartet auf Prüfung",
+        "accepted": "Angenommen",
+        "rejected": "Abgelehnt",
+        "withdrawn": "Zurückgezogen"
+      }
+    },
+    "programmes": {
+      "title": "Programm-Einheiten",
+      "session": "Einheit"
+    },
+    "player": {
+      "greeting": "Hallo {name}",
+      "description": "Deine Teams, deine nächsten Einheiten und deine Anwesenheit.",
+      "teams": "Meine Teams",
+      "noTeams": "Du bist noch in keinem Team.",
+      "jersey": "Nr. {number}",
+      "historyTitle": "Meine Anwesenheit",
+      "historyDescription": "Deine definitive Anwesenheit nach Team und Saison.",
+      "seeHistory": "Meine Anwesenheit ansehen",
+      "notLinked": {
+        "title": "Dein Spielerkonto ist noch nicht verknüpft",
+        "body": "Bitte deinen Verein, dein Konto mit deinem Spielerprofil zu verknüpfen."
+      }
+    },
+    "notifications": {
+      "description": "Neuigkeiten des Vereins, Zahlungserinnerungen und Anwesenheitsmeldungen.",
+      "tabs": {
+        "active": "Alle",
+        "unread": "Ungelesen",
+        "archived": "Archiviert"
+      },
+      "emptyArchived": "Keine archivierten Benachrichtigungen",
+      "emptyArchivedHint": "Archivierte Einträge erscheinen hier.",
+      "archive": "Archivieren"
     }
   }
 }

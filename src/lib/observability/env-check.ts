@@ -34,6 +34,9 @@ export const envSchema = z.object({
   // --- Email ---
   RESEND_API_KEY: z.string().trim().regex(/^re_/, "must start with re_").optional(),
   RESEND_FROM: optionalStr,
+  RESEND_WEBHOOK_SECRET: z.string().trim().regex(/^whsec_/, "must start with whsec_").optional(),
+  /** Safe test mode: every e-mail goes to this address (e.g. delivered@resend.dev). Never in production. */
+  EMAIL_TEST_REDIRECT: z.string().trim().email().optional(),
   // --- Web Push (optional; push is a no-op when unset) ---
   VAPID_PUBLIC_KEY: z.string().trim().regex(/^[A-Za-z0-9_-]{86,88}$/, "base64url P-256 public key").optional(),
   VAPID_PRIVATE_KEY: z.string().trim().regex(/^[A-Za-z0-9_-]{42,44}$/, "base64url P-256 private key").optional(),
@@ -103,6 +106,7 @@ export function checkEnv(source: Record<string, string | undefined> = process.en
       invalid.push({ name: "NEXT_PUBLIC_SITE_URL", issue: "must be https:// in production" });
     if (input.NEXT_PUBLIC_AUTH_PASSWORD_LOGIN === "true")
       invalid.push({ name: "NEXT_PUBLIC_AUTH_PASSWORD_LOGIN", issue: "password sign-in is for staging/demo only" });
+    if (input.EMAIL_TEST_REDIRECT) warnings.push("EMAIL_TEST_REDIRECT is set in production — every e-mail goes to the test address");
     if (!input.SENTRY_DSN) warnings.push("SENTRY_DSN not set — errors only go to logs");
   }
   for (const [k, v] of Object.entries(input)) {

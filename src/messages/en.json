@@ -8261,12 +8261,14 @@
       "line": "{athlete} was marked absent without an excuse at {team} training on {when}.",
       "correction": "If this is not right, you can request a correction from the record in the parent portal.",
       "cta": "View record",
-      "fallbackTeam": "the team"
+      "fallbackTeam": "the team",
+      "correctionNoAccount": "If this is not right, please contact {club} so it can be corrected.",
+      "why": "We let families know the same day so a missed session never goes unnoticed. This message is about your child only."
     },
     "attendance_no_show_correction": {
-      "title": "Attendance updated for {athlete}",
-      "body": "The attendance of {athlete} at {team} on {when} was corrected to: {status}.",
-      "subject": "Attendance corrected — {athlete}, {team}",
+      "title": "Correction: {athlete} is now recorded as {status}",
+      "body": "Correction to our earlier message: the attendance of {athlete} at {team} on {when} is now recorded as {status}.",
+      "subject": "Correction: {athlete} is now recorded as {status} — {team}",
       "heading": "Attendance corrected",
       "line": "The attendance of {athlete} at {team} training on {when} was corrected to: {status}.",
       "status": {
@@ -8274,7 +8276,10 @@
         "late": "late",
         "excused": "excused absence",
         "unexcused": "unexcused absence"
-      }
+      },
+      "earlier": "This corrects our earlier message about this session.",
+      "whyCleared": "It no longer counts as an unexcused absence in the attendance record, so no action is needed.",
+      "whyUnexcused": "It now counts as an unexcused absence in the attendance record."
     }
   },
   "pdf": {
@@ -11891,6 +11896,136 @@
       "repeatUntil": "Repeat until",
       "repeatUntilHint": "Trainings are only created inside the season's training dates and never during club breaks.",
       "createSeries": "Create weekly sessions"
+    }
+  },
+  "familyAttendance": {
+    "title": "Attendance",
+    "description": "Upcoming sessions, absence reports and the final attendance record of your children.",
+    "loadError": "Attendance could not be loaded. Please try again.",
+    "childTabs": "Children",
+    "noChildren": {
+      "title": "No children linked yet",
+      "body": "Once the club links your children to your account, their sessions and attendance appear here."
+    },
+    "upcoming": {
+      "title": "Upcoming sessions",
+      "hint": "Next 30 days, in the club's time zone.",
+      "empty": "No sessions in the next 30 days.",
+      "cancelled": "Canceled",
+      "cancelledReason": "Canceled: {reason}",
+      "rescheduled": "Moved from {when}",
+      "postponed": "Postponed",
+      "types": {
+        "training": "Training",
+        "game": "Game",
+        "tournament": "Tournament"
+      }
+    },
+    "absence": {
+      "report": "Report absence",
+      "edit": "Change",
+      "withdraw": "Withdraw",
+      "reported": "Absence reported",
+      "acknowledged": "Seen by the coach",
+      "needsReview": "The time of this session changed after the report. Please check it.",
+      "category": "Reason",
+      "reason": "Note for the coach (optional)",
+      "reasonHint": "No medical details needed: the coach only needs to know about the absence.",
+      "submit": "Send",
+      "cancel": "Cancel",
+      "closed": "Reports close when the session starts.",
+      "byPlayer": "Reported by the player",
+      "byGuardian": "Reported by a parent"
+    },
+    "history": {
+      "title": "Attendance record",
+      "hint": "Only final attendance is shown.",
+      "empty": "No final attendance for these filters yet.",
+      "team": "Team",
+      "season": "Season",
+      "allTeams": "All teams",
+      "allSeasons": "All seasons",
+      "guest": "Guest",
+      "view": "Open",
+      "correctionOpen": "Correction requested",
+      "filter": "Filter"
+    },
+    "totals": {
+      "sessions": "Sessions",
+      "present": "Present",
+      "late": "Late",
+      "excused": "Excused",
+      "unexcused": "Unexcused",
+      "rate": "Attendance rate",
+      "rateHint": "Present and late, out of all final sessions"
+    },
+    "record": {
+      "back": "Back to attendance",
+      "status": "Status",
+      "team": "Team",
+      "when": "Date and time",
+      "location": "Location",
+      "notFinal": "Attendance for this session is not final yet.",
+      "notStarted": "This session has not happened yet.",
+      "guest": "{name} joined this session as a guest.",
+      "corrected": "This record was corrected by the club.",
+      "alertSent": "We sent you a notice about this session on {date}.",
+      "chooseChild": "Which child is this about?",
+      "notFound": {
+        "title": "Record not found",
+        "body": "This session is not linked to one of your children, or the link is no longer valid."
+      }
+    },
+    "correction": {
+      "title": "Request a correction",
+      "intro": "If this record is wrong, tell the club. A coach or an administrator reviews your request and you are notified of the outcome.",
+      "message": "Message",
+      "messageHint": "What happened? No medical details needed.",
+      "requested": "Correct status (optional)",
+      "noPreference": "Let the club decide",
+      "submit": "Send request",
+      "withdraw": "Withdraw request",
+      "withdrawn": "Request withdrawn.",
+      "requests": "Correction requests",
+      "requestedStatus": "Asked for: {status}",
+      "outcome": "Club's reply: {note}",
+      "decidedOn": "Decided on {date}",
+      "sentOn": "Sent on {date}",
+      "status": {
+        "open": "Waiting for review",
+        "accepted": "Accepted",
+        "rejected": "Declined",
+        "withdrawn": "Withdrawn"
+      }
+    },
+    "programmes": {
+      "title": "Program sessions",
+      "session": "Session"
+    },
+    "player": {
+      "greeting": "Hi {name}",
+      "description": "Your teams, your next sessions and your attendance.",
+      "teams": "My teams",
+      "noTeams": "You are not on a team yet.",
+      "jersey": "No. {number}",
+      "historyTitle": "My attendance",
+      "historyDescription": "Your final attendance by team and season.",
+      "seeHistory": "See my attendance",
+      "notLinked": {
+        "title": "Your player account is not linked yet",
+        "body": "Ask your club to link your account to your player profile."
+      }
+    },
+    "notifications": {
+      "description": "Club updates, payment reminders and attendance notices.",
+      "tabs": {
+        "active": "All",
+        "unread": "Unread",
+        "archived": "Archived"
+      },
+      "emptyArchived": "No archived notifications",
+      "emptyArchivedHint": "Archived items will appear here.",
+      "archive": "Archive"
     }
   }
 }

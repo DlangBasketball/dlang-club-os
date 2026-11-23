@@ -1,45 +1,113 @@
-import { CheckSquare } from "lucide-react";
-import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState } from "@/components/ui";
+import Link from "next/link";
+import { Users } from "lucide-react";
+import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, EmptyState, ErrorState } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
-import { getFormatter } from "@/lib/i18n/server";
-import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { getI18n } from "@/lib/i18n/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { cn } from "@/lib/utils";
+import { attendancePortalPath } from "@/lib/attendance/types";
+import { uuidParam } from "@/lib/attendance/family";
+import { getFamilyOverview, getMyChildren } from "@/lib/attendance/family-data";
+import { AttendanceHistory, UpcomingSessions } from "@/components/attendance/family/sections";
 
-export default async function ParentAttendancePage() {
-  const f = await getFormatter();
-  const supabase = await createClient();
-  // RLS scopes athletes to the guardian's own children.
-  const { data: kids } = await supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
+type SP = { athlete?: string; team?: string; season?: string };
 
-  const summaries = await Promise.all(
-    (kids ?? []).map(async (k) => {
-      const { data } = await supabase.rpc("athlete_attendance_summary", { p_athlete: k.id });
-      return { name: `${k.first_name} ${k.last_name}`, rows: (data ?? []) as { session_date: string; program_name: string | null; status: string }[] };
-    }),
-  );
-  const anyRows = summaries.some((s) => s.rows.length > 0);
+/**
+ * Parent attendance: per linked child, upcoming team sessions (report an
+ * absence), the finalized attendance record (team / season filters, totals)
+ * and correction requests. Only the guardian's own children are listed; the
+ * overview RPC re-checks guardianship on the server.
+ */
+export default async function ParentAttendancePage({ searchParams }: { searchParams: Promise<SP> }) {
+  const sp = await searchParams;
+  const [{ t, f }, user] = await Promise.all([getI18n(), getSessionUser()]);
+  const kids = user?.orgId ? await getMyChildren(user.id, user.orgId) : [];
+
+  if (!kids.length) {
+    return (
+      <div className="animate-fade-up space-y-5">
+        <PageHeader title={t("familyAttendance.title")} description={t("familyAttendance.description")} />
+        <EmptyState icon={<Users className="h-5 w-5" />} title={t("familyAttendance.noChildren.title")} description={t("familyAttendance.noChildren.body")} />
+      </div>
+    );
+  }
+
+  const wanted = uuidParam(sp.athlete);
+  const child = kids.find((k) => k.id === wanted) ?? kids[0];
+  const [overview, legacy] = await Promise.all([getFamilyOverview(child.id), programmeSessions(child.id)]);
 
   return (
-    <div className="animate-fade-up space-y-5">
-      <PageHeader title="Attendance" description="Attendance for your children, once published by the club." />
-      {!anyRows ? (
-        <EmptyState icon={<CheckSquare className="h-5 w-5" />} title="No attendance to show yet" description="Summaries appear here when the club publishes them." />
+    <div className="animate-fade-up space-y-6">
+      <PageHeader title={t("familyAttendance.title")} description={t("familyAttendance.description")} />
+
+      {kids.length > 1 && (
+        <nav aria-label={t("familyAttendance.childTabs")} className="flex gap-1 overflow-x-auto rounded-lg border border-border bg-surface p-1">
+          {kids.map((k) => (
+            <Link key={k.id} href={`/parent/attendance?athlete=${k.id}`} aria-current={k.id === child.id ? "page" : undefined}
+              className={cn("flex-1 whitespace-nowrap rounded-md px-3 py-1.5 text-center text-sm transition-colors",
+                k.id === child.id ? "bg-brand-primary-soft text-text" : "text-text-muted hover:text-text")}>
+              {k.first_name} {k.last_name}
+            </Link>
+          ))}
+        </nav>
+      )}
+
+      {overview.error || !overview.data ? (
+        <ErrorState title={t("familyAttendance.title")} message={t("familyAttendance.loadError")} />
       ) : (
-        summaries.filter((s) => s.rows.length > 0).map((s) => (
-          <Card key={s.name}>
-            <CardHeader><CardTitle>{s.name}</CardTitle></CardHeader>
-            <CardBody className="p-0">
-              <ul>
-                {s.rows.map((r, i) => (
-                  <li key={i} className="flex items-center justify-between border-b border-line-soft px-5 py-3 last:border-0">
-                    <div><div className="text-sm text-ink">{r.program_name ?? "Session"}</div><div className="text-xs text-ink-3">{f.date(r.session_date)}</div></div>
-                    <Badge tone={statusTone(r.status)}>{r.status}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </CardBody>
-          </Card>
-        ))
+        <>
+          <UpcomingSessions overview={overview.data} athleteId={child.id} />
+          <AttendanceHistory overview={overview.data} basePath="/parent/attendance" hidden={{ athlete: child.id }}
+            teamId={uuidParam(sp.team)} seasonId={uuidParam(sp.season)} recordLinks />
+
+          {overview.data.correction_requests.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>{t("familyAttendance.correction.requests")}</CardTitle></CardHeader>
+              <CardBody className="p-0">
+                <ul>
+                  {overview.data.correction_requests.slice(0, 10).map((q) => (
+                    <li key={q.request_id} className="border-b border-border last:border-0">
+                      <Link href={attendancePortalPath(q.event_id, child.id)}
+                        className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-surface-elevated">
+                        <span className="text-sm text-text">{t("familyAttendance.correction.sentOn", { date: f.date(q.created_at) })}</span>
+                        <Badge tone={q.status === "accepted" ? "success" : q.status === "rejected" ? "danger" : q.status === "open" ? "info" : "neutral"}>
+                          {t.dynamic(`familyAttendance.correction.status.${q.status}`, undefined, q.status)}
+                        </Badge>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
+          )}
+        </>
+      )}
+
+      {legacy.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>{t("familyAttendance.programmes.title")}</CardTitle></CardHeader>
+          <CardBody className="p-0">
+            <ul>
+              {legacy.map((r, i) => (
+                <li key={i} className="flex items-center justify-between border-b border-border px-5 py-3 last:border-0">
+                  <div>
+                    <div className="text-sm text-text">{r.program_name ?? t("familyAttendance.programmes.session")}</div>
+                    <div className="text-xs text-text-muted">{f.date(r.session_date)}</div>
+                  </div>
+                  <Badge tone={statusTone(r.status)}>{t.dynamic(`attendance.${r.status}`, undefined, r.status)}</Badge>
+                </li>
+              ))}
+            </ul>
+          </CardBody>
+        </Card>
       )}
     </div>
   );
+}
+
+/** Programme-session attendance (earlier attendance module), as before. */
+async function programmeSessions(athleteId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("athlete_attendance_summary", { p_athlete: athleteId });
+  return (data ?? []) as { session_date: string; program_name: string | null; status: string }[];
 }

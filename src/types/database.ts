@@ -937,6 +937,8 @@ export type Database = {
         Row: {
           id: string; org_id: string; event_id: string; athlete_id: string; mark_id: string | null; history_id: string | null;
           guardian_profile_id: string | null; kind: "initial" | "correction"; mark_status: "present" | "late" | "excused" | "unexcused";
+          // e-mail-only recipient + stable recipient key (20250420104300)
+          recipient_family_id: string | null; recipient_key: string;
           status: "pending" | "sent" | "failed" | "no_contact" | "suppressed" | "superseded"; channel_results: Json;
           attempts: number; last_error: string | null; notification_id: string | null; claimed_at: string | null;
           next_attempt_at: string | null; sent_at: string | null; created_at: string; updated_at: string;
@@ -1073,11 +1075,14 @@ export type Database = {
       attendance_alerts_claim: {
         Args: { p_limit?: number; p_org?: string | null };
         Returns: { alert_id: string; org_id: string; kind: "initial" | "correction"; mark_status: string; attempts: number; channel_results: Json;
-                   notification_id: string | null; guardian_profile_id: string; guardian_email: string | null; guardian_name: string | null;
+                   notification_id: string | null; guardian_profile_id: string | null; guardian_email: string | null; guardian_name: string | null;
                    guardian_locale: string | null; receives_emails: boolean; event_id: string; athlete_id: string;
                    athlete_first_name: string; athlete_last_name: string; team_name: string | null; event_type: string;
                    starts_at: string; ends_at: string; timezone: string }[];
       };
+      // family attendance UI (20250420104300)
+      attendance_alert_email_failed: { Args: { p_provider_id: string; p_error: string }; Returns: number };
+      guardian_attendance_record: { Args: { p_event: string; p_athlete: string }; Returns: Json };
       attendance_alert_record: { Args: { p_alert: string; p_status: "sent" | "failed" | "no_contact"; p_channel_results: Json; p_error?: string | null; p_notification_id?: string | null }; Returns: Json };
       training_break_save: { Args: { p_id: string | null; p_label: string; p_starts_on: string; p_ends_on: string; p_season?: string | null }; Returns: Json };
       training_break_delete: { Args: { p_id: string }; Returns: Json };
