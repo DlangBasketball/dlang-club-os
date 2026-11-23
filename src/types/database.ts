@@ -219,6 +219,8 @@ export type Database = {
           selection_enabled: boolean; requires_approval: boolean; allow_non_members: boolean;
           // selection payment period (20250420103400)
           payment_starts_on: string | null; payment_ends_on: string | null;
+          // camp age approval band (20250420105100)
+          approval_age_min: number | null; approval_age_max: number | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -437,7 +439,8 @@ export type Database = {
             | "confirmed"
             | "waitlist"
             | "cancelled"
-            | "completed";
+            | "completed"
+            | "pending_approval";
           registered_by: string | null;
           notes: string | null;
           cancellation_reason: string | null;
@@ -445,6 +448,10 @@ export type Database = {
           cancelled_by: string | null;
           // camps (20250420100100): the invoice the registration is billed on
           invoice_id: string | null;
+          // camp age approval band (20250420105100)
+          approval_status: "pending" | "approved" | "declined" | "withdrawn" | null;
+          approval_request_id: string | null; approval_requested_at: string | null; approval_age: number | null;
+          approval_decided_by: string | null; approval_decided_at: string | null; approval_note: string | null;
           created_at: string;
           updated_at: string;
         };

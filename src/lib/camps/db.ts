@@ -56,6 +56,10 @@ export type CampRegistrationRow = Database["public"]["Tables"]["registrations"][
   camp_days: string[] | null; camp_includes_lunch: boolean | null; invoice_id: string | null;
   price_list_amount: number | string | null; price_discount_amount: number | string | null;
   price_amount: number | string | null; price_currency: string | null; price_snapshot: Json | null;
+  // age approval band (20250420105100)
+  approval_status?: "pending" | "approved" | "declined" | "withdrawn" | null; approval_request_id?: string | null;
+  approval_requested_at?: string | null; approval_age?: number | null; approval_decided_by?: string | null;
+  approval_decided_at?: string | null; approval_note?: string | null;
 };
 
 type CampTables = {
@@ -77,6 +81,9 @@ type CampFunctions = {
   register_camp_basket: { Args: { p_payload: Json }; Returns: Json };
   move_camp_edition: { Args: { p_edition: string; p_target: string; p_move_registrations?: boolean }; Returns: Json };
   split_camp_by_season: { Args: { p_program: string; p_names?: Json }; Returns: Json };
+  camp_approval_submit: { Args: { p_payload: Json }; Returns: Json };
+  camp_approval_decide: { Args: { p_registration: string; p_decision: string; p_note?: string | null; p_request_id?: string | null }; Returns: Json };
+  camp_age_on_start: { Args: { p_dob: string; p_starts_on: string }; Returns: number | null };
   duplicate_camp_next_year: { Args: { p_program: string; p_name?: string | null; p_slug?: string | null; p_shift_days?: number }; Returns: Json };
 };
 

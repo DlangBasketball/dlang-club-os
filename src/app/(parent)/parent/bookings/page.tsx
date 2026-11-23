@@ -8,6 +8,10 @@ import { uuidParam } from "@/lib/attendance/family";
 import { getBookingSettings } from "@/lib/data/training-admin";
 import { getI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { guardianKids } from "@/lib/camps/parent-kids";
+import { listFamilyCampRegistrations } from "@/lib/camps/approval-data";
+import { FamilyCampRegistrations } from "@/components/camps/family-camp-registrations";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -21,9 +25,15 @@ export async function generateMetadata() {
  * bookings only where the guardian is the payer. Reads
  * guardian_booking_overview, which re-checks guardianship on the server.
  */
-export default async function ParentBookingsPage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
+export default async function ParentBookingsPage({ searchParams }: { searchParams: Promise<{ athlete?: string; camp?: string }> }) {
   const sp = await searchParams;
-  const [{ t, f }, overview, settings] = await Promise.all([getI18n(), getGuardianBookings(), getBookingSettings()]);
+  const [{ t, f }, overview, settings, me] = await Promise.all([getI18n(), getGuardianBookings(), getBookingSettings(), getSessionUser()]);
+  // Camp weeks of the guardian's own children (incl. requests pending approval).
+  const campKids = me?.orgId ? await guardianKids(me.id, me.orgId) : [];
+  const campRows = me?.orgId ? await listFamilyCampRegistrations(me.orgId, campKids.map((k) => k.id)) : [];
+  const campNotice = sp.camp === "requested"
+    ? <div role="status" className="rounded-md border border-info/40 bg-info-soft px-4 py-3 text-sm text-text">{t("camps.approval.parent.requested")}</div>
+    : null;
   const title = t("bookingPortal.family.title");
   const action = settings.enabled
     ? (
@@ -38,6 +48,8 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
     return (
       <div className="animate-fade-up space-y-5">
         <PageHeader title={title} actions={action} />
+        {campNotice}
+        <FamilyCampRegistrations rows={campRows} t={t} f={f} showChild={campKids.length > 1} />
         <ErrorState title={t("bookingPortal.family.loadError")} message={t("bookingPortal.family.loadErrorHint")} />
       </div>
     );
@@ -72,6 +84,9 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
           })}
         </nav>
       )}
+
+      {campNotice}
+      <FamilyCampRegistrations rows={wanted ? campRows.filter((r) => r.athleteId === wanted) : campRows} t={t} f={f} showChild={showChild || (!wanted && campKids.length > 1)} />
 
       <UpcomingBookings rows={flattenUpcoming(kids)} t={t} f={f} showChild={showChild} familyActions
         detailHref={(id) => `/parent/bookings/${id}`} invoiceFor={(id) => invoices.get(id)} />

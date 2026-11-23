@@ -112,7 +112,8 @@
     "delivered": "Delivered",
     "bounced": "Bounced",
     "issued": "Issued",
-    "written_off": "Written off"
+    "written_off": "Written off",
+    "pending_approval": "Pending admin approval"
   },
   "roles": {
     "admin": "Administrator",
@@ -2297,7 +2298,15 @@
         "CHILD_NOT_FOUND": "Choose a child for this week.",
         "PROGRAM_NOT_FOUND": "This camp is not available.",
         "DISCOUNT_AMOUNT_INVALID": "A discount has just changed. Please check and submit again.",
-        "BASKET_INVALID": "Some weeks need your attention."
+        "BASKET_INVALID": "Some weeks need your attention.",
+        "APPROVAL_REQUIRED": "Children of this age need the club's approval: use Submit for approval.",
+        "ALREADY_REQUESTED": "A request for this child and week is already waiting for approval.",
+        "NOT_APPROVAL_AGE": "This child's age does not need approval for this camp.",
+        "APPROVAL_NOT_ENABLED": "This camp does not accept requests for approval.",
+        "ALREADY_DECIDED": "This request has already been decided.",
+        "REQUEST_NOT_FOUND": "This request no longer exists.",
+        "APPROVAL_LOCKED": "Only the club can decide on this request.",
+        "USE_CAMP_APPROVAL": "This request can only be decided in Pending approval."
       },
       "weekPosition": "Enter a week number between 2 and 20.",
       "seasonYear": "Enter a year between 2000 and 2100."
@@ -2405,6 +2414,101 @@
         "fixLines": "Some weeks need your attention (see the messages below each week).",
         "childDetails": "Enter the first name, last name and date of birth of every child.",
         "needsForm": "“{camp}” asks extra questions: please register for it from its own page."
+      }
+    },
+    "approval": {
+      "settings": {
+        "title": "Age approval",
+        "description": "Let children slightly younger than the minimum age apply for this camp. An admin reviews each request before a place is offered.",
+        "min": "From age",
+        "max": "To age",
+        "off": "Off: children below the minimum age can't register.",
+        "current": "On: children aged {min} to {max} on the first camp day can apply for approval.",
+        "hint": "Age on the first day of the camp week. The band must end below the camp's minimum age ({minAge}).",
+        "turnOff": "Turn off"
+      },
+      "errors": {
+        "bothRequired": "Enter both ages, or leave both empty.",
+        "range": "Enter ages between 0 and 99.",
+        "order": "The upper age must be at least the lower age.",
+        "needsMinAge": "Set a minimum age for the camp first.",
+        "belowMinAge": "The band must end below the camp's minimum age.",
+        "noteTooLong": "The message can be at most 1,000 characters."
+      },
+      "parent": {
+        "intro": "Children aged {min} and {max} can apply. Our team will review your registration and let you know whether a place is available.",
+        "introOne": "Children aged {min} can apply. Our team will review your registration and let you know whether a place is available.",
+        "introRange": "Children aged {min} to {max} can apply. Our team will review your registration and let you know whether a place is available.",
+        "badge": "Needs approval",
+        "childNote": "{name} will be {age} on the first camp day: this registration is submitted for approval.",
+        "priceIfApproved": "Price if approved",
+        "noInvoice": "No invoice is created and nothing is charged unless the request is approved.",
+        "submit": "Submit for approval",
+        "submitMixed": "Register and submit for approval",
+        "requested": "Your request was sent. Our team will review it and let you know whether a place is available."
+      },
+      "status": {
+        "pending_approval": "Pending admin approval",
+        "approved_awaiting_payment": "Approved – awaiting payment",
+        "declined": "Declined",
+        "withdrawn": "Withdrawn",
+        "pending": "Awaiting payment",
+        "confirmed": "Confirmed",
+        "waitlist": "Waitlist",
+        "cancelled": "Canceled",
+        "completed": "Completed"
+      },
+      "family": {
+        "title": "Camp registrations",
+        "description": "Camp weeks of your children, including requests waiting for the club's approval.",
+        "pendingHint": "Our team is reviewing this registration. No invoice until it is approved.",
+        "message": "Message from the club: {note}",
+        "payInvoice": "Pay invoice {number}",
+        "viewInvoice": "Invoice {number}"
+      },
+      "admin": {
+        "title": "Pending approval",
+        "description": "Camp registrations of children in a camp's age approval band. Approve to offer the place, or decline with a message to the parent.",
+        "link": "Pending approval ({count})",
+        "count": "{count, plural, one {# request} other {# requests}}",
+        "empty": "No requests waiting for approval.",
+        "ageOnStart": "Age on the first day: {age}",
+        "submittedOn": "Submitted {date}",
+        "capacity": "{taken} of {capacity} places taken",
+        "noCapacity": "{taken} places taken (no limit)",
+        "parentContact": "Parent contact",
+        "submittedBy": "Submitted by {name}",
+        "choices": "Registration details",
+        "answers": "Form answers",
+        "consents": "Consents",
+        "noConsents": "No consents recorded.",
+        "consentLine": "{title} (v{version}), {date}",
+        "note": "Message to the parent (optional)",
+        "approve": "Approve",
+        "decline": "Decline",
+        "fullHint": "This week is full: approving will not work until a place is free or the capacity is raised.",
+        "fullMessage": "The camp week is full ({taken} of {capacity} places). The request stays pending: free a place or raise the capacity, then approve again.",
+        "done": {
+          "approved": "Approved. The invoice was issued and the family notified.",
+          "confirmed": "Approved and confirmed. The family has been notified.",
+          "declined": "Declined. The family has been notified."
+        }
+      },
+      "counters": {
+        "confirmed": "Confirmed: {count}",
+        "awaitingPayment": "Awaiting payment: {count}",
+        "approvedAwaitingPayment": "Approved – awaiting payment: {count}",
+        "pendingApproval": "Pending approval: {count}"
+      },
+      "notify": {
+        "adminTitle": "New camp registration to approve",
+        "adminBody": "{child} (age {age} on the first day) was submitted for {camp}, {dates}. Review it in Camps under Pending approval.",
+        "approvedTitle": "Camp registration approved",
+        "approvedBody": "Good news: the registration of {child} for {camp} ({dates}) was approved. Invoice {invoice} ({amount}) is in your app; the place is confirmed once it is paid.",
+        "confirmedBody": "Good news: the registration of {child} for {camp} ({dates}) was approved and is confirmed.",
+        "declinedTitle": "Camp registration not approved",
+        "declinedBody": "We are sorry: the registration of {child} for {camp} ({dates}) could not be approved.",
+        "message": "Message from the club: {note}"
       }
     }
   },

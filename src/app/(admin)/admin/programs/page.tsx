@@ -9,6 +9,8 @@ import { termOr } from "@/lib/tenant/terms";
 import { PROGRAM_KINDS } from "@/lib/club-ops/validation";
 import { campSeason, groupBySeason, seasonKey } from "@/lib/camps/seasons";
 import type { ProgramListItem } from "@/lib/data/programs-admin";
+import { countPendingApprovals } from "@/lib/camps/approval-data";
+import { ShieldQuestion } from "lucide-react";
 
 const TONE = { draft: "warning", published: "success", archived: "neutral" } as const;
 
@@ -30,12 +32,16 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
     ? groupBySeason(programs, seasonOfProgram)
     : [{ key: "all", season: null, year: null, items: programs }];
   const isAdmin = me.roles.includes("admin");
+  const approvalCount = isAdmin ? await countPendingApprovals(me.orgId) : 0;
 
   return (
     <div className="animate-fade-up">
       <PageHeader title={title} description={t("editOps.programs.listDescription")}
         actions={<div className="flex flex-wrap gap-2">
           <Link href="/admin/discounts"><Button variant="secondary"><Percent className="h-4 w-4" /> {t("camps.discounts.title")}</Button></Link>
+          {isAdmin && (approvalCount > 0 || kindFilter === "camp") && (
+            <Link href="/admin/camps/approvals"><Button variant={approvalCount > 0 ? "outline" : "secondary"}><ShieldQuestion className="h-4 w-4" /> {t("camps.approval.admin.link", { count: approvalCount })}</Button></Link>
+          )}
           {isAdmin && <Link href="/admin/programs/new"><Button><Plus className="h-4 w-4" /> {t("editOps.programs.new")}</Button></Link>}
         </div>} />
       <nav aria-label={t("camps.filterByType")} className="mb-4 flex flex-wrap gap-2">

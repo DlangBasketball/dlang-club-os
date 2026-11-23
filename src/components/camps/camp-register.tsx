@@ -12,6 +12,7 @@ import { ChildExtrasFields, requiredMark, shows } from "@/components/forms/regis
 import { resolveConfig, validateRegistrationExtras, type BuiltinField, type RegistrationConfig } from "@/lib/registration-form/config";
 import { InstalmentChooser } from "@/components/plans/instalment-chooser";
 import type { PlanSettings } from "@/lib/payments/plans";
+import { approvalBand, bandMessage, classifyCamper, type CampAgeBand } from "@/lib/camps/age-approval";
 
 type Choice = { ageGroupId: string; daysCount: string; lunch: "" | "yes" | "no"; days: string[] };
 type Extras = { extras: Partial<Record<BuiltinField, string>>; answers: Record<string, unknown> };
@@ -62,6 +63,14 @@ export function CampRegister(props:
   const [error, setError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [instalments, setInstalments] = React.useState(0);
+  // One id per form: a double click / retry of the same submission never duplicates a request.
+  const requestId = React.useRef<string>("");
+  if (!requestId.current && typeof crypto !== "undefined" && "randomUUID" in crypto) requestId.current = crypto.randomUUID();
+
+  // Age approval band (parent app): age on the week's first day.
+  const band = camp.program.ages ? approvalBand(camp.program.ages) : null;
+  const bandOf = (dob: string | null): { age: number | null; band: CampAgeBand } =>
+    props.mode === "parent" && band && edition && camp.program.ages ? classifyCamper(dob, edition.startsOn, camp.program.ages) : { age: null, band: "standard" };
 
   const optionFor = (c: Choice) => {
     const n = Number(c.daysCount);
@@ -115,10 +124,14 @@ export function CampRegister(props:
     setParKids((arr) => arr.map((c) => ({ ...c, ...emptyChoice(), ageGroupId: c.ageGroupId })));
   }
 
+  const approvalCount = kids.filter((k) => bandOf(k.dob).band === "approval").length;
+
   function validate(): string | null {
     if (!edition || !edition.open) return t("camps.register.pickEdition");
     if (!kids.length) return t("camps.errors.noChildren");
     for (const k of kids) {
+      const b = bandOf(k.dob).band;
+      if (b === "too_young" || b === "too_old") return t("camps.errors.db.AGE_OUT_OF_RANGE");
       const o = optionFor(k);
       if (!k.ageGroupId) return t("camps.register.pickAgeGroup");
       if (!o) return t("camps.register.pickOption");
@@ -159,7 +172,7 @@ export function CampRegister(props:
       : await submitCampParent({
           programId: camp.program.id, editionId, promoCode: promo, consents,
           children: parKids.map((c) => ({ athleteId: c.athleteId, priceOptionId: optionFor(c)?.id ?? "", ageGroupId: c.ageGroupId, days: c.days, answers: c.answers })),
-        }, instalments);
+        }, instalments, requestId.current || undefined);
     // Success redirects server-side; only failures come back.
     if (res && !res.ok) {
       setSubmitting(false);
@@ -182,6 +195,8 @@ export function CampRegister(props:
 
   function renderChoice(k: (typeof kids)[number], label: string) {
     const age = k.dob && edition ? ageOn(k.dob, edition.startsOn) : null;
+    // In the approval band the admin reviews the fit: every group can be chosen.
+    const needsApproval = bandOf(k.dob).band === "approval";
     const groups = camp.ageGroups.filter((g) => g.isActive);
     const opt = optionFor(k);
     const lunchOpts = options.filter((o) => o.daysCount === Number(k.daysCount));
@@ -194,10 +209,11 @@ export function CampRegister(props:
             <Select id={`ag-${k.key}`} value={k.ageGroupId} onChange={(e) => updateChoice(k.key, { ageGroupId: e.target.value })}>
               <option value="">{t("common.select")}</option>
               {groups.map((g) => (
-                <option key={g.id} value={g.id} disabled={age !== null && !ageFits(age, g.minAge, g.maxAge)}>{g.label}</option>
+                <option key={g.id} value={g.id} disabled={!needsApproval && age !== null && !ageFits(age, g.minAge, g.maxAge)}>{g.label}</option>
               ))}
             </Select>
             {age !== null && <p className="mt-1 text-xs text-ink-3">{t("common.ageYears", { age })}</p>}
+            {needsApproval && <Badge tone="info" className="mt-1">{t("camps.approval.parent.badge")}</Badge>}
           </div>
           <div><Label htmlFor={`dc-${k.key}`}>{t("camps.register.daysCount")}</Label>
             <Select id={`dc-${k.key}`} value={k.daysCount} onChange={(e) => updateChoice(k.key, { daysCount: e.target.value })}>
@@ -227,6 +243,11 @@ export function CampRegister(props:
                 );
               })}
             </div>
+          </div>
+        )}
+        {needsApproval && opt && (
+          <div className="border-t border-line-soft pt-2 text-sm">
+            <Row label={t("camps.approval.parent.priceIfApproved")} value={money(opt.price)} />
           </div>
         )}
         {item && (
@@ -341,13 +362,18 @@ export function CampRegister(props:
           {props.kids.length === 0 && <p className="text-sm text-ink-3">{t("camps.register.noChildren")}</p>}
           {props.kids.map((k) => {
             const on = parKids.some((c) => c.athleteId === k.id);
+            const kb = bandOf(k.dob);
+            const blocked = kb.band === "too_young" || kb.band === "too_old";
             return (
               <div key={k.id} className="space-y-2">
-                <label className="flex items-center gap-2 text-sm text-ink">
-                  <input type="checkbox" checked={on} className="h-4 w-4 accent-[var(--red-primary)]"
+                <label className={`flex items-center gap-2 text-sm text-ink ${blocked && !on ? "opacity-60" : ""}`}>
+                  <input type="checkbox" checked={on} disabled={blocked && !on} className="h-4 w-4 accent-[var(--red-primary)]"
                     onChange={() => setParKids((arr) => (on ? arr.filter((c) => c.athleteId !== k.id) : [...arr, { ...emptyChoice(), athleteId: k.id, answers: {} }]))} />
                   {k.name}
+                  {kb.band === "approval" && <Badge tone="info">{t("camps.approval.parent.badge")}</Badge>}
                 </label>
+                {blocked && <p className="text-xs text-ink-3">{t("camps.errors.db.AGE_OUT_OF_RANGE")}</p>}
+                {kb.band === "approval" && kb.age !== null && <p className="text-xs text-ink-3">{t("camps.approval.parent.childNote", { name: k.name, age: kb.age })}</p>}
                 {on && renderChoice(kids.find((x) => x.key === k.id)!, k.name)}
                 {on && (
                   <ChildExtrasFields config={config} extras={{}} builtins={false} answers={parKids.find((c) => c.athleteId === k.id)?.answers ?? {}}
@@ -415,8 +441,19 @@ export function CampRegister(props:
               activityStart={edition.startsOn} value={instalments} onChange={setInstalments} idPrefix="camp-inst" />
           )}
           <p className="flex items-center gap-2 text-xs text-ink-3"><ShieldCheck className="h-4 w-4 shrink-0 text-success" />{t("camps.register.privacy")}</p>
+          {approvalCount > 0 && band && (
+            <div role="note" className="rounded-md border border-info/40 bg-info-soft px-4 py-3 text-sm text-ink">
+              <p>{t(bandMessage(band).key, bandMessage(band).values)}</p>
+              <p className="mt-1 text-xs text-ink-3">{t("camps.approval.parent.noInvoice")}</p>
+            </div>
+          )}
           {error && <div role="alert" className="rounded-md border border-danger/40 bg-danger-soft px-4 py-3 text-sm text-danger">{error}</div>}
-          <Button onClick={submit} disabled={submitting || !edition.open}>{submitting ? t("registration.submitting") : t("camps.register.submit")}</Button>
+          <Button onClick={submit} disabled={submitting || !edition.open}>
+            {submitting ? t("registration.submitting")
+              : approvalCount > 0 && approvalCount === kids.length ? t("camps.approval.parent.submit")
+              : approvalCount > 0 ? t("camps.approval.parent.submitMixed")
+              : t("camps.register.submit")}
+          </Button>
         </CardBody></Card>
       )}
     </div>

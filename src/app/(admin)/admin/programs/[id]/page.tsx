@@ -17,6 +17,9 @@ import { CampEditor } from "@/components/camps/camp-editor";
 import { CampSummaryView } from "@/components/camps/camp-summary";
 import { selectionDb } from "@/lib/selection/db";
 import { RosterSection } from "@/components/selection/roster/roster-section";
+import { ApprovalBandForm } from "@/components/camps/approval-band-form";
+import { countPendingApprovals } from "@/lib/camps/approval-data";
+import { ShieldQuestion } from "lucide-react";
 
 const TONE = { draft: "warning", published: "success", archived: "neutral" } as const;
 
@@ -63,7 +66,7 @@ export default async function ProgramDetailPage({ params, searchParams }: {
   const cdb = await campsDb();
   const [{ data: extra }, { data: others }] = p.kind === "camp"
     ? await Promise.all([
-        cdb.from("programs").select("season,season_year,cover_path,cover_focal_x,cover_focal_y").eq("id", p.id).eq("org_id", me.orgId).maybeSingle(),
+        cdb.from("programs").select("season,season_year,cover_path,cover_focal_x,cover_focal_y,approval_age_min,approval_age_max").eq("id", p.id).eq("org_id", me.orgId).maybeSingle(),
         cdb.from("programs").select("id,name").eq("org_id", me.orgId).eq("kind", "camp").neq("id", p.id).neq("status", "archived").order("name"),
       ])
     : [await cdb.from("programs").select("season,season_year,cover_path,cover_focal_x,cover_focal_y").eq("id", p.id).eq("org_id", me.orgId).maybeSingle(), { data: null }];
@@ -72,6 +75,8 @@ export default async function ProgramDetailPage({ params, searchParams }: {
   const shownSeason = campSeason({ season: extra?.season ?? null, seasonYear: extra?.season_year ?? null, firstStart });
   const [sports, sportId] = isAdmin ? await Promise.all([sportOptions(me.orgId), currentSportId("programs", p.id)]) : [[], null];
   const money = (n: number) => f.money(n, p.currency ?? f.currency);
+  const approvalCount = isAdmin && p.kind === "camp" ? await countPendingApprovals(me.orgId) : 0;
+  const band = (extra ?? {}) as { approval_age_min?: number | null; approval_age_max?: number | null };
   const row = (label: string, value: React.ReactNode) => (
     <div className="flex justify-between gap-4 border-b border-line-soft py-2 text-sm last:border-0"><span className="text-ink-3">{label}</span><span className="text-right text-ink">{value}</span></div>
   );
@@ -88,6 +93,7 @@ export default async function ProgramDetailPage({ params, searchParams }: {
         actions={isAdmin ? (
           <>
             {p.kind !== "camp" && <Link href={`/admin/selection/${p.id}`}><Button size="sm" variant="secondary"><Medal className="h-4 w-4" /> {t("selection.admin.manageLink")}</Button></Link>}
+            {p.kind === "camp" && <Link href="/admin/camps/approvals"><Button size="sm" variant="secondary"><ShieldQuestion className="h-4 w-4" /> {t("camps.approval.admin.link", { count: approvalCount })}</Button></Link>}
             <Link href={`/admin/programs/${p.id}/registration-form`}><Button size="sm" variant="secondary"><ListChecks className="h-4 w-4" /> {t("forms.regForm.link")}</Button></Link>
             <Link href={`/admin/programs/${p.id}/edit`}><Button size="sm"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button></Link>
           </>
@@ -118,6 +124,9 @@ export default async function ProgramDetailPage({ params, searchParams }: {
       {camp?.data && (isAdmin
         ? <CampEditor programId={p.id} data={camp.data} currency={p.currency ?? f.currency} />
         : <CampSummaryView programId={p.id} data={camp.data} currency={p.currency ?? f.currency} />)}
+      {isAdmin && p.kind === "camp" && (
+        <ApprovalBandForm programId={p.id} minAge={p.minAge} initialMin={band.approval_age_min ?? null} initialMax={band.approval_age_max ?? null} />
+      )}
       {isAdmin && p.kind === "camp" && camp?.data && (
         <CampSeasonTools programId={p.id} season={isCampSeason(extra?.season) ? extra.season : null} seasonYear={extra?.season_year ?? null}
           derived={derivedSeason} otherCamps={(others ?? []).map((o) => ({ id: o.id, name: o.name }))}
