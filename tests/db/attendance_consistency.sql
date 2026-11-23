@@ -88,11 +88,12 @@ insert into public.teams (id, org_id, name, sport, age_group) values
   ('00000000-0000-0000-0000-00000000ac42', '00000000-0000-0000-0000-000000000001', 'AC U12 No Coach', 'basketball', 'U12');
 insert into public.team_coaches (team_id, coach_id, org_id, role) values
   ('00000000-0000-0000-0000-00000000ac41', '00000000-0000-0000-0000-00000000ac51', '00000000-0000-0000-0000-000000000001', 'head');
--- ac31..ac33 joined 60 days ago; ac34 joins T1 today (not on older practices).
+-- ac31..ac33 joined 60 days ago; ac34 joins T1 on the club-local day of E8 (today's
+-- session; stable around midnight UTC) and is not on older practices.
 insert into public.team_memberships (org_id, team_id, athlete_id, jersey_number, status, joined_on)
 select '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', a, n, 'active', d
   from (values ('00000000-0000-0000-0000-00000000ac31'::uuid, 11, current_date - 60), ('00000000-0000-0000-0000-00000000ac32'::uuid, 12, current_date - 60),
-               ('00000000-0000-0000-0000-00000000ac33'::uuid, 13, current_date - 60), ('00000000-0000-0000-0000-00000000ac34'::uuid, 14, current_date)) v(a, n, d);
+               ('00000000-0000-0000-0000-00000000ac33'::uuid, 13, current_date - 60), ('00000000-0000-0000-0000-00000000ac34'::uuid, 14, ((now() - interval '3 hours') at time zone public.ta_tz('00000000-0000-0000-0000-000000000001'))::date)) v(a, n, d);
 insert into public.team_memberships (org_id, team_id, athlete_id, jersey_number, status, joined_on) values
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac42', '00000000-0000-0000-0000-00000000ac31', 7, 'active', current_date - 60);
 -- Every session counts (no go-live date) for these assertions.

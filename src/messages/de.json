@@ -11847,7 +11847,10 @@
       "LABEL_REQUIRED": "Geben Sie der Pause einen Namen.",
       "BREAK_DATES_INVALID": "Prüfen Sie die Daten der Pause (höchstens ein Jahr).",
       "BREAK_NOT_FOUND": "Diese Pause wurde nicht gefunden.",
-      "NOT_BOOKED": "Nur eine bestätigte Buchung kann als Abwesenheit gemeldet werden."
+      "NOT_BOOKED": "Nur eine bestätigte Buchung kann als Abwesenheit gemeldet werden.",
+      "LEAD_EXISTS": "Diese Einheit hat bereits einen Haupttrainer. Stellen Sie den aktuellen zuerst auf Assistenz um.",
+      "INVALID_SCOPE": "Dieser Filter ist nicht verfügbar.",
+      "PROGRAM_NOT_FOUND": "Programm nicht gefunden."
     },
     "messages": {
       "saved": "Gespeichert.",
@@ -12402,7 +12405,10 @@
         "NO_ATHLETE": "Rechnung ohne Spieler",
         "NO_CURRENT_SEASON": "Keine aktuelle Saison für eine Rechnung",
         "MEMBERSHIP_EXISTS": "Saisonbeitrag besteht bereits",
-        "MIGRATION_ERROR": "Problem bei der Datenübernahme"
+        "MIGRATION_ERROR": "Problem bei der Datenübernahme",
+        "MULTIPLE_LEADS": "Mehrere Haupttrainer in einer Einheit",
+        "ATTENDANCE_NO_LEAD": "Abgeschlossene Anwesenheit ohne Haupttrainer",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Abgeschlossene Liste mit nicht abgeschlossenem Spieler"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Absenzmeldungen zu diesem Spieler erreichen niemanden. Ergänzen Sie die Familie um eine erziehungsberechtigte Person mit aktivem Login.",
@@ -12417,7 +12423,10 @@
         "NO_ATHLETE": "Verknüpfen Sie diese Rechnung mit einem Spieler.",
         "NO_CURRENT_SEASON": "Legen Sie die aktuelle Saison fest und prüfen Sie danach diese Rechnung.",
         "MEMBERSHIP_EXISTS": "Für diesen Spieler besteht bereits ein Saisonbeitrag. Prüfen Sie auf Doppelungen.",
-        "MIGRATION_ERROR": "Dieser Datensatz konnte nicht automatisch übernommen werden. Prüfen Sie ihn von Hand."
+        "MIGRATION_ERROR": "Dieser Datensatz konnte nicht automatisch übernommen werden. Prüfen Sie ihn von Hand.",
+        "MULTIPLE_LEADS": "Beide bestätigten Haupttrainer wurden behalten. Behalten Sie einen und stellen Sie die anderen auf Assistenz um.",
+        "ATTENDANCE_NO_LEAD": "Niemand konnte als Haupttrainer eingetragen werden. Weisen Sie dem Team oder der Einheit einen Trainer zu.",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Ein Spieler dieser abgeschlossenen Liste hat keinen abgeschlossenen Status. Liste wieder öffnen, Spieler erfassen und erneut abschließen."
       }
     }
   },
@@ -13351,5 +13360,112 @@
       "payers": "{count} zahlende Personen",
       "invoiceSelected": "{count} Aufträge zusammen verrechnen"
     }
+  },
+  "attendanceCoverage": {
+    "role": {
+      "lead": "Haupttrainer",
+      "assistant": "Assistenztrainer",
+      "substitute": "Ersatztrainer"
+    },
+    "source": {
+      "session": "diese Einheit",
+      "booking": "gebuchte Einheit",
+      "team": "Teamtrainer",
+      "program": "Programm"
+    },
+    "roleList": {
+      "lead": "Leitung: {names}",
+      "assistant": "Assistenz: {names}",
+      "substitute": "Ersatz: {names}"
+    },
+    "ledBy": "Geleitet von {name}",
+    "ledByAuto": "Geleitet von {name} (Standard)",
+    "ledByDefault": "{name} (Standard)",
+    "ledByDefaultOption": "Standard: {name}",
+    "noLead": "Kein Haupttrainer",
+    "multipleLeads": "Für diese Einheit sind mehrere Haupttrainer bestätigt. Behalten Sie einen und stellen Sie die anderen auf Assistenz um.",
+    "sessionAssignments": "Für diese Einheit zugeteilt",
+    "assistantBadge": "Assistenztrainer für diese Einheit"
+  },
+  "attendanceHistory": {
+    "marked": {
+      "present": "Erfasst: anwesend",
+      "late": "Erfasst: verspätet",
+      "excused": "Erfasst: entschuldigte Abwesenheit",
+      "unexcused": "Erfasst: unentschuldigte Abwesenheit"
+    },
+    "changed": {
+      "present": "Geändert auf anwesend",
+      "late": "Geändert auf verspätet",
+      "excused": "Geändert auf entschuldigte Abwesenheit",
+      "unexcused": "Geändert auf unentschuldigte Abwesenheit"
+    },
+    "corrected": {
+      "present": "Korrigiert auf anwesend",
+      "late": "Korrigiert auf verspätet",
+      "excused": "Korrigiert auf entschuldigte Abwesenheit",
+      "unexcused": "Korrigiert auf unentschuldigte Abwesenheit"
+    },
+    "cleared": "Zurückgesetzt (nicht erfasst)",
+    "status": {
+      "present": "Anwesend",
+      "late": "Verspätet",
+      "excused": "Entschuldigte Abwesenheit",
+      "unexcused": "Unentschuldigte Abwesenheit",
+      "unmarked": "Nicht erfasst"
+    },
+    "previously": "Vorher: {status}",
+    "byAt": "{name}, am {when}",
+    "reason": "Grund: {reason}",
+    "savedStatus": "Gespeichert:",
+    "unsaved": "Noch nicht gespeichert"
+  },
+  "attendanceOverview": {
+    "description": "Anwesenheit jeder Einheit: Teamtrainings und Spiele, gebuchte Einheiten und frühere Programmeinheiten.",
+    "followupScreen": "Nachverfolgung",
+    "openTab": "Anwesenheit",
+    "totals": {
+      "sessions": "Einheiten"
+    },
+    "counts": "{present} anwesend · {late} verspätet · {excused} entschuldigt · {unexcused} unentschuldigt · {unmarked} nicht erfasst",
+    "source": {
+      "booking": "Gebuchte Einheit",
+      "program": "Programmeinheit (früheres Modul)"
+    },
+    "workflow": {
+      "not_started": "Nicht begonnen",
+      "draft": "Entwurf",
+      "final": "Abgeschlossen",
+      "reopened": "Wieder geöffnet",
+      "cancelled": "Abgesagt"
+    },
+    "openFollowups": "{count, plural, one {# Nachverfolgung} other {# Nachverfolgungen}}",
+    "legacyNote": "Im früheren Programmmodul erfasst. Hier nur lesbar; zum Prüfen öffnen.",
+    "noRoster": "Keine Spieler in dieser Einheit.",
+    "followupOpen": "Nachverfolgen",
+    "openSession": "Einheit zum Prüfen oder Korrigieren öffnen",
+    "emptyTitle": "Keine Einheiten in diesem Zeitraum",
+    "emptyBody": "Wählen Sie ein anderes Datum, Team oder einen anderen Spieler.",
+    "followups": {
+      "title": "Nachverfolgung durch das Team",
+      "short": "Nachverfolgungen",
+      "none": "Nichts nachzuverfolgen.",
+      "unexcused": "{name}: unentschuldigte Abwesenheit",
+      "reopened": "wieder geöffnet",
+      "open": "Offen",
+      "toComplete": "{name}: Anwesenheit noch erfassen"
+    },
+    "filters": {
+      "teamsOnly": "Alle Teams (ohne gebuchte Einheiten)",
+      "bookings": "Gebuchte Einheiten",
+      "programs": "Programmeinheiten (früheres Modul)",
+      "player": "Spieler",
+      "allPlayers": "Alle Spieler",
+      "today": "Zurück zu heute"
+    },
+    "todayHeading": "Heute · {date}",
+    "rangeHeading": "{from} bis {to}",
+    "statusRule": "Die Zahlen zeigen den aktuell gespeicherten Status jedes Spielers, auch solange die Liste ein Entwurf ist. Summen und Quoten auf Spielerseiten zählen nur abgeschlossene Werte.",
+    "truncated": "Die letzten 300 Einheiten werden angezeigt. Grenzen Sie die Daten ein, um mehr zu sehen."
   }
 }

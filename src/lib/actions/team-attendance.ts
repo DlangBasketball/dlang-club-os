@@ -51,12 +51,22 @@ function fail(t: Translator, error: { message?: string } | string | null | undef
 const denied = (t: Translator) => ({ ok: false as const, code: "NOT_AUTHORIZED", error: t("teamAttendance.errors.NOT_AUTHORIZED") });
 const invalid = (t: Translator) => ({ ok: false as const, code: "INVALID_INPUT", error: t("teamAttendance.errors.invalid") });
 
+/**
+ * Every screen that shows a session's attendance, coaches or follow-ups:
+ * Attendance tab, Dashboard, the session (event + attendance page), the
+ * Schedule lists, the coach Today list and sheets, player profiles and the
+ * family / player portals.
+ */
 function revalidateSession(eventId?: string) {
   revalidatePath("/coach", "layout");
   revalidatePath("/admin/attendance", "layout");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/schedule");
+  revalidatePath("/admin/athletes", "layout");
+  revalidatePath("/admin/teams", "layout");
   revalidatePath("/parent/attendance", "layout");
   revalidatePath("/player", "layout");
-  if (eventId) revalidatePath(`/admin/schedule/${eventId}`);
+  if (eventId) revalidatePath(`/admin/schedule/${eventId}`, "layout");
 }
 
 /** Deliver alerts created by a finalize / correction right away (best effort). */
@@ -255,10 +265,23 @@ export async function requestSessionAccess(input: { eventId: string; note?: stri
   return { ok: true, data: data as Json, message: t("teamAttendance.messages.accessRequested") };
 }
 
-export async function assignSessionCoach(input: { eventId: string; coachId: string; role?: "substitute" | "lead" }): Promise<TaResult<Json>> {
+/** Admin: change the role of one approved session assignment (that session only). One lead per session (LEAD_EXISTS). */
+export async function setSessionCoachRole(input: { assignmentId: string; role: "substitute" | "lead" | "assistant" }): Promise<TaResult<Json>> {
   const { me, t } = await session(["admin"]);
   if (!me) return denied(t);
-  const p = z.object({ eventId: uuidSchema, coachId: uuidSchema, role: z.enum(["substitute", "lead"]).default("substitute") }).safeParse(input);
+  const p = z.object({ assignmentId: uuidSchema, role: z.enum(["substitute", "lead", "assistant"]) }).safeParse(input);
+  if (!p.success) return invalid(t);
+  const db = await createClient();
+  const { data, error } = await db.rpc("session_set_coach_role", { p_assignment: p.data.assignmentId, p_role: p.data.role });
+  if (error) return fail(t, error);
+  revalidateSession((data as { event_id?: string } | null)?.event_id);
+  return { ok: true, data: data as Json };
+}
+
+export async function assignSessionCoach(input: { eventId: string; coachId: string; role?: "substitute" | "lead" | "assistant" }): Promise<TaResult<Json>> {
+  const { me, t } = await session(["admin"]);
+  if (!me) return denied(t);
+  const p = z.object({ eventId: uuidSchema, coachId: uuidSchema, role: z.enum(["substitute", "lead", "assistant"]).default("substitute") }).safeParse(input);
   if (!p.success) return invalid(t);
   const db = await createClient();
   const { data, error } = await db.rpc("session_assign_coach", { p_event: p.data.eventId, p_coach: p.data.coachId, p_role: p.data.role });

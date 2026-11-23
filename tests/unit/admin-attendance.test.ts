@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { groupTeamsByCategory, nameMatches, parseAgeGroup, searchWords, teamCategory, type CategorizableTeam } from "@/lib/teams/categories";
 import {
-  activeOn, canRetryAlert, coachCoverage, countsInTotals, dateParam, pastMembers, playerTotals, playerTotalsByTeam, sheetState,
+  activeOn, canRetryAlert, countsInTotals, dateParam, pastMembers, playerTotals, playerTotalsByTeam, sheetState,
   teamTotals, type SessionAttendanceRow,
 } from "@/lib/attendance/admin-stats";
 import { canSeeFlag, flagGroup, flagHref } from "@/lib/attendance/review-flags";
@@ -119,11 +119,6 @@ describe("session state and coverage", () => {
     expect(sheetState({ event_status: "scheduled", sheet_status: "draft", ends_at: "2026-11-20T00:00:00Z" }, now)).toBe("draft");
     expect(sheetState({ event_status: "scheduled", sheet_status: null, ends_at: "2026-11-24T00:00:00Z" }, now)).toBe("upcoming");
     expect(sheetState({ event_status: "scheduled", sheet_status: null, ends_at: "2026-11-22T00:00:00Z" }, now)).toBe("missing");
-  });
-  it("derives coach coverage", () => {
-    expect(coachCoverage(2, 1)).toBe("substitute");
-    expect(coachCoverage(1, 0)).toBe("assigned");
-    expect(coachCoverage(0, 0)).toBe("missing");
   });
 });
 

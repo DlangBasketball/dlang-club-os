@@ -7,6 +7,8 @@ import { BookedSessionDetails } from "@/components/booking/portal/coach-session"
 import type { Formatter } from "@/lib/format";
 import type { Translator } from "@/lib/i18n/translator";
 import { cn } from "@/lib/utils";
+import type { CoverageSummary } from "@/lib/attendance/coverage";
+import { coverageLine } from "@/components/attendance/coverage-views";
 
 /** Sheet status pill: not started / draft / final / reopened. */
 export function SheetStatusBadge({ status, t }: { status: "draft" | "final" | "reopened" | null; t: Translator }) {
@@ -22,8 +24,10 @@ export function eventTypeLabel(type: string, t: Translator): string {
  * One session on the coach's trainings list (server component). Big tap
  * target to take attendance; cancelled sessions show no action.
  */
-export function TrainingCardView({ card, t, f, showDate, session }: {
+export function TrainingCardView({ card, t, f, showDate, session, coverage }: {
   card: TrainingCard; t: Translator; f: Formatter; showDate?: boolean;
+  /** Coaches of the session with their roles and "Led by" (shared helper, SQL ac_coverage). */
+  coverage?: CoverageSummary | null;
   /** The booked session behind this event (service name, roster names; no team, no money). */
   session?: BookedSessionInfo | null;
 }) {
@@ -59,6 +63,7 @@ export function TrainingCardView({ card, t, f, showDate, session }: {
             : <SheetStatusBadge status={card.sheet_status} t={t} />}
           {card.access === "substitute" && <Badge tone="info">{t("coachTrainings.card.substitute")}</Badge>}
           {card.access === "lead" && <Badge tone="info">{t("coachTrainings.card.lead")}</Badge>}
+          {card.access === "assistant" && <Badge tone="info">{t("attendanceCoverage.assistantBadge")}</Badge>}
           {card.access === "pending" && <Badge tone="warning">{t("coachTrainings.card.pending")}</Badge>}
         </div>
       </div>
@@ -83,6 +88,8 @@ export function TrainingCardView({ card, t, f, showDate, session }: {
           </li>
         )}
       </ul>
+
+      {coverage && !cancelled && <p className="mt-2 text-sm text-text-secondary">{coverageLine(t, coverage)}</p>}
 
       {session && <BookedSessionDetails session={session} t={t} f={f} />}
 

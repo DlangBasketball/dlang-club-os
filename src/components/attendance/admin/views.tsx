@@ -65,7 +65,7 @@ export async function SessionHistoryList({ rows, mode, showTeam = false }: { row
         return (
           <li key={r.event_id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <Link href={`/admin/schedule/${r.event_id}/attendance`} className="text-sm font-medium text-text hover:text-brand-primary">
+              <Link href={r.source === "program" ? `/admin/attendance/${r.event_id}` : `/admin/schedule/${r.event_id}/attendance`} className="text-sm font-medium text-text hover:text-brand-primary">
                 {f.date(r.starts_at, { weekday: true })} · {f.time(r.starts_at)}
               </Link>
               <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-text-muted">

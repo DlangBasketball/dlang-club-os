@@ -197,10 +197,14 @@ export type SessionAdminDetail = {
              reporter: string | null; needsReview: boolean; createdAt: string }[];
   alerts: { id: string; athleteId: string; athleteName: string; guardianProfileId: string | null; guardian: string | null; kind: string;
             markStatus: string; status: string; attempts: number; lastError: string | null; sentAt: string | null; createdAt: string }[];
-  assignments: { id: string; coachId: string; coachName: string; role: string; status: string; requestNote: string | null; decisionNote: string | null; createdAt: string }[];
+  assignments: { id: string; coachId: string; coachName: string; role: string; status: string; requestNote: string | null; decisionNote: string | null; createdAt: string; decidedAt: string | null }[];
   corrections: { id: string; athleteId: string; athleteName: string; status: string; currentStatus: string; requestedStatus: string | null;
                  message: string; requestedBy: string | null; resolutionNote: string | null; createdAt: string; resolvedAt: string | null }[];
-  teamCoaches: { id: string; name: string; role: string }[];
+  teamCoaches: { id: string; name: string; role: string; createdAt: string | null }[];
+  /** Coach of a booked session (training_sessions.coach_id); null for team events. */
+  bookingCoach: { id: string; name: string } | null;
+  /** team_attendance_sheets.led_by_coach_id with its name. */
+  sheetLead: { id: string; name: string } | null;
 };
 
 export async function getSessionAdminDetail(eventId: string, teamId: string | null): Promise<SessionAdminDetail> {
@@ -215,12 +219,16 @@ export async function getSessionAdminDetail(eventId: string, teamId: string | nu
       .eq("event_id", eventId).order("created_at", { ascending: false }),
     db.from("attendance_no_show_alerts").select("id,athlete_id,guardian_profile_id,kind,mark_status,status,attempts,last_error,sent_at,created_at")
       .eq("event_id", eventId).order("created_at", { ascending: false }),
-    db.from("event_coach_assignments").select("id,coach_id,role,status,request_note,decision_note,created_at").eq("event_id", eventId).order("created_at"),
+    db.from("event_coach_assignments").select("id,coach_id,role,status,request_note,decision_note,created_at,decided_at").eq("event_id", eventId).order("created_at"),
     db.from("attendance_correction_requests").select("id,athlete_id,status,current_status,requested_status,message,requested_by,resolution_note,created_at,resolved_at")
       .eq("event_id", eventId).order("created_at", { ascending: false }),
-    teamId ? sports.from("team_coaches").select("coach_id,role").eq("team_id", teamId) : Promise.resolve({ data: [] as { coach_id: string; role: string }[] }),
+    teamId ? sports.from("team_coaches").select("coach_id,role,created_at").eq("team_id", teamId) : Promise.resolve({ data: [] as { coach_id: string; role: string; created_at: string | null }[] }),
   ]);
   const s = sheetRow.data;
+  // Booked session: its coach leads it (training_sessions.coach_id), whatever the team coaches.
+  const ev = await sports.from("events").select("*").eq("id", eventId).maybeSingle();
+  const tsId = (ev.data as { training_session_id?: string | null } | null)?.training_session_id ?? null;
+  const ts = tsId ? (await db.from("training_sessions").select("coach_id").eq("id", tsId).maybeSingle()).data as { coach_id: string } | null : null;
   const athleteIds = uniq([
     ...(history.data ?? []).map((h) => h.athlete_id), ...(reports.data ?? []).map((r) => r.athlete_id),
     ...(alerts.data ?? []).map((a) => a.athlete_id), ...(corrections.data ?? []).map((c) => c.athlete_id),
@@ -230,7 +238,7 @@ export async function getSessionAdminDetail(eventId: string, teamId: string | nu
     ...(history.data ?? []).map((h) => h.changed_by), ...(reports.data ?? []).map((r) => r.reported_by),
     ...(alerts.data ?? []).map((a) => a.guardian_profile_id), ...(corrections.data ?? []).map((c) => c.requested_by),
   ]);
-  const coachIds = uniq([...(assignments.data ?? []).map((a) => a.coach_id), ...(teamCoaches.data ?? []).map((c) => c.coach_id)]);
+  const coachIds = uniq([...(assignments.data ?? []).map((a) => a.coach_id), ...(teamCoaches.data ?? []).map((c) => c.coach_id), ts?.coach_id, s?.led_by_coach_id]);
   const [ath, prof, coach] = await Promise.all([
     athleteIds.length ? db.from("athletes").select("id,first_name,last_name").in("id", athleteIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
     profileIds.length ? db.from("profiles").select("id,full_name").in("id", profileIds) : Promise.resolve({ data: [] as { id: string; full_name: string | null }[] }),
@@ -264,13 +272,15 @@ export async function getSessionAdminDetail(eventId: string, teamId: string | nu
     })),
     assignments: (assignments.data ?? []).map((a) => ({
       id: a.id, coachId: a.coach_id, coachName: cName.get(a.coach_id) ?? "", role: a.role, status: a.status,
-      requestNote: a.request_note, decisionNote: a.decision_note, createdAt: a.created_at,
+      requestNote: a.request_note, decisionNote: a.decision_note, createdAt: a.created_at, decidedAt: a.decided_at,
     })),
     corrections: (corrections.data ?? []).map((c) => ({
       id: c.id, athleteId: c.athlete_id, athleteName: aName.get(c.athlete_id) ?? "", status: c.status, currentStatus: c.current_status,
       requestedStatus: c.requested_status, message: c.message, requestedBy: pn(c.requested_by), resolutionNote: c.resolution_note,
       createdAt: c.created_at, resolvedAt: c.resolved_at,
     })),
-    teamCoaches: (teamCoaches.data ?? []).map((c) => ({ id: c.coach_id, name: cName.get(c.coach_id) ?? "", role: c.role })),
+    teamCoaches: (teamCoaches.data ?? []).map((c) => ({ id: c.coach_id, name: cName.get(c.coach_id) ?? "", role: c.role, createdAt: c.created_at ?? null })),
+    bookingCoach: ts?.coach_id ? { id: ts.coach_id, name: cName.get(ts.coach_id) ?? "" } : null,
+    sheetLead: s?.led_by_coach_id ? { id: s.led_by_coach_id, name: cName.get(s.led_by_coach_id) ?? "" } : null,
   };
 }

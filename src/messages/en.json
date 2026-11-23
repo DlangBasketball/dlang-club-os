@@ -11847,7 +11847,10 @@
       "LABEL_REQUIRED": "Give the break a name.",
       "BREAK_DATES_INVALID": "Check the break dates (at most one year).",
       "BREAK_NOT_FOUND": "This break could not be found.",
-      "NOT_BOOKED": "Only a confirmed booking can be reported absent."
+      "NOT_BOOKED": "Only a confirmed booking can be reported absent.",
+      "LEAD_EXISTS": "This session already has a lead coach. Change the current lead to assistant first.",
+      "INVALID_SCOPE": "This filter is not available.",
+      "PROGRAM_NOT_FOUND": "Program not found."
     },
     "messages": {
       "saved": "Saved.",
@@ -12115,7 +12118,7 @@
     "coverage": {
       "assigned": "Coach assigned",
       "substitute": "Substitute assigned",
-      "missing": "No coach",
+      "missing": "No coach assigned",
       "roleSubstitute": "Substitute",
       "roleLead": "Lead coach"
     },
@@ -12402,7 +12405,10 @@
         "NO_ATHLETE": "Invoice without a player",
         "NO_CURRENT_SEASON": "No current season for an invoice",
         "MEMBERSHIP_EXISTS": "Season membership already exists",
-        "MIGRATION_ERROR": "Data migration problem"
+        "MIGRATION_ERROR": "Data migration problem",
+        "MULTIPLE_LEADS": "Several lead coaches on one session",
+        "ATTENDANCE_NO_LEAD": "Finalized attendance without a lead coach",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Final sheet with a player not finalized"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "No-show alerts for this player cannot reach anyone. Add a guardian with an active login to the family.",
@@ -12417,7 +12423,10 @@
         "NO_ATHLETE": "Link this invoice to a player.",
         "NO_CURRENT_SEASON": "Set the current season, then review this invoice.",
         "MEMBERSHIP_EXISTS": "A season membership already exists for this player. Check for duplicates.",
-        "MIGRATION_ERROR": "This record could not be migrated automatically. Review it by hand."
+        "MIGRATION_ERROR": "This record could not be migrated automatically. Review it by hand.",
+        "MULTIPLE_LEADS": "Both approved leads were kept. Keep one lead for the session and change the others to assistant.",
+        "ATTENDANCE_NO_LEAD": "Nobody could be named as the lead coach. Assign a coach to the team or the session.",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "A player on this final sheet has no finalized status. Reopen the sheet, mark the player and finalize again."
       }
     }
   },
@@ -13351,5 +13360,112 @@
       "payers": "{count} payers",
       "invoiceSelected": "Invoice {count} orders together"
     }
+  },
+  "attendanceCoverage": {
+    "role": {
+      "lead": "Lead coach",
+      "assistant": "Assistant coach",
+      "substitute": "Substitute coach"
+    },
+    "source": {
+      "session": "this session",
+      "booking": "booked session",
+      "team": "team coach",
+      "program": "program"
+    },
+    "roleList": {
+      "lead": "Lead: {names}",
+      "assistant": "Assistant: {names}",
+      "substitute": "Substitute: {names}"
+    },
+    "ledBy": "Led by {name}",
+    "ledByAuto": "Led by {name} (default)",
+    "ledByDefault": "{name} (default)",
+    "ledByDefaultOption": "Default: {name}",
+    "noLead": "No lead coach",
+    "multipleLeads": "Several lead coaches are approved for this session. Keep one lead and change the others to assistant.",
+    "sessionAssignments": "Assigned for this session",
+    "assistantBadge": "Assistant coach for this session"
+  },
+  "attendanceHistory": {
+    "marked": {
+      "present": "Marked present",
+      "late": "Marked late",
+      "excused": "Marked excused absence",
+      "unexcused": "Marked unexcused absence"
+    },
+    "changed": {
+      "present": "Changed to present",
+      "late": "Changed to late",
+      "excused": "Changed to excused absence",
+      "unexcused": "Changed to unexcused absence"
+    },
+    "corrected": {
+      "present": "Corrected to present",
+      "late": "Corrected to late",
+      "excused": "Corrected to excused absence",
+      "unexcused": "Corrected to unexcused absence"
+    },
+    "cleared": "Cleared (not marked)",
+    "status": {
+      "present": "Present",
+      "late": "Late",
+      "excused": "Excused absence",
+      "unexcused": "Unexcused absence",
+      "unmarked": "Not marked"
+    },
+    "previously": "Previously: {status}",
+    "byAt": "{name}, {when}",
+    "reason": "Reason: {reason}",
+    "savedStatus": "Saved:",
+    "unsaved": "Not saved yet"
+  },
+  "attendanceOverview": {
+    "description": "Attendance of every session: team practices and games, booked sessions and earlier program sessions.",
+    "followupScreen": "Follow-up screen",
+    "openTab": "Attendance",
+    "totals": {
+      "sessions": "Sessions"
+    },
+    "counts": "{present} present · {late} late · {excused} excused · {unexcused} unexcused · {unmarked} not marked",
+    "source": {
+      "booking": "Booked session",
+      "program": "Program session (earlier module)"
+    },
+    "workflow": {
+      "not_started": "Not started",
+      "draft": "Draft",
+      "final": "Final",
+      "reopened": "Reopened",
+      "cancelled": "Canceled"
+    },
+    "openFollowups": "{count, plural, one {# follow-up} other {# follow-ups}}",
+    "legacyNote": "Recorded in the earlier program module. Read-only here; open it to review.",
+    "noRoster": "No players on this session.",
+    "followupOpen": "Follow-up",
+    "openSession": "Open the session to review or correct",
+    "emptyTitle": "No sessions in this period",
+    "emptyBody": "Try another date, team or player.",
+    "followups": {
+      "title": "Staff follow-ups",
+      "short": "Follow-ups",
+      "none": "Nothing to follow up.",
+      "unexcused": "{name}: unexcused absence",
+      "reopened": "reopened",
+      "open": "Open",
+      "toComplete": "{name}: attendance to complete"
+    },
+    "filters": {
+      "teamsOnly": "All teams (without booked sessions)",
+      "bookings": "Booked sessions",
+      "programs": "Program sessions (earlier module)",
+      "player": "Player",
+      "allPlayers": "All players",
+      "today": "Back to today"
+    },
+    "todayHeading": "Today · {date}",
+    "rangeHeading": "{from} – {to}",
+    "statusRule": "Counts show each player's current saved status, also while a sheet is a draft. Totals and rates on player pages use finalized values only.",
+    "truncated": "Showing the latest 300 sessions. Narrow the dates to see more."
   }
 }

@@ -275,33 +275,6 @@ export async function getRecentPayments(limit = 5): Promise<Result<RecentPayment
 }
 
 // ---------------------------------------------------------------------------
-// Today's attendance status
-// ---------------------------------------------------------------------------
-export type TodaysAttendance = {
-  total: number;
-  submitted: number;
-  open: number;
-};
-
-export async function getTodaysAttendance(timeZone: string): Promise<Result<TodaysAttendance>> {
-  const supabase = await createClient();
-  const { startISO, endISO } = dayBounds(timeZone);
-  const { data, error } = await supabase
-    .from("attendance_sessions")
-    .select("status")
-    .gte("session_date", startISO)
-    .lt("session_date", endISO);
-  if (error) return fail(error.message);
-
-  const rows = data ?? [];
-  return ok({
-    total: rows.length,
-    submitted: rows.filter((r) => r.status === "submitted" || r.status === "locked").length,
-    open: rows.filter((r) => r.status === "open").length,
-  });
-}
-
-// ---------------------------------------------------------------------------
 // Activity feed (recent notifications)
 // ---------------------------------------------------------------------------
 export type ActivityItem = {
@@ -336,49 +309,6 @@ export async function getActivityFeed(limit = 8): Promise<Result<ActivityItem[]>
 // confirmed no-shows. Reads run as the signed-in user (RLS: admin of the org).
 // ---------------------------------------------------------------------------
 const SHEET_TYPES: ("training" | "game" | "tournament")[] = ["training", "game", "tournament"];
-
-export type TodayTraining = {
-  eventId: string; teamId: string | null; teamName: string | null; type: string; title: string | null; startsAt: string; endsAt: string;
-  status: string; cancelReason: string | null; coverage: "substitute" | "assigned" | "missing"; coaches: string[]; substitutes: string[];
-  pendingRequests: number; sheetStatus: "draft" | "final" | "reopened" | null;
-};
-
-/** Today's team sessions (club time zone), cancelled ones included, with who is coaching. */
-export async function getTodaysTrainings(timeZone: string): Promise<Result<TodayTraining[]>> {
-  const supabase = await createClient();
-  const sports = supabase as unknown as SportsClient;
-  const { startISO, endISO } = dayBounds(timeZone);
-  const { data: events, error } = await sports.from("events").select("id,team_id,type,title,starts_at,ends_at,status,cancel_reason")
-    .gte("starts_at", startISO).lt("starts_at", endISO).in("type", SHEET_TYPES).not("team_id", "is", null).order("starts_at").limit(100);
-  if (error) return fail(error.message);
-  const rows = events ?? [];
-  const ids = rows.map((e) => e.id);
-  const teamIds = uniq(rows.map((e) => e.team_id));
-  if (!ids.length) return ok([]);
-  const [teams, tc, asg, sheets] = await Promise.all([
-    sports.from("teams").select("id,name").in("id", teamIds),
-    sports.from("team_coaches").select("team_id,coach_id").in("team_id", teamIds),
-    supabase.from("event_coach_assignments").select("event_id,coach_id,status").in("event_id", ids).in("status", ["approved", "pending"]),
-    supabase.from("team_attendance_sheets").select("event_id,status").in("event_id", ids),
-  ]);
-  const coachIds = uniq([...(tc.data ?? []).map((c) => c.coach_id), ...(asg.data ?? []).map((a) => a.coach_id)]);
-  const coachRows = coachIds.length ? (await supabase.from("coaches").select("id,display_name").in("id", coachIds)).data ?? [] : [];
-  const coachName = new Map(coachRows.map((c) => [c.id, c.display_name]));
-  const teamName = new Map((teams.data ?? []).map((t) => [t.id, t.name]));
-  const sheet = new Map((sheets.data ?? []).map((s) => [s.event_id, s.status]));
-  return ok(rows.map((e) => {
-    const teamCoaches = (tc.data ?? []).filter((c) => c.team_id === e.team_id).map((c) => coachName.get(c.coach_id) ?? "");
-    const mine = (asg.data ?? []).filter((a) => a.event_id === e.id);
-    const subs = mine.filter((a) => a.status === "approved").map((a) => coachName.get(a.coach_id) ?? "");
-    const coverage: TodayTraining["coverage"] = subs.length ? "substitute" : teamCoaches.length ? "assigned" : "missing";
-    return {
-      eventId: e.id, teamId: e.team_id, teamName: e.team_id ? teamName.get(e.team_id) ?? null : null, type: e.type, title: e.title,
-      startsAt: e.starts_at, endsAt: e.ends_at, status: e.status, cancelReason: e.cancel_reason ?? null, coverage,
-      coaches: teamCoaches.filter(Boolean), substitutes: subs.filter(Boolean),
-      pendingRequests: mine.filter((a) => a.status === "pending").length, sheetStatus: sheet.get(e.id) ?? null,
-    };
-  }));
-}
 
 export type ConfirmedNoShow = { eventId: string; athleteId: string; athleteName: string; teamName: string | null; startsAt: string };
 

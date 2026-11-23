@@ -11847,7 +11847,10 @@
       "LABEL_REQUIRED": "Dai un nome alla pausa.",
       "BREAK_DATES_INVALID": "Controlla le date della pausa (al massimo un anno).",
       "BREAK_NOT_FOUND": "Questa pausa non è stata trovata.",
-      "NOT_BOOKED": "Solo una prenotazione confermata può essere segnalata come assenza."
+      "NOT_BOOKED": "Solo una prenotazione confermata può essere segnalata come assenza.",
+      "LEAD_EXISTS": "Questa sessione ha già un allenatore principale. Cambiate prima quello attuale in assistente.",
+      "INVALID_SCOPE": "Questo filtro non è disponibile.",
+      "PROGRAM_NOT_FOUND": "Programma non trovato."
     },
     "messages": {
       "saved": "Salvato.",
@@ -12402,7 +12405,10 @@
         "NO_ATHLETE": "Fattura senza giocatore",
         "NO_CURRENT_SEASON": "Nessuna stagione corrente per una fattura",
         "MEMBERSHIP_EXISTS": "Quota stagionale già esistente",
-        "MIGRATION_ERROR": "Problema nella migrazione dei dati"
+        "MIGRATION_ERROR": "Problema nella migrazione dei dati",
+        "MULTIPLE_LEADS": "Più allenatori principali in una sessione",
+        "ATTENDANCE_NO_LEAD": "Presenze finalizzate senza allenatore principale",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Foglio finalizzato con un giocatore non finalizzato"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Gli avvisi di assenza di questo giocatore non raggiungono nessuno. Aggiungi alla famiglia un genitore con accesso attivo.",
@@ -12417,7 +12423,10 @@
         "NO_ATHLETE": "Collega questa fattura a un giocatore.",
         "NO_CURRENT_SEASON": "Imposta la stagione corrente, poi verifica questa fattura.",
         "MEMBERSHIP_EXISTS": "Esiste già una quota stagionale per questo giocatore. Verifica eventuali doppioni.",
-        "MIGRATION_ERROR": "Questo record non è stato migrato automaticamente. Verificalo a mano."
+        "MIGRATION_ERROR": "Questo record non è stato migrato automaticamente. Verificalo a mano.",
+        "MULTIPLE_LEADS": "Sono stati mantenuti entrambi gli allenatori principali. Tenetene uno e cambiate gli altri in assistente.",
+        "ATTENDANCE_NO_LEAD": "Non è stato possibile indicare un allenatore principale. Assegnate un allenatore alla squadra o alla sessione.",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Un giocatore di questo foglio finalizzato non ha uno stato finalizzato. Riaprite il foglio, segnate il giocatore e finalizzate di nuovo."
       }
     }
   },
@@ -13351,5 +13360,112 @@
       "payers": "{count} pagatori",
       "invoiceSelected": "Fattura {count} ordini insieme"
     }
+  },
+  "attendanceCoverage": {
+    "role": {
+      "lead": "Allenatore principale",
+      "assistant": "Allenatore assistente",
+      "substitute": "Allenatore sostituto"
+    },
+    "source": {
+      "session": "questa sessione",
+      "booking": "sessione prenotata",
+      "team": "allenatore della squadra",
+      "program": "programma"
+    },
+    "roleList": {
+      "lead": "Principale: {names}",
+      "assistant": "Assistente: {names}",
+      "substitute": "Sostituto: {names}"
+    },
+    "ledBy": "Condotta da {name}",
+    "ledByAuto": "Condotta da {name} (predefinito)",
+    "ledByDefault": "{name} (predefinito)",
+    "ledByDefaultOption": "Predefinito: {name}",
+    "noLead": "Nessun allenatore principale",
+    "multipleLeads": "Per questa sessione sono approvati più allenatori principali. Tenetene uno e cambiate gli altri in assistente.",
+    "sessionAssignments": "Assegnati a questa sessione",
+    "assistantBadge": "Allenatore assistente per questa sessione"
+  },
+  "attendanceHistory": {
+    "marked": {
+      "present": "Segnato: presente",
+      "late": "Segnato: in ritardo",
+      "excused": "Segnato: assenza giustificata",
+      "unexcused": "Segnato: assenza ingiustificata"
+    },
+    "changed": {
+      "present": "Cambiato in presente",
+      "late": "Cambiato in in ritardo",
+      "excused": "Cambiato in assenza giustificata",
+      "unexcused": "Cambiato in assenza ingiustificata"
+    },
+    "corrected": {
+      "present": "Corretto in presente",
+      "late": "Corretto in in ritardo",
+      "excused": "Corretto in assenza giustificata",
+      "unexcused": "Corretto in assenza ingiustificata"
+    },
+    "cleared": "Annullato (non segnato)",
+    "status": {
+      "present": "Presente",
+      "late": "In ritardo",
+      "excused": "Assenza giustificata",
+      "unexcused": "Assenza ingiustificata",
+      "unmarked": "Non segnato"
+    },
+    "previously": "In precedenza: {status}",
+    "byAt": "{name}, il {when}",
+    "reason": "Motivo: {reason}",
+    "savedStatus": "Salvato:",
+    "unsaved": "Non ancora salvato"
+  },
+  "attendanceOverview": {
+    "description": "Presenze di ogni sessione: allenamenti e partite di squadra, sessioni prenotate e sessioni di programma precedenti.",
+    "followupScreen": "Schermata di follow-up",
+    "openTab": "Presenze",
+    "totals": {
+      "sessions": "Sessioni"
+    },
+    "counts": "{present} presenti · {late} in ritardo · {excused} giustificati · {unexcused} ingiustificati · {unmarked} non segnati",
+    "source": {
+      "booking": "Sessione prenotata",
+      "program": "Sessione di programma (modulo precedente)"
+    },
+    "workflow": {
+      "not_started": "Non iniziata",
+      "draft": "Bozza",
+      "final": "Finalizzata",
+      "reopened": "Riaperta",
+      "cancelled": "Annullata"
+    },
+    "openFollowups": "{count, plural, one {# follow-up da gestire} other {# follow-up da gestire}}",
+    "legacyNote": "Registrata nel modulo di programma precedente. Qui in sola lettura; apritela per verificarla.",
+    "noRoster": "Nessun giocatore in questa sessione.",
+    "followupOpen": "Da seguire",
+    "openSession": "Aprire la sessione per verificare o correggere",
+    "emptyTitle": "Nessuna sessione in questo periodo",
+    "emptyBody": "Provate un'altra data, squadra o giocatore.",
+    "followups": {
+      "title": "Follow-up dello staff",
+      "short": "Follow-up aperti",
+      "none": "Niente da seguire.",
+      "unexcused": "{name}: assenza ingiustificata",
+      "reopened": "riaperto",
+      "open": "Aperto",
+      "toComplete": "{name}: presenze da completare"
+    },
+    "filters": {
+      "teamsOnly": "Tutte le squadre (senza sessioni prenotate)",
+      "bookings": "Sessioni prenotate",
+      "programs": "Sessioni di programma (modulo precedente)",
+      "player": "Giocatore",
+      "allPlayers": "Tutti i giocatori",
+      "today": "Torna a oggi"
+    },
+    "todayHeading": "Oggi · {date}",
+    "rangeHeading": "Dal {from} al {to}",
+    "statusRule": "I numeri mostrano lo stato salvato attuale di ogni giocatore, anche quando il foglio è una bozza. Totali e percentuali nelle schede giocatore usano solo valori finalizzati.",
+    "truncated": "Sono mostrate le ultime 300 sessioni. Restringete le date per vederne altre."
   }
 }

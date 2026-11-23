@@ -14,6 +14,10 @@ export const ATTENDANCE_FLAG_CODES = [
   "MEMBERSHIP_DATE_UNCERTAIN",
   "LEGACY_ATTENDANCE_SESSION",
   "ATTENDANCE_UNFINISHED",
+  // attendance consistency reconcile (migration 20250420105000)
+  "MULTIPLE_LEADS",
+  "ATTENDANCE_NO_LEAD",
+  "ATTENDANCE_MARK_NOT_FINALIZED",
 ] as const;
 
 /** Billing codes (migration 20250420103500): visible to finance too. */
@@ -57,7 +61,11 @@ export function flagHref(f: FlagLike): string | null {
       return id ? `/admin/athletes/${id}${f.reasonCode === "ATHLETE_WITHOUT_GUARDIAN" ? "" : "?tab=billing"}` : null;
     case "events":
       if (!id) return null;
-      return f.reasonCode === "ATTENDANCE_UNFINISHED" ? `/admin/schedule/${id}/attendance` : `/admin/schedule/${id}`;
+      return f.reasonCode === "ATTENDANCE_UNFINISHED" || f.reasonCode === "MULTIPLE_LEADS" ? `/admin/schedule/${id}/attendance` : `/admin/schedule/${id}`;
+    case "team_attendance_sheets": {
+      const eventId = str(f.details.event_id);
+      return eventId ? `/admin/schedule/${eventId}/attendance` : null;
+    }
     case "attendance_sessions":
       return id ? `/admin/attendance/${id}` : null;
     case "invoices":

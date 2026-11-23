@@ -57,8 +57,10 @@ export function WeekView({ start, events, href }: { start: string; events: Event
   );
 }
 
-export function EventList({ events, href, rsvp, empty }: {
+export function EventList({ events, href, rsvp, empty, coachLine }: {
   events: EventItem[]; href: (id: string) => string; rsvp?: Map<string, { going: number; maybe: number; not_going: number }>; empty?: React.ReactNode;
+  /** Coaches with roles per event ("Led by X · Assistant: Y"), from the shared coverage helper. */
+  coachLine?: Map<string, string>;
 }) {
   if (!events.length) return <>{empty ?? <EmptyState title="Nothing scheduled" description="No events in this period." />}</>;
   const all = new Map(events.map((e) => [e.id, e]));
@@ -88,6 +90,7 @@ export function EventList({ events, href, rsvp, empty }: {
                         {e.result && <Badge tone={e.result.outcome === "win" ? "success" : e.result.outcome === "loss" ? "danger" : "neutral"}>{e.result.scoreFor}–{e.result.scoreAgainst}</Badge>}
                       </div>
                       <div className="mt-0.5 text-xs text-ink-3"><EventPlaceView e={e} /></div>
+                      {coachLine?.get(e.id) && <div className="mt-0.5 text-xs text-ink-2">{coachLine.get(e.id)}</div>}
                       <ConflictNote e={e} all={all} />
                     </div>
                     {c && <div className="text-xs text-ink-3 tnum"><span className="text-success">{c.going} going</span> · {c.maybe} maybe · {c.not_going} out</div>}

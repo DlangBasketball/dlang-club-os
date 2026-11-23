@@ -8,6 +8,7 @@ import { getTrainingCards, type TrainingCard } from "@/lib/attendance/coach-data
 import { getCoachAgenda, getCoachBookingRequests } from "@/lib/booking/data";
 import { mergeCoachTrainings, type CoachListEntry } from "@/lib/booking/portal";
 import { getAwaitingSessions } from "@/lib/attendance/data";
+import { getSessionCoverage } from "@/lib/attendance/overview";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { zonedWallTimeToUtc } from "@/lib/format";
 import { getI18n } from "@/lib/i18n/server";
@@ -47,6 +48,8 @@ export default async function CoachTrainingsPage() {
   ]);
 
   const list = mergeCoachTrainings(cards.data ?? [], agenda.data ?? []);
+  // Coaches with roles and "Led by" per session: same helper as the admin Attendance tab and Dashboard.
+  const coverage = await getSessionCoverage((cards.data ?? []).filter((c) => c.can_run).map((c) => c.event_id));
   const todays = list.filter((c) => zonedDayKey(c.startsAt, tz) === today);
   const byDay = new Map<string, CoachListEntry<TrainingCard>[]>();
   for (const c of list) {
@@ -56,7 +59,7 @@ export default async function CoachTrainingsPage() {
   }
   const todayIds = new Set(todays.flatMap((c) => (c.type === "card" ? [c.card.event_id] : c.session.eventId ? [c.session.eventId] : [])));
   const entry = (c: CoachListEntry<TrainingCard>) => c.type === "card"
-    ? <TrainingCardView key={c.card.event_id} card={c.card} session={c.session} t={t} f={f} />
+    ? <TrainingCardView key={c.card.event_id} card={c.card} session={c.session} coverage={coverage.get(c.card.event_id)} t={t} f={f} />
     : <BookedSessionCard key={`s-${c.session.sessionId}`} session={c.session} t={t} f={f} />;
   const overdue = (awaiting.data ?? []).filter((a) => !todayIds.has(a.event_id));
 

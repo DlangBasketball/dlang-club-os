@@ -11847,7 +11847,10 @@
       "LABEL_REQUIRED": "Ponle un nombre a la pausa.",
       "BREAK_DATES_INVALID": "Revisa las fechas de la pausa (máximo un año).",
       "BREAK_NOT_FOUND": "No se encontró esta pausa.",
-      "NOT_BOOKED": "Solo se puede avisar la ausencia de una reserva confirmada."
+      "NOT_BOOKED": "Solo se puede avisar la ausencia de una reserva confirmada.",
+      "LEAD_EXISTS": "Esta sesión ya tiene un entrenador principal. Cambie primero el actual a asistente.",
+      "INVALID_SCOPE": "Este filtro no está disponible.",
+      "PROGRAM_NOT_FOUND": "Programa no encontrado."
     },
     "messages": {
       "saved": "Guardado.",
@@ -12402,7 +12405,10 @@
         "NO_ATHLETE": "Factura sin jugador",
         "NO_CURRENT_SEASON": "Ninguna temporada actual para una factura",
         "MEMBERSHIP_EXISTS": "La cuota de temporada ya existe",
-        "MIGRATION_ERROR": "Problema en la migración de datos"
+        "MIGRATION_ERROR": "Problema en la migración de datos",
+        "MULTIPLE_LEADS": "Varios entrenadores principales en una sesión",
+        "ATTENDANCE_NO_LEAD": "Asistencia finalizada sin entrenador principal",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Hoja finalizada con un jugador sin finalizar"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Los avisos de ausencia de este jugador no llegan a nadie. Añade a la familia un tutor con acceso activo.",
@@ -12417,7 +12423,10 @@
         "NO_ATHLETE": "Vincula esta factura a un jugador.",
         "NO_CURRENT_SEASON": "Define la temporada actual y después revisa esta factura.",
         "MEMBERSHIP_EXISTS": "Ya existe una cuota de temporada para este jugador. Revisa si hay duplicados.",
-        "MIGRATION_ERROR": "Este registro no se pudo migrar automáticamente. Revísalo a mano."
+        "MIGRATION_ERROR": "Este registro no se pudo migrar automáticamente. Revísalo a mano.",
+        "MULTIPLE_LEADS": "Se conservaron ambos entrenadores principales. Mantenga uno y cambie los demás a asistente.",
+        "ATTENDANCE_NO_LEAD": "No se pudo designar a nadie como entrenador principal. Asigne un entrenador al equipo o a la sesión.",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Un jugador de esta hoja finalizada no tiene estado finalizado. Reabra la hoja, marque al jugador y vuelva a finalizar."
       }
     }
   },
@@ -13351,5 +13360,112 @@
       "payers": "{count} pagadores",
       "invoiceSelected": "Facturar {count} pedidos juntos"
     }
+  },
+  "attendanceCoverage": {
+    "role": {
+      "lead": "Entrenador principal",
+      "assistant": "Entrenador asistente",
+      "substitute": "Entrenador suplente"
+    },
+    "source": {
+      "session": "esta sesión",
+      "booking": "sesión reservada",
+      "team": "entrenador del equipo",
+      "program": "programa"
+    },
+    "roleList": {
+      "lead": "Principal: {names}",
+      "assistant": "Asistente: {names}",
+      "substitute": "Suplente: {names}"
+    },
+    "ledBy": "Dirigida por {name}",
+    "ledByAuto": "Dirigida por {name} (por defecto)",
+    "ledByDefault": "{name} (por defecto)",
+    "ledByDefaultOption": "Por defecto: {name}",
+    "noLead": "Sin entrenador principal",
+    "multipleLeads": "Hay varios entrenadores principales aprobados para esta sesión. Mantenga uno y cambie los demás a asistente.",
+    "sessionAssignments": "Asignados a esta sesión",
+    "assistantBadge": "Entrenador asistente en esta sesión"
+  },
+  "attendanceHistory": {
+    "marked": {
+      "present": "Marcado: presente",
+      "late": "Marcado: con retraso",
+      "excused": "Marcado: ausencia justificada",
+      "unexcused": "Marcado: ausencia injustificada"
+    },
+    "changed": {
+      "present": "Cambiado a presente",
+      "late": "Cambiado a con retraso",
+      "excused": "Cambiado a ausencia justificada",
+      "unexcused": "Cambiado a ausencia injustificada"
+    },
+    "corrected": {
+      "present": "Corregido a presente",
+      "late": "Corregido a con retraso",
+      "excused": "Corregido a ausencia justificada",
+      "unexcused": "Corregido a ausencia injustificada"
+    },
+    "cleared": "Borrado (sin marcar)",
+    "status": {
+      "present": "Presente",
+      "late": "Con retraso",
+      "excused": "Ausencia justificada",
+      "unexcused": "Ausencia injustificada",
+      "unmarked": "Sin marcar"
+    },
+    "previously": "Antes: {status}",
+    "byAt": "{name}, el {when}",
+    "reason": "Motivo: {reason}",
+    "savedStatus": "Guardado:",
+    "unsaved": "Aún sin guardar"
+  },
+  "attendanceOverview": {
+    "description": "Asistencia de cada sesión: entrenamientos y partidos del equipo, sesiones reservadas y sesiones de programa anteriores.",
+    "followupScreen": "Pantalla de seguimiento",
+    "openTab": "Asistencia",
+    "totals": {
+      "sessions": "Sesiones"
+    },
+    "counts": "{present} presentes · {late} con retraso · {excused} justificados · {unexcused} injustificados · {unmarked} sin marcar",
+    "source": {
+      "booking": "Sesión reservada",
+      "program": "Sesión de programa (módulo anterior)"
+    },
+    "workflow": {
+      "not_started": "Sin empezar",
+      "draft": "Borrador",
+      "final": "Finalizada",
+      "reopened": "Reabierta",
+      "cancelled": "Cancelada"
+    },
+    "openFollowups": "{count, plural, one {# seguimiento} other {# seguimientos}}",
+    "legacyNote": "Registrada en el módulo de programa anterior. Aquí solo lectura; ábrala para revisarla.",
+    "noRoster": "No hay jugadores en esta sesión.",
+    "followupOpen": "Seguimiento",
+    "openSession": "Abrir la sesión para revisar o corregir",
+    "emptyTitle": "No hay sesiones en este período",
+    "emptyBody": "Pruebe otra fecha, equipo o jugador.",
+    "followups": {
+      "title": "Seguimiento del personal",
+      "short": "Seguimientos",
+      "none": "Nada pendiente de seguimiento.",
+      "unexcused": "{name}: ausencia injustificada",
+      "reopened": "reabierto",
+      "open": "Abierto",
+      "toComplete": "{name}: asistencia por completar"
+    },
+    "filters": {
+      "teamsOnly": "Todos los equipos (sin sesiones reservadas)",
+      "bookings": "Sesiones reservadas",
+      "programs": "Sesiones de programa (módulo anterior)",
+      "player": "Jugador",
+      "allPlayers": "Todos los jugadores",
+      "today": "Volver a hoy"
+    },
+    "todayHeading": "Hoy · {date}",
+    "rangeHeading": "Del {from} al {to}",
+    "statusRule": "Las cifras muestran el estado guardado actual de cada jugador, también mientras la hoja es un borrador. Los totales y porcentajes de las fichas de jugador solo usan valores finalizados.",
+    "truncated": "Se muestran las últimas 300 sesiones. Acote las fechas para ver más."
   }
 }
