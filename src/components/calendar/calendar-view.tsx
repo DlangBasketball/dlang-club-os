@@ -62,6 +62,7 @@ function Chip({ item, f, t, compact }: { item: CalendarItem; f: Formatter; t: Tr
         "rounded border border-border-soft border-l-[3px] bg-surface-elevated px-2 py-1 text-left",
         KIND_BAR[item.kind],
         item.status === "cancelled" && "line-through opacity-60",
+        item.status === "requested" && "border-dashed opacity-80",
         item.href && "transition-colors hover:border-border-strong",
       )}
       style={item.color ? { borderLeftColor: item.color } : undefined}
@@ -78,6 +79,7 @@ function Chip({ item, f, t, compact }: { item: CalendarItem; f: Formatter; t: Tr
           {item.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{item.location}</span>}
           {item.status === "cancelled" && <span className="text-danger">{t("staff.calendar.cancelled")}</span>}
           {item.status === "draft" && <span>{t("staff.calendar.draft")}</span>}
+          {item.status === "requested" && <span className="text-warning">{t("bookingWorkflow.state.requested")}</span>}
         </div>
       )}
       {!compact && item.description && <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-xs text-text-muted">{item.description}</p>}

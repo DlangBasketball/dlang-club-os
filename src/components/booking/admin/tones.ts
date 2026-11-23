@@ -4,7 +4,8 @@ import type { BillingStatus, BookingNotificationStatus, BookingState } from "@/l
 /* Badge tones of the booking statuses (labels: bookingWorkflow.state / billingStatus / notificationStatus). */
 
 export function stateTone(s: BookingState | string): BadgeProps["tone"] {
-  return s === "confirmed" ? "success" : s === "completed" ? "info" : s === "no_show" ? "warning" : s === "cancelled" ? "danger" : "neutral";
+  return s === "confirmed" ? "success" : s === "completed" ? "info" : s === "no_show" ? "warning" : s === "cancelled" ? "danger"
+    : s === "requested" ? "accent" : "neutral";
 }
 
 export function billingTone(s: BillingStatus | string): BadgeProps["tone"] {

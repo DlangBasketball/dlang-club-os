@@ -51,6 +51,8 @@ export type BookingFormState = {
   priceOverride: boolean; price: string; priceReason: string;
   overrideAvailability: boolean; overrideReason: string;
   notes: string; notify: boolean;
+  /** Promo code applied to the quote (shared discount engine); "" = none. */
+  promoCode: string;
   /** "Add new athlete" panel: open + its fields (kept in the draft too). */
   quickOpen: boolean; quick: QuickAthleteFields;
 };
@@ -66,7 +68,7 @@ export function emptyBookingForm(init: Partial<BookingFormState> = {}): BookingF
     athleteId: "", athleteLabel: "", athleteFamilyId: "", serviceId: "", coachId: "", venueSpaceId: "", slotMode: "new", sessionId: "",
     date: "", time: "", payer: { type: "family" }, newPayer: emptyNewPayer(), billing: "auto", purchaseId: "",
     priceOverride: false, price: "", priceReason: "", overrideAvailability: false, overrideReason: "", notes: "", notify: true,
-    quickOpen: false, quick: emptyQuickAthlete(), ...init,
+    promoCode: "", quickOpen: false, quick: emptyQuickAthlete(), ...init,
   };
 }
 
@@ -76,7 +78,7 @@ export function withAthlete(s: BookingFormState, athleteId: string, athleteLabel
   return {
     ...s, athleteId, athleteLabel, athleteFamilyId: familyId ?? (changed ? "" : s.athleteFamilyId), quickOpen: false, quick: emptyQuickAthlete(),
     // Payers belong to the athlete's family: a different athlete starts from the family default.
-    ...(changed ? { payer: { type: "family" } as PayerChoice, purchaseId: "" } : {}),
+    ...(changed ? { payer: { type: "family" } as PayerChoice, purchaseId: "", promoCode: "" } : {}),
   };
 }
 
@@ -84,7 +86,7 @@ export function withAthlete(s: BookingFormState, athleteId: string, athleteLabel
 export function withService(s: BookingFormState, serviceId: string, defaults: { coachIds: string[]; venueSpaceId: string | null }): BookingFormState {
   if (s.serviceId === serviceId) return s;
   const coachId = defaults.coachIds.includes(s.coachId) ? s.coachId : defaults.coachIds.length === 1 ? defaults.coachIds[0] : "";
-  return { ...s, serviceId, coachId, sessionId: "", slotMode: "new", purchaseId: "", venueSpaceId: defaults.venueSpaceId ?? s.venueSpaceId };
+  return { ...s, serviceId, coachId, sessionId: "", slotMode: "new", purchaseId: "", promoCode: "", venueSpaceId: defaults.venueSpaceId ?? s.venueSpaceId };
 }
 
 // ---------------------------------------------------------------------------
@@ -197,6 +199,8 @@ export function formToPayload(s: BookingFormState, timeZone: string, payerId: st
     price: price !== null && Number.isFinite(price) ? price : null, priceReason: price !== null ? s.priceReason || null : null,
     overrideAvailability: s.overrideAvailability, overrideReason: s.overrideAvailability ? s.overrideReason || null : null,
     notes: s.notes || null, notify: s.notify,
+    // A code applies at the list price only (no price override), as the server rule.
+    promoCode: price === null && s.promoCode ? s.promoCode : null,
   };
 }
 

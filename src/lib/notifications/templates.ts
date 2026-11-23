@@ -18,6 +18,8 @@ export type NotifType =
   | "booking_confirmation"
   | "booking_cancellation"
   | "booking_rescheduled"
+  | "booking_requested"
+  | "booking_request_declined"
   | "attendance_submitted"
   | "document_uploaded"
   | "consent_required"
@@ -33,6 +35,8 @@ export const ENUM_FOR: Record<NotifType, string> = {
   booking_confirmation: "booking_confirmation",
   booking_cancellation: "booking_cancellation",
   booking_rescheduled: "booking_rescheduled",
+  booking_requested: "booking_requested",
+  booking_request_declined: "booking_request_declined",
   attendance_submitted: "attendance_submitted",
   document_uploaded: "document_uploaded",
   consent_required: "consent_required",
@@ -266,6 +270,44 @@ export const TEMPLATES: Record<NotifType, Builder> = {
         html(`${N}.booking_cancellation.line`, { service: v.service_name ?? tr(`${N}.fallback.aSession`), when: when || "—" }, ["when"]),
       ], v.has_account === false ? undefined
         : { label: txt(`${N}.booking_cancellation.cta`), href: v.portal_path ?? "/parent/bookings/new" }),
+    };
+  },
+  // Booking requests (20250420104700): to the coach / admins, and the decline to the family.
+  booking_requested: (v) => {
+    const service = v.service_name ?? tr(`${N}.fallback.session`);
+    const when = v.when ?? (v.starts_at ? at(v.starts_at) : "—");
+    const link = v.portal_path ?? "/coach/trainings";
+    return {
+      title: txt(`${N}.booking_requested.title`),
+      body: txt(`${N}.booking_requested.body`, { athlete: v.athlete_name ?? tr(`${N}.fallback.child`), service, when }),
+      link,
+      subject: txt(`${N}.booking_requested.subject`, { service }),
+      html: shell(txt(`${N}.booking_requested.heading`), [
+        html(`${N}.booking_requested.line`, {
+          athlete: v.athlete_name ?? tr(`${N}.fallback.child`), service, when,
+        }, ["athlete"]),
+        html(`${N}.booking_requested.action`),
+      ], v.has_account === false ? undefined : { label: txt(`${N}.booking_requested.cta`), href: link }),
+    };
+  },
+  booking_request_declined: (v) => {
+    const service = v.service_name ?? tr(`${N}.fallback.session`);
+    const when = v.when ?? (v.starts_at ? at(v.starts_at) : "—");
+    const link = v.portal_path ?? "/parent/bookings";
+    const lines = [
+      greeting(v),
+      html(`${N}.booking_request_declined.line`, { athlete: v.athlete_name ?? tr(`${N}.fallback.child`), service, when }, ["athlete"]),
+    ];
+    if (v.message?.trim()) lines.push(html(`${N}.booking_request_declined.reason`, { reason: v.message.trim() }, ["reason"]));
+    return {
+      title: txt(`${N}.booking_request_declined.title`),
+      body: v.message?.trim()
+        ? txt(`${N}.booking_request_declined.bodyReason`, { service, when, reason: v.message.trim() })
+        : txt(`${N}.booking_request_declined.body`, { service, when }),
+      link,
+      subject: txt(`${N}.booking_request_declined.subject`, { service }),
+      html: shell(txt(`${N}.booking_request_declined.heading`), lines,
+        v.has_account === false ? undefined : { label: txt(`${N}.booking_request_declined.cta`), href: link }),
     };
   },
   attendance_submitted: (v) => {

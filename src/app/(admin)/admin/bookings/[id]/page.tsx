@@ -4,10 +4,11 @@ import { notFound } from "next/navigation";
 import { AlertTriangle, CalendarDays, ChevronLeft, Gift, Package } from "lucide-react";
 import { Badge, Card, CardBody, CardHeader, CardTitle, ErrorState, PageHeader } from "@/components/ui";
 import { BookingDetailActions, RetryDeliveryButton } from "@/components/booking/admin/booking-detail-actions";
+import { RequestDecision } from "@/components/booking/request-decision";
 import { billingTone, deliveryTone, stateTone } from "@/components/booking/admin/tones";
 import { getBooking } from "@/lib/booking/data";
 import { getCoachOptions, getSpaceOptions } from "@/lib/booking/admin-data";
-import { canCancel, canInvoice, canReschedule, policyRestoresPackage } from "@/lib/booking/helpers";
+import { bookingDisplayKey, canCancel, canInvoice, canReschedule, hoursWaiting, policyRestoresPackage } from "@/lib/booking/helpers";
 import type { SetupMissingCode } from "@/lib/booking/types";
 import { getInvoiceCategoryInfo } from "@/lib/data/billing";
 import { categoryLabelKey } from "@/lib/billing/activities";
@@ -66,11 +67,30 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
       <PageHeader title={b.service.name}
         description={t("adminBooking.detail.subtitle", { athlete: `${b.athlete.first_name} ${b.athlete.last_name}`, coach: b.coach.display_name })}
         actions={<div className="flex flex-wrap gap-1.5">
-          <Badge tone={stateTone(b.state)}>{t.dynamic(`bookingWorkflow.state.${b.state}`, undefined, b.state)}</Badge>
+          <Badge tone={stateTone(b.state)}>{t.dynamic(`bookingWorkflow.state.${bookingDisplayKey(b)}`, undefined, b.state)}</Badge>
           <Badge tone={billingTone(b.billing_status)}>{t.dynamic(`bookingWorkflow.billingStatus.${b.billing_status}`, undefined, b.billing_status)}</Badge>
         </div>} />
 
-      {sp.created === "1" && <p role="status" className="rounded-lg border border-success/30 bg-success-soft px-4 py-2.5 text-sm text-success">{t("bookingWorkflow.messages.confirmed")}</p>}
+      {sp.created === "1" && <p role="status" className="rounded-lg border border-success/30 bg-success-soft px-4 py-2.5 text-sm text-success">{b.state === "requested" ? t("bookingWorkflow.messages.requested") : t("bookingWorkflow.messages.confirmed")}</p>}
+      {b.request && (
+        <Card>
+          <CardHeader><CardTitle>{t("bookingRequests.detailTitle")}</CardTitle>
+            {b.state === "requested" && <Badge tone={b.request.stale ? "warning" : "accent"}>{b.request.stale ? t("bookingRequests.stale") : t("bookingWorkflow.state.requested")}</Badge>}
+          </CardHeader>
+          <CardBody className="space-y-2 text-sm">
+            <Row label={t("bookingRequests.source")} value={t.dynamic(`bookingRequests.sourceKind.${b.request.source ?? "staff"}`, undefined, b.request.source ?? "")} />
+            <Row label={t("bookingRequests.requestedAt")} value={[f.dateTime(b.request.requested_at), b.request.requested_by_name].filter(Boolean).join(" · ")} />
+            {b.state === "requested" && <Row label={t("bookingRequests.waiting")} value={t("bookingRequests.hours", { count: hoursWaiting(b.request.requested_at, new Date().toISOString()) })} />}
+            {b.request.decision && (
+              <Row label={t("bookingRequests.decision")} value={[t.dynamic(`bookingRequests.decisionKind.${b.request.decision}`, undefined, b.request.decision),
+                b.request.decided_at ? f.dateTime(b.request.decided_at) : null, b.request.decided_by_name].filter(Boolean).join(" · ")} />
+            )}
+            {b.state === "requested" && (b.can_decide
+              ? <div className="border-t border-line-soft pt-3"><p className="mb-2 text-ink-2">{t("bookingRequests.adminHint")}</p><RequestDecision bookingId={b.booking_id} /></div>
+              : <p className="text-ink-3">{t("bookingRequests.coachDecides")}</p>)}
+          </CardBody>
+        </Card>
+      )}
       {failedDeliveries > 0 && (
         <div role="alert" className="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger-soft px-4 py-2.5 text-sm text-danger">
           <AlertTriangle className="h-4 w-4" /> {t("adminBooking.detail.deliveryFailed", { count: failedDeliveries })}
@@ -109,6 +129,8 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
             {b.notes && <p className="whitespace-pre-wrap border-t border-line-soft pt-2 text-ink-2">{b.notes}</p>}
             {b.state === "cancelled" && <Row label={t("adminBooking.detail.cancelled")} value={[b.cancelled_at ? f.dateTime(b.cancelled_at) : null, b.cancel_reason].filter(Boolean).join(" · ")} />}
             {b.attendance && <Row label={t("adminBooking.detail.attendance")} value={t.dynamic(`adminBooking.detail.sheet.${b.attendance.sheet_status}`, undefined, b.attendance.finalized_status ?? b.attendance.status ?? b.attendance.sheet_status)} />}
+            {b.attendance_status && <Row label={t("bookingRequests.attendanceStatus")} value={t.dynamic(`teamAttendance.statuses.${b.attendance_status}`, undefined, b.attendance_status)} />}
+            {b.absence_report && <Row label={t("bookingRequests.absenceReported")} value={`${t.dynamic(`teamAttendance.absenceCategories.${b.absence_report.reason_category}`, undefined, b.absence_report.reason_category)} · ${f.dateTime(b.absence_report.created_at)}`} />}
           </CardBody>
         </Card>
 
@@ -124,6 +146,10 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
             )}
             <Row label={t("adminBooking.detail.price")} value={<span className="tnum">{money(b.price)}</span>} />
             {b.price_override_reason && <Row label={t("adminBooking.detail.listPrice")} value={<span className="tnum">{money(b.list_price)} · {b.price_override_reason}</span>} />}
+            {Number(b.discount_total ?? 0) > 0 && <>
+              <Row label={t("adminBooking.detail.listPrice")} value={<span className="tnum">{money(b.list_price)}</span>} />
+              <Row label={t("bookingRequests.promo.discount")} value={<span className="tnum">−{money(b.discount_total)}{b.promo_code ? ` · ${b.promo_code}` : ""}</span>} />
+            </>}
             <Row label={t("adminBooking.detail.category")} value={categoryLabel} />
             <Row label={t("adminBooking.detail.entity")} value={entityName ?? "—"} />
             {b.entitlement && <Row label={t("adminBooking.quote.package")} value={b.entitlement.restored_at ? t("adminBooking.detail.packageRestored") : t("adminBooking.quote.packageLeft", { count: Math.max(0, b.entitlement.sessions - b.entitlement.sessions_used) })} />}

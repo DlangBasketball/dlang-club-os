@@ -52,13 +52,16 @@ export type ParentBookingDetail = {
   location: string | null; cancelReason: string | null; cancelledAt: string | null; rescheduledAt: string | null;
   /** Previous start of a session that was moved (booking workflow). */
   rescheduledFrom: string | null;
+  /** Booking requests (20250420104700): who asked, the coach's decision, the finalized attendance marker. */
+  requestSource: "staff" | "family" | null; requestDecision: "confirmed" | "declined" | "withdrawn" | null;
+  attendanceStatus: string | null;
   cancellationHours: number;
   rescheduleSlots: { id: string; coachName: string; start: string }[];
 };
 
 export async function getParentBookingDetail(id: string): Promise<Result<ParentBookingDetail | null>> {
   const supabase = await createClient();
-  const { data: b, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,slot_end,status,price_chf,credits_used,invoice_id,created_via,venue_id,location_text,cancel_reason,cancelled_at,rescheduled_at,session_id").eq("id", id).maybeSingle();
+  const { data: b, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,slot_end,status,price_chf,credits_used,invoice_id,created_via,venue_id,location_text,cancel_reason,cancelled_at,rescheduled_at,session_id,request_source,request_decision,attendance_status").eq("id", id).maybeSingle();
   if (error) return fail(error.message);
   if (!b) return ok(null);
   const workflow = b.created_via === "workflow";
@@ -93,6 +96,7 @@ export async function getParentBookingDetail(id: string): Promise<Result<ParentB
     createdVia: workflow ? "workflow" : "legacy",
     location: (venue.data as { name: string } | null)?.name ?? b.location_text ?? null,
     cancelReason: b.cancel_reason ?? null, cancelledAt: b.cancelled_at ?? null, rescheduledAt: b.rescheduled_at ?? null, rescheduledFrom,
+    requestSource: b.request_source ?? null, requestDecision: b.request_decision ?? null, attendanceStatus: b.attendance_status ?? null,
     cancellationHours: settings.cancellationHours,
     rescheduleSlots: (slots.data ?? []).map((x) => ({ id: x.id, coachName: cN.get(x.coach_id) ?? "Coach", start: x.starts_at })),
   });

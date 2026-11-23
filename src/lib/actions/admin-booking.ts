@@ -165,6 +165,8 @@ const setupSchema = z.object({
   defaultVenueSpaceId: uuid.nullable(),
   maxParticipants: z.coerce.number().int().min(1).max(100),
   coachIds: z.array(uuid).max(200),
+  /** Families may request this service from the parent portal (booking requests). */
+  bookableByFamilies: z.boolean().optional(),
 });
 export type ServiceSetupInput = z.input<typeof setupSchema>;
 
@@ -189,6 +191,7 @@ export async function saveServiceBookingSetup(input: ServiceSetupInput): Promise
   const { data, error } = await db.from("training_services").update({
     kind: v.kind, billing_category: v.billingCategory, default_venue_space_id: v.defaultVenueSpaceId,
     max_participants: capacity, ...(v.kind === "group" ? { session_type: "group" } : { session_type: "individual", min_participants: 1 }),
+    ...(v.bookableByFamilies === undefined ? {} : { bookable_by_families: v.bookableByFamilies }),
   }).eq("id", v.serviceId).eq("org_id", me.orgId).select("id");
   if (error) return fail(error.message);
   if (!data?.length) return fail("SERVICE_NOT_FOUND");

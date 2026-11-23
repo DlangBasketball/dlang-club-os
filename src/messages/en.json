@@ -2601,7 +2601,8 @@
       "booked": "Booked",
       "completed": "Attended",
       "no_show": "No-show",
-      "cancelled": "Canceled"
+      "cancelled": "Canceled",
+      "requested": "Awaiting confirmation"
     },
     "adminBookings": {
       "title": "Training bookings",
@@ -8290,6 +8291,25 @@
       "line": "The {service} session for {athlete} has a new time.",
       "when": "New time: {when} (was {before}).",
       "cta": "View booking"
+    },
+    "booking_requested": {
+      "title": "New booking request",
+      "body": "{athlete} · {service} · {when}: please confirm or decline.",
+      "subject": "Booking request — {service}",
+      "heading": "A session is waiting for your confirmation",
+      "line": "{athlete} asked for {service} on {when}.",
+      "action": "The place is held until you confirm or decline the request.",
+      "cta": "Review the request"
+    },
+    "booking_request_declined": {
+      "title": "Booking request declined",
+      "body": "{service} · {when} could not be confirmed.",
+      "bodyReason": "{service} · {when} could not be confirmed: {reason}",
+      "subject": "Request declined — {service}",
+      "heading": "Your request could not be confirmed",
+      "line": "The request for {athlete} ({service}, {when}) was declined. Nothing is invoiced.",
+      "reason": "Reason: {reason}",
+      "cta": "Request another time"
     }
   },
   "pdf": {
@@ -11826,7 +11846,8 @@
       "TRAINING_IN_BREAK": "This date falls in a club training break.",
       "LABEL_REQUIRED": "Give the break a name.",
       "BREAK_DATES_INVALID": "Check the break dates (at most one year).",
-      "BREAK_NOT_FOUND": "This break could not be found."
+      "BREAK_NOT_FOUND": "This break could not be found.",
+      "NOT_BOOKED": "Only a confirmed booking can be reported absent."
     },
     "messages": {
       "saved": "Saved.",
@@ -12471,14 +12492,33 @@
       "INVOICE_CANCELLED": "The invoice is canceled.",
       "INVALID_DATE": "Choose a valid date.",
       "generic": "Something went wrong. Please try again.",
-      "invalid": "Check the highlighted fields."
+      "invalid": "Check the highlighted fields.",
+      "VENUE_CLOSED": "The venue is closed at this time. Choose a time within its opening hours.",
+      "REQUEST_PENDING": "This booking is still waiting for the coach's confirmation.",
+      "NOT_A_REQUEST": "This booking is no longer an open request.",
+      "BOOKING_REQUEST_MANAGED": "Requests are confirmed or declined from the booking screens.",
+      "BOOKINGS_DISABLED": "Online booking is turned off for this club.",
+      "SLOT_IN_PAST": "This time is in the past.",
+      "PROMO_WITH_PRICE_OVERRIDE": "A promo code cannot be combined with a manual price.",
+      "PROMO_CHANGED": "The discount changed in the meantime. Check the price and try again.",
+      "PROMO_UNKNOWN_CODE": "This code is not valid.",
+      "PROMO_OUT_OF_SCOPE": "This code does not apply here.",
+      "PROMO_NOT_YET_VALID": "This code is not valid yet.",
+      "PROMO_EXPIRED": "This code has expired.",
+      "PROMO_CURRENCY_MISMATCH": "This code is for another currency.",
+      "PROMO_LIMIT_REACHED": "This code has been used up.",
+      "PROMO_FAMILY_LIMIT_REACHED": "Your family has already used this code.",
+      "PROMO_NOT_COMBINABLE": "This code cannot be combined with a better discount already applied.",
+      "PROMO_NOT_APPLICABLE": "A code only applies when you pay now (not with package sessions)."
     },
     "warnings": {
       "ATHLETE_OVERLAP": "The athlete has another booking at the same time.",
       "AVAILABILITY_OVERRIDDEN": "Booked outside the coach's availability (override recorded).",
       "COACH_NOT_ELIGIBLE_OVERRIDDEN": "The coach does not usually offer this service (override recorded).",
       "COACH_TEAM_EVENT_OVERLAP": "The coach has a team event at the same time.",
-      "SLOT_IN_PAST": "This time is in the past."
+      "SLOT_IN_PAST": "This time is in the past.",
+      "VENUE_CLOSED_OVERRIDDEN": "Booked outside the venue opening hours (override recorded).",
+      "NEEDS_COACH_CONFIRMATION": "Outside the coach's availability: the place is held until the coach confirms."
     },
     "setup": {
       "BILLING_CATEGORY_MISSING": "Choose a revenue category for this service.",
@@ -12493,14 +12533,16 @@
       "invoiced": "Invoiced",
       "partially_paid": "Partially paid",
       "paid": "Paid",
-      "credited": "Credited"
+      "credited": "Credited",
+      "awaiting_confirmation": "Not billed until confirmed"
     },
     "state": {
-      "requested": "Requested",
+      "requested": "Awaiting coach confirmation",
       "confirmed": "Confirmed",
       "completed": "Completed",
       "no_show": "No-show",
-      "cancelled": "Canceled"
+      "cancelled": "Canceled",
+      "excused": "Excused"
     },
     "notificationStatus": {
       "pending": "Queued",
@@ -12521,7 +12563,12 @@
       "payerSaved": "Payer saved.",
       "athleteCreated": "Athlete created.",
       "notificationRequeued": "Notification queued again.",
-      "coachesSaved": "Coaches saved."
+      "coachesSaved": "Coaches saved.",
+      "requested": "Request sent: the coach confirms this time.",
+      "requestConfirmed": "Request confirmed.",
+      "requestDeclined": "Request declined.",
+      "requestSent": "Your request was sent. We let you know when the coach confirms it.",
+      "requestWithdrawn": "Request withdrawn."
     }
   },
   "adminBooking": {
@@ -12789,14 +12836,19 @@
       "notifyKind": {
         "confirmed": "Confirmation",
         "rescheduled": "Change of time",
-        "cancelled": "Cancellation"
+        "cancelled": "Cancellation",
+        "requested": "Booking request",
+        "request_confirmed": "Request confirmed",
+        "request_declined": "Request declined",
+        "request_withdrawn": "Request withdrawn"
       },
       "recipientKind": {
         "payer": "Payer",
         "guardian": "Guardian",
         "family": "Family contact",
         "coach": "Coach",
-        "player": "Player"
+        "player": "Player",
+        "admin": "Administrator"
       }
     },
     "toInvoice": {
@@ -12921,6 +12973,102 @@
       "sessionAttendanceHint": "Attendance taken on the sheets of booked private and group sessions.",
       "bookingInvoices": "Invoices from bookings",
       "bookingInvoicesHint": "Each invoice links to the booking it was raised for."
+    }
+  },
+  "bookingRequests": {
+    "confirm": "Confirm",
+    "decline": "Decline",
+    "declineReason": "Reason (sent to the family)",
+    "declineHint": "The place is released, a package session is given back and nothing is invoiced.",
+    "declineConfirm": "Decline request",
+    "withdraw": "Withdraw request",
+    "withdrawConfirm": "Yes, withdraw",
+    "detailTitle": "Booking request",
+    "stale": "Waiting too long",
+    "source": "Requested by",
+    "sourceKind": {
+      "staff": "Club staff",
+      "family": "Family"
+    },
+    "requestedAt": "Requested on",
+    "waiting": "Waiting",
+    "hours": "{count, plural, one {# hour} other {# hours}}",
+    "decision": "Decision",
+    "decisionKind": {
+      "confirmed": "Confirmed",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn"
+    },
+    "adminHint": "The coach usually confirms. As an administrator you can decide for them.",
+    "coachDecides": "The coach or an administrator confirms or declines this request.",
+    "attendanceStatus": "Attendance",
+    "absenceReported": "Absence reported",
+    "filterAwaiting": "Awaiting coach confirmation",
+    "adminCreatesRequest": "Outside the coach's declared availability: this becomes a request that holds the place until the coach confirms. It is not invoiced before.",
+    "adminSendRequest": "Send to the coach for confirmation",
+    "coachTitle": "Booking requests",
+    "coachHint": "These times are held for you. Confirm them, or decline with a reason for the family.",
+    "requestedOn": "Requested {when}",
+    "nameRequested": "{name} (request)",
+    "viewBooking": "View booking",
+    "dashboard": {
+      "awaiting": "Awaiting coach confirmation",
+      "stale": "{count, plural, one {# waiting too long} other {# waiting too long}}",
+      "waiting": "{count, plural, one {waiting # hour} other {waiting # hours}}"
+    },
+    "promo": {
+      "discount": "Discount",
+      "remove": "Remove",
+      "hint": "Applies to a single session at the list price; carried into the invoice as a discount line."
+    },
+    "services": {
+      "bookableByFamilies": "Families can request this service from the parent portal",
+      "bookableHint": "Family requests always wait for the coach's (or the club's) confirmation."
+    },
+    "settings": {
+      "title": "Coach availability",
+      "declared": "Bookings must fit the coach's declared availability",
+      "declaredHint": "Times outside it are refused.",
+      "openConfirm": "Open availability, confirmed by the coach",
+      "openConfirmHint": "Any time within the venue opening hours can be booked; outside the declared availability the booking holds the place until the coach confirms.",
+      "followupHours": "Follow up unanswered requests after (hours)"
+    },
+    "family": {
+      "title": "Request a session",
+      "description": "Choose a service and your preferred time. The coach confirms your request; you are notified either way.",
+      "back": "Back to bookings",
+      "noChildren": "No child is linked to your account.",
+      "loadError": "The request form could not be loaded.",
+      "disabled": "The club does not take online requests at the moment.",
+      "noServices": "No service can be requested online right now.",
+      "child": "Child",
+      "packageLeft": "{count, plural, one {Package: # session left} other {Package: # sessions left}}",
+      "packageCovers": "{count, plural, one {Covered by the package (# session left)} other {Covered by the package (# sessions left)}}",
+      "openSessions": "Group sessions with free places",
+      "newTime": "Another time",
+      "placesLeft": "{count, plural, one {# place left} other {# places left}}",
+      "anyCoach": "Any available coach",
+      "preferredTime": "Preferred time",
+      "declaredHint": "The coach's declared times that day (usually confirmed quickly):",
+      "noDeclared": "No declared times that day: you can still ask for any time within the venue hours.",
+      "notes": "Message to the coach (optional)",
+      "notesHint": "No health details here, please: contact the club for anything sensitive.",
+      "summary": "Your request",
+      "incomplete": "Choose a service and a time.",
+      "payerFamily": "Your family",
+      "withinAvailability": "Within the coach's availability: usually confirmed quickly.",
+      "outsideAvailability": "Outside the coach's declared availability: the coach checks and confirms or declines.",
+      "send": "Send request",
+      "sending": "Sending…",
+      "sendHint": "Nothing is invoiced until the coach confirms. You can withdraw the request until then.",
+      "requestCta": "Request a session",
+      "awaitingHint": "Waiting for the coach's confirmation. The place is held for you.",
+      "declined": "The coach declined this request.",
+      "declinedReason": "Declined: {reason}",
+      "withdrawn": "You withdrew this request.",
+      "absenceReported": "Absence reported",
+      "reportAbsence": "Report an absence",
+      "changeAbsence": "View or change the absence report"
     }
   }
 }

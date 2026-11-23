@@ -159,6 +159,8 @@ export const settingsSchema = z.object({
   slotStepMin: z.coerce.number().int().min(5, E("invalidRequest")).max(240, E("invalidRequest")).optional().default(30),
   leadHours: z.coerce.number().int().min(0, E("invalidRequest")).max(720, E("invalidRequest")).optional().default(0),
   horizonDays: z.coerce.number().int().min(1, E("invalidRequest")).max(120, E("invalidRequest")).optional().default(28),
+  availabilityMode: z.enum(["declared", "open_confirm"]).optional().default("declared"),
+  requestFollowupHours: z.coerce.number().int().min(1, E("invalidRequest")).max(720, E("invalidRequest")).optional().default(48),
 });
 export type TrainingSettingsInput = z.input<typeof settingsSchema>;
 

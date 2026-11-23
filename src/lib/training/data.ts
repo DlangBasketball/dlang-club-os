@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { trainingAdminDb, trainingDb, type PurchaseStatus, type SessionType } from "./db";
 import type { OpeningHours, SlotBlackout, SlotBusy, SlotTemplate, SlotWindow } from "./slots";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { availabilityMode, requestFollowupHours } from "@/lib/booking/helpers";
+import type { AvailabilityMode } from "@/lib/booking/types";
 
 /**
  * Server reads for the training system. RLS decides what each caller sees
@@ -19,8 +21,15 @@ const hm = (t: string | null | undefined) => (t ?? "").slice(0, 5);
 
 export type TrainingSettings = {
   enabled: boolean; cancellationHours: number; refundCreditsOnCancel: boolean; slotStepMin: number; leadHours: number; horizonDays: number;
+  /** Booking requests (20250420104700): "declared" = must fit the coach's availability; "open_confirm" = any time in venue hours, the coach confirms. */
+  availabilityMode: AvailabilityMode;
+  /** Unanswered requests appear in the booking follow-ups after this many hours. */
+  requestFollowupHours: number;
 };
-export const DEFAULT_SETTINGS: TrainingSettings = { enabled: false, cancellationHours: 24, refundCreditsOnCancel: true, slotStepMin: 30, leadHours: 0, horizonDays: 28 };
+export const DEFAULT_SETTINGS: TrainingSettings = {
+  enabled: false, cancellationHours: 24, refundCreditsOnCancel: true, slotStepMin: 30, leadHours: 0, horizonDays: 28,
+  availabilityMode: "declared", requestFollowupHours: 48,
+};
 
 export function settingsFrom(raw: unknown): TrainingSettings {
   const s = (raw && typeof raw === "object" ? raw : {}) as { bookings_enabled?: boolean; booking?: Record<string, unknown> };
@@ -33,6 +42,8 @@ export function settingsFrom(raw: unknown): TrainingSettings {
     slotStepMin: num(b.slot_step_min, 30),
     leadHours: num(b.lead_hours, 0),
     horizonDays: num(b.horizon_days, 28),
+    availabilityMode: availabilityMode(b.availability_mode),
+    requestFollowupHours: requestFollowupHours(b.request_followup_hours),
   };
 }
 

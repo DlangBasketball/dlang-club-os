@@ -13,10 +13,11 @@ import { dispatchNotification, retryEmailLog } from "@/lib/notifications/dispatc
 import type { Json } from "@/types/database";
 import { runBookingNotifications } from "@/lib/booking/notify";
 import {
-  bookingErrorCode, bookingPayloadSchema, cancelPayloadSchema, payerSchema, quickCreateSchema, reschedulePayloadSchema,
-  toBookingRpcPayload, toPayerRpcPayload, toQuickCreateRpcPayload,
-  type BookingPayloadInput, type BookingQuote, type CancelPayloadInput, type ConfirmResult, type DuplicateCheck, type InvoiceResult,
-  type PayerInput, type QuickCreateInput, type QuickCreateResult, type ReschedulePayloadInput,
+  bookingErrorCode, bookingPayloadSchema, cancelPayloadSchema, declinePayloadSchema, familyRequestSchema, payerSchema, quickCreateSchema,
+  reschedulePayloadSchema, toBookingRpcPayload, toFamilyRequestRpcPayload, toPayerRpcPayload, toQuickCreateRpcPayload,
+  type BookingPayloadInput, type BookingQuote, type CancelPayloadInput, type ConfirmResult, type DeclinePayloadInput, type DuplicateCheck,
+  type FamilyQuote, type FamilyRequestInput, type FamilyRequestResult, type InvoiceResult, type PayerInput, type QuickCreateInput,
+  type QuickCreateResult, type RequestDecisionResult, type ReschedulePayloadInput,
 } from "@/lib/booking/types";
 
 /*
@@ -95,7 +96,85 @@ export async function confirmBooking(input: BookingPayloadInput, requestId: stri
   const res = data as unknown as ConfirmResult;
   if (!res.replayed) await notifyNow(me.orgId, res.booking_id);
   revalidateBookings(res.booking_id);
-  return { ok: true, data: res, message: t("bookingWorkflow.messages.confirmed") };
+  return { ok: true, data: res, message: res.status === "requested" ? t("bookingWorkflow.messages.requested") : t("bookingWorkflow.messages.confirmed") };
+}
+
+// ===========================================================================
+// Booking requests (20250420104700): coach / admin decide, guardians request
+// ===========================================================================
+const DECIDERS: AppRole[] = ["admin", "coach"];
+
+/** The session coach (or an admin) confirms a held request. Idempotent with requestId. */
+export async function confirmBookingRequest(bookingId: string, requestId: string): Promise<BkResult<RequestDecisionResult>> {
+  const { me, t } = await session(DECIDERS);
+  if (!me) return denied(t);
+  if (!requestIdSchema.safeParse(bookingId).success || !requestIdSchema.safeParse(requestId).success) return invalid(t);
+  const db = await createClient();
+  const { data, error } = await db.rpc("booking_request_confirm", { p_booking: bookingId, p_request_id: requestId });
+  if (error) return fail(t, error);
+  const res = data as unknown as RequestDecisionResult;
+  if (!res.replayed && !res.already_decided) await notifyNow(me.orgId, bookingId);
+  revalidateBookings(bookingId);
+  return { ok: true, data: res, message: t("bookingWorkflow.messages.requestConfirmed") };
+}
+
+/** Decline a request (reason required): cancelled, place released, package restored, never invoiced. */
+export async function declineBookingRequest(input: DeclinePayloadInput, requestId: string): Promise<BkResult<RequestDecisionResult>> {
+  const { me, t } = await session(DECIDERS);
+  if (!me) return denied(t);
+  const p = declinePayloadSchema.safeParse(input);
+  if (!p.success) return p.error.issues.some((i) => i.path[0] === "reason") ? fail(t, "REASON_REQUIRED") : invalid(t);
+  if (!requestIdSchema.safeParse(requestId).success) return invalid(t);
+  const db = await createClient();
+  const { data, error } = await db.rpc("booking_request_decline", {
+    p_booking: p.data.bookingId, p_reason: p.data.reason, p_request_id: requestId, p_notify: p.data.notify,
+  });
+  if (error) return fail(t, error);
+  const res = data as unknown as RequestDecisionResult;
+  if (!res.replayed) await notifyNow(me.orgId, p.data.bookingId);
+  revalidateBookings(p.data.bookingId);
+  return { ok: true, data: res, message: t("bookingWorkflow.messages.requestDeclined") };
+}
+
+/** Family request quote (guardian of the child): slot, coach, price / package coverage, promo. Writes nothing. */
+export async function quoteFamilyRequest(input: FamilyRequestInput): Promise<BkResult<FamilyQuote>> {
+  const { me, t } = await session(["parent"]);
+  if (!me) return denied(t);
+  const p = familyRequestSchema.safeParse(input);
+  if (!p.success) return invalid(t);
+  const db = await createClient();
+  const { data, error } = await db.rpc("booking_family_quote", { p_payload: toFamilyRequestRpcPayload(p.data) as Json });
+  if (error) return fail(t, error);
+  return { ok: true, data: data as unknown as FamilyQuote };
+}
+
+/** A guardian requests a session for their own child; the coach (or club) confirms it. Payer = the family. */
+export async function createFamilyRequest(input: FamilyRequestInput, requestId: string): Promise<BkResult<FamilyRequestResult>> {
+  const { me, t } = await session(["parent"]);
+  if (!me) return denied(t);
+  const p = familyRequestSchema.safeParse(input);
+  if (!p.success || !requestIdSchema.safeParse(requestId).success) return invalid(t);
+  const db = await createClient();
+  const { data, error } = await db.rpc("booking_family_request", { p_payload: toFamilyRequestRpcPayload(p.data) as Json, p_request_id: requestId });
+  if (error) return fail(t, error);
+  const res = data as unknown as FamilyRequestResult;
+  if (!res.replayed) await notifyNow(me.orgId, res.booking_id);
+  revalidateBookings(res.booking_id);
+  return { ok: true, data: res, message: t("bookingWorkflow.messages.requestSent") };
+}
+
+/** A guardian withdraws their family's open request (before the coach decided). */
+export async function withdrawBookingRequest(bookingId: string, requestId: string): Promise<BkResult<RequestDecisionResult>> {
+  const { me, t } = await session(["parent"]);
+  if (!me) return denied(t);
+  if (!requestIdSchema.safeParse(bookingId).success || !requestIdSchema.safeParse(requestId).success) return invalid(t);
+  const db = await createClient();
+  const { data, error } = await db.rpc("booking_request_withdraw", { p_booking: bookingId, p_request_id: requestId });
+  if (error) return fail(t, error);
+  const res = data as unknown as RequestDecisionResult;
+  if (!res.replayed) await notifyNow(me.orgId, bookingId);
+  revalidateBookings(bookingId);
+  return { ok: true, data: res, message: t("bookingWorkflow.messages.requestWithdrawn") };
 }
 
 export async function rescheduleBooking(input: ReschedulePayloadInput, requestId: string): Promise<BkResult<Record<string, unknown>>> {

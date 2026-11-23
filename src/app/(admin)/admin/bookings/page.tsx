@@ -5,6 +5,7 @@ import { Select } from "@/components/teams/fields";
 import { Pager, pageParam } from "@/components/ui/pager";
 import { billingTone, stateTone } from "@/components/booking/admin/tones";
 import { getServiceCatalog, listBookings } from "@/lib/booking/data";
+import { bookingDisplayKey } from "@/lib/booking/helpers";
 import { getCoachOptions } from "@/lib/booking/admin-data";
 import { BILLING_STATUSES, BOOKING_STATUSES, type BookingRow } from "@/lib/booking/types";
 import { requireRole } from "@/lib/auth/get-user";
@@ -97,7 +98,12 @@ export default async function AdminBookingsPage({ searchParams }: { searchParams
         {!b.invoice && b.price !== null && b.billing_status === "to_invoice" && <span className="tnum text-xs text-ink-3">{money(b.price, b.currency)}</span>}
       </span>
     ) },
-    { key: "state", header: t("adminBooking.list.status"), render: (b) => <Badge tone={stateTone(b.state)}>{t.dynamic(`bookingWorkflow.state.${b.state}`, undefined, b.state)}</Badge> },
+    { key: "state", header: t("adminBooking.list.status"), render: (b) => (
+      <span className="flex flex-col items-start gap-0.5">
+        <Badge tone={stateTone(b.state)}>{t.dynamic(`bookingWorkflow.state.${bookingDisplayKey(b)}`, undefined, b.state)}</Badge>
+        {b.request?.stale && b.state === "requested" && <span className="text-xs text-warning">{t("bookingRequests.stale")}</span>}
+      </span>
+    ) },
   ];
 
   const services = catalog.data ?? [];
@@ -115,6 +121,8 @@ export default async function AdminBookingsPage({ searchParams }: { searchParams
           <Link href="/admin/bookings" className={cn("rounded px-3 py-1.5", view === "all" ? "bg-maroon text-inverse" : "text-ink-2 hover:text-ink")}>{t("adminBooking.list.all")}</Link>
         </div>
         <Link href={link({ view: undefined, from: today, to: addDayKey(today, 6), page: undefined })} className="text-xs text-maroon hover:underline">{t("adminBooking.list.next7")}</Link>
+        <Link href="/admin/bookings?status=requested" aria-current={status === "requested" ? "page" : undefined}
+          className={cn("text-xs hover:underline", status === "requested" ? "font-medium text-ink" : "text-maroon")}>{t("bookingRequests.filterAwaiting")}</Link>
         <span className="ml-auto text-xs text-ink-3">{t("adminBooking.list.count", { count: total })}</span>
       </div>
 

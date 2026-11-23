@@ -2,7 +2,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, CheckCircle2, Info, RotateCcw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Hourglass, Info, RotateCcw, Tag } from "lucide-react";
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, FieldHint, Input, Label } from "@/components/ui";
 import { Select, Textarea } from "@/components/teams/fields";
 import { confirmBooking, quoteBooking, savePayer } from "@/lib/actions/booking-workflow";
@@ -13,7 +13,7 @@ import {
 } from "@/lib/booking/admin-form";
 import type { CatalogService } from "@/lib/booking/data";
 import type { CoachOption, SpaceOption } from "@/lib/booking/admin-data";
-import { quoteSummary } from "@/lib/booking/helpers";
+import { normalizePromoCode, quoteSummary } from "@/lib/booking/helpers";
 import { BILLING_CHOICES, type BookingQuote } from "@/lib/booking/types";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { AthleteCombobox } from "./athlete-combobox";
@@ -21,7 +21,7 @@ import { QuickAthleteDialog } from "./quick-athlete-dialog";
 import { PayerPicker } from "./payer-picker";
 
 /** Refusals after which the slot list / quote is stale: re-read them, keep the form. */
-const SLOT_REFUSALS = new Set(["SESSION_FULL", "COACH_BUSY", "SPACE_TAKEN", "SESSION_NOT_SCHEDULED", "ALREADY_BOOKED", "ATHLETE_OVERLAP", "COACH_UNAVAILABLE"]);
+const SLOT_REFUSALS = new Set(["SESSION_FULL", "COACH_BUSY", "SPACE_TAKEN", "SESSION_NOT_SCHEDULED", "ALREADY_BOOKED", "ATHLETE_OVERLAP", "COACH_UNAVAILABLE", "VENUE_CLOSED"]);
 
 /**
  * Admin New Booking form on the booking workflow contract
@@ -48,6 +48,7 @@ export function NewBookingForm({ services, coaches, spaces, isAdmin, scope, toda
   const [quoting, setQuoting] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState<{ text: string; code?: string } | null>(null);
+  const [codeDraft, setCodeDraft] = React.useState("");
 
   // --- draft: restore once on mount, then save on every change -------------
   React.useEffect(() => {
@@ -294,6 +295,23 @@ export function NewBookingForm({ services, coaches, spaces, isAdmin, scope, toda
               </>}
             </div>
 
+            {!s.priceOverride && (
+              <div>
+                <Label htmlFor="nb-promo">{t("shop.checkout.promo")}</Label>
+                <div className="flex max-w-sm gap-2">
+                  <Input id="nb-promo" value={codeDraft || s.promoCode} maxLength={40} className="font-mono" disabled={busy}
+                    onChange={(e) => setCodeDraft(normalizePromoCode(e.target.value))} />
+                  <Button type="button" size="sm" variant="secondary" disabled={busy || !(codeDraft || "").trim()}
+                    onClick={() => { set("promoCode", codeDraft.trim()); setCodeDraft(""); }}>
+                    <Tag className="h-4 w-4" aria-hidden /> {t("shop.checkout.apply")}
+                  </Button>
+                  {s.promoCode && <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => { setCodeDraft(""); set("promoCode", ""); }}>{t("bookingRequests.promo.remove")}</Button>}
+                </div>
+                {quote?.billing.promo === "applied" && <FieldHint>{t("shop.checkout.promoApplied")}</FieldHint>}
+                <FieldHint>{t("bookingRequests.promo.hint")}</FieldHint>
+              </div>
+            )}
+
             <div><Label htmlFor="nb-notes">{t("adminBooking.form.notes")}</Label><Textarea id="nb-notes" maxLength={2000} value={s.notes} disabled={busy} onChange={(e) => set("notes", e.target.value)} /></div>
             <label className="flex items-center gap-2 text-sm text-ink-2">
               <input type="checkbox" className="h-4 w-4 accent-[var(--red-primary)]" checked={s.notify} disabled={busy} onChange={(e) => set("notify", e.target.checked)} />
@@ -312,7 +330,10 @@ export function NewBookingForm({ services, coaches, spaces, isAdmin, scope, toda
               {payload && quote && (
                 <>
                   <Row label={t("adminBooking.quote.price")} value={<span className="tnum font-medium">{money(quote.billing.price, quote.billing.currency)}</span>} />
-                  {quote.billing.price_override && <Row label={t("adminBooking.quote.listPrice")} value={<span className="tnum line-through">{money(quote.billing.list_price, quote.billing.currency)}</span>} />}
+                  {(quote.billing.price_override || Number(quote.billing.discount_total ?? 0) > 0) && <Row label={t("adminBooking.quote.listPrice")} value={<span className="tnum line-through">{money(quote.billing.list_price, quote.billing.currency)}</span>} />}
+                  {Number(quote.billing.discount_total ?? 0) > 0 && (
+                    <Row label={t("bookingRequests.promo.discount")} value={<span className="tnum">−{money(quote.billing.discount_total, quote.billing.currency)}{quote.billing.promo_code ? ` · ${quote.billing.promo_code}` : ""}</span>} />
+                  )}
                   <Row label={t("adminBooking.quote.billing")} value={t.dynamic(`bookingWorkflow.billingStatus.${quote.billing.billing_status}`, undefined, quote.billing.billing_status)} />
                   {quote.billing.billing_mode === "package" && quote.billing.package_remaining !== null && (
                     <Row label={t("adminBooking.quote.package")} value={t("adminBooking.quote.packageLeft", { count: quote.billing.package_remaining })} />
@@ -346,6 +367,9 @@ export function NewBookingForm({ services, coaches, spaces, isAdmin, scope, toda
                     </div>
                   )}
                   {quote.billing.billing_status === "not_billable" && <p className="flex items-center gap-2 text-ink-2"><Info className="h-4 w-4" /> {t("adminBooking.quote.free")}</p>}
+                  {summary?.canConfirm && summary.createsRequest && (
+                    <p className="flex items-start gap-2 rounded border border-dashed border-warning/50 p-2 text-ink-2"><Hourglass className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden /> {t("bookingRequests.adminCreatesRequest")}</p>
+                  )}
                   {summary?.canConfirm && quote.warnings.length === 0 && <p className="flex items-center gap-2 text-success"><CheckCircle2 className="h-4 w-4" /> {t("adminBooking.quote.ready")}</p>}
                 </>
               )}
@@ -368,7 +392,7 @@ export function NewBookingForm({ services, coaches, spaces, isAdmin, scope, toda
               {err.code && SLOT_REFUSALS.has(err.code) && <p className="mt-1 text-xs">{t("adminBooking.form.slotRefusedHint")}</p>}
             </div>
           )}
-          <Button type="submit" className="w-full" disabled={!canConfirm || busy}>{busy ? t("adminBooking.form.confirming") : t("adminBooking.form.confirm")}</Button>
+          <Button type="submit" className="w-full" disabled={!canConfirm || busy}>{busy ? t("adminBooking.form.confirming") : summary?.createsRequest ? t("bookingRequests.adminSendRequest") : t("adminBooking.form.confirm")}</Button>
           <p className="text-xs text-ink-3">{t("adminBooking.form.confirmHint")}</p>
         </div>
       </form>

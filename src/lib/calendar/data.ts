@@ -170,6 +170,14 @@ export async function loadCalendarItems(
 
   const [events, sessions, camps, bookings, templates, clubEvents] = await Promise.all([eventsQ, sessionsQ, campsQ, bookingsQ, shiftsQ, clubQ]);
 
+  // Booked sessions that only hold requests (awaiting the coach): shown with their own style.
+  const sessionEventIds = events.filter((e) => e.training_session_id).map((e) => e.id);
+  const pendingEvents = new Set<string>();
+  if (sessionEventIds.length) {
+    const { data: pend } = await db.rpc("session_events_pending", { p_events: sessionEventIds.slice(0, 1000) });
+    for (const id of ((pend ?? []) as unknown as string[])) pendingEvents.add(String(id));
+  }
+
   // ---- lookups ----------------------------------------------------------------
   const uniq = (xs: (string | null | undefined)[]) => Array.from(new Set(xs.filter((x): x is string => !!x)));
   const teamIds = uniq([...events.map((e) => e.team_id), ...clubEvents.map((c) => c.team_id)]);
@@ -206,7 +214,7 @@ export async function loadCalendarItems(
       start: e.starts_at, end: e.ends_at, allDay: false,
       location: (e.venue_id ? venueName.get(e.venue_id) : null) ?? e.location_text ?? null,
       venueId: e.venue_id, teamId: e.team_id, coachIds: e.team_id ? coachesOfTeam.get(e.team_id) ?? [] : [],
-      profileId: null, status: e.status,
+      profileId: null, status: pendingEvents.has(e.id) && e.status === "scheduled" ? "requested" : e.status,
       href: e.training_session_id ? sessionEventHref(audience, e.id) : hrefFor(audience, "team_event", { id: e.id }), color: team?.color ?? null,
       description: isParent ? null : e.notes, linkedSessionId: e.program_session_id, bookedSessionId: e.training_session_id ?? null,
     });
