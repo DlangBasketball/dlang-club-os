@@ -12851,5 +12851,76 @@
       "followups": "Invii da ricontrollare",
       "followupsTitle": "Messaggi da inviare di nuovo"
     }
+  },
+  "bookingPortal": {
+    "bookedSession": "Sessione prenotata",
+    "movedFrom": "Spostata (prima: {when})",
+    "kind": {
+      "private": "Sessione individuale",
+      "group": "Sessione di gruppo",
+      "trial": "Sessione di prova",
+      "package": "Sessione del pacchetto"
+    },
+    "coach": {
+      "participants": "Prenotati: {names}",
+      "noParticipants": "Nessuna prenotazione",
+      "places": "{taken} posti su {capacity}",
+      "rosterFromBookings": "Elenco = le prenotazioni confermate di questa sessione."
+    },
+    "schedule": {
+      "description": "Le tue prossime sessioni e gli allenamenti prenotati.",
+      "empty": "Niente in programma",
+      "loadError": "Impossibile caricare il programma"
+    },
+    "family": {
+      "title": "Prenotazioni di allenamento",
+      "description": "Sessioni prenotate dei suoi figli, con modifiche di orario, presenze e le sue fatture.",
+      "book": "Prenota una sessione",
+      "upcoming": "Prossime prenotazioni",
+      "timesHint": "Orari nel fuso orario del club.",
+      "noUpcoming": "Nessuna prenotazione in arrivo",
+      "noUpcomingHint": "Le sessioni compaiono qui quando il club le conferma.",
+      "changes": "Modifiche di orario",
+      "changesHint": "Prenotazioni spostate o annullate negli ultimi 30 giorni.",
+      "cancelled": "Annullata",
+      "cancelledReason": "Annullata: {reason}",
+      "moved": "Spostata",
+      "movedFromTo": "Spostata da {before} a {when}",
+      "movedTo": "Spostata a {when}",
+      "changedOn": "Modificata il {date}",
+      "attendance": "Presenze alle sessioni prenotate",
+      "attendanceHint": "Presenze definitive, registrate dall'allenatore.",
+      "noAttendance": "Ancora nessuna presenza definitiva.",
+      "invoices": "Fatture delle prenotazioni",
+      "invoicesHint": "Sono mostrate solo le fatture intestate a lei.",
+      "invoiceFor": "{service} del {date}",
+      "open": "Da pagare: {amount}",
+      "place": "Luogo",
+      "loadError": "Impossibile caricare le prenotazioni",
+      "loadErrorHint": "Riprovi tra un momento.",
+      "childTabs": "Figli",
+      "allChildren": "Tutti i figli",
+      "absenceHint": "Non può venire? Contatti il club perché annulli la prenotazione.",
+      "changeByClub": "Il club gestisce questa prenotazione: lo contatti per spostarla o annullarla."
+    },
+    "player": {
+      "title": "Le mie prenotazioni",
+      "description": "Le tue sessioni prenotate e le tue presenze.",
+      "notificationsHint": "Conferme di prenotazione, modifiche e avvisi del club."
+    },
+    "admin": {
+      "hint": "Sessioni prenotate con la loro fatturazione; apra una prenotazione per il dettaglio.",
+      "newBooking": "Nuova prenotazione",
+      "upcoming": "In arrivo",
+      "history": "Storico",
+      "noUpcoming": "Nessuna prenotazione in arrivo.",
+      "state": "Stato della prenotazione",
+      "billing": "Fatturazione",
+      "payer": "Pagante: {name}",
+      "sessionAttendance": "Sessioni prenotate",
+      "sessionAttendanceHint": "Presenze registrate sui fogli delle sessioni individuali e di gruppo prenotate.",
+      "bookingInvoices": "Fatture da prenotazioni",
+      "bookingInvoicesHint": "Ogni fattura rimanda alla prenotazione fatturata."
+    }
   }
 }

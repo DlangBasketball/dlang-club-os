@@ -12851,5 +12851,76 @@
       "followups": "Envois à relancer",
       "followupsTitle": "Messages à relancer"
     }
+  },
+  "bookingPortal": {
+    "bookedSession": "Séance réservée",
+    "movedFrom": "Déplacée (avant : {when})",
+    "kind": {
+      "private": "Séance individuelle",
+      "group": "Séance de groupe",
+      "trial": "Séance d'essai",
+      "package": "Séance du forfait"
+    },
+    "coach": {
+      "participants": "Inscrits : {names}",
+      "noParticipants": "Personne d'inscrit",
+      "places": "{taken} places sur {capacity}",
+      "rosterFromBookings": "Liste = les réservations confirmées de cette séance."
+    },
+    "schedule": {
+      "description": "Vos prochaines séances et entraînements réservés.",
+      "empty": "Rien de prévu",
+      "loadError": "Impossible de charger votre planning"
+    },
+    "family": {
+      "title": "Réservations d'entraînement",
+      "description": "Séances réservées de vos enfants, avec les changements d'horaire, les présences et vos factures.",
+      "book": "Réserver une séance",
+      "upcoming": "Prochaines réservations",
+      "timesHint": "Heures dans le fuseau horaire du club.",
+      "noUpcoming": "Aucune réservation à venir",
+      "noUpcomingHint": "Les séances apparaissent ici dès que le club les confirme.",
+      "changes": "Changements d'horaire",
+      "changesHint": "Réservations déplacées ou annulées des 30 derniers jours.",
+      "cancelled": "Annulée",
+      "cancelledReason": "Annulée : {reason}",
+      "moved": "Déplacée",
+      "movedFromTo": "Déplacée du {before} au {when}",
+      "movedTo": "Déplacée au {when}",
+      "changedOn": "Modifiée le {date}",
+      "attendance": "Présences aux séances réservées",
+      "attendanceHint": "Présences définitives, saisies par l'entraîneur.",
+      "noAttendance": "Pas encore de présences définitives.",
+      "invoices": "Factures des réservations",
+      "invoicesHint": "Seules les factures qui vous sont adressées sont affichées.",
+      "invoiceFor": "{service} du {date}",
+      "open": "À payer : {amount}",
+      "place": "Lieu",
+      "loadError": "Impossible de charger les réservations",
+      "loadErrorHint": "Veuillez réessayer dans un instant.",
+      "childTabs": "Enfants",
+      "allChildren": "Tous les enfants",
+      "absenceHint": "Empêché ? Contactez le club pour qu'il annule la réservation.",
+      "changeByClub": "Le club gère cette réservation : contactez-le pour la déplacer ou l'annuler."
+    },
+    "player": {
+      "title": "Mes réservations",
+      "description": "Tes séances réservées et tes présences.",
+      "notificationsHint": "Confirmations de réservation, changements et annonces du club."
+    },
+    "admin": {
+      "hint": "Séances réservées avec leur facturation ; ouvrez une réservation pour le détail.",
+      "newBooking": "Nouvelle réservation",
+      "upcoming": "À venir",
+      "history": "Historique",
+      "noUpcoming": "Aucune réservation à venir.",
+      "state": "Statut de la réservation",
+      "billing": "Facturation",
+      "payer": "Payeur : {name}",
+      "sessionAttendance": "Séances réservées",
+      "sessionAttendanceHint": "Présences saisies sur les feuilles des séances individuelles et de groupe réservées.",
+      "bookingInvoices": "Factures issues des réservations",
+      "bookingInvoicesHint": "Chaque facture renvoie à la réservation facturée."
+    }
   }
 }

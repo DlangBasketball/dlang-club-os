@@ -79,6 +79,11 @@ function hrefFor(audience: CalendarAudience, kind: CalendarItem["kind"], ids: { 
   }
 }
 
+/** Booked training session event: coach trainings page, parent bookings, admin schedule. */
+function sessionEventHref(audience: CalendarAudience, eventId: string): string {
+  return audience === "coach" ? `/coach/trainings/${eventId}` : audience === "parent" ? "/parent/bookings" : `/admin/schedule/${eventId}`;
+}
+
 /** Items touching club-local days [fromKey, toKey] for this scope. */
 export async function loadCalendarItems(
   db: StaffClient,
@@ -97,7 +102,7 @@ export async function loadCalendarItems(
   // ---- team events --------------------------------------------------------
   const eventsQ = (async () => {
     let q = db.from("events")
-      .select("id,team_id,program_session_id,type,title,venue_id,location_text,starts_at,ends_at,opponent,status,notes")
+      .select("id,team_id,program_session_id,training_session_id,type,title,venue_id,location_text,starts_at,ends_at,opponent,status,notes")
       .eq("org_id", orgId).lt("starts_at", toIso).gt("ends_at", fromIso).order("starts_at").limit(1000);
     if (!isAdmin) {
       q = scope.teamIds.length ? q.or(`team_id.is.null,team_id.in.(${scope.teamIds.join(",")})`) : q.is("team_id", null);
@@ -133,12 +138,13 @@ export async function loadCalendarItems(
   const bookingsQ = (async () => {
     if (isCoach && !scope.coachId) return [];
     if (isParent && scope.athleteIds.length === 0) return [];
-    let q = db.from("training_bookings").select("id,service_id,coach_id,slot_start,slot_end,status")
+    // Coaches read their own bookings through the column-restricted view (no price / payer / invoice).
+    let q = db.from(isCoach ? "coach_training_bookings" : "training_bookings").select("id,service_id,coach_id,slot_start,slot_end,status,session_id")
       .eq("org_id", orgId).gte("slot_start", fromIso).lt("slot_start", toIso).neq("status", "cancelled").order("slot_start").limit(1000);
     if (isCoach) q = q.eq("coach_id", scope.coachId as string);
     if (isParent) q = q.in("athlete_id", scope.athleteIds);
     const { data } = await q;
-    return data ?? [];
+    return (data ?? []) as { id: string; service_id: string; coach_id: string; slot_start: string; slot_end: string | null; status: string; session_id: string | null }[];
   })();
 
   // ---- planned shifts -------------------------------------------------------
@@ -200,8 +206,9 @@ export async function loadCalendarItems(
       start: e.starts_at, end: e.ends_at, allDay: false,
       location: (e.venue_id ? venueName.get(e.venue_id) : null) ?? e.location_text ?? null,
       venueId: e.venue_id, teamId: e.team_id, coachIds: e.team_id ? coachesOfTeam.get(e.team_id) ?? [] : [],
-      profileId: null, status: e.status, href: hrefFor(audience, "team_event", { id: e.id }), color: team?.color ?? null,
-      description: isParent ? null : e.notes, linkedSessionId: e.program_session_id,
+      profileId: null, status: e.status,
+      href: e.training_session_id ? sessionEventHref(audience, e.id) : hrefFor(audience, "team_event", { id: e.id }), color: team?.color ?? null,
+      description: isParent ? null : e.notes, linkedSessionId: e.program_session_id, bookedSessionId: e.training_session_id ?? null,
     });
   }
 
@@ -228,7 +235,11 @@ export async function loadCalendarItems(
     });
   }
 
+  // A booked training session is one calendar event (events.training_session_id);
+  // its bookings are not listed again for the coach and parent calendars.
+  const sessionWithEvent = new Set(isAdmin ? [] : events.map((e) => e.training_session_id).filter((x): x is string => !!x));
   for (const b of bookings) {
+    if (b.session_id && sessionWithEvent.has(b.session_id)) continue;
     const svc = serviceById.get(b.service_id);
     const end = b.slot_end ?? new Date(Date.parse(b.slot_start) + (svc?.duration_min ?? 60) * 60000).toISOString();
     items.push({

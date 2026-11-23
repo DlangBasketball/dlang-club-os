@@ -78,9 +78,10 @@ export type SheetMark = {
 /** attendance_sheet / attendance_open result. */
 export type AttendanceSheet = {
   event: {
-    id: string; team_id: string; team_name: string | null; type: string; title: string | null; starts_at: string; ends_at: string;
+    /** null for a booked training session (its roster = the confirmed bookings, docs/booking-workflow.md §5). */
+    id: string; team_id: string | null; team_name: string | null; type: string; title: string | null; starts_at: string; ends_at: string;
     status: string; cancel_reason: string | null; timezone: string; local_date: string; ended: boolean; tracked: boolean;
-    location_name: string | null;
+    location_name: string | null; training_session_id?: string | null;
   };
   sheet: null | {
     id: string; status: SheetStatus; version: number; roster_date: string; led_by_coach_id: string | null; led_by_name: string | null;

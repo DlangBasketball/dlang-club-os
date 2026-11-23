@@ -247,17 +247,27 @@ export type AthleteTraining = {
   stats: { attended: number; noShow: number; upcoming: number; cancelled: number };
 };
 
-export async function getAthleteTraining(athleteId: string): Promise<Result<AthleteTraining | null>> {
+/**
+ * `audience: "coach"` reads the coach's own bookings of the athlete through
+ * the column-restricted view (no price, invoice or package: coaches never
+ * select training_bookings, migration 20250420104600).
+ */
+export async function getAthleteTraining(athleteId: string, opts: { audience?: "coach" } = {}): Promise<Result<AthleteTraining | null>> {
   if (!/^[0-9a-f-]{36}$/i.test(athleteId)) return ok(null);
   const db = await trainingDb();
+  const coachView = opts.audience === "coach";
   const { data: a, error } = await db.from("athletes").select("id,first_name,last_name").eq("id", athleteId).maybeSingle();
   if (error) return fail(error.message);
   if (!a) return ok(null);
   const [prof, bal, bk] = await Promise.all([
     db.from("athlete_training_profiles").select("goals,notes,level,focus_areas,updated_at").eq("athlete_id", athleteId).maybeSingle(),
     db.rpc("training_balances", { p_athlete: athleteId }),
-    db.from("training_bookings").select("id,service_id,coach_id,slot_start,slot_end,status,credits_used,price_chf,invoice_id,purchase_id,venue_id,location_text,group_confirmed_at")
-      .eq("athlete_id", athleteId).order("slot_start", { ascending: false }).limit(200),
+    coachView
+      ? db.from("coach_training_bookings").select("id,service_id,coach_id,slot_start,slot_end,status,venue_id,location_text,group_confirmed_at")
+          .eq("athlete_id", athleteId).order("slot_start", { ascending: false }).limit(200)
+          .then((r) => ({ data: (r.data ?? []).map((b) => ({ ...b, credits_used: 0, price_chf: null, invoice_id: null, purchase_id: null })), error: r.error }))
+      : db.from("training_bookings").select("id,service_id,coach_id,slot_start,slot_end,status,credits_used,price_chf,invoice_id,purchase_id,venue_id,location_text,group_confirmed_at")
+          .eq("athlete_id", athleteId).order("slot_start", { ascending: false }).limit(200),
   ]);
   const bookings = bk.data ?? [];
   const serviceIds = uniq([...bookings.map((b) => b.service_id), ...(bal.data ?? []).map((b) => b.service_id)]);
@@ -330,7 +340,8 @@ export async function listMyTrainingAthletes(): Promise<Result<{ coachId: string
   const db = await trainingDb();
   const { data: coach } = await db.from("coaches").select("id").eq("profile_id", user.id).maybeSingle();
   if (!coach) return ok({ coachId: null, athletes: [] });
-  const { data: bk, error } = await db.from("training_bookings").select("athlete_id,slot_start,status").eq("coach_id", coach.id).neq("status", "cancelled").order("slot_start").limit(2000);
+  // Column-restricted coach view (own bookings only, no money).
+  const { data: bk, error } = await db.from("coach_training_bookings").select("athlete_id,slot_start,status").eq("coach_id", coach.id).neq("status", "cancelled").order("slot_start").limit(2000);
   if (error) return fail(error.message);
   const ids = uniq((bk ?? []).map((b) => b.athlete_id));
   const { data: at } = ids.length ? await db.from("athletes").select("id,first_name,last_name").in("id", ids) : { data: [] as { id: string; first_name: string; last_name: string }[] };

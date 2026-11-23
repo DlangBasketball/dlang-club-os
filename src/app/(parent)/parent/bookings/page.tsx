@@ -1,41 +1,78 @@
 import Link from "next/link";
-import { Dumbbell, CalendarClock, Plus, ChevronRight } from "lucide-react";
-import { PageHeader, Card, CardBody, Badge, statusTone, Button, EmptyState, ErrorState, Avatar } from "@/components/ui";
-import { photoUrlsForCoaches } from "@/lib/people/server";
-import { listBookings } from "@/lib/data/parent";
+import { Plus } from "lucide-react";
+import { Button, ErrorState, PageHeader } from "@/components/ui";
+import { BookedAttendance, BookingChanges, BookingInvoices, UpcomingBookings } from "@/components/booking/portal/family-bookings";
+import { getGuardianBookings } from "@/lib/booking/data";
+import { flattenAttendance, flattenChanges, flattenInvoices, flattenUpcoming, invoiceByBooking } from "@/lib/booking/portal";
+import { uuidParam } from "@/lib/attendance/family";
 import { getBookingSettings } from "@/lib/data/training-admin";
-import { getFormatter } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server";
+import { cn } from "@/lib/utils";
 
-export default async function ParentBookingsPage() {
-  const f = await getFormatter();
-  const [{ data: bookings, error }, settings] = await Promise.all([listBookings(), getBookingSettings()]);
-  if (error) return (<div className="animate-fade-up"><PageHeader title="Bookings" /><ErrorState title="Couldn't load bookings" message={error} /></div>);
-  const coachPhotos = await photoUrlsForCoaches((bookings ?? []).map((b) => b.coachId));
-  const upcoming = (bookings ?? []).filter((b) => b.status === "booked" && new Date(b.start) >= new Date());
-  const past = (bookings ?? []).filter((b) => !(b.status === "booked" && new Date(b.start) >= new Date()));
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("bookingPortal.family.title") };
+}
 
-  const Row = ({ b }: { b: NonNullable<typeof bookings>[number] }) => (
-    <Link href={`/parent/bookings/${b.id}`}>
-      <Card className="transition active:scale-[0.99] hover:border-maroon/40"><CardBody className="flex items-center justify-between py-3">
-        <div className="flex min-w-0 items-center gap-3"><Avatar name={b.coachName} src={coachPhotos[b.coachId] ?? null} size="lg" /><div className="min-w-0"><div className="text-sm font-medium text-ink">{b.serviceName}</div><div className="text-xs text-ink-3">{f.date(b.start)} · {f.time(b.start)} · {b.coachName}</div></div></div>
-        <div className="flex items-center gap-2">{b.price !== null && b.price > 0 && <span className="tnum text-xs text-ink-3">{f.money(b.price)}</span>}<Badge tone={statusTone(b.status)}>{b.status}</Badge><ChevronRight className="h-4 w-4 text-ink-4" /></div>
-      </CardBody></Card>
-    </Link>
-  );
+/**
+ * Parent bookings: per own child, upcoming booked sessions (service, time in
+ * the club's time zone, coach, place), schedule changes (moved / cancelled
+ * with the reason), finalized attendance of booked sessions, and invoices of
+ * bookings only where the guardian is the payer. Reads
+ * guardian_booking_overview, which re-checks guardianship on the server.
+ */
+export default async function ParentBookingsPage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
+  const sp = await searchParams;
+  const [{ t, f }, overview, settings] = await Promise.all([getI18n(), getGuardianBookings(), getBookingSettings()]);
+  const title = t("bookingPortal.family.title");
+  const action = settings.enabled
+    ? <Link href="/parent/bookings/new"><Button size="sm"><Plus className="h-4 w-4" aria-hidden /> {t("bookingPortal.family.book")}</Button></Link>
+    : undefined;
+
+  if (overview.error || !overview.data) {
+    return (
+      <div className="animate-fade-up space-y-5">
+        <PageHeader title={title} actions={action} />
+        <ErrorState title={t("bookingPortal.family.loadError")} message={t("bookingPortal.family.loadErrorHint")} />
+      </div>
+    );
+  }
+
+  const all = overview.data;
+  const wanted = uuidParam(sp.athlete);
+  const kids = wanted && all.some((o) => o.athlete.id === wanted) ? all.filter((o) => o.athlete.id === wanted) : all;
+  const showChild = kids.length > 1;
+  const invoices = invoiceByBooking(kids);
 
   return (
     <div className="animate-fade-up space-y-6">
-      <PageHeader title="Training bookings" description="One-to-one and small-group sessions."
-        actions={settings.enabled ? <Link href="/parent/bookings/new"><Button size="sm"><Plus className="h-4 w-4" /> Book a session</Button></Link> : undefined} />
-      <section>
-        <h2 className="mb-2 text-sm font-semibold text-ink-2">Upcoming</h2>
-        {upcoming.length === 0 ? (
-          <EmptyState icon={<CalendarClock className="h-5 w-5" />} title="No upcoming bookings" description={settings.enabled ? "Book a session to get started." : "Bookings open soon."} />
-        ) : <div className="space-y-2">{upcoming.map((b) => <Row key={b.id} b={b} />)}</div>}
-      </section>
-      {past.length > 0 && (
-        <section><h2 className="mb-2 text-sm font-semibold text-ink-2">Past & cancelled</h2><div className="space-y-2">{past.map((b) => <Row key={b.id} b={b} />)}</div></section>
+      <PageHeader title={title} description={t("bookingPortal.family.description")} actions={action} />
+
+      {all.length > 1 && (
+        <nav aria-label={t("bookingPortal.family.childTabs")} className="flex gap-1 overflow-x-auto rounded-lg border border-border bg-surface p-1">
+          <Link href="/parent/bookings" aria-current={kids.length === all.length ? "page" : undefined}
+            className={cn("flex-1 whitespace-nowrap rounded-md px-3 py-1.5 text-center text-sm transition-colors",
+              kids.length === all.length ? "bg-brand-primary-soft text-text" : "text-text-muted hover:text-text")}>
+            {t("bookingPortal.family.allChildren")}
+          </Link>
+          {all.map((o) => {
+            const current = kids.length === 1 && kids[0].athlete.id === o.athlete.id;
+            return (
+              <Link key={o.athlete.id} href={`/parent/bookings?athlete=${o.athlete.id}`} aria-current={current ? "page" : undefined}
+                className={cn("flex-1 whitespace-nowrap rounded-md px-3 py-1.5 text-center text-sm transition-colors",
+                  current ? "bg-brand-primary-soft text-text" : "text-text-muted hover:text-text")}>
+                {o.athlete.first_name} {o.athlete.last_name}
+              </Link>
+            );
+          })}
+        </nav>
       )}
+
+      <UpcomingBookings rows={flattenUpcoming(kids)} t={t} f={f} showChild={showChild}
+        detailHref={(id) => `/parent/bookings/${id}`} invoiceFor={(id) => invoices.get(id)} />
+      <BookingChanges rows={flattenChanges(kids)} t={t} f={f} showChild={showChild} />
+      <BookedAttendance rows={flattenAttendance(kids)} t={t} f={f} showChild={showChild} />
+      <BookingInvoices rows={flattenInvoices(kids)} t={t} f={f} showChild={showChild} />
     </div>
   );
 }

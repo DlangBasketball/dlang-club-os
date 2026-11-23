@@ -7,15 +7,18 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { cn } from "@/lib/utils";
 import { attendancePortalPath } from "@/lib/attendance/types";
 import { uuidParam } from "@/lib/attendance/family";
-import { getFamilyOverview, getMyChildren } from "@/lib/attendance/family-data";
+import { getFamilyOverview, getMyChildren, type FamilyOverview, type HistoryEntry } from "@/lib/attendance/family-data";
+import { getGuardianBookings } from "@/lib/booking/data";
+import { mergeAttendanceHistory } from "@/lib/booking/portal";
 import { AttendanceHistory, UpcomingSessions } from "@/components/attendance/family/sections";
 
 type SP = { athlete?: string; team?: string; season?: string };
 
 /**
  * Parent attendance: per linked child, upcoming team sessions (report an
- * absence), the finalized attendance record (team / season filters, totals)
- * and correction requests. Only the guardian's own children are listed; the
+ * absence) and booked private / group sessions, the finalized attendance
+ * record (team / season filters, totals; booked sessions merged in from the
+ * booking overview) and correction requests. Only the guardian's own children are listed; the
  * overview RPC re-checks guardianship on the server.
  */
 export default async function ParentAttendancePage({ searchParams }: { searchParams: Promise<SP> }) {
@@ -34,7 +37,8 @@ export default async function ParentAttendancePage({ searchParams }: { searchPar
 
   const wanted = uuidParam(sp.athlete);
   const child = kids.find((k) => k.id === wanted) ?? kids[0];
-  const [overview, legacy] = await Promise.all([getFamilyOverview(child.id), programmeSessions(child.id)]);
+  const [rawOverview, legacy, bookings] = await Promise.all([getFamilyOverview(child.id), programmeSessions(child.id), getGuardianBookings(child.id)]);
+  const overview = withBookedSessions(rawOverview, bookings.data?.[0]?.attendance ?? []);
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -103,6 +107,19 @@ export default async function ParentAttendancePage({ searchParams }: { searchPar
       )}
     </div>
   );
+}
+
+/** Adds finalized booked sessions the attendance overview did not return (one row per event). */
+function withBookedSessions<R extends { data: FamilyOverview | null }>(
+  read: R,
+  booked: { event_id: string; service_name: string; starts_at: string; status: string }[],
+): R {
+  if (!read.data || booked.length === 0) return read;
+  const history = mergeAttendanceHistory<HistoryEntry>(read.data.history, booked, (a) => ({
+    event_id: a.event_id, team_id: null, team_name: a.service_name, type: "training", starts_at: a.starts_at, status: a.status,
+    is_guest: false, season_id: null, season_name: null, can_request_correction: false, open_request: false, alert: null, booked: true,
+  }));
+  return { ...read, data: { ...read.data, history } };
 }
 
 /** Programme-session attendance (earlier attendance module), as before. */

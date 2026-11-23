@@ -66,7 +66,7 @@ export default async function TakeAttendancePage({ params }: { params: Promise<{
   const header = (
     <SessionHeader t={t} f={f} teamName={ev.team_name} title={ev.title} type={ev.type} startsAt={ev.starts_at} endsAt={ev.ends_at}
                    location={ev.location_name} cancelled={cancelled} sheetStatus={sheet.sheet?.status ?? null}
-                   substitute={sheet.access.is_substitute}
+                   substitute={sheet.access.is_substitute} booked={!!ev.training_session_id}
                    links={<Link href={`/coach/trainings/${eventId}`} className={buttonVariants({ variant: "ghost", size: "sm" })}>{t("coachTrainings.sheet.details")}</Link>} />
   );
 

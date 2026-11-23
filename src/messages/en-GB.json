@@ -1152,5 +1152,12 @@
     "session": {
       "managed": "Managed by bookings: move or cancel it by rescheduling or cancelling the bookings."
     }
+  },
+  "bookingPortal": {
+    "family": {
+      "changesHint": "Moved or cancelled bookings of the last 30 days.",
+      "cancelled": "Cancelled",
+      "cancelledReason": "Cancelled: {reason}"
+    }
   }
 }

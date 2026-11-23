@@ -12851,5 +12851,76 @@
       "followups": "Delivery follow-ups",
       "followupsTitle": "Messages that need a retry"
     }
+  },
+  "bookingPortal": {
+    "bookedSession": "Booked session",
+    "movedFrom": "Moved from {when}",
+    "kind": {
+      "private": "Private session",
+      "group": "Group session",
+      "trial": "Trial session",
+      "package": "Package session"
+    },
+    "coach": {
+      "participants": "Booked: {names}",
+      "noParticipants": "No one booked",
+      "places": "{taken} of {capacity} places",
+      "rosterFromBookings": "Roster = the confirmed bookings of this session."
+    },
+    "schedule": {
+      "description": "Your upcoming sessions and booked trainings.",
+      "empty": "Nothing scheduled",
+      "loadError": "Couldn't load your schedule"
+    },
+    "family": {
+      "title": "Training bookings",
+      "description": "Booked sessions of your children, with schedule changes, attendance and your invoices.",
+      "book": "Book a session",
+      "upcoming": "Upcoming bookings",
+      "timesHint": "Times in the club's time zone.",
+      "noUpcoming": "No upcoming bookings",
+      "noUpcomingHint": "Sessions appear here once the club confirms them.",
+      "changes": "Schedule changes",
+      "changesHint": "Moved or canceled bookings of the last 30 days.",
+      "cancelled": "Canceled",
+      "cancelledReason": "Canceled: {reason}",
+      "moved": "Moved",
+      "movedFromTo": "Moved from {before} to {when}",
+      "movedTo": "Moved to {when}",
+      "changedOn": "Changed on {date}",
+      "attendance": "Attendance at booked sessions",
+      "attendanceHint": "Final attendance, as recorded by the coach.",
+      "noAttendance": "No final attendance yet.",
+      "invoices": "Invoices for bookings",
+      "invoicesHint": "Only invoices addressed to you are shown.",
+      "invoiceFor": "{service} on {date}",
+      "open": "Open: {amount}",
+      "place": "Place",
+      "loadError": "Couldn't load bookings",
+      "loadErrorHint": "Please try again in a moment.",
+      "childTabs": "Children",
+      "allChildren": "All children",
+      "absenceHint": "Can't make it? Contact the club so it can cancel the booking.",
+      "changeByClub": "The club manages this booking: contact it to move or cancel it."
+    },
+    "player": {
+      "title": "My bookings",
+      "description": "Your booked training sessions and attendance.",
+      "notificationsHint": "Booking confirmations, changes and club notices."
+    },
+    "admin": {
+      "hint": "Booked sessions with their billing; open a booking for its detail.",
+      "newBooking": "New booking",
+      "upcoming": "Upcoming",
+      "history": "History",
+      "noUpcoming": "No upcoming bookings.",
+      "state": "Booking status",
+      "billing": "Billing",
+      "payer": "Payer: {name}",
+      "sessionAttendance": "Booked sessions",
+      "sessionAttendanceHint": "Attendance taken on the sheets of booked private and group sessions.",
+      "bookingInvoices": "Invoices from bookings",
+      "bookingInvoicesHint": "Each invoice links to the booking it was raised for."
+    }
   }
 }

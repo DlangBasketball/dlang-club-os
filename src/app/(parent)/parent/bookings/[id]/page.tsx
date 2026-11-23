@@ -16,7 +16,8 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
   if (!data) notFound();
   const [coachPhotos, wizard] = await Promise.all([
     photoUrlsForCoaches([data.coachId]),
-    data.status === "booked" ? getTrainingWizardData() : Promise.resolve(null),
+    // Club-made bookings are changed by the club (it reschedules / cancels and notifies); family bookings keep self-service.
+    data.status === "booked" && data.createdVia === "legacy" ? getTrainingWizardData() : Promise.resolve(null),
   ]);
   const statusLabel = t.dynamic(`training.bookingStatus.${data.status}`, undefined, data.status);
 
@@ -33,9 +34,27 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
       <Card><CardBody className="space-y-2 text-sm">
         <div className="flex items-center gap-3 pb-1"><Avatar name={data.coachName} src={coachPhotos[data.coachId] ?? null} size="lg" /><span className="font-medium text-ink">{data.coachName}</span></div>
         <div className="flex justify-between"><span className="text-ink-3">{t("training.book.when")}</span><span className="text-ink">{f.date(data.start, { weekday: true })} · {f.time(data.start)}{data.end ? ` – ${f.time(data.end)}` : ""}</span></div>
-        <div className="flex justify-between"><span className="text-ink-3">{t("training.book.payment")}</span><span className="text-ink">{data.creditsUsed > 0 ? t("training.profile.paidCredits", { count: data.creditsUsed }) : data.price !== null ? f.money(data.price) : "—"}</span></div>
+        {data.location && <div className="flex justify-between gap-3"><span className="text-ink-3">{t("bookingPortal.family.place")}</span><span className="text-right text-ink">{data.location}</span></div>}
+        {data.createdVia === "legacy" && (
+          <div className="flex justify-between"><span className="text-ink-3">{t("training.book.payment")}</span><span className="text-ink">{data.creditsUsed > 0 ? t("training.profile.paidCredits", { count: data.creditsUsed }) : data.price !== null ? f.money(data.price) : "—"}</span></div>
+        )}
         {data.invoice && <div className="flex justify-between"><span className="text-ink-3">{t("training.purchases.invoice")}</span><Link href={`/parent/invoices/${data.invoice.id}`} className="inline-flex items-center gap-1 text-maroon hover:underline"><Receipt className="h-3.5 w-3.5" />{data.invoice.number}</Link></div>}
       </CardBody></Card>
+      {data.status === "cancelled" && (
+        <p role="status" className="rounded-md border border-danger/30 bg-danger-soft p-3 text-sm text-text">
+          {data.cancelReason ? t("bookingPortal.family.cancelledReason", { reason: data.cancelReason }) : t("bookingPortal.family.cancelled")}
+          {data.cancelledAt && <span className="block text-xs text-text-muted">{t("bookingPortal.family.changedOn", { date: f.date(data.cancelledAt) })}</span>}
+        </p>
+      )}
+      {data.status !== "cancelled" && data.rescheduledAt && (
+        <p role="status" className="rounded-md border border-warning/30 bg-warning-soft p-3 text-sm text-text">
+          {data.rescheduledFrom ? t("bookingPortal.movedFrom", { when: f.dateTime(data.rescheduledFrom, "medium") }) : t("bookingPortal.family.moved")}
+          <span className="block text-xs text-text-muted">{t("bookingPortal.family.changedOn", { date: f.date(data.rescheduledAt) })}</span>
+        </p>
+      )}
+      {data.status === "booked" && data.createdVia === "workflow" && (
+        <p className="text-sm text-text-muted">{t("bookingPortal.family.changeByClub")}</p>
+      )}
       {data.status === "booked" && wizard?.data && (
         <Card><CardBody>
           <p className="mb-3 text-sm font-medium text-ink">{t("training.manage.change")}</p>

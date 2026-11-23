@@ -31,8 +31,11 @@ import { MemberCardPanel } from "@/components/member-card/member-card-panel";
 import { shopDb } from "@/lib/shop/db";
 import { MoveToAlumniButton } from "@/components/alumni/tools";
 import { hasFeature } from "@/lib/upgrades/server";
-import { getCurrentSeasonId, getPlayerBillingOverview, getPlayerBookings, getPlayerMemberships } from "@/lib/data/player-billing";
-import { BillingTab, BookingsTab, MembershipTab } from "@/components/player-billing/profile-panels";
+import { getCurrentSeasonId, getPlayerBillingOverview, getPlayerMemberships } from "@/lib/data/player-billing";
+import { BillingTab, MembershipTab } from "@/components/player-billing/profile-panels";
+import { AthleteBookingsPanel, BookedSessionAttendance, BookingInvoicesPanel } from "@/components/booking/portal/admin-athlete";
+import { getAthleteBookingHistory } from "@/lib/booking/data";
+import { getBookedSessionMarks } from "@/lib/booking/portal-data";
 import { parseProfileTab } from "@/lib/billing/player-billing";
 import { zonedDayKey } from "@/lib/staff/hours";
 import { dateParam, playerTotals, playerTotalsByTeam } from "@/lib/attendance/admin-stats";
@@ -91,11 +94,14 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
       : Promise.resolve(null),
     isAdmin ? hasFeature(a.orgId, "alumni_network") : Promise.resolve(false),
     canViewBilling ? getPlayerMemberships(a.id) : Promise.resolve(null),
-    canViewBilling ? getPlayerBookings(a.id) : Promise.resolve(null),
+    // Booking history (staff RPC): bookings tab, booked-session attendance, invoices from bookings.
+    canViewBilling ? getAthleteBookingHistory(a.id) : Promise.resolve(null),
     canViewBilling ? getPlayerBillingOverview(a.id, a.familyId) : Promise.resolve(null),
     getCurrentSeasonId(),
   ]);
   const attendanceHistory = attendanceRes.data ?? [];
+  const bookingRows = [...(bookings?.data?.upcoming ?? []), ...(bookings?.data?.past ?? [])];
+  const bookedMarks = isAdmin ? await getBookedSessionMarks(a.id, bookingRows) : [];
   // Team assignments with dates (admin + finance) and team attendance (admin only).
   const dayKey = zonedDayKey(new Date(), f.timeZone);
   const [teamPeriods, teamSessions, seasonList] = await Promise.all([
@@ -321,6 +327,7 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
   const attendanceTab = (
     <div className="space-y-6">
       {teamAttendance}
+      {isAdmin && bookingRows.length > 0 && <BookedSessionAttendance rows={bookedMarks} t={t} f={f} />}
       {programmeAttendance}
     </div>
   );
@@ -368,14 +375,21 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     { id: "selection", label: t("playerBilling.tabs.selection"), content: selectionTab },
     ...(canViewBilling ? [{
       id: "bookings", label: t("playerBilling.tabs.bookings"),
-      content: <BookingsTab bookings={bookings?.data ?? []} error={bookings?.error} />, count: (bookings?.data ?? []).length,
+      content: <AthleteBookingsPanel athleteId={a.id} upcoming={bookings?.data?.upcoming ?? []} past={bookings?.data?.past ?? []}
+                                     error={bookings?.error} canBook={!isHiddenAthleteStatus(a.status)} t={t} f={f} />,
+      count: bookingRows.length,
     }] : []),
     ...(isAdmin ? [{ id: "development", label: t("media.profile.tabDevelopment"), content: developmentTab }] : []),
-    { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: attendanceHistory.length + sessionRows.length },
+    { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: attendanceHistory.length + sessionRows.length + bookedMarks.length },
     { id: "documents", label: t("media.profile.tabDocuments"), content: documentsTab },
     ...(canViewBilling ? [{
       id: "billing", label: t("media.profile.tabBilling"),
-      content: <BillingTab overview={billingOverview?.data ?? null} error={billingOverview?.error} familyId={a.familyId} athleteId={a.id} />,
+      content: (
+        <div className="space-y-6">
+          <BillingTab overview={billingOverview?.data ?? null} error={billingOverview?.error} familyId={a.familyId} athleteId={a.id} />
+          <BookingInvoicesPanel rows={bookingRows} t={t} f={f} />
+        </div>
+      ),
     }] : []),
   ];
 

@@ -185,6 +185,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
   player: [
     { label: "Home", labelKey: "home", href: "/player/home", icon: Home },
     { label: "Attendance", labelKey: "attendance", href: "/player/attendance", icon: CheckSquare },
+    { label: "Bookings", labelKey: "bookings", href: "/player/bookings", icon: Dumbbell },
+    { label: "Notifications", labelKey: "notifications", href: "/player/notifications", icon: Bell },
   ],
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },

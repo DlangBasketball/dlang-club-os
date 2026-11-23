@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database, Json } from "@/types/database";
 import type { SportsDatabase, VenueRow } from "@/lib/sportsops/db";
+import type { CoachBookingViewRow } from "@/lib/training/db";
 
 /**
  * Typed view of the staff-time, lesson-plan and club-calendar tables and RPCs
@@ -70,6 +71,7 @@ type StaffTables = {
   calendar_feed_tokens: T<FeedTokenRow>;
   camp_editions: T<CampEditionLite>;
   venues: T<VenueRow & VenueGeoRow>;
+  coach_training_bookings: T<CoachBookingViewRow>;
 };
 
 type StaffFunctions = {

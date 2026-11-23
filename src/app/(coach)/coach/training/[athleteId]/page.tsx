@@ -14,7 +14,7 @@ export default async function CoachAthleteTrainingPage({ params }: { params: Pro
   const { athleteId } = await params;
   const [t, res, spons] = await Promise.all([
     getTranslations(),
-    getAthleteTraining(athleteId),
+    getAthleteTraining(athleteId, { audience: "coach" }),
     // RLS: coach_can_access_athlete; kind and share only (no sponsor reason)
     createClient().then((db) => db.from("athletes").select("sponsorship_kind,sponsorship_percent").eq("id", athleteId).maybeSingle()),
   ]);

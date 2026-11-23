@@ -47,11 +47,16 @@ export function templateFor(kind: BookingNotificationKind): BookingTemplate {
   return kind === "confirmed" ? "booking_confirmation" : kind === "rescheduled" ? "booking_rescheduled" : "booking_cancellation";
 }
 
-/** Where the message links: the coach app, the player app, the parent portal; nothing without an account. */
-export function portalPathFor(kind: RecipientKind, hasAccount: boolean): string | undefined {
+/**
+ * Where the message links: the coach's trainings, the player's bookings, the
+ * guardian's booking detail (a payer login only gets the bookings list: the
+ * booking may belong to another family); nothing without an account.
+ */
+export function portalPathFor(kind: RecipientKind, hasAccount: boolean, bookingId?: string | null): string | undefined {
   if (!hasAccount) return undefined;
-  if (kind === "coach") return "/coach";
-  if (kind === "player") return "/player";
+  if (kind === "coach") return "/coach/trainings";
+  if (kind === "player") return "/player/bookings";
+  if (kind === "guardian" && bookingId) return `/parent/bookings/${bookingId}`;
   return "/parent/bookings";
 }
 
@@ -69,7 +74,7 @@ export function buildMessage(row: ClaimedBookingNotification): BookingMessage | 
       ...(row.coachName ? { coach_name: row.coachName } : {}),
       starts_at: row.startsAt,
       ...(row.kind === "rescheduled" && row.previousStartsAt ? { previous_starts_at: row.previousStartsAt } : {}),
-      ...(portalPathFor(row.recipientKind, hasAccount) ? { portal_path: portalPathFor(row.recipientKind, hasAccount) } : {}),
+      ...(portalPathFor(row.recipientKind, hasAccount, row.bookingId) ? { portal_path: portalPathFor(row.recipientKind, hasAccount, row.bookingId) } : {}),
       has_account: hasAccount,
     },
   };
