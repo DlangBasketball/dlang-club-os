@@ -118,7 +118,8 @@
     "admin": "Administrator",
     "finance": "Finance",
     "coach": "Coach",
-    "parent": "Parent"
+    "parent": "Parent",
+    "player": "Player"
   },
   "programKind": {
     "camp": "Camp",
@@ -8250,6 +8251,29 @@
     "announcement": {
       "title": "A message from {club}",
       "heading": "A message from your club"
+    },
+    "attendance_no_show": {
+      "title": "{athlete} missed training",
+      "body": "{athlete} was marked absent without excuse at {team} on {when}.",
+      "subject": "{athlete} missed training — {team}",
+      "heading": "Missed training",
+      "line": "{athlete} was marked absent without an excuse at {team} training on {when}.",
+      "correction": "If this is not right, you can request a correction from the record in the parent portal.",
+      "cta": "View record",
+      "fallbackTeam": "the team"
+    },
+    "attendance_no_show_correction": {
+      "title": "Attendance updated for {athlete}",
+      "body": "The attendance of {athlete} at {team} on {when} was corrected to: {status}.",
+      "subject": "Attendance corrected — {athlete}, {team}",
+      "heading": "Attendance corrected",
+      "line": "The attendance of {athlete} at {team} training on {when} was corrected to: {status}.",
+      "status": {
+        "present": "present",
+        "late": "late",
+        "excused": "excused absence",
+        "unexcused": "unexcused absence"
+      }
     }
   },
   "pdf": {
@@ -11492,6 +11516,148 @@
       "TEAM_NOT_FOUND": "This team does not exist.",
       "INVALID_DATE": "Check the period.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "teamAttendance": {
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "invalid": "Please check the details you entered.",
+      "NOT_AUTHORIZED": "You don't have permission to do this.",
+      "EVENT_NOT_FOUND": "This session could not be found.",
+      "TEAM_NOT_FOUND": "This team could not be found.",
+      "ATHLETE_NOT_FOUND": "This player could not be found.",
+      "COACH_NOT_FOUND": "This coach could not be found.",
+      "PROFILE_NOT_FOUND": "This account could not be found in your club.",
+      "SEASON_NOT_FOUND": "This season could not be found.",
+      "EVENT_HAS_NO_TEAM": "This session is not linked to a team, so there is no roster to take attendance on.",
+      "EVENT_TYPE_NOT_SUPPORTED": "Attendance is taken for trainings, games and tournaments only.",
+      "EVENT_CANCELLED": "This session was canceled.",
+      "EVENT_CLOSED": "This session is no longer open.",
+      "SHEET_NOT_FOUND": "Open the attendance sheet first.",
+      "SHEET_FINAL": "Attendance is already final. Use a correction instead.",
+      "SHEET_NOT_FINAL": "Attendance has not been finalized yet.",
+      "INVALID_STATUS": "Choose a valid attendance status.",
+      "INVALID_MARKS": "The attendance list could not be read.",
+      "NOT_ON_SHEET": "This player is not on the attendance sheet.",
+      "ALREADY_ON_SHEET": "This player is already on the attendance sheet.",
+      "GUEST_MARKED": "A guest who was already marked cannot be removed.",
+      "MARK_NOT_FOUND": "No attendance was recorded for this player.",
+      "NOTE_TOO_LONG": "The note is too long.",
+      "REASON_REQUIRED": "Please give a reason (at least 3 characters).",
+      "REASON_TOO_LONG": "The reason is too long.",
+      "REQUEST_ID_REUSED": "This request was already used. Reload and try again.",
+      "VERSION_CONFLICT": "Someone else changed this sheet. Reload to see the latest version.",
+      "UNMARKED_PLAYERS": "Mark every player before finalizing.",
+      "REPORTED_ABSENCE_UNACKNOWLEDGED": "Some players marked unexcused had reported an absence. Confirm to continue.",
+      "ALREADY_ON_TEAM": "This player is already on the team for that date.",
+      "NOT_ON_TEAM": "This player is not on the team for that date.",
+      "INVALID_EFFECTIVE_DATE": "The effective date is not possible for this membership.",
+      "SAME_TEAM": "Choose a different team.",
+      "SELECTION_ROSTER_MANAGED": "This roster is managed through the selection program enrollment.",
+      "INVALID_JERSEY": "Jersey numbers go from 0 to 999.",
+      "JERSEY_TAKEN": "That jersey number is already taken on this team.",
+      "MEMBERSHIP_HAS_ATTENDANCE": "This membership has attendance history and can only be ended.",
+      "ABSENCE_CUTOFF_PASSED": "Absences can only be reported before the session starts.",
+      "INVALID_CATEGORY": "Choose a reason category.",
+      "REPORT_NOT_FOUND": "This absence report could not be found.",
+      "REPORT_CLOSED": "This absence report is closed.",
+      "ASSIGNMENT_NOT_FOUND": "This access request could not be found.",
+      "ALREADY_TEAM_COACH": "You already coach this team.",
+      "INVALID_ROLE": "Choose a valid role.",
+      "CORRECTION_NOT_FOUND": "This correction request could not be found.",
+      "CORRECTION_CLOSED": "This correction request is closed.",
+      "CORRECTION_OPEN_EXISTS": "A correction request for this session is already open.",
+      "MESSAGE_REQUIRED": "Please write a message.",
+      "MESSAGE_TOO_LONG": "The message is too long.",
+      "NOTE_REQUIRED": "Please add a note explaining the decision.",
+      "PLAYER_ALREADY_LINKED": "This player already has an account.",
+      "PLAYER_IS_GUARDIAN": "A parent's account cannot be the player's own account.",
+      "INVALID_RANGE": "The end date must be after the start date.",
+      "INVALID_GROUP": "Choose how to group the statistics.",
+      "TRAINING_OUTSIDE_SEASON_WINDOW": "No training can be scheduled outside the season's training dates.",
+      "TRAINING_IN_BREAK": "This date falls in a club training break.",
+      "LABEL_REQUIRED": "Give the break a name.",
+      "BREAK_DATES_INVALID": "Check the break dates (at most one year).",
+      "BREAK_NOT_FOUND": "This break could not be found."
+    },
+    "messages": {
+      "saved": "Saved.",
+      "guestAdded": "Guest added for this session.",
+      "finalized": "Attendance finalized.",
+      "corrected": "Attendance corrected.",
+      "absenceReported": "Absence reported. The coach will see it.",
+      "absenceWithdrawn": "Absence report withdrawn.",
+      "accessRequested": "Access requested. An administrator will review it.",
+      "correctionRequested": "Correction request sent.",
+      "breakSaved": "{count, plural, =0 {Break saved.} one {Break saved. # training was canceled.} other {Break saved. # trainings were canceled.}}",
+      "breakDeleted": "{count, plural, =0 {Break deleted.} one {Break deleted. # training stays canceled; review it below.} other {Break deleted. # trainings stay canceled; review them below.}}",
+      "playerInvited": "Invitation sent to the player.",
+      "playerUnlinked": "Player account unlinked."
+    },
+    "notify": {
+      "accessRequested": {
+        "title": "Session access requested",
+        "body": "{coach} asked to run a session."
+      },
+      "accessDecided": {
+        "approvedTitle": "Session access approved",
+        "rejectedTitle": "Session access declined",
+        "body": "Open the session for details."
+      },
+      "correctionRequested": {
+        "title": "Attendance correction requested",
+        "body": "A parent asked to correct an attendance record."
+      },
+      "correctionResolved": {
+        "acceptedTitle": "Attendance corrected",
+        "rejectedTitle": "Correction request declined",
+        "body": "Open the record to see the outcome."
+      }
+    },
+    "statuses": {
+      "unmarked": "Not marked",
+      "present": "Present",
+      "late": "Late",
+      "excused": "Excused absence",
+      "unexcused": "Unexcused absence"
+    },
+    "sheetStatuses": {
+      "draft": "Draft",
+      "final": "Final",
+      "reopened": "Reopened for corrections"
+    },
+    "absenceCategories": {
+      "illness": "Illness",
+      "injury": "Injury",
+      "school": "School",
+      "family": "Family",
+      "travel": "Travel",
+      "other": "Other"
+    },
+    "seasons": {
+      "trainingStartsOn": "First training day",
+      "trainingEndsOn": "Last training day",
+      "trainingWindow": "Trainings: {range}",
+      "goLiveTitle": "Attendance tracking",
+      "goLiveHint": "Sessions before this date are never listed as awaiting attendance or flagged as unfinished.",
+      "goLiveLabel": "Track attendance from",
+      "breaksTitle": "Training breaks",
+      "breaksHint": "Holidays without training. Adding a break cancels the trainings in its dates (families are notified). Deleting a break does not restore canceled sessions.",
+      "noBreaks": "No training breaks yet.",
+      "breakLabel": "Name",
+      "breakStartsOn": "From",
+      "breakEndsOn": "To",
+      "breakSeason": "Season",
+      "allSeasons": "All seasons",
+      "addBreak": "Add break",
+      "cancelledCount": "{count, plural, =0 {No canceled sessions} one {# canceled session} other {# canceled sessions}}",
+      "stillCancelled": "{count, plural, one {# session in these dates is still canceled:} other {# sessions in these dates are still canceled:}}"
+    },
+    "events": {
+      "repeatUntilOption": "Weekly until a date",
+      "repeatUntil": "Repeat until",
+      "repeatUntilHint": "Trainings are only created inside the season's training dates and never during club breaks.",
+      "createSeries": "Create weekly sessions"
     }
   }
 }

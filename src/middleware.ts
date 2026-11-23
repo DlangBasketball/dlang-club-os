@@ -46,6 +46,8 @@ const PUBLIC_PREFIXES = [
   "/waitlist",
   // Scout profile shared by a guardian (hashed link token; off by default).
   "/scout",
+  // Team attendance: no-show alerts, roster ends, review flags (cron bearer secret).
+  "/api/attendance/cron",
   // Family billing split run (cron bearer secret).
   "/api/family/cron",
   // Website connection: public read API (CORS per club), chrome-less embeds

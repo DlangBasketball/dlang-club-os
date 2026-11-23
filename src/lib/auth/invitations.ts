@@ -14,6 +14,8 @@ export type InviteInput = {
   familyId?: string | null;
   coachId?: string | null;
   relation?: string | null;
+  /** Role 'player': the athlete this login becomes the player account of. */
+  athleteId?: string | null;
 };
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -44,6 +46,18 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
       .maybeSingle();
     if (!fam) return { ok: false, error: "Family not found." };
   }
+  if (input.role === "player") {
+    if (!input.athleteId) return { ok: false, error: "Player not found." };
+    const { data: ath } = await admin
+      .from("athletes")
+      .select("id,player_profile_id")
+      .eq("id", input.athleteId)
+      .eq("org_id", orgId)
+      .is("archived_at", null)
+      .maybeSingle();
+    if (!ath) return { ok: false, error: "Player not found." };
+    if (ath.player_profile_id) return { ok: false, error: "PLAYER_ALREADY_LINKED" };
+  }
   if (input.coachId) {
     const { data: coach } = await admin
       .from("coaches")
@@ -62,6 +76,7 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
     family_id: input.familyId ?? null,
     coach_id: input.coachId ?? null,
     relation: input.relation ?? null,
+    athlete_id: input.role === "player" ? input.athleteId ?? null : null,
     invited_by: me.id,
   });
   if (insertError) return { ok: false, error: insertError.message };
@@ -125,7 +140,14 @@ export async function inviteUser(input: InviteInput): Promise<ActionResult> {
       );
       if (famErr) return { ok: false, error: famErr.message };
     }
-    if (input.role !== "parent") {
+    if (input.role === "player" && input.athleteId) {
+      // Player account: linked to the athlete, never a staff role.
+      const famDb = admin as unknown as FamilyClient;
+      const { data: linked, error: linkErr } = await (famDb.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>)(
+        "ta_link_player", { p_athlete: input.athleteId, p_profile: existing.id, p_org: orgId });
+      if (linkErr || linked !== true) return { ok: false, error: linkErr?.message ?? "PLAYER_ALREADY_LINKED" };
+    }
+    if (input.role !== "parent" && input.role !== "player") {
       // Unique (org_id, profile_id, role): re-inviting someone who already
       // holds the role is a no-op, not an error.
       const { error: roleErr } = await admin

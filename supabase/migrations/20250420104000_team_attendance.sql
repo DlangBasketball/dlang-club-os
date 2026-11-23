@@ -34,6 +34,9 @@
 -- 0. Role value + helpers
 -- ===========================================================================
 alter type public.app_role add value if not exists 'player';
+-- In-app notice types of the no-show alerts (written by the TS dispatcher only).
+alter type public.notification_type add value if not exists 'attendance_no_show';
+alter type public.notification_type add value if not exists 'attendance_no_show_correction';
 
 -- Club time zone and "today" in it (app_settings first, then organization).
 create or replace function public.ta_tz(p_org uuid)
@@ -2746,3 +2749,232 @@ begin
     execute format('grant execute on function %s to authenticated, service_role', f);
   end loop;
 end $$;
+
+-- ===========================================================================
+-- 19. Club training breaks (holidays)
+-- ===========================================================================
+-- A break (club-wide, or for one season's teams) is data set by the admin.
+-- Adding / moving a break cancels the non-cancelled TRAINING sessions in its
+-- range (status 'cancelled', cancel_reason = the break label, audited) — the
+-- same path as a normal cancel, so pending no-show alerts are suppressed and
+-- the sessions leave every total. A training with a FINAL attendance sheet
+-- is never cancelled (it took place); it is reported instead. Deleting a
+-- break never un-cancels anything: the affected sessions are reported.
+-- Recurring trainings are never generated inside a break.
+create table if not exists public.club_training_breaks (
+  id          uuid primary key default gen_random_uuid(),
+  org_id      uuid not null references public.organizations(id) on delete cascade,
+  season_id   uuid references public.seasons(id) on delete cascade,
+  label       text not null,
+  starts_on   date not null,
+  ends_on     date not null,
+  created_by  uuid references public.profiles(id) on delete set null,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  constraint club_training_breaks_label_chk check (length(btrim(label)) between 1 and 120),
+  constraint club_training_breaks_dates_chk check (ends_on >= starts_on and ends_on - starts_on <= 366)
+);
+create index if not exists idx_club_training_breaks_org on public.club_training_breaks(org_id, starts_on);
+create index if not exists idx_club_training_breaks_season on public.club_training_breaks(season_id) where season_id is not null;
+drop trigger if exists trg_club_training_breaks_updated on public.club_training_breaks;
+create trigger trg_club_training_breaks_updated before update on public.club_training_breaks
+  for each row execute function public.set_updated_at();
+drop trigger if exists trg_club_training_breaks_org on public.club_training_breaks;
+create trigger trg_club_training_breaks_org before insert or update on public.club_training_breaks
+  for each row execute function public.ca_same_org_guard('season_id:seasons');
+drop trigger if exists trg_audit_club_training_breaks on public.club_training_breaks;
+create trigger trg_audit_club_training_breaks after insert or update or delete on public.club_training_breaks
+  for each row execute function public.audit_trigger();
+
+-- Is a date inside a break that applies to this org / season?
+create or replace function public.ta_in_break(p_org uuid, p_season uuid, p_day date)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.club_training_breaks b
+                  where b.org_id = p_org and p_day between b.starts_on and b.ends_on
+                    and (b.season_id is null or b.season_id = p_season));
+$$;
+
+-- Trainings a break covers (local club date), any status.
+create or replace function public.ta_break_events(p_break uuid)
+returns table (event_id uuid, status text, has_final_sheet boolean, cancel_reason text, starts_at timestamptz, team_id uuid)
+language sql stable security definer set search_path = public as $$
+  select e.id, e.status::text, exists (select 1 from public.team_attendance_sheets s where s.event_id = e.id and s.status = 'final'),
+         e.cancel_reason, e.starts_at, e.team_id
+    from public.club_training_breaks b
+    join public.events e on e.org_id = b.org_id and e.type = 'training'
+     and (e.starts_at at time zone public.ta_tz(b.org_id))::date between b.starts_on and b.ends_on
+    left join public.teams t on t.id = e.team_id
+   where b.id = p_break
+     and (b.season_id is null or coalesce(e.season_id, t.season_id) = b.season_id)
+   order by e.starts_at;
+$$;
+
+-- Cancel the trainings of a break. Returns {cancelled: [ids], skipped_final: [ids]}.
+create or replace function public.ta_apply_break(p_break uuid)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  b       public.club_training_breaks%rowtype;
+  v_ids   uuid[];
+  v_skip  uuid[];
+  v_id    uuid;
+begin
+  select * into b from public.club_training_breaks where id = p_break;
+  if not found then return jsonb_build_object('cancelled', '[]'::jsonb, 'skipped_final', '[]'::jsonb); end if;
+  select coalesce(array_agg(x.event_id) filter (where x.status <> 'cancelled' and not x.has_final_sheet), '{}'),
+         coalesce(array_agg(x.event_id) filter (where x.status <> 'cancelled' and x.has_final_sheet), '{}')
+    into v_ids, v_skip
+    from public.ta_break_events(p_break) x;
+  if cardinality(v_ids) > 0 then
+    update public.events set status = 'cancelled', cancel_reason = left(b.label, 500)
+     where id = any(v_ids) and status <> 'cancelled';
+    foreach v_id in array v_ids loop
+      perform public.ca_audit(b.org_id, 'event.cancel_break', 'events', v_id,
+        jsonb_build_object('break_id', b.id, 'label', b.label, 'starts_on', b.starts_on, 'ends_on', b.ends_on));
+    end loop;
+  end if;
+  return jsonb_build_object('cancelled', to_jsonb(v_ids), 'skipped_final', to_jsonb(v_skip));
+end;
+$$;
+
+-- Direct writes (admin through RLS) apply the break too; the RPCs apply it
+-- themselves to return the result (ta.break_apply = 'off' for that write).
+create or replace function public.club_training_breaks_apply()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if coalesce(current_setting('ta.break_apply', true), '') <> 'off' then
+    perform public.ta_apply_break(new.id);
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists trg_club_training_breaks_apply on public.club_training_breaks;
+create trigger trg_club_training_breaks_apply after insert or update of starts_on, ends_on, season_id, label on public.club_training_breaks
+  for each row execute function public.club_training_breaks_apply();
+
+-- Admin: create (p_id null) or change a break. Returns the break and the
+-- trainings it cancelled (the app notifies families of those).
+create or replace function public.training_break_save(p_id uuid, p_label text, p_starts_on date, p_ends_on date,
+                                                      p_season uuid default null)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare v_org uuid := public.current_org_id(); v_id uuid; v_res jsonb;
+begin
+  if v_org is null or not public.is_admin() then raise exception 'NOT_AUTHORIZED' using errcode = 'P0001'; end if;
+  if length(btrim(coalesce(p_label, ''))) = 0 or length(p_label) > 120 then raise exception 'LABEL_REQUIRED' using errcode = 'P0001'; end if;
+  if p_starts_on is null or p_ends_on is null or p_ends_on < p_starts_on or p_ends_on - p_starts_on > 366 then
+    raise exception 'BREAK_DATES_INVALID' using errcode = 'P0001';
+  end if;
+  if p_season is not null and not exists (select 1 from public.seasons where id = p_season and org_id = v_org) then
+    raise exception 'SEASON_NOT_FOUND' using errcode = 'P0002';
+  end if;
+  perform set_config('ta.break_apply', 'off', true);
+  if p_id is null then
+    insert into public.club_training_breaks (org_id, season_id, label, starts_on, ends_on, created_by)
+    values (v_org, p_season, btrim(p_label), p_starts_on, p_ends_on, auth.uid()) returning id into v_id;
+  else
+    update public.club_training_breaks
+       set season_id = p_season, label = btrim(p_label), starts_on = p_starts_on, ends_on = p_ends_on
+     where id = p_id and org_id = v_org returning id into v_id;
+  end if;
+  perform set_config('ta.break_apply', '', true);
+  if v_id is null then raise exception 'BREAK_NOT_FOUND' using errcode = 'P0002'; end if;
+  v_res := public.ta_apply_break(v_id);
+  return jsonb_build_object('break_id', v_id) || v_res;
+end;
+$$;
+
+-- Admin: delete a break. Nothing is un-cancelled; the trainings of the range
+-- still cancelled with this break's label are returned for review.
+create or replace function public.training_break_delete(p_id uuid)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare v_org uuid := public.current_org_id(); b public.club_training_breaks%rowtype; v_aff jsonb;
+begin
+  if v_org is null or not public.is_admin() then raise exception 'NOT_AUTHORIZED' using errcode = 'P0001'; end if;
+  select * into b from public.club_training_breaks where id = p_id and org_id = v_org;
+  if not found then raise exception 'BREAK_NOT_FOUND' using errcode = 'P0002'; end if;
+  select coalesce(jsonb_agg(jsonb_build_object('event_id', x.event_id, 'starts_at', x.starts_at, 'team_id', x.team_id)), '[]'::jsonb)
+    into v_aff
+    from public.ta_break_events(p_id) x
+   where x.status = 'cancelled' and x.cancel_reason is not distinct from left(b.label, 500);
+  delete from public.club_training_breaks where id = p_id;
+  return jsonb_build_object('break_id', p_id, 'deleted', true, 'still_cancelled', v_aff);
+end;
+$$;
+
+create or replace function public.training_breaks_list(p_season uuid default null)
+returns table (id uuid, season_id uuid, label text, starts_on date, ends_on date, cancelled_sessions integer)
+language sql stable security definer set search_path = public as $$
+  select b.id, b.season_id, b.label, b.starts_on, b.ends_on,
+         case when public.is_staff() then (select count(*)::int from public.ta_break_events(b.id) x where x.status = 'cancelled') end
+    from public.club_training_breaks b
+   where b.org_id = public.current_org_id()
+     and (public.is_staff() or public.is_any_guardian() or public.is_player())
+     and (p_season is null or b.season_id is null or b.season_id = p_season)
+   order by b.starts_on;
+$$;
+
+alter table public.club_training_breaks enable row level security;
+drop policy if exists club_training_breaks_select on public.club_training_breaks;
+create policy club_training_breaks_select on public.club_training_breaks for select
+  using (org_id = public.current_org_id() and (public.is_staff() or public.is_any_guardian() or public.is_player()));
+drop policy if exists club_training_breaks_insert on public.club_training_breaks;
+create policy club_training_breaks_insert on public.club_training_breaks for insert
+  with check (org_id = public.current_org_id() and public.is_admin());
+drop policy if exists club_training_breaks_update on public.club_training_breaks;
+create policy club_training_breaks_update on public.club_training_breaks for update
+  using (org_id = public.current_org_id() and public.is_admin())
+  with check (org_id = public.current_org_id() and public.is_admin());
+drop policy if exists club_training_breaks_delete on public.club_training_breaks;
+create policy club_training_breaks_delete on public.club_training_breaks for delete
+  using (org_id = public.current_org_id() and public.is_admin());
+grant select, insert, update, delete on public.club_training_breaks to authenticated;
+grant all on public.club_training_breaks to service_role;
+
+-- Recurring trainings: outside the training window or inside a break refused.
+create or replace function public.events_training_window_guard()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_season uuid; v_start date; v_end date; v_day date;
+begin
+  if new.series_id is null or new.type <> 'training' then return new; end if;
+  if tg_op = 'UPDATE' and new.starts_at is not distinct from old.starts_at and new.series_id is not distinct from old.series_id then
+    return new;
+  end if;
+  v_season := coalesce(new.season_id, (select t.season_id from public.teams t where t.id = new.team_id));
+  select s.training_starts_on, s.training_ends_on into v_start, v_end from public.seasons s where s.id = v_season;
+  v_day := (new.starts_at at time zone public.ta_tz(new.org_id))::date;
+  if (v_start is not null and v_day < v_start) or (v_end is not null and v_day > v_end) then
+    raise exception 'TRAINING_OUTSIDE_SEASON_WINDOW' using errcode = 'P0001';
+  end if;
+  if tg_op = 'INSERT' and public.ta_in_break(new.org_id, v_season, v_day) then
+    raise exception 'TRAINING_IN_BREAK' using errcode = 'P0001';
+  end if;
+  return new;
+end;
+$$;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['public.ta_apply_break(uuid)', 'public.ta_break_events(uuid)', 'public.club_training_breaks_apply()'] loop
+    execute format('revoke all on function %s from public, anon, authenticated', f);
+    execute format('grant execute on function %s to service_role', f);
+  end loop;
+  foreach f in array array['public.ta_in_break(uuid, uuid, date)', 'public.training_break_save(uuid, text, date, date, uuid)',
+                           'public.training_break_delete(uuid)', 'public.training_breaks_list(uuid)'] loop
+    execute format('revoke all on function %s from public, anon', f);
+    execute format('grant execute on function %s to authenticated, service_role', f);
+  end loop;
+end $$;
+
+-- ===========================================================================
+-- 20. The player portal (/player) is an app route: never a club site page
+-- (mirrors RESERVED_SEGMENTS in src/lib/site/paths.ts).
+-- ===========================================================================
+create or replace function public.site_path_reserved(p text)
+returns boolean language sql immutable set search_path = public as $$
+  select split_part(ltrim(coalesce(p, ''), '/'), '/', 1) in (
+    'admin', 'coach', 'parent', 'player', 'platform', 'login', 'auth', 'register', 'book', 'shop', 'club', 'embed',
+    'embed.js', 'api', 'board', 'scout', 'waitlist', 'onboarding', 'signup', 'legal', 'offline', 'pwa',
+    'sw.js', 'manifest.webmanifest', '_next', 'favicon.ico', 'sitemap.xml', 'robots.txt', 'icon',
+    'apple-icon', 'opengraph-image', 'monitoring');
+$$;

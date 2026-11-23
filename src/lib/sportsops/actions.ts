@@ -11,6 +11,10 @@ import { sportsDb, type ConflictRow } from "./db";
 import { notifyEventChange } from "@/lib/family/notify";
 import { notifyWebsite } from "@/lib/website/webhooks";
 import { TEAM_SLUG_RE } from "@/lib/teams/slug";
+import { createClient } from "@/lib/supabase/server";
+import { planWeeklySeries } from "@/lib/attendance/schedule";
+import { attendanceErrorCode } from "@/lib/attendance/types";
+import { CLUB_TZ } from "./time";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -295,7 +299,11 @@ export async function removeTeamMember(membershipId: string, teamId: string): Pr
   const me = await requireStaff(["admin", "coach"]);
   if (!me) return { ok: false, error: ERR.NOT_AUTHORIZED };
   const db = await sportsDb();
-  const { error } = await db.from("team_memberships").delete().eq("id", membershipId);
+  let { error } = await db.from("team_memberships").delete().eq("id", membershipId);
+  if (error?.message.includes("MEMBERSHIP_HAS_ATTENDANCE")) {
+    // Used by team attendance: keep the history, end the membership today.
+    ({ error } = await db.from("team_memberships").update({ status: "inactive" }).eq("id", membershipId));
+  }
   if (error) return { ok: false, error: friendly(error.message) };
   revalidateAll(teamId);
   notifyWebsite(me.orgId, "teams");
@@ -320,6 +328,11 @@ const EventInput = z.object({
   status: z.enum(["scheduled", "postponed", "cancelled", "completed"]).default("scheduled"),
   /** Repeat weekly this many extra times (training blocks). */
   repeatWeeks: z.number().int().min(0).max(52).default(0),
+  /**
+   * Repeat weekly until this date (club time zone, inclusive); overrides
+   * repeatWeeks. The form defaults it to the season's training end.
+   */
+  repeatUntil: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.literal(""), z.null()]).optional().transform((v) => (v ? v : null)),
   /** Away game / other location: optional place name (address goes in locationText). */
   locationName: optText,
   /** Create this venue for the club and use it (admin only). */
@@ -334,7 +347,30 @@ const EventInput = z.object({
 export type EventInput = z.input<typeof EventInput>;
 
 export type ConflictWarning = { eventId: string; label: string; startsAt: string; endsAt: string; sameSpace: boolean; spaceName: string | null };
-export type SaveEventResult = ActionResult<{ ids: string[] }> | { ok: false; error: string; conflicts: ConflictWarning[] };
+/** skipped: weekly dates of a new training series left out (outside the season's training window / inside a club break). */
+export type SaveEventResult = ActionResult<{ ids: string[]; skipped?: { date: string; reason: "outside_window" | "break" }[] }> | { ok: false; error: string; conflicts: ConflictWarning[] };
+
+/**
+ * Training window of a season and the club breaks that apply to it, plus the
+ * club time zone (recurring trainings never land outside / inside them).
+ */
+async function trainingRules(orgId: string, seasonId: string | null) {
+  const db = await createClient();
+  const [season, breaks, settings] = await Promise.all([
+    seasonId ? db.from("seasons").select("training_starts_on,training_ends_on").eq("id", seasonId).eq("org_id", orgId).maybeSingle() : Promise.resolve({ data: null }),
+    db.from("club_training_breaks").select("starts_on,ends_on,season_id").eq("org_id", orgId),
+    db.rpc("attendance_settings"),
+  ]);
+  const s = season.data as { training_starts_on: string | null; training_ends_on: string | null } | null;
+  const tz = (settings.data as { timezone?: string } | null)?.timezone || CLUB_TZ;
+  return {
+    timeZone: tz,
+    window: s ? { startsOn: s.training_starts_on, endsOn: s.training_ends_on } : null,
+    breaks: ((breaks.data ?? []) as { starts_on: string; ends_on: string; season_id: string | null }[])
+      .filter((b) => !b.season_id || b.season_id === seasonId)
+      .map((b) => ({ startsOn: b.starts_on, endsOn: b.ends_on })),
+  };
+}
 
 const toWarning = (c: ConflictRow): ConflictWarning => ({
   eventId: c.event_id, label: c.title ?? `${c.team_name ?? "Club"} · ${c.type}`, startsAt: c.starts_at, endsAt: c.ends_at,
@@ -391,12 +427,12 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
     const { data: team } = await db.from("teams").select("season_id").eq("id", e.teamId).maybeSingle();
     seasonId = team?.season_id ?? null;
   }
-  const dur = Date.parse(e.endsAt) - Date.parse(e.startsAt);
 
   // Which rows get which times.
   let targets: { id: string | null; startsAt: string; endsAt: string }[];
   let seriesId: string | null = null;
   let changedForFamilies = false;
+  let skipped: { date: string; reason: "outside_window" | "break" }[] = [];
   if (id) {
     const { data: cur, error: cErr } = await db.from("events").select("id,starts_at,ends_at,series_id,venue_id,location_text,status").eq("id", id).eq("org_id", me.orgId!).maybeSingle();
     if (cErr) return { ok: false, error: friendly(cErr.message) };
@@ -413,12 +449,21 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
       targets.push(...shiftOccurrences({ oldStart: cur.starts_at, newStart: e.startsAt, newEnd: e.endsAt },
         (later ?? []).map((r) => ({ id: r.id, startsAt: r.starts_at }))));
     }
-  } else {
-    targets = Array.from({ length: e.repeatWeeks + 1 }, (_, w) => {
-      const s = new Date(Date.parse(e.startsAt) + w * 7 * 864e5);
-      return { id: null, startsAt: s.toISOString(), endsAt: new Date(s.getTime() + dur).toISOString() };
+  } else if (e.repeatWeeks > 0 || e.repeatUntil) {
+    // Weekly series: a training series stays inside the season's training
+    // window and skips the club's training breaks.
+    const isTraining = e.type === "training";
+    const rules = isTraining ? await trainingRules(me.orgId!, seasonId) : null;
+    const plan = planWeeklySeries({
+      startsAt: e.startsAt, endsAt: e.endsAt, repeatWeeks: e.repeatWeeks, repeatUntil: e.repeatUntil,
+      window: rules?.window ?? null, breaks: rules?.breaks ?? [], timeZone: rules?.timeZone ?? CLUB_TZ, applyRules: isTraining,
     });
+    skipped = plan.skipped;
+    targets = plan.occurrences.map((o) => ({ id: null, ...o }));
+    if (!targets.length) return tErr("teamAttendance.errors.TRAINING_OUTSIDE_SEASON_WINDOW");
     if (targets.length > 1) seriesId = randomUUID();
+  } else {
+    targets = [{ id: null, startsAt: e.startsAt, endsAt: e.endsAt }];
   }
 
   if (!force && venueId && e.status !== "cancelled") {
@@ -452,10 +497,13 @@ export async function saveEvent(id: string | null, input: EventInput, force = fa
   const { data, error } = await db.from("events")
     .insert(targets.map((o) => ({ ...base, org_id: me.orgId, created_by: me.id, series_id: seriesId, starts_at: o.startsAt, ends_at: o.endsAt })))
     .select("id");
-  if (error) return { ok: false, error: friendly(error.message) };
+  if (error) {
+    const code = attendanceErrorCode(error.message);
+    return code ? tErr(`teamAttendance.errors.${code}`) : { ok: false, error: friendly(error.message) };
+  }
   revalidateAll(e.teamId);
   notifyWebsite(me.orgId, "events", "results");
-  return { ok: true, data: { ids: (data ?? []).map((r) => r.id) } };
+  return { ok: true, data: { ids: (data ?? []).map((r) => r.id), skipped } };
 }
 
 /** Rows affected by a status change / delete: this event, or this and the later ones of its series. */

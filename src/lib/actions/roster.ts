@@ -162,7 +162,12 @@ export async function removeMembership(membershipId: string): Promise<ActionResu
   const m = await loadMembership(p.data.membershipId, me.orgId);
   if (!m) return { ok: false, error: t("media.roster.errors.notFound") };
   const db = await sportsDb();
-  const { error } = await db.from("team_memberships").delete().eq("id", m.id).eq("org_id", me.orgId);
+  let { error } = await db.from("team_memberships").delete().eq("id", m.id).eq("org_id", me.orgId);
+  if (error?.message.includes("MEMBERSHIP_HAS_ATTENDANCE")) {
+    // Used by team attendance: history is kept, the membership ends today
+    // (the effective-date trigger stamps left_on).
+    ({ error } = await db.from("team_memberships").update({ status: "inactive" }).eq("id", m.id).eq("org_id", me.orgId));
+  }
   if (error) {
     const key = rosterErrorKey(error.message);
     if (key === "media.roster.errors.generic") logError("removeMembership", error);

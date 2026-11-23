@@ -118,7 +118,8 @@
     "admin": "Administrator:in",
     "finance": "Finanzen",
     "coach": "Trainer:in",
-    "parent": "Elternteil"
+    "parent": "Elternteil",
+    "player": "Spieler·in"
   },
   "programKind": {
     "camp": "Camp",
@@ -8250,6 +8251,29 @@
     "announcement": {
       "title": "Eine Nachricht von {club}",
       "heading": "Eine Nachricht von deinem Club"
+    },
+    "attendance_no_show": {
+      "title": "{athlete} hat im Training gefehlt",
+      "body": "{athlete} wurde bei {team} am {when} als unentschuldigt abwesend erfasst.",
+      "subject": "{athlete} hat im Training gefehlt — {team}",
+      "heading": "Training verpasst",
+      "line": "{athlete} wurde beim Training von {team} am {when} als unentschuldigt abwesend erfasst.",
+      "correction": "Falls das nicht stimmt, können Sie im Elternportal beim Eintrag eine Korrektur anfragen.",
+      "cta": "Eintrag ansehen",
+      "fallbackTeam": "dem Team"
+    },
+    "attendance_no_show_correction": {
+      "title": "Anwesenheit von {athlete} aktualisiert",
+      "body": "Die Anwesenheit von {athlete} bei {team} am {when} wurde korrigiert: {status}.",
+      "subject": "Anwesenheit korrigiert — {athlete}, {team}",
+      "heading": "Anwesenheit korrigiert",
+      "line": "Die Anwesenheit von {athlete} beim Training von {team} am {when} wurde korrigiert: {status}.",
+      "status": {
+        "present": "anwesend",
+        "late": "verspätet",
+        "excused": "entschuldigt abwesend",
+        "unexcused": "unentschuldigt abwesend"
+      }
     }
   },
   "pdf": {
@@ -11492,6 +11516,148 @@
       "TEAM_NOT_FOUND": "Diese Mannschaft gibt es nicht.",
       "INVALID_DATE": "Prüfen Sie die Periode.",
       "generic": "Etwas ist schiefgelaufen. Bitte erneut versuchen."
+    }
+  },
+  "teamAttendance": {
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "invalid": "Bitte prüfen Sie Ihre Eingaben.",
+      "NOT_AUTHORIZED": "Dazu sind Sie nicht berechtigt.",
+      "EVENT_NOT_FOUND": "Diese Einheit wurde nicht gefunden.",
+      "TEAM_NOT_FOUND": "Dieses Team wurde nicht gefunden.",
+      "ATHLETE_NOT_FOUND": "Diese Spielerin bzw. dieser Spieler wurde nicht gefunden.",
+      "COACH_NOT_FOUND": "Dieser Coach wurde nicht gefunden.",
+      "PROFILE_NOT_FOUND": "Dieses Konto wurde in Ihrem Verein nicht gefunden.",
+      "SEASON_NOT_FOUND": "Diese Saison wurde nicht gefunden.",
+      "EVENT_HAS_NO_TEAM": "Diese Einheit ist keinem Team zugeordnet, daher gibt es keinen Kader für die Anwesenheit.",
+      "EVENT_TYPE_NOT_SUPPORTED": "Anwesenheit wird nur für Trainings, Spiele und Turniere erfasst.",
+      "EVENT_CANCELLED": "Diese Einheit wurde abgesagt.",
+      "EVENT_CLOSED": "Diese Einheit ist nicht mehr offen.",
+      "SHEET_NOT_FOUND": "Öffnen Sie zuerst die Anwesenheitsliste.",
+      "SHEET_FINAL": "Die Anwesenheit ist bereits abgeschlossen. Verwenden Sie eine Korrektur.",
+      "SHEET_NOT_FINAL": "Die Anwesenheit wurde noch nicht abgeschlossen.",
+      "INVALID_STATUS": "Wählen Sie einen gültigen Anwesenheitsstatus.",
+      "INVALID_MARKS": "Die Anwesenheitsliste konnte nicht gelesen werden.",
+      "NOT_ON_SHEET": "Diese Person steht nicht auf der Anwesenheitsliste.",
+      "ALREADY_ON_SHEET": "Diese Person steht bereits auf der Anwesenheitsliste.",
+      "GUEST_MARKED": "Ein bereits erfasster Gast kann nicht entfernt werden.",
+      "MARK_NOT_FOUND": "Für diese Person wurde keine Anwesenheit erfasst.",
+      "NOTE_TOO_LONG": "Die Notiz ist zu lang.",
+      "REASON_REQUIRED": "Bitte geben Sie einen Grund an (mindestens 3 Zeichen).",
+      "REASON_TOO_LONG": "Der Grund ist zu lang.",
+      "REQUEST_ID_REUSED": "Diese Anfrage wurde bereits verwendet. Laden Sie neu und versuchen Sie es erneut.",
+      "VERSION_CONFLICT": "Jemand anderes hat diese Liste geändert. Laden Sie neu, um die aktuelle Version zu sehen.",
+      "UNMARKED_PLAYERS": "Erfassen Sie alle Spielenden, bevor Sie abschliessen.",
+      "REPORTED_ABSENCE_UNACKNOWLEDGED": "Einige als unentschuldigt erfasste Spielende hatten eine Abwesenheit gemeldet. Bestätigen Sie, um fortzufahren.",
+      "ALREADY_ON_TEAM": "Diese Person ist an diesem Datum bereits im Team.",
+      "NOT_ON_TEAM": "Diese Person ist an diesem Datum nicht im Team.",
+      "INVALID_EFFECTIVE_DATE": "Dieses Stichdatum ist für diese Mitgliedschaft nicht möglich.",
+      "SAME_TEAM": "Wählen Sie ein anderes Team.",
+      "SELECTION_ROSTER_MANAGED": "Dieser Kader wird über die Anmeldung zum Selektionsprogramm verwaltet.",
+      "INVALID_JERSEY": "Trikotnummern gehen von 0 bis 999.",
+      "JERSEY_TAKEN": "Diese Trikotnummer ist in diesem Team bereits vergeben.",
+      "MEMBERSHIP_HAS_ATTENDANCE": "Diese Mitgliedschaft hat eine Anwesenheitshistorie und kann nur beendet werden.",
+      "ABSENCE_CUTOFF_PASSED": "Abwesenheiten können nur vor Beginn der Einheit gemeldet werden.",
+      "INVALID_CATEGORY": "Wählen Sie eine Kategorie für den Grund.",
+      "REPORT_NOT_FOUND": "Diese Abwesenheitsmeldung wurde nicht gefunden.",
+      "REPORT_CLOSED": "Diese Abwesenheitsmeldung ist geschlossen.",
+      "ASSIGNMENT_NOT_FOUND": "Diese Zugriffsanfrage wurde nicht gefunden.",
+      "ALREADY_TEAM_COACH": "Sie trainieren dieses Team bereits.",
+      "INVALID_ROLE": "Wählen Sie eine gültige Rolle.",
+      "CORRECTION_NOT_FOUND": "Diese Korrekturanfrage wurde nicht gefunden.",
+      "CORRECTION_CLOSED": "Diese Korrekturanfrage ist geschlossen.",
+      "CORRECTION_OPEN_EXISTS": "Für diese Einheit ist bereits eine Korrekturanfrage offen.",
+      "MESSAGE_REQUIRED": "Bitte schreiben Sie eine Nachricht.",
+      "MESSAGE_TOO_LONG": "Die Nachricht ist zu lang.",
+      "NOTE_REQUIRED": "Bitte fügen Sie eine Notiz zur Entscheidung hinzu.",
+      "PLAYER_ALREADY_LINKED": "Diese Person hat bereits ein Konto.",
+      "PLAYER_IS_GUARDIAN": "Das Konto eines Elternteils kann nicht das eigene Konto der spielenden Person sein.",
+      "INVALID_RANGE": "Das Enddatum muss nach dem Startdatum liegen.",
+      "INVALID_GROUP": "Wählen Sie die Gruppierung der Statistik.",
+      "TRAINING_OUTSIDE_SEASON_WINDOW": "Ausserhalb der Trainingsdaten der Saison kann kein Training geplant werden.",
+      "TRAINING_IN_BREAK": "Dieses Datum liegt in einer Trainingspause des Vereins.",
+      "LABEL_REQUIRED": "Geben Sie der Pause einen Namen.",
+      "BREAK_DATES_INVALID": "Prüfen Sie die Daten der Pause (höchstens ein Jahr).",
+      "BREAK_NOT_FOUND": "Diese Pause wurde nicht gefunden."
+    },
+    "messages": {
+      "saved": "Gespeichert.",
+      "guestAdded": "Gast für diese Einheit hinzugefügt.",
+      "finalized": "Anwesenheit abgeschlossen.",
+      "corrected": "Anwesenheit korrigiert.",
+      "absenceReported": "Abwesenheit gemeldet. Der Coach sieht sie.",
+      "absenceWithdrawn": "Abwesenheitsmeldung zurückgezogen.",
+      "accessRequested": "Zugriff angefragt. Eine Administratorin oder ein Administrator prüft die Anfrage.",
+      "correctionRequested": "Korrekturanfrage gesendet.",
+      "breakSaved": "{count, plural, =0 {Pause gespeichert.} one {Pause gespeichert. # Training wurde abgesagt.} other {Pause gespeichert. # Trainings wurden abgesagt.}}",
+      "breakDeleted": "{count, plural, =0 {Pause gelöscht.} one {Pause gelöscht. # Training bleibt abgesagt; bitte unten prüfen.} other {Pause gelöscht. # Trainings bleiben abgesagt; bitte unten prüfen.}}",
+      "playerInvited": "Einladung an die spielende Person gesendet.",
+      "playerUnlinked": "Spielerkonto getrennt."
+    },
+    "notify": {
+      "accessRequested": {
+        "title": "Zugriff auf eine Einheit angefragt",
+        "body": "{coach} möchte eine Einheit leiten."
+      },
+      "accessDecided": {
+        "approvedTitle": "Zugriff auf die Einheit genehmigt",
+        "rejectedTitle": "Zugriff auf die Einheit abgelehnt",
+        "body": "Öffnen Sie die Einheit für Details."
+      },
+      "correctionRequested": {
+        "title": "Korrektur der Anwesenheit angefragt",
+        "body": "Ein Elternteil bittet um Korrektur einer Anwesenheit."
+      },
+      "correctionResolved": {
+        "acceptedTitle": "Anwesenheit korrigiert",
+        "rejectedTitle": "Korrekturanfrage abgelehnt",
+        "body": "Öffnen Sie den Eintrag, um die Entscheidung zu sehen."
+      }
+    },
+    "statuses": {
+      "unmarked": "Nicht erfasst",
+      "present": "Anwesend",
+      "late": "Verspätet",
+      "excused": "Entschuldigt abwesend",
+      "unexcused": "Unentschuldigt abwesend"
+    },
+    "sheetStatuses": {
+      "draft": "Entwurf",
+      "final": "Abgeschlossen",
+      "reopened": "Für Korrekturen geöffnet"
+    },
+    "absenceCategories": {
+      "illness": "Krankheit",
+      "injury": "Verletzung",
+      "school": "Schule",
+      "family": "Familie",
+      "travel": "Reise",
+      "other": "Anderes"
+    },
+    "seasons": {
+      "trainingStartsOn": "Erster Trainingstag",
+      "trainingEndsOn": "Letzter Trainingstag",
+      "trainingWindow": "Trainingszeitraum: {range}",
+      "goLiveTitle": "Anwesenheitserfassung",
+      "goLiveHint": "Einheiten vor diesem Datum werden nie als offen gelistet oder als unvollständig markiert.",
+      "goLiveLabel": "Anwesenheit erfassen ab",
+      "breaksTitle": "Trainingspausen",
+      "breaksHint": "Ferien ohne Training. Eine neue Pause sagt die Trainings in diesem Zeitraum ab (Familien werden informiert). Das Löschen einer Pause stellt abgesagte Einheiten nicht wieder her.",
+      "noBreaks": "Noch keine Trainingspausen.",
+      "breakLabel": "Bezeichnung",
+      "breakStartsOn": "Von",
+      "breakEndsOn": "Bis",
+      "breakSeason": "Saison",
+      "allSeasons": "Alle Saisons",
+      "addBreak": "Pause hinzufügen",
+      "cancelledCount": "{count, plural, =0 {Keine abgesagten Einheiten} one {# abgesagte Einheit} other {# abgesagte Einheiten}}",
+      "stillCancelled": "{count, plural, one {# Einheit in diesem Zeitraum bleibt abgesagt:} other {# Einheiten in diesem Zeitraum bleiben abgesagt:}}"
+    },
+    "events": {
+      "repeatUntilOption": "Wöchentlich bis zu einem Datum",
+      "repeatUntil": "Wiederholen bis",
+      "repeatUntilHint": "Trainings werden nur innerhalb der Trainingsdaten der Saison und nie in Vereinspausen erstellt.",
+      "createSeries": "Wöchentliche Einheiten erstellen"
     }
   }
 }

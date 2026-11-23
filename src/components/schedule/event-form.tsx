@@ -12,7 +12,11 @@ import { useFormat, useT } from "@/lib/i18n/client";
 import type { EventScope } from "@/lib/club-ops/validation";
 
 type Opt = { id: string; name: string };
+/** trainingEndsOn: last training day of the team's season (default end of a weekly series). */
+type TeamOpt = Opt & { trainingEndsOn?: string | null };
 type VenueOpt = Opt & { spaces: Opt[] };
+/** Repeat select value for "weekly until a date". */
+const UNTIL = -1;
 type EventType = EventInput["type"];
 
 /** Select values for the place picker besides real venue ids. */
@@ -23,6 +27,8 @@ export type EventFormValues = {
   teamId: string; type: EventType; title: string; venueId: string; spaceId: string; locationText: string; locationName: string;
   date: string; start: string; end: string; opponent: string; homeAway: "" | "home" | "away" | "neutral"; notes: string;
   status: "scheduled" | "postponed" | "cancelled" | "completed"; repeatWeeks: number;
+  /** YYYY-MM-DD when repeatWeeks === -1 (weekly until this date). */
+  repeatUntil?: string;
 };
 
 /** Club wall-clock (club time zone) -> ISO instant. */
@@ -32,7 +38,7 @@ function toIso(date: string, time: string) {
 }
 
 export function EventForm({ eventId, seriesId, initial, teams, venues, returnTo, lockTeam, canCreateVenue }: {
-  eventId?: string; seriesId?: string | null; initial?: Partial<EventFormValues>; teams: Opt[]; venues: VenueOpt[]; returnTo: string; lockTeam?: boolean;
+  eventId?: string; seriesId?: string | null; initial?: Partial<EventFormValues>; teams: TeamOpt[]; venues: VenueOpt[]; returnTo: string; lockTeam?: boolean;
   /** Admins can add a club venue from the form ("+ New venue"). */
   canCreateVenue?: boolean;
 }) {
@@ -83,7 +89,8 @@ export function EventForm({ eventId, seriesId, initial, teams, venues, returnTo,
       locationText: place === OTHER ? f.locationText : "", locationName: place === OTHER ? f.locationName : "",
       newVenue: place === NEW_VENUE ? { name: newVenue.name, address: newVenue.address, city: newVenue.city } : null,
       startsAt, endsAt, opponent: f.opponent, homeAway: f.homeAway || null, notes: f.notes,
-      status: f.status, repeatWeeks: eventId ? 0 : f.repeatWeeks,
+      status: f.status, repeatWeeks: eventId || f.repeatWeeks === UNTIL ? 0 : f.repeatWeeks,
+      repeatUntil: !eventId && f.repeatWeeks === UNTIL ? f.repeatUntil || null : null,
     }, confirmed, scope);
     setPending(false);
     if (!res.ok) {
@@ -156,10 +163,23 @@ export function EventForm({ eventId, seriesId, initial, teams, venues, returnTo,
             </Select></div>
         ) : (
           <div><Label htmlFor="e-rep">{t("editOps.events.repeatWeekly")}</Label>
-            <Select id="e-rep" value={String(f.repeatWeeks)} onChange={(e) => set("repeatWeeks", Number(e.target.value))}>
+            <Select id="e-rep" value={String(f.repeatWeeks)} onChange={(e) => {
+              const n = Number(e.target.value);
+              setF((s) => ({ ...s, repeatWeeks: n,
+                repeatUntil: n === UNTIL && !s.repeatUntil ? teams.find((x) => x.id === s.teamId)?.trainingEndsOn ?? "" : s.repeatUntil }));
+              setConfirmed(false);
+            }}>
               <option value="0">{t("editOps.events.doesNotRepeat")}</option>
               {[3, 7, 11, 15, 19, 39].map((n) => <option key={n} value={n}>{t("editOps.events.weeksTotal", { count: n + 1 })}</option>)}
-            </Select></div>
+              <option value={UNTIL}>{t("teamAttendance.events.repeatUntilOption")}</option>
+            </Select>
+            {f.repeatWeeks === UNTIL && (
+              <div className="mt-2">
+                <Label htmlFor="e-until">{t("teamAttendance.events.repeatUntil")}</Label>
+                <Input id="e-until" type="date" required min={f.date || undefined} value={f.repeatUntil ?? ""} onChange={(e) => set("repeatUntil", e.target.value)} />
+                {f.type === "training" && <p className="mt-1 text-xs text-ink-3">{t("teamAttendance.events.repeatUntilHint")}</p>}
+              </div>
+            )}</div>
         )}
       </div>
       <div><Label htmlFor="e-notes">{t("editOps.events.notes")}</Label><Textarea id="e-notes" maxLength={2000} value={f.notes} onChange={(e) => set("notes", e.target.value)} placeholder={t("editOps.events.notesPlaceholder")} /></div>
@@ -192,7 +212,7 @@ export function EventForm({ eventId, seriesId, initial, teams, venues, returnTo,
       <FormError message={err} />
       <div className="flex gap-2">
         <Button type="submit" disabled={pending || hardClash || (warnings.length > 0 && !confirmed)}>
-          {pending ? t("common.saving") : eventId ? t("editOps.events.save") : f.repeatWeeks ? t("editOps.events.createMany", { count: f.repeatWeeks + 1 }) : t("editOps.events.create")}
+          {pending ? t("common.saving") : eventId ? t("editOps.events.save") : f.repeatWeeks === UNTIL ? t("teamAttendance.events.createSeries") : f.repeatWeeks ? t("editOps.events.createMany", { count: f.repeatWeeks + 1 }) : t("editOps.events.create")}
         </Button>
         <Button type="button" variant="ghost" disabled={pending} onClick={() => router.push(returnTo)}>{t("common.cancel")}</Button>
       </div>

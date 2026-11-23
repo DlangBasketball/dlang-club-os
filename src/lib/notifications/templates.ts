@@ -1,4 +1,5 @@
-import { formatDate, formatMoney, FORMAT_DEFAULTS } from "@/lib/format";
+import { formatDate, formatDateTime, formatMoney, FORMAT_DEFAULTS } from "@/lib/format";
+import { attendancePortalPath } from "@/lib/attendance/types";
 import { brandStyle, emailTranslator, htmlLangAttrs, type ClubBrand } from "@/lib/email/templates";
 import { tenantLink } from "@/lib/tenant/url";
 import { PLATFORM_NAME } from "@/lib/brand";
@@ -19,6 +20,8 @@ export type NotifType =
   | "attendance_submitted"
   | "document_uploaded"
   | "consent_required"
+  | "attendance_no_show"
+  | "attendance_no_show_correction"
   | "announcement";
 
 export const ENUM_FOR: Record<NotifType, string> = {
@@ -31,6 +34,8 @@ export const ENUM_FOR: Record<NotifType, string> = {
   attendance_submitted: "attendance_submitted",
   document_uploaded: "document_uploaded",
   consent_required: "consent_required",
+  attendance_no_show: "attendance_no_show",
+  attendance_no_show_correction: "attendance_no_show_correction",
   announcement: "system",
 };
 
@@ -52,6 +57,14 @@ export type NotifVars = {
   message?: string;
   /** Issuing club (tenant) name; filled in by dispatchNotification(). */
   club_name?: string;
+  // Team attendance no-show alerts (src/lib/attendance/alerts.ts)
+  team_name?: string;
+  /** ISO instant of the session start (formatted in the club time zone). */
+  starts_at?: string;
+  event_id?: string;
+  athlete_id?: string;
+  /** Status the correction notice announces: present | late | excused | unexcused. */
+  attendance_status?: string;
 };
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
@@ -114,6 +127,8 @@ const money = (n?: number) =>
   typeof n === "number" ? formatMoney(n, current.currency || FORMAT_DEFAULTS.currency, current.locale || FORMAT_DEFAULTS.locale) : "—";
 const day = (d?: string) =>
   d ? formatDate(d, { locale: current.locale || FORMAT_DEFAULTS.locale, timeZone: current.timeZone || FORMAT_DEFAULTS.timeZone }) : "—";
+const at = (d?: string) =>
+  d ? formatDateTime(d, { locale: current.locale || FORMAT_DEFAULTS.locale, timeZone: current.timeZone || FORMAT_DEFAULTS.timeZone, style: "full" }) : "—";
 const greeting = (v: NotifVars) => html("email.greeting", { name: v.parent_name?.trim() || tr("email.defaultName") }, ["name"]);
 
 /** Replace {{variable}} placeholders in freeform text (admin broadcasts). */
@@ -250,6 +265,39 @@ export const TEMPLATES: Record<NotifType, Builder> = {
       html(`${N}.consent_required.sign`),
     ], { label: txt(`${N}.consent_required.cta`), href: "/parent/documents" }),
   }),
+  attendance_no_show: (v) => {
+    const athlete = v.athlete_name ?? tr(`${N}.fallback.child`);
+    const team = v.team_name ?? tr(`${N}.attendance_no_show.fallbackTeam`);
+    const link = v.event_id && v.athlete_id ? attendancePortalPath(v.event_id, v.athlete_id) : "/parent/attendance";
+    return {
+      title: txt(`${N}.attendance_no_show.title`, { athlete }),
+      body: txt(`${N}.attendance_no_show.body`, { athlete, team, when: at(v.starts_at) }),
+      link,
+      subject: txt(`${N}.attendance_no_show.subject`, { athlete, team }),
+      html: shell(txt(`${N}.attendance_no_show.heading`), [
+        greeting(v),
+        html(`${N}.attendance_no_show.line`, { athlete, team, when: at(v.starts_at) }, ["athlete"]),
+        html(`${N}.attendance_no_show.correction`),
+      ], { label: txt(`${N}.attendance_no_show.cta`), href: link }),
+    };
+  },
+  attendance_no_show_correction: (v) => {
+    const athlete = v.athlete_name ?? tr(`${N}.fallback.child`);
+    const team = v.team_name ?? tr(`${N}.attendance_no_show.fallbackTeam`);
+    const st = ["present", "late", "excused", "unexcused"].includes(v.attendance_status ?? "") ? v.attendance_status! : "excused";
+    const status = tr(`${N}.attendance_no_show_correction.status.${st as "present" | "late" | "excused" | "unexcused"}`);
+    const link = v.event_id && v.athlete_id ? attendancePortalPath(v.event_id, v.athlete_id) : "/parent/attendance";
+    return {
+      title: txt(`${N}.attendance_no_show_correction.title`, { athlete }),
+      body: txt(`${N}.attendance_no_show_correction.body`, { athlete, team, when: at(v.starts_at), status }),
+      link,
+      subject: txt(`${N}.attendance_no_show_correction.subject`, { athlete, team }),
+      html: shell(txt(`${N}.attendance_no_show_correction.heading`), [
+        greeting(v),
+        html(`${N}.attendance_no_show_correction.line`, { athlete, team, when: at(v.starts_at), status }, ["athlete"]),
+      ], { label: txt(`${N}.attendance_no_show.cta`), href: link }),
+    };
+  },
   announcement: (v) => ({
     title: v.title ?? txt(`${N}.announcement.title`, { club: clubName(v) }),
     body: applyVars(v.message ?? "", v),

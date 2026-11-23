@@ -22,7 +22,10 @@
 --   I. Training window + go-live: series outside the window refused,
 --      awaiting list and unfinished flags skip earlier / outside sessions,
 --      season stats use the window.
---   J. Other org denial everywhere; idempotent migration re-run.
+--   J. Other org denial everywhere.
+--   K. Training breaks: admin only, cancel trainings in range (label, audit),
+--      final sheets reported, series inside refused, delete un-cancels nothing.
+--   Idempotent migration re-run.
 --
 -- Fixtures: synthetic only (ids …ac…). Org A …0001, org B …0002.
 -- Every assertion prints PASS/FAIL.
@@ -782,6 +785,85 @@ begin
   perform tat.ok((select count(*) from public.attendance_sessions) = (select count(*) from public.attendance_sessions), 'legacy attendance sessions untouched');
 end $$;
 
+-- ===========================================================================
+-- K. Training breaks
+-- ===========================================================================
+insert into public.events (id, org_id, team_id, season_id, type, starts_at, ends_at) values
+  ('00000000-0000-0000-0000-0000000ac0a1', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', '00000000-0000-0000-0000-00000000ac61', 'training', now() + interval '40 days', now() + interval '40 days 2 hours'),
+  ('00000000-0000-0000-0000-0000000ac0a2', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac43', '00000000-0000-0000-0000-00000000ac61', 'training', now() + interval '41 days', now() + interval '41 days 2 hours'),
+  ('00000000-0000-0000-0000-0000000ac0a3', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', '00000000-0000-0000-0000-00000000ac61', 'game', now() + interval '40 days', now() + interval '40 days 2 hours'),
+  ('00000000-0000-0000-0000-0000000ac0a4', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', '00000000-0000-0000-0000-00000000ac61', 'training', now() + interval '60 days', now() + interval '60 days 2 hours');
+insert into public.seasons (id, org_id, name, starts_on, ends_on) values
+  ('00000000-0000-0000-0000-00000000ac62', '00000000-0000-0000-0000-000000000001', 'TA other season', current_date + 400, current_date + 700);
+do $$
+declare j jsonb; r text; v_brk text; v_alerts int;
+begin
+  r := tat.run_as('00000000-0000-0000-0000-00000000ac01',
+        $q$select public.training_break_save(null, 'Synthetic break', current_date + 38, current_date + 42)::text$q$);
+  perform tat.ok(r like 'ERR:NOT_AUTHORIZED%', 'a coach cannot create a break');
+  r := tat.run_as('00000000-0000-0000-0000-00000000ac01',
+        $q$insert into public.club_training_breaks (org_id, label, starts_on, ends_on)
+           values ('00000000-0000-0000-0000-000000000001', 'x', current_date, current_date) returning 'x'$q$);
+  perform tat.ok(r like 'ERR:%', 'a coach cannot insert a break directly (RLS)');
+  -- Season-scoped break of another season: cancels nothing here.
+  j := tat.js('00000000-0000-0000-0000-0000000000f1',
+        $q$select public.training_break_save(null, 'Other season break', current_date + 38, current_date + 42,
+             '00000000-0000-0000-0000-00000000ac62')::text$q$);
+  perform tat.ok(jsonb_array_length(j->'cancelled') = 0, 'a break of another season cancels nothing — ' || j::text);
+  j := tat.js('00000000-0000-0000-0000-0000000000f1',
+        $q$select public.training_break_save(null, 'Synthetic break', current_date + 38, current_date + 42)::text$q$);
+  v_brk := j->>'break_id';
+  perform tat.ok(jsonb_array_length(j->'cancelled') = 2, 'adding a break cancels the trainings in its range — ' || j::text);
+  perform tat.ok((select bool_and(status = 'cancelled' and cancel_reason = 'Synthetic break' and cancelled_at is not null)
+                    from public.events where id in ('00000000-0000-0000-0000-0000000ac0a1', '00000000-0000-0000-0000-0000000ac0a2')),
+                 'cancelled with the break label as reason (normal cancel path)');
+  perform tat.ok((select status <> 'cancelled' from public.events where id = '00000000-0000-0000-0000-0000000ac0a3'),
+                 'games in the range are not cancelled');
+  perform tat.ok((select status <> 'cancelled' from public.events where id = '00000000-0000-0000-0000-0000000ac0a4'),
+                 'trainings after the range are untouched');
+  perform tat.ok((select count(*) = 2 from public.audit_logs where action = 'event.cancel_break'), 'each cancellation is audited');
+  r := tat.run_as('00000000-0000-0000-0000-00000000ac11', 'select count(*)::text from public.club_training_breaks');
+  perform tat.ok(r = 'OK:2', 'guardians read the breaks');
+  r := tat.run_as('00000000-0000-0000-0000-00000000ac14', 'select count(*)::text from public.training_breaks_list()');
+  perform tat.ok(r = 'OK:2', 'players read the breaks');
+  r := tat.run_as('b0000000-0000-0000-0000-00000000ac91', 'select count(*)::text from public.club_training_breaks');
+  perform tat.ok(r = 'OK:0', 'other org reads no breaks');
+  r := tat.run_as('00000000-0000-0000-0000-00000000ac14',
+        $q$select count(*)::text from public.events where id = '00000000-0000-0000-0000-0000000ac0a1' and status = 'cancelled'$q$);
+  perform tat.ok(r = 'OK:1', 'the cancelled session stays visible as cancelled in the player portal');
+  -- Recurring generation inside the break refused.
+  begin
+    insert into public.events (org_id, team_id, season_id, type, series_id, starts_at, ends_at)
+    values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', '00000000-0000-0000-0000-00000000ac61',
+            'training', gen_random_uuid(), now() + interval '39 days', now() + interval '39 days 2 hours');
+    perform tat.ok(false, 'a recurring training inside a break is refused');
+  exception when others then
+    perform tat.ok(sqlerrm like '%TRAINING_IN_BREAK%', 'a recurring training inside a break is refused');
+  end;
+  -- A break over a session with a FINAL sheet: reported, not cancelled.
+  v_alerts := (select count(*) from public.attendance_no_show_alerts where event_id = '00000000-0000-0000-0000-0000000ac0e1');
+  j := tat.js('00000000-0000-0000-0000-0000000000f1',
+        $q$select public.training_break_save(null, 'Late break', current_date - 2, current_date - 1)::text$q$);
+  perform tat.ok(j->'skipped_final' ? '00000000-0000-0000-0000-0000000ac0e1'
+                 and (select status <> 'cancelled' from public.events where id = '00000000-0000-0000-0000-0000000ac0e1'),
+                 'a session with a final sheet is reported, not cancelled — ' || j::text);
+  -- Direct admin insert (RLS path) applies the break too.
+  r := tat.run_as('00000000-0000-0000-0000-0000000000f1',
+        $q$insert into public.club_training_breaks (org_id, label, starts_on, ends_on)
+           values ('00000000-0000-0000-0000-000000000001', 'Direct break', current_date + 60, current_date + 60) returning 'x'$q$);
+  perform tat.ok(r = 'OK:x' and (select status = 'cancelled' and cancel_reason = 'Direct break' from public.events
+                   where id = '00000000-0000-0000-0000-0000000ac0a4'), 'a break inserted directly by an admin cancels too');
+  -- Delete: nothing un-cancelled; affected sessions reported.
+  j := tat.js('00000000-0000-0000-0000-0000000000f1', format('select public.training_break_delete(%L)::text', v_brk));
+  perform tat.ok(jsonb_array_length(j->'still_cancelled') = 2
+                 and (select bool_and(status = 'cancelled') from public.events
+                       where id in ('00000000-0000-0000-0000-0000000ac0a1', '00000000-0000-0000-0000-0000000ac0a2')),
+                 'deleting a break un-cancels nothing and reports the sessions — ' || j::text);
+  r := tat.run_as('b0000000-0000-0000-0000-00000000ac91', format('select public.training_break_delete(%L)::text',
+        (select id from public.club_training_breaks where label = 'Direct break')));
+  perform tat.ok(r like 'ERR:NOT_AUTHORIZED%' or r like 'ERR:BREAK_NOT_FOUND%', 'other org cannot delete a break');
+end $$;
+
 -- Idempotent re-run of the migration keeps every row; review flags are not duplicated.
 select tat.svc($q$select sum(public.attendance_review_flags(id))::text from public.organizations$q$);
 select tat.ok(tat.svc($q$select public.attendance_review_flags('00000000-0000-0000-0000-000000000001')::text$q$) = 'OK:0',
@@ -789,12 +871,14 @@ select tat.ok(tat.svc($q$select public.attendance_review_flags('00000000-0000-00
 create temp table tat_counts as
   select (select count(*) from public.team_attendance_marks) m, (select count(*) from public.attendance_no_show_alerts) a,
          (select count(*) from public.team_memberships) tm, (select count(*) from public.team_membership_periods) p,
-         (select count(*) from public.data_review_flags) f, (select count(*) from public.team_attendance_sheets) s;
+         (select count(*) from public.data_review_flags) f, (select count(*) from public.team_attendance_sheets) s,
+         (select count(*) from public.club_training_breaks) b, (select count(*) from public.events where status = 'cancelled') c;
 \set QUIET on
 \i supabase/migrations/20250420104000_team_attendance.sql
 \set QUIET off
 select tat.ok((select m = (select count(*) from public.team_attendance_marks) and a = (select count(*) from public.attendance_no_show_alerts)
                   and tm = (select count(*) from public.team_memberships) and p = (select count(*) from public.team_membership_periods)
                   and f = (select count(*) from public.data_review_flags) and s = (select count(*) from public.team_attendance_sheets)
+                  and b = (select count(*) from public.club_training_breaks) and c = (select count(*) from public.events where status = 'cancelled')
                  from tat_counts),
               'migration re-run is idempotent (no row added or lost)');

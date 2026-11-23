@@ -3,7 +3,7 @@ import type { MessagingRole } from "./permissions";
 /** Which app a person reads messages in: office, coach app or parent app. */
 export type MessagingApp = "admin" | "coach" | "parent";
 
-export function appFor(roles: readonly MessagingRole[]): MessagingApp {
+export function appFor(roles: readonly (MessagingRole | "player")[]): MessagingApp {
   if (roles.includes("admin") || roles.includes("finance")) return "admin";
   if (roles.includes("coach")) return "coach";
   return "parent";
