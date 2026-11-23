@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarClock, ChevronLeft } from "lucide-react";
 import { Button, Card, CardBody, CardHeader, CardTitle, ErrorState, PageHeader } from "@/components/ui";
-import { PackagesEditor, ServiceEditor } from "@/components/training/service-editor";
+import { ServiceEditor } from "@/components/training/service-editor";
+import { ServicePricingCard } from "@/components/booking/admin/service-pricing-card";
 import { getTrainingService } from "@/lib/training/data";
 import { getTranslations } from "@/lib/i18n/server";
 import { ServiceBookingSetup } from "@/components/booking/admin/service-booking-setup";
@@ -35,10 +36,22 @@ export default async function EditServicePage({ params }: { params: Promise<{ id
           </CardBody>
         </Card>
       )}
-      <Card>
-        <CardHeader><CardTitle>{t("training.packages.title")}</CardTitle></CardHeader>
-        <CardBody><PackagesEditor serviceId={service.id} packages={service.packages} singlePrice={service.price} currency={service.currency} /></CardBody>
-      </Card>
+      {entry && (
+        <Card>
+          <CardHeader><CardTitle>{t("bookingOrders.pricing.title")}</CardTitle></CardHeader>
+          <CardBody>
+            {/* Pricing options of the booking form (source of truth): 1 Session + packages, or the group rate. */}
+            <ServicePricingCard serviceId={service.id} kind={entry.kind} currency={entry.currency}
+              canEdit={Boolean(me?.roles.includes("admin") || me?.roles.includes("finance"))}
+              initial={{
+                price: entry.price, groupRate: entry.group_rate ?? null, shortDescription: entry.short_description ?? null,
+                options: entry.pricing_options ?? [], pricingMissing: entry.pricing_missing ?? [],
+                packages: (entry.packages ?? []).map((p) => ({ id: p.id, name: p.name, sessions: p.sessions ?? 0, total: p.total ?? 0,
+                                                              isActive: p.is_active ?? true, validityDays: p.validity_days ?? null })),
+              }} />
+          </CardBody>
+        </Card>
+      )}
     </div>
   );
 }

@@ -331,3 +331,92 @@ Kinds `requested`, `request_confirmed`, `request_declined`, `request_withdrawn`;
 
 Known limitation: the legacy parent booking flow (`book_training`, `/parent/bookings/new`) does not see held requests in its slot
 computation (`training_busy`); a conflicting legacy booking joins the held session or is flagged `BOOKING_WITHOUT_SESSION`.
+
+## 13. Booking orders (pricing options, packages, multi-date, recurring, group players, invoices per payer)
+
+Migration `20250420104800_booking_orders.sql` (additive, idempotent). DB tests `tests/db/booking_orders.sql`
+(`DB_TEST_PREFIX=bo scripts/db-test.sh tests/db/booking_orders.sql`), unit tests `tests/unit/booking-orders.test.ts`.
+TS: `src/lib/booking/orders.ts` (contract, zod, pricing preview, recurrence), `order-form.ts` (form state), `order-data.ts`
+(reads), `src/lib/actions/booking-orders.ts` (server actions).
+
+### Why
+New Booking could only consume an existing package; packages were sold elsewhere (`/admin/training`), the catalogue returned
+package names without prices, and a group booking was one athlete per booking without multi-date, recurrence or "received on".
+
+### Catalogue (source of truth: Services → service page → Pricing, admin + finance)
+| Column / table | Meaning |
+|---|---|
+| `training_services.price_chf` | "1 Session" option (not offered for `kind = 'package'` services) |
+| `credit_packages` (service) | package options: `credits` sessions, `price_chf` = **total per athlete** for the option, `validity_days`, `is_active`, `sort_order` |
+| `training_services.short_description` | customer-facing, ≤ 280, shown in New Booking |
+| `training_services.group_rate_chf` + `pricing_basis` | group services: rate **per player per session**. Only `per_player_per_session` is implemented (check constraint); `per_player_flat` / `per_session_flat` are not offered. Backfilled once from `price_chf` for existing group services |
+
+`training_service_catalog` returns `pricing_options[]` (`{option_id: 'single' \| package id, kind, sessions, total, …}`),
+`pricing_missing[]` (`GROUP_RATE`, `PACKAGES`), `short_description`, `group_rate`, `pricing_basis`. `service_pricing_save(service,
+payload)` (admin + finance; a removed package that was sold or ordered is deactivated, not deleted). Labels are built in the UI:
+"N Session(s)" (`bookingOrders.option.sessions`) + " — " + money (`formatMoney`, e.g. `1 Session — CHF 95.00`, `16 Sessions — CHF 1'280.00`).
+A paid service without pricing is refused (`PRICING_MISSING`, "configure … in Services").
+
+### Tables
+| Table | Purpose | RLS |
+|---|---|---|
+| `booking_orders` | org, service, `kind` single/package/group, `option_kind` single/package/existing_package/group, snapshot (`package_id`, `option_sessions`, `list_total`, `agreed_total`, `list_rate`, `group_rate`, `pricing_basis`, `price_override_reason`, `currency`, `billing_category`), `purchase_id`, `coach_id`, `venue_space_id`, `description` (customer-facing, on the invoice), `internal_notes` (staff only), `received_on`, `status`, `request_id` (unique per org) | select admin + finance; insert / update / delete none (RPC only). Audit redacts notes + description |
+| `booking_order_participants` | order, athlete (unique per order), `payer_id` (null = family default), `rate` snapshot, `status` | same |
+| `training_bookings` + `order_id`, `order_participant_id`, `order_invoice_item_id` | one booking per athlete per date (unchanged model) | unchanged |
+
+Agreed prices are snapshotted on the order, the participant and every booking (`price_chf`, `list_price`): catalogue changes
+only affect new orders. The "one invoice per workflow booking" index now applies to bookings without an order
+(`training_bookings_invoice_single_uidx`): order bookings share their payer invoice.
+
+### Rules
+- **Single** (`1 Session`): exactly one date, one athlete, booking price = agreed total, billed by invoice (0 → free).
+- **Package**: the package is sold once (`training_package_purchases` row linked to the order, `status active`,
+  `amount` = agreed total, `list_price` = max(list, agreed)), 0..N dates now (≤ sessions), each booking `billing_mode package`
+  with one `training_booking_entitlements` row. Later dates: `booking_order_add_dates` (consumes the package, no charge).
+  **Existing package** ("use this package"): an active purchase of the athlete for the service, charge 0.
+- **Group**: several players, per-player payer and date subset (default all order dates). Charge per player = rate × the
+  player's sessions (e.g. rate 30: 4 players on date 1 = 120; 3 of them also on date 2 → 210). One shared `training_sessions`
+  row per date (join by service + coach + start), capacity checked per date for all the order's players and under the session
+  lock at placement; duplicate athlete refused (`DUPLICATE_ATHLETE`, `ALREADY_BOOKED`).
+- **Dates**: an explicit list (one, several, or a weekly rule expanded in the UI by `expandRecurrence`, editable before
+  confirming). Every date is evaluated with `bk_evaluate` (availability / venue hours / coach + space conflicts / capacity /
+  athlete overlap) plus order checks (`DUPLICATE_DATE`, `ORDER_DATES_OVERLAP`, `DATE_WITHOUT_PLAYERS`). Open availability mode:
+  a date outside the declared availability becomes `requested` bookings (as §12).
+- Price override (agreed total / rate ≠ catalogue) needs a reason (any staff); availability override: admins + reason.
+
+### RPCs (security definer, `search_path` set, staff re-checked, tenant = `current_org_id()`)
+| RPC | Notes |
+|---|---|
+| `booking_order_quote(payload)` | writes nothing: `{ok, errors[], dates_ok, dates[{starts_at, ok, errors[], athlete_errors[], warnings[], capacity, participants, adding, places_left, creates}], participants[{…, payer, payer_key, sessions, charge}], option{…}, totals{charge, sessions, payers[]}, setup_missing[], pricing_missing[], billing_entity, number_prefix}` |
+| `booking_order_confirm(payload, request_id)` | all-or-nothing; order-level refusals are raised (P0001), per-date refusals are **returned** `{ok:false, code:'DATES_UNAVAILABLE', dates}` (nothing stored, retry with the same id); a placement race raises the code with `DETAIL {starts_at, athlete_id}`. Idempotent (`booking_requests` kind `order_confirm` + unique `request_id`; per-booking derived ids) |
+| `booking_order_add_dates(order, payload, request_id)` | package sessions / more group dates (`participant_ids` subset); `dry_run: true` = quote |
+| `booking_order_create_invoices(orders[], request_id, send=true)` | one invoice per payer (payer record or family default), one line per athlete ("service — athlete — dates (n × rate CUR)", quantity n, unit = rate) + the package line; only confirmed / completed / no-show billable bookings without invoice and the uninvoiced package. Category = the order's billing category (Personal Training → `training` → its number series, e.g. "DL PT"); several orders must share one category and currency (`CATEGORY_MIXED`, `CURRENCY_MIXED`). `SETUP_MISSING` returned. Links `training_bookings.invoice_id` / `order_invoice_item_id` and `training_package_purchases.invoice_id` |
+| `booking_order_record_payment(order, invoice, {request_id, amount, method, received_on, reference, note})` | `receipt_record` on an invoice of the order (idempotent) |
+| `booking_order_cancel(order, {scope: booking \| participant \| date, …, reason, refund_mode: credit_note \| none, restore_package?}, request_id)` | per booking through `booking_cancel` (credit note for an issued line; an unpaid invoice of only that line is cancelled; a draft loses the line; package restored per policy / staff). Requests are released like a decline. A player with nothing left leaves the order; an order without players is cancelled |
+| `booking_order_reschedule(order, {scope: booking \| date, booking_id? \| session_id?, starts_at, coach_id?, venue_space_id?, price?, price_reason?, …}, request_id)` | per booking through `booking_reschedule` (a date moves all its players to one new shared session; a price change goes through a credit / debit note) |
+| `booking_order_detail(order)` | order, participants (charge, invoiced, sessions booked / requested / completed / cancelled), dates (shared sessions with bookings + billing status + invoice), package usage (`booked`, `completed`, `available`), invoices per payer (due, paid, balance), totals |
+| `booking_orders_to_invoice(limit)` | orders with confirmed uninvoiced charges (finance To Invoice) |
+| `service_pricing_save(service, payload)` | see Catalogue |
+
+Changed: `booking_create_invoice` refuses order bookings (`ORDER_INVOICING`); `bookings_to_invoice` leaves them out;
+`booking_cancel` refuses `cancel_invoice` on a shared invoice (`INVOICE_SHARED`) and removes a draft line instead of a credit
+note; `bk_row` returns `order_id`; `bk_portal_rows` also lists the package invoice of an order (`booking_id` null).
+
+### Screens
+| Route | What |
+|---|---|
+| Services → service page | "Pricing" card (replaces the packages card): short description, 1 Session price, packages (sessions, total, validity, active), group rate + basis, live preview of the options |
+| `/admin/bookings/new` | Booking order form: service (+ short description), "Session or Package" (required; packages with totals; "use existing package"), group rate, agreed price + reason, athlete or players (+ Add New Athlete, per-player Bill To and dates), coach / facility, one date / several dates / weekly rule → editable list with per-date availability, received on, description (+ "customer sees" preview), internal notes, per-player / per-payer / total charges. `?classic=1`: the single-booking form (promo codes, joining an open group session) |
+| `/admin/bookings/orders/<id>` | Order page: summary, money (charged / not invoiced / invoiced / paid / balance), package usage, players (cancel player), dates with shared rosters (move / cancel a date, move / cancel one booking), invoices per payer (record payment), create invoices, schedule package sessions / add dates |
+| `/admin/bookings`, `/admin/bookings/<id>` | link to the order |
+| `/admin/finance/to-invoice` | "Booking orders to invoice" (per order, or several orders of one category together) above the single bookings; totals unchanged |
+| Coach / parent / player portals | unchanged reads: one session card + roster per date; guardians see their child's sessions and only invoices where they are the payer (shared order invoices de-duplicated) |
+
+### Not done
+- Pricing bases other than per player per session (`per_player_flat`, `per_session_flat`): refused (`INVALID_PRICING_BASIS`).
+- Promo codes on orders (kept on the classic single-booking form).
+- Adding a new player to an existing group order (create another order for the same dates: it joins the shared session).
+- Booking notifications are sent per booking (one per date and player); the customer-facing order description is on the
+  order page and the invoice, not in the e-mail templates.
+- Moving a whole group date to a time that overlaps its current slot is refused (`COACH_BUSY`): the coach still leads the old
+  session while the players move one by one; move it to a non-overlapping time or move the bookings individually.

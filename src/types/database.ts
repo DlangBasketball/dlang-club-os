@@ -650,6 +650,8 @@ export type Database = {
           kind: "private" | "group" | "trial" | "package"; default_venue_space_id: string | null;
           // Booking requests (migration 20250420104700)
           bookable_by_families: boolean;
+          // Booking orders (migration 20250420104800)
+          short_description: string | null; group_rate_chf: number | null; pricing_basis: "per_player_per_session";
         };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
@@ -673,6 +675,8 @@ export type Database = {
           request_decision: "confirmed" | "declined" | "withdrawn" | null; request_decided_at: string | null; request_decided_by: string | null;
           discount_total: number; promo_code: string | null;
           attendance_status: "present" | "late" | "excused" | "unexcused" | null; attendance_synced_at: string | null;
+          // Booking orders (migration 20250420104800)
+          order_id: string | null; order_participant_id: string | null; order_invoice_item_id: string | null;
         };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
@@ -1101,6 +1105,17 @@ export type Database = {
       booking_family_request: { Args: { p_payload: Json; p_request_id: string }; Returns: Json };
       coach_booking_requests: { Args: { p_coach?: string | null }; Returns: Json };
       session_events_pending: { Args: { p_events: string[] }; Returns: string[] };
+      // ---- Booking orders (migration 20250420104800); contract: docs/booking-workflow.md §13
+      service_pricing_save: { Args: { p_service: string; p_payload: Json }; Returns: Json };
+      booking_order_quote: { Args: { p_payload: Json }; Returns: Json };
+      booking_order_confirm: { Args: { p_payload: Json; p_request_id: string }; Returns: Json };
+      booking_order_add_dates: { Args: { p_order: string; p_payload: Json; p_request_id?: string | null }; Returns: Json };
+      booking_order_create_invoices: { Args: { p_orders: string[]; p_request_id: string; p_send?: boolean }; Returns: Json };
+      booking_order_record_payment: { Args: { p_order: string; p_invoice: string; p_payload: Json }; Returns: Json };
+      booking_order_cancel: { Args: { p_order: string; p_payload: Json; p_request_id: string }; Returns: Json };
+      booking_order_reschedule: { Args: { p_order: string; p_payload: Json; p_request_id: string }; Returns: Json };
+      booking_order_detail: { Args: { p_order: string }; Returns: Json };
+      booking_orders_to_invoice: { Args: { p_limit?: number }; Returns: Json };
       // ---- Team attendance (migration 20250420104000); contract: docs/team-attendance.md
       is_player: { Args: Record<string, never>; Returns: boolean };
       current_player_athlete_id: { Args: Record<string, never>; Returns: string | null };

@@ -161,9 +161,17 @@ export function flattenInvoices(overviews: PortalBookings[]): PortalInvoice[] {
   return out;
 }
 
-/** booking id -> visible invoice (number / status) for the booking rows. */
+/**
+ * booking id -> visible invoice (number / status) for the booking rows. An
+ * order invoice bills several bookings (one row per booking); a package
+ * invoice of an order has no booking (booking_id null) and is listed only.
+ */
 export function invoiceByBooking(overviews: PortalBookings[]): Map<string, PortalInvoice> {
-  return new Map(flattenInvoices(overviews).map((i) => [i.booking_id, i]));
+  const out = new Map<string, PortalInvoice>();
+  for (const o of overviews) {
+    for (const i of o.invoices ?? []) if (i.booking_id && !out.has(i.booking_id)) out.set(i.booking_id, { ...i, athlete: o.athlete });
+  }
+  return out;
 }
 
 /** Kind of change for the label: cancelled, moved (with the previous time) or moved (previous time unknown). */

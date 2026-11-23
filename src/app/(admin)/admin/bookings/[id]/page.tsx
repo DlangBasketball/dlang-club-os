@@ -71,6 +71,12 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
           <Badge tone={billingTone(b.billing_status)}>{t.dynamic(`bookingWorkflow.billingStatus.${b.billing_status}`, undefined, b.billing_status)}</Badge>
         </div>} />
 
+      {b.order_id && (
+        <p className="flex flex-wrap items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm text-ink-2">
+          <Package className="h-4 w-4" aria-hidden /> {t("bookingOrders.detail.partOfOrder")}
+          <Link href={`/admin/bookings/orders/${b.order_id}`} className="text-maroon hover:underline">{t("bookingOrders.detail.openOrder")}</Link>
+        </p>
+      )}
       {sp.created === "1" && <p role="status" className="rounded-lg border border-success/30 bg-success-soft px-4 py-2.5 text-sm text-success">{b.state === "requested" ? t("bookingWorkflow.messages.requested") : t("bookingWorkflow.messages.confirmed")}</p>}
       {b.request && (
         <Card>
@@ -174,7 +180,7 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
         <CardHeader><CardTitle>{t("adminBooking.detail.actions")}</CardTitle></CardHeader>
         <CardBody>
           <BookingDetailActions bookingId={b.booking_id} isAdmin={isAdmin} todayKey={zonedDayKey(new Date(), f.timeZone)}
-            canInvoice={canInvoice(b)} canReschedule={canReschedule(b) && b.attendance?.sheet_status !== "final"} canCancel={canCancel(b)}
+            canInvoice={canInvoice(b) && !b.order_id} canReschedule={canReschedule(b) && b.attendance?.sheet_status !== "final"} canCancel={canCancel(b)}
             invoice={b.invoice ? { id: b.invoice.id, number: b.invoice.number, status: b.invoice.status, balance: b.invoice.balance, currency: cur } : null}
             preview={preview ? {
               amount: preview.amount ?? null, currency: preview.currency ?? cur, recipientName: preview.recipient?.name ?? null, recipientEmail: preview.recipient?.email ?? null,

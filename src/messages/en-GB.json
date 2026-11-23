@@ -1128,7 +1128,9 @@
       "BOOKING_ATTENDED": "Attendance was already finalised for this session.",
       "ALREADY_CANCELLED": "This booking is already cancelled.",
       "CANNOT_CANCEL": "This invoice can no longer be cancelled.",
-      "INVOICE_CANCELLED": "The invoice is cancelled."
+      "INVOICE_CANCELLED": "The invoice is cancelled.",
+      "ORDER_NOT_ACTIVE": "This order is cancelled.",
+      "INVOICE_SHARED": "This invoice also bills other sessions: issue a credit note instead of cancelling it."
     },
     "state": {
       "cancelled": "Cancelled"
@@ -1158,6 +1160,25 @@
       "changesHint": "Moved or cancelled bookings of the last 30 days.",
       "cancelled": "Cancelled",
       "cancelledReason": "Cancelled: {reason}"
+    }
+  },
+  "bookingOrders": {
+    "status": {
+      "cancelled": "Cancelled"
+    },
+    "detail": {
+      "sessionsCell": "{booked} booked · {completed} done · {cancelled} cancelled"
+    },
+    "cancel": {
+      "hint": {
+        "booking": "Only this session is cancelled; the shared session keeps the other players.",
+        "participant": "Their upcoming sessions are cancelled; the other players keep theirs.",
+        "date": "Every player of this order is cancelled on this date."
+      },
+      "creditNote": "Credit note for the cancelled sessions"
+    },
+    "messages": {
+      "cancelled": "Sessions cancelled."
     }
   }
 }

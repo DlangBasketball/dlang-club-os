@@ -6,6 +6,7 @@ import {
   bookingErrorCode, type BookingDetail, type BookingErrorCode, type BookingRow, type CoachAgendaSession, type CoachBookingRequest,
   type DashboardCounts, type FamilyCatalog, type PayerSnapshot, type PortalBookings, type ServiceKind, type SetupMissingCode,
 } from "./types";
+import type { PricingOption } from "./orders";
 
 /*
  * Booking workflow — server-side reads. Every read runs as the signed-in
@@ -31,7 +32,11 @@ export type CatalogService = {
   venue_id: string | null; venue_name: string | null; default_venue_space_id: string | null; default_venue_space_name: string | null;
   location_text: string | null; credits_required: number; coaches: { id: string; display_name: string }[];
   bookable_by_families?: boolean;
-  packages: { id: string; name: string }[]; setup_missing: SetupMissingCode[]; number_prefix: string | null;
+  packages: { id: string; name: string; sessions?: number; total?: number; is_active?: boolean; validity_days?: number | null }[];
+  setup_missing: SetupMissingCode[]; number_prefix: string | null;
+  // Booking orders (20250420104800): pricing options of the booking form.
+  short_description?: string | null; group_rate?: number | null; pricing_basis?: "per_player_per_session";
+  pricing_options?: PricingOption[]; pricing_missing?: ("GROUP_RATE" | "PACKAGES")[];
 };
 
 /** Services for the booking form (admin / finance): kind, price, eligible coaches, setup_missing. */

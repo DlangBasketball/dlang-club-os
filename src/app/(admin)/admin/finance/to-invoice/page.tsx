@@ -5,6 +5,8 @@ import { Button, Card, CardBody, CardHeader, CardTitle, EmptyState, ErrorState, 
 import { Select } from "@/components/teams/fields";
 import { FinanceNav } from "@/components/finance/finance-nav";
 import { ToInvoiceTable, type ToInvoiceRow } from "@/components/booking/admin/to-invoice-table";
+import { OrdersToInvoiceTable } from "@/components/booking/admin/orders-to-invoice-table";
+import { getOrdersToInvoice } from "@/lib/booking/order-data";
 import { getBookingFinanceTotals, getBookingsToInvoice, getServiceCatalog } from "@/lib/booking/data";
 import { getBillingEntities } from "@/lib/data/billing";
 import { categoryLabelKey, type BillingActivity } from "@/lib/billing/activities";
@@ -31,10 +33,11 @@ export default async function ToInvoicePage({ searchParams }: { searchParams: Pr
   const from = DAY.test(sp.from ?? "") ? sp.from! : null;
   const to = DAY.test(sp.to ?? "") && (!from || sp.to! >= from) ? sp.to! : null;
   const entity = sp.entity && UUID.test(sp.entity) ? sp.entity : null;
-  const [list, catalog, totals, entities] = await Promise.all([
+  const [list, catalog, totals, entities, orders] = await Promise.all([
     getBookingsToInvoice(200), getServiceCatalog({ includeInactive: true }),
-    getBookingFinanceTotals({ from, to, entityId: entity }), getBillingEntities(),
+    getBookingFinanceTotals({ from, to, entityId: entity }), getBillingEntities(), getOrdersToInvoice(200),
   ]);
+  const orderRows = orders.data ?? [];
   const title = t("adminBooking.toInvoice.title");
   const services = catalog.data ?? [];
   const setupBlocked = new Set(services.filter((s) => s.setup_missing.length > 0).map((s) => s.id));
@@ -56,10 +59,20 @@ export default async function ToInvoicePage({ searchParams }: { searchParams: Pr
         actions={<Link href="/admin/bookings?billing=to_invoice"><Button size="sm" variant="secondary">{t("adminBooking.toInvoice.openList")}</Button></Link>} />
       <FinanceNav t={t} active="toInvoice" />
 
+      {/* Booking orders: one invoice per payer (docs/booking-workflow.md §13). */}
+      {orders.error !== null ? (
+        <ErrorState compact message={t.dynamic(`bookingWorkflow.errors.${orders.error}`, undefined, t("bookingWorkflow.errors.generic"))} />
+      ) : orderRows.length > 0 && (
+        <section className="space-y-2" aria-labelledby="ti-orders">
+          <h2 id="ti-orders" className="text-sm font-medium text-ink">{t("bookingOrders.toInvoice.title")}</h2>
+          <OrdersToInvoiceTable rows={orderRows} />
+        </section>
+      )}
+
       {list.error !== null ? (
         <ErrorState title={t("adminBooking.common.loadFailed")} message={t.dynamic(`bookingWorkflow.errors.${list.error}`, undefined, t("bookingWorkflow.errors.generic"))} />
       ) : rows.length === 0 ? (
-        <EmptyState icon={<ClipboardList className="h-5 w-5" />} title={t("adminBooking.toInvoice.empty")} description={t("adminBooking.toInvoice.emptyHint")} />
+        orderRows.length > 0 ? null : <EmptyState icon={<ClipboardList className="h-5 w-5" />} title={t("adminBooking.toInvoice.empty")} description={t("adminBooking.toInvoice.emptyHint")} />
       ) : (
         <ToInvoiceTable rows={rows} />
       )}
