@@ -48,6 +48,8 @@ const PUBLIC_PREFIXES = [
   "/scout",
   // Team attendance: no-show alerts, roster ends, review flags (cron bearer secret).
   "/api/attendance/cron",
+  // Resend delivery events (bounces of alert e-mails); Svix-signed with RESEND_WEBHOOK_SECRET.
+  "/api/email/webhook",
   // Family billing split run (cron bearer secret).
   "/api/family/cron",
   // Website connection: public read API (CORS per club), chrome-less embeds

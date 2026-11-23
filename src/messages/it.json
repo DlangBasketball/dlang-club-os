@@ -8260,12 +8260,14 @@
       "line": "{athlete} è stato segnato assente ingiustificato all'allenamento di {team} il {when}.",
       "correction": "Se non è corretto, puoi chiedere una correzione dalla scheda nel portale genitori.",
       "cta": "Vedi scheda",
-      "fallbackTeam": "la squadra"
+      "fallbackTeam": "la squadra",
+      "correctionNoAccount": "Se non è corretto, contatti {club} perché possa essere corretto.",
+      "why": "Informiamo le famiglie lo stesso giorno perché nessuna assenza passi inosservata. Questo messaggio riguarda solo suo figlio o sua figlia."
     },
     "attendance_no_show_correction": {
-      "title": "Presenza aggiornata per {athlete}",
-      "body": "La presenza di {athlete} con {team} il {when} è stata corretta in: {status}.",
-      "subject": "Presenza corretta — {athlete}, {team}",
+      "title": "Correzione: {athlete} risulta ora {status}",
+      "body": "Correzione del nostro messaggio precedente: la presenza di {athlete} con {team} il {when} risulta ora {status}.",
+      "subject": "Correzione: {athlete} risulta ora {status} — {team}",
       "heading": "Presenza corretta",
       "line": "La presenza di {athlete} all'allenamento di {team} il {when} è stata corretta in: {status}.",
       "status": {
@@ -8273,7 +8275,10 @@
         "late": "in ritardo",
         "excused": "assenza giustificata",
         "unexcused": "assenza ingiustificata"
-      }
+      },
+      "earlier": "Questo messaggio corregge il nostro messaggio precedente su questa sessione.",
+      "whyCleared": "Non conta più come assenza ingiustificata nel registro presenze; non deve fare nulla.",
+      "whyUnexcused": "Ora conta come assenza ingiustificata nel registro presenze."
     }
   },
   "pdf": {
@@ -11658,6 +11663,136 @@
       "repeatUntil": "Ripeti fino al",
       "repeatUntilHint": "Gli allenamenti vengono creati solo entro le date di allenamento della stagione e mai durante le pause del club.",
       "createSeries": "Crea sessioni settimanali"
+    }
+  },
+  "familyAttendance": {
+    "title": "Presenze",
+    "description": "Prossime sessioni, assenze segnalate e registro definitivo delle presenze dei suoi figli.",
+    "loadError": "Impossibile caricare le presenze. Riprovi.",
+    "childTabs": "Figli",
+    "noChildren": {
+      "title": "Nessun figlio collegato",
+      "body": "Quando il club collegherà i suoi figli al suo account, qui appariranno le loro sessioni e presenze."
+    },
+    "upcoming": {
+      "title": "Prossime sessioni",
+      "hint": "Prossimi 30 giorni, nel fuso orario del club.",
+      "empty": "Nessuna sessione nei prossimi 30 giorni.",
+      "cancelled": "Annullata",
+      "cancelledReason": "Annullata: {reason}",
+      "rescheduled": "Spostata (prima {when})",
+      "postponed": "Rinviata",
+      "types": {
+        "training": "Allenamento",
+        "game": "Partita",
+        "tournament": "Torneo"
+      }
+    },
+    "absence": {
+      "report": "Segnala assenza",
+      "edit": "Modifica",
+      "withdraw": "Ritira",
+      "reported": "Assenza segnalata",
+      "acknowledged": "Vista dall'allenatore",
+      "needsReview": "L'orario di questa sessione è cambiato dopo la segnalazione. La verifichi, per favore.",
+      "category": "Motivo",
+      "reason": "Nota per l'allenatore (facoltativa)",
+      "reasonHint": "Non servono dati medici: all'allenatore basta sapere dell'assenza.",
+      "submit": "Invia",
+      "cancel": "Annulla",
+      "closed": "Le segnalazioni si chiudono all'inizio della sessione.",
+      "byPlayer": "Segnalata dal giocatore",
+      "byGuardian": "Segnalata da un genitore"
+    },
+    "history": {
+      "title": "Registro presenze",
+      "hint": "Sono mostrate solo le presenze definitive.",
+      "empty": "Nessuna presenza definitiva per questi filtri.",
+      "team": "Squadra",
+      "season": "Stagione",
+      "allTeams": "Tutte le squadre",
+      "allSeasons": "Tutte le stagioni",
+      "guest": "Ospite",
+      "view": "Apri",
+      "correctionOpen": "Correzione richiesta",
+      "filter": "Filtra"
+    },
+    "totals": {
+      "sessions": "Sessioni",
+      "present": "Presente",
+      "late": "In ritardo",
+      "excused": "Giustificata",
+      "unexcused": "Ingiustificata",
+      "rate": "Tasso di presenza",
+      "rateHint": "Presente o in ritardo, su tutte le sessioni definitive"
+    },
+    "record": {
+      "back": "Torna alle presenze",
+      "status": "Stato",
+      "team": "Squadra",
+      "when": "Data e ora",
+      "location": "Luogo",
+      "notFinal": "La presenza per questa sessione non è ancora definitiva.",
+      "notStarted": "Questa sessione non si è ancora svolta.",
+      "guest": "{name} ha partecipato a questa sessione come ospite.",
+      "corrected": "Questa registrazione è stata corretta dal club.",
+      "alertSent": "Le abbiamo inviato un avviso su questa sessione il {date}.",
+      "chooseChild": "Di quale figlio si tratta?",
+      "notFound": {
+        "title": "Registrazione non trovata",
+        "body": "Questa sessione non è collegata a uno dei suoi figli, oppure il link non è più valido."
+      }
+    },
+    "correction": {
+      "title": "Richiedi una correzione",
+      "intro": "Se questa registrazione è sbagliata, lo segnali al club. Un allenatore o un amministratore esamina la richiesta e lei viene informato dell'esito.",
+      "message": "Messaggio",
+      "messageHint": "Che cosa è successo? Non servono dati medici.",
+      "requested": "Stato corretto (facoltativo)",
+      "noPreference": "Decide il club",
+      "submit": "Invia richiesta",
+      "withdraw": "Ritira richiesta",
+      "withdrawn": "Richiesta ritirata.",
+      "requests": "Richieste di correzione",
+      "requestedStatus": "Richiesto: {status}",
+      "outcome": "Risposta del club: {note}",
+      "decidedOn": "Deciso il {date}",
+      "sentOn": "Inviata il {date}",
+      "status": {
+        "open": "In attesa di verifica",
+        "accepted": "Accettata",
+        "rejected": "Respinta",
+        "withdrawn": "Ritirata"
+      }
+    },
+    "programmes": {
+      "title": "Sessioni del programma",
+      "session": "Sessione"
+    },
+    "player": {
+      "greeting": "Ciao {name}",
+      "description": "Le tue squadre, le tue prossime sessioni e le tue presenze.",
+      "teams": "Le mie squadre",
+      "noTeams": "Non fai ancora parte di una squadra.",
+      "jersey": "N. {number}",
+      "historyTitle": "Le mie presenze",
+      "historyDescription": "Le tue presenze definitive per squadra e stagione.",
+      "seeHistory": "Vedi le mie presenze",
+      "notLinked": {
+        "title": "Il tuo account giocatore non è ancora collegato",
+        "body": "Chiedi al tuo club di collegare il tuo account al tuo profilo giocatore."
+      }
+    },
+    "notifications": {
+      "description": "Novità del club, promemoria di pagamento e avvisi sulle presenze.",
+      "tabs": {
+        "active": "Tutte",
+        "unread": "Non lette",
+        "archived": "Archiviate"
+      },
+      "emptyArchived": "Nessuna notifica archiviata",
+      "emptyArchivedHint": "Gli elementi archiviati appariranno qui.",
+      "archive": "Archivia"
     }
   }
 }

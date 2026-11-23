@@ -1040,5 +1040,14 @@
       "cancelledCount": "{count, plural, =0 {No cancelled sessions} one {# cancelled session} other {# cancelled sessions}}",
       "stillCancelled": "{count, plural, one {# session in these dates is still cancelled:} other {# sessions in these dates are still cancelled:}}"
     }
+  },
+  "familyAttendance": {
+    "upcoming": {
+      "cancelled": "Cancelled",
+      "cancelledReason": "Cancelled: {reason}"
+    },
+    "programmes": {
+      "title": "Programme sessions"
+    }
   }
 }

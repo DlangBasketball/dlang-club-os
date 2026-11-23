@@ -8,7 +8,7 @@ import { planWeeklySeries } from "@/lib/attendance/schedule";
 // Synthetic data only.
 function alert(over: Partial<ClaimedAlert> = {}): ClaimedAlert {
   return {
-    alertId: "a1", orgId: "org-a", kind: "initial", markStatus: "unexcused", attempts: 1, channelResults: {}, notificationId: null,
+    alertId: "a1", orgId: "org-a", kind: "initial", markStatus: "unexcused", attempts: 1, channelResults: {}, notificationId: null, recipientKind: "guardian",
     guardianProfileId: "g1", guardianEmail: "g1@example.test", guardianName: "Synthetic Guardian", guardianLocale: null,
     receivesEmails: true, eventId: "e1", athleteId: "p1", athleteFirstName: "Synth", athleteLastName: "Player",
     teamName: "Synthetic U14", eventType: "training", startsAt: "2026-11-20T17:00:00Z", endsAt: "2026-11-20T18:30:00Z",

@@ -65,6 +65,13 @@ export type NotifVars = {
   athlete_id?: string;
   /** Status the correction notice announces: present | late | excused | unexcused. */
   attendance_status?: string;
+  /** training | game | tournament (no-show alerts). */
+  event_type?: string;
+  /**
+   * false: the recipient has no login (family contact e-mail): the message
+   * asks them to contact the club instead of linking the parent portal.
+   */
+  has_account?: boolean;
 };
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
@@ -269,33 +276,44 @@ export const TEMPLATES: Record<NotifType, Builder> = {
     const athlete = v.athlete_name ?? tr(`${N}.fallback.child`);
     const team = v.team_name ?? tr(`${N}.attendance_no_show.fallbackTeam`);
     const link = v.event_id && v.athlete_id ? attendancePortalPath(v.event_id, v.athlete_id) : "/parent/attendance";
+    const account = v.has_account !== false;
+    const when = at(v.starts_at);
     return {
       title: txt(`${N}.attendance_no_show.title`, { athlete }),
-      body: txt(`${N}.attendance_no_show.body`, { athlete, team, when: at(v.starts_at) }),
+      body: txt(`${N}.attendance_no_show.body`, { athlete, team, when }),
       link,
       subject: txt(`${N}.attendance_no_show.subject`, { athlete, team }),
       html: shell(txt(`${N}.attendance_no_show.heading`), [
         greeting(v),
-        html(`${N}.attendance_no_show.line`, { athlete, team, when: at(v.starts_at) }, ["athlete"]),
-        html(`${N}.attendance_no_show.correction`),
-      ], { label: txt(`${N}.attendance_no_show.cta`), href: link }),
+        html(`${N}.attendance_no_show.line`, { athlete, team, when }, ["athlete"]),
+        account
+          ? html(`${N}.attendance_no_show.correction`)
+          : html(`${N}.attendance_no_show.correctionNoAccount`, { club: clubName(v) }),
+        html(`${N}.attendance_no_show.why`),
+      ], account ? { label: txt(`${N}.attendance_no_show.cta`), href: link } : undefined),
     };
   },
   attendance_no_show_correction: (v) => {
     const athlete = v.athlete_name ?? tr(`${N}.fallback.child`);
     const team = v.team_name ?? tr(`${N}.attendance_no_show.fallbackTeam`);
-    const st = ["present", "late", "excused", "unexcused"].includes(v.attendance_status ?? "") ? v.attendance_status! : "excused";
-    const status = tr(`${N}.attendance_no_show_correction.status.${st as "present" | "late" | "excused" | "unexcused"}`);
+    const st = (["present", "late", "excused", "unexcused"].includes(v.attendance_status ?? "") ? v.attendance_status! : "excused") as
+      "present" | "late" | "excused" | "unexcused";
+    const status = tr(`${N}.attendance_no_show_correction.status.${st}`);
     const link = v.event_id && v.athlete_id ? attendancePortalPath(v.event_id, v.athlete_id) : "/parent/attendance";
+    const account = v.has_account !== false;
+    const when = at(v.starts_at);
+    const why = st === "unexcused" ? `${N}.attendance_no_show_correction.whyUnexcused` as const : `${N}.attendance_no_show_correction.whyCleared` as const;
     return {
-      title: txt(`${N}.attendance_no_show_correction.title`, { athlete }),
-      body: txt(`${N}.attendance_no_show_correction.body`, { athlete, team, when: at(v.starts_at), status }),
+      title: txt(`${N}.attendance_no_show_correction.title`, { athlete, status }),
+      body: txt(`${N}.attendance_no_show_correction.body`, { athlete, team, when, status }),
       link,
-      subject: txt(`${N}.attendance_no_show_correction.subject`, { athlete, team }),
+      subject: txt(`${N}.attendance_no_show_correction.subject`, { athlete, team, status }),
       html: shell(txt(`${N}.attendance_no_show_correction.heading`), [
         greeting(v),
-        html(`${N}.attendance_no_show_correction.line`, { athlete, team, when: at(v.starts_at), status }, ["athlete"]),
-      ], { label: txt(`${N}.attendance_no_show.cta`), href: link }),
+        html(`${N}.attendance_no_show_correction.earlier`),
+        html(`${N}.attendance_no_show_correction.line`, { athlete, team, when, status }, ["athlete"]),
+        html(why),
+      ], account ? { label: txt(`${N}.attendance_no_show.cta`), href: link } : undefined),
     };
   },
   announcement: (v) => ({

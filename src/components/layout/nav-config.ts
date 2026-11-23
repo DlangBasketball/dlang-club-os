@@ -1,7 +1,7 @@
 import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2, ArchiveRestore, Medal, School, MoreHorizontal } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
-export type NavKey = "admin" | "coach" | "parent";
+export type NavKey = "admin" | "coach" | "parent" | "player";
 
 /**
  * `labelKey` is the i18n key under "nav." (rendered via t(`nav.${labelKey}`));
@@ -179,6 +179,11 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Incidents", labelKey: "incidents", href: "/coach/incidents", icon: HeartPulse },
     { label: "My certificates", labelKey: "myCertificates", href: "/coach/compliance", icon: BadgeCheck },
     { label: "Alerts", labelKey: "alerts", href: "/coach/alerts", icon: Megaphone },
+  ],
+  /** Player portal (an athlete's own login): own teams, sessions, attendance only. */
+  player: [
+    { label: "Home", labelKey: "home", href: "/player/home", icon: Home },
+    { label: "Attendance", labelKey: "attendance", href: "/player/attendance", icon: CheckSquare },
   ],
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },

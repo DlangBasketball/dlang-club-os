@@ -20,11 +20,18 @@ import {
  * session date/time in the club time zone, and a link to the parent portal
  * record ("request a correction"). Category "events" of the notification
  * preferences decides the channels (quiet hours respected).
+ *
+ * Recipients (./recipients.ts): guardian logins; when the family has none,
+ * the family contact e-mail as an e-mail-only recipient (no login, so the
+ * message asks them to reply / contact the club instead of linking a portal
+ * they cannot open); nobody -> no_contact. An e-mail the provider later
+ * reports as bounced is recorded by recordAlertEmailFailure() (Resend
+ * webhook) and lands in the staff follow-up list.
  */
 
 type ClaimRow = {
   alert_id: string; org_id: string; kind: "initial" | "correction"; mark_status: string; attempts: number; channel_results: Json;
-  notification_id: string | null; guardian_profile_id: string; guardian_email: string | null; guardian_name: string | null;
+  notification_id: string | null; guardian_profile_id: string | null; guardian_email: string | null; guardian_name: string | null;
   guardian_locale: string | null; receives_emails: boolean; event_id: string; athlete_id: string; athlete_first_name: string;
   athlete_last_name: string; team_name: string | null; event_type: string; starts_at: string; ends_at: string; timezone: string;
 };
@@ -43,6 +50,7 @@ export function databaseStore(): AlertStore {
       return ((data ?? []) as ClaimRow[]).map((r): ClaimedAlert => ({
         alertId: r.alert_id, orgId: r.org_id, kind: r.kind, markStatus: r.mark_status, attempts: r.attempts,
         channelResults: (r.channel_results ?? {}) as ChannelResults, notificationId: r.notification_id,
+        recipientKind: r.guardian_profile_id ? "guardian" : "family_email",
         guardianProfileId: r.guardian_profile_id, guardianEmail: r.guardian_email, guardianName: r.guardian_name,
         guardianLocale: r.guardian_locale, receivesEmails: r.receives_emails, eventId: r.event_id, athleteId: r.athlete_id,
         athleteFirstName: r.athlete_first_name, athleteLastName: r.athlete_last_name, teamName: r.team_name,
@@ -72,6 +80,8 @@ async function rendered(a: ClaimedAlert) {
       event_id: a.eventId,
       athlete_id: a.athleteId,
       attendance_status: a.markStatus,
+      event_type: a.eventType,
+      has_account: a.recipientKind === "guardian",
       club_name: org.clubName ?? undefined,
     }, { ...org.brand, timeZone: a.timeZone || org.f.timeZone, baseUrl: org.baseUrl }),
   };
@@ -81,6 +91,11 @@ export function liveTransport(): AlertTransport {
   const admin = createAdminClient();
   return {
     async wanted(a) {
+      if (a.recipientKind === "family_email" || !a.guardianProfileId) {
+        // No login: e-mail is the only channel, so quiet hours do not drop it
+        // (an e-mail wakes nobody; dropping it would leave the family uninformed).
+        return { inApp: false, email: Boolean(a.guardianEmail), push: false };
+      }
       const [{ data: pref }, { data: settings }] = await Promise.all([
         admin.from("notification_preferences" as never).select("channels,quiet_start,quiet_end").eq("profile_id", a.guardianProfileId).eq("org_id", a.orgId).maybeSingle(),
         admin.from("messaging_settings" as never).select("quiet_start,quiet_end").eq("org_id", a.orgId).maybeSingle(),
@@ -99,6 +114,7 @@ export function liveTransport(): AlertTransport {
       return { inApp: d.inApp, email: d.email, push: d.push };
     },
     async inApp(a) {
+      if (!a.guardianProfileId) return { ok: false, error: "no login" };
       const { r } = await rendered(a);
       const { data, error } = await admin.from("notifications")
         .insert({ org_id: a.orgId, recipient_id: a.guardianProfileId, type: ENUM_FOR[typeOf(a)], title: r.title.slice(0, 200), body: r.body.slice(0, 500), link: r.link ?? null })
@@ -112,17 +128,21 @@ export function liveTransport(): AlertTransport {
       const { data: log } = await admin.from("email_logs")
         .insert({ org_id: a.orgId, recipient_id: a.guardianProfileId, to_email: a.guardianEmail, subject: r.subject, template: typeOf(a), html: r.html, status: "queued", attempts: 0 })
         .select("id").single();
-      const sent = await sendEmail({ to: a.guardianEmail, subject: r.subject, html: r.html, fromName: org.senderName ?? org.clubName });
+      const sent = await sendEmail({
+        to: a.guardianEmail, subject: r.subject, html: r.html, fromName: org.senderName ?? org.clubName,
+        tags: [{ name: "org", value: a.orgId }, { name: "kind", value: "attendance_alert" }],
+      });
       const logId = (log as { id: string } | null)?.id;
       if (logId) {
         await admin.from("email_logs").update({
-          status: sent.ok ? "sent" : "failed", attempts: 1, error: sent.ok ? null : sent.error ?? "unknown",
+          status: sent.ok ? "sent" : "failed", attempts: 1, error: sent.ok ? null : sent.error ?? "unknown", provider_id: sent.id ?? null,
           sent_at: sent.ok ? new Date().toISOString() : null, updated_at: new Date().toISOString(),
         }).eq("id", logId);
       }
-      return sent.ok ? { ok: true } : { ok: false, error: sent.error ?? "send failed" };
+      return sent.ok ? { ok: true, providerId: sent.id } : { ok: false, error: sent.error ?? "send failed" };
     },
     async push(a) {
+      if (!a.guardianProfileId) return { ok: true, count: 0 };
       const { r } = await rendered(a);
       const count = await pushOnly({
         orgId: a.orgId, profileIds: [a.guardianProfileId], category: "events", title: r.title, body: r.body,
@@ -140,5 +160,28 @@ export async function runAttendanceAlerts(opts: { orgId?: string | null; limit?:
   } catch (e) {
     logError("attendance.alerts.run", e);
     return { created: 0, claimed: 0, sent: 0, failed: 0, noContact: 0 };
+  }
+}
+
+/**
+ * The e-mail provider reported an alert e-mail as not delivered (bounce,
+ * complaint, failure): mark the e-mail log and the alert failed with the
+ * error; the alert goes to the staff follow-up list. Service role, scoped to
+ * the org when the provider echoed it. Never throws.
+ */
+export async function recordAlertEmailFailure(providerId: string, error: string, orgId?: string | null): Promise<number> {
+  try {
+    const admin = createAdminClient();
+    let q = admin.from("email_logs")
+      .update({ status: error.startsWith("bounced") ? "bounced" : "failed", error: error.slice(0, 500), updated_at: new Date().toISOString() })
+      .eq("provider_id", providerId);
+    if (orgId) q = q.eq("org_id", orgId);
+    await q;
+    const { data, error: e } = await admin.rpc("attendance_alert_email_failed", { p_provider_id: providerId, p_error: error.slice(0, 500) });
+    if (e) throw new Error(e.message);
+    return Number(data ?? 0);
+  } catch (e) {
+    logError("attendance.alerts.emailFailure", e);
+    return 0;
   }
 }
