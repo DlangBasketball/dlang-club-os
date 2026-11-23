@@ -187,6 +187,7 @@ export const SAME_AS_EN_OK = new Set([
   "registration.review.lineItem",
   "payments.methods.twint",
   "finance.methods.twint",
+  "adminBooking.methods.twint",
   "notifications.channels.push",
   "notifications.channels.sms",
   "messaging.preferences.push",

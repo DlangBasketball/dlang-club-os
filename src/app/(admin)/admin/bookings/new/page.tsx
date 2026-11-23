@@ -1,21 +1,50 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { ErrorState, PageHeader } from "@/components/ui";
-import { TrainingBookingFlow } from "@/components/training/booking-flow";
-import { getTrainingWizardData } from "@/lib/training/data";
-import { photoUrlsForCoaches } from "@/lib/people/server";
-import { getTranslations } from "@/lib/i18n/server";
+import { NewBookingForm } from "@/components/booking/admin/new-booking-form";
+import { getServiceCatalog } from "@/lib/booking/data";
+import { getCoachOptions, getSpaceOptions } from "@/lib/booking/admin-data";
+import { requireRole } from "@/lib/auth/get-user";
+import { getI18n } from "@/lib/i18n/server";
+import { createClient } from "@/lib/supabase/server";
+import { zonedDayKey } from "@/lib/staff/hours";
 
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("adminBooking.form.title") };
+}
+
+const UUID = /^[0-9a-f-]{36}$/i;
+
+/** New booking (admin / finance) on the booking workflow contract. ?athlete=<id> preselects the athlete. */
 export default async function AdminNewBookingPage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
-  const [{ athlete }, t, res] = await Promise.all([searchParams, getTranslations(), getTrainingWizardData()]);
-  if (res.error !== null) return (<div className="animate-fade-up"><PageHeader title={t("training.adminBookings.new")} /><ErrorState title={t("training.common.loadFailed")} message={res.error} /></div>);
-  const coachPhotos = await photoUrlsForCoaches(res.data.coaches.map((c) => c.id));
-  const initial = res.data.athletes.some((a) => a.id === athlete) ? athlete : undefined;
+  const me = await requireRole(["admin", "finance"]);
+  const [{ athlete }, { t, f }] = await Promise.all([searchParams, getI18n()]);
+  const orgId = me.orgId as string;
+  const [catalog, coaches, spaces] = await Promise.all([getServiceCatalog(), getCoachOptions(orgId), getSpaceOptions(orgId)]);
+  const back = (
+    <Link href="/admin/bookings" className="mb-2 inline-flex items-center gap-1 text-xs text-ink-3 hover:text-ink">
+      <ChevronLeft className="h-3.5 w-3.5" /> {t("adminBooking.list.title")}
+    </Link>
+  );
+  if (catalog.error !== null) {
+    return <div className="animate-fade-up">{back}<PageHeader title={t("adminBooking.form.title")} /><ErrorState title={t("adminBooking.common.loadFailed")} message={t.dynamic(`bookingWorkflow.errors.${catalog.error}`, undefined, t("bookingWorkflow.errors.generic"))} /></div>;
+  }
+  let initialAthlete: { id: string; label: string; familyId: string } | null = null;
+  if (athlete && UUID.test(athlete)) {
+    const { data } = await (await createClient()).from("athletes").select("id,first_name,last_name,family_id").eq("org_id", orgId).eq("id", athlete).maybeSingle();
+    if (data) initialAthlete = { id: data.id, label: `${data.first_name} ${data.last_name}`, familyId: data.family_id };
+  }
   return (
-    <div className="animate-fade-up max-w-3xl">
-      <Link href="/admin/bookings" className="mb-2 inline-flex items-center gap-1 text-xs text-ink-3 hover:text-ink"><ChevronLeft className="h-3.5 w-3.5" /> {t("training.adminBookings.title")}</Link>
-      <PageHeader title={t("training.adminBookings.new")} description={t("training.adminBookings.newHint")} />
-      <TrainingBookingFlow data={res.data} mode="admin" coachPhotos={coachPhotos} initialAthleteId={initial} />
+    <div className="animate-fade-up">
+      {back}
+      <PageHeader title={t("adminBooking.form.title")} description={t("adminBooking.form.description")} />
+      {catalog.data.length === 0 ? (
+        <ErrorState title={t("adminBooking.form.noServices")} message={t("adminBooking.form.noServicesHint")} />
+      ) : (
+        <NewBookingForm services={catalog.data} coaches={coaches} spaces={spaces} isAdmin={me.roles.includes("admin")}
+          scope={orgId} todayKey={zonedDayKey(new Date(), f.timeZone)} initialAthlete={initialAthlete} />
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Receipt, Plus, Download, Landmark, PencilLine, X } from "lucide-react";
+import { ClipboardList, Receipt, Plus, Download, Landmark, PencilLine, X } from "lucide-react";
 import { PageHeader, Button, DataTable, EmptyState, Badge, statusTone, ErrorState, Input, Label, Select, type Column } from "@/components/ui";
 import { FinTable } from "@/components/finance/fin-table";
 import { Pager, pageParam } from "@/components/ui/pager";
@@ -114,7 +114,8 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
         title={title}
         description={t("editMoney.invoiceList.description")}
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/finance/to-invoice"><Button variant="secondary"><ClipboardList className="h-4 w-4" /> {t("adminBooking.toInvoice.title")}</Button></Link>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/admin/invoices/export"><Button variant="secondary"><Download className="h-4 w-4" /> {t("editMoney.invoiceList.exportCsv")}</Button></a>
             <Link href="/admin/invoices/reconcile"><Button variant="secondary"><Landmark className="h-4 w-4" /> {t("editMoney.invoiceList.reconcile")}</Button></Link>

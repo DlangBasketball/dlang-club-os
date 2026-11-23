@@ -5,10 +5,12 @@ import { listTrainingCatalog, getTrainingSettings, type TrainingService } from "
 import { TrainingSettingsForm } from "@/components/training/availability-editor";
 import { venueLine } from "@/lib/training/format";
 import { getI18n } from "@/lib/i18n/server";
+import { getServiceCatalog } from "@/lib/booking/data";
 
 export default async function AdminServicesPage() {
   const { t, f } = await getI18n();
-  const [catalog, settings] = await Promise.all([listTrainingCatalog(), getTrainingSettings()]);
+  const [catalog, settings, bookingCatalog] = await Promise.all([listTrainingCatalog(), getTrainingSettings(), getServiceCatalog({ includeInactive: true })]);
+  const setup = new Map((bookingCatalog.data ?? []).map((c) => [c.id, c]));
   if (catalog.error !== null) return (<div className="animate-fade-up"><PageHeader title={t("training.services.title")} /><ErrorState title={t("training.common.loadFailed")} message={catalog.error} /></div>);
   const { services, venues, coaches } = catalog.data;
   const columns: Column<TrainingService>[] = [
@@ -25,7 +27,17 @@ export default async function AdminServicesPage() {
     { key: "packages", header: t("training.services.packages"), render: (s) => s.packages.filter((p) => p.isActive).map((p) => p.sessions).join(" · ") || "—" },
     { key: "coachIds", header: t("training.service.coaches"), render: (s) => s.coachIds.map((id) => coaches.find((c) => c.id === id)?.name).filter(Boolean).join(", ") || "—" },
     { key: "venueId", header: t("training.book.location"), render: (s) => s.locationText || venueLine(venues.find((v) => v.id === s.venueId)) || "—" },
-    { key: "isActive", header: t("training.common.status"), render: (s) => <Badge tone={s.isActive ? "success" : "neutral"}>{s.isActive ? t("training.common.active") : t("training.common.inactive")}</Badge> },
+    { key: "isActive", header: t("training.common.status"), render: (s) => {
+      const c = setup.get(s.id);
+      return (
+        <span className="flex flex-wrap gap-1">
+          <Badge tone={s.isActive ? "success" : "neutral"}>{s.isActive ? t("training.common.active") : t("training.common.inactive")}</Badge>
+          {c && <Badge tone="neutral">{t.dynamic(`adminBooking.kind.${c.kind}`, undefined, c.kind)}</Badge>}
+          {c && s.isActive && c.setup_missing.length > 0 && <Badge tone="warning">{t("adminBooking.services.setupBadge")}</Badge>}
+          {c && s.isActive && c.coaches.length === 0 && <Badge tone="warning">{t("adminBooking.services.noCoachBadge")}</Badge>}
+        </span>
+      );
+    } },
     { key: "id", header: t("common.actions"), render: (s) => (
       <Link href={`/admin/services/${s.id}`} aria-label={t("training.services.editNamed", { name: s.name })}><Button size="sm" variant="secondary"><Pencil className="h-3.5 w-3.5" /> {t("common.edit")}</Button></Link>
     ) },

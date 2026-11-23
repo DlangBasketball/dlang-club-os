@@ -1136,5 +1136,21 @@
     "messages": {
       "cancelled": "Booking cancelled."
     }
+  },
+  "adminBooking": {
+    "quick": {
+      "description": "Creates the athlete only (no membership, roster or programme). Your booking stays as it is.",
+      "noEnrolHint": "The athlete is not added to any team, membership or programme."
+    },
+    "detail": {
+      "cancelledFinance": "Cancelled booking with invoice {number} still open: finance follow-up needed.",
+      "cancelled": "Cancelled",
+      "sheet": {
+        "final": "Finalised"
+      }
+    },
+    "session": {
+      "managed": "Managed by bookings: move or cancel it by rescheduling or cancelling the bookings."
+    }
   }
 }
