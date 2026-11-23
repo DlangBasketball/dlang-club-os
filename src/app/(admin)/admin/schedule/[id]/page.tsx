@@ -10,6 +10,8 @@ import { dayKey, fmtRange, fmtTime } from "@/lib/sportsops/time";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getTranslations } from "@/lib/i18n/server";
 import { SHEET_EVENT_TYPES } from "@/lib/attendance/types";
+import { getSessionEventInfo } from "@/lib/booking/admin-data";
+import { SessionBookingsCard } from "@/components/booking/admin/session-card";
 
 export const metadata = { title: "Event" };
 
@@ -20,6 +22,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const e = ev.data;
   if (!e) notFound();
   const isAdmin = !!me?.roles.includes("admin");
+  // A booking session (events.training_session_id) is managed by its bookings: no direct edit / move / cancel.
+  const bookingSession = me?.orgId && (me.roles.includes("admin") || me.roles.includes("finance")) ? await getSessionEventInfo(me.orgId, e.id) : null;
+  const canEditEvent = isAdmin && !bookingSession;
   const isGame = e.type === "game" || e.type === "tournament";
 
   // Resolve the clashing events for display.
@@ -38,14 +43,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title={eventTitle({ ...e, home_away: e.homeAway })} description={fmtRange(e.startsAt, e.endsAt)}
-        actions={isAdmin ? <Link href={`/admin/schedule/${e.id}/edit`}><Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> Edit</Button></Link> : undefined} />
+        actions={canEditEvent ? <Link href={`/admin/schedule/${e.id}/edit`}><Button size="sm" variant="secondary"><Pencil className="h-4 w-4" /> Edit</Button></Link> : undefined} />
 
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone={eventTone(e.type)}>{eventTypeLabel(e.type)}</Badge>
         {e.teamName && e.teamId && <Link href={`/admin/teams/${e.teamId}`}><Badge tone="neutral">{e.teamName}</Badge></Link>}
         {e.homeAway && <Badge>{e.homeAway}</Badge>}
         <EventPlaceView e={e} withMap className="text-sm text-ink-2" iconClassName="h-3.5 w-3.5" />
-        <span className="ml-auto">{isAdmin && <EventStatusControl eventId={e.id} status={e.status} seriesId={e.seriesId} canDelete />}</span>
+        <span className="ml-auto">{canEditEvent && <EventStatusControl eventId={e.id} status={e.status} seriesId={e.seriesId} canDelete />}</span>
       </div>
 
       {e.status === "cancelled" && <EventCancelNote reason={e.cancelReason} />}
@@ -58,7 +63,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-        <Card>
+        {bookingSession ? <SessionBookingsCard info={bookingSession} /> : <Card>
           <CardHeader>
             <CardTitle>Availability</CardTitle>
             <span className="text-xs text-ink-3 tnum"><span className="text-success">{tally.going} going</span> · {tally.maybe} maybe · {tally.not_going} out · {tally.none} no reply</span>
@@ -76,10 +81,10 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               </div>
             ))}
           </CardBody>
-        </Card>
+        </Card>}
 
         <div className="space-y-4">
-          {isAdmin && e.teamId && (SHEET_EVENT_TYPES as readonly string[]).includes(e.type) && (
+          {isAdmin && (e.teamId || bookingSession) && (SHEET_EVENT_TYPES as readonly string[]).includes(e.type) && (
             <Card>
               <CardHeader><CardTitle>{tr("adminAttendance.session.cardTitle")}</CardTitle></CardHeader>
               <CardBody className="space-y-2">

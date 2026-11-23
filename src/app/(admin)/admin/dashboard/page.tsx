@@ -19,6 +19,7 @@ import { getTranslations } from "@/lib/i18n/server";
 import { SelectionRevenueCard } from "@/components/selection/revenue-card";
 import { PlacementsDashboardCard } from "@/components/alumni/placements-card";
 import { TeamAttendanceDashboard } from "@/components/attendance/admin/dashboard-cards";
+import { BookingDashboardCard } from "@/components/booking/admin/dashboard-card";
 
 export default async function DashboardPage() {
   const [user, t] = await Promise.all([getSessionUser(), getTranslations()]);
@@ -86,6 +87,11 @@ export default async function DashboardPage() {
       {/* Team attendance (admin): today's sessions, awaiting sheets, no-shows, follow-ups */}
       <Suspense fallback={<UpcomingSessionsSkeleton rows={3} />}>
         <TeamAttendanceDashboard />
+      </Suspense>
+
+      {/* Bookings: today, awaiting invoice, outstanding, delivery follow-ups (admin / finance) */}
+      <Suspense fallback={null}>
+        <BookingDashboardCard />
       </Suspense>
 
       {/* Operational lists */}

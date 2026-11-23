@@ -6,12 +6,13 @@ import { cn } from "@/lib/utils";
 
 export const HUB_TABS = ["balances", "transactions", "payments", "invoices", "expenses"] as const;
 export type HubTab = (typeof HUB_TABS)[number];
-export type FinanceSection = HubTab | "payouts" | "reports" | "lists";
+export type FinanceSection = HubTab | "toInvoice" | "payouts" | "reports" | "lists";
 
 /** Tab strip shared by the finance hub and its sub-pages. */
 export function FinanceNav({ t, active }: { t: Translator; active: FinanceSection }) {
   const items: { key: FinanceSection; href: string }[] = [
     ...HUB_TABS.map((k) => ({ key: k as FinanceSection, href: `/admin/finance?tab=${k}` })),
+    { key: "toInvoice", href: "/admin/finance/to-invoice" },
     { key: "payouts", href: "/admin/finance/payouts" },
     { key: "reports", href: "/admin/finance/reports" },
   ];
