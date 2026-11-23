@@ -5,7 +5,7 @@ import { AlertTriangle, Plus, Trash2 } from "lucide-react";
 import { Badge, Button, FieldHint, Input, Label } from "@/components/ui";
 import { Textarea } from "@/components/teams/fields";
 import { saveServicePricing } from "@/lib/actions/booking-orders";
-import { optionLabel, type PricingOption } from "@/lib/booking/orders";
+import { optionLabel, priceTag, type PricingOption } from "@/lib/booking/orders";
 import type { ServiceKind } from "@/lib/booking/types";
 import { currencySymbol } from "@/lib/format";
 import { useFormat, useT } from "@/lib/i18n/client";
@@ -139,7 +139,7 @@ export function ServicePricingCard({ serviceId, kind, currency, initial, canEdit
         <div className="rounded-lg border border-line p-3">
           <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">{t("bookingOrders.pricing.preview")}</p>
           <ul className="flex flex-wrap gap-1.5">
-            {preview.map((o, i) => <li key={`${o.sessions}-${i}`}><Badge tone="neutral">{optionLabel(o, sessionsLabel, money)}</Badge></li>)}
+            {preview.map((o, i) => <li key={`${o.sessions}-${i}`}><Badge tone="neutral">{optionLabel(o, sessionsLabel, (n) => priceTag(n, currency, money))}</Badge></li>)}
           </ul>
         </div>
       )}

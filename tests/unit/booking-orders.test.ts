@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  duplicateDateKeys, expandRecurrence, isPriceOverride, isoWeekday, normalizeDateRows, offeredOptions, optionLabel, orderPayloadSchema,
+  duplicateDateKeys, expandRecurrence, priceTag, isPriceOverride, isoWeekday, normalizeDateRows, offeredOptions, optionLabel, orderPayloadSchema,
   orderPricingPreview, packageUsage, toOrderRpcPayload,
 } from "@/lib/booking/orders";
 import { formatMoney } from "@/lib/format";
@@ -199,5 +199,14 @@ describe("order payload", () => {
 
   it("refuses an order without players", () => {
     expect(orderPayloadSchema.safeParse({ serviceId: "00000000-0000-4000-8000-000000000001", option: "single", dates: [], participants: [] }).success).toBe(false);
+  });
+});
+
+describe("priceTag", () => {
+  it("formats Swiss francs with the Swiss apostrophe in any UI language", () => {
+    const en = (n: number) => `X${n}`;
+    expect([95, 450, 850, 1280, 1500].map((n) => priceTag(n, "CHF", en))).toEqual(
+      ["CHF 95.00", "CHF 450.00", "CHF 850.00", "CHF 1\u2019280.00", "CHF 1\u2019500.00"]);
+    expect(priceTag(1280, "EUR", en)).toBe("X1280");
   });
 });

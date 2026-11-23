@@ -41,6 +41,18 @@ export function optionParts(o: Pick<PricingOption, "sessions" | "total">): { ses
   return { sessions: o.sessions, total: Number(o.total) };
 }
 
+/**
+ * Price tag for pricing options. Swiss francs use the Swiss convention in every UI
+ * language ("CHF 1’280.00": typographic apostrophe as thousands separator), so the
+ * catalogue reads the same for all staff; other currencies use the viewer's formatter.
+ */
+export function priceTag(n: number, currency: string, fallback: (n: number) => string): string {
+  if (currency.toUpperCase() !== "CHF" || !Number.isFinite(n)) return fallback(n);
+  const [int, dec] = Math.abs(n).toFixed(2).split(".");
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, "\u2019");
+  return `${n < 0 ? "-" : ""}CHF ${grouped}.${dec}`;
+}
+
 /** "1 Session — CHF 95.00": `sessionsLabel(n)` gives the translated "N Session(s)", `money` formats the total. */
 export function optionLabel(o: Pick<PricingOption, "sessions" | "total">, sessionsLabel: (n: number) => string, money: (n: number) => string): string {
   return `${sessionsLabel(o.sessions)} — ${money(Number(o.total))}`;

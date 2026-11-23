@@ -16,7 +16,7 @@ import {
   saveOrderDraft, togglePlayerDate, withOrderService, type DateMode, type OrderFormState,
 } from "@/lib/booking/order-form";
 import {
-  duplicateDateKeys, expandRecurrence, isPriceOverride, offeredOptions, optionLabel, orderPricingPreview, type OrderDateCheck, type OrderOption,
+  duplicateDateKeys, expandRecurrence, isPriceOverride, offeredOptions, optionLabel, priceTag, orderPricingPreview, type OrderDateCheck, type OrderOption,
   type OrderQuote,
 } from "@/lib/booking/orders";
 import type { CatalogService } from "@/lib/booking/data";
@@ -375,7 +375,7 @@ export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayK
                           <span className="flex items-center gap-2">
                             <input type="radio" name="no-option" required className="accent-[var(--red-primary)]" checked={checked} disabled={busy}
                               onChange={() => { setErr(null); setS((x) => ({ ...x, option: o.kind, packageId: o.package_id ?? "", purchaseId: "", priceOverride: false, agreed: "", dateMode: o.kind === "single" ? "one" : x.dateMode, rows: o.kind === "single" ? x.rows.slice(0, 1) : x.rows })); }} />
-                            <span className="text-ink">{optionLabel(o, sessionsLabel, (n) => money(n))}</span>
+                            <span className="text-ink">{optionLabel(o, sessionsLabel, (n) => priceTag(n, currency, (v) => money(v)))}</span>
                           </span>
                           {o.kind === "package" && o.sessions > 0 && <span className="text-xs text-ink-3">{t("bookingOrders.form.perSession", { price: money(Math.round((Number(o.total) / o.sessions) * 100) / 100) })}</span>}
                         </label>
