@@ -13263,7 +13263,8 @@
       "sharedInvoice": "también cobra otros pedidos",
       "adjusted": "ajustado {amount}",
       "paidOf": "pagado {amount}",
-      "creditOwed": "Saldo a favor del pagador: {amount} (reembolso o abono a través de la factura)."
+      "creditOwed": "Saldo a favor del pagador: {amount} (reembolso o abono a través de la factura).",
+      "creditTotal": "Crédito a favor de los pagadores"
     },
     "actions": {
       "createInvoices": "Crear facturas",

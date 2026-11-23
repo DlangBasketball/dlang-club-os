@@ -105,6 +105,7 @@ export function OrderWorkspace({ detail: d, isAdmin, coaches, spaces, todayKey, 
             <Row label={t("bookingOrders.detail.invoiced")} value={<span className="tnum">{money(d.totals.invoiced)}</span>} />
             <Row label={t("bookingOrders.detail.paid")} value={<span className="tnum">{money(d.totals.paid)}</span>} />
             <Row label={t("bookingOrders.detail.balance")} value={<span className="tnum font-medium">{money(d.totals.balance)}</span>} />
+            {(d.totals.credit ?? 0) > 0 && <Row label={t("bookingOrders.detail.creditTotal")} value={<span className="tnum text-warning">{money(d.totals.credit ?? 0)}</span>} />}
             {o.setup_missing.length > 0 && d.totals.uninvoiced > 0 && (
               <div role="alert" className="rounded border border-warning/30 bg-warning-soft p-2 text-warning">
                 <p className="font-medium">{t("adminBooking.quote.setupTitle")}</p>

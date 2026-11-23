@@ -13263,7 +13263,8 @@
       "sharedInvoice": "addebita anche altri ordini",
       "adjusted": "rettificato di {amount}",
       "paidOf": "pagato {amount}",
-      "creditOwed": "Credito dovuto al pagatore: {amount} (rimborso o accredito tramite la fattura)."
+      "creditOwed": "Credito dovuto al pagatore: {amount} (rimborso o accredito tramite la fattura).",
+      "creditTotal": "Credito dovuto ai paganti"
     },
     "actions": {
       "createInvoices": "Crea fatture",

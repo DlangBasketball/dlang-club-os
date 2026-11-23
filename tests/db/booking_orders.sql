@@ -563,6 +563,8 @@ begin
                 and jsonb_array_length(a->'invoices') = 3
                 and (select (x->>'balance')::numeric from jsonb_array_elements(a->'invoices') x where x->>'invoice_id' = bo.get('invF62')) = -60,
                 'order detail: charged 90 after the changes, invoices per payer with balances (credit owed to family 062)');
+  perform bo.ok((a->'totals'->>'balance')::numeric >= 0 and (a->'totals'->>'credit')::numeric = 60,
+                'order totals: open balance never nets one payer''s credit against another payer (credit 60 reported separately)');
   r := bo.j(bo.uid('admin'), format('select public.booking_create_invoice(%L, %L, false)::text',
             (select id from public.training_bookings where order_id = o and status = 'booked' limit 1), gen_random_uuid()));
   perform bo.ok(r->>'already_invoiced' = 'true' or bo.err(r) = 'ORDER_INVOICING',

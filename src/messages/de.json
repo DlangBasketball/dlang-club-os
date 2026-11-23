@@ -13263,7 +13263,8 @@
       "sharedInvoice": "verrechnet auch andere Aufträge",
       "adjusted": "angepasst um {amount}",
       "paidOf": "bezahlt {amount}",
-      "creditOwed": "Guthaben der zahlenden Person: {amount} (Rückerstattung oder Gutschrift über die Rechnung)."
+      "creditOwed": "Guthaben der zahlenden Person: {amount} (Rückerstattung oder Gutschrift über die Rechnung).",
+      "creditTotal": "Guthaben der Zahlenden"
     },
     "actions": {
       "createInvoices": "Rechnungen erstellen",

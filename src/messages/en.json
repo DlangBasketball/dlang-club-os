@@ -13263,7 +13263,8 @@
       "sharedInvoice": "also bills other orders",
       "adjusted": "adjusted {amount}",
       "paidOf": "paid {amount}",
-      "creditOwed": "Credit owed to the payer: {amount} (refund or credit through the invoice)."
+      "creditOwed": "Credit owed to the payer: {amount} (refund or credit through the invoice).",
+      "creditTotal": "Credit owed to payers"
     },
     "actions": {
       "createInvoices": "Create invoices",

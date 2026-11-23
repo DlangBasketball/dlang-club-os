@@ -379,7 +379,7 @@ export type OrderDetail = {
   invoices: { invoice_id: string; number: string; status: string; payer_name: string | null; payer_kind: string | null; currency: string;
               total: number; adjustments: number; due: number; paid: number; balance: number; issued_at: string; due_date: string | null;
               activity: string; other_orders: boolean }[];
-  totals: { currency: string; charged: number; uninvoiced: number; invoiced: number; paid: number; balance: number };
+  totals: { currency: string; charged: number; uninvoiced: number; invoiced: number; paid: number; balance: number; credit?: number };
   can_add_dates: boolean;
 };
 

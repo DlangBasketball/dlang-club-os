@@ -13263,7 +13263,8 @@
       "sharedInvoice": "couvre aussi d’autres commandes",
       "adjusted": "ajusté de {amount}",
       "paidOf": "payé {amount}",
-      "creditOwed": "Crédit dû au payeur : {amount} (remboursement ou avoir via la facture)."
+      "creditOwed": "Crédit dû au payeur : {amount} (remboursement ou avoir via la facture).",
+      "creditTotal": "Crédit dû aux payeurs"
     },
     "actions": {
       "createInvoices": "Créer les factures",
