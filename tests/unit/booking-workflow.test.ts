@@ -127,11 +127,14 @@ describe("notification dispatch core", () => {
 
   it("templates, links and message content", () => {
     expect(templateFor("rescheduled")).toBe("booking_rescheduled");
-    expect(portalPathFor("coach", true)).toBe("/coach");
+    expect(portalPathFor("coach", true)).toBe("/coach/trainings");
+    expect(portalPathFor("player", true, "b1")).toBe("/player/bookings");
+    expect(portalPathFor("guardian", true, "b1")).toBe("/parent/bookings/b1");
+    expect(portalPathFor("payer", true, "b1")).toBe("/parent/bookings");
     expect(portalPathFor("family", false)).toBeUndefined();
     const m = buildMessage(row({ kind: "rescheduled", previousStartsAt: "2026-12-04T09:00:00Z" }))!;
     expect(m.template).toBe("booking_rescheduled");
-    expect(m.vars).toMatchObject({ athlete_name: "Nova", previous_starts_at: "2026-12-04T09:00:00Z", portal_path: "/parent/bookings", has_account: true });
+    expect(m.vars).toMatchObject({ athlete_name: "Nova", previous_starts_at: "2026-12-04T09:00:00Z", portal_path: "/parent/bookings/b1", has_account: true });
     expect(JSON.stringify(m)).not.toMatch(/price|payer|invoice/i);
     expect(buildMessage(row({ recipientProfileId: null, recipientEmail: null }))).toBeNull();
     expect(buildMessage(row({ recipientKind: "family", recipientProfileId: null }))!.vars.portal_path).toBeUndefined();

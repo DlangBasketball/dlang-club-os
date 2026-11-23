@@ -12522,5 +12522,76 @@
       "notificationRequeued": "Benachrichtigung erneut eingereiht.",
       "coachesSaved": "Coaches gespeichert."
     }
+  },
+  "bookingPortal": {
+    "bookedSession": "Gebuchte Einheit",
+    "movedFrom": "Verschoben (vorher {when})",
+    "kind": {
+      "private": "Einzeltraining",
+      "group": "Gruppentraining",
+      "trial": "Probetraining",
+      "package": "Paket-Einheit"
+    },
+    "coach": {
+      "participants": "Gebucht: {names}",
+      "noParticipants": "Noch niemand gebucht",
+      "places": "{taken} von {capacity} Plätzen",
+      "rosterFromBookings": "Liste = die bestätigten Buchungen dieser Einheit."
+    },
+    "schedule": {
+      "description": "Ihre nächsten Einheiten und gebuchten Trainings.",
+      "empty": "Nichts geplant",
+      "loadError": "Plan konnte nicht geladen werden"
+    },
+    "family": {
+      "title": "Trainingsbuchungen",
+      "description": "Gebuchte Einheiten Ihrer Kinder mit Terminänderungen, Anwesenheit und Ihren Rechnungen.",
+      "book": "Einheit buchen",
+      "upcoming": "Nächste Buchungen",
+      "timesHint": "Zeiten in der Zeitzone des Clubs.",
+      "noUpcoming": "Keine anstehenden Buchungen",
+      "noUpcomingHint": "Einheiten erscheinen hier, sobald der Club sie bestätigt.",
+      "changes": "Terminänderungen",
+      "changesHint": "Verschobene oder abgesagte Buchungen der letzten 30 Tage.",
+      "cancelled": "Abgesagt",
+      "cancelledReason": "Abgesagt: {reason}",
+      "moved": "Verschoben",
+      "movedFromTo": "Verschoben von {before} auf {when}",
+      "movedTo": "Verschoben auf {when}",
+      "changedOn": "Geändert am {date}",
+      "attendance": "Anwesenheit bei gebuchten Einheiten",
+      "attendanceHint": "Definitive Anwesenheit, vom Coach erfasst.",
+      "noAttendance": "Noch keine definitive Anwesenheit.",
+      "invoices": "Rechnungen zu Buchungen",
+      "invoicesHint": "Es werden nur Rechnungen angezeigt, die an Sie gehen.",
+      "invoiceFor": "{service} vom {date}",
+      "open": "Offen: {amount}",
+      "place": "Ort",
+      "loadError": "Buchungen konnten nicht geladen werden",
+      "loadErrorHint": "Bitte versuchen Sie es gleich nochmals.",
+      "childTabs": "Kinder",
+      "allChildren": "Alle Kinder",
+      "absenceHint": "Verhindert? Melden Sie sich beim Club, damit er die Buchung absagt.",
+      "changeByClub": "Der Club verwaltet diese Buchung: Kontaktieren Sie ihn, um sie zu verschieben oder abzusagen."
+    },
+    "player": {
+      "title": "Meine Buchungen",
+      "description": "Deine gebuchten Trainings und deine Anwesenheit.",
+      "notificationsHint": "Buchungsbestätigungen, Änderungen und Mitteilungen des Clubs."
+    },
+    "admin": {
+      "hint": "Gebuchte Einheiten mit ihrer Abrechnung; öffnen Sie eine Buchung für die Details.",
+      "newBooking": "Neue Buchung",
+      "upcoming": "Anstehend",
+      "history": "Verlauf",
+      "noUpcoming": "Keine anstehenden Buchungen.",
+      "state": "Buchungsstatus",
+      "billing": "Abrechnung",
+      "payer": "Zahler: {name}",
+      "sessionAttendance": "Gebuchte Einheiten",
+      "sessionAttendanceHint": "Anwesenheit aus den Listen gebuchter Einzel- und Gruppentrainings.",
+      "bookingInvoices": "Rechnungen aus Buchungen",
+      "bookingInvoicesHint": "Jede Rechnung verweist auf die verrechnete Buchung."
+    }
   }
 }

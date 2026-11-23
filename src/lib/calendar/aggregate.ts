@@ -34,6 +34,8 @@ export type CalendarItem = {
   description: string | null;
   /** Programme session linked from a team event (used for de-duplication). */
   linkedSessionId?: string | null;
+  /** Booked training session behind a team-less event (events.training_session_id). */
+  bookedSessionId?: string | null;
 };
 
 export type CalendarFilters = {

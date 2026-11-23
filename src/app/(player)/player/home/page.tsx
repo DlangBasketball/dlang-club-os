@@ -29,7 +29,12 @@ export default async function PlayerHomePage() {
       <PageHeader
         title={t("familyAttendance.player.greeting", { name: me.data.firstName })}
         description={t("familyAttendance.player.description")}
-        actions={<Link href="/player/attendance" className={buttonVariants({ variant: "secondary", size: "sm" })}>{t("familyAttendance.player.seeHistory")}</Link>}
+        actions={
+          <>
+            <Link href="/player/bookings" className={buttonVariants({ variant: "secondary", size: "sm" })}>{t("bookingPortal.player.title")}</Link>
+            <Link href="/player/attendance" className={buttonVariants({ variant: "secondary", size: "sm" })}>{t("familyAttendance.player.seeHistory")}</Link>
+          </>
+        }
       />
 
       <Card>

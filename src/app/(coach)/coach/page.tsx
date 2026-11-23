@@ -79,8 +79,11 @@ export default async function CoachHomePage() {
           <EmptyState icon={<CalendarClock />} title={t("staff.dashboard.noToday")} />
         ) : (
           todays.map((i) => {
-            const rollCall = i.kind === "session" ? `/coach/attendance/${i.sourceId}` : i.kind === "team_event" ? `/coach/team/events/${i.sourceId}` : null;
-            const planKind = i.kind === "session" ? "session" : i.kind === "team_event" ? "event" : null;
+            // A booked private / group session: attendance on the trainings sheet (roster = its bookings).
+            const booked = i.kind === "team_event" && !!i.bookedSessionId;
+            const rollCall = booked ? `/coach/trainings/${i.sourceId}/attendance`
+              : i.kind === "session" ? `/coach/attendance/${i.sourceId}` : i.kind === "team_event" ? `/coach/team/events/${i.sourceId}` : null;
+            const planKind = booked ? null : i.kind === "session" ? "session" : i.kind === "team_event" ? "event" : null;
             const status = i.kind === "session" ? attendance.get(i.sourceId) : undefined;
             const hasPlan = plans.has(i.sourceId);
             return (
@@ -91,7 +94,7 @@ export default async function CoachHomePage() {
                     <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
                       <span className="tnum flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" />{i.allDay ? t("staff.calendar.allDay") : `${f.time(i.start)}–${f.time(i.end)}`}</span>
                       {i.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{i.location}</span>}
-                      <span>{t.dynamic(`staff.calendar.kinds.${i.kind}`)}</span>
+                      <span>{booked ? t("bookingPortal.bookedSession") : t.dynamic(`staff.calendar.kinds.${i.kind}`)}</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">

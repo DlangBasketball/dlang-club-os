@@ -5,7 +5,8 @@
  * reach these rows: the database only returns finalized values.
  */
 export type HistoryRow = {
-  event_id: string; team_id: string; team_name: string; type: string; starts_at: string; status: string; is_guest: boolean;
+  /** null for a booked training session (no team). */
+  event_id: string; team_id: string | null; team_name: string; type: string; starts_at: string; status: string; is_guest: boolean;
   season_id?: string | null; season_name?: string | null; open_request?: boolean;
 };
 
@@ -34,7 +35,8 @@ export function historyOptions(rows: HistoryRow[]): { teams: { id: string; name:
   const teams = new Map<string, string>();
   const seasons = new Map<string, string>();
   for (const r of rows) {
-    if (!teams.has(r.team_id)) teams.set(r.team_id, r.team_name);
+    // Booked sessions have no team: they are never a team filter option.
+    if (r.team_id && !teams.has(r.team_id)) teams.set(r.team_id, r.team_name);
     if (r.season_id && !seasons.has(r.season_id)) seasons.set(r.season_id, r.season_name ?? r.season_id);
   }
   return {
@@ -49,6 +51,11 @@ export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f
 export function uuidParam(v: string | string[] | undefined): string | null {
   const s = Array.isArray(v) ? v[0] : v;
   return s && UUID_RE.test(s) ? s : null;
+}
+
+/** A booked private / group session row (no team, no absence report, no team record page). */
+export function isBookedSession(r: { team_id?: string | null; training_session_id?: string | null; booked?: boolean }): boolean {
+  return Boolean(r.booked || r.training_session_id);
 }
 
 /** Badge tone of a finalized attendance status. */

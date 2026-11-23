@@ -100,7 +100,7 @@ export default async function TrainingDetailsPage({ params }: { params: Promise<
     <div className="mx-auto max-w-3xl space-y-5">
       <SessionHeader t={t} f={f} teamName={ev.team_name} title={ev.title} type={ev.type} startsAt={ev.starts_at} endsAt={ev.ends_at}
                      location={ev.location_name} cancelled={cancelled} sheetStatus={sheet.sheet?.status ?? null}
-                     substitute={sheet.access.is_substitute}
+                     substitute={sheet.access.is_substitute} booked={!!ev.training_session_id}
                      links={!cancelled && (
                        <Link href={`/coach/trainings/${eventId}/attendance`} className={buttonVariants({ variant: final ? "secondary" : "primary", size: "lg" })}>
                          {actionLabel}
@@ -112,7 +112,9 @@ export default async function TrainingDetailsPage({ params }: { params: Promise<
         <CardHeader><CardTitle>{t("coachTrainings.details.roster")}</CardTitle></CardHeader>
         <CardBody>
           <p className="mb-3 text-xs text-text-muted">
-            {t("coachTrainings.details.rosterHint", { date: f.date(sheet.sheet?.roster_date ?? ev.local_date) })}
+            {ev.training_session_id
+              ? t("bookingPortal.coach.rosterFromBookings")
+              : t("coachTrainings.details.rosterHint", { date: f.date(sheet.sheet?.roster_date ?? ev.local_date) })}
           </p>
           {sheet.marks.length === 0 ? <p className="text-sm text-text-muted">{t("coachTrainings.sheet.noRoster")}</p> : (
             <ul className="divide-y divide-border">

@@ -58,6 +58,17 @@ export type BookingDbRow = {
   cancelled_by: string | null; purchase_id: string | null; venue_id: string | null; location_text: string | null;
   group_confirmed_at: string | null; created_at: string;
 };
+/**
+ * Coach read path (view public.coach_training_bookings, migration
+ * 20250420104600): the signed-in coach's own bookings without price, payer,
+ * invoice, package or notes columns. Coaches never select training_bookings.
+ */
+export type CoachBookingViewRow = {
+  id: string; org_id: string; athlete_id: string; service_id: string; coach_id: string; session_id: string | null;
+  slot_start: string; slot_end: string | null; status: "booked" | "completed" | "no_show" | "cancelled";
+  venue_id: string | null; location_text: string | null; group_confirmed_at: string | null; cancelled_at: string | null;
+  rescheduled_at: string | null; created_at: string;
+};
 export type VenueDbRow = {
   id: string; org_id: string; name: string; address: string | null; city: string | null; postal_code: string | null; country: string | null;
   capacity: number | null; notes: string | null; is_active: boolean; opening_hours: Json | null;
@@ -72,6 +83,7 @@ type TrainingTables = {
   training_blackouts: T<BlackoutRow>;
   athlete_training_profiles: T<ProfileRow>;
   training_bookings: T<BookingDbRow>;
+  coach_training_bookings: T<CoachBookingViewRow>;
   venues: T<VenueDbRow>;
 };
 

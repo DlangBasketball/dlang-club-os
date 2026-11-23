@@ -2,6 +2,8 @@ import Link from "next/link";
 import { CalendarX2, ChevronRight, Clock, MapPin, Users } from "lucide-react";
 import { Badge, buttonVariants } from "@/components/ui";
 import type { TrainingCard } from "@/lib/attendance/coach-data";
+import type { BookedSessionInfo } from "@/lib/booking/portal";
+import { BookedSessionDetails } from "@/components/booking/portal/coach-session";
 import type { Formatter } from "@/lib/format";
 import type { Translator } from "@/lib/i18n/translator";
 import { cn } from "@/lib/utils";
@@ -20,9 +22,13 @@ export function eventTypeLabel(type: string, t: Translator): string {
  * One session on the coach's trainings list (server component). Big tap
  * target to take attendance; cancelled sessions show no action.
  */
-export function TrainingCardView({ card, t, f, showDate }: { card: TrainingCard; t: Translator; f: Formatter; showDate?: boolean }) {
+export function TrainingCardView({ card, t, f, showDate, session }: {
+  card: TrainingCard; t: Translator; f: Formatter; showDate?: boolean;
+  /** The booked session behind this event (service name, roster names; no team, no money). */
+  session?: BookedSessionInfo | null;
+}) {
   const cancelled = card.event_status === "cancelled";
-  const title = card.team_name ?? card.title ?? eventTypeLabel(card.event_type, t);
+  const title = session?.serviceName ?? card.team_name ?? card.title ?? eventTypeLabel(card.event_type, t);
   const detailsHref = `/coach/trainings/${card.event_id}`;
   const action = !cancelled && card.can_run
     ? card.sheet_status === "final"
@@ -39,8 +45,12 @@ export function TrainingCardView({ card, t, f, showDate }: { card: TrainingCard;
             <Link href={detailsHref} className="hover:underline focus-visible:outline-none focus-visible:shadow-focus">{title}</Link>
           </h3>
           <p className="mt-0.5 text-xs text-text-muted">
-            {eventTypeLabel(card.event_type, t)}
-            {card.title && card.team_name && <> · {card.title}</>}
+            {session ? t("bookingPortal.bookedSession") : (
+              <>
+                {eventTypeLabel(card.event_type, t)}
+                {card.title && card.team_name && <> · {card.title}</>}
+              </>
+            )}
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
@@ -73,6 +83,8 @@ export function TrainingCardView({ card, t, f, showDate }: { card: TrainingCard;
           </li>
         )}
       </ul>
+
+      {session && <BookedSessionDetails session={session} t={t} f={f} />}
 
       {cancelled && card.cancel_reason && (
         <p className="mt-2 text-sm text-text-muted">{t("coachTrainings.card.cancelledReason", { reason: card.cancel_reason })}</p>

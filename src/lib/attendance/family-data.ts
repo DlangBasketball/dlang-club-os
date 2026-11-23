@@ -11,13 +11,19 @@ import type { Read } from "./data";
  * docs/team-attendance.md, docs/family-attendance.md.
  */
 
+/*
+ * Booked training sessions (docs/booking-workflow.md §5) come back in the same
+ * lists with team_id null, team_name = the service name and
+ * training_session_id set; `booked` marks rows merged in from the booking
+ * overview (src/lib/booking/portal.ts mergeAttendanceHistory).
+ */
 export type UpcomingSession = {
-  event_id: string; team_id: string; team_name: string; type: string; title: string | null; starts_at: string; ends_at: string;
+  event_id: string; team_id: string | null; team_name: string; training_session_id?: string | null; type: string; title: string | null; starts_at: string; ends_at: string;
   status: string; cancel_reason: string | null; rescheduled_from: string | null; location: string | null; can_report: boolean;
   report: null | { report_id: string; status: string; reason: string | null; reason_category: string; needs_review: boolean; created_at: string };
 };
 export type HistoryEntry = {
-  event_id: string; team_id: string; team_name: string; type: string; starts_at: string; status: string; is_guest: boolean;
+  event_id: string; team_id: string | null; team_name: string; training_session_id?: string | null; booked?: boolean; type: string; starts_at: string; status: string; is_guest: boolean;
   season_id: string | null; season_name: string | null; can_request_correction: boolean; open_request: boolean;
   alert: null | { alert_id: string; kind: string; status: string; mark_status: string; sent_at: string | null };
 };

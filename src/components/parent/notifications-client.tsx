@@ -11,6 +11,9 @@ import type { ParentNotification } from "@/lib/data/parent";
 /** Attendance notices (no-show alerts, corrections, correction outcomes) get a badge and link to the record. */
 const ATTENDANCE_TYPES = ["attendance_no_show", "attendance_no_show_correction"];
 const isAttendance = (n: ParentNotification) => ATTENDANCE_TYPES.includes(n.type) || (n.link ?? "").startsWith("/parent/attendance");
+/** Booking notices (confirmed / moved / cancelled) link to the booking in the parent or player portal. */
+const BOOKING_TYPES = ["booking_confirmation", "booking_rescheduled", "booking_cancellation"];
+const isBooking = (n: ParentNotification) => BOOKING_TYPES.includes(n.type);
 
 export function NotificationsClient({ initial, archived }: { initial: ParentNotification[]; archived?: boolean }) {
   const t = useT();
@@ -56,6 +59,7 @@ export function NotificationsClient({ initial, archived }: { initial: ParentNoti
                 <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-text">
                   {n.title}
                   {isAttendance(n) && <Badge tone="info">{t("nav.attendance")}</Badge>}
+                  {isBooking(n) && <Badge tone="accent">{t("nav.bookings")}</Badge>}
                 </div>
                 {n.body && <div className="text-xs text-text-muted">{n.body}</div>}
                 <div className="mt-0.5 text-[11px] text-text-subtle">{f.relative(n.createdAt)}</div>

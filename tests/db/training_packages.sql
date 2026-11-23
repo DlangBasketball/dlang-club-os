@@ -434,7 +434,8 @@ begin
                   where b.service_id = 'a0000000-0000-0000-0000-00000000e002' and b.slot_start = tp.mon(13)), 'and their unpaid invoices voided');
 
   v := tp.run_as('00000000-0000-0000-0000-0000000000f3',
-       $q$select public.mark_training_booking(id, 'completed')->>'status' from public.training_bookings
+       -- coaches read their bookings through the column-restricted view (20250420104600)
+       $q$select public.mark_training_booking(id, 'completed')->>'status' from public.coach_training_bookings
            where athlete_id = '00000000-0000-0000-0000-000000000071' and status = 'booked' and coach_id = '00000000-0000-0000-0000-000000000011' limit 1$q$);
   perform tp.ok(v = 'OK:completed', 'the coach marks a session attended (' || v || ')');
   v := tp.run_as('00000000-0000-0000-0000-0000000000f4',

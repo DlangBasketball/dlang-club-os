@@ -4,7 +4,7 @@ import { Badge, Button, Card, CardBody, CardHeader, CardMeta, CardTitle, EmptySt
 import { getI18n } from "@/lib/i18n/server";
 import { createFormatter } from "@/lib/format";
 import { attendancePortalPath } from "@/lib/attendance/types";
-import { attendanceTone, filterHistory, historyOptions, summarize } from "@/lib/attendance/family";
+import { attendanceTone, filterHistory, historyOptions, isBookedSession, summarize } from "@/lib/attendance/family";
 import type { FamilyOverview } from "@/lib/attendance/family-data";
 import { AbsenceControl } from "./absence-control";
 
@@ -38,6 +38,7 @@ export async function UpcomingSessions({ overview, athleteId }: { overview: Fami
           <ul>
             {overview.upcoming.map((s) => {
               const cancelled = s.status === "cancelled";
+              const booked = isBookedSession(s);
               return (
                 <li key={s.event_id} className="border-b border-border px-5 py-3 last:border-0">
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -46,7 +47,7 @@ export async function UpcomingSessions({ overview, athleteId }: { overview: Fami
                         {f.dateTime(s.starts_at, "full")}
                       </div>
                       <div className="text-xs text-text-muted">
-                        {t.dynamic(`familyAttendance.upcoming.types.${s.type}`, undefined, s.type)} · {s.team_name}
+                        {booked ? t("bookingPortal.bookedSession") : t.dynamic(`familyAttendance.upcoming.types.${s.type}`, undefined, s.type)} · {s.team_name}
                         {s.location ? ` · ${s.location}` : ""}
                       </div>
                       {s.rescheduled_from && !cancelled && (
@@ -61,8 +62,11 @@ export async function UpcomingSessions({ overview, athleteId }: { overview: Fami
                       <Badge tone="warning">{t("familyAttendance.upcoming.postponed")}</Badge>
                     ) : null}
                   </div>
-                  {!cancelled && (
+                  {!cancelled && !booked && (
                     <AbsenceControl eventId={s.event_id} athleteId={athleteId} report={s.report} canReport={s.can_report} />
+                  )}
+                  {!cancelled && booked && s.starts_at > new Date().toISOString() && (
+                    <p className="mt-2 text-xs text-text-muted">{t("bookingPortal.family.absenceHint")}</p>
                   )}
                 </li>
               );
@@ -140,12 +144,15 @@ export async function AttendanceHistory({ overview, basePath, hidden, teamId, se
           <CardBody className="p-0">
             <ul>
               {rows.map((r) => {
+                const booked = isBookedSession(r);
+                // Booked sessions have no team record page (correction requests are for team sessions).
+                const link = recordLinks && !booked;
                 const inner = (
                   <>
                     <div className="min-w-0">
                       <div className="text-sm text-text">{f.dateTime(r.starts_at, "medium")}</div>
                       <div className="text-xs text-text-muted">
-                        {t.dynamic(`familyAttendance.upcoming.types.${r.type}`, undefined, r.type)} · {r.team_name}
+                        {booked ? t("bookingPortal.bookedSession") : t.dynamic(`familyAttendance.upcoming.types.${r.type}`, undefined, r.type)} · {r.team_name}
                         {r.season_name ? ` · ${r.season_name}` : ""}
                       </div>
                     </div>
@@ -153,13 +160,13 @@ export async function AttendanceHistory({ overview, basePath, hidden, teamId, se
                       {r.is_guest && <Badge>{t("familyAttendance.history.guest")}</Badge>}
                       {r.open_request && <Badge tone="info">{t("familyAttendance.history.correctionOpen")}</Badge>}
                       <Badge tone={attendanceTone(r.status)}>{t.dynamic(`teamAttendance.statuses.${r.status}`, undefined, r.status)}</Badge>
-                      {recordLinks && <ChevronRight aria-hidden className="h-4 w-4 text-text-subtle" />}
+                      {link && <ChevronRight aria-hidden className="h-4 w-4 text-text-subtle" />}
                     </div>
                   </>
                 );
                 return (
                   <li key={r.event_id} className="border-b border-border last:border-0">
-                    {recordLinks ? (
+                    {link ? (
                       <Link href={attendancePortalPath(r.event_id, overview.athlete.id)}
                         className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-surface-elevated focus-visible:bg-surface-elevated focus-visible:outline-none">
                         {inner}

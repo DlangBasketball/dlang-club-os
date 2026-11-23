@@ -47,25 +47,38 @@ export type ParentBookingDetail = {
   id: string; athleteName: string; serviceId: string; serviceName: string; coachName: string; coachId: string;
   start: string; end: string | null; status: string; price: number | null; creditsUsed: number;
   invoice: { id: string; number: string; status: string } | null;
+  /** "workflow": booked by the club (staff), changed by the club only; "legacy": the family's own booking. */
+  createdVia: "legacy" | "workflow";
+  location: string | null; cancelReason: string | null; cancelledAt: string | null; rescheduledAt: string | null;
+  /** Previous start of a session that was moved (booking workflow). */
+  rescheduledFrom: string | null;
   cancellationHours: number;
   rescheduleSlots: { id: string; coachName: string; start: string }[];
 };
 
 export async function getParentBookingDetail(id: string): Promise<Result<ParentBookingDetail | null>> {
   const supabase = await createClient();
-  const { data: b, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,slot_end,status,price_chf,credits_used,invoice_id").eq("id", id).maybeSingle();
+  const { data: b, error } = await supabase.from("training_bookings").select("id,athlete_id,service_id,coach_id,slot_start,slot_end,status,price_chf,credits_used,invoice_id,created_via,venue_id,location_text,cancel_reason,cancelled_at,rescheduled_at,session_id").eq("id", id).maybeSingle();
   if (error) return fail(error.message);
   if (!b) return ok(null);
+  const workflow = b.created_via === "workflow";
 
   const settings = await getBookingSettings();
   const [a, s, c, inv, slots] = await Promise.all([
     supabase.from("athletes").select("first_name,last_name").eq("id", b.athlete_id).maybeSingle(),
     supabase.from("training_services").select("name").eq("id", b.service_id).maybeSingle(),
     supabase.from("coaches").select("display_name").eq("id", b.coach_id).maybeSingle(),
+    // RLS: only an invoice this guardian may see (payer rule) comes back.
     b.invoice_id ? supabase.from("invoices").select("id,number,status").eq("id", b.invoice_id).maybeSingle() : Promise.resolve({ data: null }),
     supabase.from("coach_availability").select("id,coach_id,starts_at").eq("is_booked", false).gte("starts_at", new Date().toISOString()).order("starts_at").limit(20),
   ]);
-  const coaches = await supabase.from("coaches").select("id,display_name").in("id", uniq((slots.data ?? []).map((x) => x.coach_id)));
+  const [coaches, venue, session] = await Promise.all([
+    supabase.from("coaches").select("id,display_name").in("id", uniq((slots.data ?? []).map((x) => x.coach_id))),
+    b.venue_id ? supabase.from("venues").select("name").eq("id", b.venue_id).maybeSingle() : Promise.resolve({ data: null }),
+    b.session_id ? supabase.rpc("guardian_booking_overview", { p_athlete: b.athlete_id }) : Promise.resolve({ data: null }),
+  ]);
+  const portal = ((session.data ?? []) as { upcoming?: { booking_id: string; rescheduled_from: string | null }[] }[])[0];
+  const rescheduledFrom = portal?.upcoming?.find((u) => u.booking_id === b.id)?.rescheduled_from ?? null;
   const cN = new Map((coaches.data ?? []).map((x) => [x.id, x.display_name]));
   const invoice = inv.data as { id: string; number: string; status: string } | null;
 
@@ -73,8 +86,13 @@ export async function getParentBookingDetail(id: string): Promise<Result<ParentB
     id: b.id,
     athleteName: a.data ? `${a.data.first_name} ${a.data.last_name}` : "Athlete",
     serviceId: b.service_id, serviceName: s.data?.name ?? "", coachName: c.data?.display_name ?? "", coachId: b.coach_id,
-    start: b.slot_start, end: b.slot_end ?? null, status: b.status, price: b.price_chf ? Number(b.price_chf) : null, creditsUsed: b.credits_used,
+    start: b.slot_start, end: b.slot_end ?? null, status: b.status,
+    // A club-made booking can have another payer (sponsor, other guardian): its price shows only on a visible invoice.
+    price: workflow ? null : b.price_chf ? Number(b.price_chf) : null, creditsUsed: workflow ? 0 : b.credits_used,
     invoice: invoice ? { id: invoice.id, number: invoice.number, status: invoice.status } : null,
+    createdVia: workflow ? "workflow" : "legacy",
+    location: (venue.data as { name: string } | null)?.name ?? b.location_text ?? null,
+    cancelReason: b.cancel_reason ?? null, cancelledAt: b.cancelled_at ?? null, rescheduledAt: b.rescheduled_at ?? null, rescheduledFrom,
     cancellationHours: settings.cancellationHours,
     rescheduleSlots: (slots.data ?? []).map((x) => ({ id: x.id, coachName: cN.get(x.coach_id) ?? "Coach", start: x.starts_at })),
   });

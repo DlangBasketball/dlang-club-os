@@ -163,8 +163,8 @@ Helpers (`src/lib/booking/helpers.ts`): `normName`, `isMinor` / `ageOn`, `bookin
 i18n: `bookingWorkflow.{errors, warnings, setup, billingStatus, state, notificationStatus, messages}` and
 `notifyEmail.booking_rescheduled` in en (US English), fr, de, es, it (`npm run i18n:sync` regenerates the regional overlays).
 
-Notification links: guardians / payers → `/parent/bookings`, coach → `/coach`, player → `/player`; recipients without a login get
-no link. **UI agents**: build `/parent/bookings` (portal list), the coach agenda in `/coach`, and the player view in `/player`.
+Notification links (since 20250420104600, `portalPathFor`): guardian → `/parent/bookings/<booking>`, payer login → `/parent/bookings`,
+coach → `/coach/trainings`, player → `/player/bookings`; recipients without a login get no link. Portal screens: §11.
 
 ## 7. Permissions
 
@@ -186,9 +186,11 @@ Payer visibility follows the billing-foundation rule (`invoices_select`): a guar
 are its payer (`payer_profile_id`), or when it has no individual payer and is not a sponsor / other share. Payers without an account
 never get portal access. A guardian payer of **another** family does not see the invoice (it belongs to the athlete's family).
 
-Known limitation: `training_bookings` RLS (unchanged) still lets the booking's coach select the row directly, including `price_chf`
-and `payer_id` (the coach UI reads it today). The new UIs must use `coach_booking_agenda` (no money); restricting the table policy
-for coaches is a follow-up once the coach UI no longer reads the table.
+Coach read path (closed in `20250420104600_booking_portals.sql`): coaches no longer select or update `training_bookings` directly
+(`bookings_select` / `bookings_write` = org + finance/admin or the athlete's guardian). Coaches read `coach_booking_agenda` (roster
+names) and the column-restricted view `public.coach_training_bookings` (own bookings: ids, service, session, times, status, venue /
+location; no price, list price, currency, payer, invoice, package, credits or notes). Coach writes stay on the security definer RPCs
+(`mark_training_booking`, sheet RPCs). Test: `tests/db/booking_portals.sql`.
 
 ## 8. Failure and retry model
 
@@ -218,4 +220,27 @@ for coaches is a follow-up once the coach UI no longer reads the table.
 - `requested` bookings (parent requests awaiting staff confirmation), discounts / promo codes on workflow bookings (legacy
   `book_training` keeps them), legacy training credits as a billing mode of the new path.
 - Absence reports for session events; automatic `completed` / `no_show` from the finalized sheet (use `mark_training_booking`).
-- Coach table access to booking money columns (see §7).
+- (Done in 20250420104600) coach table access to booking money columns, see §7.
+
+## 11. Portals (coach, parent, player, athlete profile)
+
+Migration `20250420104600_booking_portals.sql` (RLS tightening above, `coach_training_bookings` view, `bk_portal_rows` also returns
+`kind` / `event_id` on upcoming rows, `reason` (cancel reason) / `previous_starts_at` / `coach_name` on changes, `coach_name` on
+attendance, `starts_at` on invoices). List logic: `src/lib/booking/portal.ts` (unit tests `tests/unit/booking-portal.test.ts`),
+components `src/components/booking/portal/`.
+
+| Route | What it shows | Reads |
+|---|---|---|
+| `/coach/trainings` | Team trainings + booked sessions in one list (title = service name, "Booked session", kind, places, participants' names); "Take attendance" on the session sheet | `coach_training_cards` + `coach_booking_agenda` (`mergeCoachTrainings`) |
+| `/coach/trainings/<event>` (`/attendance`) | Session header "Booked session", roster = confirmed bookings | sheet RPCs (unchanged) |
+| `/coach/schedule`, `/coach` home, `/coach/calendar` | Booked sessions next to programme sessions / team events (session event shown once, links to the trainings sheet) | `coach_booking_agenda`, `coach_training_bookings` |
+| `/coach/training/<athlete>` | Athlete's sessions with this coach, no price / invoice | `coach_training_bookings` |
+| `/parent/bookings` | Per child (tabs): upcoming (service, time in club zone, coach, place, "moved from"), changes (moved / cancelled + reason, 30 days), finalized booked-session attendance, invoices of bookings only where the guardian is the payer | `guardian_booking_overview` |
+| `/parent/bookings/<id>` | Detail: club-made bookings show no price (only a visible invoice) and no family self-service change; cancel reason / move shown | table (guardian RLS), invoice RLS |
+| `/parent/attendance` | Booked sessions merged into upcoming and history ("Booked session" label, no absence report, no team record link) | attendance overview + `guardian_booking_overview(child)` (`mergeAttendanceHistory`) |
+| `/player/bookings`, `/player/attendance`, `/player/notifications` | Own bookings / changes / attendance, never money; notification list | `player_booking_overview` |
+| `/admin/athletes/<id>` | Bookings tab (upcoming + history, booking detail links, state, billing status, invoice number / status, "New booking" → `/admin/bookings/new?athlete=<id>`), Attendance tab "Booked sessions" (admin), Billing tab "Invoices from bookings" | `athlete_booking_history`, `team_attendance_marks` (admin RLS) |
+
+Not in this phase: absence reports and correction requests for booked sessions in the portals (the parent is asked to contact the
+club); the parent record page `/parent/attendance/team/<event>` stays team-only.
+

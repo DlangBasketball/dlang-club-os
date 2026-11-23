@@ -7,11 +7,13 @@ import { SheetStatusBadge, eventTypeLabel } from "./training-card";
 
 /** Session header shared by the sheet and details pages (server component). */
 export function SessionHeader({
-  t, f, teamName, title, type, startsAt, endsAt, location, cancelled, sheetStatus, substitute, links,
+  t, f, teamName, title, type, startsAt, endsAt, location, cancelled, sheetStatus, substitute, booked, links,
 }: {
   t: Translator; f: Formatter;
   teamName: string | null; title: string | null; type: string; startsAt: string; endsAt: string; location?: string | null;
   cancelled: boolean; sheetStatus?: "draft" | "final" | "reopened" | null; substitute?: boolean;
+  /** A booked private / group session (no team): the title is the service name. */
+  booked?: boolean;
   links?: React.ReactNode;
 }) {
   return (
@@ -25,6 +27,7 @@ export function SessionHeader({
           {cancelled ? <Badge tone="danger">{t("coachTrainings.card.cancelled")}</Badge>
             : sheetStatus !== undefined && <SheetStatusBadge status={sheetStatus} t={t} />}
           {substitute && <Badge tone="info">{t("coachTrainings.card.substitute")}</Badge>}
+          {booked && <Badge tone="accent">{t("bookingPortal.bookedSession")}</Badge>}
         </div>
       </div>
       <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
