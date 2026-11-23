@@ -134,6 +134,25 @@
 }
 
 /* ===========================================================================
+   Member card — "Courtside" (card-specific tokens, same in every theme so the
+   card looks like the physical card). Tenants may override them on :root.
+   Contrast: cream on burgundy ≈ 12:1, QR ink on its white panel = 21:1.
+   =========================================================================== */
+:root {
+  --card-courtside-bg:          #4A1219; /* deep burgundy                   */
+  --card-courtside-deep:        #25080C; /* vignette / lower edge           */
+  --card-courtside-cream:       #F4EAD5; /* lettering                       */
+  --card-courtside-cream-muted: #D8C7A6; /* secondary lettering, frames     */
+  --card-courtside-red:         #DA2627; /* accents                         */
+  --card-courtside-line:        #F4EAD5; /* court lines (used translucent)  */
+  --card-qr-bg:                 #FFFFFF; /* high-contrast QR panel          */
+  --card-qr-ink:                #000000;
+  --card-courtside-surface:     radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--card-courtside-red) 22%, transparent), transparent 55%),
+                                radial-gradient(110% 120% at 100% 110%, var(--card-courtside-deep), transparent 70%),
+                                linear-gradient(160deg, var(--card-courtside-bg), color-mix(in srgb, var(--card-courtside-bg) 70%, var(--card-courtside-deep)));
+}
+
+/* ===========================================================================
    Light theme — for schools / clubs with light branding.
    Opt in with <html data-theme="light">, or data-theme="system" to follow
    the OS. Tenant brand overrides still apply on top.

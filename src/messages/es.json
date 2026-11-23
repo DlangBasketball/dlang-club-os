@@ -13351,5 +13351,94 @@
       "payers": "{count} pagadores",
       "invoiceSelected": "Facturar {count} pedidos juntos"
     }
+  },
+  "memberCard": {
+    "memberLabel": "Socio",
+    "tapToEnlarge": "Toca para ampliar",
+    "enlargeQr": "Mostrar el código QR a pantalla completa",
+    "inactive": "Tarjeta desactivada",
+    "cardAria": "Tarjeta de socio de {name}, {brand}",
+    "switchBrand": "Elegir la tarjeta",
+    "swipeHint": "Tarjeta {current} de {total} · desliza para cambiar",
+    "close": "Cerrar",
+    "brightnessHint": "Sube el brillo de la pantalla para el escáner",
+    "playerTitle": "Mi tarjeta de socio",
+    "readOnlyHint": "La foto de tu tarjeta la gestionan tus tutores o el club.",
+    "errors": {
+      "forbidden": "No tienes acceso a esta tarjeta de socio.",
+      "load": "No se pudo cargar la tarjeta de socio. Inténtalo de nuevo."
+    },
+    "photo": {
+      "add": "Añadir foto",
+      "hint": "La foto de la tarjeta se recorta y reduce en tu dispositivo antes de subirla.",
+      "privacy": "Las fotos de la tarjeta sirven solo para identificar dentro del club, nunca en páginas públicas.",
+      "keptRetry": "Se ha conservado la foto actual. Inténtalo de nuevo."
+    },
+    "crop": {
+      "title": "Recortar la foto",
+      "shape": "Formato de la foto",
+      "portrait": "Vertical",
+      "square": "Cuadrada",
+      "frameLabel": "Zona de recorte. Arrastra o usa las flechas para mover, más y menos para ampliar.",
+      "zoom": "Ampliación",
+      "hint": "Arrastra la foto para colocar la cara en el marco.",
+      "use": "Usar la foto"
+    },
+    "checkIn": {
+      "done": "{name} registrado",
+      "already": "{name} ya está registrado",
+      "cancelled": "Esta sesión está cancelada.",
+      "codes": {
+        "UNKNOWN_CARD": "Tarjeta desconocida o sustituida.",
+        "NOT_ON_SHEET": "{name} no está en la lista de esta sesión. Añádelo primero como invitado.",
+        "SHEET_FINAL": "La asistencia de esta sesión está cerrada. Reábrela para hacer cambios.",
+        "CONFLICT": "Otra persona acaba de cambiar la asistencia de este jugador. Revisa la hoja."
+      }
+    },
+    "brands": {
+      "title": "Marcas de las tarjetas de socio",
+      "previewLink": "Ver todas las tarjetas",
+      "intro": "Cada entidad de facturación tiene su propio diseño de tarjeta. Los deportistas reciben la tarjeta de la entidad de su cuota de socio, de su inscripción en la selección o de su paquete de entrenamiento; quien cumpla los requisitos en dos entidades puede cambiar entre ambas tarjetas.",
+      "noEntities": "Todavía no hay entidades de facturación.",
+      "default": "Predeterminada",
+      "inactive": "Inactiva",
+      "displayName": "Nombre en la tarjeta",
+      "subtitle": "Segunda línea (opcional)",
+      "subtitlePlaceholder": "p. ej. Con el respaldo de …",
+      "logo": "Logotipo",
+      "watermark": "Marca de agua (opcional)",
+      "chooseImage": "Elegir imagen",
+      "replaceImage": "Sustituir imagen",
+      "removeImage": "Quitar",
+      "logoHint": "PNG, JPEG o WebP, máx. 1 MB. Sin logotipo, la tarjeta muestra solo el nombre en texto.",
+      "watermarkHint": "Se muestra muy suave detrás de la tarjeta. Por defecto, el logotipo.",
+      "pendingPreview": "Visible en la vista previa, aún no guardado.",
+      "upload": "Guardar imagen",
+      "preview": "Vista previa",
+      "previewAria": "Vista previa de la tarjeta de socio {brand}",
+      "sampleQr": "Código QR",
+      "saved": "Marca de tarjeta guardada",
+      "logoSaved": "Imagen guardada",
+      "logoRemoved": "Imagen quitada",
+      "errors": {
+        "forbidden": "Solo los administradores del club pueden cambiar las marcas de las tarjetas.",
+        "entityNotFound": "No se encontró la entidad de facturación.",
+        "logoPath": "Esta imagen no se puede usar para esta entidad.",
+        "tooLong": "El nombre admite 60 caracteres y la segunda línea 80.",
+        "generic": "No se pudo guardar la marca de la tarjeta. Inténtalo de nuevo.",
+        "noFile": "Elige una imagen.",
+        "size": "La imagen supera 1 MB.",
+        "type": "Usa una imagen PNG, JPEG o WebP.",
+        "uploadFailed": "No se pudo guardar la imagen. Se ha conservado la anterior."
+      }
+    },
+    "preview": {
+      "title": "Vista previa de la tarjeta de socio",
+      "back": "Volver a las entidades de facturación",
+      "intro": "Cada marca activa en ambos diseños, con nombres de ejemplo. Los códigos QR de esta página no son credenciales de socio.",
+      "withPhoto": "Con foto",
+      "withoutPhoto": "Sin foto",
+      "phoneWidth": "Móvil estrecho (320 px)"
+    }
   }
 }

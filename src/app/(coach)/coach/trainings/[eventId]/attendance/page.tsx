@@ -12,6 +12,8 @@ import { getAttendanceSheet } from "@/lib/attendance/data";
 import { uuidSchema, type AttendanceSheet } from "@/lib/attendance/types";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
+import { hasFeature } from "@/lib/upgrades/server";
+import { CardCheckIn } from "@/components/member-card/card-check-in";
 
 export const dynamic = "force-dynamic";
 
@@ -94,7 +96,7 @@ export default async function TakeAttendancePage({ params }: { params: Promise<{
     );
   }
 
-  const { coaches, myCoachId } = await getCoachOptions(me.id);
+  const [{ coaches, myCoachId }, cardScan] = await Promise.all([getCoachOptions(me.id), hasFeature(me.orgId, "member_cards")]);
   return (
     <div className="mx-auto max-w-3xl">
       {header}
@@ -102,7 +104,9 @@ export default async function TakeAttendancePage({ params }: { params: Promise<{
         <p className="mb-3 rounded-md border border-info/30 bg-info-soft p-3 text-sm text-text">{t("coachTrainings.sheet.reopened")}</p>
       )}
       {!ev.ended && <p className="mb-3 text-xs text-text-muted">{t("coachTrainings.sheet.notEnded")}</p>}
-      <CoachAttendanceSheet eventId={eventId} initialSheet={sheet} coaches={coaches} myCoachId={myCoachId} userId={me.id} />
+      {/* Member card check-in saves on this sheet; the key remounts the sheet with the saved marks (local drafts are restored). */}
+      {cardScan && <CardCheckIn eventId={eventId} />}
+      <CoachAttendanceSheet key={sheet.sheet?.version ?? 0} eventId={eventId} initialSheet={sheet} coaches={coaches} myCoachId={myCoachId} userId={me.id} />
     </div>
   );
 }

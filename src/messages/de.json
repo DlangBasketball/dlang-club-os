@@ -13351,5 +13351,94 @@
       "payers": "{count} zahlende Personen",
       "invoiceSelected": "{count} Aufträge zusammen verrechnen"
     }
+  },
+  "memberCard": {
+    "memberLabel": "Mitglied",
+    "tapToEnlarge": "Zum Vergrößern tippen",
+    "enlargeQr": "QR-Code im Vollbild zeigen",
+    "inactive": "Karte deaktiviert",
+    "cardAria": "Mitgliedskarte von {name}, {brand}",
+    "switchBrand": "Karte wählen",
+    "swipeHint": "Karte {current} von {total} · zum Wechseln wischen",
+    "close": "Schließen",
+    "brightnessHint": "Bildschirmhelligkeit für den Scanner erhöhen",
+    "playerTitle": "Meine Mitgliedskarte",
+    "readOnlyHint": "Das Foto auf deiner Karte verwalten deine Eltern oder der Verein.",
+    "errors": {
+      "forbidden": "Sie haben keinen Zugriff auf diese Mitgliedskarte.",
+      "load": "Die Mitgliedskarte konnte nicht geladen werden. Bitte erneut versuchen."
+    },
+    "photo": {
+      "add": "Foto hinzufügen",
+      "hint": "Das Kartenfoto wird vor dem Hochladen auf Ihrem Gerät zugeschnitten und verkleinert.",
+      "privacy": "Kartenfotos dienen nur der Identifikation im Verein und erscheinen nie auf öffentlichen Seiten.",
+      "keptRetry": "Das bisherige Foto wurde beibehalten. Bitte erneut versuchen."
+    },
+    "crop": {
+      "title": "Foto zuschneiden",
+      "shape": "Fotoformat",
+      "portrait": "Hochformat",
+      "square": "Quadratisch",
+      "frameLabel": "Zuschneidebereich. Ziehen oder Pfeiltasten zum Verschieben, Plus und Minus zum Vergrößern.",
+      "zoom": "Vergrößerung",
+      "hint": "Ziehen Sie das Foto, bis das Gesicht im Rahmen ist.",
+      "use": "Foto verwenden"
+    },
+    "checkIn": {
+      "done": "{name} eingecheckt",
+      "already": "{name} ist bereits eingecheckt",
+      "cancelled": "Dieses Training ist abgesagt.",
+      "codes": {
+        "UNKNOWN_CARD": "Unbekannte oder ersetzte Karte.",
+        "NOT_ON_SHEET": "{name} steht nicht auf der Liste dieses Trainings. Zuerst als Gast hinzufügen.",
+        "SHEET_FINAL": "Die Anwesenheit dieses Trainings ist abgeschlossen. Zum Ändern wieder öffnen.",
+        "CONFLICT": "Jemand hat die Anwesenheit dieses Spielers gerade geändert. Bitte die Liste prüfen."
+      }
+    },
+    "brands": {
+      "title": "Marken der Mitgliedskarten",
+      "previewLink": "Alle Karten ansehen",
+      "intro": "Jede Rechnungsstelle hat ein eigenes Kartendesign. Athleten erhalten die Karte der Stelle hinter ihrer Vereinsmitgliedschaft, ihrer Selektions-Einschreibung oder ihrem Trainingspaket; wer bei zwei Stellen berechtigt ist, kann zwischen beiden Karten wechseln.",
+      "noEntities": "Noch keine Rechnungsstellen.",
+      "default": "Standard",
+      "inactive": "Inaktiv",
+      "displayName": "Name auf der Karte",
+      "subtitle": "Zweite Zeile (optional)",
+      "subtitlePlaceholder": "z. B. Powered by …",
+      "logo": "Logo-Bild",
+      "watermark": "Wasserzeichen (optional)",
+      "chooseImage": "Bild wählen",
+      "replaceImage": "Bild ersetzen",
+      "removeImage": "Entfernen",
+      "logoHint": "PNG, JPEG oder WebP, max. 1 MB. Ohne Logo zeigt die Karte einen reinen Textschriftzug.",
+      "watermarkHint": "Wird schwach hinter der Karte angezeigt. Standard: das Logo.",
+      "pendingPreview": "In der Vorschau sichtbar, noch nicht gespeichert.",
+      "upload": "Bild speichern",
+      "preview": "Vorschau",
+      "previewAria": "Vorschau der Mitgliedskarte {brand}",
+      "sampleQr": "QR-Code",
+      "saved": "Kartenmarke gespeichert",
+      "logoSaved": "Bild gespeichert",
+      "logoRemoved": "Bild entfernt",
+      "errors": {
+        "forbidden": "Nur Vereinsadministratoren können Kartenmarken ändern.",
+        "entityNotFound": "Rechnungsstelle nicht gefunden.",
+        "logoPath": "Dieses Bild kann für diese Stelle nicht verwendet werden.",
+        "tooLong": "Der Name ist auf 60 Zeichen begrenzt, die zweite Zeile auf 80.",
+        "generic": "Die Kartenmarke konnte nicht gespeichert werden. Bitte erneut versuchen.",
+        "noFile": "Bitte ein Bild wählen.",
+        "size": "Das Bild ist größer als 1 MB.",
+        "type": "Bitte ein PNG-, JPEG- oder WebP-Bild verwenden.",
+        "uploadFailed": "Das Bild konnte nicht gespeichert werden. Das bisherige Bild wurde beibehalten."
+      }
+    },
+    "preview": {
+      "title": "Vorschau der Mitgliedskarte",
+      "back": "Zurück zu den Rechnungsstellen",
+      "intro": "Jede aktive Marke in beiden Layouts, mit Beispielnamen. Die QR-Codes hier sind keine Mitgliedsausweise.",
+      "withPhoto": "Mit Foto",
+      "withoutPhoto": "Ohne Foto",
+      "phoneWidth": "Schmales Handy (320 px)"
+    }
   }
 }

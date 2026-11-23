@@ -13351,5 +13351,94 @@
       "payers": "{count} payeurs",
       "invoiceSelected": "Facturer {count} commandes ensemble"
     }
+  },
+  "memberCard": {
+    "memberLabel": "Membre",
+    "tapToEnlarge": "Touchez pour agrandir",
+    "enlargeQr": "Afficher le code QR en plein écran",
+    "inactive": "Carte désactivée",
+    "cardAria": "Carte de membre de {name}, {brand}",
+    "switchBrand": "Choisir la carte",
+    "swipeHint": "Carte {current} sur {total} · balayez pour changer",
+    "close": "Fermer",
+    "brightnessHint": "Augmentez la luminosité de l’écran pour le scanner",
+    "playerTitle": "Ma carte de membre",
+    "readOnlyHint": "La photo de ta carte est gérée par ton parent ou par le club.",
+    "errors": {
+      "forbidden": "Vous n’avez pas accès à cette carte de membre.",
+      "load": "La carte de membre n’a pas pu être chargée. Veuillez réessayer."
+    },
+    "photo": {
+      "add": "Ajouter une photo",
+      "hint": "La photo de la carte est recadrée et réduite sur votre appareil avant l’envoi.",
+      "privacy": "Les photos de carte servent uniquement à l’identification au sein du club, jamais sur des pages publiques.",
+      "keptRetry": "La photo actuelle a été conservée. Veuillez réessayer."
+    },
+    "crop": {
+      "title": "Recadrer la photo",
+      "shape": "Format de la photo",
+      "portrait": "Format portrait",
+      "square": "Carré",
+      "frameLabel": "Zone de recadrage. Faites glisser ou utilisez les flèches pour déplacer, plus et moins pour agrandir.",
+      "zoom": "Agrandissement",
+      "hint": "Faites glisser la photo pour placer le visage dans le cadre.",
+      "use": "Utiliser la photo"
+    },
+    "checkIn": {
+      "done": "{name} enregistré·e",
+      "already": "{name} est déjà enregistré·e",
+      "cancelled": "Cette séance est annulée.",
+      "codes": {
+        "UNKNOWN_CARD": "Carte inconnue ou remplacée.",
+        "NOT_ON_SHEET": "{name} ne figure pas sur la liste de cette séance. Ajoutez d’abord ce joueur comme invité.",
+        "SHEET_FINAL": "Les présences de cette séance sont validées. Rouvrez la feuille pour les modifier.",
+        "CONFLICT": "Quelqu’un vient de modifier la présence de ce joueur. Vérifiez la feuille."
+      }
+    },
+    "brands": {
+      "title": "Marques des cartes de membre",
+      "previewLink": "Aperçu de toutes les cartes",
+      "intro": "Chaque entité de facturation a son propre design de carte. Les athlètes reçoivent la carte de l’entité liée à leur cotisation, à leur inscription en sélection ou à leur forfait d’entraînement ; un athlète éligible auprès de deux entités peut passer d’une carte à l’autre.",
+      "noEntities": "Aucune entité de facturation pour l’instant.",
+      "default": "Par défaut",
+      "inactive": "Désactivée",
+      "displayName": "Nom sur la carte",
+      "subtitle": "Deuxième ligne (facultatif)",
+      "subtitlePlaceholder": "p. ex. Propulsé par …",
+      "logo": "Logo de l’entité",
+      "watermark": "Filigrane (facultatif)",
+      "chooseImage": "Choisir une image",
+      "replaceImage": "Remplacer l’image",
+      "removeImage": "Retirer",
+      "logoHint": "PNG, JPEG ou WebP, 1 Mo max. Sans logo, la carte affiche un nom en texte seul.",
+      "watermarkHint": "Affiché en transparence derrière la carte. Par défaut : le logo.",
+      "pendingPreview": "Visible dans l’aperçu, pas encore enregistré.",
+      "upload": "Enregistrer l’image",
+      "preview": "Aperçu",
+      "previewAria": "Aperçu de la carte de membre {brand}",
+      "sampleQr": "Code QR",
+      "saved": "Marque de carte enregistrée",
+      "logoSaved": "Image enregistrée",
+      "logoRemoved": "Image retirée",
+      "errors": {
+        "forbidden": "Seuls les administrateurs du club peuvent modifier les marques de carte.",
+        "entityNotFound": "Entité de facturation introuvable.",
+        "logoPath": "Cette image ne peut pas être utilisée pour cette entité.",
+        "tooLong": "Le nom est limité à 60 caractères et la deuxième ligne à 80.",
+        "generic": "La marque de carte n’a pas pu être enregistrée. Veuillez réessayer.",
+        "noFile": "Choisissez une image.",
+        "size": "L’image dépasse 1 Mo.",
+        "type": "Utilisez une image PNG, JPEG ou WebP.",
+        "uploadFailed": "L’image n’a pas pu être enregistrée. L’image précédente a été conservée."
+      }
+    },
+    "preview": {
+      "title": "Aperçu de la carte de membre",
+      "back": "Retour aux entités de facturation",
+      "intro": "Chaque marque active dans les deux mises en page, avec des noms d’exemple. Les codes QR affichés ici ne sont pas des identifiants de membre.",
+      "withPhoto": "Avec photo",
+      "withoutPhoto": "Sans photo",
+      "phoneWidth": "Téléphone étroit (320 px)"
+    }
   }
 }

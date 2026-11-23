@@ -13,7 +13,7 @@ import { AthleteProgrammesCard } from "@/components/selection/roster/athlete-pro
 import { photoUrlsForAthletes } from "@/lib/people/server";
 import { getAthleteCover } from "@/lib/media/server";
 import { getPlayerStats, getPlayerTeams } from "@/lib/data/player-profile";
-import { MemberCardPanel } from "@/components/member-card/member-card-panel";
+import { CourtsideCardSection } from "@/components/member-card/courtside-section";
 import { LicenceCard } from "@/components/athlete/licence-card";
 import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
 
@@ -62,10 +62,10 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
           <PhotoManager athleteId={data.id} name={data.name} photoUrl={photos[data.id] ?? null} compact />
         </CardBody>
       </Card>
-      <Card>
+      <Card className="lg:col-span-2">
         <CardHeader><CardTitle>{t("sports.cards.title")}</CardTitle></CardHeader>
         <CardBody>
-          <MemberCardPanel athleteId={data.id} pdfHref={`/parent/children/${data.id}/card`} />
+          <CourtsideCardSection athleteId={data.id} name={data.name} pdfHref={`/parent/children/${data.id}/card`} />
         </CardBody>
       </Card>
       <Card className="lg:col-span-2">

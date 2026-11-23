@@ -5,6 +5,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { getPlayerMe } from "@/lib/attendance/data";
 import { getPlayerFamilyOverview } from "@/lib/attendance/family-data";
 import { UpcomingSessions } from "@/components/attendance/family/sections";
+import { CourtsideCardSection } from "@/components/member-card/courtside-section";
 
 /**
  * Player home: own teams (name, jersey, position) and upcoming sessions with
@@ -59,6 +60,9 @@ export default async function PlayerHomePage() {
           )}
         </CardBody>
       </Card>
+
+      <CourtsideCardSection athleteId={me.data.athleteId} name={`${me.data.firstName} ${me.data.lastName}`} readOnly
+        cardTitle={t("memberCard.playerTitle")} />
 
       {overview.error || !overview.data ? (
         <ErrorState title={t("familyAttendance.upcoming.title")} message={t("familyAttendance.loadError")} />

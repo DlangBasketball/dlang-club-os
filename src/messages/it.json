@@ -13351,5 +13351,94 @@
       "payers": "{count} pagatori",
       "invoiceSelected": "Fattura {count} ordini insieme"
     }
+  },
+  "memberCard": {
+    "memberLabel": "Socio",
+    "tapToEnlarge": "Tocca per ingrandire",
+    "enlargeQr": "Mostra il codice QR a schermo intero",
+    "inactive": "Tessera disattivata",
+    "cardAria": "Tessera socio di {name}, {brand}",
+    "switchBrand": "Scegli la tessera",
+    "swipeHint": "Tessera {current} di {total} · scorri per cambiare",
+    "close": "Chiudi",
+    "brightnessHint": "Aumenta la luminosità dello schermo per lo scanner",
+    "playerTitle": "La mia tessera socio",
+    "readOnlyHint": "La foto sulla tua tessera è gestita dai tuoi genitori o dal club.",
+    "errors": {
+      "forbidden": "Non hai accesso a questa tessera socio.",
+      "load": "Impossibile caricare la tessera socio. Riprova."
+    },
+    "photo": {
+      "add": "Aggiungi foto",
+      "hint": "La foto della tessera viene ritagliata e ridotta sul tuo dispositivo prima del caricamento.",
+      "privacy": "Le foto della tessera servono solo all’identificazione all’interno del club, mai su pagine pubbliche.",
+      "keptRetry": "La foto attuale è stata mantenuta. Riprova."
+    },
+    "crop": {
+      "title": "Ritaglia la foto",
+      "shape": "Formato della foto",
+      "portrait": "Verticale",
+      "square": "Quadrata",
+      "frameLabel": "Area di ritaglio. Trascina o usa le frecce per spostare, più e meno per ingrandire.",
+      "zoom": "Ingrandimento",
+      "hint": "Trascina la foto per posizionare il viso nella cornice.",
+      "use": "Usa la foto"
+    },
+    "checkIn": {
+      "done": "{name} registrato",
+      "already": "{name} è già registrato",
+      "cancelled": "Questa sessione è annullata.",
+      "codes": {
+        "UNKNOWN_CARD": "Tessera sconosciuta o sostituita.",
+        "NOT_ON_SHEET": "{name} non è nell’elenco di questa sessione. Aggiungilo prima come ospite.",
+        "SHEET_FINAL": "Le presenze di questa sessione sono definitive. Riaprile per modificarle.",
+        "CONFLICT": "Qualcuno ha appena modificato la presenza di questo giocatore. Controlla il foglio."
+      }
+    },
+    "brands": {
+      "title": "Marchi delle tessere socio",
+      "previewLink": "Anteprima di tutte le tessere",
+      "intro": "Ogni ente di fatturazione ha il proprio design di tessera. Gli atleti ricevono la tessera dell’ente legato alla quota associativa, all’iscrizione alla selezione o al pacchetto di allenamento; chi ha diritto presso due enti può passare da una tessera all’altra.",
+      "noEntities": "Ancora nessun ente di fatturazione.",
+      "default": "Predefinito",
+      "inactive": "Inattivo",
+      "displayName": "Nome sulla tessera",
+      "subtitle": "Seconda riga (facoltativa)",
+      "subtitlePlaceholder": "es. Con il sostegno di …",
+      "logo": "Logotipo",
+      "watermark": "Filigrana (facoltativa)",
+      "chooseImage": "Scegli immagine",
+      "replaceImage": "Sostituisci immagine",
+      "removeImage": "Rimuovi",
+      "logoHint": "PNG, JPEG o WebP, max 1 MB. Senza logo la tessera mostra solo il nome in testo.",
+      "watermarkHint": "Mostrata in trasparenza dietro la tessera. Predefinita: il logo.",
+      "pendingPreview": "Visibile nell’anteprima, non ancora salvata.",
+      "upload": "Salva immagine",
+      "preview": "Anteprima",
+      "previewAria": "Anteprima della tessera socio {brand}",
+      "sampleQr": "Codice QR",
+      "saved": "Marchio della tessera salvato",
+      "logoSaved": "Immagine salvata",
+      "logoRemoved": "Immagine rimossa",
+      "errors": {
+        "forbidden": "Solo gli amministratori del club possono modificare i marchi delle tessere.",
+        "entityNotFound": "Ente di fatturazione non trovato.",
+        "logoPath": "Questa immagine non può essere usata per questo ente.",
+        "tooLong": "Il nome è limitato a 60 caratteri e la seconda riga a 80.",
+        "generic": "Impossibile salvare il marchio della tessera. Riprova.",
+        "noFile": "Scegli un’immagine.",
+        "size": "L’immagine supera 1 MB.",
+        "type": "Usa un’immagine PNG, JPEG o WebP.",
+        "uploadFailed": "Impossibile salvare l’immagine. È stata mantenuta quella precedente."
+      }
+    },
+    "preview": {
+      "title": "Anteprima della tessera socio",
+      "back": "Torna agli enti di fatturazione",
+      "intro": "Ogni marchio attivo in entrambi i layout, con nomi di esempio. I codici QR di questa pagina non sono credenziali dei soci.",
+      "withPhoto": "Con foto",
+      "withoutPhoto": "Senza foto",
+      "phoneWidth": "Telefono stretto (320 px)"
+    }
   }
 }
