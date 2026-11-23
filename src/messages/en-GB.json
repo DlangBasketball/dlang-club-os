@@ -1121,5 +1121,20 @@
         "LEGACY_ATTENDANCE_SESSION": "Attendance was taken in the earlier programme module for this session. Check that both records agree."
       }
     }
+  },
+  "bookingWorkflow": {
+    "errors": {
+      "BOOKING_NOT_CANCELLABLE": "A completed or missed booking cannot be cancelled.",
+      "BOOKING_ATTENDED": "Attendance was already finalised for this session.",
+      "ALREADY_CANCELLED": "This booking is already cancelled.",
+      "CANNOT_CANCEL": "This invoice can no longer be cancelled.",
+      "INVOICE_CANCELLED": "The invoice is cancelled."
+    },
+    "state": {
+      "cancelled": "Cancelled"
+    },
+    "messages": {
+      "cancelled": "Booking cancelled."
+    }
   }
 }

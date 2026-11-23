@@ -184,6 +184,10 @@ export type Database = {
           payer_name: string | null;
           /** What the invoice is for, as printed (set at issue). */
           source_label: string | null;
+          // Payer record + snapshot (migration 20250420104400)
+          payer_id: string | null;
+          payer_email: string | null;
+          payer_address: Json | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -636,7 +640,15 @@ export type Database = {
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       training_services: {
-        Row: { id: string; org_id: string; slug: string; name: string; tagline: string | null; description: string | null; duration_min: number; price_chf: number; credits_required: number; credit_category: "personal" | "nutrition" | "mental"; is_active: boolean };
+        Row: {
+          id: string; org_id: string; slug: string; name: string; tagline: string | null; description: string | null; duration_min: number;
+          price_chf: number; credits_required: number; credit_category: "personal" | "nutrition" | "mental"; is_active: boolean;
+          session_type: "individual" | "group"; max_participants: number; min_participants: number; venue_id: string | null;
+          location_text: string | null; currency: string | null; color: string | null; sort_order: number;
+          // Booking workflow (migration 20250420104400)
+          billing_category: "club_membership" | "selection" | "camp" | "training" | "shop";
+          kind: "private" | "group" | "trial" | "package"; default_venue_space_id: string | null;
+        };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       coach_availability: {
@@ -644,7 +656,17 @@ export type Database = {
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       training_bookings: {
-        Row: { id: string; org_id: string; athlete_id: string; service_id: string; coach_id: string; slot_start: string; slot_end: string | null; status: "booked" | "completed" | "no_show" | "cancelled"; paid_with: string | null; invoice_id: string | null; credits_used: number; price_chf: number | null; notes: string | null; created_by: string | null; cancel_reason: string | null; cancelled_at: string | null; cancelled_by: string | null };
+        Row: {
+          id: string; org_id: string; athlete_id: string; service_id: string; coach_id: string; slot_start: string; slot_end: string | null;
+          status: "booked" | "completed" | "no_show" | "cancelled"; paid_with: string | null; invoice_id: string | null; credits_used: number;
+          price_chf: number | null; notes: string | null; created_by: string | null; cancel_reason: string | null; cancelled_at: string | null;
+          cancelled_by: string | null; purchase_id: string | null; venue_id: string | null; location_text: string | null;
+          // Booking workflow (migration 20250420104400)
+          session_id: string | null; payer_id: string | null; billing_mode: "invoice" | "package" | "free" | "credits" | null;
+          list_price: number | null; currency: string | null; price_override_reason: string | null; price_override_by: string | null;
+          availability_override_reason: string | null; warnings: Json; request_id: string | null; created_via: "legacy" | "workflow";
+          change_seq: number; rescheduled_at: string | null;
+        };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       email_logs: {
@@ -894,7 +916,8 @@ export type Database = {
       };
       team_attendance_sheets: {
         Row: {
-          id: string; org_id: string; event_id: string; team_id: string; roster_date: string;
+          /** team_id is null for a training-session sheet (roster = the session's bookings, migration 20250420104400). */
+          id: string; org_id: string; event_id: string; team_id: string | null; roster_date: string;
           status: "draft" | "final" | "reopened"; version: number; led_by_coach_id: string | null; opened_by: string | null;
           submitted_by: string | null; submitted_at: string | null; finalized_by: string | null; finalized_at: string | null;
           first_finalized_at: string | null; reopened_by: string | null; reopened_at: string | null; reopen_reason: string | null;
@@ -961,6 +984,48 @@ export type Database = {
         };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
+      // --- Booking workflow (migration 20250420104400); contract: docs/booking-workflow.md
+      training_service_coaches: {
+        Row: { id: string; org_id: string; service_id: string; coach_id: string; created_by: string | null; created_at: string; updated_at: string };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      billing_payers: {
+        Row: {
+          id: string; org_id: string; kind: "athlete" | "guardian" | "sponsor" | "other"; profile_id: string | null; family_id: string | null;
+          athlete_id: string | null; name: string; email: string | null; phone: string | null; street: string | null;
+          postal_code: string | null; city: string | null; country: string | null; notes: string | null; is_active: boolean;
+          request_id: string | null; created_by: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      training_sessions: {
+        Row: {
+          id: string; org_id: string; service_id: string; coach_id: string; venue_id: string | null; venue_space_id: string | null;
+          location_text: string | null; starts_at: string; ends_at: string; capacity: number; is_exclusive: boolean;
+          status: "scheduled" | "cancelled" | "completed"; event_id: string | null; rescheduled_from: string | null;
+          cancel_reason: string | null; cancelled_at: string | null; cancelled_by: string | null; created_by: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      training_booking_entitlements: {
+        Row: {
+          id: string; org_id: string; booking_id: string; purchase_id: string; consumed_at: string; consumed_by: string | null;
+          restored_at: string | null; restored_by: string | null; restore_reason: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      booking_notifications: {
+        Row: {
+          id: string; org_id: string; booking_id: string; kind: "confirmed" | "rescheduled" | "cancelled"; change_seq: number;
+          recipient_kind: "payer" | "guardian" | "family" | "coach" | "player"; recipient_key: string; recipient_profile_id: string | null;
+          recipient_email: string | null; recipient_name: string | null;
+          status: "pending" | "sending" | "sent" | "failed" | "no_contact" | "skipped"; attempts: number; last_error: string | null;
+          notification_id: string | null; email_log_id: string | null; claimed_at: string | null; sent_at: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
       memberships: {
         Row: {
           id: string; org_id: string; membership_type_id: string | null; family_id: string; athlete_id: string | null;
@@ -977,6 +1042,48 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      // ---- Booking workflow (migration 20250420104400); contract: docs/booking-workflow.md
+      booking_quote: { Args: { p_payload: Json }; Returns: Json };
+      booking_confirm: { Args: { p_payload: Json; p_request_id: string }; Returns: Json };
+      booking_reschedule: { Args: { p_booking: string; p_payload: Json; p_request_id: string }; Returns: Json };
+      booking_cancel: {
+        Args: { p_booking: string; p_reason: string; p_request_id: string; p_refund_mode?: string; p_restore_package?: boolean | null; p_notify?: boolean };
+        Returns: Json;
+      };
+      booking_invoice_preview: { Args: { p_booking: string }; Returns: Json };
+      booking_create_invoice: { Args: { p_booking: string; p_request_id: string; p_send?: boolean }; Returns: Json };
+      booking_record_payment: { Args: { p_booking: string; p_payload: Json }; Returns: Json };
+      booking_notification_retry: { Args: { p_id: string }; Returns: Json };
+      booking_notifications_claim: {
+        Args: { p_org?: string | null; p_booking?: string | null; p_limit?: number };
+        Returns: {
+          id: string; org_id: string; booking_id: string; kind: "confirmed" | "rescheduled" | "cancelled";
+          recipient_kind: "payer" | "guardian" | "family" | "coach" | "player"; recipient_profile_id: string | null;
+          recipient_email: string | null; recipient_name: string | null; attempts: number; service_name: string; coach_name: string | null;
+          athlete_first_name: string; starts_at: string; ends_at: string | null; previous_starts_at: string | null;
+          location_name: string | null; timezone: string;
+        }[];
+      };
+      booking_notification_record: {
+        Args: { p_id: string; p_status: string; p_error?: string | null; p_notification?: string | null; p_email_log?: string | null };
+        Returns: undefined;
+      };
+      people_duplicate_check: { Args: { p_payload: Json }; Returns: Json };
+      athlete_quick_create: { Args: { p_payload: Json; p_request_id: string }; Returns: Json };
+      billing_payer_save: { Args: { p_payload: Json; p_request_id?: string | null }; Returns: Json };
+      billing_payer_candidates: { Args: { p_athlete: string }; Returns: Json };
+      training_service_catalog: { Args: { p_include_inactive?: boolean }; Returns: Json };
+      training_service_coaches_set: { Args: { p_service: string; p_coaches: string[] }; Returns: Json };
+      booking_list: { Args: { p_filters?: Json }; Returns: Json };
+      booking_detail: { Args: { p_booking: string }; Returns: Json };
+      bookings_to_invoice: { Args: { p_limit?: number }; Returns: Json };
+      athlete_booking_history: { Args: { p_athlete: string }; Returns: Json };
+      coach_booking_agenda: { Args: { p_from?: string | null; p_to?: string | null; p_coach?: string | null }; Returns: Json };
+      guardian_booking_overview: { Args: { p_athlete?: string | null }; Returns: Json };
+      player_booking_overview: { Args: Record<string, never>; Returns: Json };
+      booking_dashboard_counts: { Args: Record<string, never>; Returns: Json };
+      booking_followups: { Args: { p_limit?: number }; Returns: Json };
+      booking_review_flags: { Args: { p_org: string }; Returns: number };
       // ---- Team attendance (migration 20250420104000); contract: docs/team-attendance.md
       is_player: { Args: Record<string, never>; Returns: boolean };
       current_player_athlete_id: { Args: Record<string, never>; Returns: string | null };
