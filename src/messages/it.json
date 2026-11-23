@@ -10987,6 +10987,28 @@
       "DUPLICATE": "Esiste già.",
       "generic": "Qualcosa è andato storto. Riprova.",
       "invalid": "Controlla i valori inseriti."
+    },
+    "invoiceForm": {
+      "title": "Nuova fattura",
+      "description_page": "Crea una fattura manuale con righe. Scegli la categoria di ricavo; il numero viene assegnato all’emissione.",
+      "loadFamiliesFailed": "Impossibile caricare le famiglie",
+      "family": "Famiglia",
+      "chooseFamily": "Scegli una famiglia…",
+      "dueDate": "Scadenza",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "es. Allenamento primaverile",
+      "lineItems": "Righe",
+      "itemDescription": "Descrizione",
+      "quantity": "Qtà",
+      "unitPrice": "Prezzo unitario",
+      "removeLine": "Rimuovi riga",
+      "addLine": "Aggiungi riga",
+      "discount": "Sconto",
+      "total": "Totale",
+      "creating": "Creazione…",
+      "create": "Crea fattura (bozza)",
+      "numberPreview": "Numero all’emissione: {number}",
+      "numberStandard": "Numero all’emissione: numerazione standard del club."
     }
   },
   "playerBilling": {

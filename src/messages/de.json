@@ -10987,6 +10987,28 @@
       "DUPLICATE": "Das existiert bereits.",
       "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       "invalid": "Bitte prüfe die eingegebenen Werte."
+    },
+    "invoiceForm": {
+      "title": "Neue Rechnung",
+      "description_page": "Erstellen Sie eine manuelle Rechnung mit Positionen. Wählen Sie die Umsatzkategorie; die Nummer wird bei der Ausstellung vergeben.",
+      "loadFamiliesFailed": "Familien konnten nicht geladen werden",
+      "family": "Familie",
+      "chooseFamily": "Familie wählen…",
+      "dueDate": "Fälligkeitsdatum",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "z. B. Frühlingstraining",
+      "lineItems": "Positionen",
+      "itemDescription": "Beschreibung",
+      "quantity": "Menge",
+      "unitPrice": "Stückpreis",
+      "removeLine": "Position entfernen",
+      "addLine": "Position hinzufügen",
+      "discount": "Rabatt",
+      "total": "Total",
+      "creating": "Wird erstellt…",
+      "create": "Rechnung erstellen (Entwurf)",
+      "numberPreview": "Nummer bei Ausstellung: {number}",
+      "numberStandard": "Nummer bei Ausstellung: Standardnummerierung des Vereins."
     }
   },
   "playerBilling": {

@@ -166,6 +166,8 @@ export function placeholderDiff(source, target) {
  */
 export const SAME_AS_EN_OK = new Set([
   "meta.direction",
+  // Manual invoice form: "Total" (de/fr/es) and "Description" (fr) are spelled like English.
+  "billing.invoiceForm.total", "billing.invoiceForm.description", "billing.invoiceForm.itemDescription",
   // Billing foundation: bank account terms, and German / French words spelled like English.
   "billing.entities.fields.iban",
   "billing.entities.fields.qrIban",

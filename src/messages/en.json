@@ -10987,6 +10987,28 @@
       "DUPLICATE": "This already exists.",
       "generic": "Something went wrong. Please try again.",
       "invalid": "Please check the values entered."
+    },
+    "invoiceForm": {
+      "title": "New invoice",
+      "description_page": "Create a manual invoice with line items. Choose its revenue category; the number is set when the invoice is issued.",
+      "loadFamiliesFailed": "Couldn't load families",
+      "family": "Family",
+      "chooseFamily": "Select a family…",
+      "dueDate": "Due date",
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Spring term coaching",
+      "lineItems": "Line items",
+      "itemDescription": "Description",
+      "quantity": "Qty",
+      "unitPrice": "Unit price",
+      "removeLine": "Remove line",
+      "addLine": "Add line",
+      "discount": "Discount",
+      "total": "Total",
+      "creating": "Creating…",
+      "create": "Create invoice (draft)",
+      "numberPreview": "Number when issued: {number}",
+      "numberStandard": "Number when issued: the club's standard numbering."
     }
   },
   "playerBilling": {
