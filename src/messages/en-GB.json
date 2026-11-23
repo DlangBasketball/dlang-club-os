@@ -1024,6 +1024,38 @@
       }
     }
   },
+  "coachTrainings": {
+    "awaitingHint": "These sessions have ended without final attendance. They stay here until you finalise them.",
+    "card": {
+      "cancelled": "Cancelled",
+      "cancelledReason": "Cancelled: {reason}"
+    },
+    "sheet": {
+      "reopened": "This sheet was reopened for corrections. Finalise it again when you are done.",
+      "notEnded": "The session has not ended yet. You can mark players now and finalise later."
+    },
+    "finalize": {
+      "open": "Review and finalise",
+      "title": "Finalise attendance",
+      "versionConflict": "The sheet changed while you were finishing. Review it and finalise again.",
+      "reportedConfirm": "Confirm and finalise",
+      "confirm": "Finalise"
+    },
+    "final": {
+      "finalizedAt": "Finalised {when}"
+    },
+    "cancelled": {
+      "title": "Session cancelled",
+      "body": "Attendance is not taken for cancelled sessions."
+    },
+    "details": {
+      "firstFinal": "First finalised {when}",
+      "lastFinal": "Finalised {when} by {name}"
+    },
+    "corrections": {
+      "description": "Parents' requests to correct a finalised attendance of your teams."
+    }
+  },
   "teamAttendance": {
     "errors": {
       "EVENT_CANCELLED": "This session was cancelled.",

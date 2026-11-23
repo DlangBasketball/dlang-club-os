@@ -1024,6 +1024,18 @@ export type Database = {
                    sheet_status: "draft" | "final" | "reopened" | null; sheet_version: number | null; unmarked: number; marked: number;
                    reported_absences: number; tracked: boolean }[];
       };
+      coach_training_cards: {
+        Args: { p_from?: string | null; p_to?: string | null };
+        Returns: { event_id: string; team_id: string | null; team_name: string | null; event_type: string; title: string | null; starts_at: string;
+                   ends_at: string; event_status: string; cancel_reason: string | null; access: "team_coach" | "substitute" | "lead" | "pending";
+                   can_run: boolean; sheet_status: "draft" | "final" | "reopened" | null; sheet_version: number | null; unmarked: number;
+                   marked: number; reported_absences: number; tracked: boolean; location_name: string | null; roster_size: number | null }[];
+      };
+      attendance_guest_search: {
+        Args: { p_event: string; p_query: string; p_limit?: number };
+        Returns: { athlete_id: string; first_name: string; last_name: string; team_names: string[] }[];
+      };
+      attendance_sheet_history: { Args: { p_event: string }; Returns: Json };
       sessions_awaiting_attendance: {
         Args: { p_team?: string | null; p_limit?: number };
         Returns: { event_id: string; team_id: string; team_name: string; event_type: string; starts_at: string; ends_at: string;
