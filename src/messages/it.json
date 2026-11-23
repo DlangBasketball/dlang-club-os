@@ -12027,5 +12027,367 @@
       "emptyArchivedHint": "Gli elementi archiviati appariranno qui.",
       "archive": "Archivia"
     }
+  },
+  "adminAttendance": {
+    "errors": {
+      "ALERT_NOT_FOUND": "Questo avviso non è stato trovato.",
+      "ALERT_NOT_RETRYABLE": "Si possono reinviare solo gli avvisi non riusciti (o senza canale di invio).",
+      "ALERT_NO_GUARDIAN": "Questo giocatore non ha un genitore raggiungibile. Aggiungi prima un genitore alla famiglia.",
+      "FLAG_NOT_FOUND": "Questo elemento da verificare non è stato trovato."
+    },
+    "messages": {
+      "alertRetried": "L'avviso è stato rimesso in coda e inviato se possibile.",
+      "flagResolved": "Segnato come risolto.",
+      "flagsRefreshed": "{count, plural, =0 {Controlli completati: niente di nuovo da verificare.} one {Controlli completati: # nuovo elemento da verificare.} other {Controlli completati: # nuovi elementi da verificare.}}"
+    },
+    "mark": {
+      "present": "Presente",
+      "late": "In ritardo",
+      "excused": "Assenza giustificata",
+      "unexcused": "Assenza ingiustificata",
+      "unmarked": "Non segnato"
+    },
+    "sheetStatus": {
+      "draft": "Bozza",
+      "final": "Definitivo",
+      "reopened": "Riaperto",
+      "none": "Non iniziato"
+    },
+    "sheetState": {
+      "final": "Definitivo",
+      "reopened": "Riaperto per correzioni",
+      "draft": "In corso",
+      "missing": "Appello non fatto",
+      "upcoming": "In programma",
+      "cancelled": "Annullato"
+    },
+    "eventType": {
+      "training": "Allenamento",
+      "game": "Partita",
+      "tournament": "Torneo",
+      "meeting": "Riunione",
+      "other": "Altro evento"
+    },
+    "category": {
+      "illness": "Malattia",
+      "injury": "Infortunio",
+      "school": "Scuola",
+      "family": "Famiglia",
+      "travel": "Viaggio",
+      "other": "Altro motivo"
+    },
+    "phase": {
+      "draft": "durante l'appello",
+      "reopened": "dopo la riapertura",
+      "correction": "correzione"
+    },
+    "coverage": {
+      "assigned": "Allenatore assegnato",
+      "substitute": "Sostituto assegnato",
+      "missing": "Nessun allenatore",
+      "roleSubstitute": "Sostituto",
+      "roleLead": "Allenatore principale"
+    },
+    "totals": {
+      "sessions": "Sedute",
+      "rate": "Tasso di presenza",
+      "rule": "Contano solo le sedute finalizzate. Le sedute annullate e i fogli mai finalizzati sono esclusi. Tasso = (presenti + in ritardo) / giocatori segnati."
+    },
+    "filters": {
+      "from": "Dal",
+      "to": "Al",
+      "season": "Stagione",
+      "allSeasons": "Tutte le stagioni",
+      "team": "Squadra",
+      "allTeams": "Tutte le squadre",
+      "apply": "Applica"
+    },
+    "history": {
+      "byDate": "Sedute per data",
+      "byPlayer": "Per giocatore",
+      "emptyTitle": "Nessuna seduta in questo periodo",
+      "emptyHint": "Le sedute compaiono qui appena viene aperto il foglio presenze.",
+      "noFinal": "Ancora nessuna presenza finalizzata in questo periodo.",
+      "notCounted": "non conteggiata finché non è finalizzata",
+      "cancelReason": "Annullata: {reason}",
+      "counts": "{present} presenti · {late} in ritardo · {excused} giustificati · {unexcused} ingiustificati",
+      "unmarked": "{count, plural, one {# non segnato} other {# non segnati}}"
+    },
+    "teams": {
+      "clubTeams": "Squadre del club",
+      "selectionTeams": "Squadre di selezione",
+      "otherGroup": "Altre squadre",
+      "teamCount": "{count, plural, one {# squadra} other {# squadre}}",
+      "searchLabel": "Cerca giocatori in tutte le squadre",
+      "searchPlaceholder": "Trova un giocatore per nome",
+      "search": "Cerca",
+      "clearSearch": "Cancella ricerca",
+      "results": "Giocatori che corrispondono a «{query}»",
+      "noResults": "Nessun giocatore corrisponde a questa ricerca.",
+      "noTeam": "In nessuna squadra"
+    },
+    "athletes": {
+      "teamsColumn": "Squadre"
+    },
+    "team": {
+      "metaTitle": "Squadra",
+      "sectionsLabel": "Sezioni della squadra",
+      "tabRoster": "Rosa",
+      "tabCoaches": "Allenatori",
+      "tabSchedule": "Programma allenamenti",
+      "tabAttendance": "Presenze",
+      "coaches": "Allenatori della squadra",
+      "noCoach": "Nessun allenatore assegnato",
+      "substituteHint": "Gli allenatori sostituti si assegnano seduta per seduta, nella pagina della seduta.",
+      "schedule": "Prossime sedute",
+      "fullSchedule": "Programma completo",
+      "noUpcoming": "Ancora niente in programma per questa squadra.",
+      "substitutes": "{count, plural, one {# sostituto} other {# sostituti}}",
+      "adminOnly": "Le presenze sono disponibili solo per gli amministratori del club."
+    },
+    "roster": {
+      "current": "Rosa attuale",
+      "asOf": "Rosa al {date}",
+      "asOfLabel": "Mostra la rosa a una data",
+      "show": "Mostra",
+      "today": "Torna a oggi",
+      "empty": "Nessuno è nella rosa in quella data.",
+      "since": "dal {date}",
+      "until": "fino al {date}",
+      "alsoOn": "Anche in {team}",
+      "addPlayer": "Aggiungi giocatore",
+      "effectiveFrom": "Valido dal",
+      "offFrom": "Fuori dalla squadra dal",
+      "jersey": "Maglia",
+      "add": "Aggiungi alla rosa",
+      "added": "{name} è stato aggiunto alla rosa.",
+      "multiTeamHint": "Un giocatore può far parte di più squadre. Aggiungerlo qui non lo toglie dalle altre squadre.",
+      "transfer": "Trasferisci",
+      "leave": "Rimuovi",
+      "transferName": "Trasferisci {name} in un'altra squadra",
+      "leaveName": "Rimuovi {name} dalla squadra",
+      "toTeam": "Nuova squadra",
+      "chooseTeam": "Scegli una squadra",
+      "reason": "Motivo",
+      "transferHint": "Il giocatore lascia questa squadra il giorno prima ed entra nella nuova in questa data. Lo storico viene conservato.",
+      "leaveHint": "Il giocatore esce dalla rosa da questa data. Le presenze passate restano registrate.",
+      "confirmTransfer": "Trasferisci giocatore",
+      "confirmLeave": "Rimuovi dalla squadra",
+      "past": "Ex membri",
+      "noPast": "Nessun ex giocatore in questa squadra.",
+      "editDetails": "Numeri di maglia, ruoli e stato",
+      "selectionManaged": "Questa rosa è gestita tramite le iscrizioni del programma di selezione.",
+      "openProgramme": "Apri il programma"
+    },
+    "profile": {
+      "assignments": "Storico squadre",
+      "noAssignments": "Ancora in nessuna squadra.",
+      "current": "Attuale",
+      "past": "Passata",
+      "open": "senza data di fine",
+      "teamAttendance": "Presenze in squadra",
+      "teamRate": "{sessions} sedute · {rate}"
+    },
+    "session": {
+      "metaTitle": "Presenze della seduta",
+      "backToEvent": "Torna all'evento",
+      "notTracked": "Prima dell'inizio della rilevazione presenze",
+      "cardTitle": "Presenze",
+      "cardBody": "Fai o correggi l'appello, vedi gli avvisi inviati alle famiglie e la copertura degli allenatori.",
+      "cardOpen": "Apri le presenze",
+      "history": "Storico modifiche",
+      "noHistory": "Ancora nessuna modifica alle presenze.",
+      "unknownUser": "Utente sconosciuto",
+      "status": "Foglio",
+      "ledBy": "Diretta da",
+      "openedBy": "Aperto da",
+      "submittedBy": "Inviato da",
+      "finalizedBy": "Finalizzato da",
+      "firstFinalized": "Prima finalizzazione",
+      "reopened": "Riaperto",
+      "corrections": "Correzioni",
+      "legacyLink": "Apri le presenze precedenti del programma per questa seduta",
+      "coaches": "Allenatori",
+      "assignCoach": "Assegna un allenatore a questa seduta",
+      "chooseCoach": "Scegli un allenatore",
+      "role": "Ruolo",
+      "assign": "Assegna"
+    },
+    "sheet": {
+      "title": "Foglio presenze",
+      "version": "Versione {version}",
+      "preview": "{count, plural, one {Anteprima della rosa: # giocatore. Nulla viene salvato finché il foglio non è aperto.} other {Anteprima della rosa: # giocatori. Nulla viene salvato finché il foglio non è aperto.}}",
+      "open": "Inizia l'appello",
+      "cancelled": "Questa seduta è stata annullata, quindi non si fa l'appello.",
+      "reported": "Assenze segnalate",
+      "guest": "Ospite",
+      "reportedAbsence": "Assenza segnalata ({category})",
+      "lastBy": "Ultima modifica di {name}, {date}",
+      "statusFor": "Presenza di {name}",
+      "correct": "Correggi",
+      "empty": "Nessun giocatore nella rosa per questa seduta.",
+      "ackReported": "Ho visto le assenze segnalate dalle famiglie",
+      "save": "Salva modifiche",
+      "allPresent": "Segna presenti tutti gli altri",
+      "ledBy": "Diretta da",
+      "ledByNone": "Non indicato",
+      "finalize": "Finalizza",
+      "notEnded": "La seduta non è ancora finita. Se finalizzi ora, le famiglie ricevono gli avvisi di assenza ingiustificata solo dopo la fine.",
+      "reopen": "Riapri per correzioni",
+      "reopenReason": "Perché riaprire?",
+      "correctionReason": "Motivo della correzione",
+      "applyCorrection": "Applica correzione",
+      "conflicts": "{count, plural, one {# presenza è stata modificata nel frattempo da un'altra persona e non è stata sovrascritta.} other {# presenze sono state modificate nel frattempo da un'altra persona e non sono state sovrascritte.}}",
+      "reportedWarning": "Alcuni giocatori segnati come assenza ingiustificata avevano segnalato un'assenza. Spunta la casella per confermare.",
+      "unmarkedLeft": "Segna ogni giocatore prima di finalizzare: {names}",
+      "reportedNeedAck": "Questi giocatori avevano segnalato un'assenza: {names}. Spunta la casella per confermare, poi finalizza di nuovo."
+    },
+    "reports": {
+      "title": "Assenze segnalate",
+      "none": "Nessuna assenza segnalata per questa seduta.",
+      "acknowledge": "Conferma ricezione",
+      "needsReview": "orario cambiato, da verificare",
+      "status": {
+        "reported": "Segnalata",
+        "acknowledged": "Confermata",
+        "superseded": "Sostituita",
+        "withdrawn": "Ritirata"
+      },
+      "by": {
+        "guardian": "da un genitore",
+        "player": "dal giocatore"
+      }
+    },
+    "alerts": {
+      "title": "Avvisi alle famiglie",
+      "followupTitle": "Avvisi da seguire",
+      "none": "Nessun avviso per questa seduta.",
+      "noGuardian": "nessun genitore registrato",
+      "attempts": "{count, plural, one {# tentativo} other {# tentativi}}",
+      "sentAt": "inviato il {date}",
+      "retry": "Riprova",
+      "fixContact": "Aggiungi un genitore",
+      "status": {
+        "pending": "In attesa",
+        "sent": "Inviato",
+        "failed": "Non riuscito",
+        "no_contact": "Nessun contatto",
+        "suppressed": "Soppresso",
+        "superseded": "Sostituito"
+      },
+      "kind": {
+        "initial": "Avviso di assenza",
+        "correction": "Avviso di correzione"
+      }
+    },
+    "access": {
+      "title": "Richieste di accesso degli allenatori",
+      "description": "Allenatori che chiedono di dirigere una seduta di una squadra che non allenano.",
+      "none": "Nessuna richiesta in attesa.",
+      "approve": "Approva",
+      "reject": "Rifiuta",
+      "revoke": "Revoca accesso",
+      "status": {
+        "pending": "In attesa",
+        "approved": "Approvata",
+        "rejected": "Rifiutata"
+      }
+    },
+    "corrections": {
+      "title": "Richieste di correzione",
+      "description": "Famiglie che chiedono di correggere una presenza finalizzata.",
+      "none": "Nessuna richiesta di correzione aperta.",
+      "newStatus": "Nuovo stato",
+      "note": "Nota per la famiglia",
+      "notePlaceholder": "Nota (obbligatoria per rifiutare)",
+      "accept": "Accetta",
+      "reject": "Rifiuta",
+      "rejectNeedsNote": "Aggiungi una nota per rifiutare la richiesta",
+      "resolution": "Risposta: {note}",
+      "status": {
+        "open": "Aperta",
+        "accepted": "Accettata",
+        "rejected": "Rifiutata",
+        "withdrawn": "Ritirata"
+      }
+    },
+    "followup": {
+      "title": "Seguito delle presenze",
+      "description": "Sedute senza appello, assenze ingiustificate, avvisi non recapitati e richieste aperte."
+    },
+    "dashboard": {
+      "section": "Presenze delle squadre",
+      "today": "Sedute di oggi",
+      "schedule": "Calendario",
+      "noToday": "Nessuna seduta di squadra oggi.",
+      "subNames": "Sostituto: {names}",
+      "pendingRequests": "{count, plural, one {# richiesta di accesso} other {# richieste di accesso}}",
+      "awaiting": "Sedute in attesa di appello",
+      "noAwaiting": "Tutte le sedute concluse hanno le loro presenze.",
+      "daysSince": "{count, plural, =0 {finita oggi} one {finita # giorno fa} other {finita # giorni fa}}",
+      "viewAll": "Vedi tutto",
+      "noShows": "Assenze ingiustificate confermate",
+      "noNoShows": "Nessuna assenza ingiustificata negli ultimi 14 giorni.",
+      "alerts": "Avvisi da seguire",
+      "noAlerts": "Tutti gli avvisi sono stati recapitati.",
+      "review": "Verifica dati",
+      "reviewCount": "{count, plural, one {Verifica dati (# aperto)} other {Verifica dati (# aperti)}}",
+      "requests": "Richieste in attesa",
+      "noRequests": "Nessuna richiesta in attesa da allenatori o famiglie.",
+      "accessRequest": "{coach} chiede di dirigere questa seduta",
+      "correctionRequest": "Correzione richiesta per {name}"
+    },
+    "review": {
+      "title": "Verifica dati",
+      "description": "Record che il sistema non ha potuto abbinare con certezza. Apri ogni record, correggilo e segnalo come risolto.",
+      "filterLabel": "Filtra gli elementi da verificare",
+      "group": {
+        "all": "Tutti",
+        "attendance": "Presenze e rose",
+        "billing": "Fatturazione",
+        "other": "Altri"
+      },
+      "showResolved": "Mostra elementi risolti",
+      "hideResolved": "Nascondi elementi risolti",
+      "emptyTitle": "Niente da verificare",
+      "emptyHint": "I nuovi elementi compaiono qui quando i controlli giornalieri trovano qualcosa.",
+      "resolved": "Risolto",
+      "resolvedOn": "risolto il {date}",
+      "openRecord": "Apri il record",
+      "note": "Nota di risoluzione",
+      "notePlaceholder": "Nota (facoltativa)",
+      "resolve": "Risolvi",
+      "refresh": "Controlla ora",
+      "codes": {
+        "ATHLETE_WITHOUT_GUARDIAN": "Giocatore senza genitore raggiungibile",
+        "TEAM_WITHOUT_COACH": "Squadra senza allenatore",
+        "TRAINING_WITHOUT_TEAM": "Allenamento senza squadra",
+        "MEMBERSHIP_INACTIVE_NO_END": "Voce di rosa inattiva senza data di fine",
+        "MEMBERSHIP_DATE_UNCERTAIN": "Data di ingresso in rosa incerta",
+        "LEGACY_ATTENDANCE_SESSION": "Presenze precedenti del programma collegate a una seduta di squadra",
+        "ATTENDANCE_UNFINISHED": "Presenze non finalizzate",
+        "CATEGORY_AMBIGUOUS": "Categoria della fattura poco chiara",
+        "CREDIT_ACTIVITY_UNRESOLVED": "Credito della famiglia senza categoria",
+        "NO_ATHLETE": "Fattura senza giocatore",
+        "NO_CURRENT_SEASON": "Nessuna stagione corrente per una fattura",
+        "MEMBERSHIP_EXISTS": "Quota stagionale già esistente",
+        "MIGRATION_ERROR": "Problema nella migrazione dei dati"
+      },
+      "hints": {
+        "ATHLETE_WITHOUT_GUARDIAN": "Gli avvisi di assenza di questo giocatore non raggiungono nessuno. Aggiungi alla famiglia un genitore con accesso attivo.",
+        "TEAM_WITHOUT_COACH": "Questa squadra ha allenamenti ma nessun allenatore. Assegnane uno perché venga fatto l'appello.",
+        "TRAINING_WITHOUT_TEAM": "Questo allenamento non ha una squadra, quindi non c'è una rosa per l'appello.",
+        "MEMBERSHIP_INACTIVE_NO_END": "La voce di rosa è inattiva senza data di fine, quindi non compare in nessuna rosa. Indica la data di uscita.",
+        "MEMBERSHIP_DATE_UNCERTAIN": "La data di ingresso del giocatore nella squadra non è certa. Verifica le date della rosa.",
+        "LEGACY_ATTENDANCE_SESSION": "Per questa seduta le presenze sono state rilevate nel vecchio modulo programmi. Verifica che i due record coincidano.",
+        "ATTENDANCE_UNFINISHED": "La seduta è finita da più di due giorni e le presenze non sono finalizzate.",
+        "CATEGORY_AMBIGUOUS": "Scegli la categoria di ricavo di questa fattura.",
+        "CREDIT_ACTIVITY_UNRESOLVED": "Assegna il credito della famiglia a una categoria di ricavo.",
+        "NO_ATHLETE": "Collega questa fattura a un giocatore.",
+        "NO_CURRENT_SEASON": "Imposta la stagione corrente, poi verifica questa fattura.",
+        "MEMBERSHIP_EXISTS": "Esiste già una quota stagionale per questo giocatore. Verifica eventuali doppioni.",
+        "MIGRATION_ERROR": "Questo record non è stato migrato automaticamente. Verificalo a mano."
+      }
+    }
   }
 }

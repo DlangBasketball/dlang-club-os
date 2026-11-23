@@ -14,8 +14,10 @@ import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 import { BulkCheckbox, BulkDeleteBar, BulkSelect, DeletePersonButton } from "@/components/people/delete-person";
 import { Pager, pageParam } from "@/components/ui/pager";
 import { Input } from "@/components/ui";
+import { getCurrentAssignments, type Assignment } from "@/lib/data/team-attendance-admin";
+import { zonedDayKey } from "@/lib/staff/hours";
 
-type Row = { id: string; name: string; family: string; dob: string; status: string; photoUrl: string | null; licence: string | null; licenceCategory: string | null; sponsorship: SponsorshipKind; sponsorshipPercent: number | null; sponsor: string | null };
+type Row = { id: string; name: string; family: string; dob: string; status: string; photoUrl: string | null; licence: string | null; licenceCategory: string | null; sponsorship: SponsorshipKind; sponsorshipPercent: number | null; sponsor: string | null; teams: Assignment[] };
 
 const PAGE_SIZE = 100;
 
@@ -59,6 +61,8 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
     user?.orgId ?? null,
   );
 
+  // Current team assignments (a player can be on several teams at once).
+  const assignments = await getCurrentAssignments((athletes ?? []).map((a) => a.id), zonedDayKey(new Date(), f.timeZone));
   const rows: Row[] = (athletes ?? []).map((a) => ({
     id: a.id,
     name: `${a.first_name} ${a.last_name}`,
@@ -71,6 +75,7 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
     sponsorship: a.sponsorship_kind,
     sponsorshipPercent: a.sponsorship_percent === null ? null : Number(a.sponsorship_percent),
     sponsor: a.sponsor_name,
+    teams: assignments.get(a.id) ?? [],
   }));
 
   const columns: Column<Row>[] = [
@@ -83,6 +88,15 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
           <Avatar name={r.name} src={r.photoUrl} size="lg" />
           <span>{r.name}</span>
         </Link>
+      ),
+    },
+    {
+      key: "teams",
+      header: t("adminAttendance.athletes.teamsColumn"),
+      render: (r) => r.teams.length === 0 ? <span className="text-text-muted">—</span> : (
+        <span className="flex flex-wrap gap-1">
+          {r.teams.map((a) => <Link key={a.teamId} href={`/admin/teams/${a.teamId}`}><Badge tone={a.isCurrentSeason ? "maroon" : "neutral"}>{a.teamName}</Badge></Link>)}
+        </span>
       ),
     },
     { key: "family", header: t("editPeople.athlete.family") },

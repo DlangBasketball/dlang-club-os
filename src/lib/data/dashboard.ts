@@ -330,3 +330,90 @@ export async function getActivityFeed(limit = 8): Promise<Result<ActivityItem[]>
     })),
   );
 }
+
+// ---------------------------------------------------------------------------
+// Team attendance (admin): today's sessions with coach coverage, recent
+// confirmed no-shows. Reads run as the signed-in user (RLS: admin of the org).
+// ---------------------------------------------------------------------------
+const SHEET_TYPES: ("training" | "game" | "tournament")[] = ["training", "game", "tournament"];
+
+export type TodayTraining = {
+  eventId: string; teamId: string | null; teamName: string | null; type: string; title: string | null; startsAt: string; endsAt: string;
+  status: string; cancelReason: string | null; coverage: "substitute" | "assigned" | "missing"; coaches: string[]; substitutes: string[];
+  pendingRequests: number; sheetStatus: "draft" | "final" | "reopened" | null;
+};
+
+/** Today's team sessions (club time zone), cancelled ones included, with who is coaching. */
+export async function getTodaysTrainings(timeZone: string): Promise<Result<TodayTraining[]>> {
+  const supabase = await createClient();
+  const sports = supabase as unknown as SportsClient;
+  const { startISO, endISO } = dayBounds(timeZone);
+  const { data: events, error } = await sports.from("events").select("id,team_id,type,title,starts_at,ends_at,status,cancel_reason")
+    .gte("starts_at", startISO).lt("starts_at", endISO).in("type", SHEET_TYPES).not("team_id", "is", null).order("starts_at").limit(100);
+  if (error) return fail(error.message);
+  const rows = events ?? [];
+  const ids = rows.map((e) => e.id);
+  const teamIds = uniq(rows.map((e) => e.team_id));
+  if (!ids.length) return ok([]);
+  const [teams, tc, asg, sheets] = await Promise.all([
+    sports.from("teams").select("id,name").in("id", teamIds),
+    sports.from("team_coaches").select("team_id,coach_id").in("team_id", teamIds),
+    supabase.from("event_coach_assignments").select("event_id,coach_id,status").in("event_id", ids).in("status", ["approved", "pending"]),
+    supabase.from("team_attendance_sheets").select("event_id,status").in("event_id", ids),
+  ]);
+  const coachIds = uniq([...(tc.data ?? []).map((c) => c.coach_id), ...(asg.data ?? []).map((a) => a.coach_id)]);
+  const coachRows = coachIds.length ? (await supabase.from("coaches").select("id,display_name").in("id", coachIds)).data ?? [] : [];
+  const coachName = new Map(coachRows.map((c) => [c.id, c.display_name]));
+  const teamName = new Map((teams.data ?? []).map((t) => [t.id, t.name]));
+  const sheet = new Map((sheets.data ?? []).map((s) => [s.event_id, s.status]));
+  return ok(rows.map((e) => {
+    const teamCoaches = (tc.data ?? []).filter((c) => c.team_id === e.team_id).map((c) => coachName.get(c.coach_id) ?? "");
+    const mine = (asg.data ?? []).filter((a) => a.event_id === e.id);
+    const subs = mine.filter((a) => a.status === "approved").map((a) => coachName.get(a.coach_id) ?? "");
+    const coverage: TodayTraining["coverage"] = subs.length ? "substitute" : teamCoaches.length ? "assigned" : "missing";
+    return {
+      eventId: e.id, teamId: e.team_id, teamName: e.team_id ? teamName.get(e.team_id) ?? null : null, type: e.type, title: e.title,
+      startsAt: e.starts_at, endsAt: e.ends_at, status: e.status, cancelReason: e.cancel_reason ?? null, coverage,
+      coaches: teamCoaches.filter(Boolean), substitutes: subs.filter(Boolean),
+      pendingRequests: mine.filter((a) => a.status === "pending").length, sheetStatus: sheet.get(e.id) ?? null,
+    };
+  }));
+}
+
+export type ConfirmedNoShow = { eventId: string; athleteId: string; athleteName: string; teamName: string | null; startsAt: string };
+
+/** Unexcused absences on finalized sheets of the last `days` days (newest first). */
+export async function getConfirmedNoShows(days = 14, limit = 8): Promise<Result<ConfirmedNoShow[]>> {
+  const supabase = await createClient();
+  const sports = supabase as unknown as SportsClient;
+  const since = new Date(Date.now() - days * 864e5).toISOString();
+  const { data: events, error } = await sports.from("events").select("id,team_id,starts_at")
+    .gte("starts_at", since).lt("ends_at", new Date().toISOString()).neq("status", "cancelled").in("type", SHEET_TYPES)
+    .not("team_id", "is", null).order("starts_at", { ascending: false }).limit(300);
+  if (error) return fail(error.message);
+  const ids = (events ?? []).map((e) => e.id);
+  if (!ids.length) return ok([]);
+  const { data: sheets, error: sErr } = await supabase.from("team_attendance_sheets").select("event_id").in("event_id", ids).gt("finalize_count", 0);
+  if (sErr) return fail(sErr.message);
+  const finalIds = (sheets ?? []).map((s) => s.event_id);
+  if (!finalIds.length) return ok([]);
+  const { data: marks, error: mErr } = await supabase.from("team_attendance_marks").select("event_id,athlete_id")
+    .in("event_id", finalIds).eq("finalized_status", "unexcused").limit(500);
+  if (mErr) return fail(mErr.message);
+  const athleteIds = uniq((marks ?? []).map((m) => m.athlete_id));
+  const teamIds = uniq((events ?? []).map((e) => e.team_id));
+  const [ath, teams] = await Promise.all([
+    athleteIds.length ? supabase.from("athletes").select("id,first_name,last_name").in("id", athleteIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
+    sports.from("teams").select("id,name").in("id", teamIds),
+  ]);
+  const name = new Map((ath.data ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
+  const team = new Map((teams.data ?? []).map((t) => [t.id, t.name]));
+  const ev = new Map((events ?? []).map((e) => [e.id, e]));
+  return ok((marks ?? [])
+    .map((m) => {
+      const e = ev.get(m.event_id);
+      return { eventId: m.event_id, athleteId: m.athlete_id, athleteName: name.get(m.athlete_id) ?? "", teamName: e?.team_id ? team.get(e.team_id) ?? null : null, startsAt: e?.starts_at ?? "" };
+    })
+    .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+    .slice(0, limit));
+}

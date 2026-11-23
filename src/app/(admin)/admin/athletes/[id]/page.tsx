@@ -34,6 +34,13 @@ import { hasFeature } from "@/lib/upgrades/server";
 import { getCurrentSeasonId, getPlayerBillingOverview, getPlayerBookings, getPlayerMemberships } from "@/lib/data/player-billing";
 import { BillingTab, BookingsTab, MembershipTab } from "@/components/player-billing/profile-panels";
 import { parseProfileTab } from "@/lib/billing/player-billing";
+import { zonedDayKey } from "@/lib/staff/hours";
+import { dateParam, playerTotals, playerTotalsByTeam } from "@/lib/attendance/admin-stats";
+import { getAthleteTeamPeriods, getSessionAttendance } from "@/lib/data/team-attendance-admin";
+import { listSeasons } from "@/lib/sportsops/data";
+import { SessionHistoryList, TotalsSummary } from "@/components/attendance/admin/views";
+import { selectClass } from "@/components/teams/fields";
+import { Input } from "@/components/ui";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -49,10 +56,15 @@ function Detail({ label, value }: { label: string; value: string | null }) {
  * teams, quick stats) and tabbed sections. Finance sees billing, never
  * medical data; editing (teams, cover, photo, medical, consents) is admin-only.
  */
-export default async function AthleteDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> }) {
+export default async function AthleteDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; from?: string; to?: string; season?: string; team?: string }> }) {
   const { t, f } = await getI18n();
   const { id } = await params;
-  const initialTab = parseProfileTab((await searchParams).tab);
+  const sp = await searchParams;
+  const initialTab = parseProfileTab(sp.tab);
+  const taFrom = dateParam(sp.from);
+  const taTo = dateParam(sp.to);
+  const taSeason = sp.season && /^[0-9a-f-]{36}$/i.test(sp.season) ? sp.season : null;
+  const taTeam = sp.team && /^[0-9a-f-]{36}$/i.test(sp.team) ? sp.team : null;
   const [{ data, error }, user] = await Promise.all([getAthleteDetail(id), getSessionUser()]);
   if (error) return <ErrorState title={t("media.profile.loadError")} message={error} />;
   if (!data) notFound();
@@ -84,6 +96,14 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     getCurrentSeasonId(),
   ]);
   const attendanceHistory = attendanceRes.data ?? [];
+  // Team assignments with dates (admin + finance) and team attendance (admin only).
+  const dayKey = zonedDayKey(new Date(), f.timeZone);
+  const [teamPeriods, teamSessions, seasonList] = await Promise.all([
+    getAthleteTeamPeriods(a.id, dayKey),
+    isAdmin ? getSessionAttendance({ athleteId: a.id, from: taFrom, to: taTo, seasonId: taSeason, teamId: taTeam }) : Promise.resolve(null),
+    isAdmin ? listSeasons() : Promise.resolve(null),
+  ]);
+  const sessionRows = (teamSessions?.data ?? []).filter((r) => Date.parse(r.starts_at) <= Date.now());
   const stats = await getPlayerStats(a.id, attendanceHistory, { includeCredits: isAdmin, includeDevelopment: isAdmin });
   const emergencyName = medical?.emergencyContactName ?? safety?.emergencyContactName ?? null;
   const emergencyPhone = medical?.emergencyContactPhone ?? safety?.emergencyContactPhone ?? null;
@@ -143,11 +163,39 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     </div>
   );
 
+  const periods = teamPeriods.data ?? [];
+  const teamHistoryCard = (
+    <Card>
+      <CardHeader><CardTitle>{t("adminAttendance.profile.assignments")}</CardTitle></CardHeader>
+      <CardBody className="p-0">
+        {periods.length === 0 ? (
+          <p className="px-5 py-5 text-sm text-text-muted">{t("adminAttendance.profile.noAssignments")}</p>
+        ) : (
+          <ul>
+            {periods.map((p, i) => (
+              <li key={`${p.teamId}-${p.joinedOn}-${i}`} className="flex flex-col gap-1 border-b border-border-soft px-5 py-2.5 last:border-0 sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex min-w-0 items-center gap-2">
+                  <Link href={`/admin/teams/${p.teamId}`} className="truncate text-sm text-text hover:text-brand-primary">{p.teamName}</Link>
+                  {p.current ? <Badge tone="success">{t("adminAttendance.profile.current")}</Badge> : <Badge>{t("adminAttendance.profile.past")}</Badge>}
+                </span>
+                <span className="text-xs text-text-muted">
+                  {p.seasonName ? `${p.seasonName} · ` : ""}{f.date(p.joinedOn)} – {p.leftOn ? f.date(p.leftOn) : t("adminAttendance.profile.open")}
+                  {p.reason ? ` · ${p.reason}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardBody>
+    </Card>
+  );
+
   const teamsTab = (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className="space-y-2">
         <PlayerTeamsCard athleteId={a.id} teams={teams} options={teamOptions} editable={isAdmin} />
         <p className="text-xs text-text-muted">{t("playerBilling.membership.teamsNeverChangeFee")}</p>
+        {teamHistoryCard}
       </div>
       <Card>
         <CardHeader>
@@ -196,7 +244,56 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     </Card>
   );
 
-  const attendanceTab = (
+  const byTeam = playerTotalsByTeam(sessionRows);
+  const teamAttendance = isAdmin ? (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader><CardTitle>{t("adminAttendance.profile.teamAttendance")}</CardTitle></CardHeader>
+        <CardBody className="space-y-4">
+          <form method="get" className="flex flex-wrap items-end gap-3">
+            <input type="hidden" name="tab" value="attendance" />
+            <label className="text-xs text-text-muted">{t("adminAttendance.filters.from")}
+              <Input type="date" name="from" defaultValue={taFrom ?? ""} className="mt-1 h-9 w-40" />
+            </label>
+            <label className="text-xs text-text-muted">{t("adminAttendance.filters.to")}
+              <Input type="date" name="to" defaultValue={taTo ?? ""} className="mt-1 h-9 w-40" />
+            </label>
+            <label className="text-xs text-text-muted">{t("adminAttendance.filters.season")}
+              <select name="season" defaultValue={taSeason ?? ""} className={`${selectClass} mt-1 h-9 w-44`}>
+                <option value="">{t("adminAttendance.filters.allSeasons")}</option>
+                {(seasonList?.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </label>
+            <label className="text-xs text-text-muted">{t("adminAttendance.filters.team")}
+              <select name="team" defaultValue={taTeam ?? ""} className={`${selectClass} mt-1 h-9 w-44`}>
+                <option value="">{t("adminAttendance.filters.allTeams")}</option>
+                {Array.from(new Map(periods.map((p) => [p.teamId, p.teamName])).entries()).map(([tid, name]) => <option key={tid} value={tid}>{name}</option>)}
+              </select>
+            </label>
+            <Button type="submit" size="sm" variant="secondary">{t("adminAttendance.filters.apply")}</Button>
+          </form>
+          {teamSessions?.error ? <ErrorState message={t("teamAttendance.errors.generic")} /> : (
+            <>
+              <TotalsSummary totals={playerTotals(sessionRows)} />
+              {byTeam.length > 1 && (
+                <ul className="flex flex-wrap gap-2 text-xs text-text-muted">
+                  {byTeam.map((b) => (
+                    <li key={b.teamId} className="rounded-md bg-surface-elevated px-3 py-1.5">
+                      <span className="font-medium text-text">{b.teamName}</span> · {t("adminAttendance.profile.teamRate", {
+                        sessions: b.totals.sessions, rate: b.totals.rate === null ? "—" : f.percent(b.totals.rate, 0) })}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <SessionHistoryList rows={sessionRows} mode="player" showTeam />
+            </>
+          )}
+        </CardBody>
+      </Card>
+    </div>
+  ) : null;
+
+  const programmeAttendance = (
     <Card>
       <CardHeader><CardTitle>{t("media.profile.attendanceTitle")}</CardTitle></CardHeader>
       <CardBody className="p-0">
@@ -220,6 +317,12 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
         )}
       </CardBody>
     </Card>
+  );
+  const attendanceTab = (
+    <div className="space-y-6">
+      {teamAttendance}
+      {programmeAttendance}
+    </div>
   );
 
   const documentsTab = (
@@ -268,7 +371,7 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
       content: <BookingsTab bookings={bookings?.data ?? []} error={bookings?.error} />, count: (bookings?.data ?? []).length,
     }] : []),
     ...(isAdmin ? [{ id: "development", label: t("media.profile.tabDevelopment"), content: developmentTab }] : []),
-    { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: attendanceHistory.length },
+    { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: attendanceHistory.length + sessionRows.length },
     { id: "documents", label: t("media.profile.tabDocuments"), content: documentsTab },
     ...(canViewBilling ? [{
       id: "billing", label: t("media.profile.tabBilling"),
