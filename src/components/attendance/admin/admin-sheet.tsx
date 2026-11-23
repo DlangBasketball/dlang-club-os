@@ -33,7 +33,11 @@ export function markTone(s: string): "success" | "warning" | "info" | "danger" |
   return s === "present" ? "success" : s === "late" ? "warning" : s === "excused" ? "info" : s === "unexcused" ? "danger" : "neutral";
 }
 
-export function AdminAttendanceSheet({ sheet, coaches }: { sheet: AttendanceSheet; coaches: { id: string; name: string }[] }) {
+export function AdminAttendanceSheet({ sheet, coaches, defaultLeadName = null }: {
+  sheet: AttendanceSheet; coaches: { id: string; name: string }[];
+  /** Effective lead used when finalizing without a choice (session lead > booked coach > team head). */
+  defaultLeadName?: string | null;
+}) {
   const t = useT();
   const f = useFormat();
   const router = useRouter();
@@ -172,6 +176,13 @@ export function AdminAttendanceSheet({ sheet, coaches }: { sheet: AttendanceShee
                   </div>
                 </div>
                 {editable ? (
+                  <div className="flex flex-col gap-1.5 sm:items-end">
+                  {/* Current SAVED status, prominent; separate from the sheet workflow (draft / reopened). */}
+                  <span className="flex items-center gap-1.5 text-xs text-text-muted">
+                    {t("attendanceHistory.savedStatus")}
+                    <Badge tone={markTone(m.status)}>{label(m.status)}</Badge>
+                    {draft[m.athlete_id] && draft[m.athlete_id] !== m.status && <Badge tone="warning">{t("attendanceHistory.unsaved")}</Badge>}
+                  </span>
                   <div className="flex flex-wrap gap-1" role="group" aria-label={t("adminAttendance.sheet.statusFor", { name: `${m.first_name} ${m.last_name}` })}>
                     {FINAL_STATUSES.map((st) => (
                       <button key={st} type="button" disabled={busy} aria-pressed={current === st}
@@ -181,6 +192,7 @@ export function AdminAttendanceSheet({ sheet, coaches }: { sheet: AttendanceShee
                         {label(st)}
                       </button>
                     ))}
+                  </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -216,7 +228,7 @@ export function AdminAttendanceSheet({ sheet, coaches }: { sheet: AttendanceShee
               <div className="min-w-[12rem]">
                 <Label htmlFor="led-by">{t("adminAttendance.sheet.ledBy")}</Label>
                 <Select id="led-by" value={ledBy} onChange={(e) => setLedBy(e.target.value)} disabled={busy}>
-                  <option value="">{t("adminAttendance.sheet.ledByNone")}</option>
+                  <option value="">{defaultLeadName ? t("attendanceCoverage.ledByDefaultOption", { name: defaultLeadName }) : t("adminAttendance.sheet.ledByNone")}</option>
                   {coaches.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </div>

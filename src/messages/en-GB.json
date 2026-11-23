@@ -1065,7 +1065,8 @@
     "errors": {
       "EVENT_CANCELLED": "This session was cancelled.",
       "SHEET_NOT_FINAL": "Attendance has not been finalised yet.",
-      "SELECTION_ROSTER_MANAGED": "This roster is managed through the selection programme enrolment."
+      "SELECTION_ROSTER_MANAGED": "This roster is managed through the selection programme enrolment.",
+      "PROGRAM_NOT_FOUND": "Programme not found."
     },
     "messages": {
       "finalized": "Attendance finalised.",
@@ -1120,10 +1121,13 @@
     "review": {
       "codes": {
         "LEGACY_ATTENDANCE_SESSION": "Earlier programme attendance linked to a team session",
-        "ATTENDANCE_UNFINISHED": "Attendance not finalised"
+        "ATTENDANCE_UNFINISHED": "Attendance not finalised",
+        "ATTENDANCE_NO_LEAD": "Finalised attendance without a lead coach",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Final sheet with a player not finalised"
       },
       "hints": {
-        "LEGACY_ATTENDANCE_SESSION": "Attendance was taken in the earlier programme module for this session. Check that both records agree."
+        "LEGACY_ATTENDANCE_SESSION": "Attendance was taken in the earlier programme module for this session. Check that both records agree.",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "A player on this final sheet has no finalised status. Reopen the sheet, mark the player and finalise again."
       }
     }
   },
@@ -1185,5 +1189,24 @@
     "messages": {
       "cancelled": "Sessions cancelled."
     }
+  },
+  "attendanceCoverage": {
+    "source": {
+      "program": "programme"
+    }
+  },
+  "attendanceOverview": {
+    "description": "Attendance of every session: team practices and games, booked sessions and earlier programme sessions.",
+    "source": {
+      "program": "Programme session (earlier module)"
+    },
+    "workflow": {
+      "cancelled": "Cancelled"
+    },
+    "legacyNote": "Recorded in the earlier programme module. Read-only here; open it to review.",
+    "filters": {
+      "programs": "Programme sessions (earlier module)"
+    },
+    "statusRule": "Counts show each player's current saved status, also while a sheet is a draft. Totals and rates on player pages use finalised values only."
   }
 }

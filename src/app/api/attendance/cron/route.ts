@@ -37,6 +37,9 @@ export async function GET(req: Request) {
     const { data, error } = await admin.rpc("attendance_review_flags", { p_org: o.id });
     if (error) logError("attendance.cron.flags", error);
     else flags += Number(data ?? 0);
+    // Attendance consistency (led_by backfill, follow-ups, MULTIPLE_LEADS …); idempotent.
+    const rec = await admin.rpc("attendance_consistency_reconcile", { p_org: o.id });
+    if (rec.error) logError("attendance.cron.reconcile", rec.error);
   }
   return NextResponse.json({ ok: true, membershipsEnded: Number(ended ?? 0), alerts, flags });
 }

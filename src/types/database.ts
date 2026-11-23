@@ -925,10 +925,20 @@ export type Database = {
       };
       event_coach_assignments: {
         Row: {
-          id: string; org_id: string; event_id: string; coach_id: string; role: "substitute" | "lead";
+          id: string; org_id: string; event_id: string; coach_id: string; role: "substitute" | "lead" | "assistant";
           status: "approved" | "pending" | "rejected"; request_note: string | null; requested_by: string | null;
           assigned_by: string | null; decided_by: string | null; decided_at: string | null; decision_note: string | null;
           created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      attendance_followups: {
+        Row: {
+          id: string; org_id: string; event_id: string; athlete_id: string; sheet_id: string | null; mark_id: string | null;
+          team_id: string | null; status: "open" | "resolved"; mark_status: "present" | "late" | "excused" | "unexcused";
+          source: "finalize" | "correction" | "backfill"; opened_at: string; opened_by: string | null; reopen_count: number;
+          resolved_at: string | null; resolved_by: string | null; resolution_status: "present" | "late" | "excused" | "cancelled" | null;
+          resolution_reason: string | null; history: Json; created_at: string; updated_at: string;
         };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
@@ -1147,7 +1157,34 @@ export type Database = {
         Args: Record<string, never>;
         Returns: { athlete_id: string; first_name: string; last_name: string; dob: string | null; photo_path: string | null; teams: Json }[];
       };
-      session_assign_coach: { Args: { p_event: string; p_coach: string; p_role?: "substitute" | "lead" }; Returns: Json };
+      session_assign_coach: { Args: { p_event: string; p_coach: string; p_role?: "substitute" | "lead" | "assistant" }; Returns: Json };
+      // attendance consistency (20250420105000)
+      session_set_coach_role: { Args: { p_assignment: string; p_role: "substitute" | "lead" | "assistant" }; Returns: Json };
+      session_coverage: { Args: { p_events: string[] }; Returns: { event_id: string; coverage: Json }[] };
+      attendance_consistency_reconcile: { Args: { p_org: string }; Returns: Json };
+      attendance_followups_list: {
+        Args: { p_status?: "open" | "resolved" | null; p_limit?: number };
+        Returns: { followup_id: string; event_id: string; athlete_id: string; first_name: string; last_name: string; team_id: string | null;
+                   group_name: string | null; event_type: string; starts_at: string; status: "open" | "resolved"; mark_status: string;
+                   opened_at: string; reopen_count: number; resolved_at: string | null; resolved_by_name: string | null;
+                   resolution_status: string | null; resolution_reason: string | null }[];
+      };
+      attendance_sessions_overview: {
+        Args: { p_from?: string | null; p_to?: string | null; p_team?: string | null; p_athlete?: string | null;
+                p_scope?: "all" | "teams" | "bookings" | "programs"; p_program?: string | null; p_limit?: number };
+        Returns: { source: "team" | "booking" | "program"; session_id: string; event_id: string | null; team_id: string | null;
+                   program_id: string | null; group_name: string | null; event_type: string; title: string | null; starts_at: string;
+                   ends_at: string; local_date: string; event_status: string; cancel_reason: string | null;
+                   workflow_status: "not_started" | "draft" | "final" | "reopened" | "cancelled"; sheet_version: number | null;
+                   finalized: boolean; tracked: boolean; present: number; late: number; excused: number; unexcused: number;
+                   unmarked: number; total: number; athlete_status: string | null; athlete_finalized_status: string | null;
+                   athlete_is_guest: boolean | null; coverage: Json; open_followups: number }[];
+      };
+      attendance_sessions_roster: {
+        Args: { p_sessions: string[] };
+        Returns: { session_id: string; athlete_id: string; first_name: string; last_name: string; jersey_number: number | null;
+                   status: string; finalized_status: string | null; is_guest: boolean; followup_status: "open" | "resolved" | null }[];
+      };
       session_request_access: { Args: { p_event: string; p_note?: string | null }; Returns: Json };
       session_decide_access: { Args: { p_assignment: string; p_approve: boolean; p_note?: string | null }; Returns: Json };
       attendance_sheet: { Args: { p_event: string }; Returns: Json };
@@ -1168,14 +1205,14 @@ export type Database = {
       coach_sessions: {
         Args: { p_from?: string | null; p_to?: string | null };
         Returns: { event_id: string; team_id: string | null; team_name: string | null; event_type: string; title: string | null; starts_at: string;
-                   ends_at: string; event_status: string; access: "team_coach" | "substitute" | "lead" | "pending"; can_run: boolean;
+                   ends_at: string; event_status: string; access: "team_coach" | "substitute" | "lead" | "assistant" | "session_coach" | "pending"; can_run: boolean;
                    sheet_status: "draft" | "final" | "reopened" | null; sheet_version: number | null; unmarked: number; marked: number;
                    reported_absences: number; tracked: boolean }[];
       };
       coach_training_cards: {
         Args: { p_from?: string | null; p_to?: string | null };
         Returns: { event_id: string; team_id: string | null; team_name: string | null; event_type: string; title: string | null; starts_at: string;
-                   ends_at: string; event_status: string; cancel_reason: string | null; access: "team_coach" | "substitute" | "lead" | "pending";
+                   ends_at: string; event_status: string; cancel_reason: string | null; access: "team_coach" | "substitute" | "lead" | "assistant" | "session_coach" | "pending";
                    can_run: boolean; sheet_status: "draft" | "final" | "reopened" | null; sheet_version: number | null; unmarked: number;
                    marked: number; reported_absences: number; tracked: boolean; location_name: string | null; roster_size: number | null }[];
       };

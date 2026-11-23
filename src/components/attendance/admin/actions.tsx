@@ -6,10 +6,11 @@ import { Check, RefreshCw, RotateCw, X } from "lucide-react";
 import { Button, Input, Label, Select, FieldHint } from "@/components/ui";
 import { useT } from "@/lib/i18n/client";
 import {
-  acknowledgeAbsence, assignSessionCoach, decideSessionAccess, resolveCorrectionRequest,
+  acknowledgeAbsence, assignSessionCoach, decideSessionAccess, resolveCorrectionRequest, setSessionCoachRole,
 } from "@/lib/actions/team-attendance";
 import { refreshReviewFlags, resolveDataReviewFlag, retryNoShowAlert } from "@/lib/actions/admin-attendance";
 import { FINAL_STATUSES, type FinalStatus } from "@/lib/attendance/types";
+import { SESSION_ROLES, type SessionRole } from "@/lib/attendance/coverage";
 
 type AnyResult = { ok: true; message?: string } | { ok: false; error: string };
 
@@ -44,7 +45,7 @@ export function AssignCoachForm({ eventId, coaches }: { eventId: string; coaches
   const t = useT();
   const { busy, error, message, run } = useRun();
   const [coachId, setCoachId] = React.useState("");
-  const [role, setRole] = React.useState<"substitute" | "lead">("substitute");
+  const [role, setRole] = React.useState<SessionRole>("substitute");
   return (
     <form
       className="space-y-2"
@@ -60,15 +61,30 @@ export function AssignCoachForm({ eventId, coaches }: { eventId: string; coaches
         </div>
         <div>
           <Label htmlFor={`assign-role-${eventId}`}>{t("adminAttendance.session.role")}</Label>
-          <Select id={`assign-role-${eventId}`} value={role} onChange={(e) => setRole(e.target.value as "substitute" | "lead")} disabled={busy}>
-            <option value="substitute">{t("adminAttendance.coverage.roleSubstitute")}</option>
-            <option value="lead">{t("adminAttendance.coverage.roleLead")}</option>
+          <Select id={`assign-role-${eventId}`} value={role} onChange={(e) => setRole(e.target.value as SessionRole)} disabled={busy}>
+            {SESSION_ROLES.map((r) => <option key={r} value={r}>{t(`attendanceCoverage.role.${r}`)}</option>)}
           </Select>
         </div>
       </div>
       <Button type="submit" size="sm" disabled={busy || !coachId}>{t("adminAttendance.session.assign")}</Button>
       <Feedback error={error} message={message} />
     </form>
+  );
+}
+
+/** Change the role of an approved session assignment (lead / assistant / substitute), this session only. */
+export function ChangeRoleSelect({ assignmentId, role }: { assignmentId: string; role: string }) {
+  const t = useT();
+  const { busy, error, run } = useRun();
+  const current = (SESSION_ROLES as readonly string[]).includes(role) ? (role as SessionRole) : "substitute";
+  return (
+    <span className="inline-flex flex-col gap-1">
+      <Select aria-label={t("adminAttendance.session.role")} value={current} disabled={busy} className="h-8 w-44 text-xs"
+        onChange={(e) => { const next = e.target.value as SessionRole; if (next !== current) void run(() => setSessionCoachRole({ assignmentId, role: next })); }}>
+        {SESSION_ROLES.map((r) => <option key={r} value={r}>{t(`attendanceCoverage.role.${r}`)}</option>)}
+      </Select>
+      <Feedback error={error} message={null} />
+    </span>
   );
 }
 

@@ -7,6 +7,10 @@ import { listEvents, listTeams, rsvpCounts } from "@/lib/sportsops/data";
 import { eventTitle } from "@/lib/sportsops/labels";
 import { addDays, dayKey, fmtDayKey, fmtTime, isDayKey, weekStart } from "@/lib/sportsops/time";
 import { cn } from "@/lib/utils";
+import { getTranslations } from "@/lib/i18n/server";
+import { getSessionCoverage } from "@/lib/attendance/overview";
+import { SHEET_EVENT_TYPES } from "@/lib/attendance/types";
+import { coverageLine } from "@/components/attendance/coverage-views";
 
 export const metadata = { title: "Schedule" };
 
@@ -28,6 +32,13 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
   const inRange = events.data.filter((e) => { const k = dayKey(e.startsAt); return k >= start && k <= end; });
   const conflicts = inRange.filter((e) => e.conflictsWith.length > 0);
   const counts = view === "list" ? await rsvpCounts(inRange.map((e) => e.id)) : undefined;
+  // Coaches with roles per session (shared helper: same as the Attendance tab, Dashboard and coach Today).
+  let coachLine: Map<string, string> | undefined;
+  if (view === "list") {
+    const tr = await getTranslations();
+    const cov = await getSessionCoverage(inRange.filter((e) => (SHEET_EVENT_TYPES as readonly string[]).includes(e.type)).map((e) => e.id));
+    coachLine = new Map(Array.from(cov.entries()).map(([id, c]) => [id, coverageLine(tr, c)]));
+  }
 
   const step = view === "week" ? 7 : 28;
   const q = (over: Partial<SP>) => {
@@ -85,7 +96,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
         </Card>
       )}
 
-      {view === "week" ? <WeekView start={start} events={inRange} href={href} /> : <EventList events={inRange} href={href} rsvp={counts} />}
+      {view === "week" ? <WeekView start={start} events={inRange} href={href} /> : <EventList events={inRange} href={href} rsvp={counts} coachLine={coachLine} />}
     </div>
   );
 }

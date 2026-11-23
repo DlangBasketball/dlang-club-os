@@ -30,6 +30,8 @@ export type SessionAttendanceRow = {
   total: number;
   athlete_status: string | null;
   athlete_is_guest: boolean | null;
+  /** Origin of the row (attendance_sessions_overview): a programme session links to /admin/attendance/<id>. */
+  source?: "team" | "booking" | "program";
 };
 
 export type Totals = { sessions: number; present: number; late: number; excused: number; unexcused: number; marks: number; rate: number | null };
@@ -99,16 +101,10 @@ export function sheetState(r: { event_status: string; sheet_status: string | nul
   return Date.parse(r.ends_at) > now ? "upcoming" : "missing";
 }
 
-/**
- * Coach coverage of a session: a substitute / lead approved for the session,
- * the team's own coaches, or nobody (missing).
+/*
+ * Coach coverage (lead / assistant / substitute, "Led by") lives in
+ * src/lib/attendance/coverage.ts — the TS mirror of the SQL ac_coverage.
  */
-export type Coverage = "substitute" | "assigned" | "missing";
-export function coachCoverage(teamCoachCount: number, approvedAssignments: number): Coverage {
-  if (approvedAssignments > 0) return "substitute";
-  if (teamCoachCount > 0) return "assigned";
-  return "missing";
-}
 
 export type MembershipPeriod = { athlete_id: string; joined_on: string; left_on: string | null };
 

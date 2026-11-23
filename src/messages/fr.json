@@ -11951,7 +11951,10 @@
       "LABEL_REQUIRED": "Donnez un nom à la pause.",
       "BREAK_DATES_INVALID": "Vérifiez les dates de la pause (un an au maximum).",
       "BREAK_NOT_FOUND": "Cette pause est introuvable.",
-      "NOT_BOOKED": "Seule une réservation confirmée peut être signalée comme absence."
+      "NOT_BOOKED": "Seule une réservation confirmée peut être signalée comme absence.",
+      "LEAD_EXISTS": "Cette séance a déjà un entraîneur principal. Passez d'abord l'actuel en adjoint.",
+      "INVALID_SCOPE": "Ce filtre n'est pas disponible.",
+      "PROGRAM_NOT_FOUND": "Programme introuvable."
     },
     "messages": {
       "saved": "Enregistré.",
@@ -12506,7 +12509,10 @@
         "NO_ATHLETE": "Facture sans joueur",
         "NO_CURRENT_SEASON": "Aucune saison en cours pour une facture",
         "MEMBERSHIP_EXISTS": "Cotisation de saison déjà existante",
-        "MIGRATION_ERROR": "Problème de migration des données"
+        "MIGRATION_ERROR": "Problème de migration des données",
+        "MULTIPLE_LEADS": "Plusieurs entraîneurs principaux sur une séance",
+        "ATTENDANCE_NO_LEAD": "Présences finalisées sans entraîneur principal",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Feuille finalisée avec un joueur non finalisé"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Les alertes d'absence de ce joueur ne peuvent joindre personne. Ajoutez à la famille un représentant avec un compte actif.",
@@ -12521,7 +12527,10 @@
         "NO_ATHLETE": "Liez cette facture à un joueur.",
         "NO_CURRENT_SEASON": "Définissez la saison en cours, puis vérifiez cette facture.",
         "MEMBERSHIP_EXISTS": "Une cotisation de saison existe déjà pour ce joueur. Vérifiez les doublons.",
-        "MIGRATION_ERROR": "Cet enregistrement n'a pas pu être migré automatiquement. Vérifiez-le à la main."
+        "MIGRATION_ERROR": "Cet enregistrement n'a pas pu être migré automatiquement. Vérifiez-le à la main.",
+        "MULTIPLE_LEADS": "Les deux entraîneurs principaux ont été conservés. Gardez-en un et passez les autres en adjoint.",
+        "ATTENDANCE_NO_LEAD": "Personne n'a pu être désigné comme entraîneur principal. Attribuez un entraîneur à l'équipe ou à la séance.",
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Un joueur de cette feuille finalisée n'a pas de statut finalisé. Rouvrez la feuille, marquez le joueur et finalisez à nouveau."
       }
     }
   },
@@ -13455,5 +13464,112 @@
       "payers": "{count} payeurs",
       "invoiceSelected": "Facturer {count} commandes ensemble"
     }
+  },
+  "attendanceCoverage": {
+    "role": {
+      "lead": "Entraîneur principal",
+      "assistant": "Entraîneur adjoint",
+      "substitute": "Entraîneur remplaçant"
+    },
+    "source": {
+      "session": "cette séance",
+      "booking": "séance réservée",
+      "team": "entraîneur de l'équipe",
+      "program": "programme"
+    },
+    "roleList": {
+      "lead": "Principal : {names}",
+      "assistant": "Adjoint : {names}",
+      "substitute": "Remplaçant : {names}"
+    },
+    "ledBy": "Dirigée par {name}",
+    "ledByAuto": "Dirigée par {name} (par défaut)",
+    "ledByDefault": "{name} (par défaut)",
+    "ledByDefaultOption": "Par défaut : {name}",
+    "noLead": "Aucun entraîneur principal",
+    "multipleLeads": "Plusieurs entraîneurs principaux sont validés pour cette séance. Gardez-en un et passez les autres en adjoint.",
+    "sessionAssignments": "Affectés à cette séance",
+    "assistantBadge": "Entraîneur adjoint pour cette séance"
+  },
+  "attendanceHistory": {
+    "marked": {
+      "present": "Marqué présent",
+      "late": "Marqué en retard",
+      "excused": "Marqué absence excusée",
+      "unexcused": "Marqué absence non excusée"
+    },
+    "changed": {
+      "present": "Changé en présent",
+      "late": "Changé en en retard",
+      "excused": "Changé en absence excusée",
+      "unexcused": "Changé en absence non excusée"
+    },
+    "corrected": {
+      "present": "Corrigé en présent",
+      "late": "Corrigé en en retard",
+      "excused": "Corrigé en absence excusée",
+      "unexcused": "Corrigé en absence non excusée"
+    },
+    "cleared": "Effacé (non marqué)",
+    "status": {
+      "present": "Présent",
+      "late": "En retard",
+      "excused": "Absence excusée",
+      "unexcused": "Absence non excusée",
+      "unmarked": "Non marqué"
+    },
+    "previously": "Auparavant : {status}",
+    "byAt": "{name}, le {when}",
+    "reason": "Motif : {reason}",
+    "savedStatus": "Enregistré :",
+    "unsaved": "Pas encore enregistré"
+  },
+  "attendanceOverview": {
+    "description": "Présences de chaque séance : entraînements et matchs d'équipe, séances réservées et anciennes séances de programme.",
+    "followupScreen": "Écran de suivi",
+    "openTab": "Présences",
+    "totals": {
+      "sessions": "Séances"
+    },
+    "counts": "{present} présents · {late} en retard · {excused} excusés · {unexcused} non excusés · {unmarked} non marqués",
+    "source": {
+      "booking": "Séance réservée",
+      "program": "Séance de programme (ancien module)"
+    },
+    "workflow": {
+      "not_started": "Pas commencée",
+      "draft": "Brouillon",
+      "final": "Finalisée",
+      "reopened": "Rouverte",
+      "cancelled": "Annulée"
+    },
+    "openFollowups": "{count, plural, one {# suivi} other {# suivis}}",
+    "legacyNote": "Enregistrée dans l'ancien module de programme. En lecture seule ici ; ouvrez-la pour la consulter.",
+    "noRoster": "Aucun joueur pour cette séance.",
+    "followupOpen": "Suivi",
+    "openSession": "Ouvrir la séance pour vérifier ou corriger",
+    "emptyTitle": "Aucune séance sur cette période",
+    "emptyBody": "Essayez une autre date, équipe ou joueur.",
+    "followups": {
+      "title": "Suivis de l'équipe",
+      "short": "Suivis",
+      "none": "Rien à suivre.",
+      "unexcused": "{name} : absence non excusée",
+      "reopened": "rouvert",
+      "open": "Ouvert",
+      "toComplete": "{name} : présences à compléter"
+    },
+    "filters": {
+      "teamsOnly": "Toutes les équipes (sans séances réservées)",
+      "bookings": "Séances réservées",
+      "programs": "Séances de programme (ancien module)",
+      "player": "Joueur",
+      "allPlayers": "Tous les joueurs",
+      "today": "Revenir à aujourd'hui"
+    },
+    "todayHeading": "Aujourd'hui · {date}",
+    "rangeHeading": "Du {from} au {to}",
+    "statusRule": "Les chiffres montrent le statut enregistré actuel de chaque joueur, même quand la feuille est un brouillon. Les totaux et taux des fiches joueur n'utilisent que les valeurs finalisées.",
+    "truncated": "Affichage des 300 dernières séances. Réduisez les dates pour en voir plus."
   }
 }

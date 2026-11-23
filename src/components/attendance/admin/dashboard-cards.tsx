@@ -4,7 +4,11 @@ import { Badge, Card, CardBody, CardHeader, CardTitle, ErrorState } from "@/comp
 import { getI18n } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
-import { getConfirmedNoShows, getTodaysTrainings } from "@/lib/data/dashboard";
+import { getConfirmedNoShows } from "@/lib/data/dashboard";
+import { getFollowups, getSessionsOverview } from "@/lib/attendance/overview";
+import { zonedDayKey } from "@/lib/staff/hours";
+import { CoverageBadge, coverageLine } from "@/components/attendance/coverage-views";
+import { FollowupsCard, needsCompletion } from "./overview-views";
 import { getAlertFollowups, getAwaitingSessions, getCorrectionRequests, getSessionAccessList } from "@/lib/attendance/data";
 import { sheetState } from "@/lib/attendance/admin-stats";
 import { ATTENDANCE_FLAG_CODES } from "@/lib/attendance/review-flags";
@@ -36,31 +40,38 @@ function Empty({ text }: { text: string }) {
   return <p className="flex items-center gap-2 px-5 py-4 text-sm text-text-muted"><CalendarCheck2 className="h-4 w-4" aria-hidden /> {text}</p>;
 }
 
+/**
+ * Today's sessions (club time zone): the same rows, coaches, roles and counts
+ * as the Attendance tab for today (attendance_sessions_overview).
+ */
 export async function TodayTrainingsCard({ limit = 8 }: { limit?: number }) {
   const { t, f } = await getI18n();
-  const res = await getTodaysTrainings(f.timeZone);
+  const today = zonedDayKey(new Date(), f.timeZone);
+  const res = await getSessionsOverview({ from: today, to: today, limit: 300 });
+  const rows = (res.data ?? []).filter((r) => r.source !== "program").sort((a, b) => a.starts_at.localeCompare(b.starts_at));
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t("adminAttendance.dashboard.today")}</CardTitle>
-        <Link href="/admin/schedule" className="text-xs text-maroon hover:underline">{t("adminAttendance.dashboard.schedule")}</Link>
+        <Link href="/admin/attendance" className="text-xs text-maroon hover:underline">{t("attendanceOverview.openTab")}</Link>
       </CardHeader>
       <CardBody className="p-0">
-        {res.error !== null ? <div className="p-5"><ErrorState message={res.error} /></div>
-          : res.data.length === 0 ? <Empty text={t("adminAttendance.dashboard.noToday")} /> : (
+        {res.error !== null ? <div className="p-5"><ErrorState message={t("teamAttendance.errors.generic")} /></div>
+          : rows.length === 0 ? <Empty text={t("adminAttendance.dashboard.noToday")} /> : (
             <ul>
-              {res.data.slice(0, limit).map((e) => (
-                <Line key={e.eventId} href={sessionHref(e.eventId)}
-                  title={<>{f.time(e.startsAt)}–{f.time(e.endsAt)} · {e.teamName ?? t.dynamic(`adminAttendance.eventType.${e.type}`, undefined, e.type)}</>}
-                  meta={e.status === "cancelled"
-                    ? (e.cancelReason ? t("adminAttendance.history.cancelReason", { reason: e.cancelReason }) : t("adminAttendance.sheetState.cancelled"))
+              {rows.slice(0, limit).map((e) => (
+                <Line key={e.session_id} href={sessionHref(e.session_id)}
+                  title={<>{f.time(e.starts_at)}–{f.time(e.ends_at)} · {e.group_name ?? t.dynamic(`adminAttendance.eventType.${e.event_type}`, undefined, e.event_type)}</>}
+                  meta={e.workflow_status === "cancelled"
+                    ? (e.cancel_reason ? t("adminAttendance.history.cancelReason", { reason: e.cancel_reason }) : t("adminAttendance.sheetState.cancelled"))
                     : [
-                      e.substitutes.length ? t("adminAttendance.dashboard.subNames", { names: e.substitutes.join(", ") }) : e.coaches.join(", "),
-                      e.pendingRequests ? t("adminAttendance.dashboard.pendingRequests", { count: e.pendingRequests }) : null,
+                      coverageLine(t, e.coverage),
+                      t("attendanceOverview.counts", { present: e.present, late: e.late, excused: e.excused, unexcused: e.unexcused, unmarked: e.unmarked }),
+                      e.coverage.pendingRequests ? t("adminAttendance.dashboard.pendingRequests", { count: e.coverage.pendingRequests }) : null,
                     ].filter(Boolean).join(" · ")}
-                  right={e.status === "cancelled"
+                  right={e.workflow_status === "cancelled"
                     ? <SheetStateBadge state="cancelled" />
-                    : <Badge tone={e.coverage === "missing" ? "danger" : e.coverage === "substitute" ? "info" : "success"}>{t.dynamic(`adminAttendance.coverage.${e.coverage}`, undefined, e.coverage)}</Badge>}
+                    : <CoverageBadge t={t} coverage={e.coverage} />}
                 />
               ))}
             </ul>
@@ -68,6 +79,15 @@ export async function TodayTrainingsCard({ limit = 8 }: { limit?: number }) {
       </CardBody>
     </Card>
   );
+}
+
+/** Staff follow-ups (unexcused absences) + today's sessions still to complete. */
+export async function AttendanceFollowupsCard() {
+  const { t, f } = await getI18n();
+  const today = zonedDayKey(new Date(), f.timeZone);
+  const [followups, todayRows] = await Promise.all([getFollowups("open", 8), getSessionsOverview({ from: today, to: today, limit: 300 })]);
+  if (followups.error !== null) return <Card><CardBody><ErrorState message={t("teamAttendance.errors.generic")} /></CardBody></Card>;
+  return <FollowupsCard t={t} f={f} followups={followups.data} toComplete={(todayRows.data ?? []).filter((r) => needsCompletion(r)).slice(0, 8)} />;
 }
 
 export async function AwaitingAttendanceCard({ limit = 8 }: { limit?: number }) {
@@ -199,7 +219,8 @@ export async function TeamAttendanceDashboard() {
         <AwaitingAttendanceCard />
         <NoShowsCard />
       </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <AttendanceFollowupsCard />
         <AlertFollowupCard />
         <RequestsCard />
       </div>

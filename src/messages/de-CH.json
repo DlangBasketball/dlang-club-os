@@ -413,6 +413,13 @@
       "confirm": "Abschliessen"
     }
   },
+  "adminAttendance": {
+    "review": {
+      "hints": {
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Ein Spieler dieser abgeschlossenen Liste hat keinen abgeschlossenen Status. Liste wieder öffnen, Spieler erfassen und erneut abschliessen."
+      }
+    }
+  },
   "bookingWorkflow": {
     "warnings": {
       "AVAILABILITY_OVERRIDDEN": "Ausserhalb der Verfügbarkeit des Coaches gebucht (Ausnahme erfasst)."

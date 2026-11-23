@@ -26,7 +26,7 @@ Contract for the UI work (coach mobile, admin team / dashboard, parent and playe
 |---|---|---|
 | `team_memberships` (+ `dates_source`, `end_reason`, `ended_by`) | Effective-dated roster rows | Existing RLS. An API client cannot delete a row used by attendance (`MEMBERSHIP_HAS_ATTENDANCE`); the roster actions then end it instead |
 | `team_membership_periods` | Archived earlier periods | none (trigger) |
-| `event_coach_assignments` | Session-level coach access (`substitute` / `lead`; `pending` / `approved` / `rejected`) | none (RPC) |
+| `event_coach_assignments` | Session-level coach access (`substitute` / `lead` / `assistant` since 20250420105000; `pending` / `approved` / `rejected`) | none (RPC) |
 | `team_attendance_sheets` | One per event (`event_id` unique). Fields: `status` `draft` → `final` (+ `reopened`), `version`, `roster_date`, `led_by_coach_id`, `submitted_*`, `finalized_*`, `first_finalized_at`, `reopened_*`, `finalize_count`, `correction_count`, `alerts_synced_at` | none (RPC) |
 | `team_attendance_marks` | One per (event, athlete), enforced by a unique index. Fields: `status`, `finalized_status` (the value portals and stats read), `rev` (per-mark revision), `is_guest`, `note` (staff only), `reported_absence_ack` | none (RPC) |
 | `team_attendance_mark_history` | Every status change (`phase` `draft` / `reopened` / `correction`) with the previous value, new value, editor, time, reason and request id | none |
@@ -172,3 +172,95 @@ Every action returns `{ok:true, data?, message?}` or `{ok:false, error, code}`. 
 - No pages were built: the coach sheet, admin awaiting / follow-up / corrections / access screens, the parent record page with "request a correction", and the `(player)` route group all remain to be built.
 - The cron runs daily on Vercel's daily plan. An alert for a sheet finalized before the session ended goes out at the next cron run or at the next finalize/correct in that club. Moving to hourly only needs a `vercel.json` schedule change.
 - In quiet hours an alert's e-mail and push are suppressed (in-app still delivered) and not sent again later.
+
+## 12. Attendance consistency (since 20250420105000)
+
+Founder report of 23 Nov 2026: finalized team and booked-session attendance did not appear on the Attendance tab, and coach coverage said "substitute" / "No coach" / blank "Led by" for sessions that had an approved lead.
+
+- Migration: `supabase/migrations/20250420105000_attendance_consistency.sql` (additive, idempotent)
+- DB tests: `tests/db/attendance_consistency.sql` (`DB_TEST_PREFIX=ac scripts/db-test.sh tests/db/attendance_consistency.sql`)
+- TS: `src/lib/attendance/coverage.ts` (TS mirror of the coverage rules), `src/lib/attendance/history-wording.ts`, `src/lib/attendance/overview.ts` (reads), `src/components/attendance/{coverage-views,history-entry}.tsx`, `src/components/attendance/admin/overview-views.tsx`
+- Unit tests: `tests/unit/attendance-consistency.test.ts`
+
+### 12.1 Root causes
+
+1. `/admin/attendance` read only the earlier programme tables (`attendance_sessions` / `attendance_marks`). Team trainings, games and booked sessions are saved in `team_attendance_sheets` / `team_attendance_marks` (+ `team_attendance_mark_history`), so nothing finalized there ever showed on the tab or on the dashboard "Today's attendance" widget.
+2. Coverage (`coachCoverage`, now removed) labelled any approved session assignment "substitute", whatever its role; it said "No coach" whenever `team_coaches` was empty, which is always the case for a team-less booked session (it ignored approved session leads and `training_sessions.coach_id`).
+3. "Led by" stayed blank: `attendance_finalize` sets `led_by = coalesce(chosen, previous, current_coach_id())`, and an admin without a coach profile has no `current_coach_id()`.
+
+### 12.2 Coach roles per session
+
+`event_coach_assignments.role` is `lead` | `assistant` | `substitute` (the check constraint was replaced; existing rows keep their values). Lead and assistant can coexist on a session. A **new** or changed approved lead is refused when the session already has one (`LEAD_EXISTS`, trigger `trg_ac_one_lead_guard`); sessions that already had several approved leads keep them and are flagged `MULTIPLE_LEADS`.
+
+| RPC | Who | Notes |
+|---|---|---|
+| `session_assign_coach(event, coach, role)` | admin | role `substitute` (default), `lead` or `assistant` |
+| `session_set_coach_role(assignment, role)` | admin | that session only; audited `attendance.coach_role` |
+| `session_decide_access(assignment, approve=false)` | admin | revoke (that session only), unchanged |
+| `session_coverage(events[])` | admin: club; coach: sessions they run | `{event_id, coverage}` |
+
+Effective coaches of a session (`ac_session_coaches`) = approved session assignments + the booked-session coach (`training_sessions.coach_id`, role lead) + the team's coaches (head → lead, others → assistant); a session assignment decides the role shown for its coach.
+
+Coverage (`ac_coverage`, TS mirror `coverageOf`):
+
+| Field | Rule |
+|---|---|
+| Led by | `sheet.led_by_coach_id`; else the approved session lead (earliest); else the booked-session coach; else the team head coach. Shown "(default)" when not chosen on the sheet |
+| `substitute` | "Substitute assigned" only when an approved substitute exists |
+| `missing` | "No coach assigned" only when there is no coach at all |
+| `assigned` | otherwise |
+| `multiple_leads`, `pending_requests` | for warnings and the dashboard |
+
+Used by the admin session page (TS mirror on the data it already loads), the Attendance tab and Dashboard (SQL, through the overview), the Schedule event page and list view, and the coach Today list (`session_coverage`).
+
+Finalizing without `led_by` (admin, or anyone who leaves the picker on "Default") sets it to the default lead (trigger `trg_ac_sheet_default_lead`, before the same-org guard). A coach who finalizes still becomes the lead when nothing was chosen, as before.
+
+### 12.3 Overview read (Attendance tab, Dashboard, player history)
+
+`attendance_sessions_overview(from?, to?, team?, athlete?, scope='all'|'teams'|'bookings'|'programs', program?, limit≤1000)` — admin: club; coach: sessions they can run (and their own programme sessions); finance, guardians, players: `NOT_AUTHORIZED`; other club: empty / `TEAM_NOT_FOUND` / `ATHLETE_NOT_FOUND`.
+
+One row per session: `source` (`team` | `booking` | `program`), `session_id` (event id, or the programme session id), group name (team, service, or programme), times, local date (club time zone), `workflow_status` (`not_started` | `draft` | `final` | `reopened` | `cancelled`), per-status counts of the **current saved** mark (a player can be Present while the sheet is a draft), `unmarked` (not marked; for a session not started = the roster size), `athlete_status` / `athlete_finalized_status` with `athlete`, `coverage` (12.2), `open_followups`.
+
+- Eligible: team events and booked-session events of sheet types (training, game, tournament) that are tracked (go-live, training window) or already have a sheet; programme sessions from the earlier module, **read-only**, except those linked to a team sheet (shown once, through the sheet). Their `absent` is shown as unexcused, `open` as draft, `submitted` / `locked` as final. Their history is never rewritten.
+- Roster: the sheet snapshot when it exists, otherwise `team_roster_on(team, local date)` or the confirmed bookings. A player added to a team today is not on older practices; transfers keep their history.
+- `attendance_sessions_roster(sessions[])` (≤100) lists each player's current status and follow-up state for the expanded rows.
+- Totals (`overviewTotals`) skip cancelled sessions. The player history converts rows with `toSessionRows`, so its totals still count finalized values only (§3).
+
+`/admin/attendance`: defaults to today (club time zone) and all teams; filters from / to, team (or "booked sessions" / "program sessions"), player; each row expands to the roster and links to the session page (`/admin/schedule/<id>/attendance`, or `/admin/attendance/<id>` for a programme session). The Dashboard "Today's attendance" widget and "Today's sessions" card read the same function for today, so their numbers match the tab.
+
+### 12.4 Change history wording
+
+Entries lead with the action (`attendanceHistory.*`): "Marked present", "Changed to late" (later change while taking attendance), "Corrected to late" (correction, or change after a reopen), "Marked unexcused absence"; then "Previously: Not marked", the staff member and the date / time in the club time zone. History rows stay append-only; reopen and correct append. The admin sheet shows each player's saved status ("Saved: Present", "Not saved yet" for local changes) beside the buttons; a failed save keeps the local changes for a retry.
+
+### 12.5 Staff follow-ups (`attendance_followups`)
+
+One row per (event, athlete) — unique — when a mark is **finalized** `unexcused` on a session that is not cancelled. Separate from the guardian alerts (`attendance_no_show_alerts`).
+
+| Event | Effect |
+|---|---|
+| Sheet becomes final (first time, or again after a reopen) | open a row for each finalized unexcused mark (insert, or re-open the same row) |
+| Correction to present / late / excused | `status='resolved'`, `resolved_at`, `resolved_by`, `resolution_status`, `resolution_reason` (the correction reason) |
+| Correction back to unexcused | the **same** row re-opens (`reopen_count + 1`) |
+| Session cancelled | open rows resolved with `resolution_status='cancelled'` (kept) |
+| Double finalize / retry | nothing (`already_final` / request-id replay; no trigger fires) |
+
+Every transition is appended to `history` (jsonb) and audited (`ca_audit_trigger`, reason redacted). RLS: select for admins and coaches who can run the session; no client writes. `attendance_followups_list(status, limit)` feeds the Dashboard card and the Attendance tab. Sessions still "attendance to complete" (ended, not final or players not marked) are listed next to them from the overview.
+
+### 12.6 Reconciliation (run once by the migration, then by the daily cron)
+
+`attendance_consistency_reconcile(org)` (admin of the club or service role; internal `ac_reconcile`). Idempotent; never rewrites a valid mark, a finalized value or history.
+
+| Step | Change |
+|---|---|
+| a | Final sheets with `led_by_coach_id` null and a default lead: set `led_by_coach_id` (audited `attendance.led_by_backfill` with the source: session / booking / team) |
+| b | Finalized `unexcused` marks (final or reopened sheets, session not cancelled) without a follow-up: create it (`source='backfill'`, audited `attendance.followups_backfill`) |
+| c | Sessions with more than one approved lead: `data_review_flags` `MULTIPLE_LEADS` (entity `events`); both assignments are kept |
+| d | Final sheets still without any lead: `ATTENDANCE_NO_LEAD` (entity `team_attendance_sheets`) |
+| e | Final sheets with a mark that has no finalized value: `ATTENDANCE_MARK_NOT_FINALIZED` |
+| — | Flags whose cause is gone resolve themselves |
+
+Expected on the staging data of the report: the booked Personal Training sheet (led_by empty) gets `led_by` = its approved session lead; the U12/U14 AVB session keeps both approved leads and gets `MULTIPLE_LEADS` (if its sheet has no led_by, the earliest approved lead is used); U14 CJSC, if its led_by is empty, gets its approved session lead or else its team head coach; each of the finalized unexcused marks gets one open follow-up. Not run against staging from here (no remote database access).
+
+### 12.7 Revalidation and retries
+
+Every attendance action (save, mark all, guest, finalize, reopen, correct, absence, access, role change) revalidates `/admin/attendance`, `/admin/dashboard`, `/admin/schedule` and `/admin/schedule/<id>/*`, `/admin/athletes/*`, `/admin/teams/*`, `/coach/*`, `/parent/attendance/*` and `/player/*`. Writes keep their `request_id` idempotency (§4); a double finalize is a no-op.

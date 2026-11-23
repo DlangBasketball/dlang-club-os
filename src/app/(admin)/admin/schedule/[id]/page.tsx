@@ -12,6 +12,8 @@ import { getTranslations } from "@/lib/i18n/server";
 import { SHEET_EVENT_TYPES } from "@/lib/attendance/types";
 import { getSessionEventInfo } from "@/lib/booking/admin-data";
 import { SessionBookingsCard } from "@/components/booking/admin/session-card";
+import { getSessionCoverage } from "@/lib/attendance/overview";
+import { CoachRoleList, CoverageBadge } from "@/components/attendance/coverage-views";
 
 export const metadata = { title: "Event" };
 
@@ -39,6 +41,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const tally = { going: 0, maybe: 0, not_going: 0, none: 0 };
   for (const r of e.rsvps) tally[r.status ?? "none"] += 1;
   const open = e.status !== "cancelled" && e.status !== "completed" && Date.parse(e.endsAt) > Date.now();
+  const takesSheet = (e.teamId || bookingSession) && (SHEET_EVENT_TYPES as readonly string[]).includes(e.type);
+  // Coaches with roles for this session (shared helper: same as the Attendance tab, Dashboard and coach Today).
+  const coverage = isAdmin && takesSheet ? (await getSessionCoverage([e.id])).get(e.id) ?? null : null;
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -84,7 +89,13 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         </Card>}
 
         <div className="space-y-4">
-          {isAdmin && (e.teamId || bookingSession) && (SHEET_EVENT_TYPES as readonly string[]).includes(e.type) && (
+          {coverage && (
+            <Card>
+              <CardHeader><CardTitle>{tr("adminAttendance.session.coaches")}</CardTitle><CoverageBadge t={tr} coverage={coverage} /></CardHeader>
+              <CardBody><CoachRoleList t={tr} coverage={coverage} /></CardBody>
+            </Card>
+          )}
+          {isAdmin && takesSheet && (
             <Card>
               <CardHeader><CardTitle>{tr("adminAttendance.session.cardTitle")}</CardTitle></CardHeader>
               <CardBody className="space-y-2">

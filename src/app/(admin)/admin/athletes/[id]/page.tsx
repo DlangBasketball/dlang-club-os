@@ -40,6 +40,7 @@ import { parseProfileTab } from "@/lib/billing/player-billing";
 import { zonedDayKey } from "@/lib/staff/hours";
 import { dateParam, playerTotals, playerTotalsByTeam } from "@/lib/attendance/admin-stats";
 import { getAthleteTeamPeriods, getSessionAttendance } from "@/lib/data/team-attendance-admin";
+import { getSessionsOverview, toSessionRows } from "@/lib/attendance/overview";
 import { listSeasons } from "@/lib/sportsops/data";
 import { SessionHistoryList, TotalsSummary } from "@/components/attendance/admin/views";
 import { selectClass } from "@/components/teams/fields";
@@ -106,10 +107,17 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
   const dayKey = zonedDayKey(new Date(), f.timeZone);
   const [teamPeriods, teamSessions, seasonList] = await Promise.all([
     getAthleteTeamPeriods(a.id, dayKey),
-    isAdmin ? getSessionAttendance({ athleteId: a.id, from: taFrom, to: taTo, seasonId: taSeason, teamId: taTeam }) : Promise.resolve(null),
+    // Same read as the Attendance tab and the Dashboard (attendance_sessions_overview): team trainings / games,
+    // booked sessions and earlier programme sessions, with this player's status.
+    isAdmin ? getSessionsOverview({ athleteId: a.id, from: taFrom, to: taTo, teamId: taTeam, scope: taTeam ? "teams" : "all", limit: 1000 }) : Promise.resolve(null),
     isAdmin ? listSeasons() : Promise.resolve(null),
   ]);
-  const sessionRows = (teamSessions?.data ?? []).filter((r) => Date.parse(r.starts_at) <= Date.now());
+  // A season keeps its own rule (the team's season + its training window): narrow to those sessions.
+  const seasonIds = isAdmin && taSeason
+    ? new Set(((await getSessionAttendance({ athleteId: a.id, from: taFrom, to: taTo, seasonId: taSeason, teamId: taTeam, limit: 1000 })).data ?? []).map((r) => r.event_id))
+    : null;
+  const sessionRows = toSessionRows((teamSessions?.data ?? []).filter((r) => !seasonIds || seasonIds.has(r.session_id)))
+    .filter((r) => Date.parse(r.starts_at) <= Date.now());
   const stats = await getPlayerStats(a.id, attendanceHistory, { includeCredits: isAdmin, includeDevelopment: isAdmin });
   const emergencyName = medical?.emergencyContactName ?? safety?.emergencyContactName ?? null;
   const emergencyPhone = medical?.emergencyContactPhone ?? safety?.emergencyContactPhone ?? null;

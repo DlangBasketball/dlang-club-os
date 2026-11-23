@@ -13,6 +13,7 @@ import type { Formatter } from "@/lib/format";
 import { getI18n } from "@/lib/i18n/server";
 import type { Translator } from "@/lib/i18n/translator";
 import { cn } from "@/lib/utils";
+import { HistoryEntry } from "@/components/attendance/history-entry";
 
 export const dynamic = "force-dynamic";
 
@@ -32,20 +33,10 @@ function StatusPill({ status, t }: { status: MarkStatus; t: Translator }) {
 
 function ChangeLine({ c, t, f, withReason }: { c: HistoryChange; t: Translator; f: Formatter; withReason?: boolean }) {
   return (
-    <li className="rounded-md border border-border bg-surface-elevated p-2.5 text-sm">
-      <p className="flex flex-wrap items-center gap-1.5 text-text">
-        <span className="font-medium">{c.first_name} {c.last_name}</span>
-        <span className="text-text-muted">·</span>
-        {c.previous_status && <StatusPill status={c.previous_status} t={t} />}
-        <span aria-hidden className="text-text-muted">→</span>
-        <span className="sr-only">{t("coachTrainings.details.to")}</span>
-        <StatusPill status={c.new_status} t={t} />
-      </p>
-      <p className="mt-1 text-xs text-text-muted">
-        {t("coachTrainings.details.changedBy", { name: c.changed_by_name ?? t("coachTrainings.common.someone"), when: f.dateTime(c.changed_at, "short") })}
-        {" · "}{t(`coachTrainings.details.phases.${c.phase}`)}
-      </p>
-      {withReason && c.reason && <p className="mt-1 break-words text-text-secondary">{t("coachTrainings.details.reason", { reason: c.reason })}</p>}
+    <li className="rounded-md border border-border bg-surface-elevated p-2.5">
+      {/* Leads with the action ("Marked present", "Corrected to late"), then "Previously: …", who and when. */}
+      <HistoryEntry t={t} f={f} name={`${c.first_name} ${c.last_name}`} previous={c.previous_status} next={c.new_status} phase={c.phase}
+                    by={c.changed_by_name ?? t("coachTrainings.common.someone")} at={c.changed_at} reason={withReason ? c.reason : null} />
     </li>
   );
 }
