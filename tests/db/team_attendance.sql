@@ -850,7 +850,9 @@ begin
   -- Direct admin insert (RLS path) applies the break too.
   r := tat.run_as('00000000-0000-0000-0000-0000000000f1',
         $q$insert into public.club_training_breaks (org_id, label, starts_on, ends_on)
-           values ('00000000-0000-0000-0000-000000000001', 'Direct break', current_date + 60, current_date + 60) returning 'x'$q$);
+           select '00000000-0000-0000-0000-000000000001', 'Direct break', d, d
+             from (select (starts_at at time zone 'Europe/Zurich')::date d from public.events where id = '00000000-0000-0000-0000-0000000ac0a4') x
+           returning 'x'$q$);
   perform tat.ok(r = 'OK:x' and (select status = 'cancelled' and cancel_reason = 'Direct break' from public.events
                    where id = '00000000-0000-0000-0000-0000000ac0a4'), 'a break inserted directly by an admin cancels too');
   -- Delete: nothing un-cancelled; affected sessions reported.
