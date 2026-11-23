@@ -202,6 +202,11 @@
       "campNames": {
         "fall": "Autumn Camp {year}"
       }
+    },
+    "approval": {
+      "status": {
+        "cancelled": "Cancelled"
+      }
     }
   },
   "training": {

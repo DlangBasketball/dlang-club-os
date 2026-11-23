@@ -6,6 +6,7 @@ import { isRegistrationOpen, spotsLeft } from "./logic";
 import { campSeason, type SeasonOfYear } from "./seasons";
 import { clubMediaUrl } from "@/lib/shop/db";
 import { isHiddenAthleteStatus } from "@/lib/people/person-delete";
+import type { CampAgeRules } from "./age-approval";
 
 export type Result<T> = { data: T; error: null } | { data: null; error: string };
 
@@ -144,6 +145,7 @@ export type EditionRegistration = {
   optionLabel: string | null; ageGroup: string | null; days: string[]; includesLunch: boolean | null;
   listAmount: number | null; discountAmount: number | null; amount: number | null; currency: string | null;
   discounts: string[]; invoiceId: string | null; invoiceNumber: string | null; invoiceStatus: string | null;
+  approvalStatus: string | null;
 };
 
 /** Registrations of one edition with their chosen options (admin / finance; RLS scoped). */
@@ -157,7 +159,7 @@ export async function getEditionRegistrations(orgId: string, editionId: string):
   const [{ data: prog }, { data: regs, error: rErr }, vmap, counts] = await Promise.all([
     db.from("programs").select("name").eq("id", edRow.program_id).eq("org_id", orgId).maybeSingle(),
     db.from("registrations")
-      .select("id,status,created_at,athlete_id,camp_age_group_id,camp_days,camp_includes_lunch,price_list_amount,price_discount_amount,price_amount,price_currency,price_snapshot,invoice_id")
+      .select("id,status,created_at,athlete_id,camp_age_group_id,camp_days,camp_includes_lunch,price_list_amount,price_discount_amount,price_amount,price_currency,price_snapshot,invoice_id,approval_status")
       .eq("org_id", orgId).eq("camp_edition_id", editionId).order("created_at"),
     venueMap(db, orgId, edRow.venue_id ? [edRow.venue_id] : []),
     editionCounts(db, [editionId]),
@@ -198,6 +200,7 @@ export async function getEditionRegistrations(orgId: string, editionId: string):
       amount: r.price_amount == null ? null : Number(r.price_amount), currency: r.price_currency,
       discounts: (snap.discounts ?? []).map((d) => d.name ?? "").filter(Boolean),
       invoiceId: r.invoice_id, invoiceNumber: inv?.number ?? null, invoiceStatus: inv?.status ?? null,
+      approvalStatus: r.approval_status ?? null,
     };
   });
   return { data: { edition: mapEditions([edRow], vmap, counts)[0], programName: prog?.name ?? "", rows }, error: null };
@@ -252,6 +255,8 @@ export type PublicCamp = {
   program: {
     id: string; orgId: string; slug: string | null; name: string; description: string | null; currency: string; isPublic: boolean;
     season?: SeasonOfYear | null; coverUrl?: string | null; coverFocalX?: number; coverFocalY?: number;
+    /** Age rules (age approval band, migration 20250420105100); absent = no rule. */
+    ages?: CampAgeRules;
   };
   editions: (CampEdition & { open: boolean })[];
   options: CampPriceOption[];
@@ -262,7 +267,7 @@ export type PublicCamp = {
 
 async function loadCamp(filter: { slug?: string; programId?: string; orgId?: string }, requirePublic: boolean): Promise<PublicCamp | null> {
   const db = campsAdminDb();
-  let q = db.from("programs").select("id,org_id,slug,name,description,kind,currency,is_public,status,season,season_year,cover_path,cover_focal_x,cover_focal_y").eq("kind", "camp").eq("status", "published");
+  let q = db.from("programs").select("id,org_id,slug,name,description,kind,currency,is_public,status,season,season_year,cover_path,cover_focal_x,cover_focal_y,min_age,max_age,approval_age_min,approval_age_max").eq("kind", "camp").eq("status", "published");
   if (filter.slug) q = q.eq("slug", filter.slug);
   if (filter.programId) q = q.eq("id", filter.programId);
   if (filter.orgId) q = q.eq("org_id", filter.orgId);
@@ -272,6 +277,7 @@ async function loadCamp(filter: { slug?: string; programId?: string; orgId?: str
   const prog = p as {
     id: string; org_id: string; slug: string | null; name: string; description: string | null; currency: string | null; is_public: boolean;
     season: string | null; season_year: number | null; cover_path: string | null; cover_focal_x: number | null; cover_focal_y: number | null;
+    min_age: number | null; max_age: number | null; approval_age_min: number | null; approval_age_max: number | null;
   };
   const orgId = prog.org_id;
   const [ed, op, ag, ts, forms, cur] = await Promise.all([
@@ -297,6 +303,7 @@ async function loadCamp(filter: { slug?: string; programId?: string; orgId?: str
       id: prog.id, orgId, slug: prog.slug, name: prog.name, description: prog.description, currency: (prog.currency ?? orgCurrency).toUpperCase(), isPublic: prog.is_public,
       season: campSeason({ season: prog.season, seasonYear: prog.season_year, firstStart: edRows[0]?.starts_on ?? null }),
       coverUrl: coverUrlOf(prog.cover_path), coverFocalX: prog.cover_focal_x ?? 50, coverFocalY: prog.cover_focal_y ?? 50,
+      ages: { minAge: prog.min_age, maxAge: prog.max_age, approvalAgeMin: prog.approval_age_min, approvalAgeMax: prog.approval_age_max },
     },
     editions,
     options: (op.data ?? []).map(mapOption),

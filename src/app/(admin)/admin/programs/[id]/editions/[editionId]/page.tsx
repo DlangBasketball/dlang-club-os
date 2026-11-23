@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getEditionRegistrations, type EditionRegistration } from "@/lib/camps/data";
 import { getI18n } from "@/lib/i18n/server";
 import { DeletePersonButton } from "@/components/people/delete-person";
+import { campEditionCounters, campRegistrationState, campStateTone } from "@/lib/camps/age-approval";
 
 export default async function CampEditionPage({ params }: { params: Promise<{ id: string; editionId: string }> }) {
   const { id, editionId } = await params;
@@ -16,7 +17,9 @@ export default async function CampEditionPage({ params }: { params: Promise<{ id
   const e = data?.edition;
   if (!e || e.programId !== id) notFound();
   const rows = data!.rows;
-  const active = rows.filter((r) => r.status !== "cancelled");
+  // Requests waiting for approval hold no place and carry no money yet.
+  const active = rows.filter((r) => r.status !== "cancelled" && r.status !== "pending_approval");
+  const counters = campEditionCounters(rows);
   const total = active.reduce((s, r) => s + (r.amount ?? 0), 0);
   const currency = rows.find((r) => r.currency)?.currency ?? f.currency;
 
@@ -36,7 +39,12 @@ export default async function CampEditionPage({ params }: { params: Promise<{ id
         {(r.discountAmount ?? 0) > 0 && <div className="text-xs text-success">{`– ${f.money(r.discountAmount, r.currency ?? currency)}`}</div>}
       </div>
     ) },
-    { key: "status", header: t("common.status"), render: (r) => <Badge tone={statusTone(r.status)}>{t.dynamic(`status.${r.status}`, undefined, r.status)}</Badge> },
+    { key: "status", header: t("common.status"), render: (r) => {
+      const st = campRegistrationState(r);
+      return r.approvalStatus
+        ? <Badge tone={campStateTone(st)}>{t.dynamic(`camps.approval.status.${st}`, undefined, t.dynamic(`status.${r.status}`, undefined, r.status))}</Badge>
+        : <Badge tone={statusTone(r.status)}>{t.dynamic(`status.${r.status}`, undefined, r.status)}</Badge>;
+    } },
     { key: "invoice", header: t("camps.export.invoice"), render: (r) => r.invoiceId ? <Link href={`/admin/invoices/${r.invoiceId}`} className="tnum text-xs text-maroon hover:underline">{r.invoiceNumber}</Link> : "—" },
   ];
   if (me.roles.includes("admin")) {
@@ -51,6 +59,10 @@ export default async function CampEditionPage({ params }: { params: Promise<{ id
         <span className="flex items-center gap-1.5"><Users className="h-4 w-4" />{e.capacity !== null ? t("camps.editions.capacityLine", { taken: e.taken, capacity: e.capacity, left: e.spotsLeft ?? 0 }) : t("camps.editions.registeredLine", { taken: e.taken })}</span>
         {(e.venue || e.city) && <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" />{e.venue ? e.venue.name : e.locationName ?? e.city}</span>}
         <span>{t("camps.editions.revenue", { amount: f.money(total, currency) })}</span>
+        <span>{t("camps.approval.counters.confirmed", { count: counters.confirmed })}</span>
+        <span>{t("camps.approval.counters.awaitingPayment", { count: counters.awaitingPayment })}</span>
+        {counters.approvedAwaitingPayment > 0 && <span>{t("camps.approval.counters.approvedAwaitingPayment", { count: counters.approvedAwaitingPayment })}</span>}
+        {counters.pendingApproval > 0 && <Link href="/admin/camps/approvals" className="text-maroon hover:underline">{t("camps.approval.counters.pendingApproval", { count: counters.pendingApproval })}</Link>}
         <Link href={`/admin/programs/${id}`} className="text-maroon hover:underline">{t("camps.editions.backToCamp")}</Link>
       </CardBody></Card>
       <DataTable columns={columns} rows={rows} getRowKey={(r) => r.id}

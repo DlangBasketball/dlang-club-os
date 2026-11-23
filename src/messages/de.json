@@ -112,7 +112,8 @@
     "delivered": "Zugestellt",
     "bounced": "Unzustellbar",
     "issued": "Ausgestellt",
-    "written_off": "Abgeschrieben"
+    "written_off": "Abgeschrieben",
+    "pending_approval": "Wartet auf Freigabe"
   },
   "roles": {
     "admin": "Administrator:in",
@@ -2297,7 +2298,15 @@
         "CHILD_NOT_FOUND": "Wählen Sie ein Kind für diese Woche.",
         "PROGRAM_NOT_FOUND": "Dieses Camp ist nicht verfügbar.",
         "DISCOUNT_AMOUNT_INVALID": "Ein Rabatt hat sich gerade geändert. Bitte prüfen und erneut absenden.",
-        "BASKET_INVALID": "Einige Wochen benötigen Ihre Aufmerksamkeit."
+        "BASKET_INVALID": "Einige Wochen benötigen Ihre Aufmerksamkeit.",
+        "APPROVAL_REQUIRED": "Kinder in diesem Alter brauchen die Freigabe des Vereins: Bitte «Zur Freigabe senden» verwenden.",
+        "ALREADY_REQUESTED": "Für dieses Kind und diese Woche wartet bereits eine Anfrage auf Freigabe.",
+        "NOT_APPROVAL_AGE": "Für das Alter dieses Kindes ist bei diesem Camp keine Freigabe nötig.",
+        "APPROVAL_NOT_ENABLED": "Dieses Camp nimmt keine Anfragen zur Freigabe an.",
+        "ALREADY_DECIDED": "Über diese Anfrage wurde bereits entschieden.",
+        "REQUEST_NOT_FOUND": "Diese Anfrage gibt es nicht mehr.",
+        "APPROVAL_LOCKED": "Nur der Verein kann über diese Anfrage entscheiden.",
+        "USE_CAMP_APPROVAL": "Über diese Anfrage wird nur unter «Wartet auf Freigabe» entschieden."
       },
       "weekPosition": "Geben Sie eine Wochennummer zwischen 2 und 20 ein.",
       "seasonYear": "Geben Sie ein Jahr zwischen 2000 und 2100 ein."
@@ -2405,6 +2414,101 @@
         "fixLines": "Einige Wochen benötigen Ihre Aufmerksamkeit (siehe Hinweise unter jeder Woche).",
         "childDetails": "Geben Sie Vorname, Nachname und Geburtsdatum jedes Kindes ein.",
         "needsForm": "„{camp}“ stellt zusätzliche Fragen: Bitte melden Sie sich auf seiner eigenen Seite an."
+      }
+    },
+    "approval": {
+      "settings": {
+        "title": "Altersfreigabe",
+        "description": "Kinder, die etwas jünger als das Mindestalter sind, können sich für dieses Camp bewerben. Ein Admin prüft jede Anfrage, bevor ein Platz angeboten wird.",
+        "min": "Ab Alter",
+        "max": "Bis Alter",
+        "off": "Aus: Kinder unter dem Mindestalter können sich nicht anmelden.",
+        "current": "Ein: Kinder, die am ersten Camptag {min} bis {max} Jahre alt sind, können eine Freigabe beantragen.",
+        "hint": "Alter am ersten Tag der Campwoche. Die Spanne muss unter dem Mindestalter des Camps ({minAge}) enden.",
+        "turnOff": "Ausschalten"
+      },
+      "errors": {
+        "bothRequired": "Beide Alter eingeben oder beide leer lassen.",
+        "range": "Alter zwischen 0 und 99 eingeben.",
+        "order": "Das obere Alter muss mindestens dem unteren entsprechen.",
+        "needsMinAge": "Zuerst ein Mindestalter für das Camp festlegen.",
+        "belowMinAge": "Die Spanne muss unter dem Mindestalter des Camps enden.",
+        "noteTooLong": "Die Nachricht darf höchstens 1000 Zeichen lang sein."
+      },
+      "parent": {
+        "intro": "Kinder im Alter von {min} und {max} Jahren können sich bewerben. Unser Team prüft Ihre Anmeldung und teilt Ihnen mit, ob ein Platz frei ist.",
+        "introOne": "Kinder im Alter von {min} Jahren können sich bewerben. Unser Team prüft Ihre Anmeldung und teilt Ihnen mit, ob ein Platz frei ist.",
+        "introRange": "Kinder im Alter von {min} bis {max} Jahren können sich bewerben. Unser Team prüft Ihre Anmeldung und teilt Ihnen mit, ob ein Platz frei ist.",
+        "badge": "Freigabe nötig",
+        "childNote": "{name} ist am ersten Camptag {age}: Diese Anmeldung wird zur Freigabe gesendet.",
+        "priceIfApproved": "Preis bei Freigabe",
+        "noInvoice": "Es wird keine Rechnung erstellt und nichts belastet, solange die Anfrage nicht freigegeben ist.",
+        "submit": "Zur Freigabe senden",
+        "submitMixed": "Anmelden und zur Freigabe senden",
+        "requested": "Ihre Anfrage wurde gesendet. Unser Team prüft sie und teilt Ihnen mit, ob ein Platz frei ist."
+      },
+      "status": {
+        "pending_approval": "Wartet auf Freigabe",
+        "approved_awaiting_payment": "Freigegeben – Zahlung ausstehend",
+        "declined": "Abgelehnt",
+        "withdrawn": "Zurückgezogen",
+        "pending": "Zahlung ausstehend",
+        "confirmed": "Bestätigt",
+        "waitlist": "Warteliste",
+        "cancelled": "Storniert",
+        "completed": "Abgeschlossen"
+      },
+      "family": {
+        "title": "Camp-Anmeldungen",
+        "description": "Die Campwochen Ihrer Kinder, einschliesslich Anfragen, die auf die Freigabe des Vereins warten.",
+        "pendingHint": "Unser Team prüft diese Anmeldung. Keine Rechnung vor der Freigabe.",
+        "message": "Nachricht des Vereins: {note}",
+        "payInvoice": "Rechnung {number} bezahlen",
+        "viewInvoice": "Rechnung {number}"
+      },
+      "admin": {
+        "title": "Wartet auf Freigabe",
+        "description": "Camp-Anmeldungen von Kindern in der Altersspanne mit Freigabe. Freigeben, um den Platz anzubieten, oder mit einer Nachricht an die Eltern ablehnen.",
+        "link": "Wartet auf Freigabe ({count})",
+        "count": "{count, plural, one {# Anfrage} other {# Anfragen}}",
+        "empty": "Keine Anfragen warten auf Freigabe.",
+        "ageOnStart": "Alter am ersten Tag: {age}",
+        "submittedOn": "Gesendet am {date}",
+        "capacity": "{taken} von {capacity} Plätzen belegt",
+        "noCapacity": "{taken} Plätze belegt (ohne Limit)",
+        "parentContact": "Kontakt der Eltern",
+        "submittedBy": "Gesendet von {name}",
+        "choices": "Angaben zur Anmeldung",
+        "answers": "Antworten im Formular",
+        "consents": "Einwilligungen",
+        "noConsents": "Keine Einwilligungen erfasst.",
+        "consentLine": "{title} (Version {version}), {date}",
+        "note": "Nachricht an die Eltern (optional)",
+        "approve": "Freigeben",
+        "decline": "Ablehnen",
+        "fullHint": "Diese Woche ist voll: Die Freigabe ist erst möglich, wenn ein Platz frei wird oder die Kapazität erhöht wird.",
+        "fullMessage": "Die Campwoche ist voll ({taken} von {capacity} Plätzen). Die Anfrage bleibt offen: Platz freigeben oder Kapazität erhöhen und dann erneut freigeben.",
+        "done": {
+          "approved": "Freigegeben. Die Rechnung wurde ausgestellt und die Familie informiert.",
+          "confirmed": "Freigegeben und bestätigt. Die Familie wurde informiert.",
+          "declined": "Abgelehnt. Die Familie wurde informiert."
+        }
+      },
+      "counters": {
+        "confirmed": "Bestätigt: {count}",
+        "awaitingPayment": "Zahlung ausstehend: {count}",
+        "approvedAwaitingPayment": "Freigegeben – Zahlung ausstehend: {count}",
+        "pendingApproval": "Wartet auf Freigabe: {count}"
+      },
+      "notify": {
+        "adminTitle": "Neue Camp-Anmeldung zur Freigabe",
+        "adminBody": "{child} ({age} Jahre am ersten Tag) wurde für {camp}, {dates}, angemeldet. Prüfen Sie die Anfrage unter Camps, «Wartet auf Freigabe».",
+        "approvedTitle": "Camp-Anmeldung freigegeben",
+        "approvedBody": "Gute Nachricht: Die Anmeldung von {child} für {camp} ({dates}) wurde freigegeben. Rechnung {invoice} ({amount}) finden Sie in Ihrer App; der Platz ist bestätigt, sobald sie bezahlt ist.",
+        "confirmedBody": "Gute Nachricht: Die Anmeldung von {child} für {camp} ({dates}) wurde freigegeben und ist bestätigt.",
+        "declinedTitle": "Camp-Anmeldung nicht freigegeben",
+        "declinedBody": "Es tut uns leid: Die Anmeldung von {child} für {camp} ({dates}) konnte nicht freigegeben werden.",
+        "message": "Nachricht des Vereins: {note}"
       }
     }
   },

@@ -112,7 +112,8 @@
     "delivered": "Entregado",
     "bounced": "Rebotado",
     "issued": "Emitida",
-    "written_off": "Cancelada como incobrable"
+    "written_off": "Cancelada como incobrable",
+    "pending_approval": "Pendiente de aprobación"
   },
   "roles": {
     "admin": "Administrador",
@@ -2297,7 +2298,15 @@
         "CHILD_NOT_FOUND": "Elige un niño para esta semana.",
         "PROGRAM_NOT_FOUND": "Este campamento no está disponible.",
         "DISCOUNT_AMOUNT_INVALID": "Un descuento acaba de cambiar. Revisa y envía de nuevo.",
-        "BASKET_INVALID": "Algunas semanas requieren tu atención."
+        "BASKET_INVALID": "Algunas semanas requieren tu atención.",
+        "APPROVAL_REQUIRED": "Los niños de esta edad necesitan la aprobación del club: usa Enviar para aprobación.",
+        "ALREADY_REQUESTED": "Ya hay una solicitud para este niño y esta semana pendiente de aprobación.",
+        "NOT_APPROVAL_AGE": "La edad de este niño no requiere aprobación para este campamento.",
+        "APPROVAL_NOT_ENABLED": "Este campamento no acepta solicitudes de aprobación.",
+        "ALREADY_DECIDED": "Ya se ha decidido sobre esta solicitud.",
+        "REQUEST_NOT_FOUND": "Esta solicitud ya no existe.",
+        "APPROVAL_LOCKED": "Solo el club puede decidir sobre esta solicitud.",
+        "USE_CAMP_APPROVAL": "Esta solicitud solo se decide en Pendiente de aprobación."
       },
       "weekPosition": "Introduce un número de semana entre 2 y 20.",
       "seasonYear": "Introduce un año entre 2000 y 2100."
@@ -2405,6 +2414,101 @@
         "fixLines": "Algunas semanas requieren tu atención (mira los mensajes bajo cada semana).",
         "childDetails": "Introduce el nombre, los apellidos y la fecha de nacimiento de cada niño.",
         "needsForm": "«{camp}» tiene preguntas adicionales: inscríbete desde su propia página."
+      }
+    },
+    "approval": {
+      "settings": {
+        "title": "Aprobación por edad",
+        "description": "Permite que niños algo más pequeños que la edad mínima soliciten plaza en este campamento. Un administrador revisa cada solicitud antes de ofrecer una plaza.",
+        "min": "Desde la edad",
+        "max": "Hasta la edad",
+        "off": "Desactivado: los niños por debajo de la edad mínima no pueden inscribirse.",
+        "current": "Activado: los niños que tengan de {min} a {max} años el primer día del campamento pueden solicitar aprobación.",
+        "hint": "Edad el primer día de la semana de campamento. La franja debe terminar por debajo de la edad mínima del campamento ({minAge}).",
+        "turnOff": "Desactivar"
+      },
+      "errors": {
+        "bothRequired": "Indica ambas edades o deja ambas vacías.",
+        "range": "Indica edades entre 0 y 99.",
+        "order": "La edad superior debe ser al menos igual a la inferior.",
+        "needsMinAge": "Primero define una edad mínima para el campamento.",
+        "belowMinAge": "La franja debe terminar por debajo de la edad mínima del campamento.",
+        "noteTooLong": "El mensaje puede tener como máximo 1000 caracteres."
+      },
+      "parent": {
+        "intro": "Los niños de {min} y {max} años pueden presentar su solicitud. Nuestro equipo revisará tu inscripción y te avisará si hay una plaza disponible.",
+        "introOne": "Los niños de {min} años pueden presentar su solicitud. Nuestro equipo revisará tu inscripción y te avisará si hay una plaza disponible.",
+        "introRange": "Los niños de {min} a {max} años pueden presentar su solicitud. Nuestro equipo revisará tu inscripción y te avisará si hay una plaza disponible.",
+        "badge": "Requiere aprobación",
+        "childNote": "{name} tendrá {age} años el primer día del campamento: esta inscripción se envía para aprobación.",
+        "priceIfApproved": "Precio si se aprueba",
+        "noInvoice": "No se crea ninguna factura ni se cobra nada hasta que la solicitud sea aprobada.",
+        "submit": "Enviar para aprobación",
+        "submitMixed": "Inscribir y enviar para aprobación",
+        "requested": "Tu solicitud se ha enviado. Nuestro equipo la revisará y te avisará si hay una plaza disponible."
+      },
+      "status": {
+        "pending_approval": "Pendiente de aprobación",
+        "approved_awaiting_payment": "Aprobado – pendiente de pago",
+        "declined": "Rechazado",
+        "withdrawn": "Retirado",
+        "pending": "Pendiente de pago",
+        "confirmed": "Confirmado",
+        "waitlist": "Lista de espera",
+        "cancelled": "Cancelado",
+        "completed": "Completado"
+      },
+      "family": {
+        "title": "Inscripciones a campamentos",
+        "description": "Las semanas de campamento de tus hijos, incluidas las solicitudes pendientes de aprobación del club.",
+        "pendingHint": "Nuestro equipo está revisando esta inscripción. No hay factura hasta su aprobación.",
+        "message": "Mensaje del club: {note}",
+        "payInvoice": "Pagar la factura {number}",
+        "viewInvoice": "Factura {number}"
+      },
+      "admin": {
+        "title": "Pendiente de aprobación",
+        "description": "Inscripciones a campamentos de niños en la franja de edad sujeta a aprobación. Aprueba para ofrecer la plaza o rechaza con un mensaje a la familia.",
+        "link": "Pendiente de aprobación ({count})",
+        "count": "{count, plural, one {# solicitud} other {# solicitudes}}",
+        "empty": "No hay solicitudes pendientes de aprobación.",
+        "ageOnStart": "Edad el primer día: {age}",
+        "submittedOn": "Enviada el {date}",
+        "capacity": "{taken} de {capacity} plazas ocupadas",
+        "noCapacity": "{taken} plazas ocupadas (sin límite)",
+        "parentContact": "Contacto de la familia",
+        "submittedBy": "Enviada por {name}",
+        "choices": "Detalles de la inscripción",
+        "answers": "Respuestas del formulario",
+        "consents": "Consentimientos",
+        "noConsents": "No hay consentimientos registrados.",
+        "consentLine": "{title} (versión {version}), {date}",
+        "note": "Mensaje a la familia (opcional)",
+        "approve": "Aprobar",
+        "decline": "Rechazar",
+        "fullHint": "Esta semana está completa: no se podrá aprobar hasta que se libere una plaza o se aumente la capacidad.",
+        "fullMessage": "La semana de campamento está completa ({taken} de {capacity} plazas). La solicitud sigue pendiente: libera una plaza o aumenta la capacidad y vuelve a aprobar.",
+        "done": {
+          "approved": "Aprobado. Se emitió la factura y se avisó a la familia.",
+          "confirmed": "Aprobado y confirmado. Se avisó a la familia.",
+          "declined": "Rechazado. Se avisó a la familia."
+        }
+      },
+      "counters": {
+        "confirmed": "Confirmados: {count}",
+        "awaitingPayment": "Pendientes de pago: {count}",
+        "approvedAwaitingPayment": "Aprobados – pendientes de pago: {count}",
+        "pendingApproval": "Pendientes de aprobación: {count}"
+      },
+      "notify": {
+        "adminTitle": "Nueva inscripción a campamento para aprobar",
+        "adminBody": "{child} ({age} años el primer día) se ha inscrito en {camp}, {dates}. Revisa la solicitud en Campamentos, en Pendiente de aprobación.",
+        "approvedTitle": "Inscripción al campamento aprobada",
+        "approvedBody": "Buenas noticias: la inscripción de {child} en {camp} ({dates}) ha sido aprobada. La factura {invoice} ({amount}) está en tu aplicación; la plaza se confirma en cuanto se pague.",
+        "confirmedBody": "Buenas noticias: la inscripción de {child} en {camp} ({dates}) ha sido aprobada y está confirmada.",
+        "declinedTitle": "Inscripción al campamento no aprobada",
+        "declinedBody": "Lo sentimos: la inscripción de {child} en {camp} ({dates}) no ha podido ser aprobada.",
+        "message": "Mensaje del club: {note}"
       }
     }
   },

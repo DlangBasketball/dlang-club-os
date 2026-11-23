@@ -25,6 +25,8 @@ import { issueContractsForRegistrations } from "@/lib/contracts/server";
 import { attachPlanAtCheckout } from "@/lib/plans/checkout";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
+import { classifyCamper, type CampAgeBand } from "@/lib/camps/age-approval";
+import { submitApprovalRequests } from "@/lib/camps/approval-server";
 
 /**
  * Camp registration (public camp page + parent app).
@@ -157,13 +159,23 @@ export async function quoteCamp(input: CampQuoteInput): Promise<QuoteView> {
   if (!camp) return emptyView("", t("camps.errors.db.PROGRAM_NOT_OPEN"));
   const tt = await getTranslations(camp.program.orgId);
   const discounts = await loadPricingDiscounts(camp.program.orgId, discountsFamily);
+  const startsOn = camp.editions.find((e) => e.id === v.editionId)?.startsOn ?? null;
   const children: QuoteChild[] = v.children
     .filter((c) => c.priceOptionId)
+    // Children in the approval band are priced once approved (not in the quote).
+    .filter((c) => !c.athleteId || bandOf(camp!, startsOn, dobs.get(c.athleteId) ?? null) !== "approval")
     .map((c) => ({ key: c.key, priceOptionId: c.priceOptionId, ageGroupId: c.ageGroupId, days: c.days, dob: c.athleteId ? dobs.get(c.athleteId) ?? null : c.dob }));
   if (!children.length) return { ...emptyView(camp.program.currency, ""), ok: true };
   const q = buildCampQuote({ camp, editionId: v.editionId, children, discounts, promoCode: v.promoCode, existingSiblings: existing, partial: true });
   if (!q.ok) return emptyView(camp.program.currency, tt.dynamic(`camps.errors.db.${q.error}`, undefined, tt("camps.errors.generic")));
   return view(q.quote, v.promoCode, tt);
+}
+
+/** Age band of a child for the chosen week (standard when the camp has no band). */
+function bandOf(camp: PublicCamp, startsOn: string | null, dob: string | null): CampAgeBand {
+  const ages = camp.program.ages;
+  if (!ages || ages.approvalAgeMin === null) return "standard";
+  return classifyCamper(dob, startsOn, ages).band;
 }
 
 function payloadDiscounts(q: BatchQuote, key: string, promoCode: string) {
@@ -279,7 +291,7 @@ function safeCount(n: unknown): number {
   return Number.isInteger(v) && v >= 2 && v <= 24 ? v : 0;
 }
 
-export async function submitCampParent(input: CampParentRegistrationInput, instalments = 0): Promise<CampSubmitResult> {
+export async function submitCampParent(input: CampParentRegistrationInput, instalments = 0, requestId?: string): Promise<CampSubmitResult> {
   const t0 = await getTranslations();
   const p = campParentRegistrationSchema.safeParse(input);
   if (!p.success) return { ok: false, error: t0.dynamic(firstIssueKey(p.error), undefined, t0("camps.errors.generic")), errors: flatten(p.error, t0) };
@@ -295,6 +307,16 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
   const missing = camp.consents.filter((c) => c.required && !v.consents.includes(c.key));
   if (missing.length) return { ok: false, error: t("registration.consents.missing") };
 
+  // Age approval band: children in the band are submitted for approval (no
+  // invoice); below the band / above the maximum they cannot register.
+  const startsOn = camp.editions.find((e) => e.id === v.editionId)?.startsOn ?? null;
+  const bands = new Map(v.children.map((c) => [c.athleteId, bandOf(camp, startsOn, ctx.athletes.get(c.athleteId)?.dob ?? null)]));
+  if (Array.from(bands.values()).some((b) => b === "too_young" || b === "too_old")) {
+    return { ok: false, error: t("camps.errors.db.AGE_OUT_OF_RANGE") };
+  }
+  const approvalKids = v.children.filter((c) => bands.get(c.athleteId) === "approval");
+  const standardKids = v.children.filter((c) => bands.get(c.athleteId) !== "approval");
+
   // Custom questions only: the children's records already exist.
   const config = await getRegistrationConfig(ctx.orgId, camp.program.id);
   const questionsOnly = { ...config, builtin: resolveConfig(null).builtin };
@@ -306,10 +328,28 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
   });
   if (Object.keys(extraErrors).length) return { ok: false, error: t("forms.errors.fixFields"), errors: extraErrors };
 
+  if (approvalKids.length) {
+    const h = await headers();
+    const sent = await submitApprovalRequests({
+      orgId: ctx.orgId, camp, editionId: v.editionId, familyId: ctx.familyId, profileId: ctx.profileId, requestId,
+      ip: (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || null, consents: v.consents, config,
+      children: approvalKids.map((c) => ({
+        athleteId: c.athleteId, name: ctx.athletes.get(c.athleteId)?.name ?? "", ageGroupId: c.ageGroupId, priceOptionId: c.priceOptionId,
+        days: c.days, answers: perChild.find((x) => x.athleteId === c.athleteId)?.answers ?? {},
+      })),
+    });
+    if (!sent.ok) return { ok: false, error: t.dynamic(campErrorKey(sent.error), undefined, t("camps.errors.generic")) };
+    if (!standardKids.length) {
+      revalidatePath("/parent/bookings");
+      revalidatePersonEverywhere(ctx.orgId);
+      redirect("/parent/bookings?camp=requested");
+    }
+  }
+
   const discounts = await loadPricingDiscounts(ctx.orgId, ctx.familyId);
   const q = buildCampQuote({
     camp, editionId: v.editionId, discounts, promoCode: v.promoCode, existingSiblings: ctx.existingSiblings,
-    children: v.children.map((c) => ({ key: c.athleteId, priceOptionId: c.priceOptionId, ageGroupId: c.ageGroupId, days: c.days, dob: ctx.athletes.get(c.athleteId)?.dob ?? null })),
+    children: standardKids.map((c) => ({ key: c.athleteId, priceOptionId: c.priceOptionId, ageGroupId: c.ageGroupId, days: c.days, dob: ctx.athletes.get(c.athleteId)?.dob ?? null })),
   });
   if (!q.ok) return { ok: false, error: t.dynamic(`camps.errors.db.${q.error}`, undefined, t("camps.errors.generic")) };
   if (promoBlocks(q.quote, v.promoCode)) return { ok: false, error: t.dynamic(`camps.promo.${q.quote.promoRejection}`, undefined, t("camps.promo.UNKNOWN_CODE")) };
@@ -322,7 +362,7 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
     edition_id: v.editionId,
     family_id: ctx.familyId,
     registered_by: ctx.profileId,
-    children: v.children.map((c) => ({
+    children: standardKids.map((c) => ({
       athlete_id: c.athleteId, age_group_id: c.ageGroupId, price_option_id: c.priceOptionId, days: c.days,
       list_amount: q.quote.items.find((i) => i.key === c.athleteId)!.listAmount,
       discounts: payloadDiscounts(q.quote, c.athleteId, v.promoCode),
@@ -344,7 +384,7 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
     .filter((x) => x.athleteId && x.registrationId));
   await issueContractsForRegistrations(ctx.orgId, regIds, ctx.profileId);
   await attachPlanAtCheckout(ctx.orgId, r.invoice_id, safeCount(instalments), "camp");
-  await notify(ctx.orgId, camp.program.name, me.fullName ?? me.email ?? "", null, Array.from(ctx.athletes.values()).map((a) => a.name), r.invoice_number ?? "", Number(r.total ?? 0));
+  await notify(ctx.orgId, camp.program.name, me.fullName ?? me.email ?? "", null, standardKids.map((c) => ctx.athletes.get(c.athleteId)?.name ?? ""), r.invoice_number ?? "", Number(r.total ?? 0));
   revalidatePath("/parent/invoices");
   revalidatePersonEverywhere(ctx.orgId);
   redirect(r.invoice_id ? `/parent/invoices/${r.invoice_id}` : "/parent/invoices");
