@@ -202,7 +202,11 @@ const seasonSchema = z.object({
   name: z.string().trim().min(1).max(80),
   startsOn: isoDate,
   endsOn: isoDate,
-}).refine((s) => s.endsOn >= s.startsOn, { path: ["endsOn"] });
+  /** Training calendar of the season (optional; may differ from the billing dates). */
+  trainingStartsOn: isoDate.nullable().optional().or(z.literal("").transform(() => null)),
+  trainingEndsOn: isoDate.nullable().optional().or(z.literal("").transform(() => null)),
+}).refine((s) => s.endsOn >= s.startsOn, { path: ["endsOn"] })
+  .refine((s) => !s.trainingStartsOn || !s.trainingEndsOn || s.trainingEndsOn >= s.trainingStartsOn, { path: ["trainingEndsOn"] });
 export type SeasonInput = z.input<typeof seasonSchema>;
 
 /** Create or update a season (name and dates). Season dates of season-fee memberships follow. */
@@ -212,7 +216,12 @@ export async function saveSeason(input: SeasonInput): Promise<BillingResult<{ id
   const p = seasonSchema.safeParse(input);
   if (!p.success) return { ok: false, code: "SEASON_DATES_INVALID", error: t("billing.errors.SEASON_DATES_INVALID") };
   const db = await createClient();
-  const row = { name: p.data.name, starts_on: p.data.startsOn, ends_on: p.data.endsOn };
+  const row = {
+    name: p.data.name, starts_on: p.data.startsOn, ends_on: p.data.endsOn,
+    // Omitted = unchanged (older callers); null / "" = no training window.
+    ...(p.data.trainingStartsOn === undefined ? {} : { training_starts_on: p.data.trainingStartsOn }),
+    ...(p.data.trainingEndsOn === undefined ? {} : { training_ends_on: p.data.trainingEndsOn }),
+  };
   const res = p.data.id
     ? await db.from("seasons").update(row).eq("id", p.data.id).eq("org_id", me.orgId).select("id").maybeSingle()
     : await db.from("seasons").insert({ ...row, org_id: me.orgId }).select("id").single();

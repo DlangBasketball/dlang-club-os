@@ -42,14 +42,17 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     auth: { getUser: async () => ({ data: { user: { id: "u1", email: "u1@example.test" } } }) },
     from: (t: string) => query(t),
+    rpc: async (fn: string) => ({ data: fn === "is_player" ? playerFlag : null, error: null }),
   }),
 }));
 
+let playerFlag = false;
 const ORG_A = "org-a";
 const ORG_B = "org-b";
 
 describe("getSessionUser role scoping", () => {
   beforeEach(() => {
+    playerFlag = false;
     tables = {
       profiles: [{ id: "u1", org_id: ORG_A, full_name: "U One", email: "u1@example.test", onboarding_completed_at: null }],
       staff_roles: [],
@@ -86,6 +89,15 @@ describe("getSessionUser role scoping", () => {
 
     tables.family_members.push({ profile_id: "u1", family_id: "fam-a" });
     expect((await getSessionUser())?.roles).toEqual(["parent"]);
+  });
+
+  it("adds player when the database links the login to an athlete", async () => {
+    playerFlag = true;
+    const { getSessionUser } = await import("@/lib/auth/get-user");
+    expect((await getSessionUser())?.roles).toEqual(["player"]);
+    const { homeForRoles } = await import("@/lib/auth/roles");
+    expect(homeForRoles(["player"])).toBe("/player");
+    expect(homeForRoles(["parent", "player"])).toBe("/parent/home");
   });
 
   it("gives a user without a club no roles", async () => {

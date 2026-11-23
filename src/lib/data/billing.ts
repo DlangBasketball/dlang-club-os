@@ -84,7 +84,8 @@ export type ClubBillingSettings = {
   firstInstallmentMonthSet: boolean;
   currency: string;
 };
-export type Season = { id: string; name: string; startsOn: string; endsOn: string; isCurrent: boolean };
+/** trainingStartsOn / trainingEndsOn: the season's training calendar (migration 20250420104000); null = open. */
+export type Season = { id: string; name: string; startsOn: string; endsOn: string; isCurrent: boolean; trainingStartsOn: string | null; trainingEndsOn: string | null };
 
 export async function getClubBillingSettings(): Promise<Result<ClubBillingSettings>> {
   if (!(await staff())) return fail("NOT_AUTHORIZED");
@@ -106,11 +107,14 @@ export async function listSeasons(): Promise<Result<{ seasons: Season[]; canEdit
   const me = await staff();
   if (!me) return fail("NOT_AUTHORIZED");
   const db = await createClient();
-  const { data, error } = await db.from("seasons").select("id,name,starts_on,ends_on,is_current").eq("org_id", me.orgId)
+  const { data, error } = await db.from("seasons").select("id,name,starts_on,ends_on,is_current,training_starts_on,training_ends_on").eq("org_id", me.orgId)
     .order("starts_on", { ascending: false }).limit(200);
   if (error) return fail(error.message);
   return ok({
-    seasons: (data ?? []).map((s) => ({ id: s.id, name: s.name, startsOn: s.starts_on, endsOn: s.ends_on, isCurrent: s.is_current })),
+    seasons: (data ?? []).map((s) => ({
+      id: s.id, name: s.name, startsOn: s.starts_on, endsOn: s.ends_on, isCurrent: s.is_current,
+      trainingStartsOn: s.training_starts_on ?? null, trainingEndsOn: s.training_ends_on ?? null,
+    })),
     canEdit: me.isAdmin,
   });
 }

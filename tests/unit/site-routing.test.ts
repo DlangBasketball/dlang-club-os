@@ -65,7 +65,11 @@ describe("site routing never shadows app routes", () => {
   });
 
   it("the SQL guard lists the same reserved segments", () => {
-    const sql = readFileSync(path.join(ROOT, "supabase/migrations/20250420101900_site_builder.sql"), "utf8");
+    // The latest migration that (re)defines site_path_reserved() is the live one.
+    const dir = path.join(ROOT, "supabase/migrations");
+    const latest = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort()
+      .filter((f) => readFileSync(path.join(dir, f), "utf8").includes("function public.site_path_reserved")).pop()!;
+    const sql = readFileSync(path.join(dir, latest), "utf8");
     const m = /function public\.site_path_reserved[\s\S]*?in \(([\s\S]*?)\);/.exec(sql);
     expect(m).not.toBeNull();
     const listed = Array.from(m![1]!.matchAll(/'([^']+)'/g)).map((x) => x[1]);

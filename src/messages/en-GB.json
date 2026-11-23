@@ -1023,5 +1023,22 @@
         "enrolment": "Enrolment"
       }
     }
+  },
+  "teamAttendance": {
+    "errors": {
+      "EVENT_CANCELLED": "This session was cancelled.",
+      "SHEET_NOT_FINAL": "Attendance has not been finalised yet.",
+      "SELECTION_ROSTER_MANAGED": "This roster is managed through the selection programme enrolment."
+    },
+    "messages": {
+      "finalized": "Attendance finalised.",
+      "breakSaved": "{count, plural, =0 {Break saved.} one {Break saved. # training was cancelled.} other {Break saved. # trainings were cancelled.}}",
+      "breakDeleted": "{count, plural, =0 {Break deleted.} one {Break deleted. # training stays cancelled; review it below.} other {Break deleted. # trainings stay cancelled; review them below.}}"
+    },
+    "seasons": {
+      "breaksHint": "Holidays without training. Adding a break cancels the trainings in its dates (families are notified). Deleting a break does not restore cancelled sessions.",
+      "cancelledCount": "{count, plural, =0 {No cancelled sessions} one {# cancelled session} other {# cancelled sessions}}",
+      "stillCancelled": "{count, plural, one {# session in these dates is still cancelled:} other {# sessions in these dates are still cancelled:}}"
+    }
   }
 }

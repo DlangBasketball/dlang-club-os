@@ -118,7 +118,8 @@
     "admin": "Amministratore",
     "finance": "Finanze",
     "coach": "Allenatore",
-    "parent": "Genitore"
+    "parent": "Genitore",
+    "player": "Giocatore/trice"
   },
   "programKind": {
     "camp": "Camp",
@@ -8250,6 +8251,29 @@
     "announcement": {
       "title": "Un messaggio da {club}",
       "heading": "Un messaggio dal tuo club"
+    },
+    "attendance_no_show": {
+      "title": "{athlete} ha saltato l'allenamento",
+      "body": "{athlete} è stato segnato assente ingiustificato con {team} il {when}.",
+      "subject": "{athlete} ha saltato l'allenamento — {team}",
+      "heading": "Allenamento saltato",
+      "line": "{athlete} è stato segnato assente ingiustificato all'allenamento di {team} il {when}.",
+      "correction": "Se non è corretto, puoi chiedere una correzione dalla scheda nel portale genitori.",
+      "cta": "Vedi scheda",
+      "fallbackTeam": "la squadra"
+    },
+    "attendance_no_show_correction": {
+      "title": "Presenza aggiornata per {athlete}",
+      "body": "La presenza di {athlete} con {team} il {when} è stata corretta in: {status}.",
+      "subject": "Presenza corretta — {athlete}, {team}",
+      "heading": "Presenza corretta",
+      "line": "La presenza di {athlete} all'allenamento di {team} il {when} è stata corretta in: {status}.",
+      "status": {
+        "present": "presente",
+        "late": "in ritardo",
+        "excused": "assenza giustificata",
+        "unexcused": "assenza ingiustificata"
+      }
     }
   },
   "pdf": {
@@ -11492,6 +11516,148 @@
       "TEAM_NOT_FOUND": "Questa squadra non esiste.",
       "INVALID_DATE": "Controlla il periodo.",
       "generic": "Qualcosa è andato storto. Riprova."
+    }
+  },
+  "teamAttendance": {
+    "errors": {
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "invalid": "Controlla i dati inseriti.",
+      "NOT_AUTHORIZED": "Non hai l'autorizzazione per farlo.",
+      "EVENT_NOT_FOUND": "Questa sessione non è stata trovata.",
+      "TEAM_NOT_FOUND": "Questa squadra non è stata trovata.",
+      "ATHLETE_NOT_FOUND": "Questo giocatore non è stato trovato.",
+      "COACH_NOT_FOUND": "Questo allenatore non è stato trovato.",
+      "PROFILE_NOT_FOUND": "Questo account non è stato trovato nel tuo club.",
+      "SEASON_NOT_FOUND": "Questa stagione non è stata trovata.",
+      "EVENT_HAS_NO_TEAM": "Questa sessione non è collegata a una squadra, quindi non c'è una rosa per le presenze.",
+      "EVENT_TYPE_NOT_SUPPORTED": "Le presenze si registrano solo per allenamenti, partite e tornei.",
+      "EVENT_CANCELLED": "Questa sessione è stata annullata.",
+      "EVENT_CLOSED": "Questa sessione non è più aperta.",
+      "SHEET_NOT_FOUND": "Apri prima il foglio presenze.",
+      "SHEET_FINAL": "Le presenze sono già definitive. Usa una correzione.",
+      "SHEET_NOT_FINAL": "Le presenze non sono ancora state chiuse.",
+      "INVALID_STATUS": "Scegli uno stato di presenza valido.",
+      "INVALID_MARKS": "Impossibile leggere l'elenco presenze.",
+      "NOT_ON_SHEET": "Questo giocatore non è nel foglio presenze.",
+      "ALREADY_ON_SHEET": "Questo giocatore è già nel foglio presenze.",
+      "GUEST_MARKED": "Un ospite già segnato non può essere rimosso.",
+      "MARK_NOT_FOUND": "Nessuna presenza registrata per questo giocatore.",
+      "NOTE_TOO_LONG": "La nota è troppo lunga.",
+      "REASON_REQUIRED": "Indica un motivo (almeno 3 caratteri).",
+      "REASON_TOO_LONG": "Il motivo è troppo lungo.",
+      "REQUEST_ID_REUSED": "Questa richiesta è già stata usata. Ricarica e riprova.",
+      "VERSION_CONFLICT": "Qualcun altro ha modificato questo foglio. Ricarica per vedere l'ultima versione.",
+      "UNMARKED_PLAYERS": "Segna ogni giocatore prima di chiudere.",
+      "REPORTED_ABSENCE_UNACKNOWLEDGED": "Alcuni giocatori segnati come assenti ingiustificati avevano annunciato un'assenza. Conferma per continuare.",
+      "ALREADY_ON_TEAM": "Questo giocatore è già in squadra in quella data.",
+      "NOT_ON_TEAM": "Questo giocatore non è in squadra in quella data.",
+      "INVALID_EFFECTIVE_DATE": "Questa data di decorrenza non è possibile per questa appartenenza.",
+      "SAME_TEAM": "Scegli un'altra squadra.",
+      "SELECTION_ROSTER_MANAGED": "Questa rosa è gestita tramite l'iscrizione al programma di selezione.",
+      "INVALID_JERSEY": "I numeri di maglia vanno da 0 a 999.",
+      "JERSEY_TAKEN": "Questo numero di maglia è già assegnato in questa squadra.",
+      "MEMBERSHIP_HAS_ATTENDANCE": "Questa appartenenza ha uno storico presenze e può solo essere chiusa.",
+      "ABSENCE_CUTOFF_PASSED": "Le assenze si possono annunciare solo prima dell'inizio della sessione.",
+      "INVALID_CATEGORY": "Scegli una categoria di motivo.",
+      "REPORT_NOT_FOUND": "Questo avviso di assenza non è stato trovato.",
+      "REPORT_CLOSED": "Questo avviso di assenza è chiuso.",
+      "ASSIGNMENT_NOT_FOUND": "Questa richiesta di accesso non è stata trovata.",
+      "ALREADY_TEAM_COACH": "Alleni già questa squadra.",
+      "INVALID_ROLE": "Scegli un ruolo valido.",
+      "CORRECTION_NOT_FOUND": "Questa richiesta di correzione non è stata trovata.",
+      "CORRECTION_CLOSED": "Questa richiesta di correzione è chiusa.",
+      "CORRECTION_OPEN_EXISTS": "Per questa sessione c'è già una richiesta di correzione aperta.",
+      "MESSAGE_REQUIRED": "Scrivi un messaggio.",
+      "MESSAGE_TOO_LONG": "Il messaggio è troppo lungo.",
+      "NOTE_REQUIRED": "Aggiungi una nota che spieghi la decisione.",
+      "PLAYER_ALREADY_LINKED": "Questo giocatore ha già un account.",
+      "PLAYER_IS_GUARDIAN": "L'account di un genitore non può essere l'account del giocatore.",
+      "INVALID_RANGE": "La data di fine deve essere successiva a quella di inizio.",
+      "INVALID_GROUP": "Scegli come raggruppare le statistiche.",
+      "TRAINING_OUTSIDE_SEASON_WINDOW": "Non si possono programmare allenamenti fuori dalle date di allenamento della stagione.",
+      "TRAINING_IN_BREAK": "Questa data cade in una pausa allenamenti del club.",
+      "LABEL_REQUIRED": "Dai un nome alla pausa.",
+      "BREAK_DATES_INVALID": "Controlla le date della pausa (al massimo un anno).",
+      "BREAK_NOT_FOUND": "Questa pausa non è stata trovata."
+    },
+    "messages": {
+      "saved": "Salvato.",
+      "guestAdded": "Ospite aggiunto a questa sessione.",
+      "finalized": "Presenze chiuse.",
+      "corrected": "Presenza corretta.",
+      "absenceReported": "Assenza annunciata. L'allenatore la vedrà.",
+      "absenceWithdrawn": "Avviso di assenza ritirato.",
+      "accessRequested": "Accesso richiesto. Un amministratore lo esaminerà.",
+      "correctionRequested": "Richiesta di correzione inviata.",
+      "breakSaved": "{count, plural, =0 {Pausa salvata.} one {Pausa salvata. # allenamento è stato annullato.} other {Pausa salvata. # allenamenti sono stati annullati.}}",
+      "breakDeleted": "{count, plural, =0 {Pausa eliminata.} one {Pausa eliminata. # allenamento resta annullato; controllalo qui sotto.} other {Pausa eliminata. # allenamenti restano annullati; controllali qui sotto.}}",
+      "playerInvited": "Invito inviato al giocatore.",
+      "playerUnlinked": "Account giocatore scollegato."
+    },
+    "notify": {
+      "accessRequested": {
+        "title": "Richiesta di accesso a una sessione",
+        "body": "{coach} chiede di dirigere una sessione."
+      },
+      "accessDecided": {
+        "approvedTitle": "Accesso alla sessione approvato",
+        "rejectedTitle": "Accesso alla sessione rifiutato",
+        "body": "Apri la sessione per i dettagli."
+      },
+      "correctionRequested": {
+        "title": "Richiesta di correzione presenze",
+        "body": "Un genitore chiede di correggere una presenza."
+      },
+      "correctionResolved": {
+        "acceptedTitle": "Presenza corretta",
+        "rejectedTitle": "Richiesta di correzione rifiutata",
+        "body": "Apri la scheda per vedere la decisione."
+      }
+    },
+    "statuses": {
+      "unmarked": "Non segnato",
+      "present": "Presente",
+      "late": "In ritardo",
+      "excused": "Assenza giustificata",
+      "unexcused": "Assenza ingiustificata"
+    },
+    "sheetStatuses": {
+      "draft": "Bozza",
+      "final": "Definitivo",
+      "reopened": "Riaperto per correzioni"
+    },
+    "absenceCategories": {
+      "illness": "Malattia",
+      "injury": "Infortunio",
+      "school": "Scuola",
+      "family": "Famiglia",
+      "travel": "Viaggio",
+      "other": "Altro"
+    },
+    "seasons": {
+      "trainingStartsOn": "Primo giorno di allenamento",
+      "trainingEndsOn": "Ultimo giorno di allenamento",
+      "trainingWindow": "Allenamenti: {range}",
+      "goLiveTitle": "Rilevamento presenze",
+      "goLiveHint": "Le sessioni prima di questa data non sono mai elencate come in attesa né segnalate come incomplete.",
+      "goLiveLabel": "Rilevare le presenze dal",
+      "breaksTitle": "Pause allenamenti",
+      "breaksHint": "Vacanze senza allenamento. Aggiungere una pausa annulla gli allenamenti in quelle date (le famiglie vengono avvisate). Eliminare una pausa non ripristina le sessioni annullate.",
+      "noBreaks": "Ancora nessuna pausa allenamenti.",
+      "breakLabel": "Nome",
+      "breakStartsOn": "Dal",
+      "breakEndsOn": "Al",
+      "breakSeason": "Stagione",
+      "allSeasons": "Tutte le stagioni",
+      "addBreak": "Aggiungi pausa",
+      "cancelledCount": "{count, plural, =0 {Nessuna sessione annullata} one {# sessione annullata} other {# sessioni annullate}}",
+      "stillCancelled": "{count, plural, one {# sessione in queste date resta annullata:} other {# sessioni in queste date restano annullate:}}"
+    },
+    "events": {
+      "repeatUntilOption": "Ogni settimana fino a una data",
+      "repeatUntil": "Ripeti fino al",
+      "repeatUntilHint": "Gli allenamenti vengono creati solo entro le date di allenamento della stagione e mai durante le pause del club.",
+      "createSeries": "Crea sessioni settimanali"
     }
   }
 }

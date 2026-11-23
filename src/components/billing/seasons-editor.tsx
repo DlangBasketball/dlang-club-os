@@ -93,18 +93,18 @@ export function SeasonsEditor({ settings, seasons, canEdit }: { settings: ClubBi
   const today = new Date().toISOString().slice(0, 10);
   const next = clubSeasonBounds(today, settings.seasonStartMonth);
   const [editing, setEditing] = React.useState<string | "new" | null>(null);
-  const [form, setForm] = React.useState({ name: "", startsOn: "", endsOn: "" });
+  const [form, setForm] = React.useState({ name: "", startsOn: "", endsOn: "", trainingStartsOn: "", trainingEndsOn: "" });
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<Msg>(null);
 
   function open(s: Season | null) {
     setMsg(null);
     if (s) {
-      setForm({ name: s.name, startsOn: s.startsOn, endsOn: s.endsOn });
+      setForm({ name: s.name, startsOn: s.startsOn, endsOn: s.endsOn, trainingStartsOn: s.trainingStartsOn ?? "", trainingEndsOn: s.trainingEndsOn ?? "" });
       setEditing(s.id);
     } else {
       const startYear = next ? Number(next.startsOn.slice(0, 4)) : new Date().getFullYear();
-      setForm({ name: `${startYear}-${String((startYear + 1) % 100).padStart(2, "0")}`, startsOn: next?.startsOn ?? "", endsOn: next?.endsOn ?? "" });
+      setForm({ name: `${startYear}-${String((startYear + 1) % 100).padStart(2, "0")}`, startsOn: next?.startsOn ?? "", endsOn: next?.endsOn ?? "", trainingStartsOn: "", trainingEndsOn: "" });
       setEditing("new");
     }
   }
@@ -112,7 +112,10 @@ export function SeasonsEditor({ settings, seasons, canEdit }: { settings: ClubBi
     e.preventDefault();
     setBusy(true);
     setMsg(null);
-    const res = await saveSeason({ id: editing === "new" ? null : editing, ...form });
+    const res = await saveSeason({
+      id: editing === "new" ? null : editing, name: form.name, startsOn: form.startsOn, endsOn: form.endsOn,
+      trainingStartsOn: form.trainingStartsOn || null, trainingEndsOn: form.trainingEndsOn || null,
+    });
     setBusy(false);
     if (!res.ok) return setMsg({ ok: false, text: res.error });
     setEditing(null);
@@ -131,6 +134,9 @@ export function SeasonsEditor({ settings, seasons, canEdit }: { settings: ClubBi
       <div><Label htmlFor="s-name">{t("billing.seasons.name")}</Label><Input id="s-name" required maxLength={80} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
       <div><Label htmlFor="s-start">{t("billing.seasons.startsOn")}</Label><Input id="s-start" type="date" required value={form.startsOn} onChange={(e) => setForm({ ...form, startsOn: e.target.value })} /></div>
       <div><Label htmlFor="s-end">{t("billing.seasons.endsOn")}</Label><Input id="s-end" type="date" required value={form.endsOn} onChange={(e) => setForm({ ...form, endsOn: e.target.value })} /></div>
+      <div className="hidden sm:block" />
+      <div className="sm:col-start-2"><Label htmlFor="s-tstart">{t("teamAttendance.seasons.trainingStartsOn")}</Label><Input id="s-tstart" type="date" value={form.trainingStartsOn} onChange={(e) => setForm({ ...form, trainingStartsOn: e.target.value })} /></div>
+      <div><Label htmlFor="s-tend">{t("teamAttendance.seasons.trainingEndsOn")}</Label><Input id="s-tend" type="date" min={form.trainingStartsOn || undefined} value={form.trainingEndsOn} onChange={(e) => setForm({ ...form, trainingEndsOn: e.target.value })} /></div>
       <div className="flex gap-2">
         <Button type="submit" disabled={busy}>{busy ? t("common.saving") : t("common.save")}</Button>
         <Button type="button" variant="ghost" onClick={() => setEditing(null)}>{t("common.cancel")}</Button>
@@ -154,6 +160,14 @@ export function SeasonsEditor({ settings, seasons, canEdit }: { settings: ClubBi
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium text-ink">{s.name}</span>
                     <span className="text-ink-3">{f.dateRange(s.startsOn, s.endsOn)}</span>
+                    {(s.trainingStartsOn || s.trainingEndsOn) && (
+                      <span className="text-ink-3">
+                        {t("teamAttendance.seasons.trainingWindow", {
+                          range: s.trainingStartsOn && s.trainingEndsOn ? f.dateRange(s.trainingStartsOn, s.trainingEndsOn)
+                            : s.trainingStartsOn ? f.date(s.trainingStartsOn) : f.date(s.trainingEndsOn!),
+                        })}
+                      </span>
+                    )}
                     {s.isCurrent && <Badge tone="success">{t("billing.seasons.current")}</Badge>}
                   </div>
                   {canEdit && (

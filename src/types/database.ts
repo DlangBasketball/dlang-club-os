@@ -113,6 +113,9 @@ export type Database = {
           // remove a person (20250420102500): status active | inactive | archived | erased
           archived_at: string | null;
           archived_by: string | null;
+          // player portal (20250420104000): the athlete's own login, if any
+          player_profile_id: string | null;
+          player_linked_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -226,6 +229,8 @@ export type Database = {
           family_id: string | null;
           coach_id: string | null;
           relation: string | null;
+          /** Player invitations (role 'player'): the athlete the login is linked to. */
+          athlete_id: string | null;
           status: "pending" | "accepted" | "revoked" | "expired";
           token: string;
           invited_by: string | null;
@@ -242,6 +247,7 @@ export type Database = {
           family_id?: string | null;
           coach_id?: string | null;
           relation?: string | null;
+          athlete_id?: string | null;
           invited_by?: string | null;
         };
         Update: Partial<{
@@ -737,6 +743,8 @@ export type Database = {
           club_installment_count?: number;
           club_installment_due_day?: number;
           club_first_installment_month?: number | null;
+          // Team attendance go-live (migration 20250420104000)
+          attendance_tracking_starts_on?: string | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
@@ -857,7 +865,98 @@ export type Database = {
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       seasons: {
-        Row: { id: string; org_id: string; name: string; starts_on: string; ends_on: string; is_current: boolean; created_at: string; updated_at: string };
+        Row: {
+          id: string; org_id: string; name: string; starts_on: string; ends_on: string; is_current: boolean; created_at: string; updated_at: string;
+          /** Training calendar of the season (migration 20250420104000); null = no window. */
+          training_starts_on: string | null; training_ends_on: string | null;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      // ---- Team attendance (migration 20250420104000) -----------------------
+      // All writes go through the RPCs below (RLS denies direct writes),
+      // except club_training_breaks (admin RLS writes allowed; trigger cancels).
+      team_membership_periods: {
+        Row: {
+          id: string; org_id: string; membership_id: string | null; team_id: string; athlete_id: string;
+          joined_on: string; left_on: string; jersey_number: number | null; position: string | null; reason: string | null;
+          archived_by: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      event_coach_assignments: {
+        Row: {
+          id: string; org_id: string; event_id: string; coach_id: string; role: "substitute" | "lead";
+          status: "approved" | "pending" | "rejected"; request_note: string | null; requested_by: string | null;
+          assigned_by: string | null; decided_by: string | null; decided_at: string | null; decision_note: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      team_attendance_sheets: {
+        Row: {
+          id: string; org_id: string; event_id: string; team_id: string; roster_date: string;
+          status: "draft" | "final" | "reopened"; version: number; led_by_coach_id: string | null; opened_by: string | null;
+          submitted_by: string | null; submitted_at: string | null; finalized_by: string | null; finalized_at: string | null;
+          first_finalized_at: string | null; reopened_by: string | null; reopened_at: string | null; reopen_reason: string | null;
+          finalize_count: number; correction_count: number; alerts_synced_at: string | null;
+          legacy_attendance_session_id: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      team_attendance_marks: {
+        Row: {
+          id: string; org_id: string; sheet_id: string; event_id: string; athlete_id: string; membership_id: string | null;
+          is_guest: boolean; status: "unmarked" | "present" | "late" | "excused" | "unexcused";
+          finalized_status: "present" | "late" | "excused" | "unexcused" | null; rev: number; note: string | null;
+          reported_absence_ack: boolean; added_by: string | null; updated_by: string | null; marked_at: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      team_attendance_mark_history: {
+        Row: {
+          id: string; org_id: string; sheet_id: string; mark_id: string; event_id: string; athlete_id: string;
+          previous_status: string | null; new_status: string; phase: "draft" | "reopened" | "correction";
+          reason: string | null; request_id: string | null; changed_by: string | null; changed_at: string;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      team_absence_reports: {
+        Row: {
+          id: string; org_id: string; event_id: string; athlete_id: string; reported_by: string | null;
+          reporter_kind: "guardian" | "player"; reason: string | null;
+          reason_category: "illness" | "injury" | "school" | "family" | "travel" | "other";
+          status: "reported" | "acknowledged" | "superseded" | "withdrawn"; needs_review: boolean; event_starts_at: string;
+          acknowledged_by: string | null; acknowledged_at: string | null; withdrawn_at: string | null;
+          created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      attendance_no_show_alerts: {
+        Row: {
+          id: string; org_id: string; event_id: string; athlete_id: string; mark_id: string | null; history_id: string | null;
+          guardian_profile_id: string | null; kind: "initial" | "correction"; mark_status: "present" | "late" | "excused" | "unexcused";
+          status: "pending" | "sent" | "failed" | "no_contact" | "suppressed" | "superseded"; channel_results: Json;
+          attempts: number; last_error: string | null; notification_id: string | null; claimed_at: string | null;
+          next_attempt_at: string | null; sent_at: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      attendance_correction_requests: {
+        Row: {
+          id: string; org_id: string; event_id: string; team_id: string; athlete_id: string; mark_id: string;
+          requested_by: string | null; current_status: string; requested_status: string | null; message: string;
+          status: "open" | "accepted" | "rejected" | "withdrawn"; resolved_by: string | null; resolved_at: string | null;
+          resolution_note: string | null; history_id: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
+      };
+      club_training_breaks: {
+        Row: {
+          id: string; org_id: string; season_id: string | null; label: string; starts_on: string; ends_on: string;
+          created_by: string | null; created_at: string; updated_at: string;
+        };
         Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [];
       };
       memberships: {
@@ -876,6 +975,104 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      // ---- Team attendance (migration 20250420104000); contract: docs/team-attendance.md
+      is_player: { Args: Record<string, never>; Returns: boolean };
+      current_player_athlete_id: { Args: Record<string, never>; Returns: string | null };
+      team_roster_on: {
+        Args: { p_team: string; p_on?: string | null };
+        Returns: { athlete_id: string; membership_id: string | null; first_name: string; last_name: string; jersey_number: number | null;
+                   player_position: string | null; membership_status: string; joined_on: string; left_on: string | null; source: "current" | "history" }[];
+      };
+      team_roster_history: {
+        Args: { p_team: string };
+        Returns: { athlete_id: string; membership_id: string | null; first_name: string; last_name: string; joined_on: string;
+                   left_on: string | null; membership_status: string; end_reason: string | null; source: "current" | "history" }[];
+      };
+      team_member_add: { Args: { p_team: string; p_athlete: string; p_effective_on?: string | null; p_jersey?: number | null; p_position?: string | null }; Returns: Json };
+      team_member_leave: { Args: { p_team: string; p_athlete: string; p_effective_on: string | null; p_reason: string }; Returns: Json };
+      team_member_transfer: { Args: { p_from_team: string; p_to_team: string; p_athlete: string; p_effective_on: string | null; p_reason: string }; Returns: Json };
+      attendance_settings: { Args: Record<string, never>; Returns: Json };
+      attendance_settings_set: { Args: { p_tracking_starts_on: string | null }; Returns: Json };
+      athlete_player_link: { Args: { p_athlete: string; p_profile: string }; Returns: Json };
+      athlete_player_unlink: { Args: { p_athlete: string }; Returns: Json };
+      player_me: {
+        Args: Record<string, never>;
+        Returns: { athlete_id: string; first_name: string; last_name: string; dob: string | null; photo_path: string | null; teams: Json }[];
+      };
+      session_assign_coach: { Args: { p_event: string; p_coach: string; p_role?: "substitute" | "lead" }; Returns: Json };
+      session_request_access: { Args: { p_event: string; p_note?: string | null }; Returns: Json };
+      session_decide_access: { Args: { p_assignment: string; p_approve: boolean; p_note?: string | null }; Returns: Json };
+      attendance_sheet: { Args: { p_event: string }; Returns: Json };
+      attendance_open: { Args: { p_event: string }; Returns: Json };
+      attendance_save: { Args: { p_event: string; p_marks: Json; p_expected_version: number; p_request_id?: string | null; p_ack_reported?: boolean }; Returns: Json };
+      attendance_mark_all_present: { Args: { p_event: string; p_expected_version: number; p_request_id?: string | null }; Returns: Json };
+      attendance_add_guest: { Args: { p_event: string; p_athlete: string }; Returns: Json };
+      attendance_remove_guest: { Args: { p_event: string; p_athlete: string }; Returns: Json };
+      attendance_finalize: { Args: { p_event: string; p_led_by_coach: string | null; p_expected_version: number; p_request_id?: string | null; p_ack_reported?: boolean }; Returns: Json };
+      attendance_reopen: { Args: { p_event: string; p_reason: string }; Returns: Json };
+      attendance_correct: { Args: { p_event: string; p_athlete: string; p_new_status: string; p_reason: string; p_request_id?: string | null; p_ack_reported?: boolean }; Returns: Json };
+      absence_report: { Args: { p_event: string; p_athlete: string; p_reason?: string | null; p_category?: string }; Returns: Json };
+      absence_withdraw: { Args: { p_report: string }; Returns: Json };
+      absence_acknowledge: { Args: { p_report: string }; Returns: Json };
+      attendance_correction_request: { Args: { p_event: string; p_athlete: string; p_message: string; p_requested_status?: string | null }; Returns: Json };
+      attendance_correction_withdraw: { Args: { p_request: string }; Returns: Json };
+      attendance_correction_resolve: { Args: { p_request: string; p_accept: boolean; p_new_status?: string | null; p_note?: string | null }; Returns: Json };
+      coach_sessions: {
+        Args: { p_from?: string | null; p_to?: string | null };
+        Returns: { event_id: string; team_id: string | null; team_name: string | null; event_type: string; title: string | null; starts_at: string;
+                   ends_at: string; event_status: string; access: "team_coach" | "substitute" | "lead" | "pending"; can_run: boolean;
+                   sheet_status: "draft" | "final" | "reopened" | null; sheet_version: number | null; unmarked: number; marked: number;
+                   reported_absences: number; tracked: boolean }[];
+      };
+      sessions_awaiting_attendance: {
+        Args: { p_team?: string | null; p_limit?: number };
+        Returns: { event_id: string; team_id: string; team_name: string; event_type: string; starts_at: string; ends_at: string;
+                   sheet_status: "draft" | "reopened" | null; unmarked: number; days_since_end: number }[];
+      };
+      attendance_stats: {
+        Args: { p_from?: string | null; p_to?: string | null; p_team?: string | null; p_season?: string | null; p_athlete?: string | null; p_group?: "player" | "team" };
+        Returns: { team_id: string; team_name: string; athlete_id: string | null; first_name: string | null; last_name: string | null;
+                   sessions: number; present: number; late: number; excused: number; unexcused: number; rate: number | null }[];
+      };
+      attendance_alerts_followup: {
+        Args: { p_limit?: number };
+        Returns: { alert_id: string; status: string; kind: string; mark_status: string; attempts: number; last_error: string | null; created_at: string;
+                   event_id: string; starts_at: string; team_id: string | null; team_name: string | null; athlete_id: string; first_name: string;
+                   last_name: string; guardian_profile_id: string | null; guardian_name: string | null }[];
+      };
+      attendance_correction_requests_list: {
+        Args: { p_status?: string | null; p_athlete?: string | null };
+        Returns: { request_id: string; status: string; event_id: string; starts_at: string; team_id: string; team_name: string; athlete_id: string;
+                   first_name: string; last_name: string; current_status: string; requested_status: string | null; mark_status: string | null;
+                   message: string; requested_by: string | null; requested_by_name: string | null; created_at: string;
+                   resolved_at: string | null; resolved_by_name: string | null; resolution_note: string | null }[];
+      };
+      session_access_list: {
+        Args: { p_status?: string | null };
+        Returns: { assignment_id: string; status: string; role: string; event_id: string; starts_at: string; team_id: string | null;
+                   team_name: string | null; coach_id: string; coach_name: string; request_note: string | null; decision_note: string | null;
+                   created_at: string; decided_at: string | null }[];
+      };
+      guardian_attendance_overview: { Args: { p_athlete: string; p_from?: string | null; p_to?: string | null }; Returns: Json };
+      player_attendance_overview: { Args: { p_from?: string | null; p_to?: string | null }; Returns: Json };
+      attendance_review_flags: { Args: { p_org: string }; Returns: number };
+      attendance_due_alerts: { Args: Record<string, never>; Returns: number };
+      team_memberships_apply_due: { Args: Record<string, never>; Returns: number };
+      attendance_alerts_claim: {
+        Args: { p_limit?: number; p_org?: string | null };
+        Returns: { alert_id: string; org_id: string; kind: "initial" | "correction"; mark_status: string; attempts: number; channel_results: Json;
+                   notification_id: string | null; guardian_profile_id: string; guardian_email: string | null; guardian_name: string | null;
+                   guardian_locale: string | null; receives_emails: boolean; event_id: string; athlete_id: string;
+                   athlete_first_name: string; athlete_last_name: string; team_name: string | null; event_type: string;
+                   starts_at: string; ends_at: string; timezone: string }[];
+      };
+      attendance_alert_record: { Args: { p_alert: string; p_status: "sent" | "failed" | "no_contact"; p_channel_results: Json; p_error?: string | null; p_notification_id?: string | null }; Returns: Json };
+      training_break_save: { Args: { p_id: string | null; p_label: string; p_starts_on: string; p_ends_on: string; p_season?: string | null }; Returns: Json };
+      training_break_delete: { Args: { p_id: string }; Returns: Json };
+      training_breaks_list: {
+        Args: { p_season?: string | null };
+        Returns: { id: string; season_id: string | null; label: string; starts_on: string; ends_on: string; cancelled_sessions: number | null }[];
+      };
       // ---- Billing foundation (migration 20250420103500) --------------------
       club_installment_schedule: {
         Args: { p_total: number; p_count: number; p_first_due_month: string; p_due_day: number; p_season_end: string | null; p_currency?: string };

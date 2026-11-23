@@ -14,7 +14,8 @@ export type SessionUser = {
 /**
  * Resolves the current user with their org, roles, and onboarding status.
  * Roles come from `staff_roles` in the profile's org; `parent` is derived
- * from `family_members` of families in that org.
+ * from `family_members` of families in that org; `player` from an athlete
+ * of that org linked to this login (public.is_player(), security definer).
  * Returns null if not authenticated.
  */
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -55,6 +56,11 @@ export async function getSessionUser(): Promise<SessionUser | null> {
         .eq("org_id", orgId);
       if ((familyCount ?? 0) > 0) roles.add("parent");
     }
+
+    // Player account: players cannot read the athletes table (guardian
+    // contacts, medical), so the database answers.
+    const { data: isPlayer } = await supabase.rpc("is_player");
+    if (isPlayer === true) roles.add("player");
   }
 
   return {
