@@ -160,6 +160,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
   admin: ADMIN_NAV_FLAT,
   coach: [
     { label: "Home", labelKey: "home", href: "/coach", icon: Home },
+    { label: "Today's trainings", labelKey: "todaysTrainings", href: "/coach/trainings", icon: ClipboardCheck },
     { label: "Messages", labelKey: "messages", href: "/coach/messages", icon: MessagesSquare },
     { label: "Time clock", labelKey: "clock", href: "/coach/clock", icon: Timer },
     { label: "Calendar", labelKey: "calendar", href: "/coach/calendar", icon: CalendarCheck },

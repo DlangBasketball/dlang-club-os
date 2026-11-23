@@ -48,6 +48,7 @@ export default async function CoachHomePage() {
   const open = clock.data?.open ?? null;
 
   const links = [
+    { href: "/coach/trainings", icon: ClipboardCheck, title: t("nav.todaysTrainings"), hint: t("coachTrainings.homeHint") },
     { href: "/coach/calendar", icon: CalendarDays, title: t("staff.dashboard.calendar"), hint: t("staff.dashboard.calendarHint") },
     { href: "/coach/roll-calls", icon: ClipboardCheck, title: t("staff.dashboard.rollCalls"), hint: t("staff.dashboard.rollCallsHint") },
     ...(COACH_EVALUATIONS_HREF ? [{ href: COACH_EVALUATIONS_HREF, icon: ClipboardList, title: t("staff.dashboard.evaluations"), hint: t("staff.dashboard.evaluationsHint") }] : []),

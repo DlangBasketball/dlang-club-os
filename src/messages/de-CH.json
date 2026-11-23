@@ -394,5 +394,23 @@
     "import": {
       "tooLarge": "Die Datei ist grösser als 1 MB."
     }
+  },
+  "coachTrainings": {
+    "awaitingHint": "Diese Einheiten sind ohne abgeschlossene Anwesenheit beendet. Sie bleiben hier, bis Sie sie abschliessen.",
+    "common": {
+      "close": "Schliessen"
+    },
+    "sheet": {
+      "reopened": "Diese Liste wurde für Korrekturen wieder geöffnet. Schliessen Sie sie erneut ab, wenn Sie fertig sind.",
+      "notEnded": "Die Einheit ist noch nicht vorbei. Sie können jetzt erfassen und später abschliessen."
+    },
+    "finalize": {
+      "open": "Prüfen und abschliessen",
+      "title": "Anwesenheit abschliessen",
+      "saveFailed": "Ihre letzten Änderungen sind noch nicht gespeichert. Speichern Sie sie erneut, bevor Sie abschliessen.",
+      "versionConflict": "Die Liste wurde geändert, während Sie abgeschlossen haben. Prüfen Sie sie und schliessen Sie erneut ab.",
+      "reportedConfirm": "Bestätigen und abschliessen",
+      "confirm": "Abschliessen"
+    }
   }
 }
