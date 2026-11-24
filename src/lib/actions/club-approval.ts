@@ -13,6 +13,9 @@ import { approvalErrorKey } from "@/lib/approvals/errors";
 import { issueContractsForRegistrations } from "@/lib/contracts/server";
 import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 import { logError } from "@/lib/log";
+import type { Translator } from "@/lib/i18n/translator";
+import type { ClubRequestProfile } from "@/lib/approvals/types";
+import { isIsoDate, PE, SEXES, sportsSchema, sportsToRpc } from "@/lib/participants/validation";
 
 /**
  * Club approval of family requests ("Join the club", club programme
@@ -28,7 +31,31 @@ type RpcResult = {
   registration_id: string | null; invoice_id: string | null; invoice_number: string | null; registration_status: string | null;
   membership_status: string | null; notify_profile_ids: string[]; replayed?: boolean; decided?: boolean; reason?: string;
   taken?: number; capacity?: number;
+  profile?: ClubRequestProfile["outcome"] | null;
 };
+
+/** RPC payload of proposed profile details (only what the family filled in). */
+function profileToRpc(p: z.output<typeof profileInput>): Record<string, string | number | null> | null {
+  const { dob, sex, ...sports } = p;
+  const given = Object.fromEntries(Object.entries(sports).filter(([, val]) => val !== null && val !== undefined));
+  const out: Record<string, string | number | null> = { ...sportsToRpc(given) };
+  if (dob) out.dob = dob;
+  if (sex) out.gender = sex;
+  return Object.keys(out).length ? out : null;
+}
+
+/** What the reviewer is told after approving a request with proposed details. */
+function profileOutcomeNotes(t: Translator, o: ClubRequestProfile["outcome"] | null): string[] {
+  if (!o || o.status !== "approved") return [];
+  const notes = [t("myAthletes.proposal.applied")];
+  const j = o.jersey;
+  if (j?.status === "taken") notes.push(t("myAthletes.proposal.jerseyTaken", { number: j.number }));
+  else if (j?.status === "assigned") notes.push(t("myAthletes.proposal.jerseyAssigned", { number: j.number }));
+  else if (j?.status === "reserved") notes.push(t("myAthletes.proposal.jerseyReserved", { number: j.number }));
+  else if (j?.status === "no_team") notes.push(t("myAthletes.proposal.jerseyNoTeam", { number: j.number }));
+  if (o.eligibility?.status === "review_pending") notes.push(t("myAthletes.proposal.eligibilityReview"));
+  return notes;
+}
 
 async function session(roles: string[]) {
   const me = await getSessionUser();
@@ -73,13 +100,20 @@ async function noticeContext(orgId: string, r: RpcResult): Promise<{ child: stri
 // ---------------------------------------------------------------------------
 const uuid = z.string().uuid();
 const message = z.string().trim().max(2000);
+const profileInput = sportsSchema.partial().extend({
+  dob: z.string().trim().optional().nullable().refine((v) => !v || isIsoDate(v), PE.invalidDob).transform((v) => v || null),
+  sex: z.enum(["", ...SEXES], { message: PE.invalidSex }).optional().nullable().transform((v) => v || null),
+});
 const submitInput = z.object({
   kind: z.enum(["membership", "program_registration"]),
-  familyId: uuid,
+  /** Optional when athleteId is given: the database takes the athlete's family (and checks the caller guards it). */
+  familyId: uuid.nullable().optional(),
   athleteId: uuid.nullable().optional(),
   programId: uuid.nullable().optional(),
   membershipTypeId: uuid.nullable().optional(),
   message: message.optional().default(""),
+  /** Proposed profile details (pending; applied only when the club approves). */
+  profile: profileInput.optional().nullable(),
   requestId: uuid,
 });
 export type SubmitClubRequestInput = z.input<typeof submitInput>;
@@ -89,16 +123,23 @@ export async function submitClubRequest(input: SubmitClubRequestInput): Promise<
   const me = await session(["parent"]);
   if (!me) return failWith("approvals.errors.NOT_AUTHORIZED");
   const p = submitInput.safeParse(input);
-  if (!p.success) return failWith(p.error.issues[0]?.path[0] === "message" ? "approvals.errors.MESSAGE_TOO_LONG" : "approvals.errors.invalid", me.orgId);
+  if (!p.success) {
+    const issue = p.error.issues[0];
+    return failWith(issue?.path[0] === "message" ? "approvals.errors.MESSAGE_TOO_LONG"
+      : issue?.path[0] === "profile" ? issue.message : "approvals.errors.invalid", me.orgId);
+  }
   const v = p.data;
+  if (!v.familyId && !v.athleteId) return failWith("approvals.errors.FAMILY_NOT_FOUND", me.orgId);
   if (v.kind === "membership") await assertFeature("memberships");
+  const proposal = v.profile ? profileToRpc(v.profile) : null;
   const db = await approvalsDb();
   const { data, error } = await db.rpc("club_request_submit", {
     p_payload: {
-      kind: v.kind, family_id: v.familyId, athlete_id: v.athleteId ?? null,
+      kind: v.kind, family_id: v.familyId ?? null, athlete_id: v.athleteId ?? null,
       program_id: v.kind === "program_registration" ? v.programId ?? null : null,
       membership_type_id: v.kind === "membership" ? v.membershipTypeId ?? null : null,
       message: v.message || null,
+      ...(proposal ? { profile: proposal } : {}),
     } as Json,
     p_request_id: v.requestId,
   });
@@ -202,7 +243,11 @@ export async function decideClubRequest(input: DecideClubRequestInput): Promise<
   }
   revalidateApprovals();
   revalidatePersonEverywhere(me.orgId);
-  return { ok: true, data: { outcome }, replayed: !!r.replayed, message: t(`approvals.reviewer.done.${outcome}`) };
+  if (r.athlete_id) {
+    for (const path of [`/admin/athletes/${r.athlete_id}`, `/parent/children/${r.athlete_id}`, `/coach/development/athletes/${r.athlete_id}`]) revalidatePath(path);
+  }
+  const notes = profileOutcomeNotes(t, r.profile ?? null);
+  return { ok: true, data: { outcome }, replayed: !!r.replayed, message: [t(`approvals.reviewer.done.${outcome}`), ...notes].join(" ") };
 }
 
 // ---------------------------------------------------------------------------

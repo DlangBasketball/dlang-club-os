@@ -92,3 +92,12 @@ export const NAV_TERM: Partial<Record<string, { key: TermKey; plural: boolean }>
   children: { key: "athlete", plural: true },
   coaches: { key: "coach", plural: true },
 };
+
+/**
+ * "My athletes" in the tenant's vocabulary: the translated label for an
+ * untouched tenant ("Mes athlètes"), else the catalogue template filled with
+ * the tenant's plural term ("My Players", "My Students").
+ */
+export function myAthletesLabel(terminology: Terminology | undefined, translated: string, template: (termPlural: string) => string): string {
+  return isCustomTerm(terminology, "athlete") ? template(term(terminology, "athlete", { plural: true })) : translated;
+}

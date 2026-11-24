@@ -167,17 +167,17 @@ export async function getAccount(): Promise<Result<{ profile: { id: string; full
 // ---------------------------------------------------------------------------
 // Documents, notifications, bookings
 // ---------------------------------------------------------------------------
-export async function listFamilyDocuments(): Promise<Result<{ id: string; fileName: string | null; kind: string; createdAt: string; athleteName: string | null }[]>> {
+export async function listFamilyDocuments(): Promise<Result<{ id: string; fileName: string | null; kind: string; createdAt: string; athleteName: string | null; athleteId: string | null }[]>> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("documents").select("id,file_name,kind,created_at,athlete_id").order("created_at", { ascending: false });
   if (error) return fail(error.message);
   const athleteIds = uniq((data ?? []).map((d) => d.athlete_id));
   const athletes = athleteIds.length ? await supabase.from("athletes").select("id,first_name,last_name").in("id", athleteIds) : { data: [] as { id: string; first_name: string; last_name: string }[] };
   const aName = new Map((athletes.data ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
-  return ok((data ?? []).map((d) => ({ id: d.id, fileName: d.file_name, kind: d.kind, createdAt: d.created_at, athleteName: d.athlete_id ? aName.get(d.athlete_id) ?? null : null })));
+  return ok((data ?? []).map((d) => ({ id: d.id, fileName: d.file_name, kind: d.kind, createdAt: d.created_at, athleteName: d.athlete_id ? aName.get(d.athlete_id) ?? null : null, athleteId: d.athlete_id ?? null })));
 }
 
-export async function listFamilyConsents(): Promise<Result<{ athleteName: string; title: string; acceptedAt: string }[]>> {
+export async function listFamilyConsents(): Promise<Result<{ athleteName: string; title: string; acceptedAt: string; athleteId: string }[]>> {
   const supabase = await createClient();
   const { data: kids } = await supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
   const ids = (kids ?? []).map((k) => k.id);
@@ -188,7 +188,7 @@ export async function listFamilyConsents(): Promise<Result<{ athleteName: string
   const formIds = uniq((data ?? []).map((c) => c.consent_form_id));
   const forms = formIds.length ? await supabase.from("consent_forms").select("id,title").in("id", formIds) : { data: [] as { id: string; title: string }[] };
   const fTitle = new Map((forms.data ?? []).map((f) => [f.id, f.title]));
-  return ok((data ?? []).map((c) => ({ athleteName: aName.get(c.athlete_id) ?? "Child", title: fTitle.get(c.consent_form_id) ?? "Consent", acceptedAt: c.accepted_at })));
+  return ok((data ?? []).map((c) => ({ athleteName: aName.get(c.athlete_id) ?? "Child", title: fTitle.get(c.consent_form_id) ?? "Consent", acceptedAt: c.accepted_at, athleteId: c.athlete_id })));
 }
 
 export type ParentNotification = { id: string; type: string; title: string; body: string | null; link: string | null; readAt: string | null; archivedAt: string | null; createdAt: string };

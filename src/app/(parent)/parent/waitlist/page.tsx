@@ -4,9 +4,12 @@ import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, PageHeader } 
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { clubToday } from "@/lib/plans/data";
-import { parentMembershipView, parentWaitlist, waitlistTargets } from "@/lib/club-admin/data";
+import { parentWaitlist, waitlistTargets } from "@/lib/club-admin/data";
 import { hoursLeft, waitlistTone, type WaitlistStatus } from "@/lib/club-admin/waitlist";
 import { LeaveWaitlistButton, ParentJoinWaitlist, type TargetOpt } from "@/components/club-admin/waitlist-widgets";
+import { getParticipantChoices } from "@/lib/participants/server";
+import { getActiveAthleteState } from "@/lib/participants/my-athletes";
+import { ALL_ATHLETES } from "@/lib/participants/active-athlete";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -18,7 +21,13 @@ export default async function ParentWaitlistPage() {
   const [me, { t, f }] = await Promise.all([getSessionUser(), getI18n()]);
   if (!me?.orgId || !me.roles.includes("parent")) redirect("/");
   const today = await clubToday(me.orgId);
-  const [entries, targets, view] = await Promise.all([parentWaitlist(me.orgId), waitlistTargets(me.orgId, today), parentMembershipView(me.orgId, me.id, today)]);
+  const [entries, targets, choices, state] = await Promise.all([
+    parentWaitlist(me.orgId), waitlistTargets(me.orgId, today),
+    getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName ?? null }), getActiveAthleteState(),
+  ]);
+  // Waiting lists are for the family's children (the join action checks guardianship).
+  const kids = { participants: choices.participants.filter((p) => p.kind === "child"), self: choices.self };
+  const active = state.active && state.active !== ALL_ATHLETES ? state.active : null;
   const label = (name: string, detail: string | null) => {
     if (!detail) return name;
     const [a, b] = detail.split("/");
@@ -58,7 +67,7 @@ export default async function ParentWaitlistPage() {
         <CardHeader><CardTitle>{t("clubadmin.waitlist.joinTitle")}</CardTitle></CardHeader>
         <CardBody>
           <ParentJoinWaitlist targets={full} options={targets.options} groups={targets.groups}
-            kids={view.children.map((c) => ({ id: c.id, name: `${c.first_name} ${c.last_name}` }))} />
+            choices={kids} active={active} today={today} />
         </CardBody>
       </Card>
     </div>

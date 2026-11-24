@@ -5,21 +5,27 @@ import { requireRole } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { listSubmissions, parentFormTasks } from "@/lib/forms/data";
 import { StatusBadge } from "@/components/forms/completion-table";
+import { athleteFilterFor } from "@/lib/participants/my-athletes";
+import { filterByAthlete } from "@/lib/participants/active-athlete";
+import { AthleteFilterBar } from "@/components/participants/athlete-filter-bar";
 
 export const dynamic = "force-dynamic";
 
 /** "My forms": what each child still needs (missing / expired / due soon) + what was submitted. */
-export default async function ParentFormsPage() {
+export default async function ParentFormsPage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
   await requireRole(["parent"]);
-  const { t, f } = await getI18n();
-  const [tasks, history] = await Promise.all([parentFormTasks(), listSubmissions()]);
+  const [{ t, f }, sp] = await Promise.all([getI18n(), searchParams]);
+  const [tasks, history, filter] = await Promise.all([parentFormTasks(), listSubmissions(), athleteFilterFor(sp.athlete, { allowAll: true })]);
   if (tasks.error !== null) return <ErrorState title={t("forms.errors.loadFailed")} message={tasks.error} />;
-  const todo = tasks.data.tasks.filter((x) => x.status !== "complete");
-  const done = tasks.data.tasks.filter((x) => x.status === "complete");
+  // Default: the active athlete of the switcher; "All" shows every child's forms.
+  const mine = filterByAthlete(tasks.data.tasks, filter, (x) => x.athleteId);
+  const todo = mine.filter((x) => x.status !== "complete");
+  const done = mine.filter((x) => x.status === "complete");
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
       <PageHeader title={t("forms.parent.title")} description={t("forms.parent.description")}
         actions={<Link href="/parent/contracts"><Button size="sm" variant="secondary"><FilePen className="h-4 w-4" /> {t("forms.parent.contracts")}</Button></Link>} />
+      <AthleteFilterBar athletes={filter.athletes} filter={filter} basePath="/parent/forms" t={t} />
       {tasks.data.tasks.length === 0 ? (
         <EmptyState icon={<ClipboardList className="h-5 w-5" />} title={t("forms.parent.empty")} />
       ) : (

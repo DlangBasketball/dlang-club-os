@@ -14,6 +14,9 @@ import { FamilyClubRequests } from "@/components/approvals/family-club-requests"
 import { NextStepBadge } from "@/components/approvals/next-step-badge";
 import { listFamilyClubRequests } from "@/lib/approvals/data";
 import { nextStep } from "@/lib/status/next-step";
+import { getParticipantChoices } from "@/lib/participants/server";
+import { getActiveAthleteState } from "@/lib/participants/my-athletes";
+import { ALL_ATHLETES } from "@/lib/participants/active-athlete";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -30,9 +33,11 @@ export default async function ParentMembershipPage() {
   const [me, { t, f, ctx }] = await Promise.all([getSessionUser(), getI18n()]);
   if (!me?.orgId || !me.roles.includes("parent")) redirect("/");
   const today = await clubToday(me.orgId);
-  const [view, settings, requests] = await Promise.all([
+  const [view, settings, requests, choices, state] = await Promise.all([
     parentMembershipView(me.orgId, me.id, today), getClubAdminSettings(me.orgId), listFamilyClubRequests(),
+    getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName ?? null }), getActiveAthleteState(),
   ]);
+  const activeAthlete = state.active && state.active !== ALL_ATHLETES ? state.active : null;
   const membershipRequests = requests.filter((r) => r.subject_kind === "membership");
   const openRequests = membershipRequests.filter((r) => r.status === "pending" || r.status === "info_requested");
   const current = view.memberships.filter((m) => m.effective === "active" || m.effective === "pending_payment");
@@ -129,9 +134,12 @@ export default async function ParentMembershipPage() {
         <CardHeader><CardTitle>{t("clubadmin.membership.joinTitle")}</CardTitle></CardHeader>
         <CardBody>
           <JoinClubRequestForm
-            types={view.types.map((x) => ({ id: x.id, name: x.name, scope: x.scope, price: f.money(Number(x.price), x.currency ?? ctx.currency) }))}
+            types={view.types.map((x) => ({
+              id: x.id, name: x.name, scope: x.scope, price: f.money(Number(x.price), x.currency ?? ctx.currency),
+              maxAge: (x as { max_age?: number | null }).max_age ?? null,
+            }))}
             families={view.families}
-            kids={view.children.map((c) => ({ id: c.id, name: `${c.first_name} ${c.last_name}`, familyId: c.family_id }))} />
+            choices={choices} active={activeAthlete} today={today} />
         </CardBody>
       </Card>
     </div>

@@ -167,7 +167,7 @@ function modeOf(p: ParticipantOption): PickerMode {
 }
 
 /** "Myself" on first use: the adult's name (prefilled), DOB (required: 18+), sex. */
-function SelfProfileForm({ initial, activityDate, idPrefix, onCreated }: {
+export function SelfProfileForm({ initial, activityDate, idPrefix, onCreated }: {
   initial: SelfState; activityDate: string; idPrefix: string; onCreated: (p: ParticipantOption) => void;
 }) {
   const t = useT();

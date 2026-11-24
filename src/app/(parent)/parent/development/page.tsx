@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ChevronRight, Dumbbell } from "lucide-react";
 import { Badge, Card, CardBody, EmptyState, ErrorState, PageHeader } from "@/components/ui";
 import { getI18n } from "@/lib/i18n/server";
+import { athleteFilterFor } from "@/lib/participants/my-athletes";
+import { filterByAthlete } from "@/lib/participants/active-athlete";
+import { AthleteFilterBar } from "@/components/participants/athlete-filter-bar";
 import { getAthleteDevelopment, listMyChildren } from "@/lib/development/data";
 import { completionRate } from "@/lib/development/plan";
 import { levelName } from "@/components/development/athlete-view";
@@ -10,14 +13,17 @@ import { levelName } from "@/components/development/athlete-view";
  * "My training": for each child, the progress level emoji, their own rank
  * band (never other children's names or scores) and this week's plan.
  */
-export default async function ParentDevelopmentPage() {
-  const { t } = await getI18n();
-  const kids = await listMyChildren();
-  if (kids.error !== null) return <ErrorState title={t("development.common.loadFailed")} message={kids.error} />;
+export default async function ParentDevelopmentPage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
+  const [{ t }, sp] = await Promise.all([getI18n(), searchParams]);
+  const [kidsRes, filter] = await Promise.all([listMyChildren(), athleteFilterFor(sp.athlete, { allowAll: true })]);
+  if (kidsRes.error !== null) return <ErrorState title={t("development.common.loadFailed")} message={kidsRes.error} />;
+  // Default: the active athlete of the switcher; "All" lists every child.
+  const kids = { ...kidsRes, data: filterByAthlete(kidsRes.data, filter, (k) => k.id) };
   const profiles = await Promise.all(kids.data.map((k) => getAthleteDevelopment(k.id, { familyView: true })));
   return (
     <div className="animate-fade-up space-y-5">
       <PageHeader title={t("development.family.title")} description={t("development.family.description")} />
+      <AthleteFilterBar athletes={filter.athletes.filter((a) => kidsRes.data.some((k) => k.id === a.id))} filter={filter} basePath="/parent/development" t={t} />
       {kids.data.length === 0 ? <EmptyState icon={<Dumbbell className="h-5 w-5" />} title={t("development.family.noChildren")} /> : (
         <div className="space-y-3">
           {kids.data.map((k, i) => {

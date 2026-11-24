@@ -43,7 +43,9 @@ export function CampRegister(props:
   | { mode: "public"; camp: PublicCamp; slug: string; config?: RegistrationConfig; planRules?: PlanRules }
   | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[]; config?: RegistrationConfig; planRules?: PlanRules;
       /** Participant picker (Myself / child / someone else); defaults to the kids as children. */
-      participants?: ParticipantOption[]; self?: SelfState }) {
+      participants?: ParticipantOption[]; self?: SelfState;
+      /** Preselected participants (the active athlete of the switcher). */
+      initialAthleteIds?: string[] }) {
   const { camp } = props;
   // Registration form editor config (omitted = the default form).
   const config = React.useMemo(() => props.config ?? resolveConfig(null), [props.config]);
@@ -61,7 +63,8 @@ export function CampRegister(props:
 
   const [parent, setParent] = React.useState<Parent>({ name: "", email: "", phone: "", address: "", emergencyName: "", emergencyPhone: "" });
   const [pubKids, setPubKids] = React.useState<PublicChild[]>([emptyChild()]);
-  const [parKids, setParKids] = React.useState<ParentChild[]>([]);
+  const [parKids, setParKids] = React.useState<ParentChild[]>(() =>
+    props.mode === "parent" ? (props.initialAthleteIds ?? []).map((id) => ({ ...emptyChoice(), athleteId: id, answers: {} })) : []);
   // Participants of the parent picker, including the ones created inline (kept with the form state).
   const [pickerList, setPickerList] = React.useState<ParticipantOption[]>(() =>
     props.mode === "parent" ? props.participants ?? props.kids.map((k) => ({ ...k, kind: "child" as const })) : []);

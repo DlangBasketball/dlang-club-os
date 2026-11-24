@@ -45,6 +45,8 @@ import { listSeasons } from "@/lib/sportsops/data";
 import { SessionHistoryList, TotalsSummary } from "@/components/attendance/admin/views";
 import { selectClass } from "@/components/teams/fields";
 import { Input } from "@/components/ui";
+import { ProfileHistory } from "@/components/participants/profile-history";
+import { getProfileHistory } from "@/lib/participants/admin-data";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -83,7 +85,7 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
   const optionLabel = (group: "gender" | "hand", v: string | null) =>
     v ? t.dynamic(`editPeople.${group}.${v.trim().toLowerCase()}`, undefined, v) : null;
 
-  const [photos, cover, family, attendanceRes, teams, teamOptions, cardTag, alumniOn, memberships, bookings, billingOverview, currentSeasonId] = await Promise.all([
+  const [photos, cover, family, attendanceRes, teams, teamOptions, cardTag, alumniOn, memberships, bookings, billingOverview, profileHistory, currentSeasonId] = await Promise.all([
     signAthletePhotos([{ id: a.id, photoPath: a.photoPath }], a.orgId),
     getAthleteCover(a.id),
     getFamily(a.familyId),
@@ -98,6 +100,8 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     // Booking history (staff RPC): bookings tab, booked-session attendance, invoices from bookings.
     canViewBilling ? getAthleteBookingHistory(a.id) : Promise.resolve(null),
     canViewBilling ? getPlayerBillingOverview(a.id, a.familyId) : Promise.resolve(null),
+    // Profile history: admins only (finance / coaches / families never; the RPC re-checks).
+    isAdmin ? getProfileHistory(a.id) : Promise.resolve(null),
     getCurrentSeasonId(),
   ]);
   const attendanceHistory = attendanceRes.data ?? [];
@@ -392,6 +396,11 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     ...(isAdmin ? [{ id: "development", label: t("media.profile.tabDevelopment"), content: developmentTab }] : []),
     { id: "attendance", label: t("media.profile.tabAttendance"), content: attendanceTab, count: attendanceHistory.length + sessionRows.length + bookedMarks.length },
     { id: "documents", label: t("media.profile.tabDocuments"), content: documentsTab },
+    ...(isAdmin && profileHistory ? [{
+      id: "history", label: t("myAthletes.history.tab"),
+      content: <ProfileHistory entries={profileHistory} t={t} f={f} />,
+      count: profileHistory.length,
+    }] : []),
     ...(canViewBilling ? [{
       id: "billing", label: t("media.profile.tabBilling"),
       content: (

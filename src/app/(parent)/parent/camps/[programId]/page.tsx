@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { ShoppingBasket } from "lucide-react";
 import { Button } from "@/components/ui";
 import { CampRegister } from "@/components/camps/camp-register";
+import { getActiveAthleteState } from "@/lib/participants/my-athletes";
+import { preselectAthlete } from "@/lib/participants/active-athlete";
 import { CampHero } from "@/components/camps/camp-hero";
 import { BasketAdder } from "@/components/camps/basket/basket-adder";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -21,7 +23,11 @@ export default async function ParentCampPage({ params }: { params: Promise<{ pro
   const camp = await getMemberCamp(me.orgId, programId);
   if (!camp) notFound();
   const { t } = await getI18n();
-  const [kids, choices] = await Promise.all([guardianKids(me.id, me.orgId), getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName })]);
+  const [kids, choices, state] = await Promise.all([
+    guardianKids(me.id, me.orgId), getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName }), getActiveAthleteState(),
+  ]);
+  // The active athlete of the switcher, when it is one of the family's children here.
+  const preset = preselectAthlete(state.active, kids.map((k) => k.id));
   const season = camp.program.season;
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
@@ -36,10 +42,11 @@ export default async function ParentCampPage({ params }: { params: Promise<{ pro
         <Link href="/parent/camps"><Button variant="ghost" size="sm">{t("camps.basket.otherCamps")}</Button></Link>
       </div>
       <BasketAdder mode="parent" scope={`parent:${me.orgId}`} camps={[camp]} kids={kids} basketHref="/parent/camps/basket"
+        choices={{ participants: choices.participants.filter((p) => p.kind === "child"), self: choices.self }} presetAthleteId={preset}
         title={t("camps.basket.adder.titleSeveral")} />
       <CampRegister mode="parent" camp={camp} config={await getRegistrationConfig(me.orgId, camp.program.id)}
         planRules={await getCheckoutPlanOffer(me.orgId, "camp", camp.program.currency)} kids={kids}
-        participants={choices.participants} self={choices.self} />
+        participants={choices.participants} self={choices.self} initialAthleteIds={preset ? [preset] : []} />
     </div>
   );
 }

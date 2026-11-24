@@ -9,25 +9,40 @@ import { LessonPlanReadOnly } from "@/components/staff/lesson-plan";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getTranslations } from "@/lib/i18n/server";
 import { lessonPlanAttachmentUrls, lessonPlansFor, type LessonPlanView } from "@/lib/staff/data";
+import { athleteFilterFor } from "@/lib/participants/my-athletes";
+import { AthleteFilterBar } from "@/components/participants/athlete-filter-bar";
 
-export const metadata = { title: "Schedule" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("myAthletes.pages.schedule.title") };
+}
 
-export default async function ParentSchedulePage() {
-  const res = await getChildrenSchedule();
-  if (res.error !== null) return <div className="animate-fade-up"><PageHeader title="Schedule" /><ErrorState message={res.error} /></div>;
-  const { events, hasTeams } = res.data;
+/**
+ * Upcoming trainings and games of the family's athletes. Default: the active
+ * athlete of the switcher (an event shows only that athlete's reply line);
+ * "All" shows every child.
+ */
+export default async function ParentSchedulePage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
+  const sp = await searchParams;
+  const [res, t, filter] = await Promise.all([getChildrenSchedule(), getTranslations(), athleteFilterFor(sp.athlete, { allowAll: true })]);
+  if (res.error !== null) return <div className="animate-fade-up"><PageHeader title={t("myAthletes.pages.schedule.title")} /><ErrorState message={res.error} /></div>;
+  const { hasTeams } = res.data;
+  const events = filter.mode === "all" ? res.data.events
+    : res.data.events.map((e) => ({ ...e, children: e.children.filter((c) => c.athleteId === filter.athleteId) })).filter((e) => e.children.length > 0);
   // Lesson plans the coaches shared with parents (RLS: own children's events only).
-  const [me, t] = await Promise.all([getSessionUser(), getTranslations()]);
+  const me = await getSessionUser();
   const plans: Map<string, LessonPlanView> = me?.orgId ? await lessonPlansFor(me.orgId, { eventIds: events.map((e) => e.id) }) : new Map();
   const planUrls = await lessonPlanAttachmentUrls(Array.from(plans.values()).map((p) => p.attachmentPath));
   const needsReply = events.filter((e) => e.status === "scheduled" && e.children.some((c) => !c.rsvp)).length;
 
   return (
     <div className="animate-fade-up space-y-5">
-      <PageHeader title="Schedule" description={needsReply ? `${needsReply} upcoming event${needsReply === 1 ? "" : "s"} waiting for your reply.` : "Upcoming trainings and games for your children."} />
+      <PageHeader title={t("myAthletes.pages.schedule.title")}
+        description={needsReply ? t("myAthletes.pages.schedule.needsReply", { count: needsReply }) : t("myAthletes.pages.schedule.description")} />
+      <AthleteFilterBar athletes={filter.athletes} filter={filter} basePath="/parent/schedule" t={t} />
       {events.length === 0 ? (
-        <EmptyState icon={<CalendarDays className="h-5 w-5" />} title={hasTeams ? "Nothing scheduled yet" : "No team yet"}
-          description={hasTeams ? "New trainings and games will appear here." : "Once your child is placed on a team, their schedule appears here."} />
+        <EmptyState icon={<CalendarDays className="h-5 w-5" />} title={hasTeams ? t("myAthletes.pages.schedule.emptyTitle") : t("myAthletes.pages.schedule.noTeamTitle")}
+          description={hasTeams ? t("myAthletes.pages.schedule.emptyHint") : t("myAthletes.pages.schedule.noTeamHint")} />
       ) : (
         <div className="space-y-3">
           {events.map((e) => {

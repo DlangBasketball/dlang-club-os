@@ -236,7 +236,9 @@
     "approvals": "Approvazioni",
     "clubRequests": "Richieste al club",
     "clubProgrammes": "Programmi del club",
-    "bookingsForOthers": "Prenotazioni per altri"
+    "bookingsForOthers": "Prenotazioni per altri",
+    "myAthletes": "I miei atleti",
+    "myAthletesTerm": "I miei {term}"
   },
   "shell": {
     "openMenu": "Apri menu",
@@ -12516,7 +12518,8 @@
         "ATTENDANCE_MARK_NOT_FINALIZED": "Foglio finalizzato con un giocatore non finalizzato",
         "ATHLETE_ELIGIBILITY_CHANGE": "Correzione di data di nascita / sesso da verificare",
         "ATHLETE_LINK_REQUEST": "Richiesta di collegamento a un figlio",
-        "POSSIBLE_DUPLICATE": "Possibile profilo duplicato"
+        "POSSIBLE_DUPLICATE": "Possibile profilo duplicato",
+        "POSSIBLE_SELF_LINK": "Possibile account personale"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Gli avvisi di assenza di questo giocatore non raggiungono nessuno. Aggiungi alla famiglia un genitore con accesso attivo.",
@@ -12537,7 +12540,8 @@
         "ATTENDANCE_MARK_NOT_FINALIZED": "Un giocatore di questo foglio finalizzato non ha uno stato finalizzato. Riaprite il foglio, segnate il giocatore e finalizzate di nuovo.",
         "ATHLETE_ELIGIBILITY_CHANGE": "Una famiglia ha corretto un figlio iscritto. Approva o rifiuta nel pannello sopra.",
         "ATHLETE_LINK_REQUEST": "Un adulto chiede l'accesso come tutore a un figlio esistente. Decidi nel pannello sopra (anche la famiglia può approvare).",
-        "POSSIBLE_DUPLICATE": "Una famiglia ha creato un profilo con stesso nome e data di nascita di uno esistente. Unisci o mantieni entrambi."
+        "POSSIBLE_DUPLICATE": "Una famiglia ha creato un profilo con stesso nome e data di nascita di uno esistente. Unisci o mantieni entrambi.",
+        "POSSIBLE_SELF_LINK": "Un giocatore adulto con e-mail del contatto famiglia e nome uguali a un account. Conferma il collegamento o scartalo."
       }
     }
   },
@@ -14308,6 +14312,188 @@
     },
     "slot": {
       "explain": "Teniamo il posto per 72 ore e chiediamo via e-mail il consenso al genitore o rappresentante legale. Vedi lo stato della prenotazione e quanto devi, mai i suoi dati personali."
+    }
+  },
+  "myAthletes": {
+    "title": "I miei atleti",
+    "titleTerm": "I miei {term}",
+    "description": "Il tuo profilo e ogni figlio di cui sei tutore, con squadre, programmi e ciò che resta da fare.",
+    "addChild": "Aggiungi atleta",
+    "addMyself": "Aggiungi me stesso",
+    "myself": "Io",
+    "activeBadge": "Selezionato",
+    "emptyTitle": "Nessun atleta per ora",
+    "emptyHint": "Aggiungi un figlio (o te stesso, se hai almeno 18 anni) per iscriverlo a squadre, campi e allenamenti.",
+    "teamWithNumber": "{team} (n. {number})",
+    "programmes": "Programmi: {names}",
+    "noActivity": "Nessuna squadra o programma per ora",
+    "correctionPending": "Correzione del profilo in verifica",
+    "switcher": {
+      "label": "Mostra",
+      "all": "Tutti gli atleti",
+      "allTerm": "Tutti i {term}",
+      "me": "{name} (io)"
+    },
+    "filter": {
+      "label": "Scegli un atleta",
+      "all": "Tutti"
+    },
+    "picker": {
+      "legend": "Per chi?"
+    },
+    "errors": {
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "NOT_ALLOWED": "Non hai l'autorizzazione per farlo.",
+      "NOT_FOUND": "Questo atleta non è stato trovato nel tuo account.",
+      "INVALID_MERGE": "Scegli due schede diverse di questo club.",
+      "ALREADY_MERGED": "Questa scheda è già stata unita.",
+      "MERGE_BLOCKED": "L'unione è stata interrotta: un elemento collegato non è stato spostato. Nulla è stato modificato.",
+      "REQUEST_ID_REQUIRED": "Ricarica la pagina e riprova.",
+      "TOO_LONG": "Questo testo è troppo lungo.",
+      "PROFILE_ALREADY_LINKED": "Questo account è già collegato a un altro atleta.",
+      "LINK_FAILED": "Il collegamento non è riuscito. Apri l'atleta e controlla la scheda.",
+      "INVALID_DECISION": "Questa decisione non è valida."
+    },
+    "dataCheck": {
+      "run": "Controlla le schede atleti",
+      "done": "{count, plural, =0 {Nessuna nuova segnalazione.} one {# nuova segnalazione da verificare.} other {# nuove segnalazioni da verificare.}}"
+    },
+    "selfLink": {
+      "title": "Giocatori adulti che forse hanno già un account",
+      "explain": "Stessa e-mail del contatto famiglia e stesso nome di un account. Nulla viene collegato senza la tua conferma.",
+      "match": "{athlete} potrebbe essere il profilo atleta dell'account {login}.",
+      "link": "Collega a questo account",
+      "dismiss": "Non è la stessa persona",
+      "linked": "Collegato: il giocatore ora vede il proprio profilo.",
+      "dismissed": "Scartato. Questa segnalazione non tornerà."
+    },
+    "merge": {
+      "title": "Possibili schede doppie",
+      "keep": "Mantieni",
+      "noFamily": "senza famiglia",
+      "createdOn": "creata il {date}",
+      "links": "{teams} squadre · {registrations} iscrizioni · {invoices} fatture",
+      "hasLogin": "ha un account",
+      "confirm": "Unire queste schede? Tutto ciò che è collegato all'altra scheda passa a quella che mantieni; non si può annullare automaticamente.",
+      "explain": "Squadre, iscrizioni, fatture, prenotazioni e altri collegamenti passano alla scheda mantenuta. Se entrambe ne hanno già uno (ad es. la stessa squadra), resta quello della scheda mantenuta e l'altro viene segnalato. L'altra scheda è archiviata, mai eliminata.",
+      "reason": "Motivo (facoltativo, salvato nella cronologia)",
+      "submit": "Unisci nella scheda mantenuta",
+      "done": "Unione fatta: {moved} collegamenti spostati, {conflicts} lasciati sulla scheda archiviata.",
+      "conflict": {
+        "kept_athlete_row": "Già sulla scheda mantenuta ({table}): resta quella.",
+        "kept_athlete_login": "Le due schede hanno account diversi: resta quello della scheda mantenuta.",
+        "different_family": "Le schede appartenevano a famiglie diverse: collega i tutori dell'altra famiglia se necessario."
+      }
+    },
+    "history": {
+      "tab": "Cronologia del profilo",
+      "title": "Cronologia del profilo",
+      "empty": "Nessuna modifica del profilo registrata.",
+      "linked": "(scheda collegata)",
+      "reasonClubRequest": "richiesta al club",
+      "system": "Sistema",
+      "actions": {
+        "athlete_profile_created": "Profilo creato",
+        "athlete_profile_changed": "Profilo modificato",
+        "athlete_profile_erased": "Profilo cancellato",
+        "athlete_profile_correction_requested": "Correzione di data di nascita / sesso richiesta",
+        "athlete_profile_correction_approved": "Correzione di data di nascita / sesso approvata",
+        "athlete_profile_correction_declined": "Correzione di data di nascita / sesso rifiutata",
+        "athlete_profile_correction_withdrawn": "Correzione di data di nascita / sesso ritirata",
+        "athlete_profile_proposal_submitted": "Dati proposti con una richiesta al club",
+        "athlete_profile_proposal_approved": "Dati proposti approvati",
+        "athlete_profile_proposal_declined": "Dati proposti rifiutati",
+        "athlete_merge_kept": "Scheda doppia unita in questa",
+        "athlete_merge_archived": "Unita in un'altra scheda e archiviata",
+        "participant_link_approved": "Collegamento del tutore approvato",
+        "participant_link_declined": "Collegamento del tutore rifiutato"
+      },
+      "via": {
+        "staff": "dal club",
+        "family": "dalla famiglia",
+        "coach": "da un allenatore",
+        "system": "automatico",
+        "direct": "modifica diretta",
+        "review": "dopo verifica",
+        "club_approval": "approvazione del club",
+        "merge": "unione"
+      },
+      "fields": {
+        "first_name": "Nome",
+        "last_name": "Cognome",
+        "dob": "Data di nascita",
+        "gender": "Sesso",
+        "height_cm": "Altezza",
+        "weight_kg": "Peso",
+        "position_pref": "Ruolo",
+        "jersey_size": "Taglia maglia",
+        "preferred_jersey_number": "Numero di maglia preferito",
+        "player_profile_id": "Account personale",
+        "family_id": "Famiglia",
+        "status": "Stato",
+        "merged_into_id": "Unita in",
+        "merged_athlete_id": "Scheda unita",
+        "kept_athlete_id": "Scheda mantenuta"
+      }
+    },
+    "proposal": {
+      "title": "Dati del profilo proposti",
+      "field": "Dato",
+      "current": "Attuale",
+      "proposed": "Proposto",
+      "pendingNote": "Nulla cambia finché il club non approva.",
+      "notApplied": "Non applicato (richiesta rifiutata)",
+      "appliedBadge": "Applicato al profilo",
+      "applied": "I dati confermati sono stati salvati nel profilo.",
+      "jerseyTaken": "La maglia n. {number} è già assegnata nella squadra: il numero in rosa è rimasto vuoto.",
+      "jerseyAssigned": "La maglia n. {number} è stata assegnata in rosa.",
+      "jerseyReserved": "La maglia n. {number} sarà assegnata in rosa alla conferma dell'iscrizione, se ancora libera.",
+      "jerseyNoTeam": "Maglia n. {number} salvata come preferenza (il programma non ha una squadra attiva).",
+      "eligibilityReview": "La correzione di data di nascita / sesso attende la verifica del club.",
+      "formTitle": "Aggiungi o aggiorna dati del profilo (facoltativo)",
+      "formHint": "Inviati con la richiesta e applicati solo se il club la approva.",
+      "correctionHint": "Solo se data di nascita o sesso registrati sono errati: il club li verifica a parte."
+    },
+    "fields": {
+      "position_pref": "Ruolo",
+      "preferred_jersey_number": "Numero di maglia preferito",
+      "jersey_size": "Taglia maglia",
+      "height_cm": "Altezza",
+      "weight_kg": "Peso",
+      "dob": "Data di nascita",
+      "gender": "Sesso"
+    },
+    "units": {
+      "cm": "{n} cm",
+      "kg": "{n} kg"
+    },
+    "pages": {
+      "documents": {
+        "title": "Documenti e consensi",
+        "description": "File e accordi registrati per la tua famiglia.",
+        "loadError": "Impossibile caricare i documenti",
+        "documents": "Documenti",
+        "consents": "Moduli di consenso",
+        "emptyTitle": "Nessun documento per ora",
+        "emptyHint": "I documenti condivisi dal club appariranno qui.",
+        "noConsents": "Nessun consenso registrato per ora.",
+        "kinds": {
+          "consent_pdf": "PDF di consenso",
+          "medical": "Medico",
+          "insurance": "Assicurazione",
+          "photo": "Immagine",
+          "other": "Documento"
+        }
+      },
+      "schedule": {
+        "title": "Calendario",
+        "description": "Prossimi allenamenti e partite.",
+        "needsReply": "{count, plural, one {# evento in arrivo attende la tua risposta.} other {# eventi in arrivo attendono la tua risposta.}}",
+        "emptyTitle": "Nulla in programma per ora",
+        "emptyHint": "I nuovi allenamenti e partite appariranno qui.",
+        "noTeamTitle": "Nessuna squadra per ora",
+        "noTeamHint": "Quando il tuo atleta sarà in una squadra, il calendario apparirà qui."
+      }
     }
   }
 }

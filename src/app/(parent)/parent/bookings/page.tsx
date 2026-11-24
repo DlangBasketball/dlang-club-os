@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { athleteFilterFor } from "@/lib/participants/my-athletes";
+import { AthleteFilterBar } from "@/components/participants/athlete-filter-bar";
 import { CalendarPlus, Plus } from "lucide-react";
 import { Button, ErrorState, PageHeader } from "@/components/ui";
 import { BookedAttendance, BookingChanges, BookingInvoices, UpcomingBookings } from "@/components/booking/portal/family-bookings";
 import { getGuardianBookings } from "@/lib/booking/data";
 import { flattenAttendance, flattenChanges, flattenInvoices, flattenUpcoming, invoiceByBooking } from "@/lib/booking/portal";
-import { uuidParam } from "@/lib/attendance/family";
 import { getBookingSettings } from "@/lib/data/training-admin";
 import { getI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
@@ -29,12 +30,19 @@ export async function generateMetadata() {
  */
 export default async function ParentBookingsPage({ searchParams }: { searchParams: Promise<{ athlete?: string; camp?: string }> }) {
   const sp = await searchParams;
-  const [{ t, f }, overview, settings, me] = await Promise.all([getI18n(), getGuardianBookings(), getBookingSettings(), getSessionUser()]);
+  const [{ t, f }, overview, settings, me, filter] = await Promise.all([
+    getI18n(), getGuardianBookings(), getBookingSettings(), getSessionUser(), athleteFilterFor(sp.athlete, { allowAll: true }),
+  ]);
+  // Explicit ?athlete=, else the active athlete of the switcher (validated), else all.
+  const wanted = filter.mode === "one" ? filter.athleteId : null;
   // Camp weeks of the guardian's own children (incl. requests pending approval).
-  const campKids = me?.orgId ? await guardianKids(me.id, me.orgId) : [];
+  const campKidsAll = me?.orgId ? await guardianKids(me.id, me.orgId) : [];
+  const campKids = wanted && campKidsAll.some((k) => k.id === wanted) ? campKidsAll.filter((k) => k.id === wanted) : campKidsAll;
   const campRows = me?.orgId ? await listFamilyCampRegistrations(me.orgId, campKids.map((k) => k.id)) : [];
   // Club programme requests (pending club approval -> awaiting payment -> confirmed), derived on read.
-  const clubRows = me?.orgId ? (await listFamilyClubRequests()).filter((r) => r.subject_kind === "program_registration") : [];
+  const clubRows = me?.orgId ? (await listFamilyClubRequests())
+    .filter((r) => r.subject_kind === "program_registration" && (!wanted || r.athlete?.id === wanted)) : [];
+  const filterBar = <AthleteFilterBar athletes={filter.athletes} filter={filter} basePath="/parent/bookings" t={t} />;
   const campNotice = sp.camp === "requested"
     ? <div role="status" className="rounded-md border border-info/40 bg-info-soft px-4 py-3 text-sm text-text">{t("camps.approval.parent.requested")}</div>
     : null;
@@ -53,6 +61,7 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
     return (
       <div className="animate-fade-up space-y-5">
         <PageHeader title={title} actions={action} />
+        {filterBar}
         {campNotice}
         <FamilyCampRegistrations rows={campRows} t={t} f={f} showChild={campKids.length > 1} />
         <FamilyClubRequests rows={clubRows} t={t} f={f} showChild={campKids.length > 1} title={t("approvals.programs.myRequests")} />
@@ -62,7 +71,6 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
   }
 
   const all = overview.data;
-  const wanted = uuidParam(sp.athlete);
   const kids = wanted && all.some((o) => o.athlete.id === wanted) ? all.filter((o) => o.athlete.id === wanted) : all;
   const showChild = kids.length > 1;
   const invoices = invoiceByBooking(kids);
@@ -70,6 +78,7 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title={title} description={t("bookingPortal.family.description")} actions={action} />
+      {filterBar}
 
       {all.length > 1 && (
         <nav aria-label={t("bookingPortal.family.childTabs")} className="flex gap-1 overflow-x-auto rounded-lg border border-border bg-surface p-1">

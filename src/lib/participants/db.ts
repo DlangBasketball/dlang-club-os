@@ -43,6 +43,14 @@ type ParticipantFunctions = {
   participant_link_inbox: { Args: Record<string, never>; Returns: Json };
   participant_my_requests: { Args: Record<string, never>; Returns: Json };
   participant_review_queue: { Args: Record<string, never>; Returns: Json };
+  // 20250420106200_my_athletes_sync.sql
+  my_athletes: { Args: Record<string, never>; Returns: Json };
+  my_athlete_resolve: { Args: { p_athlete: string }; Returns: string | null };
+  athlete_data_check: { Args: Record<string, never>; Returns: Json };
+  athlete_self_link_decide: { Args: { p_flag: string; p_decision: string }; Returns: Json };
+  athlete_merge: { Args: { p_keep: string; p_duplicate: string; p_reason: string | null; p_request_id: string }; Returns: Json };
+  athlete_duplicate_pairs: { Args: Record<string, never>; Returns: Json };
+  athlete_profile_history: { Args: { p_athlete: string; p_limit?: number }; Returns: Json };
 };
 
 type Pub = Database["public"];

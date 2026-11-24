@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader, CardMeta, CardTitle } from "@/components/ui
 import { NextStepBadge } from "@/components/approvals/next-step-badge";
 import { RequestThread } from "@/components/approvals/request-thread";
 import { FamilyRequestActions } from "@/components/approvals/family-request-actions";
+import { ProposedProfile } from "@/components/approvals/proposed-profile";
 import { requestChild, requestNextStep, requestSubject, type ClubRequest } from "@/lib/approvals/types";
 import type { Translator } from "@/lib/i18n/translator";
 import type { Formatter } from "@/lib/format";
@@ -56,6 +57,7 @@ export function FamilyClubRequests({ rows, t, f, title, description, showChild =
                     )}
                   </div>
                 </div>
+                <ProposedProfile profile={r.profile} t={t} f={f} />
                 <RequestThread messages={r.messages} t={t} f={f} viewer="family" />
                 {open && <FamilyRequestActions id={r.id} canReply={r.status === "info_requested"} canWithdraw />}
               </li>

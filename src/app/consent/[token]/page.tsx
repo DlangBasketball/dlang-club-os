@@ -92,7 +92,7 @@ export default async function ConsentPage({ params }: { params: Promise<{ token:
                 <Badge tone={view.status === "accepted" ? "success" : "neutral"}>{t.dynamic(`consentRequest.status.${view.status}`, undefined, view.status ?? "")}</Badge>
                 {t.dynamic(`consentRequest.page.done.${view.status}`, undefined, "")}
                 {view.status === "accepted" && me && (
-                  <Link href="/parent/children" className="ml-auto"><Button size="sm" variant="secondary">{t("consentRequest.page.openApp")}</Button></Link>
+                  <Link href="/parent/athletes" className="ml-auto"><Button size="sm" variant="secondary">{t("consentRequest.page.openApp")}</Button></Link>
                 )}
               </CardBody></Card>
             ) : (

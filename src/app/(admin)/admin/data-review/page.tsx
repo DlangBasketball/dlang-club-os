@@ -7,6 +7,8 @@ import { listReviewFlags } from "@/lib/data/billing";
 import { canSeeFlag, decidedInPanel, flagGroup, flagHref, type FlagGroup } from "@/lib/attendance/review-flags";
 import { getReviewQueue } from "@/lib/participants/server";
 import { ParticipantReviewPanel } from "@/components/participants/review-panel";
+import { AthleteDataCheckButton, DuplicateMergePanel, SelfLinkPanel } from "@/components/participants/data-check-panels";
+import { getDuplicatePairs, getSelfLinkFindings } from "@/lib/participants/admin-data";
 import { RefreshFlagsButton, ResolveFlagForm } from "@/components/attendance/admin/actions";
 
 export async function generateMetadata() {
@@ -29,10 +31,13 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
   const roles = { admin: me.roles.includes("admin"), finance: me.roles.includes("finance") };
   const group = (GROUPS as readonly string[]).includes(sp.group ?? "") ? (sp.group as (typeof GROUPS)[number]) : "all";
   const includeResolved = sp.resolved === "1";
-  const [res, queue] = await Promise.all([listReviewFlags({ includeResolved }), roles.admin ? getReviewQueue() : Promise.resolve(null)]);
+  const [res, queue, pairs, selfLinks] = await Promise.all([
+    listReviewFlags({ includeResolved }), roles.admin ? getReviewQueue() : Promise.resolve(null),
+    roles.admin ? getDuplicatePairs() : Promise.resolve([]), roles.admin ? getSelfLinkFindings() : Promise.resolve([]),
+  ]);
   const header = (
     <PageHeader title={t("adminAttendance.review.title")} description={t("adminAttendance.review.description")}
-      actions={roles.admin ? <RefreshFlagsButton /> : undefined} />
+      actions={roles.admin ? <div className="flex flex-wrap items-start gap-2"><AthleteDataCheckButton /><RefreshFlagsButton /></div> : undefined} />
   );
   if (res.error !== null) return <div className="animate-fade-up">{header}<ErrorState message={res.error} /></div>;
   const visible = res.data.filter((x) => canSeeFlag(x.reasonCode, roles));
@@ -55,6 +60,12 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
       </nav>
 
       {queue && (group === "all" || group === "people") && <ParticipantReviewPanel queue={queue} />}
+      {roles.admin && (group === "all" || group === "people") && (pairs.length > 0 || selfLinks.length > 0) && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <DuplicateMergePanel pairs={pairs} />
+          <SelfLinkPanel findings={selfLinks} />
+        </div>
+      )}
 
       {flags.length === 0 ? (
         <EmptyState icon={<ClipboardCheck className="h-5 w-5" />} title={t("adminAttendance.review.emptyTitle")} description={t("adminAttendance.review.emptyHint")} />

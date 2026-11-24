@@ -8,6 +8,7 @@ import {
   adminAddToWaitlist, joinWaitlist, leaveWaitlist, moveWaitlistEntry, offerWaitlistEntryNow, respondToOffer, runWaitlistsNow, skipWaitlistEntry,
 } from "@/lib/actions/club-admin-waitlist";
 import { useCaAction } from "./use-ca-action";
+import { AthletePickerField, initialAthlete, type AthleteChoices } from "@/components/participants/athlete-picker-field";
 
 type Opt = { id: string; name: string };
 export type TargetOpt = { kind: "program" | "camp_edition"; id: string; label: string; programId: string; full: boolean };
@@ -107,14 +108,15 @@ export function AdminAddForm({ targets, athletes, options, groups }: {
   );
 }
 
-/** Parent: put a child on a full programme / camp week list. */
-export function ParentJoinWaitlist({ targets, kids, options, groups }: {
-  targets: TargetOpt[]; kids: Opt[]; options: Record<string, { id: string; label: string }[]>; groups: Record<string, { id: string; label: string }[]>;
+/** Parent: put a child on a full programme / camp week list (shared athlete picker, active athlete preselected). */
+export function ParentJoinWaitlist({ targets, choices, active, today, options, groups }: {
+  targets: TargetOpt[]; choices: AthleteChoices; active: string | null; today: string;
+  options: Record<string, { id: string; label: string }[]>; groups: Record<string, { id: string; label: string }[]>;
 }) {
   const t = useT();
   const { busy, run, note } = useCaAction();
   const [target, setTarget] = React.useState("");
-  const [athleteId, setAthleteId] = React.useState(kids[0]?.id ?? "");
+  const [athleteId, setAthleteId] = React.useState(() => initialAthlete(active, choices.participants.map((p) => p.id)) || (choices.participants[0]?.id ?? ""));
   const [optionId, setOptionId] = React.useState("");
   const [groupId, setGroupId] = React.useState("");
   const tg = targets.find((x) => `${x.kind}:${x.id}` === target);
@@ -127,14 +129,12 @@ export function ParentJoinWaitlist({ targets, kids, options, groups }: {
             <option value="">—</option>
             {targets.map((x) => <option key={`${x.kind}:${x.id}`} value={`${x.kind}:${x.id}`}>{x.label}</option>)}
           </Select></div>
-        <div><Label htmlFor="pw-child">{t("clubadmin.common.child")}</Label>
-          <Select id="pw-child" value={athleteId} onChange={(e) => setAthleteId(e.target.value)}>
-            {kids.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
-          </Select></div>
         {tg?.kind === "camp_edition" && (
           <CampChoice programId={tg.programId} options={options} groups={groups} optionId={optionId} setOptionId={setOptionId} groupId={groupId} setGroupId={setGroupId} idp="pw" />
         )}
       </div>
+      <AthletePickerField idPrefix="pw-child" legend={t("myAthletes.picker.legend")} choices={choices} value={athleteId}
+        onChange={(id) => setAthleteId(id)} activityDate={today} />
       <div className="flex items-center gap-3">
         <Button size="sm" loading={busy} disabled={!tg || !athleteId || (tg.kind === "camp_edition" && !optionId)}
           onClick={() => tg && run(() => joinWaitlist({ kind: tg.kind, targetId: tg.id, athleteId, priceOptionId: optionId, ageGroupId: groupId }))}>

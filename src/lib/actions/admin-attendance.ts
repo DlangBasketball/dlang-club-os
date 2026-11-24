@@ -83,6 +83,10 @@ export async function refreshReviewFlags(): Promise<AdminResult> {
   const db = await createClient();
   const { data, error } = await db.rpc("attendance_review_flags", { p_org: user.orgId });
   if (error) return fail(t, error);
+  // Athlete data checks (possible duplicates / self links / no guardian; 20250420106200).
+  const { data: people, error: peopleError } = await db.rpc("athlete_data_check" as never);
+  if (peopleError) logError("dataReview.athleteCheck", peopleError);
+  const extra = Number((people as { total?: number } | null)?.total ?? 0);
   revalidatePath("/admin/data-review");
-  return { ok: true, message: t("adminAttendance.messages.flagsRefreshed", { count: Number(data ?? 0) }) };
+  return { ok: true, message: t("adminAttendance.messages.flagsRefreshed", { count: Number(data ?? 0) + extra }) };
 }

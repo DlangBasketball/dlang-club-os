@@ -7,16 +7,24 @@ import { getI18n } from "@/lib/i18n/server";
 import { opsDb } from "@/lib/operations/db";
 import { sizesEditable } from "@/lib/operations/kit";
 import { submitKitSizes } from "@/lib/actions/operations-equipment";
+import { athleteFilterFor } from "@/lib/participants/my-athletes";
+import { filterByAthlete } from "@/lib/participants/active-athlete";
+import { AthleteFilterBar } from "@/components/participants/athlete-filter-bar";
 
 /**
  * Kit for the family's children (RLS: guardians see only their own children's
  * kit): jersey number, status, and the quick sizes form while sizes are open.
  */
-export default async function ParentKitPage() {
-  const [me, { t, f }] = await Promise.all([getSessionUser(), getI18n()]);
+export default async function ParentKitPage({ searchParams }: { searchParams: Promise<{ athlete?: string }> }) {
+  const [me, { t, f }, sp] = await Promise.all([getSessionUser(), getI18n(), searchParams]);
   if (!me?.orgId) redirect("/login");
   const db = await opsDb();
-  const { data: kit } = await db.from("kit_assignments").select("*").eq("org_id", me.orgId).order("created_at", { ascending: false }).limit(100);
+  const [{ data: allKit }, filter] = await Promise.all([
+    db.from("kit_assignments").select("*").eq("org_id", me.orgId).order("created_at", { ascending: false }).limit(100),
+    athleteFilterFor(sp.athlete, { allowAll: true }),
+  ]);
+  // Default: the active athlete of the switcher; "All" shows every child's kit.
+  const kit = filterByAthlete(allKit ?? [], filter, (k) => k.athlete_id);
   const athleteIds = Array.from(new Set((kit ?? []).map((k) => k.athlete_id)));
   const teamIds = Array.from(new Set((kit ?? []).map((k) => k.team_id)));
   const [{ data: athletes }, { data: teams }] = await Promise.all([
@@ -29,6 +37,7 @@ export default async function ParentKitPage() {
   return (
     <div className="animate-fade-up space-y-5">
       <PageHeader title={t("operations.kit.parentTitle")} description={t("operations.kit.parentDescription")} />
+      <AthleteFilterBar athletes={filter.athletes} filter={filter} basePath="/parent/kit" t={t} />
       {(kit ?? []).length === 0 ? <EmptyState icon={<Shirt />} title={t("operations.kit.parentEmpty")} /> : (kit ?? []).map((k) => (
         <Card key={k.id}>
           <CardHeader>

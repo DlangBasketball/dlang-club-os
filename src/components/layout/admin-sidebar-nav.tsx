@@ -7,7 +7,7 @@ import { ChevronDown, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/client";
 import { useTenant } from "@/lib/tenant/context";
-import { NAV_TERM, termOr } from "@/lib/tenant/terms";
+import { NAV_TERM, myAthletesLabel, termOr } from "@/lib/tenant/terms";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 import { ADMIN_NAV_ICONS } from "./nav-config";
 import { activeGroupKey, activeNavKey, type AdminNavEntry, type AdminNavModel } from "./admin-nav";
@@ -19,6 +19,7 @@ export function useNavLabel() {
   return React.useCallback(
     (labelKey: NamespaceKey<"nav">, params?: Record<string, string>) => {
       const translated = t(`nav.${labelKey}`, params);
+      if (labelKey === "myAthletes") return myAthletesLabel(terminology, translated, (term) => t("nav.myAthletesTerm", { term }));
       const m = NAV_TERM[labelKey];
       return m ? termOr(terminology, m.key, translated, { plural: m.plural }) : translated;
     },

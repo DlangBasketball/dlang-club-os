@@ -359,7 +359,7 @@ export function payersPayload(rows: PayerFormRow[], familyId: string | null) {
 }
 
 /** Profile tabs addressable with ?tab= (unknown values fall back to the first tab). */
-export const PROFILE_TABS = ["overview", "teams", "membership", "selection", "bookings", "development", "attendance", "documents", "billing"] as const;
+export const PROFILE_TABS = ["overview", "teams", "membership", "selection", "bookings", "development", "attendance", "documents", "billing", "history"] as const;
 export type ProfileTabId = (typeof PROFILE_TABS)[number];
 export const parseProfileTab = (v: unknown): ProfileTabId | null =>
   typeof v === "string" && (PROFILE_TABS as readonly string[]).includes(v) ? (v as ProfileTabId) : null;

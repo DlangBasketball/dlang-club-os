@@ -236,7 +236,9 @@
     "approvals": "Freigaben",
     "clubRequests": "Anfragen an den Verein",
     "clubProgrammes": "Vereinsprogramme",
-    "bookingsForOthers": "Buchungen für andere"
+    "bookingsForOthers": "Buchungen für andere",
+    "myAthletes": "Meine Athleten",
+    "myAthletesTerm": "Meine {term}"
   },
   "shell": {
     "openMenu": "Menü öffnen",
@@ -12516,7 +12518,8 @@
         "ATTENDANCE_MARK_NOT_FINALIZED": "Abgeschlossene Liste mit nicht abgeschlossenem Spieler",
         "ATHLETE_ELIGIBILITY_CHANGE": "Korrektur von Geburtsdatum / Geschlecht zu prüfen",
         "ATHLETE_LINK_REQUEST": "Anfrage zur Verknüpfung mit einem Kind",
-        "POSSIBLE_DUPLICATE": "Mögliches Doppelprofil"
+        "POSSIBLE_DUPLICATE": "Mögliches Doppelprofil",
+        "POSSIBLE_SELF_LINK": "Mögliches eigenes Konto"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Absenzmeldungen zu diesem Spieler erreichen niemanden. Ergänzen Sie die Familie um eine erziehungsberechtigte Person mit aktivem Login.",
@@ -12537,7 +12540,8 @@
         "ATTENDANCE_MARK_NOT_FINALIZED": "Ein Spieler dieser abgeschlossenen Liste hat keinen abgeschlossenen Status. Liste wieder öffnen, Spieler erfassen und erneut abschließen.",
         "ATHLETE_ELIGIBILITY_CHANGE": "Eine Familie hat ein angemeldetes Kind korrigiert. Oben bestätigen oder ablehnen.",
         "ATHLETE_LINK_REQUEST": "Eine erwachsene Person möchte Zugriff auf ein bestehendes Kind. Oben entscheiden (die Familie kann auch bestätigen).",
-        "POSSIBLE_DUPLICATE": "Eine Familie hat ein Profil mit gleichem Namen und Geburtsdatum wie ein bestehendes angelegt. Zusammenführen oder beide behalten."
+        "POSSIBLE_DUPLICATE": "Eine Familie hat ein Profil mit gleichem Namen und Geburtsdatum wie ein bestehendes angelegt. Zusammenführen oder beide behalten.",
+        "POSSIBLE_SELF_LINK": "Ein erwachsener Spieler, dessen Familien-E-Mail und Name zu einem Konto passen. Verknüpfung bestätigen oder verwerfen."
       }
     }
   },
@@ -14308,6 +14312,188 @@
     },
     "slot": {
       "explain": "Wir reservieren den Platz für 72 Stunden und bitten das Elternteil oder die gesetzliche Vertretung per E-Mail um Einwilligung. Du siehst den Buchungsstatus und den offenen Betrag, nie die persönlichen Daten."
+    }
+  },
+  "myAthletes": {
+    "title": "Meine Athleten",
+    "titleTerm": "Meine {term}",
+    "description": "Ihr eigenes Profil und jedes Kind, für das Sie sorgeberechtigt sind, mit Teams, Programmen und offenen Schritten.",
+    "addChild": "Athlet hinzufügen",
+    "addMyself": "Mich selbst hinzufügen",
+    "myself": "Ich selbst",
+    "activeBadge": "Ausgewählt",
+    "emptyTitle": "Noch kein Athlet",
+    "emptyHint": "Fügen Sie ein Kind (oder sich selbst ab 18 Jahren) hinzu, um es für Teams, Camps und Trainings anzumelden.",
+    "teamWithNumber": "{team} (Nr. {number})",
+    "programmes": "Programme: {names}",
+    "noActivity": "Noch kein Team und kein Programm",
+    "correctionPending": "Profilkorrektur wird geprüft",
+    "switcher": {
+      "label": "Anzeige",
+      "all": "Alle Athleten",
+      "allTerm": "Alle {term}",
+      "me": "{name} (ich)"
+    },
+    "filter": {
+      "label": "Athlet wählen",
+      "all": "Alle"
+    },
+    "picker": {
+      "legend": "Für wen?"
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "NOT_ALLOWED": "Dazu sind Sie nicht berechtigt.",
+      "NOT_FOUND": "Dieser Athlet wurde in Ihrem Konto nicht gefunden.",
+      "INVALID_MERGE": "Wählen Sie zwei verschiedene Datensätze dieses Vereins.",
+      "ALREADY_MERGED": "Dieser Datensatz wurde bereits zusammengeführt.",
+      "MERGE_BLOCKED": "Die Zusammenführung wurde gestoppt: ein verknüpfter Eintrag konnte nicht verschoben werden. Es wurde nichts geändert.",
+      "REQUEST_ID_REQUIRED": "Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
+      "TOO_LONG": "Dieser Text ist zu lang.",
+      "PROFILE_ALREADY_LINKED": "Dieses Konto ist bereits mit einem anderen Athleten verknüpft.",
+      "LINK_FAILED": "Die Verknüpfung war nicht möglich. Öffnen Sie den Athleten und prüfen Sie den Datensatz.",
+      "INVALID_DECISION": "Diese Entscheidung ist ungültig."
+    },
+    "dataCheck": {
+      "run": "Athletendaten prüfen",
+      "done": "{count, plural, =0 {Keine neuen Befunde.} one {# neuer Befund zu prüfen.} other {# neue Befunde zu prüfen.}}"
+    },
+    "selfLink": {
+      "title": "Erwachsene Spieler mit möglicherweise eigenem Konto",
+      "explain": "Gleiche E-Mail beim Familienkontakt und gleicher Name wie ein Konto. Es wird erst nach Ihrer Bestätigung verknüpft.",
+      "match": "{athlete} könnte das Athletenprofil des Kontos {login} sein.",
+      "link": "Mit diesem Konto verknüpfen",
+      "dismiss": "Nicht dieselbe Person",
+      "linked": "Verknüpft: der Spieler sieht jetzt sein eigenes Profil.",
+      "dismissed": "Verworfen. Dieser Befund erscheint nicht wieder."
+    },
+    "merge": {
+      "title": "Mögliche doppelte Datensätze",
+      "keep": "Behalten",
+      "noFamily": "ohne Familie",
+      "createdOn": "erstellt am {date}",
+      "links": "{teams} Teams · {registrations} Anmeldungen · {invoices} Rechnungen",
+      "hasLogin": "hat ein Konto",
+      "confirm": "Diese Datensätze zusammenführen? Alles, was mit dem anderen Datensatz verknüpft ist, geht auf den behaltenen über; das lässt sich nicht automatisch rückgängig machen.",
+      "explain": "Teams, Anmeldungen, Rechnungen, Buchungen und andere Verknüpfungen gehen auf den behaltenen Datensatz über. Haben beide schon einen Eintrag (z. B. dasselbe Team), bleibt der des behaltenen Datensatzes und der andere wird aufgeführt. Der andere Datensatz wird archiviert, nie gelöscht.",
+      "reason": "Grund (optional, im Verlauf gespeichert)",
+      "submit": "In den behaltenen Datensatz zusammenführen",
+      "done": "Zusammengeführt: {moved} Verknüpfungen verschoben, {conflicts} beim archivierten Datensatz belassen.",
+      "conflict": {
+        "kept_athlete_row": "Schon beim behaltenen Datensatz ({table}): dieser bleibt.",
+        "kept_athlete_login": "Beide Datensätze haben ein anderes Konto: das des behaltenen bleibt.",
+        "different_family": "Die Datensätze gehörten zu verschiedenen Familien: verknüpfen Sie bei Bedarf die Sorgeberechtigten der anderen Familie."
+      }
+    },
+    "history": {
+      "tab": "Profilverlauf",
+      "title": "Profilverlauf",
+      "empty": "Noch keine Profiländerung erfasst.",
+      "linked": "(verknüpfter Datensatz)",
+      "reasonClubRequest": "Anfrage an den Verein",
+      "system": "Automatisch",
+      "actions": {
+        "athlete_profile_created": "Profil erstellt",
+        "athlete_profile_changed": "Profil geändert",
+        "athlete_profile_erased": "Profil gelöscht",
+        "athlete_profile_correction_requested": "Korrektur von Geburtsdatum / Geschlecht beantragt",
+        "athlete_profile_correction_approved": "Korrektur von Geburtsdatum / Geschlecht genehmigt",
+        "athlete_profile_correction_declined": "Korrektur von Geburtsdatum / Geschlecht abgelehnt",
+        "athlete_profile_correction_withdrawn": "Korrektur von Geburtsdatum / Geschlecht zurückgezogen",
+        "athlete_profile_proposal_submitted": "Angaben mit einer Vereinsanfrage vorgeschlagen",
+        "athlete_profile_proposal_approved": "Vorgeschlagene Angaben genehmigt",
+        "athlete_profile_proposal_declined": "Vorgeschlagene Angaben abgelehnt",
+        "athlete_merge_kept": "Doppelter Datensatz hierher zusammengeführt",
+        "athlete_merge_archived": "In einen anderen Datensatz zusammengeführt und archiviert",
+        "participant_link_approved": "Verknüpfung mit Sorgeberechtigtem genehmigt",
+        "participant_link_declined": "Verknüpfung mit Sorgeberechtigtem abgelehnt"
+      },
+      "via": {
+        "staff": "durch den Verein",
+        "family": "durch die Familie",
+        "coach": "durch einen Trainer",
+        "system": "automatisch",
+        "direct": "direkte Änderung",
+        "review": "nach Prüfung",
+        "club_approval": "Vereinsfreigabe",
+        "merge": "Zusammenführung"
+      },
+      "fields": {
+        "first_name": "Vorname",
+        "last_name": "Nachname",
+        "dob": "Geburtsdatum",
+        "gender": "Geschlecht",
+        "height_cm": "Größe",
+        "weight_kg": "Gewicht",
+        "position_pref": "Spielposition",
+        "jersey_size": "Trikotgröße",
+        "preferred_jersey_number": "Gewünschte Trikotnummer",
+        "player_profile_id": "Eigenes Konto",
+        "family_id": "Familie",
+        "status": "Zustand",
+        "merged_into_id": "Zusammengeführt in",
+        "merged_athlete_id": "Zusammengeführter Datensatz",
+        "kept_athlete_id": "Behaltener Datensatz"
+      }
+    },
+    "proposal": {
+      "title": "Vorgeschlagene Profilangaben",
+      "field": "Angabe",
+      "current": "Aktuell",
+      "proposed": "Vorgeschlagen",
+      "pendingNote": "Erst nach der Freigabe durch den Verein wird etwas geändert.",
+      "notApplied": "Nicht übernommen (Anfrage abgelehnt)",
+      "appliedBadge": "Ins Profil übernommen",
+      "applied": "Die bestätigten Angaben wurden im Profil gespeichert.",
+      "jerseyTaken": "Trikot Nr. {number} ist im Team schon vergeben: die Kadernummer bleibt leer.",
+      "jerseyAssigned": "Trikot Nr. {number} wurde im Kader eingetragen.",
+      "jerseyReserved": "Trikot Nr. {number} wird nach Bestätigung der Anmeldung im Kader eingetragen, falls noch frei.",
+      "jerseyNoTeam": "Trikot Nr. {number} als Wunsch gespeichert (das Programm hat kein aktives Team).",
+      "eligibilityReview": "Die Korrektur von Geburtsdatum / Geschlecht wartet auf die Prüfung durch den Verein.",
+      "formTitle": "Profilangaben ergänzen oder ändern (optional)",
+      "formHint": "Werden mit der Anfrage gesendet und erst bei Freigabe durch den Verein übernommen.",
+      "correctionHint": "Nur wenn Geburtsdatum oder Geschlecht falsch erfasst sind: der Verein prüft das separat."
+    },
+    "fields": {
+      "position_pref": "Spielposition",
+      "preferred_jersey_number": "Gewünschte Trikotnummer",
+      "jersey_size": "Trikotgröße",
+      "height_cm": "Größe",
+      "weight_kg": "Gewicht",
+      "dob": "Geburtsdatum",
+      "gender": "Geschlecht"
+    },
+    "units": {
+      "cm": "{n} cm",
+      "kg": "{n} kg"
+    },
+    "pages": {
+      "documents": {
+        "title": "Dokumente und Einwilligungen",
+        "description": "Dateien und Vereinbarungen, die für Ihre Familie hinterlegt sind.",
+        "loadError": "Dokumente konnten nicht geladen werden",
+        "documents": "Dokumente",
+        "consents": "Einwilligungsformulare",
+        "emptyTitle": "Noch keine Dokumente",
+        "emptyHint": "Vom Verein geteilte Dokumente erscheinen hier.",
+        "noConsents": "Noch keine Einwilligungen erfasst.",
+        "kinds": {
+          "consent_pdf": "Einwilligungs-PDF",
+          "medical": "Medizinisch",
+          "insurance": "Versicherung",
+          "photo": "Foto",
+          "other": "Dokument"
+        }
+      },
+      "schedule": {
+        "title": "Termine",
+        "description": "Kommende Trainings und Spiele.",
+        "needsReply": "{count, plural, one {# kommender Termin wartet auf Ihre Antwort.} other {# kommende Termine warten auf Ihre Antwort.}}",
+        "emptyTitle": "Noch nichts geplant",
+        "emptyHint": "Neue Trainings und Spiele erscheinen hier.",
+        "noTeamTitle": "Noch kein Team",
+        "noTeamHint": "Sobald Ihr Athlet einem Team zugeteilt ist, erscheinen hier die Termine."
+      }
     }
   }
 }

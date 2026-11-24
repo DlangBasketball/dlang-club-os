@@ -37,6 +37,7 @@ export function AppShell({
   profilePhotoUrl,
   orgs,
   adminNav,
+  subHeader,
   children,
 }: {
   navKey: NavKey;
@@ -55,6 +56,8 @@ export function AppShell({
   profilePhotoUrl?: string | null;
   /** Grouped admin menu built on the server (admin app); without it the flat list renders. */
   adminNav?: AdminNavModel;
+  /** Bar under the mobile header (parent app: the active-athlete switcher). */
+  subHeader?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const variant = navKey === "admin" ? "sidebar" : "bottom";
@@ -72,7 +75,7 @@ export function AppShell({
           {children}
         </SidebarShell>
       ) : (
-        <BottomShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl}>
+        <BottomShell navKey={navKey} user={user} notifications={notifications} profilePhotoUrl={profilePhotoUrl} subHeader={subHeader}>
           {children}
         </BottomShell>
       )}
@@ -103,7 +106,8 @@ function useNavItems(navKey: NavKey): NavItem[] {
 function useIsActive() {
   const pathname = usePathname();
   return React.useCallback(
-    (href: string) => pathname === href || pathname.startsWith(`${href}/`),
+    (href: string, aliases?: string[]) =>
+      [href, ...(aliases ?? [])].some((h) => pathname === h || pathname.startsWith(`${h}/`)),
     [pathname],
   );
 }
@@ -135,8 +139,8 @@ function NavLinks({
   const t = useT();
   return (
     <ul className="flex flex-col gap-0.5">
-      {items.map(({ labelKey, href, icon: Icon }) => {
-        const active = isActive(href);
+      {items.map(({ labelKey, href, icon: Icon, aliases }) => {
+        const active = isActive(href, aliases);
         return (
           <li key={href}>
             <Link
@@ -314,12 +318,14 @@ function BottomShell({
   user,
   notifications,
   profilePhotoUrl,
+  subHeader,
   children,
 }: {
   navKey: NavKey;
   user: SessionUser;
   notifications?: NotifProp;
   profilePhotoUrl?: string | null;
+  subHeader?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const t = useT();
@@ -331,7 +337,7 @@ function BottomShell({
   const [moreOpen, setMoreOpen] = React.useState(false);
   const closeMore = React.useCallback(() => setMoreOpen(false), []);
   useEscape(moreOpen, closeMore);
-  const extraActive = extra.some((i) => isActive(i.href));
+  const extraActive = extra.some((i) => isActive(i.href, i.aliases));
 
   return (
     <div className="grain mx-auto flex min-h-dvh max-w-2xl flex-col">
@@ -351,6 +357,7 @@ function BottomShell({
           <SignOutButton />
         </div>
       </header>
+      {subHeader}
 
       <main id="main" tabIndex={-1} className="flex-1 px-4 pb-28 pt-5 focus:outline-none">
         {children}
@@ -370,7 +377,7 @@ function BottomShell({
             <ul className="grid grid-cols-3 gap-2">
               {extra.map((item) => (
                 <li key={item.href}>
-                  <TabLink item={item} active={isActive(item.href)} onClick={closeMore} tile />
+                  <TabLink item={item} active={isActive(item.href, item.aliases)} onClick={closeMore} tile />
                 </li>
               ))}
             </ul>
@@ -390,7 +397,7 @@ function BottomShell({
         <ul className="flex h-16 items-stretch">
           {primary.map((item) => (
             <li key={item.href} className="flex flex-1">
-              <TabLink item={item} active={isActive(item.href)} />
+              <TabLink item={item} active={isActive(item.href, item.aliases)} />
             </li>
           ))}
           {overflow && (
