@@ -101,9 +101,7 @@ export default async function ProgramDetailPage({ params, searchParams }: {
             {p.kind === "camp" && <Link href="/admin/camps/approvals"><Button size="sm" variant="secondary"><ShieldQuestion className="h-4 w-4" /> {t("camps.approval.admin.link", { count: approvalCount })}</Button></Link>}
             <Link href={`/admin/programs/${p.id}/registration-form`}><Button size="sm" variant="secondary"><ListChecks className="h-4 w-4" /> {t("forms.regForm.link")}</Button></Link>
             <Link href={`/admin/programs/${p.id}/edit`}><Button size="sm"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button></Link>
-            {p.status === "archived"
-              ? <ProgramRestoreButton programId={p.id} name={p.name} />
-              : <ProgramDeleteButton programId={p.id} name={p.name} status={p.status} redirectTo="/admin/programs" />}
+            {/* Delete / Restore live in the status bar below (with Publish / Archive). */}
           </>
         ) : undefined} />
       {tabs}
