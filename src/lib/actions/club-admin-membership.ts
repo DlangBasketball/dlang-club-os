@@ -1,6 +1,8 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { assertFeature } from "@/lib/upgrades/server";
+import { submitClubRequest } from "@/lib/actions/club-approval";
 import { revalidatePath } from "next/cache";
 import type { Json } from "@/types/database";
 import { logError } from "@/lib/log";
@@ -90,7 +92,12 @@ export async function createMembership(input: MembershipCreateInput): Promise<Ca
   return done("clubadmin.membership.created", { id: out.membership_id, invoiceId: out.invoice_id });
 }
 
-/** Parent: join the club for a child (person type) or the household (family type). */
+/**
+ * Parent: join the club for a child (person type) or the household (family
+ * type). A family-initiated join is a request pending club approval
+ * (club_request_submit); the membership and its invoice are created with the
+ * rules above only when an admin confirms it. Kept for existing callers.
+ */
 export async function joinMembership(input: { typeId: string; familyId: string; athleteId?: string | null }): Promise<CaResult<{ invoiceId: string | null }>> {
   await assertFeature("memberships");
   const me = await requireMe(["parent"]);
@@ -98,22 +105,12 @@ export async function joinMembership(input: { typeId: string; familyId: string; 
   const p = membershipCreateSchema.safeParse({ ...input, free: false, validFrom: null });
   if (!p.success) return fail(firstIssueKey(p.error));
   const v = p.data;
-  // The guardian link is checked through RLS: a parent only sees their own family / children.
-  const db = await caDb();
-  const { data: fam } = await db.from("families").select("id").eq("id", v.familyId).eq("org_id", me.orgId).maybeSingle();
-  if (!fam) return fail("clubadmin.errors.notFound");
-  const { data: link } = await db.from("family_members").select("family_id").eq("family_id", v.familyId).eq("profile_id", me.id).maybeSingle();
-  if (!link) return fail("clubadmin.errors.forbidden");
-  const { data: type } = await db.from("membership_types").select("id,is_active").eq("id", v.typeId).eq("org_id", me.orgId).maybeSingle();
-  if (!type || !(type as { is_active: boolean }).is_active) return fail("clubadmin.errors.codes.TYPE_INACTIVE");
-  const { data, error } = await caAdminDb().rpc("membership_create", {
-    p_payload: { org_id: me.orgId, type_id: v.typeId, family_id: v.familyId, athlete_id: v.athleteId, created_by: me.id } as Json,
+  const res = await submitClubRequest({
+    kind: "membership", familyId: v.familyId, membershipTypeId: v.typeId, athleteId: v.athleteId ?? null, requestId: randomUUID(),
   });
-  if (error) return fail(dbErrorKey(error.message));
-  const out = data as unknown as CreateOut;
-  await notifyInvoice(me, out, await typeName(me.orgId, v.typeId));
+  if (!res.ok) return res;
   revalidateMembership();
-  return done("clubadmin.membership.joined", { invoiceId: out.invoice_id });
+  return { ok: true, message: res.message, data: { invoiceId: null } };
 }
 
 /** One-click renewal (admin, or a guardian of the membership's family). */

@@ -1,10 +1,25 @@
 import Link from "next/link";
 import { Tent } from "lucide-react";
-import { Badge, Card, CardBody, CardHeader, CardTitle } from "@/components/ui";
-import { campStateTone } from "@/lib/camps/age-approval";
+import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui";
+import { NextStepBadge } from "@/components/approvals/next-step-badge";
+import { nextStep, type NextStepInput } from "@/lib/status/next-step";
 import type { FamilyCampRegistration } from "@/lib/camps/approval-data";
 import type { Translator } from "@/lib/i18n/translator";
 import type { Formatter } from "@/lib/format";
+
+/** Next-step input of a camp week, derived from its current registration state + invoice. */
+function campNextStepInput(r: FamilyCampRegistration): NextStepInput {
+  const paid = r.invoiceStatus === "paid";
+  switch (r.state) {
+    case "pending_approval": return { campApproval: "pending" };
+    case "declined": return { campApproval: "declined" };
+    case "withdrawn": return { campApproval: "withdrawn" };
+    // A camp week is 'pending' (reserved) until its invoice is paid.
+    case "approved_awaiting_payment":
+    case "pending": return { status: "pending", balance: r.invoiceId && !paid ? r.amount ?? 1 : r.invoiceId ? 0 : null };
+    default: return { status: r.state };
+  }
+}
 
 /**
  * Parent "My bookings": camp weeks of the family's children, with requests
@@ -32,7 +47,7 @@ export function FamilyCampRegistrations({ rows, t, f, showChild }: { rows: Famil
                 {r.note && <p className="mt-1 whitespace-pre-wrap text-xs text-text">{t("camps.approval.family.message", { note: r.note })}</p>}
               </div>
               <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
-                <Badge tone={campStateTone(r.state)}>{t.dynamic(`camps.approval.status.${r.state}`, undefined, t.dynamic(`status.${r.state}`, undefined, r.state))}</Badge>
+                <NextStepBadge step={nextStep(campNextStepInput(r))} t={t} />
                 {r.invoiceId && r.invoiceNumber && (
                   <Link href={`/parent/invoices/${r.invoiceId}`} className="text-xs text-brand-primary hover:underline">
                     {r.state === "approved_awaiting_payment" || r.state === "pending" ? t("camps.approval.family.payInvoice", { number: r.invoiceNumber }) : t("camps.approval.family.viewInvoice", { number: r.invoiceNumber })}

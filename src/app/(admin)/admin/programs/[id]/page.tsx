@@ -18,6 +18,7 @@ import { CampSummaryView } from "@/components/camps/camp-summary";
 import { selectionDb } from "@/lib/selection/db";
 import { RosterSection } from "@/components/selection/roster/roster-section";
 import { ApprovalBandForm } from "@/components/camps/approval-band-form";
+import { ClubApprovalToggle } from "@/components/approvals/club-approval-toggle";
 import { countPendingApprovals } from "@/lib/camps/approval-data";
 import { ShieldQuestion } from "lucide-react";
 
@@ -82,6 +83,10 @@ export default async function ProgramDetailPage({ params, searchParams }: {
   const money = (n: number) => f.money(n, p.currency ?? f.currency);
   const approvalCount = isAdmin && p.kind === "camp" ? await countPendingApprovals(me.orgId) : 0;
   const band = (extra ?? {}) as { approval_age_min?: number | null; approval_age_max?: number | null };
+  // Family requests for club programmes wait for the club's approval (20250420105800).
+  const clubApproval = isAdmin && (p.kind === "recurring_team" || p.kind === "clinic")
+    ? Boolean(((await cdb.from("programs").select("requires_club_approval" as never).eq("id", p.id).eq("org_id", me.orgId).maybeSingle()).data as { requires_club_approval?: boolean } | null)?.requires_club_approval)
+    : false;
   const row = (label: string, value: React.ReactNode) => (
     <div className="flex justify-between gap-4 border-b border-line-soft py-2 text-sm last:border-0"><span className="text-ink-3">{label}</span><span className="text-right text-ink">{value}</span></div>
   );
@@ -130,6 +135,12 @@ export default async function ProgramDetailPage({ params, searchParams }: {
       {camp?.data && (isAdmin
         ? <CampEditor programId={p.id} data={camp.data} currency={p.currency ?? f.currency} />
         : <CampSummaryView programId={p.id} data={camp.data} currency={p.currency ?? f.currency} />)}
+      {isAdmin && (p.kind === "recurring_team" || p.kind === "clinic") && (
+        <Card><CardBody className="space-y-2">
+          <h2 className="text-sm font-semibold text-ink">{t("approvals.program.title")}</h2>
+          <ClubApprovalToggle programId={p.id} value={clubApproval} />
+        </CardBody></Card>
+      )}
       {isAdmin && p.kind === "camp" && (
         <ApprovalBandForm programId={p.id} minAge={p.minAge} initialMin={band.approval_age_min ?? null} initialMax={band.approval_age_max ?? null} />
       )}

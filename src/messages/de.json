@@ -232,7 +232,10 @@
       "finance": "Finanzen",
       "settings": "Einstellungen",
       "more": "Mehr"
-    }
+    },
+    "approvals": "Freigaben",
+    "clubRequests": "Anfragen an den Verein",
+    "clubProgrammes": "Vereinsprogramme"
   },
   "shell": {
     "openMenu": "Menü öffnen",
@@ -13753,6 +13756,177 @@
       "save": "Speichern",
       "saving": "Wird gespeichert…",
       "saved": "Einstellung zur Ratenzahlung gespeichert."
+    }
+  },
+  "nextStep": {
+    "declined": "Abgelehnt",
+    "cancelled": "Storniert",
+    "awaiting_guardian_consent": "Wartet auf Einwilligung des Erziehungsberechtigten",
+    "information_requested": "Informationen angefordert",
+    "pending_club_approval": "Wartet auf Freigabe durch den Verein",
+    "pending_camp_approval": "Wartet auf Camp-Freigabe",
+    "awaiting_confirmation": "Wartet auf Bestätigung",
+    "waitlisted": "Auf der Warteliste",
+    "awaiting_payment": "Wartet auf Zahlung",
+    "confirmed": "Bestätigt"
+  },
+  "approvals": {
+    "status": {
+      "pending": "Wartet auf Freigabe durch den Verein",
+      "info_requested": "Informationen angefordert",
+      "approved": "Freigegeben",
+      "declined": "Abgelehnt",
+      "withdrawn": "Zurückgezogen"
+    },
+    "kind": {
+      "membership": "Vereinsmitgliedschaft",
+      "program_registration": "Vereinsprogramm"
+    },
+    "errors": {
+      "generic": "Die Anfrage konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      "invalid": "Bitte prüfe die Angaben und versuche es erneut.",
+      "ALREADY_REQUESTED": "Dafür wartet bereits eine Anfrage beim Verein.",
+      "ALREADY_REGISTERED": "Dieses Kind ist bereits in diesem Programm angemeldet.",
+      "ALREADY_MEMBER": "Diese Mitgliedschaft besteht für diesen Zeitraum bereits.",
+      "ALREADY_DECIDED": "Über diese Anfrage wurde bereits entschieden.",
+      "INFO_ALREADY_REQUESTED": "Es wurden bereits Informationen angefordert; warte auf die Antwort der Familie oder entscheide.",
+      "NO_INFO_REQUESTED": "Der Verein hat keine weiteren Informationen angefordert.",
+      "MESSAGE_REQUIRED": "Bitte schreibe eine Nachricht.",
+      "MESSAGE_TOO_LONG": "Die Nachricht darf höchstens 2000 Zeichen lang sein.",
+      "REQUEST_NOT_FOUND": "Anfrage nicht gefunden.",
+      "REQUEST_ID_REQUIRED": "Bitte lade die Seite neu und versuche es erneut.",
+      "REQUEST_ID_CONFLICT": "Bitte lade die Seite neu und versuche es erneut.",
+      "APPROVAL_NOT_REQUIRED": "Dieses Programm nimmt hier keine Anfragen an.",
+      "PROGRAM_NOT_FOUND": "Programm nicht gefunden.",
+      "PROGRAM_NOT_OPEN": "Dieses Programm ist nicht geöffnet.",
+      "PROGRAM_ARCHIVED": "Dieses Programm ist archiviert.",
+      "REGISTRATION_CLOSED": "Die Anmeldung für dieses Programm ist geschlossen.",
+      "AGE_OUT_OF_RANGE": "Das Alter des Kindes liegt ausserhalb der Altersgruppe.",
+      "ATHLETE_REQUIRED": "Bitte wähle ein Kind.",
+      "ATHLETE_NOT_FOUND": "Kind nicht gefunden.",
+      "FAMILY_NOT_FOUND": "Familie nicht gefunden.",
+      "TYPE_NOT_FOUND": "Mitgliedschaftsart nicht gefunden.",
+      "TYPE_INACTIVE": "Diese Mitgliedschaftsart wird nicht mehr angeboten.",
+      "INVALID_DECISION": "Unbekannte Entscheidung.",
+      "CLUB_APPROVAL_REQUIRED": "Dieses Programm braucht die Freigabe des Vereins: sende stattdessen eine Anfrage.",
+      "NOT_AUTHORIZED": "Dazu bist du nicht berechtigt."
+    },
+    "notify": {
+      "submittedTitle": "Neue Anfrage wartet auf Freigabe",
+      "submittedMembershipBody": "Eine Familie möchte dem Verein beitreten: {child} ({subject}). Bitte prüfe die Anfrage.",
+      "submittedProgramBody": "Eine Familie fragt einen Platz für {child} in {subject} an. Bitte prüfe die Anfrage.",
+      "repliedTitle": "Eine Familie hat deine Frage beantwortet",
+      "repliedBody": "Die Familie von {child} hat zu {subject} geantwortet. Die Anfrage wartet auf deine Entscheidung.",
+      "approvedTitle": "Deine Anfrage wurde bestätigt",
+      "approvedBody": "Der Verein hat die Anfrage für {child} ({subject}) bestätigt. Rechnung {invoice}: {amount}.",
+      "confirmedBody": "Der Verein hat die Anfrage für {child} ({subject}) bestätigt. Nichts zu bezahlen.",
+      "declinedTitle": "Deine Anfrage wurde abgelehnt",
+      "declinedBody": "Der Verein hat die Anfrage für {child} ({subject}) abgelehnt.",
+      "infoRequestedTitle": "Der Verein braucht weitere Informationen",
+      "infoRequestedBody": "Der Verein hat eine Frage zur Anfrage für {child} ({subject}). Bitte antworte in der App.",
+      "message": "Nachricht des Vereins: {note}"
+    },
+    "family": {
+      "title": "Anfragen an den Verein",
+      "description": "Anfragen, die auf die Freigabe des Vereins warten, und ihr nächster Schritt.",
+      "submitted": "Anfrage gesendet. Der Verein prüft sie und meldet sich.",
+      "replied": "Antwort an den Verein gesendet.",
+      "withdrawn": "Anfrage zurückgezogen.",
+      "sentOn": "gesendet am {date}",
+      "pendingHint": "Der Verein prüft diese Anfrage. Keine Rechnung vor der Bestätigung.",
+      "infoHint": "Der Verein hat eine Frage gestellt: bitte unten antworten.",
+      "payInvoice": "Rechnung {number} bezahlen ({amount})",
+      "viewInvoice": "Rechnung {number}",
+      "replyLabel": "Deine Antwort",
+      "sendReply": "Antwort senden",
+      "withdraw": "Anfrage zurückziehen",
+      "withdrawConfirm": "Diese Anfrage zurückziehen?"
+    },
+    "reviewer": {
+      "message": "Nachricht an die Familie",
+      "messageHint": "Pflicht, um Informationen anzufordern; beim Bestätigen oder Ablehnen freiwillig.",
+      "confirm": "Bestätigen",
+      "requestInfo": "Weitere Informationen anfordern",
+      "decline": "Ablehnen",
+      "forChild": "{name}: {message}",
+      "fullMessage": "Ausgebucht: {taken} von {capacity} Plätzen belegt. Nichts wurde geändert.",
+      "done": {
+        "approved": "Bestätigt. Die Rechnung wurde nach den üblichen Regeln des Vereins erstellt.",
+        "confirmed": "Bestätigt und angemeldet.",
+        "declined": "Abgelehnt. Die Familie wurde informiert.",
+        "info_requested": "Frage an die Familie gesendet.",
+        "full": "Ausgebucht: nichts wurde geändert."
+      },
+      "age": "{age} Jahre",
+      "submittedOn": "Gesendet am {date}",
+      "capacity": "{taken} von {capacity} Plätzen belegt",
+      "noCapacity": "{taken} Plätze belegt (ohne Limit)",
+      "family": "Familie",
+      "submittedBy": "Gesendet von {name}",
+      "reviewers": "Zuständig für die Freigabe",
+      "admins": "Vereinsadministration",
+      "fullHint": "Dieses Programm ist ausgebucht: Bestätigen klappt erst, wenn ein Platz frei wird oder die Kapazität erhöht wird.",
+      "waitingForFamily": "Wartet auf die Antwort der Familie. Du kannst trotzdem entscheiden.",
+      "decidedOn": "Entschieden am {date}"
+    },
+    "thread": {
+      "title": "Nachrichten",
+      "family": "Familie",
+      "club": "Verein",
+      "kind": {
+        "note": "{side} · Notiz",
+        "info_request": "{side} · Frage",
+        "reply": "{side} · Antwort",
+        "approved": "{side} · bestätigt",
+        "declined": "{side} · abgelehnt",
+        "withdrawn": "{side} · zurückgezogen"
+      }
+    },
+    "admin": {
+      "title": "Freigaben",
+      "description": "Anfragen von Familien, die auf den Verein warten: Vereinsbeitritt und Plätze in Vereinsprogrammen. Bestätigen, weitere Informationen anfordern oder ablehnen.",
+      "count": "{count, plural, one {# offene Anfrage} other {# offene Anfragen}}",
+      "campQueue": "Altersfreigaben für Camps",
+      "tabs": "Ansichten der Anfragen",
+      "open": "Offen",
+      "decided": "Entschieden",
+      "empty": "Keine Anfragen warten auf Freigabe.",
+      "emptyDecided": "Noch keine entschiedenen Anfragen."
+    },
+    "coach": {
+      "title": "Anfragen an den Verein",
+      "description": "Anfragen für Plätze in deinen Programmen. Bestätigen, weitere Informationen bei der Familie anfordern oder ablehnen.",
+      "empty": "Keine Anfragen warten auf dich.",
+      "decided": "Kürzlich entschieden"
+    },
+    "programs": {
+      "title": "Vereinsprogramme",
+      "description": "Teams und Kurse des Vereins. Sende eine Anfrage: Trainer oder Verein bestätigen sie, bevor dein Kind angemeldet und verrechnet wird.",
+      "myRequests": "Anfragen für Vereinsprogramme",
+      "empty": "Zurzeit nehmen keine Vereinsprogramme Anfragen an.",
+      "ages": "{min}–{max} Jahre",
+      "approvalNote": "Wartet bis zur Bestätigung auf die Freigabe des Vereins. Vorher keine Rechnung.",
+      "submit": "Anfrage senden",
+      "noChildren": "Füge zuerst ein Kind zu deiner Familie hinzu."
+    },
+    "join": {
+      "intro": "Deine Anfrage geht an den Verein. Sobald sie bestätigt ist, werden die Mitgliedschaft und ihre Rechnung erstellt.",
+      "message": "Nachricht an den Verein (freiwillig)",
+      "noInvoice": "Es wird keine Rechnung erstellt und nichts verrechnet, solange der Verein die Anfrage nicht bestätigt.",
+      "submit": "Beitrittsanfrage senden",
+      "myRequests": "Mitgliedschaftsanfragen"
+    },
+    "program": {
+      "title": "Freigabe durch den Verein",
+      "on": "Aktiv: Anfragen von Familien warten vor Anmeldung und Verrechnung auf die Freigabe des Vereins (Haupttrainer oder Administration).",
+      "off": "Inaktiv: Dieses Programm nimmt in der App keine Anfragen von Familien an.",
+      "turnOn": "Freigabe durch den Verein verlangen",
+      "turnOff": "Ausschalten",
+      "saved": "Gespeichert."
+    },
+    "roster": {
+      "title": "Noch nicht bestätigt ({count})",
+      "hint": "Freigabe, Einwilligung oder Zahlung ausstehend: bis zur Bestätigung nicht auf der Präsenzliste."
     }
   }
 }

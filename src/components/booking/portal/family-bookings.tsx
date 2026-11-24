@@ -5,6 +5,8 @@ import { attendanceTone } from "@/lib/attendance/family";
 import { changeLabel, upcomingStateKey, type PortalAttendance, type PortalChange, type PortalInvoice, type PortalUpcoming } from "@/lib/booking/portal";
 import { attendancePortalPath } from "@/lib/attendance/types";
 import { WithdrawRequestButton } from "@/components/booking/request-decision";
+import { NextStepBadge } from "@/components/approvals/next-step-badge";
+import { nextStep } from "@/lib/status/next-step";
 import type { Formatter } from "@/lib/format";
 import type { Translator } from "@/lib/i18n/translator";
 
@@ -67,7 +69,11 @@ export function UpcomingBookings({ rows, t, f, showChild, detailHref, invoiceFor
                     )}
                   </div>
                   <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-                    <Badge tone={awaiting ? "warning" : "success"}>{t(`bookingWorkflow.state.${stateKey}`)}</Badge>
+                    {/* Family next step, derived on read: request > awaiting payment (open invoice the guardian pays) > confirmed. */}
+                    <NextStepBadge t={t} step={nextStep({
+                      status: awaiting ? "requested" : "booked",
+                      balance: invoice && !["paid", "cancelled", "void"].includes(invoice.status) ? invoice.balance : null,
+                    })} />
                     {b.absence_report && <Badge tone="info">{t("bookingRequests.family.absenceReported")}</Badge>}
                     {invoice && <Badge tone={statusTone(invoice.status)}>{invoice.number}</Badge>}
                     {detailHref && <ChevronRight className="h-4 w-4 text-text-subtle" aria-hidden />}

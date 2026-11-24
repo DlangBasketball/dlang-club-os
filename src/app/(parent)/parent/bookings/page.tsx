@@ -12,6 +12,8 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { guardianKids } from "@/lib/camps/parent-kids";
 import { listFamilyCampRegistrations } from "@/lib/camps/approval-data";
 import { FamilyCampRegistrations } from "@/components/camps/family-camp-registrations";
+import { FamilyClubRequests } from "@/components/approvals/family-club-requests";
+import { listFamilyClubRequests } from "@/lib/approvals/data";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -31,6 +33,8 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
   // Camp weeks of the guardian's own children (incl. requests pending approval).
   const campKids = me?.orgId ? await guardianKids(me.id, me.orgId) : [];
   const campRows = me?.orgId ? await listFamilyCampRegistrations(me.orgId, campKids.map((k) => k.id)) : [];
+  // Club programme requests (pending club approval -> awaiting payment -> confirmed), derived on read.
+  const clubRows = me?.orgId ? (await listFamilyClubRequests()).filter((r) => r.subject_kind === "program_registration") : [];
   const campNotice = sp.camp === "requested"
     ? <div role="status" className="rounded-md border border-info/40 bg-info-soft px-4 py-3 text-sm text-text">{t("camps.approval.parent.requested")}</div>
     : null;
@@ -50,6 +54,7 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
         <PageHeader title={title} actions={action} />
         {campNotice}
         <FamilyCampRegistrations rows={campRows} t={t} f={f} showChild={campKids.length > 1} />
+        <FamilyClubRequests rows={clubRows} t={t} f={f} showChild={campKids.length > 1} title={t("approvals.programs.myRequests")} />
         <ErrorState title={t("bookingPortal.family.loadError")} message={t("bookingPortal.family.loadErrorHint")} />
       </div>
     );
@@ -87,6 +92,8 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
 
       {campNotice}
       <FamilyCampRegistrations rows={wanted ? campRows.filter((r) => r.athleteId === wanted) : campRows} t={t} f={f} showChild={showChild || (!wanted && campKids.length > 1)} />
+      <FamilyClubRequests rows={wanted ? clubRows.filter((r) => r.athlete?.id === wanted) : clubRows} t={t} f={f}
+        showChild={showChild || (!wanted && campKids.length > 1)} title={t("approvals.programs.myRequests")} />
 
       <UpcomingBookings rows={flattenUpcoming(kids)} t={t} f={f} showChild={showChild} familyActions
         detailHref={(id) => `/parent/bookings/${id}`} invoiceFor={(id) => invoices.get(id)} />
