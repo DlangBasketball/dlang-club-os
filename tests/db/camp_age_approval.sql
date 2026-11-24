@@ -407,6 +407,29 @@ begin
 end $$;
 
 -- ===========================================================================
+-- 8b. Ordinary camp place (8+): paid in full -> confirmed (20250420106100)
+-- ===========================================================================
+do $$
+declare v text; v_inv uuid;
+begin
+  v := ca.run_as('00000000-0000-0000-0000-0000000000f2', $q$select public.create_manual_invoice(jsonb_build_object(
+         'family_id', '00000000-0000-0000-0000-000000000061', 'description', 'Camp week A', 'activity', 'camp',
+         'items', jsonb_build_array(jsonb_build_object('description', 'Camp', 'quantity', 1, 'unit_price_chf', 120))))::text$q$);
+  v_inv := (substr(v, 4)::jsonb->>'invoice_id')::uuid;
+  update public.invoices set status = 'sent', issued_at = now() where id = v_inv;
+  perform set_config('app.camp_pricing', 'off', false);
+  insert into public.registrations (id, org_id, athlete_id, program_id, status, camp_edition_id, invoice_id) values
+    ('00000000-0000-0000-0000-0000000ca203', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000ca008',
+     '00000000-0000-0000-0000-0000000ca041', 'pending', '00000000-0000-0000-0000-0000000ca0e2', v_inv);
+  perform set_config('app.camp_pricing', 'off', false);
+  perform ca.ok((select status::text = 'pending' from public.registrations where id = '00000000-0000-0000-0000-0000000ca203'), 'ordinary place reserved until paid');
+  v := ca.run_as('00000000-0000-0000-0000-0000000000f2', format($q$select public.record_offline_payment(%L::uuid, 120, 'bank_transfer')::text$q$, v_inv));
+  perform ca.ok(v like 'OK:%' and (select status::text = 'paid' from public.invoices where id = v_inv), 'ordinary place: invoice paid in full');
+  perform ca.ok((select status::text = 'confirmed' and approval_status is null from public.registrations where id = '00000000-0000-0000-0000-0000000ca203'),
+                'ordinary camp place: paid in full -> confirmed (on the confirmed roster)');
+end $$;
+
+-- ===========================================================================
 -- 9. Decline, re-apply, withdraw
 -- ===========================================================================
 do $$
