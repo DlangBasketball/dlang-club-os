@@ -26,7 +26,9 @@ export default async function ContractTemplatePage({ params }: { params: Promise
     template = res.data;
   }
   const db = await formsDb();
-  const { data: programs } = await db.from("programs").select("id,name").eq("org_id", me.orgId!).order("name");
+  // Archived programmes are hidden from the picker, except the one this template already uses.
+  const { data: programRows } = await db.from("programs").select("id,name,status").eq("org_id", me.orgId!).order("name");
+  const programs = (programRows ?? []).filter((p) => (p as { status?: string }).status !== "archived" || p.id === template?.programId);
   const org = await getOrgEmailContext(me.orgId);
   // Preview values: clearly fictitious examples, formatted for the club.
   const sample: MergeData = {

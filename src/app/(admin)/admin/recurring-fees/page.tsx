@@ -26,8 +26,11 @@ export default async function RecurringFeesPage({ searchParams }: { searchParams
   if (!me?.orgId || !(me.roles.includes("admin") || me.roles.includes("finance"))) redirect("/admin/dashboard");
   const today = await clubToday(me.orgId);
   const until = /^\d{4}-\d{2}-\d{2}$/.test(sp.until ?? "") && sp.until! <= addDays(today, 31) ? sp.until! : today;
-  const [templates, enrolments, opts, preview, failed] = await Promise.all([
-    listTemplates(me.orgId), listEnrolments(me.orgId), enrolOptions(me.orgId), previewRun(me.orgId, until), listFailedCharges(me.orgId),
+  const templates = await listTemplates(me.orgId);
+  // Archived programmes stay selectable only on templates that already use them.
+  const usedPrograms = templates.map((x) => x.program_id).filter((x): x is string => !!x);
+  const [enrolments, opts, preview, failed] = await Promise.all([
+    listEnrolments(me.orgId), enrolOptions(me.orgId, usedPrograms), previewRun(me.orgId, until), listFailedCharges(me.orgId),
   ]);
   const blank: TemplateFormValue = {
     id: null, name: "", description: "", amount: "", currency: ctx.currency, frequency: "monthly", billingDay: "1", startDate: today,

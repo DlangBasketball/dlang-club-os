@@ -38,18 +38,18 @@ export async function listAllDocuments(): Promise<AdminDoc[]> {
   });
 }
 
-export type Opt = { id: string; label: string };
+export type Opt = { id: string; label: string; archived?: boolean };
 export async function documentTargets(): Promise<{ programs: Opt[]; families: Opt[]; athletes: Opt[] }> {
   const me = await getSessionUser();
   if (!me?.orgId) return { programs: [], families: [], athletes: [] };
   const admin = createAdminClient();
   const [p, f, a] = await Promise.all([
-    admin.from("programs").select("id,name").eq("org_id", me.orgId).order("name"),
+    admin.from("programs").select("id,name,status").eq("org_id", me.orgId).order("name"),
     admin.from("families").select("id,name").eq("org_id", me.orgId).eq("status", VISIBLE_FAMILY_STATUS).order("name"),
     admin.from("athletes").select("id,first_name,last_name").eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("last_name"),
   ]);
   return {
-    programs: (p.data ?? []).map((x) => ({ id: x.id, label: x.name })),
+    programs: (p.data ?? []).map((x) => ({ id: x.id, label: x.name, archived: (x as { status?: string }).status === "archived" })),
     families: (f.data ?? []).map((x) => ({ id: x.id, label: x.name })),
     athletes: (a.data ?? []).map((x) => ({ id: x.id, label: `${x.first_name} ${x.last_name}` })),
   };

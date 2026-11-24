@@ -56,16 +56,18 @@ export type Assignment = {
   id: string; formId: string; scope: AssignmentScope; programId: string | null; teamId: string | null; trainingServiceId: string | null;
   targetName: string | null; renewal: Renewal; renewalMonths: number | null; dueDate: string | null; isRequired: boolean; isActive: boolean;
 };
-export type Targets = { programs: { id: string; name: string; kind: string }[]; teams: { id: string; name: string }[]; services: { id: string; name: string }[] };
+export type Targets = { programs: { id: string; name: string; kind: string; archived: boolean }[]; teams: { id: string; name: string }[]; services: { id: string; name: string }[] };
 
 export async function loadTargets(db: FormsClient, orgId: string): Promise<Targets> {
   const [p, t, s] = await Promise.all([
-    db.from("programs").select("id,name,kind,is_active").eq("org_id", orgId).order("name"),
+    db.from("programs").select("id,name,kind,is_active,status").eq("org_id", orgId).order("name"),
     db.from("teams").select("id,name,is_active").eq("org_id", orgId).order("name"),
     db.from("training_services").select("id,name,is_active").eq("org_id", orgId).order("name"),
   ]);
   return {
-    programs: (p.data ?? []).map((x) => ({ id: x.id, name: x.name, kind: String(x.kind) })),
+    // Archived programmes stay here (names of existing assignments, historic
+    // completion filter); the assignment selector hides them.
+    programs: (p.data ?? []).map((x) => ({ id: x.id, name: x.name, kind: String(x.kind), archived: (x as { status?: string }).status === "archived" })),
     teams: (t.data ?? []).map((x) => ({ id: x.id, name: x.name })),
     services: (s.data ?? []).map((x) => ({ id: x.id, name: x.name })),
   };

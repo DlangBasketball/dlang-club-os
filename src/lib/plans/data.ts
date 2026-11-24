@@ -195,16 +195,19 @@ export async function listEnrolments(orgId: string): Promise<PlanView[]> {
 
 export type EnrolOptions = { teams: { id: string; name: string }[]; programs: { id: string; name: string }[]; athletes: { id: string; name: string }[] };
 
-export async function enrolOptions(orgId: string): Promise<EnrolOptions> {
+/** Picker options; archived programmes are hidden except those listed in keepProgramIds (already used). */
+export async function enrolOptions(orgId: string, keepProgramIds: string[] = []): Promise<EnrolOptions> {
   const db = await plansDb();
-  const [{ data: teams }, { data: programs }, { data: athletes }] = await Promise.all([
+  const [{ data: teams }, { data: programRows }, { data: athletes }] = await Promise.all([
     db.from("teams").select("id,name").eq("org_id", orgId).eq("is_active", true).order("name"),
-    db.from("programs").select("id,name").eq("org_id", orgId).order("name"),
+    db.from("programs").select("id,name,status").eq("org_id", orgId).order("name"),
     db.from("athletes").select("id,first_name,last_name").eq("org_id", orgId).eq("status", "active").order("last_name").limit(2000),
   ]);
   return {
     teams: (teams ?? []) as { id: string; name: string }[],
-    programs: (programs ?? []) as { id: string; name: string }[],
+    programs: ((programRows ?? []) as { id: string; name: string; status?: string }[])
+      .filter((p) => p.status !== "archived" || keepProgramIds.includes(p.id))
+      .map((p) => ({ id: p.id, name: p.name })),
     athletes: ((athletes ?? []) as { id: string; first_name: string; last_name: string }[]).map((a) => ({ id: a.id, name: `${a.first_name} ${a.last_name}`.trim() })),
   };
 }

@@ -175,6 +175,8 @@ export const availabilitySchema = z
 // ---------------------------------------------------------------------------
 const DB_ERRORS: [RegExp, string][] = [
   [/PROGRAM_HAS_REGISTRATIONS/, "editOps.errors.programHasRegistrations"],
+  // No new or moved registration into an archived programme (20250420105300).
+  [/PROGRAM_ARCHIVED/, "programDelete.errors.archived"],
   [/programs_age_chk/, "editOps.errors.ageRange"],
   [/programs_reg_window_chk/, "editOps.errors.windowOrder"],
   [/SESSION_LOCKED/, "editOps.errors.sessionLocked"],

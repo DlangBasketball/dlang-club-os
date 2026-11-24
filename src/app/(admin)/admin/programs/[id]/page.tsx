@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Pencil, ExternalLink, ListChecks, Medal } from "lucide-react";
 import { PageHeader, Button, Card, CardBody, Badge, ErrorState } from "@/components/ui";
-import { ProgramActions } from "@/components/admin/program-actions";
+import { ProgramActions, ProgramDeleteButton, ProgramRestoreButton } from "@/components/admin/program-actions";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { SportTagPicker } from "@/components/sports/sports-manager";
 import { currentSportId, sportOptions } from "@/lib/sports/data";
@@ -54,7 +54,12 @@ export default async function ProgramDetailPage({ params, searchParams }: {
     return (
       <div className="animate-fade-up space-y-5">
         <PageHeader title={p.name} description={t.dynamic(`programKind.${p.kind}`, undefined, p.kind)}
-          actions={<Link href={`/admin/selection/${p.id}`}><Button size="sm" variant="secondary"><Medal className="h-4 w-4" /> {t("selection.admin.manageLink")}</Button></Link>} />
+          actions={<>
+            <Link href={`/admin/selection/${p.id}`}><Button size="sm" variant="secondary"><Medal className="h-4 w-4" /> {t("selection.admin.manageLink")}</Button></Link>
+            {isAdmin && (p.status === "archived"
+              ? <ProgramRestoreButton programId={p.id} name={p.name} />
+              : <ProgramDeleteButton programId={p.id} name={p.name} status={p.status} redirectTo="/admin/programs" />)}
+          </>} />
         {tabs}
         <RosterSection orgId={me.orgId} programId={p.id} roles={me.roles}
           seasonHref="/admin/programs/{id}?tab=players" playerHrefBase="/admin/selection/{id}/players/" addHref="/admin/selection/{id}/players/new" />
@@ -96,6 +101,9 @@ export default async function ProgramDetailPage({ params, searchParams }: {
             {p.kind === "camp" && <Link href="/admin/camps/approvals"><Button size="sm" variant="secondary"><ShieldQuestion className="h-4 w-4" /> {t("camps.approval.admin.link", { count: approvalCount })}</Button></Link>}
             <Link href={`/admin/programs/${p.id}/registration-form`}><Button size="sm" variant="secondary"><ListChecks className="h-4 w-4" /> {t("forms.regForm.link")}</Button></Link>
             <Link href={`/admin/programs/${p.id}/edit`}><Button size="sm"><Pencil className="h-4 w-4" /> {t("common.edit")}</Button></Link>
+            {p.status === "archived"
+              ? <ProgramRestoreButton programId={p.id} name={p.name} />
+              : <ProgramDeleteButton programId={p.id} name={p.name} status={p.status} redirectTo="/admin/programs" />}
           </>
         ) : undefined} />
       {tabs}
@@ -132,7 +140,7 @@ export default async function ProgramDetailPage({ params, searchParams }: {
           derived={derivedSeason} otherCamps={(others ?? []).map((o) => ({ id: o.id, name: o.name }))}
           weeks={camp.data.editions.map((e) => ({ id: e.id, name: e.name, startsOn: e.startsOn, endsOn: e.endsOn, registrations: e.registrations }))} />
       )}
-      {isAdmin && <Card><CardBody><ProgramActions programId={p.id} status={p.status} registrations={p.registrations} /></CardBody></Card>}
+      {isAdmin && <Card><CardBody><ProgramActions programId={p.id} name={p.name} status={p.status} /></CardBody></Card>}
     </div>
   );
 }
