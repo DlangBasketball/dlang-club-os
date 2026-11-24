@@ -117,10 +117,10 @@ function Identity({ name, layout, labels }: { name: string; layout: CardLayout; 
       <div className="mt-[1.4cqw] flex w-full items-center justify-center gap-[0.6cqw]">
         <span aria-hidden className={slash} />
         <span aria-hidden className={slash} />
-        <div className="min-w-0 flex-1 -skew-x-[14deg] bg-courtside-cream px-[1.6cqw] py-[0.8cqw] shadow-md">
-          <p className="skew-x-[14deg] font-display font-black uppercase leading-[1.05] text-courtside-bg [overflow-wrap:anywhere]"
+        <div className="min-w-0 flex-1 overflow-hidden -skew-x-[14deg] bg-courtside-cream px-[1.6cqw] py-[0.8cqw] shadow-md">
+          <p className="skew-x-[14deg] font-display font-black uppercase leading-[1.05] text-courtside-bg"
             style={{ fontSize: `${NAME_CQW[layout][fitted.size]}cqw` }}>
-            {fitted.lines.map((l, i) => <span key={i} className="block">{l}</span>)}
+            {fitted.lines.map((l, i) => <span key={i} className="block whitespace-nowrap">{l}</span>)}
           </p>
         </div>
         <span aria-hidden className={slash} />

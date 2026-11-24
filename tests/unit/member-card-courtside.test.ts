@@ -59,7 +59,7 @@ describe("name fitting", () => {
     const f = fitName("Abcdefghijklmnopqrstuvwxyzabcdefghijklmnop Q", "photo");
     expect(f.lines.length).toBeLessThanOrEqual(2);
     expect(f.size).toBe("xs");
-    for (const l of f.lines) expect(l.length).toBeLessThanOrEqual(29);
+    for (const l of f.lines) expect(l.length).toBeLessThanOrEqual(26);
     expect(f.lines[0].endsWith("…")).toBe(true);
   });
 

@@ -58,8 +58,8 @@ export type FittedName = { lines: string[]; size: NameSize };
  * phones to desktop.
  */
 const CAPACITY: Record<CardLayout, Record<NameSize, number>> = {
-  photo:   { xl: 13, lg: 16, md: 20, sm: 24, xs: 29 },
-  noPhoto: { xl: 13, lg: 16, md: 20, sm: 24, xs: 29 },
+  photo:   { xl: 11, lg: 14, md: 17, sm: 21, xs: 26 },
+  noPhoto: { xl: 11, lg: 14, md: 17, sm: 21, xs: 26 },
 };
 const SIZES: NameSize[] = ["xl", "lg", "md", "sm", "xs"];
 
