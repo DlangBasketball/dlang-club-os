@@ -14,6 +14,7 @@ function show(field: string, v: unknown, t: Translator, f: Formatter): string {
   if (DATE_FIELDS.has(field) && typeof v === "string") return f.date(v);
   if (field === "gender" && typeof v === "string") return t.dynamic(`participants.sex.${v.toLowerCase()}`, undefined, v);
   if (field === "status" && typeof v === "string") return t.dynamic(`status.${v}`, undefined, v);
+  if (field === "position_pref" && typeof v === "string") return t.dynamic(`participants.positions.${v}`, undefined, v);
   if (typeof v === "number") return f.number(v);
   if (typeof v === "string" && /^-?\d+(\.\d+)?$/.test(v) && (field === "height_cm" || field === "weight_kg")) return f.number(Number(v));
   return String(v);

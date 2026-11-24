@@ -59,8 +59,12 @@ export function ActiveAthleteSwitcher({ athletes, active }: { athletes: Switcher
 }
 
 /** First name, plus the last-name initial when two athletes share a first name. */
-function chipName(a: { id: string; firstName: string; lastName?: string | null }, all: { id: string; firstName: string }[]): string {
-  const clash = all.some((o) => o.id !== a.id && o.firstName.trim().toLowerCase() === a.firstName.trim().toLowerCase());
-  const initial = a.lastName?.trim().charAt(0);
-  return clash && initial ? `${a.firstName} ${initial}.` : a.firstName;
+function chipName(a: { id: string; firstName: string; lastName?: string | null }, all: { id: string; firstName: string; lastName?: string | null }[]): string {
+  const same = (x: string | null | undefined, y: string | null | undefined) => (x ?? "").trim().toLowerCase() === (y ?? "").trim().toLowerCase();
+  const others = all.filter((o) => o.id !== a.id && same(o.firstName, a.firstName));
+  const last = a.lastName?.trim();
+  if (!others.length || !last) return a.firstName;
+  // Initial when it tells them apart, else the full last name.
+  const initialClash = others.some((o) => same((o as { lastName?: string | null }).lastName?.trim().charAt(0), last.charAt(0)));
+  return initialClash ? `${a.firstName} ${last}` : `${a.firstName} ${last.charAt(0)}.`;
 }
