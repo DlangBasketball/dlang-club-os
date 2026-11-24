@@ -14494,6 +14494,7 @@
         "noTeamTitle": "Nessuna squadra per ora",
         "noTeamHint": "Quando il tuo atleta sarà in una squadra, il calendario apparirà qui."
       }
-    }
+    },
+    "addChildTerm": "Aggiungi {term}"
   }
 }

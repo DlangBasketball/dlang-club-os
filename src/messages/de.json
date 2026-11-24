@@ -14494,6 +14494,7 @@
         "noTeamTitle": "Noch kein Team",
         "noTeamHint": "Sobald Ihr Athlet einem Team zugeteilt ist, erscheinen hier die Termine."
       }
-    }
+    },
+    "addChildTerm": "{term} hinzufügen"
   }
 }

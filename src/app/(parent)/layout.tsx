@@ -30,7 +30,7 @@ export default async function ParentGroupLayout({
   // Active-athlete switcher (2+ athletes): the cookie is re-validated against my_athletes() on every read.
   const switchable = athleteState.athletes.filter((a) => a.status !== "inactive");
   const switcher = switchable.length > 1 ? (
-    <ActiveAthleteSwitcher athletes={switchable.map((a) => ({ id: a.id, firstName: a.firstName, kind: a.kind }))}
+    <ActiveAthleteSwitcher athletes={switchable.map((a) => ({ id: a.id, firstName: a.firstName, lastName: a.lastName, kind: a.kind }))}
       active={athleteState.active === ALL_ATHLETES ? null : athleteState.active} />
   ) : null;
   return (

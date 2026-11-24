@@ -7,7 +7,7 @@ import { AddMyselfButton } from "@/components/participants/add-myself-button";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { getTenant } from "@/lib/tenant/server";
-import { myAthletesLabel } from "@/lib/tenant/terms";
+import { isCustomTerm, myAthletesLabel, term } from "@/lib/tenant/terms";
 import { photoUrlsForAthletes } from "@/lib/people/server";
 import { getParticipantChoices } from "@/lib/participants/server";
 import { getActiveAthleteState, type MyAthlete } from "@/lib/participants/my-athletes";
@@ -44,7 +44,7 @@ export default async function MyAthletesPage() {
       <PageHeader title={title} description={t("myAthletes.description")}
         actions={
           <div className="flex flex-wrap gap-2">
-            <AddParticipantButton variant="primary" label={t("myAthletes.addChild")} />
+            <AddParticipantButton variant="primary" label={isCustomTerm(tenant.terminology, "athlete") ? t("myAthletes.addChildTerm", { term: term(tenant.terminology, "athlete") }) : t("myAthletes.addChild")} />
             {canAddSelf && choices && <AddMyselfButton self={choices.self} today={today} />}
           </div>
         } />

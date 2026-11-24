@@ -14494,6 +14494,7 @@
         "noTeamTitle": "Pas encore d'équipe",
         "noTeamHint": "Dès que votre athlète est placé dans une équipe, le calendrier apparaît ici."
       }
-    }
+    },
+    "addChildTerm": "Ajouter {term}"
   }
 }

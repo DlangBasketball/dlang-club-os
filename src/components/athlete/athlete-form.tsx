@@ -6,6 +6,8 @@ import { createAthlete, updateAthlete } from "@/lib/actions/athlete";
 import { Card, CardBody, Button, Input, Label, Select, Textarea } from "@/components/ui";
 import { useT } from "@/lib/i18n/client";
 import { ATHLETE_STATUSES, DOMINANT_HANDS, GENDERS, normaliseOption } from "@/lib/people/validation";
+import { POSITION_SUGGESTIONS } from "@/lib/participants/validation";
+import { positionLabel } from "@/components/participants/sports-fields";
 
 const JERSEY = ["YS", "YM", "YL", "S", "M", "L", "XL", "XXL"];
 
@@ -144,7 +146,13 @@ export function AthleteForm({
               </Select>
             </div>
           </div>
-          <div><Label htmlFor="pos">{t("editPeople.athlete.position")}</Label><Input id="pos" maxLength={60} value={f.positionPref} onChange={(e) => set("positionPref")(e.target.value)} /></div>
+          <div><Label htmlFor="pos">{t("editPeople.athlete.position")}</Label>
+            {/* Same position list as the parent and coach forms; an older free-text value stays selectable. */}
+            <Select id="pos" value={f.positionPref} onChange={(e) => set("positionPref")(e.target.value)}>
+              <option value="">—</option>
+              {f.positionPref && !(POSITION_SUGGESTIONS as readonly string[]).includes(f.positionPref) && <option value={f.positionPref}>{f.positionPref}</option>}
+              {POSITION_SUGGESTIONS.map((p) => <option key={p} value={p}>{positionLabel(t, p)}</option>)}
+            </Select></div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div><Label htmlFor="height">{t("participants.fields.height")}</Label><Input id="height" inputMode="decimal" value={f.heightCm} onChange={(e) => set("heightCm")(e.target.value)} /></div>
             <div><Label htmlFor="weight">{t("participants.fields.weight")}</Label><Input id="weight" inputMode="decimal" value={f.weightKg} onChange={(e) => set("weightKg")(e.target.value)} /></div>

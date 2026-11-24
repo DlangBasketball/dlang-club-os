@@ -14494,6 +14494,7 @@
         "noTeamTitle": "Todavía sin equipo",
         "noTeamHint": "Cuando tu deportista esté en un equipo, el calendario aparecerá aquí."
       }
-    }
+    },
+    "addChildTerm": "Añadir {term}"
   }
 }

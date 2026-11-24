@@ -14494,6 +14494,7 @@
         "noTeamTitle": "No team yet",
         "noTeamHint": "Once your athlete is placed on a team, the schedule appears here."
       }
-    }
+    },
+    "addChildTerm": "Add {term}"
   }
 }

@@ -24,7 +24,8 @@ export async function CoachPlayerBanner({ athleteId }: { athleteId: string }) {
   ]);
   const name = `${a.first_name} ${a.last_name}`;
   const primary = teams.find((x) => x.jerseyNumber !== null) ?? teams[0] ?? null;
-  const position = primary?.position || a.position_pref || null;
+  const rawPosition = primary?.position || a.position_pref || null;
+  const position = rawPosition ? t.dynamic(`participants.positions.${rawPosition}`, undefined, rawPosition) : null;
   return (
     <CoverImage cover={cover} variant="compact" className="max-w-5xl">
       <div className="flex items-center gap-3">

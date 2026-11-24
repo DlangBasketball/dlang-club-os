@@ -9,8 +9,8 @@ function value(field: Field, v: unknown, t: Translator, f: Formatter): string {
   if (v === null || v === undefined || v === "") return "—";
   if (field === "dob" && typeof v === "string") return f.date(v);
   if (field === "gender" && typeof v === "string") return t.dynamic(`participants.sex.${v.toLowerCase()}`, undefined, v);
-  if (field === "height_cm") return t("myAthletes.units.cm", { value: f.number(Number(v)) });
-  if (field === "weight_kg") return t("myAthletes.units.kg", { value: f.number(Number(v)) });
+  if (field === "height_cm") return t("myAthletes.units.cm", { n: f.number(Number(v)) });
+  if (field === "weight_kg") return t("myAthletes.units.kg", { n: f.number(Number(v)) });
   if (field === "preferred_jersey_number") return f.number(Number(v));
   if (field === "position_pref" && typeof v === "string") return t.dynamic(`participants.positions.${v}`, undefined, v);
   return String(v);

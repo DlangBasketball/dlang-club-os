@@ -143,7 +143,7 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
             <Detail label={t("media.profile.school")} value={a.school} />
             <Detail label={t("media.profile.jerseySize")} value={a.jerseySize} />
             <Detail label={t("media.profile.dominantHand")} value={optionLabel("hand", a.dominantHand)} />
-            <Detail label={t("media.profile.positionPref")} value={a.positionPref} />
+            <Detail label={t("media.profile.positionPref")} value={a.positionPref ? t.dynamic(`participants.positions.${a.positionPref}`, undefined, a.positionPref) : null} />
             {a.notes ? <div className="col-span-2 sm:col-span-3"><Detail label={t("media.profile.notes")} value={a.notes} /></div> : null}
           </CardBody>
         </Card>

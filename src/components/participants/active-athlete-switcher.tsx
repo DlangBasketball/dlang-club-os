@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { setActiveAthlete } from "@/lib/actions/my-athletes";
 import { ALL_ATHLETES } from "@/lib/participants/active-athlete";
 
-export type SwitcherAthlete = { id: string; firstName: string; kind: "self" | "child" };
+export type SwitcherAthlete = { id: string; firstName: string; lastName?: string | null; kind: "self" | "child" };
 
 /**
  * Parent app: the active athlete (shown for 2+ athletes). The choice is saved
@@ -51,9 +51,16 @@ export function ActiveAthleteSwitcher({ athletes, active }: { athletes: Switcher
       <div role="group" aria-label={t("myAthletes.switcher.label")} aria-busy={pending} className="flex items-center gap-2 overflow-x-auto">
         <span className="shrink-0 text-[11px] uppercase tracking-wide text-text-muted">{t("myAthletes.switcher.label")}</span>
         {chip(ALL_ATHLETES, allLabel)}
-        {athletes.map((a) => chip(a.id, a.kind === "self" ? t("myAthletes.switcher.me", { name: a.firstName }) : a.firstName))}
+        {athletes.map((a) => chip(a.id, a.kind === "self" ? t("myAthletes.switcher.me", { name: a.firstName }) : chipName(a, athletes)))}
       </div>
       {err && <p role="alert" className="mt-1 text-xs text-danger">{err}</p>}
     </div>
   );
+}
+
+/** First name, plus the last-name initial when two athletes share a first name. */
+function chipName(a: { id: string; firstName: string; lastName?: string | null }, all: { id: string; firstName: string }[]): string {
+  const clash = all.some((o) => o.id !== a.id && o.firstName.trim().toLowerCase() === a.firstName.trim().toLowerCase());
+  const initial = a.lastName?.trim().charAt(0);
+  return clash && initial ? `${a.firstName} ${initial}.` : a.firstName;
 }

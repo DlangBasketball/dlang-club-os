@@ -64,7 +64,8 @@ export function PlayerCard({
   const t = useT();
   const primary = teams.find((x) => x.jerseyNumber !== null) ?? teams[0] ?? null;
   const jersey = primary?.jerseyNumber ?? null;
-  const position = primary?.position || positionPref || null;
+  const rawPosition = primary?.position || positionPref || null;
+  const position = rawPosition ? t.dynamic(`participants.positions.${rawPosition}`, undefined, rawPosition) : null;
 
   return (
     <div className="space-y-4">
