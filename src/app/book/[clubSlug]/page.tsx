@@ -11,6 +11,8 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { I18nProvider } from "@/lib/i18n/client";
 import { ContactForm } from "@/components/messaging/leads";
+import { AppBookingCallout } from "@/components/entry/entry-points";
+import { joinHref } from "@/lib/public-entry/shared";
 
 export const dynamic = "force-dynamic";
 
@@ -52,11 +54,16 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
         <Card><CardBody className="space-y-3 py-5">
           <p className="text-sm text-ink-2">{member ? t("training.public.memberSignedIn") : t("training.public.otherClubSignedIn")}</p>
           {member && <Link href="/parent/bookings/new"><Button size="sm">{t("training.public.openWizard")}</Button></Link>}
+          {/* Signed in elsewhere / without a club: become a customer of this club (guest family, no membership needed). */}
+          {!member && <Link href={joinHref("training", "/parent/bookings/request")}><Button size="sm" variant="secondary">{t("entry.callout.continueHere")}</Button></Link>}
         </CardBody></Card>
       ) : (
+        <>
+        <AppBookingCallout t={t} intent="training" next="/parent/bookings/request" club={slug} />
         <I18nProvider ctx={{ ...ctx, timeZone: catalog.org.timezone, currency: catalog.org.currency }} messages={messages}>
           <PublicBookingFlow catalog={catalog} />
         </I18nProvider>
+        </>
       )}
       {!me && (
         <I18nProvider ctx={{ ...ctx, timeZone: catalog.org.timezone, currency: catalog.org.currency }} messages={messages}>

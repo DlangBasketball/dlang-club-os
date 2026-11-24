@@ -235,7 +235,8 @@
     },
     "approvals": "Validations",
     "clubRequests": "Demandes au club",
-    "clubProgrammes": "Programmes du club"
+    "clubProgrammes": "Programmes du club",
+    "bookingsForOthers": "Réservations pour d'autres"
   },
   "shell": {
     "openMenu": "Ouvrir le menu",
@@ -14133,6 +14134,180 @@
     "roster": {
       "title": "Pas encore confirmés ({count})",
       "hint": "Validation, consentement ou paiement en attente : pas sur la feuille de présence avant confirmation."
+    }
+  },
+  "entry": {
+    "hub": {
+      "title": "Pour commencer",
+      "camp": {
+        "title": "Réserver un camp",
+        "body": "Parcourez les camps ouverts aux inscriptions et réservez une place.",
+        "cta": "Voir les camps"
+      },
+      "training": {
+        "title": "Réserver un entraînement privé",
+        "body": "Choisissez une séance avec un coach au moment qui vous convient.",
+        "cta": "Réserver un entraînement"
+      },
+      "join": {
+        "title": "Rejoindre le club",
+        "body": "Créez votre compte et demandez une adhésion au club.",
+        "cta": "Rejoindre"
+      },
+      "newHere": "Nouveau ? Aucune invitation ni adhésion nécessaire pour réserver.",
+      "createAccount": "Créer un compte"
+    },
+    "callout": {
+      "title": "Réserver dans l'app",
+      "body": "Connectez-vous ou créez un compte gratuit : vous revenez sur cette page et pouvez réserver pour vous, vos enfants ou une autre personne.",
+      "create": "Créer un compte",
+      "signIn": "Se connecter",
+      "continueHere": "Continuer comme client de ce club"
+    },
+    "join": {
+      "metaTitle": "Créer votre compte",
+      "title": "Créer votre compte",
+      "intro": "Aucune invitation, équipe ou adhésion nécessaire. Nous vous envoyons un lien de connexion ; vous revenez à ce que vous avez choisi.",
+      "noClub": "Ouvrez cette page depuis le site ou l'app de votre club pour créer un compte auprès du club.",
+      "signOut": "Se déconnecter",
+      "privacy": "Nous ne demandons que ce dont la réservation a besoin. Les données des enfants sont saisies et gérées par leur parent ou représentant légal.",
+      "invalid": "Veuillez saisir votre nom et une adresse e-mail valide.",
+      "sent": "Consultez votre boîte de réception : nous avons envoyé un lien de connexion à {email}.",
+      "choiceLabel": "Que souhaitez-vous faire ?",
+      "choice": {
+        "book": {
+          "title": "Réserver un camp ou un entraînement",
+          "body": "Pour vous, vos enfants ou une autre personne."
+        },
+        "join": {
+          "title": "Rejoindre le club",
+          "body": "Créez votre compte, puis envoyez une demande d'adhésion au club."
+        }
+      },
+      "name": "Votre nom complet",
+      "email": "E-mail",
+      "passwordOptional": "Mot de passe (facultatif, comptes de démonstration uniquement)",
+      "submit": "Envoyer mon lien de connexion",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter",
+      "signedInAs": "Connecté en tant que {email}. Continuer avec ce club :"
+    },
+    "login": {
+      "newHere": "Nouveau au club ?",
+      "createAccount": "Créer un compte"
+    },
+    "clubApproval": {
+      "signIn": "Ce programme nécessite l'approbation du club. Connectez-vous ou créez un compte pour envoyer une demande pour votre enfant."
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "NOT_AUTHENTICATED": "Veuillez d'abord vous connecter.",
+      "CLUB_NOT_FOUND": "Ce club est introuvable.",
+      "MEMBERSHIP_SUSPENDED": "Votre accès à ce club est suspendu. Veuillez contacter le club.",
+      "invalidDob": "Veuillez vérifier la date de naissance."
+    }
+  },
+  "consentRequest": {
+    "email": {
+      "someone": "Quelqu'un",
+      "title": "Consentement requis pour {child}",
+      "body": "{booker} a réservé {activity} pour {child}. Merci de confirmer ou de refuser.",
+      "subject": "Merci de confirmer une réservation pour {child} ({club})",
+      "heading": "Votre consentement est requis",
+      "line": "{booker} a réservé {activity} pour {child} et vous a indiqué comme parent ou représentant légal.",
+      "dates": "Dates : {when}",
+      "verify": "Pour accepter, connectez-vous ou créez un compte avec cette adresse e-mail. Vous pouvez aussi refuser sans compte.",
+      "expires": "La place est réservée jusqu'au {when} ; sans réponse de votre part, elle est libérée.",
+      "ignore": "Si vous ne connaissez pas cette réservation, refusez-la ou ignorez cet e-mail.",
+      "cta": "Voir la réservation"
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "NOT_AUTHENTICATED": "Veuillez d'abord vous connecter.",
+      "NOT_FOUND": "Ce lien n'est pas valide.",
+      "EXPIRED": "Cette demande a expiré et la place a été libérée.",
+      "CONSENT_NOT_PENDING": "Cette demande a déjà reçu une réponse.",
+      "BOOKER_CANNOT_CONSENT": "La personne qui a réservé ne peut pas donner son consentement.",
+      "NOT_GUARDIAN": "Seul un parent ou représentant légal du participant peut répondre.",
+      "EMAIL_MISMATCH": "Veuillez vous connecter avec l'adresse e-mail à laquelle cette demande a été envoyée.",
+      "CONSENT_REQUIRED": "Veuillez accepter chaque formulaire obligatoire.",
+      "GUARDIAN_IS_BOOKER": "Indiquez le parent ou représentant légal du participant, pas vous-même.",
+      "GUARDIAN_EMAIL_REQUIRED": "L'e-mail du parent ou représentant légal est obligatoire : nous lui demandons son consentement par e-mail.",
+      "GUARDIAN_NAME_REQUIRED": "Indiquez le nom du parent ou représentant légal.",
+      "CONSENT_PENDING": "Le représentant légal du participant n'a pas encore donné son consentement.",
+      "AGE_OUT_OF_RANGE": "L'âge du participant ne correspond pas à cette activité.",
+      "EDITION_FULL": "Cette semaine est complète.",
+      "ALREADY_REGISTERED": "Le participant est déjà inscrit.",
+      "MIXED_PARTICIPANTS": "Réservez un participant d'une autre famille séparément, un à la fois.",
+      "CLUB_NOT_FOUND": "Ce club est introuvable.",
+      "MEMBERSHIP_SUSPENDED": "Votre accès à ce club est suspendu.",
+      "CLUB_APPROVAL_REQUIRED": "Ce programme nécessite l'approbation du club."
+    },
+    "held": {
+      "training": "Demande envoyée. Le parent ou représentant légal du participant a été invité à donner son consentement."
+    },
+    "notify": {
+      "acceptedTitle": "Consentement donné",
+      "acceptedBody": "Le représentant légal de {name} a donné son consentement pour {activity}. La réservation se poursuit ; vous verrez la prochaine étape sous Réservations pour d'autres.",
+      "declinedTitle": "Consentement refusé",
+      "declinedBody": "Le représentant légal de {name} a refusé {activity}. La réservation a été annulée et la place libérée.",
+      "expiredTitle": "Réservation libérée",
+      "expiredBody": "Le représentant légal de {name} n'a pas répondu à temps pour {activity}. La réservation a été annulée et la place libérée.",
+      "guardianExpiredTitle": "Demande de réservation expirée",
+      "guardianExpiredBody": "La demande de réservation pour {activity} a expiré sans réponse. La place a été libérée ; rien d'autre n'est nécessaire."
+    },
+    "status": {
+      "pending": "Consentement en attente",
+      "accepted": "Consentement donné",
+      "declined": "Refusé",
+      "expired": "Expiré",
+      "revoked": "Retiré"
+    },
+    "page": {
+      "notFound": "Ce lien n'est pas valide ou n'est plus disponible.",
+      "title": "Réservation pour {child}",
+      "intro": "{booker} ({relation}) a réservé pour {child} et vous a indiqué comme parent ou représentant légal. Rien n'est confirmé avant votre accord.",
+      "activities": "Activité",
+      "expires": "La place est réservée jusqu'au {when}.",
+      "verifyEmail": "Pour accepter, connectez-vous avec {email} (l'adresse à laquelle cette demande a été envoyée).",
+      "verifyFamily": "Pour accepter, connectez-vous avec votre propre compte de parent ou représentant légal de {child}.",
+      "signInToAccept": "Se connecter ou créer un compte pour accepter",
+      "signInHint": "Vous revenez sur cette page après la connexion.",
+      "signedInAs": "Connecté en tant que {email}",
+      "forms": "Formulaires de consentement",
+      "required": "Obligatoire",
+      "optional": "Facultatif",
+      "readForm": "Lire le formulaire",
+      "accept": "Accepter et donner mon consentement",
+      "decline": "Refuser",
+      "declineConfirm": "Refuser cette réservation ? La place est libérée.",
+      "requiredHint": "Cochez chaque formulaire obligatoire pour accepter.",
+      "accepted": "Merci. Votre consentement est enregistré et vous êtes désormais le représentant légal du participant dans l'app.",
+      "declined": "Vous avez refusé. La réservation a été annulée et la personne qui a réservé est informée.",
+      "openApp": "Ouvrir l'app",
+      "privacy": "Nous enregistrons votre réponse avec sa date et son heure. La personne qui a réservé ne voit que le statut de la réservation, jamais les données personnelles du participant.",
+      "done": {
+        "accepted": "Le consentement a été donné.",
+        "declined": "Cette réservation a été refusée.",
+        "expired": "Cette demande a expiré et la place a été libérée.",
+        "revoked": "La personne qui a réservé a retiré cette demande."
+      }
+    },
+    "others": {
+      "title": "Réservations pour d'autres",
+      "back": "Réservations",
+      "description": "Camps et entraînements réservés pour une personne hors de votre famille : le statut et ce que vous devez, rien de plus.",
+      "held": "La place est réservée. Nous avons écrit au parent ou représentant légal du participant ; sans son consentement dans les 72 heures, la place est libérée.",
+      "empty": "Vous n'avez encore rien réservé pour une personne hors de votre famille.",
+      "expires": "Réservée jusqu'au {when}",
+      "invoice": "Facture {number} · {due} dû · {status}",
+      "privacy": "Son profil, sa date de naissance, ses données médicales et ses documents restent chez son parent ou représentant légal.",
+      "withdraw": "Retirer cette réservation",
+      "withdrawConfirm": "Retirer cette réservation ? La place est libérée.",
+      "withdrawn": "Réservation retirée."
+    },
+    "slot": {
+      "explain": "Nous réservons la place pendant 72 heures et demandons par e-mail le consentement de son parent ou représentant légal. Vous voyez le statut de la réservation et ce que vous devez, jamais ses données personnelles."
     }
   }
 }

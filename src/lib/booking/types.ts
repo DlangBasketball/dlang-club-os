@@ -345,6 +345,8 @@ export type FamilyQuote = {
 export type FamilyRequestResult = {
   ok: true; booking_id: string; status: "requested"; session_id: string; starts_at: string; ends_at: string; coach_id: string;
   billing_mode: BillingMode; price: number; currency: string; discount_total: number; replayed?: boolean;
+  /** A "someone else" participant: held awaiting the guardian's consent (the booker sees it under Bookings for others). */
+  third_party?: boolean;
 };
 
 export type CoachBookingRequest = {

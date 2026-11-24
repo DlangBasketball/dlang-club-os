@@ -235,7 +235,8 @@
     },
     "approvals": "Freigaben",
     "clubRequests": "Anfragen an den Verein",
-    "clubProgrammes": "Vereinsprogramme"
+    "clubProgrammes": "Vereinsprogramme",
+    "bookingsForOthers": "Buchungen für andere"
   },
   "shell": {
     "openMenu": "Menü öffnen",
@@ -14133,6 +14134,180 @@
     "roster": {
       "title": "Noch nicht bestätigt ({count})",
       "hint": "Freigabe, Einwilligung oder Zahlung ausstehend: bis zur Bestätigung nicht auf der Präsenzliste."
+    }
+  },
+  "entry": {
+    "hub": {
+      "title": "Los geht's",
+      "camp": {
+        "title": "Camp buchen",
+        "body": "Sieh dir die offenen Camps an und buche einen Platz.",
+        "cta": "Camps ansehen"
+      },
+      "training": {
+        "title": "Personal Training buchen",
+        "body": "Wähle eine Einheit mit einem Coach zu einer passenden Zeit.",
+        "cta": "Training buchen"
+      },
+      "join": {
+        "title": "Dem Club beitreten",
+        "body": "Erstelle dein Konto und frage beim Club eine Mitgliedschaft an.",
+        "cta": "Beitreten"
+      },
+      "newHere": "Neu hier? Zum Buchen brauchst du keine Einladung und keine Mitgliedschaft.",
+      "createAccount": "Konto erstellen"
+    },
+    "callout": {
+      "title": "In der App buchen",
+      "body": "Melde dich an oder erstelle ein kostenloses Konto: Du kommst auf diese Seite zurück und kannst für dich, deine Kinder oder jemand anderen buchen.",
+      "create": "Konto erstellen",
+      "signIn": "Anmelden",
+      "continueHere": "Als Kunde dieses Clubs fortfahren"
+    },
+    "join": {
+      "metaTitle": "Konto erstellen",
+      "title": "Konto erstellen",
+      "intro": "Keine Einladung, kein Team und keine Mitgliedschaft nötig. Wir senden dir einen Anmeldelink; danach kommst du zu deiner Auswahl zurück.",
+      "noClub": "Öffne diese Seite über die Website oder App deines Clubs, um ein Konto beim Club zu erstellen.",
+      "signOut": "Abmelden",
+      "privacy": "Wir fragen nur, was die Buchung braucht. Die Daten von Kindern erfasst und verwaltet ihr Elternteil oder ihre gesetzliche Vertretung.",
+      "invalid": "Bitte gib deinen Namen und eine gültige E-Mail-Adresse ein.",
+      "sent": "Schau in dein Postfach: Wir haben einen Anmeldelink an {email} gesendet.",
+      "choiceLabel": "Was möchtest du tun?",
+      "choice": {
+        "book": {
+          "title": "Camp oder Training buchen",
+          "body": "Für dich, deine Kinder oder jemand anderen."
+        },
+        "join": {
+          "title": "Dem Club beitreten",
+          "body": "Erstelle dein Konto und sende dann eine Mitgliedschaftsanfrage an den Club."
+        }
+      },
+      "name": "Dein vollständiger Name",
+      "email": "E-Mail",
+      "passwordOptional": "Passwort (optional, nur Demo-Konten)",
+      "submit": "Anmeldelink senden",
+      "haveAccount": "Du hast schon ein Konto?",
+      "signIn": "Anmelden",
+      "signedInAs": "Angemeldet als {email}. Mit diesem Club fortfahren:"
+    },
+    "login": {
+      "newHere": "Neu im Club?",
+      "createAccount": "Konto erstellen"
+    },
+    "clubApproval": {
+      "signIn": "Für dieses Programm braucht es die Freigabe des Clubs. Melde dich an oder erstelle ein Konto, um eine Anfrage für dein Kind zu senden."
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+      "NOT_AUTHENTICATED": "Bitte melde dich zuerst an.",
+      "CLUB_NOT_FOUND": "Dieser Club wurde nicht gefunden.",
+      "MEMBERSHIP_SUSPENDED": "Dein Zugang zu diesem Club ist gesperrt. Bitte wende dich an den Club.",
+      "invalidDob": "Bitte prüfe das Geburtsdatum."
+    }
+  },
+  "consentRequest": {
+    "email": {
+      "someone": "Jemand",
+      "title": "Einwilligung für {child} nötig",
+      "body": "{booker} hat {activity} für {child} gebucht. Bitte bestätige oder lehne ab.",
+      "subject": "Bitte bestätige eine Buchung für {child} ({club})",
+      "heading": "Deine Einwilligung wird benötigt",
+      "line": "{booker} hat {activity} für {child} gebucht und dich als Elternteil oder gesetzliche Vertretung angegeben.",
+      "dates": "Daten: {when}",
+      "verify": "Zum Annehmen melde dich mit dieser E-Mail-Adresse an oder erstelle ein Konto. Ablehnen geht auch ohne Konto.",
+      "expires": "Der Platz ist bis {when} reserviert; ohne deine Antwort wird er freigegeben.",
+      "ignore": "Wenn du diese Buchung nicht kennst, lehne sie ab oder ignoriere diese E-Mail.",
+      "cta": "Buchung ansehen"
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+      "NOT_AUTHENTICATED": "Bitte melde dich zuerst an.",
+      "NOT_FOUND": "Dieser Link ist ungültig.",
+      "EXPIRED": "Diese Anfrage ist abgelaufen und der Platz wurde freigegeben.",
+      "CONSENT_NOT_PENDING": "Diese Anfrage wurde bereits beantwortet.",
+      "BOOKER_CANNOT_CONSENT": "Die Person, die gebucht hat, kann nicht einwilligen.",
+      "NOT_GUARDIAN": "Nur ein Elternteil oder die gesetzliche Vertretung der teilnehmenden Person kann antworten.",
+      "EMAIL_MISMATCH": "Bitte melde dich mit der E-Mail-Adresse an, an die diese Anfrage gesendet wurde.",
+      "CONSENT_REQUIRED": "Bitte akzeptiere jedes Pflichtformular.",
+      "GUARDIAN_IS_BOOKER": "Gib das Elternteil oder die gesetzliche Vertretung der teilnehmenden Person an, nicht dich selbst.",
+      "GUARDIAN_EMAIL_REQUIRED": "Die E-Mail des Elternteils oder der gesetzlichen Vertretung ist nötig: Wir fragen per E-Mail um Einwilligung.",
+      "GUARDIAN_NAME_REQUIRED": "Gib den Namen des Elternteils oder der gesetzlichen Vertretung an.",
+      "CONSENT_PENDING": "Die gesetzliche Vertretung hat noch nicht eingewilligt.",
+      "AGE_OUT_OF_RANGE": "Das Alter der teilnehmenden Person passt nicht zu diesem Angebot.",
+      "EDITION_FULL": "Diese Woche ist ausgebucht.",
+      "ALREADY_REGISTERED": "Die teilnehmende Person ist bereits gebucht.",
+      "MIXED_PARTICIPANTS": "Buche eine Person aus einer anderen Familie separat, eine nach der anderen.",
+      "CLUB_NOT_FOUND": "Dieser Club wurde nicht gefunden.",
+      "MEMBERSHIP_SUSPENDED": "Dein Zugang zu diesem Club ist gesperrt.",
+      "CLUB_APPROVAL_REQUIRED": "Für dieses Programm braucht es die Freigabe des Clubs."
+    },
+    "held": {
+      "training": "Anfrage gesendet. Das Elternteil oder die gesetzliche Vertretung wurde um Einwilligung gebeten."
+    },
+    "notify": {
+      "acceptedTitle": "Einwilligung erteilt",
+      "acceptedBody": "Die gesetzliche Vertretung von {name} hat für {activity} eingewilligt. Die Buchung geht weiter; den nächsten Schritt siehst du unter Buchungen für andere.",
+      "declinedTitle": "Einwilligung abgelehnt",
+      "declinedBody": "Die gesetzliche Vertretung von {name} hat {activity} abgelehnt. Die Buchung wurde storniert und der Platz freigegeben.",
+      "expiredTitle": "Buchung freigegeben",
+      "expiredBody": "Die gesetzliche Vertretung von {name} hat für {activity} nicht rechtzeitig geantwortet. Die Buchung wurde storniert und der Platz freigegeben.",
+      "guardianExpiredTitle": "Buchungsanfrage abgelaufen",
+      "guardianExpiredBody": "Die Buchungsanfrage für {activity} ist ohne Antwort abgelaufen. Der Platz wurde freigegeben; sonst ist nichts zu tun."
+    },
+    "status": {
+      "pending": "Einwilligung ausstehend",
+      "accepted": "Einwilligung erteilt",
+      "declined": "Abgelehnt",
+      "expired": "Abgelaufen",
+      "revoked": "Zurückgezogen"
+    },
+    "page": {
+      "notFound": "Dieser Link ist ungültig oder nicht mehr verfügbar.",
+      "title": "Buchung für {child}",
+      "intro": "{booker} ({relation}) hat für {child} gebucht und dich als Elternteil oder gesetzliche Vertretung angegeben. Nichts ist bestätigt, bevor du zustimmst.",
+      "activities": "Angebot",
+      "expires": "Der Platz ist bis {when} reserviert.",
+      "verifyEmail": "Zum Annehmen melde dich mit {email} an (die Adresse, an die diese Anfrage ging).",
+      "verifyFamily": "Zum Annehmen melde dich mit deinem eigenen Konto als Elternteil oder gesetzliche Vertretung von {child} an.",
+      "signInToAccept": "Zum Annehmen anmelden oder Konto erstellen",
+      "signInHint": "Nach der Anmeldung kommst du auf diese Seite zurück.",
+      "signedInAs": "Angemeldet als {email}",
+      "forms": "Einwilligungsformulare",
+      "required": "Pflicht",
+      "optional": "Optional",
+      "readForm": "Formular lesen",
+      "accept": "Annehmen und einwilligen",
+      "decline": "Ablehnen",
+      "declineConfirm": "Diese Buchung ablehnen? Der Platz wird freigegeben.",
+      "requiredHint": "Kreuze jedes Pflichtformular an, um anzunehmen.",
+      "accepted": "Danke. Deine Einwilligung ist erfasst und du bist jetzt in der App als gesetzliche Vertretung der teilnehmenden Person eingetragen.",
+      "declined": "Du hast abgelehnt. Die Buchung wurde storniert und die buchende Person informiert.",
+      "openApp": "App öffnen",
+      "privacy": "Wir speichern deine Antwort mit Datum und Uhrzeit. Die buchende Person sieht nur den Buchungsstatus, nie die persönlichen Daten der teilnehmenden Person.",
+      "done": {
+        "accepted": "Die Einwilligung wurde erteilt.",
+        "declined": "Diese Buchung wurde abgelehnt.",
+        "expired": "Diese Anfrage ist abgelaufen und der Platz wurde freigegeben.",
+        "revoked": "Die buchende Person hat diese Anfrage zurückgezogen."
+      }
+    },
+    "others": {
+      "title": "Buchungen für andere",
+      "back": "Buchungen",
+      "description": "Camps und Trainings, die du für jemanden ausserhalb deiner Familie gebucht hast: Status und offener Betrag, sonst nichts.",
+      "held": "Der Platz ist reserviert. Wir haben dem Elternteil oder der gesetzlichen Vertretung geschrieben; ohne Einwilligung innert 72 Stunden wird der Platz freigegeben.",
+      "empty": "Du hast noch nichts für jemanden ausserhalb deiner Familie gebucht.",
+      "expires": "Reserviert bis {when}",
+      "invoice": "Rechnung {number} · {due} offen · {status}",
+      "privacy": "Profil, Geburtsdatum, medizinische Angaben und Dokumente bleiben beim Elternteil oder der gesetzlichen Vertretung.",
+      "withdraw": "Buchung zurückziehen",
+      "withdrawConfirm": "Diese Buchung zurückziehen? Der Platz wird freigegeben.",
+      "withdrawn": "Buchung zurückgezogen."
+    },
+    "slot": {
+      "explain": "Wir reservieren den Platz für 72 Stunden und bitten das Elternteil oder die gesetzliche Vertretung per E-Mail um Einwilligung. Du siehst den Buchungsstatus und den offenen Betrag, nie die persönlichen Daten."
     }
   }
 }

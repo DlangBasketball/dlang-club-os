@@ -33,5 +33,9 @@ export default async function RootPage() {
     }
     redirect("/login");
   }
+  // A signed-in account without any club role (e.g. a magic-link sign-up
+  // without invitation) has no home: /login would bounce back here. Offer
+  // the club-customer entry instead (guest family, no membership needed).
+  if (user.roles.length === 0) redirect("/join");
   redirect(postLoginDestination(user));
 }

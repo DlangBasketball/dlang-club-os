@@ -204,6 +204,15 @@ function LoginInner() {
                         : t("auth.sendLink")}
                   </Button>
                 </form>
+                {/* New club customers (no invitation needed): sign up and come back to the same page. */}
+                {tenant.id && (
+                  <p className="mt-4 text-center text-sm text-text-muted">
+                    {t("entry.login.newHere")}{" "}
+                    <a href={`/join${redirect ? `?next=${encodeURIComponent(redirect)}` : ""}`} className="font-medium text-brand-primary hover:underline">
+                      {t("entry.login.createAccount")}
+                    </a>
+                  </p>
+                )}
               </>
             )}
           </div>

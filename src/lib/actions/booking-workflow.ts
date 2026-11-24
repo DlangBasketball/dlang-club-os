@@ -14,6 +14,8 @@ import type { Json } from "@/types/database";
 import { runBookingNotifications } from "@/lib/booking/notify";
 import { instalmentChoiceSchema } from "@/lib/booking/instalments";
 import { instalmentsDb } from "@/lib/booking/instalments-db";
+import { holdThirdPartyTraining, quoteThirdPartyTraining, thirdPartyIds } from "@/lib/public-entry/server";
+import { consentErrorCode } from "@/lib/public-entry/shared";
 import {
   bookingErrorCode, bookingPayloadSchema, cancelPayloadSchema, declinePayloadSchema, familyRequestSchema, payerSchema, quickCreateSchema,
   reschedulePayloadSchema, toBookingRpcPayload, toFamilyRequestRpcPayload, toPayerRpcPayload, toQuickCreateRpcPayload,
@@ -144,6 +146,12 @@ export async function quoteFamilyRequest(input: FamilyRequestInput): Promise<BkR
   if (!me) return denied(t);
   const p = familyRequestSchema.safeParse(input);
   if (!p.success) return invalid(t);
+  // "Someone else" participant (Workstream B): the booker's quote, no promo codes.
+  if ((await thirdPartyIds(me.id, me.orgId, [p.data.athleteId])).size) {
+    const q = await quoteThirdPartyTraining(toFamilyRequestRpcPayload(p.data));
+    if (q.error) return fail(t, q.error);
+    return { ok: true, data: q.data as unknown as FamilyQuote };
+  }
   const db = await createClient();
   const { data, error } = await db.rpc("booking_family_quote", { p_payload: toFamilyRequestRpcPayload(p.data) as Json });
   if (error) return fail(t, error);
@@ -160,6 +168,18 @@ export async function createFamilyRequest(input: FamilyRequestInput, requestId: 
   const p = familyRequestSchema.safeParse(input);
   const n = instalmentChoiceSchema.safeParse({ count: instalments });
   if (!p.success || !n.success || !requestIdSchema.safeParse(requestId).success) return invalid(t);
+  // "Someone else" participant (Workstream B): the place is held as a request
+  // awaiting the guardian's consent; the booker pays (no instalments).
+  if ((await thirdPartyIds(me.id, me.orgId, [p.data.athleteId])).size) {
+    const h = await holdThirdPartyTraining(me.orgId, toFamilyRequestRpcPayload(p.data), requestId);
+    if (!h.ok) {
+      const own = consentErrorCode(h.message);
+      if (own) return { ok: false, code: own, error: t.dynamic(`consentRequest.errors.${own}`, undefined, t("consentRequest.errors.generic")) };
+      return fail(t, h.message);
+    }
+    revalidatePath("/parent/bookings/others");
+    return { ok: true, data: { ...(h.raw as unknown as FamilyRequestResult), third_party: true }, message: t("consentRequest.held.training") };
+  }
   const db = await instalmentsDb();
   const { data, error } = await db.rpc("booking_family_request_plan", {
     p_payload: { ...toFamilyRequestRpcPayload(p.data), instalments: n.data.count } as Json, p_request_id: requestId,
