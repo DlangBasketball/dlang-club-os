@@ -66,7 +66,7 @@ export async function resolveDataReviewFlag(input: { flagId: string; note?: stri
   const db = await createClient();
   const { data: flag } = await db.from("data_review_flags").select("reason_code").eq("id", p.data.flagId).maybeSingle();
   if (!flag) return { ok: false, code: "FLAG_NOT_FOUND", error: t("adminAttendance.errors.FLAG_NOT_FOUND") };
-  if (flagGroup(flag.reason_code) === "attendance" && !user.roles.includes("admin")) {
+  if ((flagGroup(flag.reason_code) === "attendance" || flagGroup(flag.reason_code) === "people") && !user.roles.includes("admin")) {
     return { ok: false, code: "NOT_AUTHORIZED", error: t("teamAttendance.errors.NOT_AUTHORIZED") };
   }
   const { error } = await db.rpc("data_review_flag_resolve", { p_flag: p.data.flagId, p_note: p.data.note || null });

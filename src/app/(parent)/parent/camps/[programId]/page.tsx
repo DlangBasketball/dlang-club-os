@@ -11,6 +11,7 @@ import { guardianKids } from "@/lib/camps/parent-kids";
 import { getI18n } from "@/lib/i18n/server";
 import { getRegistrationConfig } from "@/lib/registration-form/server";
 import { getCheckoutPlanOffer } from "@/lib/plans/data";
+import { getParticipantChoices } from "@/lib/participants/server";
 
 export default async function ParentCampPage({ params }: { params: Promise<{ programId: string }> }) {
   const { programId } = await params;
@@ -20,7 +21,7 @@ export default async function ParentCampPage({ params }: { params: Promise<{ pro
   const camp = await getMemberCamp(me.orgId, programId);
   if (!camp) notFound();
   const { t } = await getI18n();
-  const kids = await guardianKids(me.id, me.orgId);
+  const [kids, choices] = await Promise.all([guardianKids(me.id, me.orgId), getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName })]);
   const season = camp.program.season;
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
@@ -37,7 +38,8 @@ export default async function ParentCampPage({ params }: { params: Promise<{ pro
       <BasketAdder mode="parent" scope={`parent:${me.orgId}`} camps={[camp]} kids={kids} basketHref="/parent/camps/basket"
         title={t("camps.basket.adder.titleSeveral")} />
       <CampRegister mode="parent" camp={camp} config={await getRegistrationConfig(me.orgId, camp.program.id)}
-        planRules={await getCheckoutPlanOffer(me.orgId, "camp", camp.program.currency)} kids={kids} />
+        planRules={await getCheckoutPlanOffer(me.orgId, "camp", camp.program.currency)} kids={kids}
+        participants={choices.participants} self={choices.self} />
     </div>
   );
 }

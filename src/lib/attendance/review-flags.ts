@@ -30,18 +30,35 @@ export const BILLING_FLAG_CODES = [
   "MIGRATION_ERROR",
 ] as const;
 
-export type FlagGroup = "attendance" | "billing" | "other";
+/** Participant profile codes (migration 20250420105600): admin only (children's identity data). */
+export const PEOPLE_FLAG_CODES = [
+  "ATHLETE_ELIGIBILITY_CHANGE",
+  "ATHLETE_LINK_REQUEST",
+  "POSSIBLE_DUPLICATE",
+] as const;
+
+/** Flags decided in the participant review panel (approve / decline), not with the generic resolve form. */
+export const DECIDED_IN_PANEL_CODES = ["ATHLETE_ELIGIBILITY_CHANGE", "ATHLETE_LINK_REQUEST"] as const;
+
+export type FlagGroup = "attendance" | "billing" | "people" | "other";
 
 export function flagGroup(code: string): FlagGroup {
   if ((ATTENDANCE_FLAG_CODES as readonly string[]).includes(code)) return "attendance";
   if ((BILLING_FLAG_CODES as readonly string[]).includes(code)) return "billing";
+  if ((PEOPLE_FLAG_CODES as readonly string[]).includes(code)) return "people";
   return "other";
 }
 
-/** Attendance flags are admin-only (finance never sees attendance data). */
+/** Attendance and people flags are admin-only (finance sees billing and other flags). */
 export function canSeeFlag(code: string, roles: { admin: boolean; finance: boolean }): boolean {
   if (roles.admin) return true;
-  return roles.finance && flagGroup(code) !== "attendance";
+  const g = flagGroup(code);
+  return roles.finance && g !== "attendance" && g !== "people";
+}
+
+/** True when the flag is settled through the participant review panel. */
+export function decidedInPanel(code: string): boolean {
+  return (DECIDED_IN_PANEL_CODES as readonly string[]).includes(code);
 }
 
 type FlagLike = { entityTable: string; entityId: string | null; reasonCode: string; details: Record<string, unknown> };
@@ -58,7 +75,12 @@ export function flagHref(f: FlagLike): string | null {
     case "teams":
       return id ? `/admin/teams/${id}?tab=coaches` : null;
     case "athletes":
-      return id ? `/admin/athletes/${id}${f.reasonCode === "ATHLETE_WITHOUT_GUARDIAN" ? "" : "?tab=billing"}` : null;
+      return id ? `/admin/athletes/${id}${f.reasonCode === "ATHLETE_WITHOUT_GUARDIAN" || f.reasonCode === "POSSIBLE_DUPLICATE" ? "" : "?tab=billing"}` : null;
+    case "athlete_change_requests":
+    case "athlete_link_requests": {
+      const athleteId = str(f.details.athlete_id);
+      return athleteId ? `/admin/athletes/${athleteId}` : null;
+    }
     case "events":
       if (!id) return null;
       return f.reasonCode === "ATTENDANCE_UNFINISHED" || f.reasonCode === "MULTIPLE_LEADS" ? `/admin/schedule/${id}/attendance` : `/admin/schedule/${id}`;

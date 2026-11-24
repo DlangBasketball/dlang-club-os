@@ -1244,5 +1244,10 @@
       "label": "Instalments allowed",
       "saved": "Instalment setting saved."
     }
+  },
+  "participants": {
+    "positions": {
+      "center": "Centre"
+    }
   }
 }

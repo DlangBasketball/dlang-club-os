@@ -437,5 +437,22 @@
         "size": "Das Bild ist grösser als 1 MB."
       }
     }
+  },
+  "participants": {
+    "errors": {
+      "INVALID_HEIGHT": "Die Grösse muss zwischen 40 und 250 cm liegen.",
+      "FIELD_NOT_ALLOWED": "Sie können nur Sportangaben ändern (Grösse, Gewicht, Position, Trikot).",
+      "THIRD_PARTY_NOT_ENABLED": "Buchungen für Personen ausserhalb Ihrer Familie sind noch nicht verfügbar."
+    },
+    "fields": {
+      "height": "Grösse (cm)",
+      "jerseySize": "Trikotgrösse"
+    },
+    "someoneElse": {
+      "intro": "Buchung für eine Person ausserhalb Ihrer Familie. Sie bleiben buchende und zahlende Person; deren Elternteil oder erziehungsberechtigte Person wird um Einwilligung gebeten."
+    },
+    "coach": {
+      "hint": "Grösse, Gewicht, Position und Trikotwunsch. Teamnummern werden im Kader vergeben."
+    }
   }
 }

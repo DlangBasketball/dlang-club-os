@@ -4,7 +4,9 @@ import { PageHeader, Badge, Card, CardBody, EmptyState, ErrorState } from "@/com
 import { requireRole } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { listReviewFlags } from "@/lib/data/billing";
-import { canSeeFlag, flagGroup, flagHref, type FlagGroup } from "@/lib/attendance/review-flags";
+import { canSeeFlag, decidedInPanel, flagGroup, flagHref, type FlagGroup } from "@/lib/attendance/review-flags";
+import { getReviewQueue } from "@/lib/participants/server";
+import { ParticipantReviewPanel } from "@/components/participants/review-panel";
 import { RefreshFlagsButton, ResolveFlagForm } from "@/components/attendance/admin/actions";
 
 export async function generateMetadata() {
@@ -12,7 +14,7 @@ export async function generateMetadata() {
   return { title: t("adminAttendance.review.title") };
 }
 
-const GROUPS = ["all", "attendance", "billing", "other"] as const;
+const GROUPS = ["all", "attendance", "billing", "people", "other"] as const;
 
 /**
  * Data review (data_review_flags): records the system could not match
@@ -27,7 +29,7 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
   const roles = { admin: me.roles.includes("admin"), finance: me.roles.includes("finance") };
   const group = (GROUPS as readonly string[]).includes(sp.group ?? "") ? (sp.group as (typeof GROUPS)[number]) : "all";
   const includeResolved = sp.resolved === "1";
-  const res = await listReviewFlags({ includeResolved });
+  const [res, queue] = await Promise.all([listReviewFlags({ includeResolved }), roles.admin ? getReviewQueue() : Promise.resolve(null)]);
   const header = (
     <PageHeader title={t("adminAttendance.review.title")} description={t("adminAttendance.review.description")}
       actions={roles.admin ? <RefreshFlagsButton /> : undefined} />
@@ -42,7 +44,7 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
     <div className="animate-fade-up space-y-6">
       {header}
       <nav className="flex flex-wrap items-center gap-2" aria-label={t("adminAttendance.review.filterLabel")}>
-        {GROUPS.filter((g) => roles.admin || g !== "attendance").map((g) => (
+        {GROUPS.filter((g) => roles.admin || (g !== "attendance" && g !== "people")).map((g) => (
           <Link key={g} href={href(g)} aria-current={group === g ? "page" : undefined}>
             <Badge tone={group === g ? "maroon" : "neutral"}>{t.dynamic(`adminAttendance.review.group.${g}`, undefined, g)} · {f.number(count(g))}</Badge>
           </Link>
@@ -51,6 +53,8 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
           {includeResolved ? t("adminAttendance.review.hideResolved") : t("adminAttendance.review.showResolved")}
         </Link>
       </nav>
+
+      {queue && (group === "all" || group === "people") && <ParticipantReviewPanel queue={queue} />}
 
       {flags.length === 0 ? (
         <EmptyState icon={<ClipboardCheck className="h-5 w-5" />} title={t("adminAttendance.review.emptyTitle")} description={t("adminAttendance.review.emptyHint")} />
@@ -76,7 +80,7 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
                       </p>
                       {link && <Link href={link} className="text-xs text-brand-primary hover:underline">{t("adminAttendance.review.openRecord")}</Link>}
                     </div>
-                    {!x.resolvedAt && <ResolveFlagForm flagId={x.id} />}
+                    {!x.resolvedAt && !decidedInPanel(x.reasonCode) && <ResolveFlagForm flagId={x.id} />}
                   </li>
                 );
               })}

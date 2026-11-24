@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sportsSchema } from "@/lib/participants/validation";
 
 /**
  * Validation for the admin "people & records" editors (athletes, families,
@@ -75,6 +76,12 @@ export const athleteSchema = z.object({
   positionPref: optText(60),
   status: z.enum(ATHLETE_STATUSES, { message: E.invalidOption }).default("active"),
   notes: optText(2000),
+  // Optional sports fields (participant profiles, 20250420105600). Omitted = unchanged.
+  heightCm: sportsSchema.shape.heightCm,
+  weightKg: sportsSchema.shape.weightKg,
+  preferredJerseyNumber: sportsSchema.shape.preferredJerseyNumber,
+  /** Staff confirmed creating a profile although the club may already have this person. */
+  confirmDuplicate: z.boolean().optional(),
 });
 export type AthleteInput = z.input<typeof athleteSchema>;
 export type AthleteData = z.output<typeof athleteSchema>;

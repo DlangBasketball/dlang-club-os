@@ -22,6 +22,9 @@ type FormState = {
   positionPref: string;
   status: string;
   notes: string;
+  heightCm: string;
+  weightKg: string;
+  preferredJerseyNumber: string;
 };
 
 export type AthleteFormInitial = Partial<Record<keyof FormState, string | null>>;
@@ -53,7 +56,12 @@ export function AthleteForm({
     positionPref: initial?.positionPref ?? "",
     status: normaliseOption(initial?.status, ATHLETE_STATUSES) || "active",
     notes: initial?.notes ?? "",
+    heightCm: initial?.heightCm ?? "",
+    weightKg: initial?.weightKg ?? "",
+    preferredJerseyNumber: initial?.preferredJerseyNumber ?? "",
   });
+  const [confirmDuplicate, setConfirmDuplicate] = React.useState(false);
+  const [duplicateShown, setDuplicateShown] = React.useState(false);
   const set = (k: keyof FormState) => (v: string) => setF((s) => ({ ...s, [k]: v }));
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   const [pending, setPending] = React.useState(false);
@@ -67,6 +75,7 @@ export function AthleteForm({
       gender: f.gender as (typeof GENDERS)[number] | "",
       dominantHand: f.dominantHand as (typeof DOMINANT_HANDS)[number] | "",
       status: f.status as (typeof ATHLETE_STATUSES)[number],
+      confirmDuplicate: athleteId ? undefined : confirmDuplicate,
     };
     const res = athleteId ? await updateAthlete(athleteId, payload) : await createAthlete(payload);
     setPending(false);
@@ -74,7 +83,10 @@ export function AthleteForm({
     if (res.ok) {
       setMsg({ ok: true, text: res.message ?? t("editPeople.saved") });
       router.refresh();
-    } else setMsg({ ok: false, text: res.error });
+    } else {
+      setMsg({ ok: false, text: res.error });
+      if (!athleteId) setDuplicateShown(true);
+    }
   }
 
   // Keep a stored value that is not one of the presets (e.g. imported "XS").
@@ -133,11 +145,23 @@ export function AthleteForm({
             </div>
           </div>
           <div><Label htmlFor="pos">{t("editPeople.athlete.position")}</Label><Input id="pos" maxLength={60} value={f.positionPref} onChange={(e) => set("positionPref")(e.target.value)} /></div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div><Label htmlFor="height">{t("participants.fields.height")}</Label><Input id="height" inputMode="decimal" value={f.heightCm} onChange={(e) => set("heightCm")(e.target.value)} /></div>
+            <div><Label htmlFor="weight">{t("participants.fields.weight")}</Label><Input id="weight" inputMode="decimal" value={f.weightKg} onChange={(e) => set("weightKg")(e.target.value)} /></div>
+            <div><Label htmlFor="pjn">{t("participants.fields.preferredJerseyNumber")}</Label><Input id="pjn" inputMode="numeric" maxLength={3} value={f.preferredJerseyNumber} onChange={(e) => set("preferredJerseyNumber")(e.target.value.replace(/[^0-9]/g, ""))} /></div>
+          </div>
+          <p className="text-xs text-text-muted">{t("participants.fields.preferredJerseyHint")}</p>
           <div>
             <Label htmlFor="notes">{t("editPeople.athlete.notes")}</Label>
             <Textarea id="notes" value={f.notes} maxLength={2000} onChange={(e) => set("notes")(e.target.value)} rows={3} placeholder={t("editPeople.athlete.notesPlaceholder")} />
           </div>
           {msg && <p role="status" className={msg.ok ? "text-sm text-success" : "text-sm text-danger"}>{msg.text}</p>}
+          {!athleteId && duplicateShown && (
+            <label className="flex items-center gap-2 text-sm text-text">
+              <input type="checkbox" className="h-4 w-4 accent-[var(--red-primary)]" checked={confirmDuplicate} onChange={(e) => setConfirmDuplicate(e.target.checked)} />
+              {t("participants.admin.confirmDuplicate")}
+            </label>
+          )}
           <Button type="submit" loading={pending}>
             {pending ? t("editPeople.saving") : athleteId ? t("editPeople.saveChanges") : t("editPeople.athlete.create")}
           </Button>

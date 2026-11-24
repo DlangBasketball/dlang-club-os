@@ -16,6 +16,8 @@ import { getFinalisedSheetMarks, getPlayerStats, getPlayerTeams } from "@/lib/da
 import { CourtsideCardSection } from "@/components/member-card/courtside-section";
 import { LicenceCard } from "@/components/athlete/licence-card";
 import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
+import { ProfileEditForm } from "@/components/participants/profile-edit-form";
+import { getMyParticipantRequests, getSportsProfile } from "@/lib/participants/server";
 
 /**
  * Parent app: one child's player card. Guardians edit the photo, the cover
@@ -30,12 +32,16 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
   if (error) return <ErrorState title={t("media.profile.loadError")} message={error} />;
   if (!data) notFound();
   const m = data.medical;
-  const [photos, cover, teams, sheetMarks] = await Promise.all([
+  const [photos, cover, teams, sheetMarks, sports, requests] = await Promise.all([
     photoUrlsForAthletes([data.id]),
     getAthleteCover(data.id),
     getPlayerTeams(data.id),
     getFinalisedSheetMarks(data.id),
+    getSportsProfile(data.id),
+    getMyParticipantRequests(),
   ]);
+  const pending = requests.changes.filter((c) => c.athleteId === data.id && c.status === "pending");
+
   const stats = await getPlayerStats(data.id, data.attendance, { familyView: true, sheetMarks });
   // One list, newest first: finalised attendance sheets and earlier programme marks.
   const recent = [
@@ -47,15 +53,27 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card className="lg:col-span-2">
         <CardHeader><CardTitle>{t("media.profile.detailsTitle")}</CardTitle></CardHeader>
-        <CardBody className="grid grid-cols-2 gap-2">
-          <div className="rounded-md bg-surface-elevated px-3 py-2">
-            <div className="text-xs text-text-muted">{t("media.profile.dob")}</div>
-            <div className="text-sm text-text">{f.date(data.dob)}</div>
+        <CardBody className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-md bg-surface-elevated px-3 py-2">
+              <div className="text-xs text-text-muted">{t("media.profile.dob")}</div>
+              <div className="text-sm text-text">{f.date(data.dob)}</div>
+            </div>
+            <div className="rounded-md bg-surface-elevated px-3 py-2">
+              <div className="text-xs text-text-muted">{t("media.profile.gender")}</div>
+              <div className="text-sm text-text">{data.gender ? t.dynamic(`editPeople.gender.${data.gender.trim().toLowerCase()}`, undefined, data.gender) : "—"}</div>
+            </div>
           </div>
-          <div className="rounded-md bg-surface-elevated px-3 py-2">
-            <div className="text-xs text-text-muted">{t("media.profile.gender")}</div>
-            <div className="text-sm text-text">{data.gender ? t.dynamic(`editPeople.gender.${data.gender.trim().toLowerCase()}`, undefined, data.gender) : "—"}</div>
-          </div>
+          <details className="group">
+            <summary className="cursor-pointer text-sm text-brand-primary hover:underline">{t("participants.edit.title")}</summary>
+            <div className="pt-4">
+              <ProfileEditForm athleteId={data.id} pending={pending.map((p) => ({ id: p.id, changes: p.changes, createdAt: p.createdAt }))} initial={{
+                firstName: data.firstName, lastName: data.lastName, dob: data.dob, sex: data.gender,
+                heightCm: sports?.heightCm ?? null, weightKg: sports?.weightKg ?? null, positionPref: sports?.positionPref ?? null,
+                jerseySize: sports?.jerseySize ?? null, preferredJerseyNumber: sports?.preferredJerseyNumber ?? null,
+              }} />
+            </div>
+          </details>
         </CardBody>
       </Card>
       {data.sponsorship.kind !== "none" && (

@@ -12479,7 +12479,8 @@
         "all": "Todos",
         "attendance": "Asistencia y plantillas",
         "billing": "Facturación",
-        "other": "Otros"
+        "other": "Otros",
+        "people": "Perfiles de participantes"
       },
       "showResolved": "Mostrar elementos resueltos",
       "hideResolved": "Ocultar elementos resueltos",
@@ -12508,7 +12509,10 @@
         "MIGRATION_ERROR": "Problema en la migración de datos",
         "MULTIPLE_LEADS": "Varios entrenadores principales en una sesión",
         "ATTENDANCE_NO_LEAD": "Asistencia finalizada sin entrenador principal",
-        "ATTENDANCE_MARK_NOT_FINALIZED": "Hoja finalizada con un jugador sin finalizar"
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Hoja finalizada con un jugador sin finalizar",
+        "ATHLETE_ELIGIBILITY_CHANGE": "Corrección de fecha de nacimiento / sexo por revisar",
+        "ATHLETE_LINK_REQUEST": "Solicitud de vínculo con un menor",
+        "POSSIBLE_DUPLICATE": "Posible perfil duplicado"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Los avisos de ausencia de este jugador no llegan a nadie. Añade a la familia un tutor con acceso activo.",
@@ -12526,7 +12530,10 @@
         "MIGRATION_ERROR": "Este registro no se pudo migrar automáticamente. Revísalo a mano.",
         "MULTIPLE_LEADS": "Se conservaron ambos entrenadores principales. Mantenga uno y cambie los demás a asistente.",
         "ATTENDANCE_NO_LEAD": "No se pudo designar a nadie como entrenador principal. Asigne un entrenador al equipo o a la sesión.",
-        "ATTENDANCE_MARK_NOT_FINALIZED": "Un jugador de esta hoja finalizada no tiene estado finalizado. Reabra la hoja, marque al jugador y vuelva a finalizar."
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Un jugador de esta hoja finalizada no tiene estado finalizado. Reabra la hoja, marque al jugador y vuelva a finalizar.",
+        "ATHLETE_ELIGIBILITY_CHANGE": "Una familia corrigió a un menor inscrito. Aprueba o rechaza en el panel de arriba.",
+        "ATHLETE_LINK_REQUEST": "Un adulto pide acceso de tutor a un menor existente. Decide en el panel de arriba (la familia también puede aprobar).",
+        "POSSIBLE_DUPLICATE": "Una familia creó un perfil con el mismo nombre y fecha de nacimiento que uno existente. Fusiona o conserva ambos."
       }
     }
   },
@@ -13753,6 +13760,205 @@
       "save": "Guardar",
       "saving": "Guardando…",
       "saved": "Configuración de pago a plazos guardada."
+    }
+  },
+  "participants": {
+    "errors": {
+      "generic": "Algo ha salido mal. Inténtalo de nuevo.",
+      "required": "Este campo es obligatorio.",
+      "invalidEmail": "Introduce un correo electrónico válido.",
+      "contactRequired": "Indica un correo o un teléfono del padre, madre o tutor.",
+      "NOT_AUTHENTICATED": "Vuelve a iniciar sesión.",
+      "NO_ORG": "Tu cuenta aún no está vinculada a un club.",
+      "REQUEST_ID_REQUIRED": "Recarga la página e inténtalo de nuevo.",
+      "REQUEST_ID_REUSED": "Recarga la página e inténtalo de nuevo.",
+      "NAME_REQUIRED": "Indica el nombre y los apellidos (máx. 80 caracteres).",
+      "DOB_REQUIRED": "Indica la fecha de nacimiento.",
+      "INVALID_DOB": "Introduce una fecha de nacimiento válida (no futura).",
+      "INVALID_DATE": "Introduce una fecha válida.",
+      "INVALID_SEX": "Elige masculino o femenino.",
+      "INVALID_HEIGHT": "La altura debe estar entre 40 y 250 cm.",
+      "INVALID_WEIGHT": "El peso debe estar entre 10 y 250 kg.",
+      "INVALID_JERSEY_NUMBER": "Número de camiseta: un número entero de 0 a 999.",
+      "TOO_LONG": "Este texto es demasiado largo.",
+      "FAMILY_NOT_FOUND": "No se encontró esta familia en tu cuenta.",
+      "NOT_FOUND": "No se encontró este perfil.",
+      "NOT_ALLOWED": "No tienes permiso para hacer esto.",
+      "FIELD_NOT_ALLOWED": "Solo puedes cambiar los datos deportivos (altura, peso, posición, camiseta).",
+      "SELF_MUST_BE_ADULT": "«Yo mismo» es para adultos (18 años o más en la fecha de la actividad). Añade a un menor como hijo de la familia.",
+      "REVIEW_REQUIRED": "Este cambio afecta a una inscripción del club y debe revisarlo el club.",
+      "INVALID_DECISION": "Esta decisión no es válida.",
+      "INVALID_RELATION": "Elige tu relación con el participante.",
+      "NO_MATCH": "No encontramos un perfil coincidente. Revisa los datos o añade al menor.",
+      "EXPIRED": "Esta solicitud ha caducado.",
+      "THIRD_PARTY_NOT_ENABLED": "Aún no se puede reservar para alguien fuera de tu familia."
+    },
+    "sex": {
+      "male": "Masculino",
+      "female": "Femenino"
+    },
+    "relations": {
+      "mother": "Madre",
+      "father": "Padre",
+      "guardian": "Tutor legal",
+      "other": "Otra persona responsable"
+    },
+    "bookerRelations": {
+      "nephew_niece": "Sobrino o sobrina",
+      "friends_child": "Hijo de amigos",
+      "other": "Otro"
+    },
+    "positions": {
+      "point_guard": "Base",
+      "shooting_guard": "Escolta",
+      "small_forward": "Alero",
+      "power_forward": "Ala-pívot",
+      "center": "Pívot"
+    },
+    "fields": {
+      "firstName": "Nombre",
+      "lastName": "Apellidos",
+      "dob": "Fecha de nacimiento",
+      "sex": "Sexo",
+      "sexOptional": "Sexo (opcional)",
+      "height": "Altura (cm)",
+      "weight": "Peso (kg)",
+      "position": "Posición",
+      "jerseySize": "Talla de camiseta",
+      "preferredJerseyNumber": "Número de camiseta preferido",
+      "preferredJerseyHint": "Solo una preferencia: el club asigna los números por equipo."
+    },
+    "add": {
+      "title": "Añadir un participante",
+      "child": "Añadir un hijo",
+      "intro": "Un menor de tu familia. Su perfil sirve para todas sus actividades.",
+      "submit": "Añadir",
+      "moreDetails": "Más datos (opcional)",
+      "lessDetails": "Menos datos",
+      "created": "Participante añadido.",
+      "missingChild": "¿Tu hijo no está en la lista?"
+    },
+    "match": {
+      "title": "Puede que este menor ya esté registrado en el club",
+      "body": "Por privacidad no podemos mostrar el perfil existente. Pide que te vinculen: lo confirma el tutor del menor o el club. O crea un perfil nuevo si es otro menor.",
+      "requestLink": "Solicitar vínculo",
+      "different": "Es otro menor",
+      "differentHint": "Se crea un perfil nuevo; el club lo revisa."
+    },
+    "link": {
+      "relation": "Tu relación con el menor",
+      "sent": "Solicitud enviada.",
+      "sentBody": "Solicitud enviada. El tutor del menor o el club la confirmará; te avisaremos.",
+      "approvedToast": "Vínculo aprobado.",
+      "declinedToast": "Vínculo rechazado.",
+      "inboxTitle": "Solicitudes de vínculo",
+      "inboxLine": "{name} ({relation}) pide ser añadido como tutor de {child}.",
+      "verifyHint": "Aprueba solo si conoces a esta persona. Verá el perfil del menor y las actividades de la familia.",
+      "staffVerifyHint": "Verifica a la persona con la familia antes de aprobar.",
+      "permissions": "Qué puede hacer este tutor",
+      "receivesEmails": "Recibe los correos del club",
+      "canPay": "Puede pagar facturas",
+      "canSeeMedical": "Puede ver la información médica",
+      "approve": "Aprobar",
+      "decline": "Rechazar",
+      "myTitle": "Mis solicitudes de vínculo",
+      "withdraw": "Retirar",
+      "status": {
+        "pending": "Pendiente de confirmación",
+        "approved": "Aprobada",
+        "declined": "Rechazada",
+        "withdrawn": "Retirada",
+        "expired": "Caducada"
+      }
+    },
+    "picker": {
+      "label": "¿Quién participa?",
+      "self": "Yo mismo",
+      "child": "Un menor de mi familia",
+      "other": "Otra persona",
+      "age": "{age} años",
+      "otherBadge": "Consentimiento pendiente",
+      "noChildren": "Aún no hay menores en tu familia.",
+      "alsoSelected": "También seleccionados: {names}"
+    },
+    "self": {
+      "intro": "Tu propio perfil de participante (solo adultos). La fecha de nacimiento se usa para las reglas de edad.",
+      "submit": "Usar mi perfil"
+    },
+    "someoneElse": {
+      "intro": "Reserva para alguien fuera de tu familia. Tú sigues siendo quien reserva y paga; se pide el consentimiento a su padre, madre o tutor legal.",
+      "participant": "Participante",
+      "guardian": "Su padre, madre o tutor legal",
+      "guardianName": "Nombre completo",
+      "guardianEmail": "Correo electrónico",
+      "guardianPhone": "Teléfono",
+      "consentHint": "Le contactamos para pedir su consentimiento; nada se confirma antes de su acuerdo.",
+      "relation": "¿Qué relación tienes con el participante?",
+      "submit": "Continuar"
+    },
+    "edit": {
+      "title": "Editar perfil",
+      "save": "Guardar perfil",
+      "saveSports": "Guardar datos deportivos",
+      "sportsTitle": "Datos deportivos",
+      "saved": "Guardado.",
+      "sentForReview": "Guardado. La corrección de fecha de nacimiento / sexo afecta a una inscripción: el club la revisará antes de aplicarla.",
+      "pendingReview": "Corrección pendiente de revisión del club: {changes} (enviada el {date}).",
+      "withdraw": "Retirar",
+      "eligibilityHint": "La fecha de nacimiento y el sexo determinan categorías y equipos. Si el menor está inscrito, el club revisa primero la corrección."
+    },
+    "review": {
+      "changesTitle": "Correcciones de perfil por revisar",
+      "linksTitle": "Solicitudes de vínculo de tutor",
+      "dobChange": "Fecha de nacimiento: {from} → {to}",
+      "sexChange": "Sexo: {from} → {to}",
+      "requestedBy": "Solicitado por {name} el {date}",
+      "note": "Mensaje a la familia (opcional)",
+      "notePlaceholder": "P. ej., envía una copia del documento de identidad",
+      "approve": "Aprobar y aplicar",
+      "decline": "Rechazar",
+      "approvedToast": "Corrección aplicada.",
+      "declinedToast": "Corrección rechazada. Se ha avisado a la familia.",
+      "openAthlete": "Abrir perfil",
+      "impact": {
+        "team": "Equipo",
+        "registration": "Programa",
+        "application": "Solicitud",
+        "membership": "Membresía",
+        "camp": "Grupo de edad del campus"
+      }
+    },
+    "notify": {
+      "linkRequestTitle": "Tienes una solicitud de vínculo pendiente",
+      "linkRequestBody": "{name} pide ser añadido como tutor de {child}. Abre Mi familia en la app para aprobar o rechazar.",
+      "linkApprovedTitle": "Vínculo aprobado",
+      "linkDeclinedTitle": "Solicitud de vínculo rechazada",
+      "linkApprovedBody": "Ya tienes acceso al perfil de {child} en la app.",
+      "linkDeclinedBody": "Tu solicitud de vínculo con {child} fue rechazada. Contacta con el club si crees que es un error.",
+      "changeRequestTitle": "Corrección de perfil por revisar",
+      "changeRequestBody": "Una familia ha corregido la fecha de nacimiento o el sexo de {name}. Revísalo en Revisión de datos.",
+      "changeApprovedTitle": "Corrección de perfil aplicada",
+      "changeDeclinedTitle": "Corrección de perfil rechazada",
+      "changeApprovedBody": "El club ha aplicado la corrección al perfil de {child}.",
+      "changeDeclinedBody": "El club no ha aplicado la corrección al perfil de {child}.",
+      "message": "Mensaje del club: {note}"
+    },
+    "children": {
+      "title": "Mis hijos",
+      "description": "Perfiles, información médica e inscripciones.",
+      "loadError": "No se pudo cargar",
+      "emptyTitle": "No hay menores en tu cuenta",
+      "emptyHint": "Añade un menor para reservar campus, entrenamientos y programas.",
+      "age": "{age} años",
+      "activeRegistrations": "{count, plural, one {# inscripción activa} other {# inscripciones activas}}"
+    },
+    "coach": {
+      "title": "Datos deportivos",
+      "hint": "Altura, peso, posición y preferencia de camiseta. Los números del equipo se asignan en la plantilla."
+    },
+    "admin": {
+      "duplicateWarning": "Puede que el club ya tenga a esta persona: {names}. Comprueba antes de crear o marca «Crear de todos modos».",
+      "confirmDuplicate": "Crear de todos modos (es otra persona)"
     }
   }
 }

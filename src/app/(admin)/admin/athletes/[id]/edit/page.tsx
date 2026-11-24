@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { PageHeader, ErrorState, Card, CardHeader, CardTitle, CardBody } from "@/components/ui";
 import { AthleteForm } from "@/components/athlete/athlete-form";
+import { getSportsProfile } from "@/lib/participants/server";
 import { MedicalForm } from "@/components/athlete/medical-form";
 import { LicenceForm } from "@/components/athlete/licence-form";
 import { SponsorshipFields } from "@/components/athlete/sponsorship-form";
@@ -30,13 +31,15 @@ export default async function EditAthletePage({ params }: { params: Promise<{ id
     return <ErrorState title={t("editPeople.errors.forbidden")} message={t("editPeople.readOnly")} />;
   }
 
-  const [ctx, photos, cover, teams, teamOptions] = await Promise.all([
+  const [ctx, photos, cover, teams, teamOptions, sports] = await Promise.all([
     getAthleteEditContext(id, a.familyId),
     signAthletePhotos([{ id: a.id, photoPath: a.photoPath }], a.orgId),
     getAthleteCover(a.id),
     getPlayerTeams(a.id),
     getTeamPickerOptions(),
+    getSportsProfile(id),
   ]);
+  const num = (v: number | null | undefined) => (v === null || v === undefined ? "" : String(v));
 
   return (
     <div className="animate-fade-up space-y-8">
@@ -71,6 +74,7 @@ export default async function EditAthletePage({ params }: { params: Promise<{ id
             gender: a.gender, nationality: a.nationality, school: a.school,
             jerseySize: a.jerseySize, dominantHand: a.dominantHand,
             positionPref: a.positionPref, status: a.status, notes: a.notes,
+            heightCm: num(sports?.heightCm), weightKg: num(sports?.weightKg), preferredJerseyNumber: num(sports?.preferredJerseyNumber),
           }}
         />
       </section>

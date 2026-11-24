@@ -167,6 +167,10 @@ export function placeholderDiff(source, target) {
 export const SAME_AS_EN_OK = new Set([
   "camps.approval.admin.forChild",
   "meta.direction",
+  // Participant profiles: words spelled like English in German / French / Italian.
+  "de:participants.positions.center", "de:participants.fields.position", "de:participants.review.impact.team",
+  "fr:participants.someoneElse.participant", "fr:participants.someoneElse.guardianEmail", "fr:participants.review.impact.registration",
+  "it:participants.someoneElse.guardianEmail",
   // Manual invoice form: "Total" (de/fr/es) and "Description" (fr) are spelled like English.
   "billing.invoiceForm.total", "billing.invoiceForm.description", "billing.invoiceForm.itemDescription",
   // Billing foundation: bank account terms, and German / French words spelled like English.

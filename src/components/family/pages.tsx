@@ -17,6 +17,9 @@ import { JourneyPanel } from "./journey-panel";
 import { SplitNowButton } from "./split-now-button";
 import { createClient } from "@/lib/supabase/server";
 import { RESTORE_WINDOW_DAYS } from "@/lib/people/person-delete";
+import { AddParticipantButton } from "@/components/participants/add-participant-dialog";
+import { LinkInbox, MyLinkRequests } from "@/components/participants/link-requests";
+import { getLinkInbox, getMyParticipantRequests } from "@/lib/participants/server";
 
 type App = "admin" | "coach" | "parent";
 const ROLES: Record<App, ("admin" | "finance" | "coach" | "parent")[]> = {
@@ -36,11 +39,14 @@ async function member(app: App) {
 export async function FamilyPage() {
   const me = await member("parent");
   const { t } = await getI18n();
-  const families = await getFamilyPanels(me);
+  const [families, inbox, mine] = await Promise.all([getFamilyPanels(me), getLinkInbox(), getMyParticipantRequests()]);
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
-      <PageHeader title={t("family.pages.family.title")} description={t("family.pages.family.description")} />
+      <PageHeader title={t("family.pages.family.title")} description={t("family.pages.family.description")}
+        actions={<AddParticipantButton variant="primary" />} />
+      <LinkInbox items={inbox} />
       {families.length === 0 ? <EmptyState title={t("family.pages.family.empty")} /> : <FamilyPanels families={families} />}
+      <MyLinkRequests items={mine.links} />
     </div>
   );
 }

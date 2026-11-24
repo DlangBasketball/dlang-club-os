@@ -41,7 +41,19 @@ function toRow(d: ReturnType<typeof athleteSchema.parse>) {
     position_pref: d.positionPref,
     status: d.status,
     notes: d.notes,
+    ...(d.heightCm !== undefined ? { height_cm: d.heightCm } : {}),
+    ...(d.weightKg !== undefined ? { weight_kg: d.weightKg } : {}),
+    ...(d.preferredJerseyNumber !== undefined ? { preferred_jersey_number: d.preferredJerseyNumber } : {}),
   };
+}
+
+/** Staff duplicate check (same club, same name and DOB): names shown to staff only. */
+async function nameDobDuplicates(firstName: string, lastName: string, dob: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("people_duplicate_check" as never, { p_payload: { first_name: firstName, last_name: lastName, dob } } as never);
+  const rows = ((data as { athletes?: { first_name: string; last_name: string; dob: string; reason: string; family_name: string | null }[] } | null)?.athletes ?? [])
+    .filter((x) => x.reason === "NAME_DOB");
+  return rows.map((x) => `${x.first_name} ${x.last_name}${x.family_name ? ` (${x.family_name})` : ""}`);
 }
 
 export async function createAthlete(input: AthleteInput): Promise<ActionResult<{ id: string }>> {
@@ -50,6 +62,10 @@ export async function createAthlete(input: AthleteInput): Promise<ActionResult<{
   const p = athleteSchema.safeParse(input);
   if (!p.success) return { ok: false, error: t.dynamic(firstIssueKey(p.error)) };
   if (!(await familyInOrg(p.data.familyId, me.orgId))) return { ok: false, error: t("editPeople.errors.familyNotFound") };
+  if (!p.data.confirmDuplicate) {
+    const dups = await nameDobDuplicates(p.data.firstName, p.data.lastName, p.data.dob);
+    if (dups.length) return { ok: false, error: t("participants.admin.duplicateWarning", { names: dups.join(", ") }) };
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase

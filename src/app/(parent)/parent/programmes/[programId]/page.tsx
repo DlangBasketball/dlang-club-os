@@ -6,6 +6,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { getFamilyApplications, getMyChildren, getSelectionSetup } from "@/lib/selection/data";
 import { todayIn } from "@/lib/payments/plans";
 import { FamilyApplicationCard, ParentApplyForm } from "@/components/selection/family";
+import { AddParticipantButton } from "@/components/participants/add-participant-dialog";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -48,6 +49,13 @@ export default async function ParentProgrammePage({ params }: { params: Promise<
               }} />
           ))}
         </section>
+      )}
+      {p.open && packages.length > 0 && (
+        // Add a participant without leaving the page: the list below refreshes, the form keeps its state.
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm text-text-muted">{t("participants.add.missingChild")}</p>
+          <AddParticipantButton />
+        </div>
       )}
       {p.open && packages.length > 0 && (
         <ParentApplyForm programId={p.id} kids={kids} divisions={setup.divisions} packages={packages} currency={currency} today={today} appliedIds={live} />

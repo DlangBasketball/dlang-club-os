@@ -12479,7 +12479,8 @@
         "all": "All",
         "attendance": "Attendance and rosters",
         "billing": "Billing",
-        "other": "Other"
+        "other": "Other",
+        "people": "Participant profiles"
       },
       "showResolved": "Show resolved items",
       "hideResolved": "Hide resolved items",
@@ -12508,7 +12509,10 @@
         "MIGRATION_ERROR": "Data migration problem",
         "MULTIPLE_LEADS": "Several lead coaches on one session",
         "ATTENDANCE_NO_LEAD": "Finalized attendance without a lead coach",
-        "ATTENDANCE_MARK_NOT_FINALIZED": "Final sheet with a player not finalized"
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Final sheet with a player not finalized",
+        "ATHLETE_ELIGIBILITY_CHANGE": "Date of birth / sex correction to review",
+        "ATHLETE_LINK_REQUEST": "Request to be linked to a child",
+        "POSSIBLE_DUPLICATE": "Possible duplicate profile"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "No-show alerts for this player cannot reach anyone. Add a guardian with an active login to the family.",
@@ -12526,7 +12530,10 @@
         "MIGRATION_ERROR": "This record could not be migrated automatically. Review it by hand.",
         "MULTIPLE_LEADS": "Both approved leads were kept. Keep one lead for the session and change the others to assistant.",
         "ATTENDANCE_NO_LEAD": "Nobody could be named as the lead coach. Assign a coach to the team or the session.",
-        "ATTENDANCE_MARK_NOT_FINALIZED": "A player on this final sheet has no finalized status. Reopen the sheet, mark the player and finalize again."
+        "ATTENDANCE_MARK_NOT_FINALIZED": "A player on this final sheet has no finalized status. Reopen the sheet, mark the player and finalize again.",
+        "ATHLETE_ELIGIBILITY_CHANGE": "A family corrected a child with a live enrolment. Approve or decline in the panel above.",
+        "ATHLETE_LINK_REQUEST": "An adult asks for guardian access to an existing child. Decide in the panel above (the family can also approve).",
+        "POSSIBLE_DUPLICATE": "A family created a profile with the same name and date of birth as an existing one. Merge or keep both."
       }
     }
   },
@@ -13753,6 +13760,205 @@
       "save": "Save",
       "saving": "Saving…",
       "saved": "Installment setting saved."
+    }
+  },
+  "participants": {
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "required": "This field is required.",
+      "invalidEmail": "Enter a valid e-mail address.",
+      "contactRequired": "Enter an e-mail address or a phone number for the parent or guardian.",
+      "NOT_AUTHENTICATED": "Please sign in again.",
+      "NO_ORG": "Your account is not linked to a club yet.",
+      "REQUEST_ID_REQUIRED": "Please reload the page and try again.",
+      "REQUEST_ID_REUSED": "Please reload the page and try again.",
+      "NAME_REQUIRED": "Enter the first and last name (80 characters max.).",
+      "DOB_REQUIRED": "Enter the date of birth.",
+      "INVALID_DOB": "Enter a valid date of birth (not in the future).",
+      "INVALID_DATE": "Enter a valid date.",
+      "INVALID_SEX": "Choose male or female.",
+      "INVALID_HEIGHT": "Height must be between 40 and 250 cm.",
+      "INVALID_WEIGHT": "Weight must be between 10 and 250 kg.",
+      "INVALID_JERSEY_NUMBER": "Jersey number: a whole number from 0 to 999.",
+      "TOO_LONG": "This text is too long.",
+      "FAMILY_NOT_FOUND": "This family was not found in your account.",
+      "NOT_FOUND": "This profile was not found.",
+      "NOT_ALLOWED": "You are not allowed to do this.",
+      "FIELD_NOT_ALLOWED": "You can only change sports details (height, weight, position, jersey).",
+      "SELF_MUST_BE_ADULT": "“Myself” is for adults (18 or older on the activity date). Add a minor as a child of the family.",
+      "REVIEW_REQUIRED": "This change affects a club enrolment and must be reviewed by the club.",
+      "INVALID_DECISION": "This decision is not valid.",
+      "INVALID_RELATION": "Choose your relationship to the participant.",
+      "NO_MATCH": "We could not find a matching profile. Please check the details or add the child.",
+      "EXPIRED": "This request has expired.",
+      "THIRD_PARTY_NOT_ENABLED": "Booking for someone outside your family is not available yet."
+    },
+    "sex": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "relations": {
+      "mother": "Mother",
+      "father": "Father",
+      "guardian": "Legal guardian",
+      "other": "Other carer"
+    },
+    "bookerRelations": {
+      "nephew_niece": "Nephew or niece",
+      "friends_child": "A friend's child",
+      "other": "Other"
+    },
+    "positions": {
+      "point_guard": "Point guard",
+      "shooting_guard": "Shooting guard",
+      "small_forward": "Small forward",
+      "power_forward": "Power forward",
+      "center": "Center"
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dob": "Date of birth",
+      "sex": "Sex",
+      "sexOptional": "Sex (optional)",
+      "height": "Height (cm)",
+      "weight": "Weight (kg)",
+      "position": "Position",
+      "jerseySize": "Jersey size",
+      "preferredJerseyNumber": "Preferred jersey number",
+      "preferredJerseyHint": "A wish only: the club sets team numbers per team."
+    },
+    "add": {
+      "title": "Add a participant",
+      "child": "Add a child",
+      "intro": "A child of your family. Their profile is shared by all their activities.",
+      "submit": "Add",
+      "moreDetails": "More details (optional)",
+      "lessDetails": "Fewer details",
+      "created": "Participant added.",
+      "missingChild": "Your child is not in the list?"
+    },
+    "match": {
+      "title": "This child may already be registered at the club",
+      "body": "For privacy we cannot show the existing profile. Ask to be linked to it: the child's guardian or the club confirms. Or create a new profile if this is a different child.",
+      "requestLink": "Request link",
+      "different": "This is a different child",
+      "differentHint": "A new profile is created; the club double-checks it."
+    },
+    "link": {
+      "relation": "Your relationship to the child",
+      "sent": "Request sent.",
+      "sentBody": "Request sent. The child's guardian or the club will confirm it; you will be notified.",
+      "approvedToast": "Link approved.",
+      "declinedToast": "Link declined.",
+      "inboxTitle": "Link requests",
+      "inboxLine": "{name} ({relation}) asks to be added as a guardian of {child}.",
+      "verifyHint": "Approve only if you know this person. They will see the child's profile and the family's activities.",
+      "staffVerifyHint": "Verify the person with the family before approving.",
+      "permissions": "What this guardian may do",
+      "receivesEmails": "Receives club e-mails",
+      "canPay": "Can pay invoices",
+      "canSeeMedical": "Can see medical information",
+      "approve": "Approve",
+      "decline": "Decline",
+      "myTitle": "My link requests",
+      "withdraw": "Withdraw",
+      "status": {
+        "pending": "Waiting for confirmation",
+        "approved": "Approved",
+        "declined": "Declined",
+        "withdrawn": "Withdrawn",
+        "expired": "Expired"
+      }
+    },
+    "picker": {
+      "label": "Who is taking part?",
+      "self": "Myself",
+      "child": "A child in my family",
+      "other": "Someone else",
+      "age": "{age} y",
+      "otherBadge": "Awaiting consent",
+      "noChildren": "No child in your family yet.",
+      "alsoSelected": "Also selected: {names}"
+    },
+    "self": {
+      "intro": "Your own participant profile (adults only). The date of birth is needed for age rules.",
+      "submit": "Use my profile"
+    },
+    "someoneElse": {
+      "intro": "Booking for someone outside your family. You stay the booker and payer; their parent or legal guardian is asked for consent.",
+      "participant": "Participant",
+      "guardian": "Their parent or legal guardian",
+      "guardianName": "Full name",
+      "guardianEmail": "E-mail",
+      "guardianPhone": "Phone",
+      "consentHint": "We contact them for consent; nothing is confirmed before they agree.",
+      "relation": "How do you know the participant?",
+      "submit": "Continue"
+    },
+    "edit": {
+      "title": "Edit profile",
+      "save": "Save profile",
+      "saveSports": "Save sports details",
+      "sportsTitle": "Sports details",
+      "saved": "Saved.",
+      "sentForReview": "Saved. The date of birth / sex correction affects a club enrolment: the club will review it before it applies.",
+      "pendingReview": "Correction waiting for club review: {changes} (sent {date}).",
+      "withdraw": "Withdraw",
+      "eligibilityHint": "Date of birth and sex decide age groups and teams. If the child is enrolled, the club checks a correction first."
+    },
+    "review": {
+      "changesTitle": "Profile corrections to review",
+      "linksTitle": "Guardian link requests",
+      "dobChange": "Date of birth: {from} → {to}",
+      "sexChange": "Sex: {from} → {to}",
+      "requestedBy": "Requested by {name} on {date}",
+      "note": "Message to the family (optional)",
+      "notePlaceholder": "E.g. please send a copy of the ID",
+      "approve": "Approve and apply",
+      "decline": "Decline",
+      "approvedToast": "Correction applied.",
+      "declinedToast": "Correction declined. The family has been notified.",
+      "openAthlete": "Open profile",
+      "impact": {
+        "team": "Team",
+        "registration": "Programme",
+        "application": "Application",
+        "membership": "Membership",
+        "camp": "Camp age group"
+      }
+    },
+    "notify": {
+      "linkRequestTitle": "A guardian link request needs you",
+      "linkRequestBody": "{name} asks to be added as a guardian of {child}. Open My family in the app to approve or decline.",
+      "linkApprovedTitle": "Link approved",
+      "linkDeclinedTitle": "Link request declined",
+      "linkApprovedBody": "You now have access to {child}'s profile in the app.",
+      "linkDeclinedBody": "Your request to be linked to {child} was declined. Contact the club if you think this is a mistake.",
+      "changeRequestTitle": "Profile correction to review",
+      "changeRequestBody": "A family corrected the date of birth or sex of {name}. Review it in Data review.",
+      "changeApprovedTitle": "Profile correction applied",
+      "changeDeclinedTitle": "Profile correction declined",
+      "changeApprovedBody": "The club applied the correction to {child}'s profile.",
+      "changeDeclinedBody": "The club did not apply the correction to {child}'s profile.",
+      "message": "Message from the club: {note}"
+    },
+    "children": {
+      "title": "My children",
+      "description": "Profiles, medical info and registrations.",
+      "loadError": "Couldn't load",
+      "emptyTitle": "No children on your account",
+      "emptyHint": "Add a child to book camps, training and programmes.",
+      "age": "Age {age}",
+      "activeRegistrations": "{count, plural, one {# active registration} other {# active registrations}}"
+    },
+    "coach": {
+      "title": "Sports details",
+      "hint": "Height, weight, position and jersey preference. Team numbers are set on the roster."
+    },
+    "admin": {
+      "duplicateWarning": "The club may already have this person: {names}. Check before creating, or tick “Create anyway”.",
+      "confirmDuplicate": "Create anyway (this is a different person)"
     }
   }
 }
