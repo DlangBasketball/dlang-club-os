@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AthletePickerField, initialAthlete, type AthleteChoices } from "@/components/participants/athlete-picker-field";
 import { CreditCard } from "lucide-react";
 import { Button, Card, CardBody, CardHeader, CardTitle, Input, Select, Textarea } from "@/components/ui";
 import { useFormat, useT } from "@/lib/i18n/client";
@@ -63,14 +64,19 @@ export function DivisionChooser({ divisions, dob, value, onChange, today }: {
 const emptyExtras: ExtrasState = { currentClub: "", position: "", notes: "", videoUrl: "" };
 
 /** Parent app: apply with an existing child in two taps (child, package). */
-export function ParentApplyForm({ programId, kids, divisions, packages, currency, today, appliedIds }: {
+export function ParentApplyForm({ programId, kids, divisions, packages, currency, today, appliedIds, choices, active }: {
   programId: string; kids: { id: string; name: string; dob: string | null }[]; divisions: DivisionRule[]; packages: PackageOption[];
   currency: string; today: string; appliedIds: string[];
+  /** Shared athlete picker data (children of the family; a child added inline is selected at once). */
+  choices: AthleteChoices; active: string | null;
 }) {
   const t = useT();
   const router = useRouter();
-  const free = kids.filter((k) => !appliedIds.includes(k.id));
-  const [athleteId, setAthleteId] = React.useState(free[0]?.id ?? "");
+  // A child added in the picker joins the list at once (before the page data refreshes).
+  const [added, setAdded] = React.useState<{ id: string; name: string; dob: string | null }[]>([]);
+  const all = React.useMemo(() => [...kids, ...added.filter((a) => !kids.some((k) => k.id === a.id))], [kids, added]);
+  const free = all.filter((k) => !appliedIds.includes(k.id));
+  const [athleteId, setAthleteId] = React.useState(() => initialAthlete(active, kids.filter((k) => !appliedIds.includes(k.id)).map((k) => k.id)) || (kids.find((k) => !appliedIds.includes(k.id))?.id ?? ""));
   const [divisionId, setDivisionId] = React.useState("");
   const [packageId, setPackageId] = React.useState(packages[0]?.id ?? "");
   const [extras, setExtras] = React.useState<ExtrasState>(emptyExtras);
@@ -79,7 +85,6 @@ export function ParentApplyForm({ programId, kids, divisions, packages, currency
   const [msg, setMsg] = React.useState<{ tone: "ok" | "err"; text: string } | null>(null);
   const kid = free.find((k) => k.id === athleteId) ?? null;
 
-  if (!free.length) return <p className="text-sm text-text-muted">{kids.length ? t("selection.apply.allApplied") : t("selection.apply.noChildren")}</p>;
 
   async function submit() {
     setBusy(true); setMsg(null); setErrors({});
@@ -95,11 +100,13 @@ export function ParentApplyForm({ programId, kids, divisions, packages, currency
     <Card>
       <CardHeader><CardTitle>{t("selection.apply.title")}</CardTitle></CardHeader>
       <CardBody className="space-y-4">
-        <Field label={t("selection.apply.child")} htmlFor="sel-kid">
-          <Select id="sel-kid" value={athleteId} onChange={(e) => { setAthleteId(e.target.value); setDivisionId(""); }}>
-            {free.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
-          </Select>
-        </Field>
+        {!free.length && <p className="text-sm text-text-muted">{kids.length ? t("selection.apply.allApplied") : t("selection.apply.noChildren")}</p>}
+        <AthletePickerField idPrefix="sel-kid" legend={t("selection.apply.child")} choices={choices} value={athleteId}
+          exclude={appliedIds} activityDate={today}
+          onChange={(id, p) => {
+            if (p && !all.some((k) => k.id === p.id)) setAdded((a) => [...a, { id: p.id, name: p.name, dob: p.dob }]);
+            setAthleteId(id); setDivisionId("");
+          }} />
         <DivisionChooser key={athleteId} divisions={divisions} dob={kid?.dob ?? null} value={divisionId} onChange={setDivisionId} today={today} />
         <div>
           <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">{t("selection.apply.package")}</p>

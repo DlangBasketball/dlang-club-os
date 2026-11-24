@@ -236,7 +236,9 @@
     "approvals": "Approvals",
     "clubRequests": "Club requests",
     "clubProgrammes": "Club programmes",
-    "bookingsForOthers": "Bookings for others"
+    "bookingsForOthers": "Bookings for others",
+    "myAthletes": "My athletes",
+    "myAthletesTerm": "My {term}"
   },
   "shell": {
     "openMenu": "Open menu",
@@ -12516,7 +12518,8 @@
         "ATTENDANCE_MARK_NOT_FINALIZED": "Final sheet with a player not finalized",
         "ATHLETE_ELIGIBILITY_CHANGE": "Date of birth / sex correction to review",
         "ATHLETE_LINK_REQUEST": "Request to be linked to a child",
-        "POSSIBLE_DUPLICATE": "Possible duplicate profile"
+        "POSSIBLE_DUPLICATE": "Possible duplicate profile",
+        "POSSIBLE_SELF_LINK": "Possible own login"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "No-show alerts for this player cannot reach anyone. Add a guardian with an active login to the family.",
@@ -12537,7 +12540,8 @@
         "ATTENDANCE_MARK_NOT_FINALIZED": "A player on this final sheet has no finalized status. Reopen the sheet, mark the player and finalize again.",
         "ATHLETE_ELIGIBILITY_CHANGE": "A family corrected a child with a live enrolment. Approve or decline in the panel above.",
         "ATHLETE_LINK_REQUEST": "An adult asks for guardian access to an existing child. Decide in the panel above (the family can also approve).",
-        "POSSIBLE_DUPLICATE": "A family created a profile with the same name and date of birth as an existing one. Merge or keep both."
+        "POSSIBLE_DUPLICATE": "A family created a profile with the same name and date of birth as an existing one. Merge or keep both.",
+        "POSSIBLE_SELF_LINK": "An adult player whose family contact e-mail and name match a login. Confirm the link or dismiss it."
       }
     }
   },
@@ -14308,6 +14312,188 @@
     },
     "slot": {
       "explain": "We hold the place for 72 hours and e-mail their parent or legal guardian for consent. You see the booking status and what you owe, never their personal details."
+    }
+  },
+  "myAthletes": {
+    "title": "My athletes",
+    "titleTerm": "My {term}",
+    "description": "Your own profile and every child you are guardian of, with their teams, programmes and what is still open.",
+    "addChild": "Add athlete",
+    "addMyself": "Add myself",
+    "myself": "Myself",
+    "activeBadge": "Selected",
+    "emptyTitle": "No athlete yet",
+    "emptyHint": "Add a child (or yourself, if you are 18 or older) to register for teams, camps and training.",
+    "teamWithNumber": "{team} (#{number})",
+    "programmes": "Programmes: {names}",
+    "noActivity": "No team or programme yet",
+    "correctionPending": "Profile correction under review",
+    "switcher": {
+      "label": "Showing",
+      "all": "All athletes",
+      "allTerm": "All {term}",
+      "me": "{name} (me)"
+    },
+    "filter": {
+      "label": "Choose an athlete",
+      "all": "All"
+    },
+    "picker": {
+      "legend": "Who is this for?"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "NOT_ALLOWED": "You are not allowed to do this.",
+      "NOT_FOUND": "This athlete was not found in your account.",
+      "INVALID_MERGE": "Choose two different records of this club.",
+      "ALREADY_MERGED": "This record was already merged.",
+      "MERGE_BLOCKED": "The merge was stopped: a linked record could not be moved. Nothing was changed.",
+      "REQUEST_ID_REQUIRED": "Please reload the page and try again.",
+      "TOO_LONG": "This text is too long.",
+      "PROFILE_ALREADY_LINKED": "This login is already linked to another athlete.",
+      "LINK_FAILED": "The link could not be made. Open the athlete and check the record.",
+      "INVALID_DECISION": "This decision is not valid."
+    },
+    "dataCheck": {
+      "run": "Check athlete records",
+      "done": "{count, plural, =0 {No new finding.} one {# new finding to review.} other {# new findings to review.}}"
+    },
+    "selfLink": {
+      "title": "Adult players who may already have a login",
+      "explain": "Same e-mail on the family contact and same name as a login. Nothing is linked until you confirm.",
+      "match": "{athlete} may be the athlete profile of the login {login}.",
+      "link": "Link to this login",
+      "dismiss": "Not the same person",
+      "linked": "Linked: the player now sees their own profile.",
+      "dismissed": "Dismissed. This finding will not come back."
+    },
+    "merge": {
+      "title": "Possible duplicate records",
+      "keep": "Keep",
+      "noFamily": "no family",
+      "createdOn": "created {date}",
+      "links": "{teams} teams · {registrations} registrations · {invoices} invoices",
+      "hasLogin": "has a login",
+      "confirm": "Merge these records? Everything linked to the other record moves to the one you keep, which cannot be undone automatically.",
+      "explain": "Teams, registrations, invoices, bookings and other links move to the record you keep. Where both already have one (e.g. the same team), the kept record's entry stays and the other is listed. The other record is archived, never deleted.",
+      "reason": "Reason (optional, kept in the history)",
+      "submit": "Merge into the kept record",
+      "done": "Merged: {moved} links moved, {conflicts} kept on the archived record.",
+      "conflict": {
+        "kept_athlete_row": "Already on the kept record ({table}): kept that one.",
+        "kept_athlete_login": "Both records have a different login: the kept record's login stays.",
+        "different_family": "The records belonged to different families: link the other family's guardians if needed."
+      }
+    },
+    "history": {
+      "tab": "Profile history",
+      "title": "Profile history",
+      "empty": "No profile change recorded yet.",
+      "linked": "(linked record)",
+      "reasonClubRequest": "club request",
+      "system": "System",
+      "actions": {
+        "athlete_profile_created": "Profile created",
+        "athlete_profile_changed": "Profile changed",
+        "athlete_profile_erased": "Profile erased",
+        "athlete_profile_correction_requested": "Date of birth / sex correction requested",
+        "athlete_profile_correction_approved": "Date of birth / sex correction approved",
+        "athlete_profile_correction_declined": "Date of birth / sex correction declined",
+        "athlete_profile_correction_withdrawn": "Date of birth / sex correction withdrawn",
+        "athlete_profile_proposal_submitted": "Details proposed with a club request",
+        "athlete_profile_proposal_approved": "Proposed details approved",
+        "athlete_profile_proposal_declined": "Proposed details declined",
+        "athlete_merge_kept": "Duplicate record merged into this one",
+        "athlete_merge_archived": "Merged into another record and archived",
+        "participant_link_approved": "Guardian link approved",
+        "participant_link_declined": "Guardian link declined"
+      },
+      "via": {
+        "staff": "by the club",
+        "family": "by the family",
+        "coach": "by a coach",
+        "system": "automatic",
+        "direct": "direct edit",
+        "review": "after review",
+        "club_approval": "club approval",
+        "merge": "merge"
+      },
+      "fields": {
+        "first_name": "First name",
+        "last_name": "Last name",
+        "dob": "Date of birth",
+        "gender": "Sex",
+        "height_cm": "Height",
+        "weight_kg": "Weight",
+        "position_pref": "Position",
+        "jersey_size": "Jersey size",
+        "preferred_jersey_number": "Preferred jersey number",
+        "player_profile_id": "Own login",
+        "family_id": "Family",
+        "status": "Status",
+        "merged_into_id": "Merged into",
+        "merged_athlete_id": "Merged record",
+        "kept_athlete_id": "Kept record"
+      }
+    },
+    "proposal": {
+      "title": "Proposed profile details",
+      "field": "Detail",
+      "current": "Current",
+      "proposed": "Proposed",
+      "pendingNote": "Nothing is changed until the club approves.",
+      "notApplied": "Not applied (request declined)",
+      "appliedBadge": "Applied to the profile",
+      "applied": "The confirmed details were saved to the profile.",
+      "jerseyTaken": "Jersey #{number} is already taken on the team: the roster number was left empty.",
+      "jerseyAssigned": "Jersey #{number} was put on the roster.",
+      "jerseyReserved": "Jersey #{number} goes on the roster once the registration is confirmed, if still free.",
+      "jerseyNoTeam": "Jersey #{number} saved as a preference (the programme has no active team).",
+      "eligibilityReview": "The date of birth / sex correction waits for the club's staff review.",
+      "formTitle": "Add or update profile details (optional)",
+      "formHint": "Sent with the request and applied only when the club approves it.",
+      "correctionHint": "Only if the date of birth or sex on file is wrong: the club checks it separately."
+    },
+    "fields": {
+      "position_pref": "Position",
+      "preferred_jersey_number": "Preferred jersey number",
+      "jersey_size": "Jersey size",
+      "height_cm": "Height",
+      "weight_kg": "Weight",
+      "dob": "Date of birth",
+      "gender": "Sex"
+    },
+    "units": {
+      "cm": "{n} cm",
+      "kg": "{n} kg"
+    },
+    "pages": {
+      "documents": {
+        "title": "Documents & consents",
+        "description": "Files and agreements on record for your family.",
+        "loadError": "Couldn't load documents",
+        "documents": "Documents",
+        "consents": "Consent forms",
+        "emptyTitle": "No documents yet",
+        "emptyHint": "Documents shared by the club will appear here.",
+        "noConsents": "No consents recorded yet.",
+        "kinds": {
+          "consent_pdf": "Consent PDF",
+          "medical": "Medical",
+          "insurance": "Insurance",
+          "photo": "Photo",
+          "other": "Document"
+        }
+      },
+      "schedule": {
+        "title": "Schedule",
+        "description": "Upcoming trainings and games.",
+        "needsReply": "{count, plural, one {# upcoming event is waiting for your reply.} other {# upcoming events are waiting for your reply.}}",
+        "emptyTitle": "Nothing scheduled yet",
+        "emptyHint": "New trainings and games will appear here.",
+        "noTeamTitle": "No team yet",
+        "noTeamHint": "Once your athlete is placed on a team, the schedule appears here."
+      }
     }
   }
 }

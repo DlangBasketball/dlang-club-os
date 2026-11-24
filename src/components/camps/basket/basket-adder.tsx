@@ -9,6 +9,7 @@ import { editionDays, rowsForEdition } from "@/lib/camps/logic";
 import { groupBySeason } from "@/lib/camps/seasons";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { useCampBasket } from "./use-camp-basket";
+import { AthletePickerField, type AthleteChoices } from "@/components/participants/athlete-picker-field";
 
 export type BasketKid = { id: string; name: string; dob: string | null };
 type Api = ReturnType<typeof useCampBasket>;
@@ -30,16 +31,22 @@ export function BasketAdder(props: {
   presetChildRef?: string | null;
   onAdded?: () => void;
   title?: string;
+  /** Parent mode: the shared athlete picker (children; a child added inline is selected at once). */
+  choices?: AthleteChoices;
+  /** Parent mode: athlete preselected (the active athlete of the switcher). */
+  presetAthleteId?: string | null;
 }) {
   const own = useCampBasket(props.scope);
   const { basket, update } = props.api ?? own;
   const t = useT();
   const f = useFormat();
-  const kids = React.useMemo(() => props.kids ?? [], [props.kids]);
+  const [addedKids, setAddedKids] = React.useState<BasketKid[]>([]);
+  const kids = React.useMemo(() => [...(props.kids ?? []), ...addedKids.filter((a) => !(props.kids ?? []).some((k) => k.id === a.id))], [props.kids, addedKids]);
 
   // who: parent/admin -> athlete id; public -> basket child ref ("" = none, "new" = new child form)
   const presetKid = props.presetChildRef ? basket.children.find((c) => c.ref === props.presetChildRef) : undefined;
-  const [who, setWho] = React.useState<string>(presetKid ? (props.mode === "public" ? presetKid.ref : presetKid.athleteId ?? "") : "");
+  const [who, setWho] = React.useState<string>(presetKid ? (props.mode === "public" ? presetKid.ref : presetKid.athleteId ?? "")
+    : props.mode === "parent" && props.presetAthleteId && (props.kids ?? []).some((k) => k.id === props.presetAthleteId) ? props.presetAthleteId : "");
   React.useEffect(() => {
     if (presetKid) setWho(props.mode === "public" ? presetKid.ref : presetKid.athleteId ?? "");
   }, [presetKid, props.mode]);
@@ -131,11 +138,18 @@ export function BasketAdder(props: {
         <fieldset className="space-y-2">
           <legend className="text-sm font-medium text-ink">{t("camps.basket.adder.who")}</legend>
           <div className="flex flex-wrap gap-2">
-            {props.mode !== "public" && kids.map((k) => (
+            {props.mode === "parent" && props.choices && (
+              <AthletePickerField idPrefix={`ba-who-${props.scope}`} choices={props.choices} value={who} activityDate={new Date().toISOString().slice(0, 10)}
+                onChange={(id, pt) => {
+                  if (pt && !kids.some((k) => k.id === pt.id)) setAddedKids((x) => [...x, { id: pt.id, name: pt.name, dob: pt.dob }]);
+                  setWho(id);
+                }} />
+            )}
+            {props.mode !== "public" && !(props.mode === "parent" && props.choices) && kids.map((k) => (
               <button key={k.id} type="button" onClick={() => setWho(k.id)} aria-pressed={who === k.id}
                 className={`rounded-full border px-3 py-1.5 text-sm ${who === k.id ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-2 hover:border-maroon/40"}`}>{k.name}</button>
             ))}
-            {props.mode !== "public" && kids.length === 0 && <p className="text-sm text-ink-3">{t("camps.register.noChildren")}</p>}
+            {props.mode !== "public" && !(props.mode === "parent" && props.choices) && kids.length === 0 && <p className="text-sm text-ink-3">{t("camps.register.noChildren")}</p>}
             {props.mode === "public" && basket.children.map((c) => (
               <button key={c.ref} type="button" onClick={() => setWho(c.ref)} aria-pressed={who === c.ref}
                 className={`rounded-full border px-3 py-1.5 text-sm ${who === c.ref ? "border-maroon bg-maroon/15 text-ink" : "border-line text-ink-2 hover:border-maroon/40"}`}>{`${c.firstName} ${c.lastName}`.trim()}</button>

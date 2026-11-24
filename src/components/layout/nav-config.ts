@@ -7,7 +7,7 @@ export type NavKey = "admin" | "coach" | "parent" | "player";
  * `labelKey` is the i18n key under "nav." (rendered via t(`nav.${labelKey}`));
  * `label` is the English fallback kept for non-localised consumers.
  */
-export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: string; icon: LucideIcon };
+export type NavItem = { label: string; labelKey: NamespaceKey<"nav">; href: string; icon: LucideIcon; aliases?: string[] };
 
 /** Admin nav entries that only show when the club enabled the feature. */
 export const ASSISTANT_HREF = "/admin/assistant";
@@ -193,7 +193,8 @@ export const NAV: Record<NavKey, NavItem[]> = {
   parent: [
     { label: "Home", labelKey: "home", href: "/parent/home", icon: Home },
     { label: "Messages", labelKey: "messages", href: "/parent/messages", icon: MessagesSquare },
-    { label: "Children", labelKey: "children", href: "/parent/children", icon: UserCircle },
+    // Canonical list; the athlete pages keep their /parent/children/<id> addresses (bookmarks keep working).
+    { label: "My athletes", labelKey: "myAthletes", href: "/parent/athletes", icon: UserCircle, aliases: ["/parent/children"] },
     { label: "Family", labelKey: "family", href: "/parent/family", icon: Users },
     { label: "My training", labelKey: "myTraining", href: "/parent/development", icon: TrendingUp },
     { label: "Schedule", labelKey: "schedule", href: "/parent/schedule", icon: CalendarDays },

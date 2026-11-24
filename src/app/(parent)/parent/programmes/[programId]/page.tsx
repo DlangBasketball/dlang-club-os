@@ -6,7 +6,9 @@ import { getI18n } from "@/lib/i18n/server";
 import { getFamilyApplications, getMyChildren, getSelectionSetup } from "@/lib/selection/data";
 import { todayIn } from "@/lib/payments/plans";
 import { FamilyApplicationCard, ParentApplyForm } from "@/components/selection/family";
-import { AddParticipantButton } from "@/components/participants/add-participant-dialog";
+import { getParticipantChoices } from "@/lib/participants/server";
+import { getActiveAthleteState } from "@/lib/participants/my-athletes";
+import { ALL_ATHLETES } from "@/lib/participants/active-athlete";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -20,7 +22,12 @@ export default async function ParentProgrammePage({ params }: { params: Promise<
   if (!me?.orgId || !/^[0-9a-f-]{36}$/i.test(programId)) notFound();
   const setup = await getSelectionSetup(me.orgId, programId);
   if (!setup || !setup.program.selectionEnabled) notFound();
-  const kids = await getMyChildren(me.id, me.orgId);
+  const [kids, choices, state] = await Promise.all([
+    getMyChildren(me.id, me.orgId),
+    getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName ?? null }),
+    getActiveAthleteState(),
+  ]);
+  const active = state.active && state.active !== ALL_ATHLETES ? state.active : null;
   const apps = await getFamilyApplications(me.orgId, Array.from(new Set(kids.map((k) => k.familyId))), programId);
   if (!setup.program.open && apps.length === 0) notFound();
   const p = setup.program;
@@ -51,14 +58,8 @@ export default async function ParentProgrammePage({ params }: { params: Promise<
         </section>
       )}
       {p.open && packages.length > 0 && (
-        // Add a participant without leaving the page: the list below refreshes, the form keeps its state.
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm text-text-muted">{t("participants.add.missingChild")}</p>
-          <AddParticipantButton />
-        </div>
-      )}
-      {p.open && packages.length > 0 && (
-        <ParentApplyForm programId={p.id} kids={kids} divisions={setup.divisions} packages={packages} currency={currency} today={today} appliedIds={live} />
+        <ParentApplyForm programId={p.id} kids={kids} divisions={setup.divisions} packages={packages} currency={currency} today={today} appliedIds={live}
+          choices={{ participants: choices.participants.filter((x) => x.kind === "child"), self: choices.self }} active={active} />
       )}
     </div>
   );

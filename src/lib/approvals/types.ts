@@ -24,7 +24,30 @@ export type ClubRequest = {
   registration: { id: string; status: string; invoice_id: string | null } | null;
   membership: { id: string; status: string; invoice_id: string | null; valid_from: string; valid_until: string } | null;
   invoice: { id: string; number: string; status: string; currency: string; open: number | string | null } | null;
+  /** Proposed profile details (pending until approval); coaches never get DOB / sex. */
+  profile?: ClubRequestProfile | null;
 };
+
+export type ProfileSportsValues = {
+  height_cm?: number | string | null; weight_kg?: number | string | null; position_pref?: string | null; jersey_size?: string | null;
+  preferred_jersey_number?: number | string | null;
+};
+export type JerseyOutcome = {
+  number: number; status: "assigned" | "taken" | "reserved" | "no_team";
+  teams: { team_id: string; team_name: string; status: "assigned" | "taken" | "reserved" | "kept_existing" }[];
+};
+export type ClubRequestProfile = {
+  proposed: { sports?: ProfileSportsValues; eligibility?: { dob?: string; gender?: string } };
+  current: ProfileSportsValues & { dob?: string | null; gender?: string | null };
+  outcome: {
+    status: "approved" | "declined"; applied?: ProfileSportsValues;
+    eligibility?: { status: "review_pending"; change_request_id: string; changes: { dob?: string; gender?: string } } | null;
+    jersey?: JerseyOutcome | null;
+  } | null;
+};
+
+/** Profile fields a family may propose with a request, in display order. */
+export const PROPOSAL_SPORTS_FIELDS = ["position_pref", "preferred_jersey_number", "jersey_size", "height_cm", "weight_kg"] as const;
 
 export function asRequests(data: unknown): ClubRequest[] {
   return Array.isArray(data) ? (data as ClubRequest[]) : [];

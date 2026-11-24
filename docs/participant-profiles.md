@@ -20,7 +20,7 @@ Booker, payer and participant stay separate: the person booking is the session u
 
 | Caller | Fields | Path |
 |---|---|---|
-| Admin / finance of the club | everything | `updateAthlete` (admin form) or `participant_update`; applied at once, audited |
+| Admin of the club (finance: billing only since `20250420106200`, see docs/my-athletes.md) | everything | `updateAthlete` (admin form) or `participant_update`; applied at once, audited |
 | Guardian of the athlete (any `family_members` row of the athlete's family in the current club; the existing guardian model has no separate edit permission) | name, DOB, sex, sports fields | `participant_update` / `participant_update_sports` |
 | The adult on their own self profile | same as guardian | same |
 | Coach of the player (active `team_memberships` on a team in `team_coaches`, or a confirmed registration in a programme with one of their sessions) | height, weight, position, jersey size, preferred number only | `participant_update_sports`; any other key → `FIELD_NOT_ALLOWED` |

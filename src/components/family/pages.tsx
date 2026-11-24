@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { filterByAthlete, type AthleteFilter } from "@/lib/participants/active-athlete";
+import { AthleteFilterBar } from "@/components/participants/athlete-filter-bar";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Car, ChevronRight, TrendingUp } from "lucide-react";
 import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, PageHeader } from "@/components/ui";
@@ -150,13 +152,15 @@ export async function CarpoolEventPage({ app, eventId }: { app: App; eventId: st
 }
 
 // ---------------------------------------------------------------------------
-export async function JourneyIndexPage({ app }: { app: App }) {
+export async function JourneyIndexPage({ app, filter }: { app: App; filter?: AthleteFilter & { athletes: { id: string; firstName: string }[] } }) {
   const me = await member(app);
   const { t, f } = await getI18n();
-  const athletes = await getJourneyAthletes(me, app);
+  const all = await getJourneyAthletes(me, app);
+  const athletes = filter ? filterByAthlete(all, filter, (a) => a.id) : all;
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
       <PageHeader title={t("family.pages.journey.title")} description={t("family.pages.journey.description")} />
+      {filter && <AthleteFilterBar athletes={filter.athletes.filter((a) => all.some((x) => x.id === a.id))} filter={filter} basePath={`${BASE[app]}/journey`} t={t} />}
       {athletes.length === 0 ? <EmptyState icon={<TrendingUp />} title={t("family.pages.journey.empty")} /> : (
         <Card>
           <CardBody>

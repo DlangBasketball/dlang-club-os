@@ -5,7 +5,10 @@ import { ClubProgramRequestForm } from "@/components/approvals/club-request-form
 import { FamilyClubRequests } from "@/components/approvals/family-club-requests";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { listFamilyClubRequests, listRequestableClubPrograms } from "@/lib/approvals/data";
-import { createClient } from "@/lib/supabase/server";
+import { getParticipantChoices } from "@/lib/participants/server";
+import { getActiveAthleteState } from "@/lib/participants/my-athletes";
+import { acceptsAdults, ALL_ATHLETES } from "@/lib/participants/active-athlete";
+import { todayIn } from "@/lib/payments/plans";
 import { getI18n } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
@@ -16,30 +19,28 @@ export async function generateMetadata() {
 /**
  * Parent: club programmes (teams, clinics) that need the club's approval.
  * A request is "Pending club approval" until the assigned coach or an admin
- * confirms it; only then is the child enrolled and the usual invoice issued.
+ * confirms it; only then is the athlete enrolled and the usual invoice issued.
+ * The athlete is chosen with the shared picker (children; "Myself" for adults
+ * when the programme accepts adults), preselecting the active athlete.
  */
 export default async function ParentClubProgrammesPage() {
   const [me, { t, f }] = await Promise.all([getSessionUser(), getI18n()]);
   if (!me?.orgId || !me.roles.includes("parent")) redirect("/");
-  const supabase = await createClient();
-  const { data: links } = await supabase.from("family_members").select("family_id").eq("profile_id", me.id);
-  const famIds = (links ?? []).map((l) => l.family_id as string);
-  const [{ data: kidRows }, programs, requests] = await Promise.all([
-    famIds.length
-      ? supabase.from("athletes").select("id,first_name,last_name,family_id,status").eq("org_id", me.orgId).in("family_id", famIds).order("first_name")
-      : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string; family_id: string; status: string }[] }),
+  const [choices, programs, requests, state] = await Promise.all([
+    getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName ?? null }),
     listRequestableClubPrograms(me.orgId),
     listFamilyClubRequests(),
+    getActiveAthleteState(),
   ]);
-  const kids = ((kidRows ?? []) as { id: string; first_name: string; last_name: string; family_id: string; status: string }[])
-    .filter((k) => k.status !== "inactive")
-    .map((k) => ({ id: k.id, name: `${k.first_name} ${k.last_name}`.trim(), familyId: k.family_id }));
+  const active = state.active && state.active !== ALL_ATHLETES ? state.active : null;
+  const today = todayIn(f.timeZone);
   const programRequests = requests.filter((r) => r.subject_kind === "program_registration");
+  const familyAthletes = choices.participants.filter((p) => p.kind !== "other");
 
   return (
     <div className="animate-fade-up space-y-6">
       <PageHeader title={t("approvals.programs.title")} description={t("approvals.programs.description")} />
-      <FamilyClubRequests rows={programRequests} t={t} f={f} showChild={kids.length > 1}
+      <FamilyClubRequests rows={programRequests} t={t} f={f} showChild={familyAthletes.length > 1}
         title={t("approvals.programs.myRequests")} description={t("approvals.family.description")} />
       {programs.length === 0 ? <EmptyState icon={<Shield className="h-5 w-5" />} title={t("approvals.programs.empty")} /> : (
         <div className="space-y-4">
@@ -59,7 +60,8 @@ export default async function ParentClubProgrammesPage() {
               <CardBody className="space-y-3">
                 {p.description && <p className="whitespace-pre-wrap text-sm text-text-muted">{p.description}</p>}
                 <p className="text-xs text-text-muted">{t("approvals.programs.approvalNote")}</p>
-                <ClubProgramRequestForm programId={p.id} kids={kids} />
+                <ClubProgramRequestForm programId={p.id} choices={choices} active={active}
+                  activityDate={p.startsOn && p.startsOn > today ? p.startsOn : today} allowSelf={acceptsAdults(p.maxAge)} />
               </CardBody>
             </Card>
           ))}

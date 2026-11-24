@@ -12,6 +12,7 @@ import type { Slot } from "@/lib/training/slots";
 import type { TrainingService, TrainingWizardData } from "@/lib/training/data";
 import { ANY_COACH, SlotPicker, slotsFor, venueLine } from "./slot-picker";
 import { TrainingPromo } from "./promo-preview";
+import { AthletePickerField, type AthleteChoices } from "@/components/participants/athlete-picker-field";
 
 type Pay = { kind: "credits"; purchaseId: string | null } | { kind: "package"; packageId: string } | { kind: "invoice" };
 
@@ -21,8 +22,10 @@ type Pay = { kind: "credits"; purchaseId: string | null } | { kind: "package"; p
  * Parents book for their own children; admins for any athlete (mode="admin"),
  * may sell the package as paid / free and may book outside availability.
  */
-export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthleteId }: {
+export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthleteId, choices }: {
   data: TrainingWizardData; mode: "parent" | "admin"; coachPhotos?: Record<string, string>; initialAthleteId?: string;
+  /** Parent mode: the shared athlete picker (children, "Myself" for adults; a child added inline is selected). */
+  choices?: AthleteChoices;
 }) {
   const t = useT();
   const f = useFormat();
@@ -40,7 +43,10 @@ export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthle
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState<{ bookingId: string; purchaseId: string | null; invoiceId: string | null; count: number } | null>(null);
 
-  const athlete = data.athletes.find((a) => a.id === athleteId) ?? null;
+  // Participants created in the picker before the page data refreshes.
+  const [added, setAdded] = React.useState<{ id: string; name: string }[]>([]);
+  const athlete = data.athletes.find((a) => a.id === athleteId) ?? added.find((a) => a.id === athleteId) ?? null;
+  const today = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
   const currency = service?.currency ?? f.currency;
   const now = React.useMemo(() => new Date(), []);
   const lots = React.useMemo(() => data.lots.filter((l) => l.athleteId === athleteId && l.serviceId === service?.id), [data.lots, athleteId, service]);
@@ -79,7 +85,7 @@ export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthle
   }
 
   if (!data.enabled && mode === "parent") return <Card><CardBody className="py-6 text-center text-sm text-ink-3">{t("training.book.closed")}</CardBody></Card>;
-  if (!data.athletes.length) return <Card><CardBody className="py-6 text-center text-sm text-ink-3">{mode === "parent" ? t("training.book.noChildren") : t("training.book.noAthletes")}</CardBody></Card>;
+  if (!data.athletes.length && !(mode === "parent" && choices)) return <Card><CardBody className="py-6 text-center text-sm text-ink-3">{mode === "parent" ? t("training.book.noChildren") : t("training.book.noAthletes")}</CardBody></Card>;
 
   if (done?.bookingId) {
     return (
@@ -126,6 +132,16 @@ export function TrainingBookingFlow({ data, mode, coachPhotos = {}, initialAthle
               {data.athletes.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </Select>
             <Button onClick={() => setStep(1)} disabled={!athleteId}>{t("common.continue")}</Button>
+          </div>
+        ) : choices ? (
+          <div className="max-w-md space-y-3">
+            <AthletePickerField idPrefix="tb-athlete" legend={t("training.book.athlete")} choices={choices} value={athleteId}
+              activityDate={today} allowSelf
+              onChange={(id, p) => {
+                if (p && !data.athletes.some((a) => a.id === p.id)) setAdded((x) => [...x.filter((a) => a.id !== p.id), { id: p.id, name: p.name }]);
+                setAthleteId(id);
+              }} />
+            <Button onClick={() => setStep(1)} disabled={!athlete}>{t("common.continue")}</Button>
           </div>
         ) : (
           <div className="space-y-2">

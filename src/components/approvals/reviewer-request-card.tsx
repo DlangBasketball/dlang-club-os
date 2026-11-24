@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge, Card, CardBody } from "@/components/ui";
 import { ClubRequestDecision } from "@/components/approvals/request-decision";
 import { RequestThread } from "@/components/approvals/request-thread";
+import { ProposedProfile } from "@/components/approvals/proposed-profile";
 import { requestChild, requestSubject, type ClubRequest } from "@/lib/approvals/types";
 import type { Translator } from "@/lib/i18n/translator";
 import type { Formatter } from "@/lib/format";
@@ -64,6 +65,8 @@ export function ReviewerRequestCard({ r, t, f, admin }: { r: ClubRequest; t: Tra
             <div className="text-text-secondary">{r.assigned_coaches.length ? r.assigned_coaches.join(", ") : t("approvals.reviewer.admins")}</div>
           </section>
         </div>
+
+        <ProposedProfile profile={r.profile} t={t} f={f} />
 
         <RequestThread messages={r.messages} t={t} f={f} viewer="club" />
 

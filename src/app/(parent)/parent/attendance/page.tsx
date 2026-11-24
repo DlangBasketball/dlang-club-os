@@ -4,6 +4,7 @@ import { PageHeader, Card, CardHeader, CardTitle, CardBody, Badge, statusTone, E
 import { createClient } from "@/lib/supabase/server";
 import { getI18n } from "@/lib/i18n/server";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { athleteFilterFor } from "@/lib/participants/my-athletes";
 import { cn } from "@/lib/utils";
 import { attendancePortalPath } from "@/lib/attendance/types";
 import { uuidParam } from "@/lib/attendance/family";
@@ -35,7 +36,9 @@ export default async function ParentAttendancePage({ searchParams }: { searchPar
     );
   }
 
-  const wanted = uuidParam(sp.athlete);
+  // Explicit ?athlete=, else the active athlete of the switcher (validated), else the first child.
+  const filter = await athleteFilterFor(uuidParam(sp.athlete), { allowAll: false });
+  const wanted = filter.mode === "one" ? filter.athleteId : null;
   const child = kids.find((k) => k.id === wanted) ?? kids[0];
   const [rawOverview, legacy, bookings] = await Promise.all([getFamilyOverview(child.id), programmeSessions(child.id), getGuardianBookings(child.id)]);
   const overview = withBookedSessions(rawOverview, bookings.data?.[0]?.attendance ?? []);
