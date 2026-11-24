@@ -42,6 +42,7 @@ export default async function ParentBookingsPage({ searchParams }: { searchParam
   const action = settings.enabled
     ? (
       <div className="flex flex-wrap gap-2">
+        <Link href="/parent/bookings/others"><Button size="sm" variant="ghost">{t("consentRequest.others.title")}</Button></Link>
         <Link href="/parent/bookings/request"><Button size="sm" variant="secondary"><CalendarPlus className="h-4 w-4" aria-hidden /> {t("bookingRequests.family.requestCta")}</Button></Link>
         <Link href="/parent/bookings/new"><Button size="sm"><Plus className="h-4 w-4" aria-hidden /> {t("bookingPortal.family.book")}</Button></Link>
       </div>

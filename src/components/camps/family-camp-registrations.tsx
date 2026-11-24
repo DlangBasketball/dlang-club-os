@@ -10,6 +10,8 @@ import type { Formatter } from "@/lib/format";
 /** Next-step input of a camp week, derived from its current registration state + invoice. */
 function campNextStepInput(r: FamilyCampRegistration): NextStepInput {
   const paid = r.invoiceStatus === "paid";
+  // Booked by another adult: guardian consent comes first (it outranks every other step).
+  if (r.consent === "awaiting") return { consent: "pending", status: r.state };
   switch (r.state) {
     case "pending_approval": return { campApproval: "pending" };
     case "declined": return { campApproval: "declined" };

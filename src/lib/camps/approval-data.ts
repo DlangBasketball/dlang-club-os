@@ -16,12 +16,14 @@ async function db(): Promise<Db> {
 
 type RegRow = {
   id: string; athlete_id: string; program_id: string; camp_edition_id: string; status: string; created_at: string;
+  /** Third-party bookings (20250420105900): guardian consent state; null when not needed. */
+  guardian_consent_status?: string | null;
   camp_days: string[] | null; camp_includes_lunch: boolean | null; camp_age_group_id: string | null;
   price_amount: number | string | null; price_currency: string | null; price_snapshot: Record<string, unknown> | null;
   invoice_id: string | null; approval_status: string | null; approval_age: number | null; approval_requested_at: string | null;
   approval_decided_at: string | null; approval_note: string | null; registered_by: string | null;
 };
-const REG_COLS = "id,athlete_id,program_id,camp_edition_id,status,created_at,camp_days,camp_includes_lunch,camp_age_group_id,price_amount,price_currency,price_snapshot,invoice_id,approval_status,approval_age,approval_requested_at,approval_decided_at,approval_note,registered_by";
+const REG_COLS = "id,athlete_id,program_id,camp_edition_id,status,created_at,camp_days,camp_includes_lunch,camp_age_group_id,price_amount,price_currency,price_snapshot,invoice_id,approval_status,approval_age,approval_requested_at,approval_decided_at,approval_note,registered_by,guardian_consent_status";
 
 export type ApprovalQueueItem = {
   id: string; submittedAt: string | null; ageOnStart: number | null;
@@ -114,6 +116,8 @@ export type FamilyCampRegistration = {
   editionName: string | null; startsOn: string; endsOn: string; state: CampRegistrationState;
   amount: number | null; currency: string | null; note: string | null; decidedAt: string | null;
   invoiceId: string | null; invoiceNumber: string | null; invoiceStatus: string | null;
+  /** Guardian consent of a booking made by another adult: 'awaiting' | 'accepted' | ... | null. */
+  consent: string | null;
 };
 
 /**
@@ -153,6 +157,7 @@ export async function listFamilyCampRegistrations(orgId: string, athleteIds: str
         note: r.approval_status === "approved" || r.approval_status === "declined" ? r.approval_note : null,
         decidedAt: r.approval_decided_at,
         invoiceId: inv ? r.invoice_id : null, invoiceNumber: inv?.number ?? null, invoiceStatus: inv?.status ?? null,
+        consent: r.guardian_consent_status ?? null,
       };
     });
 }

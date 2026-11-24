@@ -16,7 +16,8 @@
     { "path": "/api/family/cron", "schedule": "30 5 * * *" },
     { "path": "/api/website/cron", "schedule": "40 4 * * *" },
     { "path": "/api/platform/cron/upgrades", "schedule": "50 3 * * *" },
-    { "path": "/api/attendance/cron", "schedule": "10 17 * * *" }
+    { "path": "/api/attendance/cron", "schedule": "10 17 * * *" },
+    { "path": "/api/consent/cron", "schedule": "45 7 * * *" }
   ],
   "headers": [
     {
