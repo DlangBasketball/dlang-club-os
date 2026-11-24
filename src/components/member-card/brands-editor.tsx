@@ -54,7 +54,7 @@ function BrandRow({ row, canEdit }: { row: CardBrandRow; canEdit: boolean }) {
   const watermarkUrl = pending?.kind === "watermark" ? pending.url : row.watermarkUrl;
 
   const labels: CourtsideLabels = {
-    member: t("memberCard.memberLabel"), tapToEnlarge: t("memberCard.tapToEnlarge"), enlargeQr: t("memberCard.enlargeQr"),
+    member: t("memberCard.memberLabel"), title: t("memberCard.cardTitle"), checkIn: t("memberCard.checkInHint"), tapToEnlarge: t("memberCard.tapToEnlarge"), enlargeQr: t("memberCard.enlargeQr"),
     inactive: t("memberCard.inactive"), photoAlt: "", cardAria: t("memberCard.brands.previewAria", { brand: displayName || row.entityName }),
   };
 

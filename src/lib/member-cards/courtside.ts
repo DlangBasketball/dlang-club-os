@@ -52,14 +52,14 @@ export type NameSize = "xl" | "lg" | "md" | "sm" | "xs";
 export type FittedName = { lines: string[]; size: NameSize };
 
 /**
- * Characters per line that still fit at each size step, for the narrower
- * name column of the photo layout and the wider one without photo. The
+ * Characters per line that still fit at each size step in the name banner
+ * (same banner width in both layouts). The
  * card scales with its width (container units), so these hold from 320 px
  * phones to desktop.
  */
 const CAPACITY: Record<CardLayout, Record<NameSize, number>> = {
-  photo:   { xl: 11, lg: 14, md: 17, sm: 21, xs: 26 },
-  noPhoto: { xl: 15, lg: 19, md: 23, sm: 28, xs: 34 },
+  photo:   { xl: 13, lg: 16, md: 20, sm: 24, xs: 29 },
+  noPhoto: { xl: 13, lg: 16, md: 20, sm: 24, xs: 29 },
 };
 const SIZES: NameSize[] = ["xl", "lg", "md", "sm", "xs"];
 

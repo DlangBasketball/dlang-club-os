@@ -139,8 +139,8 @@
    Contrast: cream on burgundy ≈ 12:1, QR ink on its white panel = 21:1.
    =========================================================================== */
 :root {
-  --card-courtside-bg:          #4A1219; /* deep burgundy                   */
-  --card-courtside-deep:        #25080C; /* vignette / lower edge           */
+  --card-courtside-bg:          #651320; /* deep burgundy                   */
+  --card-courtside-deep:        #33090F; /* vignette / lower edge           */
   --card-courtside-cream:       #F4EAD5; /* lettering                       */
   --card-courtside-cream-muted: #D8C7A6; /* secondary lettering, frames     */
   --card-courtside-red:         #DA2627; /* accents                         */

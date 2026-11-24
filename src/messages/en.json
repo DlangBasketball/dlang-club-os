@@ -2492,7 +2492,8 @@
           "approved": "Approved. The invoice was issued and the family notified.",
           "confirmed": "Approved and confirmed. The family has been notified.",
           "declined": "Declined. The family has been notified."
-        }
+        },
+        "forChild": "{name}: {message}"
       },
       "counters": {
         "confirmed": "Confirmed: {count}",
@@ -13659,6 +13660,8 @@
       "withPhoto": "With photo",
       "withoutPhoto": "Without photo",
       "phoneWidth": "Narrow phone (320 px)"
-    }
+    },
+    "cardTitle": "Member card",
+    "checkInHint": "Show at training for check-in."
   }
 }

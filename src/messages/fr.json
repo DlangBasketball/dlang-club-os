@@ -2492,7 +2492,8 @@
           "approved": "Approuvé. La facture a été émise et la famille informée.",
           "confirmed": "Approuvé et confirmé. La famille a été informée.",
           "declined": "Refusé. La famille a été informée."
-        }
+        },
+        "forChild": "{name} : {message}"
       },
       "counters": {
         "confirmed": "Confirmés : {count}",
@@ -13659,6 +13660,8 @@
       "withPhoto": "Avec photo",
       "withoutPhoto": "Sans photo",
       "phoneWidth": "Téléphone étroit (320 px)"
-    }
+    },
+    "cardTitle": "Carte de membre",
+    "checkInHint": "À présenter à l’entraînement pour le pointage."
   }
 }

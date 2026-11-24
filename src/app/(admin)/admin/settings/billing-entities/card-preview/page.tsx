@@ -33,7 +33,7 @@ export default async function CardPreviewPage() {
   }));
 
   const labels = (name: string, brand: string): CourtsideLabels => ({
-    member: t("memberCard.memberLabel"), tapToEnlarge: t("memberCard.tapToEnlarge"), enlargeQr: t("memberCard.enlargeQr"),
+    member: t("memberCard.memberLabel"), title: t("memberCard.cardTitle"), checkIn: t("memberCard.checkInHint"), tapToEnlarge: t("memberCard.tapToEnlarge"), enlargeQr: t("memberCard.enlargeQr"),
     inactive: t("memberCard.inactive"), photoAlt: "", cardAria: t("memberCard.cardAria", { name, brand }),
   });
 

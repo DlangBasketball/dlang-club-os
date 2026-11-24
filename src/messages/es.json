@@ -2492,7 +2492,8 @@
           "approved": "Aprobado. Se emitió la factura y se avisó a la familia.",
           "confirmed": "Aprobado y confirmado. Se avisó a la familia.",
           "declined": "Rechazado. Se avisó a la familia."
-        }
+        },
+        "forChild": "{name}: {message}"
       },
       "counters": {
         "confirmed": "Confirmados: {count}",
@@ -13659,6 +13660,8 @@
       "withPhoto": "Con foto",
       "withoutPhoto": "Sin foto",
       "phoneWidth": "Móvil estrecho (320 px)"
-    }
+    },
+    "cardTitle": "Carné de socio",
+    "checkInHint": "Muéstralo en el entrenamiento para registrar la asistencia."
   }
 }

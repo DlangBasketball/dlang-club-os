@@ -2492,7 +2492,8 @@
           "approved": "Approvato. La fattura è stata emessa e la famiglia informata.",
           "confirmed": "Approvato e confermato. La famiglia è stata informata.",
           "declined": "Rifiutato. La famiglia è stata informata."
-        }
+        },
+        "forChild": "{name}: {message}"
       },
       "counters": {
         "confirmed": "Confermati: {count}",
@@ -13659,6 +13660,8 @@
       "withPhoto": "Con foto",
       "withoutPhoto": "Senza foto",
       "phoneWidth": "Telefono stretto (320 px)"
-    }
+    },
+    "cardTitle": "Tessera socio",
+    "checkInHint": "Da mostrare all’allenamento per il check-in."
   }
 }

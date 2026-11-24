@@ -165,6 +165,7 @@ export function placeholderDiff(source, target) {
  * words, pure placeholders). Shared by the checker and the coverage report.
  */
 export const SAME_AS_EN_OK = new Set([
+  "camps.approval.admin.forChild",
   "meta.direction",
   // Manual invoice form: "Total" (de/fr/es) and "Description" (fr) are spelled like English.
   "billing.invoiceForm.total", "billing.invoiceForm.description", "billing.invoiceForm.itemDescription",

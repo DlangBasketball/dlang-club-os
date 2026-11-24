@@ -25,7 +25,7 @@ export function CourtsideDeck({ card, className }: { card: CourtsideCardData; cl
 
   const labels: CourtsideLabels = {
     member: t("memberCard.memberLabel"),
-    tapToEnlarge: t("memberCard.tapToEnlarge"),
+    title: t("memberCard.cardTitle"), checkIn: t("memberCard.checkInHint"), tapToEnlarge: t("memberCard.tapToEnlarge"),
     enlargeQr: t("memberCard.enlargeQr"),
     inactive: t("memberCard.inactive"),
     photoAlt: t("athletePhoto.alt", { name: card.name }),

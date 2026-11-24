@@ -3,7 +3,7 @@ import { brandInitials, cardLayout, fitName, type CardLayout, type CourtsideBran
 import { cn } from "@/lib/utils";
 
 /**
- * "Courtside" member card (credit-card ratio 85.6 x 54). Deep burgundy, cream
+ * "Courtside" member card (2:1, as in the approved mockup). Deep burgundy, cream
  * lettering, red accents, basketball court lines and a faint logo watermark;
  * every size is in container units (cqw) so the card scales from a 320 px
  * phone to desktop. Two layouts: WITH photo (framed portrait) and WITHOUT
@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils";
  */
 export type CourtsideLabels = {
   member: string;
+  /** Large title, e.g. "Member card". */
+  title: string;
+  /** Line under the name, e.g. "Show at training for check-in." */
+  checkIn: string;
   tapToEnlarge: string;
   enlargeQr: string;
   inactive: string;
@@ -21,28 +25,41 @@ export type CourtsideLabels = {
   cardAria: string;
 };
 
+/** Name size (cqw) inside the cream name banner, per layout and fit step. */
 const NAME_CQW: Record<CardLayout, Record<NameSize, number>> = {
-  photo:   { xl: 6.4, lg: 5.4, md: 4.6, sm: 3.9, xs: 3.3 },
-  noPhoto: { xl: 7.2, lg: 6.0, md: 5.0, sm: 4.2, xs: 3.5 },
+  photo:   { xl: 3.6, lg: 2.9, md: 2.4, sm: 2.0, xs: 1.65 },
+  noPhoto: { xl: 3.6, lg: 2.9, md: 2.4, sm: 2.0, xs: 1.65 },
 };
 
-function CourtLines() {
+/** Frame, corner wedges, red stripes and court lines (viewBox 1000 x 500, same ratio as the card). */
+function CardArt() {
+  const stripes = (x: number, y: number, h: number, w: number, gap: number) =>
+    [0, 1, 2].map((i) => {
+      const x0 = x + i * (w + gap);
+      return <polygon key={i} points={`${x0 + h * 0.55},${y} ${x0 + h * 0.55 + w},${y} ${x0 + w},${y + h} ${x0},${y + h}`} />;
+    });
   return (
-    <svg aria-hidden viewBox="0 0 856 540" preserveAspectRatio="xMidYMid slice"
-      className="pointer-events-none absolute inset-0 h-full w-full text-courtside-line opacity-[0.16]"
-      fill="none" stroke="currentColor" strokeWidth={3}>
-      <rect x={18} y={18} width={820} height={504} rx={10} />
-      {/* centre circle on the half-way line (left edge) */}
-      <circle cx={18} cy={270} r={92} />
-      <circle cx={18} cy={270} r={30} />
-      {/* three-point arc */}
-      <path d="M 838 46 L 720 46 A 232 232 0 0 0 720 494 L 838 494" />
-      {/* key / lane + free-throw circle */}
-      <rect x={648} y={190} width={190} height={160} />
-      <circle cx={648} cy={270} r={80} strokeDasharray="10 12" />
-      {/* backboard + rim */}
-      <line x1={812} y1={236} x2={812} y2={304} />
-      <circle cx={796} cy={270} r={13} />
+    <svg aria-hidden viewBox="0 0 1000 500" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full">
+      {/* court lines */}
+      <g fill="none" stroke="currentColor" strokeWidth={3} className="text-courtside-line opacity-[0.22]">
+        <path d="M 0 150 A 100 100 0 0 1 0 350" />
+        <path d="M 0 205 A 45 45 0 0 1 0 295" />
+        <path d="M 30 190 L 30 310" strokeDasharray="10 10" />
+        <path d="M 1000 140 A 115 115 0 0 0 1000 360" />
+        <path d="M 1000 195 A 55 55 0 0 0 1000 305" strokeDasharray="10 10" />
+      </g>
+      {/* cream frame */}
+      <rect x={22} y={22} width={956} height={456} fill="none" stroke="currentColor" strokeWidth={3} className="text-courtside-cream opacity-80" />
+      {/* cream corner wedges (top left, bottom right) */}
+      <g className="fill-courtside-cream">
+        <polygon points="12,12 78,12 12,78" />
+        <polygon points="988,488 922,488 988,422" />
+      </g>
+      {/* red stripes (top right, bottom left) */}
+      <g className="fill-courtside-red">
+        {stripes(850, 14, 34, 26, 12)}
+        {stripes(18, 452, 34, 26, 12)}
+      </g>
     </svg>
   );
 }
@@ -56,31 +73,63 @@ function SamplePortrait() {
   );
 }
 
-function Lockup({ brand, layout }: { brand: CourtsideBrand; layout: CardLayout }) {
-  const big = layout === "noPhoto";
+/** Brand logo, or a clean text lockup (monogram + name) when the brand has no logo. */
+function BrandMark({ brand, size }: { brand: CourtsideBrand; size: "top" | "side" }) {
+  if (brand.logoUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL
+      <img src={brand.logoUrl} alt={brand.displayName} className={cn("block w-auto object-contain drop-shadow-md",
+        size === "side" ? "h-[34cqw] max-w-[23cqw]" : "h-[18cqw] max-w-[26cqw]")} />
+    );
+  }
+  const side = size === "side";
   return (
-    <div className="flex min-w-0 items-center gap-[2.2cqw]">
-      {brand.logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL
-        <img src={brand.logoUrl} alt="" className={cn("w-auto shrink-0 object-contain", big ? "h-[12cqw] max-w-[30cqw]" : "h-[8.5cqw] max-w-[22cqw]")} />
-      ) : (
-        <span aria-hidden className={cn(
-          "flex shrink-0 items-center justify-center rounded-full border border-courtside-cream-muted font-display font-semibold tracking-tight text-courtside-cream",
-          big ? "h-[11cqw] w-[11cqw] text-[length:4.2cqw]" : "h-[8.5cqw] w-[8.5cqw] text-[length:3.3cqw]",
-        )}>
-          {brandInitials(brand.displayName)}
-        </span>
-      )}
+    <div className={cn("flex min-w-0 items-center", side ? "flex-col gap-[1.4cqw] text-center" : "gap-[1.6cqw]")}>
+      <span aria-hidden className={cn(
+        "flex shrink-0 items-center justify-center rounded-full border-[0.35cqw] border-courtside-cream bg-courtside-deep font-display font-black text-courtside-cream",
+        side ? "h-[15cqw] w-[15cqw] text-[length:5.2cqw]" : "h-[8cqw] w-[8cqw] text-[length:3cqw]",
+      )}>
+        {brandInitials(brand.displayName)}
+      </span>
       <div className="min-w-0">
-        <div className={cn("truncate font-sans font-semibold uppercase leading-tight tracking-[0.14em] text-courtside-cream",
-          big ? "text-[length:3.4cqw]" : "text-[length:2.9cqw]")}>
+        <div className={cn("font-display font-black uppercase leading-tight text-courtside-cream", side ? "text-[length:2.6cqw]" : "truncate text-[length:2.3cqw]")}>
           {brand.displayName}
         </div>
         {brand.subtitle && (
-          <div className={cn("truncate font-sans leading-tight text-courtside-cream-muted", big ? "text-[length:2.4cqw]" : "text-[length:2.1cqw]")}>
+          <div className={cn("font-sans leading-tight text-courtside-cream-muted", side ? "text-[length:1.6cqw]" : "truncate text-[length:1.5cqw]")}>
             {brand.subtitle}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** "MEMBER CARD", the name on a cream banner between red slashes, and the check-in line. */
+function Identity({ name, layout, labels }: { name: string; layout: CardLayout; labels: CourtsideLabels }) {
+  const fitted = fitName(name, layout);
+  const slash = "h-[5cqw] w-[0.9cqw] shrink-0 -skew-x-[22deg] bg-courtside-red";
+  return (
+    <div className="flex min-w-0 flex-col items-center text-center">
+      <p className="whitespace-nowrap font-display font-black uppercase leading-none tracking-[0.01em] text-courtside-cream [font-size:4.7cqw] [text-shadow:0_0.3cqw_0.6cqw_rgb(0_0_0/0.35)]">
+        {labels.title}
+      </p>
+      <div className="mt-[1.4cqw] flex w-full items-center justify-center gap-[0.6cqw]">
+        <span aria-hidden className={slash} />
+        <span aria-hidden className={slash} />
+        <div className="min-w-0 flex-1 -skew-x-[14deg] bg-courtside-cream px-[1.6cqw] py-[0.8cqw] shadow-md">
+          <p className="skew-x-[14deg] font-display font-black uppercase leading-[1.05] text-courtside-bg [overflow-wrap:anywhere]"
+            style={{ fontSize: `${NAME_CQW[layout][fitted.size]}cqw` }}>
+            {fitted.lines.map((l, i) => <span key={i} className="block">{l}</span>)}
+          </p>
+        </div>
+        <span aria-hidden className={slash} />
+        <span aria-hidden className={slash} />
+      </div>
+      <div className="mt-[1.6cqw] flex w-full items-center justify-center gap-[1.4cqw]">
+        <span aria-hidden className="h-[0.25cqw] w-[2.6cqw] shrink-0 bg-courtside-cream" />
+        <p className="whitespace-nowrap font-display italic leading-tight text-courtside-cream [font-size:1.85cqw]">{labels.checkIn}</p>
+        <span aria-hidden className="h-[0.25cqw] w-[2.6cqw] shrink-0 bg-courtside-cream" />
       </div>
     </div>
   );
@@ -101,70 +150,66 @@ export function CourtsideCard({
   className?: string;
 }) {
   const layout: CardLayout = samplePhoto ? "photo" : cardLayout(photoUrl);
-  const fitted = fitName(name, layout);
   const watermark = brand.watermarkUrl ?? brand.logoUrl;
-  const qrBox = layout === "photo" ? "w-[23cqw]" : "w-[25cqw]";
+  const live = !!(qrSvg && cardActive);
 
-  const qr = qrSvg && cardActive ? (
-    <span className="block aspect-square w-full [&_svg]:h-full [&_svg]:w-full" dangerouslySetInnerHTML={{ __html: qrSvg }} />
+  const qr = live ? (
+    <span className="block aspect-square w-full [&_svg]:h-full [&_svg]:w-full" dangerouslySetInnerHTML={{ __html: qrSvg! }} />
   ) : (
-    <span className="flex aspect-square w-full items-center justify-center text-center font-sans text-[length:2.3cqw] font-medium text-card-qr-ink">
+    <span className="flex aspect-square w-full items-center justify-center text-center font-sans text-[length:2cqw] font-medium text-card-qr-ink">
       {labels.inactive}
     </span>
   );
+  const qrFrame = "block w-full border-[0.45cqw] border-courtside-cream-muted bg-card-qr p-[1cqw] shadow-lg";
 
   return (
     <div role="group" aria-label={labels.cardAria}
-      className={cn("relative aspect-[85.6/54] w-full select-none overflow-hidden rounded-[4.5cqw] bg-courtside text-courtside-cream shadow-lg ring-1 ring-courtside-cream/10", className)}
+      className={cn("relative aspect-[2/1] w-full select-none overflow-hidden rounded-[1.2cqw] bg-courtside text-courtside-cream shadow-lg ring-1 ring-courtside-cream/10", className)}
       style={{ containerType: "inline-size" }}>
-      <CourtLines />
+      <CardArt />
       {watermark && (
         // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL, decorative
         <img src={watermark} alt="" aria-hidden
-          className="pointer-events-none absolute left-[38%] top-1/2 h-[72%] w-[48%] -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.07] [filter:grayscale(1)]" />
+          className={cn("pointer-events-none absolute object-contain opacity-[0.13] [filter:grayscale(0.6)]",
+            layout === "photo" ? "left-[56%] top-[4%] h-[46%] w-[26%]" : "left-[40%] top-[3%] h-[60%] w-[34%]")} />
       )}
-      {/* red accent along the top edge */}
-      <span aria-hidden className="absolute inset-x-0 top-0 h-[1.1cqw] bg-courtside-red" />
 
-      <div className="relative flex h-full flex-col justify-between p-[5cqw] pt-[5.6cqw]">
-        <div className="flex items-start justify-between gap-[3cqw]">
-          <Lockup brand={brand} layout={layout} />
-          <span className="shrink-0 rounded-full border border-courtside-red px-[2cqw] py-[0.5cqw] font-sans text-[length:2.1cqw] font-semibold uppercase tracking-[0.18em] text-courtside-cream">
-            {labels.member}
-          </span>
+      <div className="relative grid h-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[2.2cqw] px-[6cqw] py-[4.5cqw]">
+        {layout === "photo" ? (
+          <div className="relative w-[21cqw] self-center">
+            {/* cream offset corner behind the frame */}
+            <span aria-hidden className="absolute -bottom-[1cqw] -right-[1cqw] h-[60%] w-[60%] border-b-[0.6cqw] border-r-[0.6cqw] border-courtside-cream" />
+            <div className="relative aspect-[4/5] w-full overflow-hidden border-[0.6cqw] border-courtside-red bg-courtside-deep shadow-lg">
+              {samplePhoto || !photoUrl ? <SamplePortrait /> : (
+                // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL (private bucket)
+                <img src={photoUrl} alt={labels.photoAlt} className="h-full w-full object-cover" />
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex h-full items-center gap-[2.4cqw]">
+            <div className="flex w-[23cqw] justify-center"><BrandMark brand={brand} size="side" /></div>
+            <span aria-hidden className="h-[70%] w-[0.25cqw] bg-courtside-cream/80" />
+          </div>
+        )}
+
+        <div className="flex min-w-0 flex-col items-center justify-center gap-[1.2cqw]">
+          {layout === "photo" && <BrandMark brand={brand} size="top" />}
+          <Identity name={name} layout={layout} labels={labels} />
         </div>
 
-        <div className="flex items-end gap-[3.2cqw]">
-          {layout === "photo" && (
-            <div className="w-[21cqw] shrink-0 rounded-[1.6cqw] border border-courtside-cream-muted/70 bg-courtside-deep p-[0.7cqw]">
-              <div className="aspect-[4/5] w-full overflow-hidden rounded-[1.1cqw]">
-                {samplePhoto || !photoUrl ? <SamplePortrait /> : (
-                  // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL (private bucket)
-                  <img src={photoUrl} alt={labels.photoAlt} className="h-full w-full object-contain" />
-                )}
-              </div>
-            </div>
+        <div className={cn("shrink-0 self-center", layout === "photo" ? "w-[18cqw] mt-[8cqw]" : "w-[18cqw]")}>
+          {onEnlarge && live ? (
+            <button type="button" onClick={onEnlarge} aria-label={labels.enlargeQr}
+              className={cn(qrFrame, "outline-none ring-courtside-red focus-visible:ring-[0.6cqw]")}>
+              {qr}
+            </button>
+          ) : (
+            <div className={qrFrame}>{qr}</div>
           )}
-          <div className="min-w-0 flex-1 pb-[0.6cqw]">
-            <span aria-hidden className="mb-[1.4cqw] block h-[0.6cqw] w-[9cqw] rounded-full bg-courtside-red" />
-            <p className="font-display font-semibold leading-[1.05] tracking-[-0.01em] text-courtside-cream [overflow-wrap:anywhere]"
-              style={{ fontSize: `${NAME_CQW[layout][fitted.size]}cqw` }}>
-              {fitted.lines.map((l, i) => <span key={i} className="block">{l}</span>)}
-            </p>
-          </div>
-          <div className={cn("shrink-0", qrBox)}>
-            {onEnlarge && qrSvg && cardActive ? (
-              <button type="button" onClick={onEnlarge} aria-label={labels.enlargeQr}
-                className="block w-full rounded-[2cqw] bg-card-qr p-[1.3cqw] shadow-md outline-none ring-courtside-red focus-visible:ring-[0.6cqw]">
-                {qr}
-              </button>
-            ) : (
-              <div className="w-full rounded-[2cqw] bg-card-qr p-[1.3cqw] shadow-md">{qr}</div>
-            )}
-            {onEnlarge && qrSvg && cardActive && (
-              <p className="mt-[0.8cqw] text-center font-sans text-[length:1.9cqw] text-courtside-cream-muted">{labels.tapToEnlarge}</p>
-            )}
-          </div>
+          {onEnlarge && live && (
+            <p className="mt-[0.6cqw] text-center font-sans text-[length:1.6cqw] text-courtside-cream-muted">{labels.tapToEnlarge}</p>
+          )}
         </div>
       </div>
     </div>

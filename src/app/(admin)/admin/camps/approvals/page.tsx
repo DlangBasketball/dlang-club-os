@@ -96,7 +96,7 @@ export default async function CampApprovalsPage() {
 
                 <div className="border-t border-line-soft pt-3">
                   {full && <p className="mb-2 text-xs text-warning">{t("camps.approval.admin.fullHint")}</p>}
-                  <ApprovalDecision registrationId={r.id} />
+                  <ApprovalDecision registrationId={r.id} childName={r.athleteName} />
                 </div>
               </CardBody></Card>
             );

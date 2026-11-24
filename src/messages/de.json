@@ -2492,7 +2492,8 @@
           "approved": "Freigegeben. Die Rechnung wurde ausgestellt und die Familie informiert.",
           "confirmed": "Freigegeben und bestätigt. Die Familie wurde informiert.",
           "declined": "Abgelehnt. Die Familie wurde informiert."
-        }
+        },
+        "forChild": "{name}: {message}"
       },
       "counters": {
         "confirmed": "Bestätigt: {count}",
@@ -13659,6 +13660,8 @@
       "withPhoto": "Mit Foto",
       "withoutPhoto": "Ohne Foto",
       "phoneWidth": "Schmales Handy (320 px)"
-    }
+    },
+    "cardTitle": "Mitgliedskarte",
+    "checkInHint": "Beim Training zum Einchecken vorzeigen."
   }
 }
