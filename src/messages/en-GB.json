@@ -125,9 +125,6 @@
     },
     "programs": {
       "title": "Programme",
-      "confirmArchive": "Archive this programme? It closes registration and hides it from the public page. History is kept.",
-      "confirmDelete": "Delete this programme permanently? This cannot be undone.",
-      "confirmDeleteArchives": "{count, plural, one {This programme has # registration, so it will be archived, not deleted. Continue?} other {This programme has # registrations, so it will be archived, not deleted. Continue?}}",
       "editTitle": "Edit programme",
       "empty": "No programmes yet",
       "emptyHint": "Create your first programme to open registration.",
@@ -1208,5 +1205,37 @@
       "programs": "Programme sessions (earlier module)"
     },
     "statusRule": "Counts show each player's current saved status, also while a sheet is a draft. Totals and rates on player pages use finalised values only."
+  },
+  "programDelete": {
+    "buttonAria": "Delete programme {name}",
+    "loading": "Checking what is linked to this programme…",
+    "nothingLinked": "Nothing is linked to this programme: no registrations, bookings, schedules, attendance, invoices or payments.",
+    "categories": {
+      "registrations": "{count, plural, one {# registration or enrolment} other {# registrations or enrolments}}"
+    },
+    "upcomingHelp": "Sessions are not cancelled automatically. Open a session to review or cancel it.",
+    "enrollmentsTitle": "{count, plural, one {# current enrolment} other {# current enrolments}}",
+    "sessionKinds": {
+      "program_session": "Programme session"
+    },
+    "blockedTitle": "This programme cannot be deleted",
+    "blockedHelp": "Records are still linked to it. Archive the programme instead: it disappears from registration, booking and selection lists, and every linked record stays available.",
+    "typeToConfirm": "Type the programme name \"{name}\" to confirm",
+    "permanentHelp": "The programme is deleted permanently and removed from every list and selector. This cannot be undone.",
+    "archiveInstead": "Archive programme",
+    "archiveHelp": "The programme is hidden from new registrations, bookings and selection lists. Existing registrations, sessions, attendance, invoices and payments stay as they are, and upcoming sessions are not cancelled. You can restore it at any time.",
+    "confirmArchive": "Archive programme",
+    "filter": {
+      "label": "Programme status",
+      "emptyArchived": "No archived programmes."
+    },
+    "errors": {
+      "forbidden": "Only club admins can delete, archive or restore programmes.",
+      "linked": "Records are linked to this programme, so it was not deleted. Archive it instead.",
+      "alreadyArchived": "This programme is already archived.",
+      "notArchived": "This programme is not archived.",
+      "archived": "This programme is archived and does not accept new registrations.",
+      "notFound": "Programme not found."
+    }
   }
 }

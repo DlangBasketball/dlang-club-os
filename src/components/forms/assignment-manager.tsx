@@ -20,7 +20,7 @@ export function AssignmentManager({ formId, assignments, targets, published }: {
   const [draft, setDraft] = React.useState<Draft>(blank);
   const [editing, setEditing] = React.useState<string | null>(null);
   const set = (p: Partial<Draft>) => setDraft((d) => ({ ...d, ...p }));
-  const options = draft.scope === "program" ? targets.programs : draft.scope === "team" ? targets.teams : draft.scope === "training_service" ? targets.services : [];
+  const options = draft.scope === "program" ? targets.programs.filter((p) => !p.archived || p.id === draft.targetId) : draft.scope === "team" ? targets.teams : draft.scope === "training_service" ? targets.services : [];
 
   const save = () => run(() => saveAssignment(formId, editing, { ...draft, renewalMonths: draft.renewalMonths === "" ? null : Number(draft.renewalMonths), isActive: true }), () => { setDraft(blank); setEditing(null); });
   const scopeLabel = (a: Assignment) => (a.scope === "all_members" ? t("forms.scopes.all_members") : `${t.dynamic(`forms.scopes.${a.scope}`)} · ${a.targetName ?? "–"}`);

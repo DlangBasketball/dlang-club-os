@@ -31,7 +31,7 @@ export function DocumentEditPanel({
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  const targetOpts = scope === "program" ? targets.programs : scope === "family" ? targets.families : scope === "athlete" ? targets.athletes : [];
+  const targetOpts = scope === "program" ? targets.programs.filter((p) => !p.archived || p.id === doc.targetId) : scope === "family" ? targets.families : scope === "athlete" ? targets.athletes : [];
   const sel = "mt-1";
 
   async function saveMeta(e: React.FormEvent) {

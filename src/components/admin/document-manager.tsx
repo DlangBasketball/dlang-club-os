@@ -32,7 +32,7 @@ export function DocumentManager({ docs, targets }: { docs: AdminDoc[]; targets: 
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  const targetOpts = scope === "program" ? targets.programs : scope === "family" ? targets.families : scope === "athlete" ? targets.athletes : [];
+  const targetOpts = scope === "program" ? targets.programs.filter((p) => !p.archived) : scope === "family" ? targets.families : scope === "athlete" ? targets.athletes : [];
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

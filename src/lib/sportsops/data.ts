@@ -49,11 +49,14 @@ export async function listCoachOptions(): Promise<Result<Option[]>> {
   return ok((data ?? []).map((c) => ({ id: c.id, name: c.display_name })));
 }
 
-export async function listProgramOptions(): Promise<Result<Option[]>> {
+/** Programmes a team can be linked to: archived ones are hidden, except the one already linked (keepId). */
+export async function listProgramOptions(opts: { keepId?: string | null } = {}): Promise<Result<Option[]>> {
   const db = await sportsDb();
-  const { data, error } = await db.from("programs").select("id,name").order("name");
+  const { data, error } = await db.from("programs").select("id,name,status").order("name");
   if (error) return fail(error.message);
-  return ok((data ?? []).map((p) => ({ id: p.id, name: p.name })));
+  return ok((data ?? [])
+    .filter((p) => (p as { status?: string }).status !== "archived" || p.id === opts.keepId)
+    .map((p) => ({ id: p.id, name: p.name })));
 }
 
 export async function listAthleteOptions(): Promise<Result<Option[]>> {

@@ -31,9 +31,13 @@ export default async function AddRosterPlayerPage({ params, searchParams }: {
   if (!me.roles.includes("admin")) redirect(`/admin/selection/${programId}?tab=players`);
   const all = await getSeasonPrograms(me.orgId);
   if (all.error) return <ErrorState title={t("roster.loadFailedTitle")} message={t("roster.seasonsFailed")} />;
-  const seasons = seasonsOf(all.data, programId);
+  // Archived programmes take no new players (the database refuses them too).
+  const seasons = seasonsOf(all.data, programId).filter((s) => s.status !== "archived");
   const program = seasons.find((s) => s.id === programId);
-  if (!program) notFound();
+  if (!program) {
+    if (all.data.some((s) => s.id === programId)) redirect(`/admin/programs/${programId}`);
+    notFound();
+  }
   const tournaments = await getTournaments(me.orgId, seasons.map((s) => s.id));
   // Pre-selected player (from the athlete profile or "Team member, no enrollment").
   let athlete: DirectoryAthlete | null = null;

@@ -7,7 +7,9 @@ export const metadata = { title: "Edit team" };
 
 export default async function EditTeamPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [team, seasons, programs, coaches] = await Promise.all([getTeam(id), listSeasons(), listProgramOptions(), listCoachOptions()]);
+  const team = await getTeam(id);
+  // Archived programmes are hidden from the picker, except the one the team is already linked to.
+  const [seasons, programs, coaches] = await Promise.all([listSeasons(), listProgramOptions({ keepId: team.data?.programId }), listCoachOptions()]);
   const error = team.error ?? seasons.error ?? programs.error ?? coaches.error;
   if (error) return <div className="animate-fade-up"><PageHeader title="Edit team" /><ErrorState message={error} /></div>;
   const t = team.data;

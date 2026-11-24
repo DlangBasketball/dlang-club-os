@@ -107,9 +107,12 @@ export async function getAthleteEditContext(athleteId: string, familyId: string)
   };
 }
 
-/** Active programmes of the caller's org, for the registration editor. */
+/**
+ * Programmes of the caller's org for the registration editor: drafts marked
+ * with "*", archived ones hidden (the page keeps the registration's own).
+ */
 export async function listProgramOptions(): Promise<Opt[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from("programs").select("id,name,is_active").order("name");
+  const { data } = await supabase.from("programs").select("id,name,is_active").neq("status", "archived").order("name");
   return (data ?? []).map((p) => ({ id: p.id, label: p.is_active ? p.name : `${p.name} *` }));
 }
