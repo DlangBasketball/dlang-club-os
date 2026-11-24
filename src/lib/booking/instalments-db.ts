@@ -41,6 +41,8 @@ export async function getServiceInstalmentInfo(serviceIds: string[]): Promise<Se
 
 export type BookingInstalmentChoice = {
   booking_id: string; order_id: string | null; instalments: number; instalment_dates: string[] | null; invoice_id: string | null;
+  /** Invoice number (the booking's invoice, or the package purchase invoice of its order). */
+  invoice_number?: string | null;
 };
 
 /** The instalment choice of one booking (staff, or a guardian of the athlete); null when not visible. */

@@ -315,6 +315,18 @@ begin
                 'package: after retries still one plan and one invoice');
 end $$;
 
+-- 20250420105500: the booking pages find the package purchase invoice of an order booking.
+do $$
+declare r jsonb; b uuid;
+begin
+  select id into b from public.training_bookings where order_id = si.uid('oPkg') order by slot_start limit 1;
+  r := si.j(si.uid('finance'), format('select public.booking_instalment_choice(%L)::text', b));
+  perform si.ok((r->>'instalments')::int = 4 and r->>'invoice_id' = si.get('invPkg') and r->>'invoice_number' is not null,
+                'package booking: the choice returns the package purchase invoice (' || coalesce(r::text, 'null') || ')');
+  r := si.j(si.uid('adminB'), format('select public.booking_instalment_choice(%L)::text', b));
+  perform si.ok(r is null or r = 'null'::jsonb, 'package booking: another club sees nothing');
+end $$;
+
 -- ===========================================================================
 -- D. Payments: allocated once, oldest instalment first
 -- ===========================================================================

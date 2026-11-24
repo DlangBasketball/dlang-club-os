@@ -198,7 +198,8 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
       </Card>
 
       <ServicePlanPanel orgId={orgId} chosen={instalmentChoice?.instalments ?? 1} invoiceHref={(x) => `/admin/invoices/${x}`}
-        invoices={b.invoice ? [{ id: b.invoice.id, number: b.invoice.number }] : []} />
+        invoices={b.invoice ? [{ id: b.invoice.id, number: b.invoice.number }]
+          : instalmentChoice?.invoice_id && instalmentChoice.invoice_number ? [{ id: instalmentChoice.invoice_id, number: instalmentChoice.invoice_number }] : []} />
 
       <Card>
         <CardHeader><CardTitle>{t("adminBooking.detail.deliveries")}</CardTitle></CardHeader>

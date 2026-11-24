@@ -55,7 +55,8 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
       </CardBody></Card>
       {me?.orgId && data.status !== "cancelled" && (
         <ServicePlanPanel orgId={me.orgId} chosen={choice?.instalments ?? 1} invoiceHref={(x) => `/parent/invoices/${x}`}
-          invoices={data.invoice ? [{ id: data.invoice.id, number: data.invoice.number }] : []} />
+          invoices={data.invoice ? [{ id: data.invoice.id, number: data.invoice.number }]
+            : choice?.invoice_id && choice.invoice_number ? [{ id: choice.invoice_id, number: choice.invoice_number }] : []} />
       )}
       {data.status === "requested" && (
         <div role="status" className="space-y-2 rounded-md border border-dashed border-warning/60 bg-warning-soft p-3 text-sm text-text">
