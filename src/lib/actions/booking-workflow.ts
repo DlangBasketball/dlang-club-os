@@ -12,6 +12,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchNotification, retryEmailLog } from "@/lib/notifications/dispatch";
 import type { Json } from "@/types/database";
 import { runBookingNotifications } from "@/lib/booking/notify";
+import { instalmentChoiceSchema } from "@/lib/booking/instalments";
+import { instalmentsDb } from "@/lib/booking/instalments-db";
 import {
   bookingErrorCode, bookingPayloadSchema, cancelPayloadSchema, declinePayloadSchema, familyRequestSchema, payerSchema, quickCreateSchema,
   reschedulePayloadSchema, toBookingRpcPayload, toFamilyRequestRpcPayload, toPayerRpcPayload, toQuickCreateRpcPayload,
@@ -148,14 +150,20 @@ export async function quoteFamilyRequest(input: FamilyRequestInput): Promise<BkR
   return { ok: true, data: data as unknown as FamilyQuote };
 }
 
-/** A guardian requests a session for their own child; the coach (or club) confirms it. Payer = the family. */
-export async function createFamilyRequest(input: FamilyRequestInput, requestId: string): Promise<BkResult<FamilyRequestResult>> {
+/**
+ * A guardian requests a session for their own child; the coach (or club) confirms it. Payer = the family.
+ * `instalments`: pay in 1..4 payments where the service allows it (default due dates; parents never set dates).
+ */
+export async function createFamilyRequest(input: FamilyRequestInput, requestId: string, instalments = 1): Promise<BkResult<FamilyRequestResult>> {
   const { me, t } = await session(["parent"]);
   if (!me) return denied(t);
   const p = familyRequestSchema.safeParse(input);
-  if (!p.success || !requestIdSchema.safeParse(requestId).success) return invalid(t);
-  const db = await createClient();
-  const { data, error } = await db.rpc("booking_family_request", { p_payload: toFamilyRequestRpcPayload(p.data) as Json, p_request_id: requestId });
+  const n = instalmentChoiceSchema.safeParse({ count: instalments });
+  if (!p.success || !n.success || !requestIdSchema.safeParse(requestId).success) return invalid(t);
+  const db = await instalmentsDb();
+  const { data, error } = await db.rpc("booking_family_request_plan", {
+    p_payload: { ...toFamilyRequestRpcPayload(p.data), instalments: n.data.count } as Json, p_request_id: requestId,
+  });
   if (error) return fail(t, error);
   const res = data as unknown as FamilyRequestResult;
   if (!res.replayed) await notifyNow(me.orgId, res.booking_id);

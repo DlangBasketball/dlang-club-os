@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { Badge, ErrorState, PageHeader } from "@/components/ui";
 import { OrderWorkspace } from "@/components/booking/admin/order-workspace";
+import { ServicePlanPanel } from "@/components/booking/service-plan-panel";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { getBookingOrder } from "@/lib/booking/order-data";
 import { getCoachOptions, getSpaceOptions } from "@/lib/booking/admin-data";
 import { policyRestoresPackage } from "@/lib/booking/helpers";
@@ -38,10 +40,13 @@ export default async function BookingOrderPage({ params, searchParams }: { param
   const d = res.data;
   const orgId = me.orgId as string;
   const db = await createClient();
-  const [coaches, spaces, settingsRow] = await Promise.all([
+  const [coaches, spaces, settingsRow, choiceRow] = await Promise.all([
     getCoachOptions(orgId), getSpaceOptions(orgId),
     db.from("app_settings").select("settings").eq("org_id", orgId).maybeSingle(),
+    // Instalment choice of the order (20250420105400): not in the generated types yet.
+    (db as unknown as SupabaseClient).from("booking_orders").select("instalment_count").eq("id", id).eq("org_id", orgId).maybeSingle(),
   ]);
+  const chosen = Number((choiceRow.data as { instalment_count?: number } | null)?.instalment_count ?? 1);
   const booking = (((settingsRow.data as { settings?: Record<string, unknown> } | null)?.settings ?? {}).booking ?? {}) as { cancellation_hours?: number; refund_credits_on_cancel?: boolean };
   const nowIso = new Date().toISOString();
   // Which future bookings would get their package session back under the club policy (shown before cancelling).
@@ -62,6 +67,8 @@ export default async function BookingOrderPage({ params, searchParams }: { param
       {sp.created === "1" && <p role="status" className="rounded-lg border border-success/30 bg-success-soft px-4 py-2.5 text-sm text-success">{t("bookingOrders.messages.created")}</p>}
       <OrderWorkspace detail={d} isAdmin={me.roles.includes("admin")} coaches={coaches} spaces={spaces}
         todayKey={zonedDayKey(new Date(), f.timeZone)} restoreByPolicy={restoreByPolicy} />
+      <ServicePlanPanel orgId={orgId} chosen={chosen} invoiceHref={(x) => `/admin/invoices/${x}`}
+        invoices={d.invoices.map((i) => ({ id: i.invoice_id, number: i.number, payerName: i.payer_name }))} />
     </div>
   );
 }

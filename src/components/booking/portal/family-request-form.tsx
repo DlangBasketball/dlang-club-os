@@ -14,6 +14,8 @@ import {
 import { normalizePromoCode } from "@/lib/booking/helpers";
 import type { FamilyCatalog, FamilyQuote } from "@/lib/booking/types";
 import { useFormat, useT } from "@/lib/i18n/client";
+import { firstDueDate, instalmentChoices, type ServiceInstalmentInfo } from "@/lib/booking/instalments";
+import { InstalmentPicker } from "@/components/booking/instalment-picker";
 
 export type DeclaredAvailability = DeclaredAvailabilityInput;
 
@@ -24,9 +26,11 @@ export type DeclaredAvailability = DeclaredAvailabilityInput;
  * coverage and an optional promo code. Sends one request id per form so a
  * retry never creates a second request.
  */
-export function FamilyRequestForm({ kids, catalog, declared, todayKey }: {
+export function FamilyRequestForm({ kids, catalog, declared, todayKey, instalmentInfo = null }: {
   kids: { id: string; first_name: string; last_name: string }[];
   catalog: FamilyCatalog; declared: DeclaredAvailability | null; todayKey: string;
+  /** Payments allowed per service (service_instalment_info); null = pay in full only. */
+  instalmentInfo?: ServiceInstalmentInfo | null;
 }) {
   const t = useT();
   const f = useFormat();
@@ -40,6 +44,7 @@ export function FamilyRequestForm({ kids, catalog, declared, todayKey }: {
   const [quoting, setQuoting] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
+  const [instalments, setInstalments] = React.useState(1);
 
   const service = catalog.services.find((x) => x.id === s.serviceId) ?? null;
   const isGroup = service?.kind === "group";
@@ -68,11 +73,17 @@ export function FamilyRequestForm({ kids, catalog, declared, todayKey }: {
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => { setErr(null); setS((x) => ({ ...x, [k]: v })); };
   const canSend = Boolean(payload && quote?.ok && !quoting && !busy);
+  // Instalments (eligible services, billed by invoice): parents choose the count, the club's default dates apply.
+  const billedPrice = quote?.ok && quote.billing.billing_mode === "invoice" ? Number(quote.billing.price ?? 0) : 0;
+  const instChoices = service && billedPrice > 0 ? instalmentChoices(instalmentInfo?.services[service.id] ?? 1) : [1];
+  const instToday = instalmentInfo?.today ?? todayKey;
+  const instCount = instChoices.includes(instalments) ? instalments : 1;
+  React.useEffect(() => { setInstalments(1); }, [s.serviceId]);
 
   async function send() {
     if (!payload || !canSend) return;
     setBusy(true); setErr(null);
-    const res = await createFamilyRequest(payload, ids.get("confirm"));
+    const res = await createFamilyRequest(payload, ids.get("confirm"), instCount);
     setBusy(false);
     if (!res.ok) { setErr(res.error); return; }
     ids.settle("confirm");
@@ -201,6 +212,14 @@ export function FamilyRequestForm({ kids, catalog, declared, todayKey }: {
                 <ul role="alert" className="space-y-1 rounded border border-danger/30 bg-danger-soft p-2 text-danger">
                   {quote.errors.map((e) => <li key={e} className="flex gap-2"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />{t.dynamic(`bookingWorkflow.errors.${e}`, undefined, t("bookingWorkflow.errors.generic"))}</li>)}
                 </ul>
+              )}
+              {instChoices.length > 1 && (
+                <div className="border-t border-line pt-3">
+                  <InstalmentPicker choices={instChoices} value={{ count: instCount, dates: null }} onChange={(v) => { setErr(null); setInstalments(v.count); }}
+                    currency={quote.billing.currency ?? service?.currency ?? f.currency} firstDue={firstDueDate(instToday, instalmentInfo?.invoice_due_days)}
+                    today={instToday} canEditDates={false} disabled={busy} idPrefix="fr-inst"
+                    payers={[{ key: "family", name: t("bookingRequests.family.payerFamily"), total: billedPrice }]} />
+                </div>
               )}
               {quote.ok && (
                 <p className="flex items-start gap-2 text-ink-2">

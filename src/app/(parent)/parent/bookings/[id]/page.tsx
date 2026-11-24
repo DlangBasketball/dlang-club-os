@@ -8,6 +8,9 @@ import { getTrainingWizardData } from "@/lib/training/data";
 import { TrainingBookingActions } from "@/components/training/admin-widgets";
 import { WithdrawRequestButton } from "@/components/booking/request-decision";
 import { getI18n } from "@/lib/i18n/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { getBookingInstalmentChoice } from "@/lib/booking/instalments-db";
+import { ServicePlanPanel } from "@/components/booking/service-plan-panel";
 
 export default async function ParentBookingDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirmed?: string; requested?: string }> }) {
   const { t, f } = await getI18n();
@@ -15,10 +18,11 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
   const { data, error } = await getParentBookingDetail(id);
   if (error) return <ErrorState title={t("training.common.loadFailed")} message={error} />;
   if (!data) notFound();
-  const [coachPhotos, wizard] = await Promise.all([
+  const [coachPhotos, wizard, me, choice] = await Promise.all([
     photoUrlsForCoaches([data.coachId]),
     // Club-made bookings are changed by the club (it reschedules / cancels and notifies); family bookings keep self-service.
     data.status === "booked" && data.createdVia === "legacy" ? getTrainingWizardData() : Promise.resolve(null),
+    getSessionUser(), getBookingInstalmentChoice(data.id),
   ]);
   const statusLabel = data.status === "requested" ? t("bookingWorkflow.state.requested")
     : data.status === "booked" && data.attendanceStatus === "excused" ? t("bookingWorkflow.state.excused")
@@ -49,6 +53,10 @@ export default async function ParentBookingDetailPage({ params, searchParams }: 
         )}
         {data.invoice && <div className="flex justify-between"><span className="text-ink-3">{t("training.purchases.invoice")}</span><Link href={`/parent/invoices/${data.invoice.id}`} className="inline-flex items-center gap-1 text-maroon hover:underline"><Receipt className="h-3.5 w-3.5" />{data.invoice.number}</Link></div>}
       </CardBody></Card>
+      {me?.orgId && data.status !== "cancelled" && (
+        <ServicePlanPanel orgId={me.orgId} chosen={choice?.instalments ?? 1} invoiceHref={(x) => `/parent/invoices/${x}`}
+          invoices={data.invoice ? [{ id: data.invoice.id, number: data.invoice.number }] : []} />
+      )}
       {data.status === "requested" && (
         <div role="status" className="space-y-2 rounded-md border border-dashed border-warning/60 bg-warning-soft p-3 text-sm text-text">
           <p>{t("bookingRequests.family.awaitingHint")}</p>
