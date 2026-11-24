@@ -5,6 +5,7 @@ import { NewBookingForm } from "@/components/booking/admin/new-booking-form";
 import { NewOrderForm } from "@/components/booking/admin/new-order-form";
 import { getServiceCatalog } from "@/lib/booking/data";
 import { getCoachOptions, getSpaceOptions } from "@/lib/booking/admin-data";
+import { getServiceInstalmentInfo } from "@/lib/booking/instalments-db";
 import { requireRole } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
@@ -36,6 +37,7 @@ export default async function AdminNewBookingPage({ searchParams }: { searchPara
   if (catalog.error !== null) {
     return <div className="animate-fade-up">{back}<PageHeader title={t("adminBooking.form.title")} /><ErrorState title={t("adminBooking.common.loadFailed")} message={t.dynamic(`bookingWorkflow.errors.${catalog.error}`, undefined, t("bookingWorkflow.errors.generic"))} /></div>;
   }
+  const instalmentInfo = await getServiceInstalmentInfo(catalog.data.map((x) => x.id));
   let initialAthlete: { id: string; label: string; familyId: string } | null = null;
   if (athlete && UUID.test(athlete)) {
     const { data } = await (await createClient()).from("athletes").select("id,first_name,last_name,family_id").eq("org_id", orgId).eq("id", athlete).maybeSingle();
@@ -56,7 +58,7 @@ export default async function AdminNewBookingPage({ searchParams }: { searchPara
           </>
         ) : (
           <NewOrderForm services={catalog.data} coaches={coaches} spaces={spaces} isAdmin={me.roles.includes("admin")}
-            scope={orgId} todayKey={zonedDayKey(new Date(), f.timeZone)} initialAthlete={initialAthlete} />
+            scope={orgId} todayKey={zonedDayKey(new Date(), f.timeZone)} initialAthlete={initialAthlete} instalmentInfo={instalmentInfo} />
         )
       )}
     </div>

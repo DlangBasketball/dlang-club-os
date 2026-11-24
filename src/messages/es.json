@@ -12652,7 +12652,11 @@
       "DUPLICATE_PACKAGE": "Dos bonos activos tienen el mismo número de sesiones.",
       "INVALID_PACKAGE": "Revisa el bono: de 1 a 1000 sesiones, un total de 0 o más, validez de 1 a 3650 días.",
       "INVOICE_IS_DRAFT": "La factura todavía es un borrador.",
-      "USE_CANCEL": "Abonar toda la factura impagada equivale a anularla."
+      "USE_CANCEL": "Abonar toda la factura impagada equivale a anularla.",
+      "INSTALMENTS_NOT_ALLOWED": "Este servicio no se puede pagar en tantos plazos.",
+      "INSTALMENTS_OUT_OF_RANGE": "Elige entre 1 y 4 pagos.",
+      "INSTALMENT_DATES_INVALID": "Revisa los vencimientos: uno por pago, en orden, desde hoy y como máximo 12 meses después.",
+      "INSTALMENTS_NOTHING_TO_SPLIT": "No hay nada que pagar por esta reserva, así que no se puede fraccionar."
     },
     "warnings": {
       "ATHLETE_OVERLAP": "El deportista tiene otra reserva a la misma hora.",
@@ -13716,6 +13720,39 @@
       "archived": "Este programa está archivado y no acepta nuevas inscripciones.",
       "notFound": "Programa no encontrado.",
       "failed": "No se pudo completar la acción. Inténtalo de nuevo."
+    }
+  },
+  "serviceInstalments": {
+    "picker": {
+      "legend": "Forma de pago",
+      "payInFull": "Pago único",
+      "payments": "{count, plural, one {# pago} other {# plazos}}",
+      "payer": "Pagador",
+      "total": "Importe total {amount}",
+      "scheduleFor": "Calendario de pagos de {name}",
+      "dueOf": "Vencimiento del pago {seq} de {count}",
+      "datesHintStaff": "Por defecto: el primer pago vence en la fecha de vencimiento de la factura y los siguientes con un mes de diferencia. Puedes cambiar las fechas.",
+      "resetDates": "Usar las fechas por defecto",
+      "nothingToSplit": "No hay nada que pagar por esta reserva.",
+      "serverNoteStaff": "Los importes son definitivos al emitir la factura: su total se reparte a partes iguales y el último pago absorbe el redondeo.",
+      "serverNoteFamily": "Cuando el club confirme tu solicitud, recibirás una factura con este calendario de pagos. El último pago absorbe el redondeo."
+    },
+    "panel": {
+      "title": "Calendario de pagos",
+      "pending": "{count, plural, one {Pago único.} other {Pago en # plazos: el calendario se crea al emitir la factura.}}",
+      "forInvoice": "Calendario de pagos de la factura {number}",
+      "payments": "{count, plural, one {# pago} other {# plazos}}",
+      "total": "Importe total"
+    },
+    "editor": {
+      "title": "Pago a plazos",
+      "label": "Plazos permitidos",
+      "payInFullOnly": "Solo pago único",
+      "upTo": "Hasta {count} plazos",
+      "hint": "Se ofrece cuando el personal reserva este servicio y cuando las familias lo solicitan. Las reservas existentes mantienen sus condiciones.",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saved": "Configuración de pago a plazos guardada."
     }
   }
 }

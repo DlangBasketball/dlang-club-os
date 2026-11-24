@@ -17,6 +17,8 @@ import {
   type AddDatesInput, type OrderCancelInput, type OrderConfirmResult, type OrderInvoiceResult, type OrderPayloadInput, type OrderQuote,
   type OrderRescheduleInput, type PricingSaveInput,
 } from "@/lib/booking/orders";
+import { instalmentChoiceSchema, toInstalmentRpc, SERVICE_MAX_INSTALMENTS, type InstalmentChoiceInput } from "@/lib/booking/instalments";
+import { instalmentsDb } from "@/lib/booking/instalments-db";
 
 /*
  * Booking orders — server actions (migration 20250420104800). The org is the
@@ -94,14 +96,21 @@ export async function quoteOrder(input: OrderPayloadInput): Promise<OrderActionR
   return { ok: true, data: data as unknown as OrderQuote };
 }
 
-/** Create the order (all dates, all players) in one transaction. Idempotent with requestId. */
-export async function confirmOrder(input: OrderPayloadInput, requestId: string): Promise<OrderActionResult<OrderConfirmResult>> {
+/**
+ * Create the order (all dates, all players) in one transaction. Idempotent with requestId.
+ * `plan`: pay in 1..4 payments (eligible services only; due dates optional, admin / finance).
+ * The server checks eligibility and dates and computes the amounts from the issued invoice.
+ */
+export async function confirmOrder(input: OrderPayloadInput, requestId: string, plan?: InstalmentChoiceInput | null): Promise<OrderActionResult<OrderConfirmResult>> {
   const { me, t } = await session();
   if (!me) return denied(t);
   const p = orderPayloadSchema.safeParse(input);
-  if (!p.success || !uuid.safeParse(requestId).success) return invalid(t);
-  const db = await createClient();
-  const { data, error } = await db.rpc("booking_order_confirm", { p_payload: toOrderRpcPayload(p.data) as Json, p_request_id: requestId });
+  const c = instalmentChoiceSchema.safeParse(plan ?? { count: 1 });
+  if (!p.success || !c.success || !uuid.safeParse(requestId).success) return invalid(t);
+  const db = await instalmentsDb();
+  const { data, error } = await db.rpc("booking_order_confirm_plan", {
+    p_payload: { ...toOrderRpcPayload(p.data), ...toInstalmentRpc(c.data) } as Json, p_request_id: requestId,
+  });
   if (error) return fail(t, error);
   const res = data as unknown as OrderConfirmResult;
   if (!res.ok) return { ok: true, data: res, message: t("bookingWorkflow.errors.DATES_UNAVAILABLE") };
@@ -252,6 +261,19 @@ export async function saveServicePricing(input: PricingSaveInput): Promise<Order
   revalidatePath("/admin/bookings", "layout");
   revalidatePath("/admin/training");
   return { ok: true, data: data as unknown as Record<string, unknown>, message: t("bookingOrders.pricing.saved") };
+}
+
+/** Services editor (admin + finance): payments allowed for one service (1 = pay in full .. 4). */
+export async function saveServiceInstalments(serviceId: string, maxInstalments: number): Promise<OrderActionResult<Record<string, unknown>>> {
+  const { me, t } = await session();
+  if (!me) return denied(t);
+  if (!uuid.safeParse(serviceId).success || !z.number().int().min(1).max(SERVICE_MAX_INSTALMENTS).safeParse(maxInstalments).success) return invalid(t);
+  const db = await instalmentsDb();
+  const { data, error } = await db.rpc("service_instalments_save", { p_service: serviceId, p_max: maxInstalments });
+  if (error) return fail(t, error);
+  revalidatePath("/admin/services", "layout");
+  revalidatePath("/admin/bookings", "layout");
+  return { ok: true, data: data as unknown as Record<string, unknown>, message: t("serviceInstalments.editor.saved") };
 }
 
 // ===========================================================================

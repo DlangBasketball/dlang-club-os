@@ -24,6 +24,8 @@ import type { CoachOption, SpaceOption } from "@/lib/booking/admin-data";
 import { newRequestId } from "@/lib/billing/request-id";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
+import { firstDueDate, instalmentChoices, type ServiceInstalmentInfo } from "@/lib/booking/instalments";
+import { InstalmentPicker, instalmentValueOk, type InstalmentValue } from "@/components/booking/instalment-picker";
 import { AthleteCombobox } from "./athlete-combobox";
 import { QuickAthleteDialog } from "./quick-athlete-dialog";
 
@@ -38,9 +40,11 @@ const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
  * Every change re-quotes (per-date availability, charges per player and per
  * payer); confirm is all-or-nothing with one request id per form.
  */
-export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayKey, initialAthlete }: {
+export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayKey, initialAthlete, instalmentInfo = null }: {
   services: CatalogService[]; coaches: CoachOption[]; spaces: SpaceOption[]; isAdmin: boolean;
   scope: string; todayKey: string; initialAthlete?: { id: string; label: string; familyId: string } | null;
+  /** Payments allowed per service (service_instalment_info); null = pay in full only. */
+  instalmentInfo?: ServiceInstalmentInfo | null;
 }) {
   const t = useT();
   const f = useFormat();
@@ -58,6 +62,7 @@ export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayK
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState<{ text: string; code?: string; date?: string | null } | null>(null);
   const submitted = React.useRef(false);
+  const [plan, setPlan] = React.useState<InstalmentValue>({ count: 1, dates: null });
 
   // --- draft ----------------------------------------------------------------------
   React.useEffect(() => {
@@ -84,6 +89,12 @@ export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayK
   const options = service?.pricing_options ?? [];
   const offered = service ? offeredOptions(service.kind) : [];
   const pricingMissing = service?.pricing_missing ?? [];
+  // Instalments: eligible services only (max per service, 4 at most); an existing package has nothing to pay.
+  const instChoices = service && s.option && s.option !== "existing_package" ? instalmentChoices(instalmentInfo?.services[service.id] ?? 1) : [1];
+  const instToday = instalmentInfo?.today ?? todayKey;
+  const instFirstDue = firstDueDate(instToday, instalmentInfo?.invoice_due_days);
+  const planCount = instChoices.includes(plan.count) ? plan.count : 1;
+  React.useEffect(() => { setPlan({ count: 1, dates: null }); }, [s.serviceId, s.option]);
 
   // --- payer candidates per player, packages of a private athlete -------------------------
   const athleteKey = s.players.map((p) => p.athleteId).join(",");
@@ -171,7 +182,8 @@ export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayK
   const needsOverride = Boolean(quote && !quote.ok && quote.errors.length === 0
     && quote.dates.every((d) => d.errors.every((e) => ["COACH_UNAVAILABLE", "COACH_NOT_ELIGIBLE", "VENUE_CLOSED"].includes(e))));
   const canConfirm = Boolean(payload && quote && !quoting && payersOk && priceOk && overrideOk && pricingMissing.length === 0
-    && (quote.ok || (needsOverride && isAdmin && s.overrideAvailability)) && dupes.size === 0);
+    && (quote.ok || (needsOverride && isAdmin && s.overrideAvailability)) && dupes.size === 0
+    && instalmentValueOk({ count: planCount, dates: plan.dates }, instToday));
   const createsRequests = quote?.dates.some((d) => d.creates === "requested") ?? false;
 
   // --- confirm ----------------------------------------------------------------------
@@ -197,7 +209,7 @@ export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayK
       const body = orderFormToPayload(s, f.timeZone, finalPayers);
       if (!body) return;
       // 2) one request id for this form: a double click / retry replays, never a second order.
-      const res = await confirmOrder(body, ids.get("confirm"));
+      const res = await confirmOrder(body, ids.get("confirm"), planCount > 1 ? { count: planCount, dates: plan.dates } : null);
       if (!res.ok) {
         setErr({ text: res.error, code: res.code, date: res.date ?? null });
         void runQuote();
@@ -585,6 +597,13 @@ export function NewOrderForm({ services, coaches, spaces, isAdmin, scope, todayK
                   </div>
                   {s.option === "existing_package" && <p className="text-xs text-ink-3">{t("bookingOrders.summary.coveredByPackage")}</p>}
                   {s.option === "package" && <p className="text-xs text-ink-3">{t("bookingOrders.summary.packageOnce")}</p>}
+                  {instChoices.length > 1 && (
+                    <div className="border-t border-line pt-3">
+                      <InstalmentPicker choices={instChoices} value={{ count: planCount, dates: plan.dates }} onChange={(v) => { setErr(null); setPlan(v); }}
+                        currency={currency} firstDue={instFirstDue} today={instToday} canEditDates disabled={busy} idPrefix="no-inst"
+                        payers={preview.payers.map((p) => ({ key: p.payerKey, name: p.payerName, total: p.charge }))} />
+                    </div>
+                  )}
                 </>
               )}
               {payload && quoteErr && <p role="alert" className="text-danger">{quoteErr}</p>}

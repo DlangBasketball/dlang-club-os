@@ -12652,7 +12652,11 @@
       "DUPLICATE_PACKAGE": "Due pacchetti attivi hanno lo stesso numero di sedute.",
       "INVALID_PACKAGE": "Controlla il pacchetto: da 1 a 1000 sedute, un totale di 0 o più, validità da 1 a 3650 giorni.",
       "INVOICE_IS_DRAFT": "La fattura è ancora una bozza.",
-      "USE_CANCEL": "Accreditare tutta la fattura non pagata equivale ad annullarla."
+      "USE_CANCEL": "Accreditare tutta la fattura non pagata equivale ad annullarla.",
+      "INSTALMENTS_NOT_ALLOWED": "Questo servizio non può essere pagato in così tante rate.",
+      "INSTALMENTS_OUT_OF_RANGE": "Scegli da 1 a 4 pagamenti.",
+      "INSTALMENT_DATES_INVALID": "Controlla le scadenze: una per pagamento, in ordine, da oggi e al massimo 12 mesi in anticipo.",
+      "INSTALMENTS_NOTHING_TO_SPLIT": "Non c’è nulla da pagare per questa prenotazione, quindi non può essere rateizzata."
     },
     "warnings": {
       "ATHLETE_OVERLAP": "L'atleta ha un'altra prenotazione alla stessa ora.",
@@ -13716,6 +13720,39 @@
       "archived": "Questo programma è archiviato e non accetta nuove iscrizioni.",
       "notFound": "Programma non trovato.",
       "failed": "Impossibile completare l'azione. Riprova."
+    }
+  },
+  "serviceInstalments": {
+    "picker": {
+      "legend": "Modalità di pagamento",
+      "payInFull": "Pagamento unico",
+      "payments": "{count, plural, one {# pagamento} other {# rate}}",
+      "payer": "Pagante",
+      "total": "Importo totale {amount}",
+      "scheduleFor": "Piano di pagamento di {name}",
+      "dueOf": "Scadenza del pagamento {seq} di {count}",
+      "datesHintStaff": "Predefinito: il primo pagamento scade alla scadenza della fattura, i successivi a un mese di distanza. Puoi modificare le date.",
+      "resetDates": "Usa le date predefinite",
+      "nothingToSplit": "Non c’è nulla da pagare per questa prenotazione.",
+      "serverNoteStaff": "Gli importi sono definitivi all’emissione della fattura: il totale è diviso in parti uguali e l’ultima rata assorbe l’arrotondamento.",
+      "serverNoteFamily": "Quando il club conferma la tua richiesta, ricevi una fattura con questo piano di pagamento. L’ultima rata assorbe l’arrotondamento."
+    },
+    "panel": {
+      "title": "Piano di pagamento",
+      "pending": "{count, plural, one {Pagamento unico.} other {Pagamento in # rate: il piano viene creato all’emissione della fattura.}}",
+      "forInvoice": "Piano di pagamento della fattura {number}",
+      "payments": "{count, plural, one {# pagamento} other {# rate}}",
+      "total": "Importo totale"
+    },
+    "editor": {
+      "title": "Pagamento a rate",
+      "label": "Rate consentite",
+      "payInFullOnly": "Solo pagamento unico",
+      "upTo": "Fino a {count} rate",
+      "hint": "Proposto quando lo staff prenota questo servizio e quando le famiglie lo richiedono. Le prenotazioni esistenti mantengono le loro condizioni.",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "saved": "Impostazione del pagamento a rate salvata."
     }
   }
 }

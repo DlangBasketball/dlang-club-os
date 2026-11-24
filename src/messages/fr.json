@@ -12652,7 +12652,11 @@
       "DUPLICATE_PACKAGE": "Deux forfaits actifs ont le même nombre de séances.",
       "INVALID_PACKAGE": "Vérifiez le forfait : 1 à 1000 séances, un total de 0 ou plus, une validité de 1 à 3650 jours.",
       "INVOICE_IS_DRAFT": "La facture est encore un brouillon.",
-      "USE_CANCEL": "Créditer toute la facture impayée revient à l’annuler."
+      "USE_CANCEL": "Créditer toute la facture impayée revient à l’annuler.",
+      "INSTALMENTS_NOT_ALLOWED": "Ce service ne peut pas être payé en autant de versements.",
+      "INSTALMENTS_OUT_OF_RANGE": "Choisissez entre 1 et 4 versements.",
+      "INSTALMENT_DATES_INVALID": "Vérifiez les échéances : une par versement, dans l’ordre, à partir d’aujourd’hui et au plus 12 mois à l’avance.",
+      "INSTALMENTS_NOTHING_TO_SPLIT": "Il n’y a rien à payer pour cette réservation : elle ne peut pas être payée en plusieurs fois."
     },
     "warnings": {
       "ATHLETE_OVERLAP": "L'athlète a une autre réservation au même moment.",
@@ -13716,6 +13720,39 @@
       "archived": "Ce programme est archivé et n'accepte plus de nouvelles inscriptions.",
       "notFound": "Programme introuvable.",
       "failed": "L'action n'a pas pu être effectuée. Veuillez réessayer."
+    }
+  },
+  "serviceInstalments": {
+    "picker": {
+      "legend": "Mode de paiement",
+      "payInFull": "Payer en une fois",
+      "payments": "{count, plural, one {# versement} other {# versements}}",
+      "payer": "Payeur",
+      "total": "Montant total {amount}",
+      "scheduleFor": "Échéancier de {name}",
+      "dueOf": "Échéance du versement {seq} sur {count}",
+      "datesHintStaff": "Par défaut : le premier versement est dû à l’échéance de la facture, les suivants à un mois d’intervalle. Vous pouvez modifier les dates.",
+      "resetDates": "Reprendre les dates par défaut",
+      "nothingToSplit": "Il n’y a rien à payer pour cette réservation.",
+      "serverNoteStaff": "Les montants sont définitifs à l’émission de la facture : son total est réparti à parts égales et le dernier versement absorbe l’arrondi.",
+      "serverNoteFamily": "Dès que le club confirme votre demande, vous recevez une facture avec cet échéancier. Le dernier versement absorbe l’arrondi."
+    },
+    "panel": {
+      "title": "Échéancier",
+      "pending": "{count, plural, one {Paiement en une fois.} other {Paiement en # versements : l’échéancier est créé à l’émission de la facture.}}",
+      "forInvoice": "Échéancier de la facture {number}",
+      "payments": "{count, plural, one {# versement} other {# versements}}",
+      "total": "Montant total"
+    },
+    "editor": {
+      "title": "Paiement échelonné",
+      "label": "Versements autorisés",
+      "payInFullOnly": "Paiement en une fois uniquement",
+      "upTo": "Jusqu’à {count} versements",
+      "hint": "Proposé lorsque le staff réserve ce service et lorsque les familles le demandent. Les réservations existantes gardent leurs conditions.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "Paramètre de paiement échelonné enregistré."
     }
   }
 }

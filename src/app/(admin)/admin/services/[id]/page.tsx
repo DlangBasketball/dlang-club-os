@@ -10,6 +10,8 @@ import { ServiceBookingSetup } from "@/components/booking/admin/service-booking-
 import { getServiceCatalog } from "@/lib/booking/data";
 import { getCoachOptions, getSpaceOptions } from "@/lib/booking/admin-data";
 import { getSessionUser } from "@/lib/auth/get-user";
+import { ServiceInstalmentsCard } from "@/components/booking/admin/service-instalments-card";
+import { getServiceInstalmentInfo } from "@/lib/booking/instalments-db";
 
 export default async function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -20,6 +22,7 @@ export default async function EditServicePage({ params }: { params: Promise<{ id
   const orgId = me?.orgId ?? "";
   const entry = (catalog.data ?? []).find((c) => c.id === service.id) ?? null;
   const [bookingCoaches, spaces] = entry ? await Promise.all([getCoachOptions(orgId), getSpaceOptions(orgId)]) : [[], []];
+  const instalmentInfo = entry ? await getServiceInstalmentInfo([service.id]) : null;
   return (
     <div className="animate-fade-up max-w-4xl space-y-5">
       <Link href="/admin/services" className="inline-flex items-center gap-1 text-xs text-ink-3 hover:text-ink"><ChevronLeft className="h-3.5 w-3.5" /> {t("training.services.title")}</Link>
@@ -49,6 +52,15 @@ export default async function EditServicePage({ params }: { params: Promise<{ id
                 packages: (entry.packages ?? []).map((p) => ({ id: p.id, name: p.name, sessions: p.sessions ?? 0, total: p.total ?? 0,
                                                               isActive: p.is_active ?? true, validityDays: p.validity_days ?? null })),
               }} />
+          </CardBody>
+        </Card>
+      )}
+      {entry && (
+        <Card>
+          <CardHeader><CardTitle>{t("serviceInstalments.editor.title")}</CardTitle></CardHeader>
+          <CardBody>
+            <ServiceInstalmentsCard serviceId={service.id} initial={instalmentInfo?.services[service.id] ?? 1}
+              canEdit={Boolean(me?.roles.includes("admin") || me?.roles.includes("finance"))} />
           </CardBody>
         </Card>
       )}

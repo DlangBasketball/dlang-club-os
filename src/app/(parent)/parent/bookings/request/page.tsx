@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/get-user";
 import { getMyChildren } from "@/lib/attendance/family-data";
 import { uuidParam } from "@/lib/attendance/family";
 import { getFamilyBookingCatalog } from "@/lib/booking/data";
+import { getServiceInstalmentInfo } from "@/lib/booking/instalments-db";
 import { getTrainingWizardData } from "@/lib/training/data";
 import { getI18n } from "@/lib/i18n/server";
 import { zonedDayKey } from "@/lib/staff/hours";
@@ -41,6 +42,7 @@ export default async function ParentBookingRequestPage({ searchParams }: { searc
     return <div className="animate-fade-up max-w-2xl space-y-5">{back}<PageHeader title={t("bookingRequests.family.title")} />
       <ErrorState title={t("bookingRequests.family.loadError")} message={t.dynamic(`bookingWorkflow.errors.${catalog.error}`, undefined, t("bookingWorkflow.errors.generic"))} /></div>;
   }
+  const instalmentInfo = catalog.data.enabled ? await getServiceInstalmentInfo(catalog.data.services.map((x) => x.id)) : null;
   // Declared coach availability for the "show availability" hints: times only, no blackout reasons, no other family's data.
   const w = wizard.data;
   const declared: DeclaredAvailability | null = w ? {
@@ -64,7 +66,7 @@ export default async function ParentBookingRequestPage({ searchParams }: { searc
       ) : catalog.data.services.length === 0 ? (
         <EmptyState title={t("bookingRequests.family.noServices")} />
       ) : (
-        <FamilyRequestForm kids={kids} catalog={catalog.data} declared={declared} todayKey={zonedDayKey(new Date(), f.timeZone)} />
+        <FamilyRequestForm kids={kids} catalog={catalog.data} declared={declared} todayKey={zonedDayKey(new Date(), f.timeZone)} instalmentInfo={instalmentInfo} />
       )}
     </div>
   );

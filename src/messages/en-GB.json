@@ -1237,5 +1237,12 @@
       "archived": "This programme is archived and does not accept new registrations.",
       "notFound": "Programme not found."
     }
+  },
+  "serviceInstalments": {
+    "editor": {
+      "title": "Instalments",
+      "label": "Instalments allowed",
+      "saved": "Instalment setting saved."
+    }
   }
 }

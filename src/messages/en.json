@@ -12652,7 +12652,11 @@
       "DUPLICATE_PACKAGE": "Two active packages have the same number of sessions.",
       "INVALID_PACKAGE": "Check the package: 1 to 1000 sessions, a total of 0 or more, validity of 1 to 3650 days.",
       "INVOICE_IS_DRAFT": "The invoice is still a draft.",
-      "USE_CANCEL": "Crediting the whole unpaid invoice is a cancellation."
+      "USE_CANCEL": "Crediting the whole unpaid invoice is a cancellation.",
+      "INSTALMENTS_NOT_ALLOWED": "This service cannot be paid in that many payments.",
+      "INSTALMENTS_OUT_OF_RANGE": "Choose between 1 and 4 payments.",
+      "INSTALMENT_DATES_INVALID": "Check the due dates: one per payment, in order, from today and at most 12 months ahead.",
+      "INSTALMENTS_NOTHING_TO_SPLIT": "There is nothing to pay for this booking, so it cannot be split into payments."
     },
     "warnings": {
       "ATHLETE_OVERLAP": "The athlete has another booking at the same time.",
@@ -13716,6 +13720,39 @@
       "archived": "This program is archived and does not accept new registrations.",
       "notFound": "Program not found.",
       "failed": "The action could not be completed. Please try again."
+    }
+  },
+  "serviceInstalments": {
+    "picker": {
+      "legend": "How to pay",
+      "payInFull": "Pay in full",
+      "payments": "{count, plural, one {# payment} other {# payments}}",
+      "payer": "Payer",
+      "total": "Total amount {amount}",
+      "scheduleFor": "Payment schedule for {name}",
+      "dueOf": "Due date of payment {seq} of {count}",
+      "datesHintStaff": "Default: the first payment is due on the invoice due date, the next ones one month apart. You can change the dates.",
+      "resetDates": "Use the default dates",
+      "nothingToSplit": "There is nothing to pay for this booking.",
+      "serverNoteStaff": "Amounts are final when the invoice is issued: its total is split equally and the last payment absorbs the rounding.",
+      "serverNoteFamily": "Once the club confirms your request, you receive one invoice with this payment schedule. The last payment absorbs the rounding."
+    },
+    "panel": {
+      "title": "Payment schedule",
+      "pending": "{count, plural, one {Paid in full.} other {Paid in # payments: the schedule is created when the invoice is issued.}}",
+      "forInvoice": "Payment schedule of invoice {number}",
+      "payments": "{count, plural, one {# payment} other {# payments}}",
+      "total": "Total amount"
+    },
+    "editor": {
+      "title": "Installments",
+      "label": "Installments allowed",
+      "payInFullOnly": "Pay in full only",
+      "upTo": "Up to {count} payments",
+      "hint": "Offered when staff book this service and when families request it. Bookings already made keep their terms.",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Installment setting saved."
     }
   }
 }

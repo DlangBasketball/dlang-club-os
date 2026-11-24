@@ -12652,7 +12652,11 @@
       "DUPLICATE_PACKAGE": "Zwei aktive Pakete haben dieselbe Anzahl Einheiten.",
       "INVALID_PACKAGE": "Prüfen Sie das Paket: 1 bis 1000 Einheiten, ein Betrag ab 0, Gültigkeit 1 bis 3650 Tage.",
       "INVOICE_IS_DRAFT": "Die Rechnung ist noch ein Entwurf.",
-      "USE_CANCEL": "Die ganze unbezahlte Rechnung gutzuschreiben ist eine Stornierung."
+      "USE_CANCEL": "Die ganze unbezahlte Rechnung gutzuschreiben ist eine Stornierung.",
+      "INSTALMENTS_NOT_ALLOWED": "Diese Leistung kann nicht in so vielen Raten bezahlt werden.",
+      "INSTALMENTS_OUT_OF_RANGE": "Wählen Sie 1 bis 4 Zahlungen.",
+      "INSTALMENT_DATES_INVALID": "Prüfen Sie die Fälligkeiten: eine pro Zahlung, aufsteigend, ab heute und höchstens 12 Monate im Voraus.",
+      "INSTALMENTS_NOTHING_TO_SPLIT": "Für diese Buchung ist nichts zu bezahlen, daher ist keine Ratenzahlung möglich."
     },
     "warnings": {
       "ATHLETE_OVERLAP": "Der Athlet hat zur gleichen Zeit eine andere Buchung.",
@@ -13716,6 +13720,39 @@
       "archived": "Dieses Angebot ist archiviert und nimmt keine neuen Anmeldungen an.",
       "notFound": "Angebot nicht gefunden.",
       "failed": "Die Aktion konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut."
+    }
+  },
+  "serviceInstalments": {
+    "picker": {
+      "legend": "Zahlungsart",
+      "payInFull": "Gesamtbetrag auf einmal",
+      "payments": "{count, plural, one {# Zahlung} other {# Raten}}",
+      "payer": "Zahler",
+      "total": "Gesamtbetrag {amount}",
+      "scheduleFor": "Zahlungsplan für {name}",
+      "dueOf": "Fälligkeit der Zahlung {seq} von {count}",
+      "datesHintStaff": "Standard: Die erste Zahlung ist am Fälligkeitsdatum der Rechnung fällig, die weiteren jeweils einen Monat später. Sie können die Daten ändern.",
+      "resetDates": "Standarddaten verwenden",
+      "nothingToSplit": "Für diese Buchung ist nichts zu bezahlen.",
+      "serverNoteStaff": "Die Beträge stehen bei der Ausstellung der Rechnung fest: Das Total wird gleichmässig aufgeteilt, die letzte Rate übernimmt die Rundung.",
+      "serverNoteFamily": "Sobald der Verein Ihre Anfrage bestätigt, erhalten Sie eine Rechnung mit diesem Zahlungsplan. Die letzte Rate übernimmt die Rundung."
+    },
+    "panel": {
+      "title": "Zahlungsplan",
+      "pending": "{count, plural, one {Zahlung auf einmal.} other {Zahlung in # Raten: Der Zahlungsplan wird bei der Ausstellung der Rechnung erstellt.}}",
+      "forInvoice": "Zahlungsplan der Rechnung {number}",
+      "payments": "{count, plural, one {# Zahlung} other {# Raten}}",
+      "total": "Gesamtbetrag"
+    },
+    "editor": {
+      "title": "Ratenzahlung",
+      "label": "Erlaubte Raten",
+      "payInFullOnly": "Nur Zahlung auf einmal",
+      "upTo": "Bis zu {count} Raten",
+      "hint": "Wird angeboten, wenn das Team diese Leistung bucht und wenn Familien sie anfragen. Bestehende Buchungen behalten ihre Bedingungen.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Einstellung zur Ratenzahlung gespeichert."
     }
   }
 }
