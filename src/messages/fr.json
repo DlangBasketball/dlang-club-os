@@ -232,7 +232,10 @@
       "finance": "Finances",
       "settings": "Paramètres",
       "more": "Plus"
-    }
+    },
+    "approvals": "Validations",
+    "clubRequests": "Demandes au club",
+    "clubProgrammes": "Programmes du club"
   },
   "shell": {
     "openMenu": "Ouvrir le menu",
@@ -13959,6 +13962,177 @@
     "admin": {
       "duplicateWarning": "Le club a peut-être déjà cette personne : {names}. Vérifiez avant de créer, ou cochez « Créer quand même ».",
       "confirmDuplicate": "Créer quand même (c'est une autre personne)"
+    }
+  },
+  "nextStep": {
+    "declined": "Refusée",
+    "cancelled": "Annulée",
+    "awaiting_guardian_consent": "En attente du consentement du représentant légal",
+    "information_requested": "Informations demandées",
+    "pending_club_approval": "En attente de validation du club",
+    "pending_camp_approval": "En attente de validation du camp",
+    "awaiting_confirmation": "En attente de confirmation",
+    "waitlisted": "Sur liste d'attente",
+    "awaiting_payment": "En attente de paiement",
+    "confirmed": "Confirmée"
+  },
+  "approvals": {
+    "status": {
+      "pending": "En attente de validation du club",
+      "info_requested": "Informations demandées",
+      "approved": "Validée",
+      "declined": "Refusée",
+      "withdrawn": "Retirée"
+    },
+    "kind": {
+      "membership": "Adhésion au club",
+      "program_registration": "Programme du club"
+    },
+    "errors": {
+      "generic": "La demande n'a pas pu être enregistrée. Veuillez réessayer.",
+      "invalid": "Veuillez vérifier les informations et réessayer.",
+      "ALREADY_REQUESTED": "Une demande est déjà en attente auprès du club.",
+      "ALREADY_REGISTERED": "Cet enfant est déjà inscrit à ce programme.",
+      "ALREADY_MEMBER": "Cette adhésion existe déjà pour cette période.",
+      "ALREADY_DECIDED": "Une décision a déjà été prise sur cette demande.",
+      "INFO_ALREADY_REQUESTED": "Des informations ont déjà été demandées ; attendez la réponse de la famille ou décidez.",
+      "NO_INFO_REQUESTED": "Le club n'a pas demandé d'informations supplémentaires.",
+      "MESSAGE_REQUIRED": "Veuillez écrire un message.",
+      "MESSAGE_TOO_LONG": "Le message peut contenir au maximum 2000 caractères.",
+      "REQUEST_NOT_FOUND": "Demande introuvable.",
+      "REQUEST_ID_REQUIRED": "Veuillez recharger la page et réessayer.",
+      "REQUEST_ID_CONFLICT": "Veuillez recharger la page et réessayer.",
+      "APPROVAL_NOT_REQUIRED": "Ce programme ne prend pas de demandes ici.",
+      "PROGRAM_NOT_FOUND": "Programme introuvable.",
+      "PROGRAM_NOT_OPEN": "Ce programme n'est pas ouvert.",
+      "PROGRAM_ARCHIVED": "Ce programme est archivé.",
+      "REGISTRATION_CLOSED": "Les inscriptions à ce programme sont closes.",
+      "AGE_OUT_OF_RANGE": "L'âge de l'enfant est en dehors de la tranche d'âge.",
+      "ATHLETE_REQUIRED": "Veuillez choisir un enfant.",
+      "ATHLETE_NOT_FOUND": "Enfant introuvable.",
+      "FAMILY_NOT_FOUND": "Famille introuvable.",
+      "TYPE_NOT_FOUND": "Type d'adhésion introuvable.",
+      "TYPE_INACTIVE": "Ce type d'adhésion n'est plus proposé.",
+      "INVALID_DECISION": "Décision inconnue.",
+      "CLUB_APPROVAL_REQUIRED": "Ce programme nécessite la validation du club : envoyez plutôt une demande.",
+      "NOT_AUTHORIZED": "Vous n'êtes pas autorisé à faire cela."
+    },
+    "notify": {
+      "submittedTitle": "Nouvelle demande en attente de validation",
+      "submittedMembershipBody": "Une famille demande à rejoindre le club : {child} ({subject}). Veuillez examiner la demande.",
+      "submittedProgramBody": "Une famille demande une place pour {child} dans {subject}. Veuillez examiner la demande.",
+      "repliedTitle": "Une famille a répondu à votre question",
+      "repliedBody": "La famille de {child} a répondu au sujet de {subject}. La demande attend votre décision.",
+      "approvedTitle": "Votre demande a été confirmée",
+      "approvedBody": "Le club a confirmé la demande pour {child} ({subject}). Facture {invoice} : {amount}.",
+      "confirmedBody": "Le club a confirmé la demande pour {child} ({subject}). Rien à payer.",
+      "declinedTitle": "Votre demande a été refusée",
+      "declinedBody": "Le club a refusé la demande pour {child} ({subject}).",
+      "infoRequestedTitle": "Le club a besoin d'informations supplémentaires",
+      "infoRequestedBody": "Le club a une question sur la demande pour {child} ({subject}). Veuillez répondre dans l'application.",
+      "message": "Message du club : {note}"
+    },
+    "family": {
+      "title": "Demandes au club",
+      "description": "Demandes en attente de validation du club et leur prochaine étape.",
+      "submitted": "Demande envoyée. Le club va l'examiner et vous tiendra informé.",
+      "replied": "Réponse envoyée au club.",
+      "withdrawn": "Demande retirée.",
+      "sentOn": "envoyée le {date}",
+      "pendingHint": "Le club examine cette demande. Aucune facture avant sa confirmation.",
+      "infoHint": "Le club a posé une question : veuillez répondre ci-dessous.",
+      "payInvoice": "Payer la facture {number} ({amount})",
+      "viewInvoice": "Facture {number}",
+      "replyLabel": "Votre réponse",
+      "sendReply": "Envoyer la réponse",
+      "withdraw": "Retirer la demande",
+      "withdrawConfirm": "Retirer cette demande ?"
+    },
+    "reviewer": {
+      "message": "Message à la famille",
+      "messageHint": "Obligatoire pour demander des informations ; facultatif pour confirmer ou refuser.",
+      "confirm": "Confirmer",
+      "requestInfo": "Demander plus d'informations",
+      "decline": "Refuser",
+      "forChild": "{name} : {message}",
+      "fullMessage": "Complet : {taken} places prises sur {capacity}. Rien n'a été modifié.",
+      "done": {
+        "approved": "Confirmée. La facture a été émise selon les règles habituelles du club.",
+        "confirmed": "Confirmée et inscrite.",
+        "declined": "Refusée. La famille a été informée.",
+        "info_requested": "Question envoyée à la famille.",
+        "full": "Complet : rien n'a été modifié."
+      },
+      "age": "{age} ans",
+      "submittedOn": "Envoyée le {date}",
+      "capacity": "{taken} places prises sur {capacity}",
+      "noCapacity": "{taken} places prises (sans limite)",
+      "family": "Famille",
+      "submittedBy": "Envoyée par {name}",
+      "reviewers": "Responsables de la validation",
+      "admins": "Administrateurs du club",
+      "fullHint": "Ce programme est complet : la confirmation ne fonctionnera pas tant qu'aucune place ne se libère ou que la capacité n'est pas augmentée.",
+      "waitingForFamily": "En attente de la réponse de la famille. Vous pouvez quand même décider.",
+      "decidedOn": "Décision le {date}"
+    },
+    "thread": {
+      "title": "Échanges",
+      "family": "Famille",
+      "club": "Le club",
+      "kind": {
+        "note": "{side} · remarque",
+        "info_request": "{side} · demande d'informations",
+        "reply": "{side} · réponse",
+        "approved": "{side} · confirmée",
+        "declined": "{side} · refusée",
+        "withdrawn": "{side} · retirée"
+      }
+    },
+    "admin": {
+      "title": "Validations",
+      "description": "Demandes des familles en attente du club : adhésion au club et places dans les programmes du club. Confirmez, demandez plus d'informations ou refusez.",
+      "count": "{count, plural, one {# demande ouverte} other {# demandes ouvertes}}",
+      "campQueue": "Validations d'âge des camps",
+      "tabs": "Vues des demandes",
+      "open": "Ouvertes",
+      "decided": "Traitées",
+      "empty": "Aucune demande en attente de validation.",
+      "emptyDecided": "Aucune demande traitée pour l'instant."
+    },
+    "coach": {
+      "title": "Demandes au club",
+      "description": "Demandes de places dans les programmes que vous encadrez. Confirmez, demandez plus d'informations à la famille ou refusez.",
+      "empty": "Aucune demande ne vous attend.",
+      "decided": "Traitées récemment"
+    },
+    "programs": {
+      "title": "Programmes du club",
+      "description": "Équipes et cours du club. Envoyez une demande : l'entraîneur ou le club la confirme avant l'inscription et la facturation de votre enfant.",
+      "myRequests": "Demandes pour les programmes du club",
+      "empty": "Aucun programme du club ne prend de demandes pour le moment.",
+      "ages": "{min}–{max} ans",
+      "approvalNote": "En attente de validation du club jusqu'à confirmation. Aucune facture avant.",
+      "submit": "Envoyer la demande",
+      "noChildren": "Ajoutez d'abord un enfant à votre famille."
+    },
+    "join": {
+      "intro": "Votre demande est transmise au club. Une fois confirmée, l'adhésion et sa facture sont créées.",
+      "message": "Message au club (facultatif)",
+      "noInvoice": "Aucune facture n'est créée et rien n'est facturé tant que le club n'a pas confirmé la demande.",
+      "submit": "Envoyer la demande d'adhésion",
+      "myRequests": "Demandes d'adhésion"
+    },
+    "program": {
+      "title": "Validation par le club",
+      "on": "Activée : les demandes des familles attendent la validation du club (entraîneur principal ou administrateur) avant l'inscription et la facturation.",
+      "off": "Désactivée : ce programme ne prend pas de demandes des familles dans l'application.",
+      "turnOn": "Exiger la validation du club",
+      "turnOff": "Désactiver",
+      "saved": "Enregistré."
+    },
+    "roster": {
+      "title": "Pas encore confirmés ({count})",
+      "hint": "Validation, consentement ou paiement en attente : pas sur la feuille de présence avant confirmation."
     }
   }
 }

@@ -232,7 +232,10 @@
       "finance": "Finance",
       "settings": "Settings",
       "more": "More"
-    }
+    },
+    "approvals": "Approvals",
+    "clubRequests": "Club requests",
+    "clubProgrammes": "Club programmes"
   },
   "shell": {
     "openMenu": "Open menu",
@@ -13959,6 +13962,177 @@
     "admin": {
       "duplicateWarning": "The club may already have this person: {names}. Check before creating, or tick “Create anyway”.",
       "confirmDuplicate": "Create anyway (this is a different person)"
+    }
+  },
+  "nextStep": {
+    "declined": "Declined",
+    "cancelled": "Cancelled",
+    "awaiting_guardian_consent": "Awaiting guardian consent",
+    "information_requested": "Information requested",
+    "pending_club_approval": "Pending club approval",
+    "pending_camp_approval": "Pending camp approval",
+    "awaiting_confirmation": "Awaiting confirmation",
+    "waitlisted": "On the waiting list",
+    "awaiting_payment": "Awaiting payment",
+    "confirmed": "Confirmed"
+  },
+  "approvals": {
+    "status": {
+      "pending": "Pending club approval",
+      "info_requested": "Information requested",
+      "approved": "Approved",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn"
+    },
+    "kind": {
+      "membership": "Club membership",
+      "program_registration": "Club programme"
+    },
+    "errors": {
+      "generic": "The request could not be saved. Please try again.",
+      "invalid": "Please check the details and try again.",
+      "ALREADY_REQUESTED": "A request for this is already waiting for the club.",
+      "ALREADY_REGISTERED": "This child is already enrolled in this programme.",
+      "ALREADY_MEMBER": "This membership already exists for this period.",
+      "ALREADY_DECIDED": "This request has already been decided.",
+      "INFO_ALREADY_REQUESTED": "Information has already been requested; wait for the family's answer or decide.",
+      "NO_INFO_REQUESTED": "The club has not asked for more information.",
+      "MESSAGE_REQUIRED": "Please write a message.",
+      "MESSAGE_TOO_LONG": "The message can be at most 2,000 characters.",
+      "REQUEST_NOT_FOUND": "Request not found.",
+      "REQUEST_ID_REQUIRED": "Please reload the page and try again.",
+      "REQUEST_ID_CONFLICT": "Please reload the page and try again.",
+      "APPROVAL_NOT_REQUIRED": "This programme does not take requests here.",
+      "PROGRAM_NOT_FOUND": "Programme not found.",
+      "PROGRAM_NOT_OPEN": "This programme is not open.",
+      "PROGRAM_ARCHIVED": "This programme is archived.",
+      "REGISTRATION_CLOSED": "Registration for this programme is closed.",
+      "AGE_OUT_OF_RANGE": "The child's age is outside the age range.",
+      "ATHLETE_REQUIRED": "Please choose a child.",
+      "ATHLETE_NOT_FOUND": "Child not found.",
+      "FAMILY_NOT_FOUND": "Family not found.",
+      "TYPE_NOT_FOUND": "Membership type not found.",
+      "TYPE_INACTIVE": "This membership type is no longer offered.",
+      "INVALID_DECISION": "Unknown decision.",
+      "CLUB_APPROVAL_REQUIRED": "This programme needs the club's approval: send a request instead.",
+      "NOT_AUTHORIZED": "You are not allowed to do this."
+    },
+    "notify": {
+      "submittedTitle": "New request waiting for approval",
+      "submittedMembershipBody": "A family asks to join the club: {child} ({subject}). Please review the request.",
+      "submittedProgramBody": "A family asks for a place for {child} in {subject}. Please review the request.",
+      "repliedTitle": "A family answered your question",
+      "repliedBody": "The family of {child} answered about {subject}. The request is waiting for your decision.",
+      "approvedTitle": "Your request was confirmed",
+      "approvedBody": "The club confirmed the request for {child} ({subject}). Invoice {invoice}: {amount}.",
+      "confirmedBody": "The club confirmed the request for {child} ({subject}). Nothing to pay.",
+      "declinedTitle": "Your request was declined",
+      "declinedBody": "The club declined the request for {child} ({subject}).",
+      "infoRequestedTitle": "The club needs more information",
+      "infoRequestedBody": "The club has a question about the request for {child} ({subject}). Please answer in the app.",
+      "message": "Message from the club: {note}"
+    },
+    "family": {
+      "title": "Club requests",
+      "description": "Requests waiting for the club's approval and their next step.",
+      "submitted": "Request sent. The club will review it and let you know.",
+      "replied": "Answer sent to the club.",
+      "withdrawn": "Request withdrawn.",
+      "sentOn": "sent on {date}",
+      "pendingHint": "The club is reviewing this request. No invoice until it is confirmed.",
+      "infoHint": "The club asked a question: please answer below.",
+      "payInvoice": "Pay invoice {number} ({amount})",
+      "viewInvoice": "Invoice {number}",
+      "replyLabel": "Your answer",
+      "sendReply": "Send answer",
+      "withdraw": "Withdraw request",
+      "withdrawConfirm": "Withdraw this request?"
+    },
+    "reviewer": {
+      "message": "Message to the family",
+      "messageHint": "Required to request information; optional when confirming or declining.",
+      "confirm": "Confirm",
+      "requestInfo": "Request more information",
+      "decline": "Decline",
+      "forChild": "{name} — {message}",
+      "fullMessage": "Full: {taken} of {capacity} places taken. Nothing was changed.",
+      "done": {
+        "approved": "Confirmed. The invoice was issued with the club's usual rules.",
+        "confirmed": "Confirmed and enrolled.",
+        "declined": "Declined. The family was informed.",
+        "info_requested": "Question sent to the family.",
+        "full": "Full: nothing was changed."
+      },
+      "age": "Age {age}",
+      "submittedOn": "Submitted {date}",
+      "capacity": "{taken} of {capacity} places taken",
+      "noCapacity": "{taken} places taken (no limit)",
+      "family": "Family",
+      "submittedBy": "Submitted by {name}",
+      "reviewers": "Reviewers",
+      "admins": "Club admins",
+      "fullHint": "This programme is full: confirming will not work until a place is free or the capacity is raised.",
+      "waitingForFamily": "Waiting for the family's answer. You can still decide.",
+      "decidedOn": "Decided {date}"
+    },
+    "thread": {
+      "title": "Messages",
+      "family": "Family",
+      "club": "Club",
+      "kind": {
+        "note": "{side} · note",
+        "info_request": "{side} · question",
+        "reply": "{side} · answer",
+        "approved": "{side} · confirmed",
+        "declined": "{side} · declined",
+        "withdrawn": "{side} · withdrawn"
+      }
+    },
+    "admin": {
+      "title": "Approvals",
+      "description": "Family requests waiting for the club: joining the club and places in club programmes. Confirm, ask for more information or decline.",
+      "count": "{count, plural, one {# open request} other {# open requests}}",
+      "campQueue": "Camp age approvals",
+      "tabs": "Request views",
+      "open": "Open",
+      "decided": "Decided",
+      "empty": "No requests waiting for approval.",
+      "emptyDecided": "No decided requests yet."
+    },
+    "coach": {
+      "title": "Club requests",
+      "description": "Requests for places in the programmes you lead. Confirm, ask the family for more information or decline.",
+      "empty": "No requests waiting for you.",
+      "decided": "Recently decided"
+    },
+    "programs": {
+      "title": "Club programmes",
+      "description": "Teams and clinics of the club. Send a request: the coach or the club confirms it before your child is enrolled and invoiced.",
+      "myRequests": "Club programme requests",
+      "empty": "No club programmes take requests at the moment.",
+      "ages": "ages {min}–{max}",
+      "approvalNote": "Pending club approval until confirmed. No invoice before that.",
+      "submit": "Send request",
+      "noChildren": "Add a child to your family first."
+    },
+    "join": {
+      "intro": "Your request goes to the club. Once it is confirmed, the membership and its invoice are created.",
+      "message": "Message to the club (optional)",
+      "noInvoice": "No invoice is created and nothing is charged unless the club confirms the request.",
+      "submit": "Send request to join",
+      "myRequests": "Membership requests"
+    },
+    "program": {
+      "title": "Club approval",
+      "on": "On: family requests wait for the club's approval (head coach or admin) before enrolment and invoicing.",
+      "off": "Off: this programme takes no family requests in the app.",
+      "turnOn": "Require club approval",
+      "turnOff": "Turn off",
+      "saved": "Saved."
+    },
+    "roster": {
+      "title": "Not yet confirmed ({count})",
+      "hint": "Pending approval, consent or payment: not on the attendance sheet until confirmed."
     }
   }
 }

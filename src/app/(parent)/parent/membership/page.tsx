@@ -8,7 +8,12 @@ import { clubToday } from "@/lib/plans/data";
 import { shopDb } from "@/lib/shop/db";
 import { getClubAdminSettings, parentMembershipView } from "@/lib/club-admin/data";
 import { isExpiringSoon } from "@/lib/club-admin/membership";
-import { MembershipRowActions, ParentJoinForm } from "@/components/club-admin/membership-forms";
+import { MembershipRowActions } from "@/components/club-admin/membership-forms";
+import { JoinClubRequestForm } from "@/components/approvals/club-request-forms";
+import { FamilyClubRequests } from "@/components/approvals/family-club-requests";
+import { NextStepBadge } from "@/components/approvals/next-step-badge";
+import { listFamilyClubRequests } from "@/lib/approvals/data";
+import { nextStep } from "@/lib/status/next-step";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -18,13 +23,18 @@ export async function generateMetadata() {
 /**
  * Parent: memberships of the family, digital membership card (the child's
  * member-card QR token, no personal data in the code), one-click renewal,
- * joining the club.
+ * joining the club ("Join the club" is a request pending club approval:
+ * the membership and its invoice are created only once the club confirms).
  */
 export default async function ParentMembershipPage() {
   const [me, { t, f, ctx }] = await Promise.all([getSessionUser(), getI18n()]);
   if (!me?.orgId || !me.roles.includes("parent")) redirect("/");
   const today = await clubToday(me.orgId);
-  const [view, settings] = await Promise.all([parentMembershipView(me.orgId, me.id, today), getClubAdminSettings(me.orgId)]);
+  const [view, settings, requests] = await Promise.all([
+    parentMembershipView(me.orgId, me.id, today), getClubAdminSettings(me.orgId), listFamilyClubRequests(),
+  ]);
+  const membershipRequests = requests.filter((r) => r.subject_kind === "membership");
+  const openRequests = membershipRequests.filter((r) => r.status === "pending" || r.status === "info_requested");
   const current = view.memberships.filter((m) => m.effective === "active" || m.effective === "pending_payment");
   const past = view.memberships.filter((m) => !current.includes(m));
 
@@ -46,7 +56,9 @@ export default async function ParentMembershipPage() {
     <div className="animate-fade-up space-y-6">
       <PageHeader title={t("clubadmin.membership.parentTitle")} description={t("clubadmin.membership.parentDescription")} />
 
-      {current.length === 0 && <EmptyState title={t("clubadmin.membership.notMember")} description={t("clubadmin.membership.notMemberHint")} />}
+      {current.length === 0 && openRequests.length === 0 && <EmptyState title={t("clubadmin.membership.notMember")} description={t("clubadmin.membership.notMemberHint")} />}
+
+      <FamilyClubRequests rows={membershipRequests} t={t} f={f} title={t("approvals.join.myRequests")} />
 
       {current.map((m) => {
         const kids = m.athlete_id ? [m.athlete_id] : view.children.filter((c) => c.family_id === m.family_id).map((c) => c.id);
@@ -55,7 +67,7 @@ export default async function ParentMembershipPage() {
           <Card key={m.id}>
             <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
               <CardTitle>{m.typeName}</CardTitle>
-              <Badge tone={m.effective === "active" ? "success" : "warning"}>{t.dynamic(`clubadmin.membership.statuses.${m.effective}`, undefined, m.effective)}</Badge>
+              <NextStepBadge step={nextStep({ status: m.effective })} t={t} />
             </CardHeader>
             <CardBody className="space-y-4">
               <p className="text-sm text-ink-2">
@@ -116,7 +128,7 @@ export default async function ParentMembershipPage() {
       <Card>
         <CardHeader><CardTitle>{t("clubadmin.membership.joinTitle")}</CardTitle></CardHeader>
         <CardBody>
-          <ParentJoinForm
+          <JoinClubRequestForm
             types={view.types.map((x) => ({ id: x.id, name: x.name, scope: x.scope, price: f.money(Number(x.price), x.currency ?? ctx.currency) }))}
             families={view.families}
             kids={view.children.map((c) => ({ id: c.id, name: `${c.first_name} ${c.last_name}`, familyId: c.family_id }))} />

@@ -78,8 +78,19 @@ rollback;
 
 -- ---------------------------------------------------------------------------
 -- ASSERT 3: invited coach Marc can access his assigned athlete (Mateo, SPSA W1)
+-- once the registration is confirmed. Since 20250420105800 an unconfirmed
+-- (unpaid / pending) registration grants a coach no access to the child.
 -- ---------------------------------------------------------------------------
 begin;
+  set local role authenticated;
+  set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000ad02';
+  do $$ begin
+    if exists (select 1 from athletes where first_name='Mateo')
+      then raise exception 'FAIL: coach Marc must not see Mateo while the SPSA W1 registration is unconfirmed'; end if;
+  end $$;
+rollback;
+begin;
+  update registrations set status = 'confirmed' where id = '00000000-0000-0000-0000-000000000081';
   set local role authenticated;
   set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000ad02';
   do $$ begin
