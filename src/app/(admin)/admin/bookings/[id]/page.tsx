@@ -17,6 +17,8 @@ import { requireRole } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { zonedDayKey } from "@/lib/staff/hours";
+import { getBookingInstalmentChoice } from "@/lib/booking/instalments-db";
+import { ServicePlanPanel } from "@/components/booking/service-plan-panel";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -41,13 +43,15 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
   }
   const b = res.data;
   const db = await createClient();
-  const [coaches, spaces, invInfo, svcRow, settingsRow] = await Promise.all([
+  const [coaches, spaces, invInfo, svcRow, settingsRow, instalmentChoice] = await Promise.all([
     getCoachOptions(orgId), getSpaceOptions(orgId),
     b.invoice ? getInvoiceCategoryInfo(b.invoice.id) : Promise.resolve(null),
     b.session
       ? (db as unknown as SupabaseClient).from("training_sessions").select("venue_space_id").eq("org_id", orgId).eq("id", b.session.id).maybeSingle()
       : Promise.resolve({ data: null }),
     db.from("app_settings").select("settings").eq("org_id", orgId).maybeSingle(),
+    // Instalment choice (service bookings, 20250420105400); the plan itself hangs on the invoice.
+    getBookingInstalmentChoice(id),
   ]);
   const preview = (b.invoice_preview ?? null) as Preview | null;
   const isAdmin = me.roles.includes("admin");
@@ -192,6 +196,9 @@ export default async function AdminBookingDetailPage({ params, searchParams }: {
             slot={{ date: zp.date, time: zp.time, venueSpaceId: (svcRow.data as { venue_space_id: string | null } | null)?.venue_space_id ?? null }} />
         </CardBody>
       </Card>
+
+      <ServicePlanPanel orgId={orgId} chosen={instalmentChoice?.instalments ?? 1} invoiceHref={(x) => `/admin/invoices/${x}`}
+        invoices={b.invoice ? [{ id: b.invoice.id, number: b.invoice.number }] : []} />
 
       <Card>
         <CardHeader><CardTitle>{t("adminBooking.detail.deliveries")}</CardTitle></CardHeader>
