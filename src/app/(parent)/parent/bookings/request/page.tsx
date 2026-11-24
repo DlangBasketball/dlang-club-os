@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { EmptyState, ErrorState, PageHeader } from "@/components/ui";
+import { Card, CardBody, EmptyState, ErrorState, PageHeader } from "@/components/ui";
 import { FamilyRequestForm, type DeclaredAvailability } from "@/components/booking/portal/family-request-form";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getMyChildren } from "@/lib/attendance/family-data";
@@ -10,6 +10,8 @@ import { getServiceInstalmentInfo } from "@/lib/booking/instalments-db";
 import { getTrainingWizardData } from "@/lib/training/data";
 import { getI18n } from "@/lib/i18n/server";
 import { zonedDayKey } from "@/lib/staff/hours";
+import { getParticipantChoices } from "@/lib/participants/server";
+import { ParticipantNavPicker } from "@/components/participants/participant-nav-picker";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -30,13 +32,24 @@ export default async function ParentBookingRequestPage({ searchParams }: { searc
       <ChevronLeft className="h-3.5 w-3.5" aria-hidden /> {t("bookingRequests.family.back")}
     </Link>
   );
-  const kids = me?.orgId ? await getMyChildren(me.id, me.orgId) : [];
-  if (!kids.length) {
-    return <div className="animate-fade-up max-w-2xl space-y-5">{back}<PageHeader title={t("bookingRequests.family.title")} />
-      <EmptyState title={t("bookingRequests.family.noChildren")} /></div>;
-  }
+  const [kids, choices] = me?.orgId
+    ? await Promise.all([getMyChildren(me.id, me.orgId), getParticipantChoices({ id: me.id, orgId: me.orgId, fullName: me.fullName })])
+    : [[], null];
+  const todayKey = zonedDayKey(new Date(), f.timeZone);
   const wanted = uuidParam(sp.athlete);
-  const child = kids.find((k) => k.id === wanted) ?? kids[0];
+  // The self profile may sit outside the adult's families; it is bookable too.
+  const bookable = choices ? choices.participants.map((p) => ({ id: p.id })) : kids;
+  if (!bookable.length) {
+    return <div className="animate-fade-up max-w-2xl space-y-5">{back}<PageHeader title={t("bookingRequests.family.title")} description={t("bookingRequests.family.description")} />
+      {choices ? (
+        <Card><CardBody>
+          <ParticipantNavPicker participants={choices.participants} self={choices.self} hrefBase="/parent/bookings/request"
+            activityDate={todayKey} legend={t("bookingRequests.family.child")} />
+        </CardBody></Card>
+      ) : <EmptyState title={t("bookingRequests.family.noChildren")} />}
+    </div>;
+  }
+  const child = bookable.find((k) => k.id === wanted) ?? bookable[0];
   const [catalog, wizard] = await Promise.all([getFamilyBookingCatalog(child.id), getTrainingWizardData()]);
   if (catalog.error !== null) {
     return <div className="animate-fade-up max-w-2xl space-y-5">{back}<PageHeader title={t("bookingRequests.family.title")} />
@@ -66,7 +79,8 @@ export default async function ParentBookingRequestPage({ searchParams }: { searc
       ) : catalog.data.services.length === 0 ? (
         <EmptyState title={t("bookingRequests.family.noServices")} />
       ) : (
-        <FamilyRequestForm kids={kids} catalog={catalog.data} declared={declared} todayKey={zonedDayKey(new Date(), f.timeZone)} instalmentInfo={instalmentInfo} />
+        <FamilyRequestForm kids={kids} catalog={catalog.data} declared={declared} todayKey={todayKey} instalmentInfo={instalmentInfo}
+          participants={choices?.participants} self={choices?.self} />
       )}
     </div>
   );

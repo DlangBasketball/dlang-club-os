@@ -90,6 +90,8 @@ export async function listChildren(): Promise<Result<ChildCard[]>> {
 export type ChildProfile = {
   id: string;
   name: string;
+  firstName: string;
+  lastName: string;
   dob: string;
   age: number | null;
   gender: string | null;
@@ -127,6 +129,8 @@ export async function getChildProfile(athleteId: string): Promise<Result<ChildPr
   return ok({
     id: a.id,
     name: `${a.first_name} ${a.last_name}`,
+    firstName: a.first_name,
+    lastName: a.last_name,
     dob: a.dob,
     age: ageFromDob(a.dob),
     gender: a.gender,

@@ -116,6 +116,11 @@ export type Database = {
           // player portal (20250420104000): the athlete's own login, if any
           player_profile_id: string | null;
           player_linked_at: string | null;
+          // participant profiles (20250420105600): optional sports fields; the
+          // preferred jersey number is a preference (team numbers: team_memberships)
+          height_cm: number | null;
+          weight_kg: number | null;
+          preferred_jersey_number: number | null;
           created_at: string;
           updated_at: string;
         };

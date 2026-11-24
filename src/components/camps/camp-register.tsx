@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { CalendarDays, Clock, ExternalLink, MapPin, Plus, ShieldCheck, Trash2, Users } from "lucide-react";
 import { Badge, Button, Card, CardBody, Input, Label, Select } from "@/components/ui";
 import { quoteCamp, submitCampParent, submitCampPublic, type QuoteView } from "@/lib/actions/camp-registration";
@@ -13,6 +14,8 @@ import { resolveConfig, validateRegistrationExtras, type BuiltinField, type Regi
 import { InstalmentChooser } from "@/components/plans/instalment-chooser";
 import type { PlanSettings } from "@/lib/payments/plans";
 import { approvalBand, bandMessage, classifyCamper, type CampAgeBand } from "@/lib/camps/age-approval";
+import { ParticipantPicker } from "@/components/participants/participant-picker";
+import type { ParticipantOption, SelfState } from "@/lib/participants/validation";
 
 type Choice = { ageGroupId: string; daysCount: string; lunch: "" | "yes" | "no"; days: string[] };
 type Extras = { extras: Partial<Record<BuiltinField, string>>; answers: Record<string, unknown> };
@@ -37,13 +40,16 @@ type PlanRules = { settings: PlanSettings; today: string } | null;
 
 export function CampRegister(props:
   | { mode: "public"; camp: PublicCamp; slug: string; config?: RegistrationConfig; planRules?: PlanRules }
-  | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[]; config?: RegistrationConfig; planRules?: PlanRules }) {
+  | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[]; config?: RegistrationConfig; planRules?: PlanRules;
+      /** Participant picker (Myself / child / someone else); defaults to the kids as children. */
+      participants?: ParticipantOption[]; self?: SelfState }) {
   const { camp } = props;
   // Registration form editor config (omitted = the default form).
   const config = React.useMemo(() => props.config ?? resolveConfig(null), [props.config]);
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const t = useT();
   const f = useFormat();
+  const router = useRouter();
   const money = (n: number) => f.money(n, camp.program.currency);
   const [editionId, setEditionId] = React.useState(camp.editions.find((e) => e.open)?.id ?? "");
   const edition = camp.editions.find((e) => e.id === editionId) ?? null;
@@ -55,6 +61,10 @@ export function CampRegister(props:
   const [parent, setParent] = React.useState<Parent>({ name: "", email: "", phone: "", address: "", emergencyName: "", emergencyPhone: "" });
   const [pubKids, setPubKids] = React.useState<PublicChild[]>([emptyChild()]);
   const [parKids, setParKids] = React.useState<ParentChild[]>([]);
+  // Participants of the parent picker, including the ones created inline (kept with the form state).
+  const [pickerList, setPickerList] = React.useState<ParticipantOption[]>(() =>
+    props.mode === "parent" ? props.participants ?? props.kids.map((k) => ({ ...k, kind: "child" as const })) : []);
+  const parentDob = (id: string) => pickerList.find((k) => k.id === id)?.dob ?? null;
   const [accepted, setAccepted] = React.useState<Set<string>>(new Set());
   const [promo, setPromo] = React.useState("");
   const [account, setAccount] = React.useState<"none" | "password" | "link">("link");
@@ -79,7 +89,7 @@ export function CampRegister(props:
   };
   const kids: (Choice & { key: string; dob: string | null; athleteId: string | null })[] = props.mode === "public"
     ? pubKids.map((c, i) => ({ ...c, key: String(i), dob: c.dob || null, athleteId: null }))
-    : parKids.map((c) => ({ ...c, key: c.athleteId, dob: props.kids.find((k) => k.id === c.athleteId)?.dob ?? null, athleteId: c.athleteId }));
+    : parKids.map((c) => ({ ...c, key: c.athleteId, dob: parentDob(c.athleteId), athleteId: c.athleteId }));
 
   // Live price breakdown (server-computed; the same function prices the invoice).
   const quoteKey = JSON.stringify({ editionId, promo, k: kids.map((k) => [k.key, optionFor(k)?.id ?? "", k.ageGroupId, k.days, k.dob, k.athleteId]) });
@@ -359,29 +369,34 @@ export function CampRegister(props:
       {edition && props.mode === "parent" && (
         <Card><CardBody className="space-y-3">
           <h2 className="text-lg font-semibold">{t("camps.register.whichChildren")}</h2>
-          {props.kids.length === 0 && <p className="text-sm text-ink-3">{t("camps.register.noChildren")}</p>}
-          {props.kids.map((k) => {
-            const on = parKids.some((c) => c.athleteId === k.id);
-            const kb = bandOf(k.dob);
-            const blocked = kb.band === "too_young" || kb.band === "too_old";
-            return (
-              <div key={k.id} className="space-y-2">
-                <label className={`flex items-center gap-2 text-sm text-ink ${blocked && !on ? "opacity-60" : ""}`}>
-                  <input type="checkbox" checked={on} disabled={blocked && !on} className="h-4 w-4 accent-[var(--red-primary)]"
-                    onChange={() => setParKids((arr) => (on ? arr.filter((c) => c.athleteId !== k.id) : [...arr, { ...emptyChoice(), athleteId: k.id, answers: {} }]))} />
-                  {k.name}
-                  {kb.band === "approval" && <Badge tone="info">{t("camps.approval.parent.badge")}</Badge>}
-                </label>
-                {blocked && <p className="text-xs text-ink-3">{t("camps.errors.db.AGE_OUT_OF_RANGE")}</p>}
-                {kb.band === "approval" && kb.age !== null && <p className="text-xs text-ink-3">{t("camps.approval.parent.childNote", { name: k.name, age: kb.age })}</p>}
-                {on && renderChoice(kids.find((x) => x.key === k.id)!, k.name)}
-                {on && (
+          <ParticipantPicker multiple idPrefix="camp-pp" activityDate={edition.startsOn}
+            participants={pickerList} self={props.self ?? { athleteId: null, dob: null, firstName: "", lastName: "" }}
+            allowSelf={!!props.self} onCreated={() => router.refresh()}
+            value={parKids.map((c) => c.athleteId)}
+            onChange={(ids, all) => {
+              setPickerList(all);
+              setParKids((arr) => [
+                ...arr.filter((c) => ids.includes(c.athleteId)),
+                ...ids.filter((id) => !arr.some((c) => c.athleteId === id)).map((id) => ({ ...emptyChoice(), athleteId: id, answers: {} })),
+              ]);
+            }}
+            disabledReason={(k) => {
+              const kb = bandOf(k.dob);
+              return kb.band === "too_young" || kb.band === "too_old" ? t("camps.errors.db.AGE_OUT_OF_RANGE") : null;
+            }}
+            renderBadge={(k) => (bandOf(k.dob).band === "approval" ? <Badge tone="info">{t("camps.approval.parent.badge")}</Badge> : null)}
+            renderSelected={(k) => {
+              const kb = bandOf(k.dob);
+              const choice = kids.find((x) => x.key === k.id);
+              return (
+                <div className="space-y-2">
+                  {kb.band === "approval" && kb.age !== null && <p className="text-xs text-ink-3">{t("camps.approval.parent.childNote", { name: k.name, age: kb.age })}</p>}
+                  {choice && renderChoice(choice, k.name)}
                   <ChildExtrasFields config={config} extras={{}} builtins={false} answers={parKids.find((c) => c.athleteId === k.id)?.answers ?? {}}
                     onExtras={() => undefined} onAnswers={setParentAnswer(k.id)} errors={errorsFor(`${k.id}.`)} idPrefix={`camp-k${k.id.slice(0, 8)}`} />
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            }} />
         </CardBody></Card>
       )}
 

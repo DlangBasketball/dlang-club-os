@@ -16,6 +16,8 @@ import type { FamilyCatalog, FamilyQuote } from "@/lib/booking/types";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { firstDueDate, instalmentChoices, type ServiceInstalmentInfo } from "@/lib/booking/instalments";
 import { InstalmentPicker } from "@/components/booking/instalment-picker";
+import { ParticipantPicker } from "@/components/participants/participant-picker";
+import type { ParticipantOption, SelfState } from "@/lib/participants/validation";
 
 export type DeclaredAvailability = DeclaredAvailabilityInput;
 
@@ -26,8 +28,10 @@ export type DeclaredAvailability = DeclaredAvailabilityInput;
  * coverage and an optional promo code. Sends one request id per form so a
  * retry never creates a second request.
  */
-export function FamilyRequestForm({ kids, catalog, declared, todayKey, instalmentInfo = null }: {
+export function FamilyRequestForm({ kids, catalog, declared, todayKey, instalmentInfo = null, participants, self }: {
   kids: { id: string; first_name: string; last_name: string }[];
+  /** Participant picker (Myself / child in my family / someone else); defaults to the kids. */
+  participants?: ParticipantOption[]; self?: SelfState;
   catalog: FamilyCatalog; declared: DeclaredAvailability | null; todayKey: string;
   /** Payments allowed per service (service_instalment_info); null = pay in full only. */
   instalmentInfo?: ServiceInstalmentInfo | null;
@@ -45,6 +49,15 @@ export function FamilyRequestForm({ kids, catalog, declared, todayKey, instalmen
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
   const [instalments, setInstalments] = React.useState(1);
+  // Switching participant reloads the catalog for them (?athlete=); the rest of the form is kept.
+  React.useEffect(() => {
+    setS((x) => (x.athleteId === catalog.athlete.id ? x : {
+      ...x, athleteId: catalog.athlete.id,
+      ...(x.serviceId && !catalog.services.some((y) => y.id === x.serviceId) ? { serviceId: "", coachId: "", sessionId: "" } : {}),
+    }));
+  }, [catalog]);
+  const pickerList: ParticipantOption[] = participants ?? kids.map((k) => ({ id: k.id, name: `${k.first_name} ${k.last_name}`, dob: null, kind: "child" as const }));
+  const choose = (id: string | undefined) => { if (id && id !== s.athleteId) router.push(`/parent/bookings/request?athlete=${id}`, { scroll: false }); };
 
   const service = catalog.services.find((x) => x.id === s.serviceId) ?? null;
   const isGroup = service?.kind === "group";
@@ -96,14 +109,10 @@ export function FamilyRequestForm({ kids, catalog, declared, todayKey, instalmen
   return (
     <form onSubmit={(e) => { e.preventDefault(); void send(); }} className="space-y-5">
       <Card><CardBody className="space-y-4">
-        {kids.length > 1 && (
-          <div>
-            <Label htmlFor="fr-child">{t("bookingRequests.family.child")}</Label>
-            <Select id="fr-child" value={s.athleteId} onChange={(e) => router.push(`/parent/bookings/request?athlete=${e.target.value}`)}>
-              {kids.map((k) => <option key={k.id} value={k.id}>{k.first_name} {k.last_name}</option>)}
-            </Select>
-          </div>
-        )}
+        <ParticipantPicker idPrefix="fr-pp" legend={t("bookingRequests.family.child")} activityDate={s.date || todayKey}
+          participants={pickerList} self={self ?? { athleteId: null, dob: null, firstName: "", lastName: "" }} allowSelf={!!self}
+          value={s.athleteId ? [s.athleteId] : []} disabled={busy}
+          onChange={(ids) => choose(ids[0])} />
         <div>
           <Label htmlFor="fr-service">{t("adminBooking.form.service")}</Label>
           <Select id="fr-service" value={s.serviceId} disabled={busy}

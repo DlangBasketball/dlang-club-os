@@ -12479,7 +12479,8 @@
         "all": "Alle",
         "attendance": "Anwesenheit und Kader",
         "billing": "Rechnungen",
-        "other": "Weitere"
+        "other": "Weitere",
+        "people": "Teilnehmerprofile"
       },
       "showResolved": "Erledigte Einträge anzeigen",
       "hideResolved": "Erledigte Einträge ausblenden",
@@ -12508,7 +12509,10 @@
         "MIGRATION_ERROR": "Problem bei der Datenübernahme",
         "MULTIPLE_LEADS": "Mehrere Haupttrainer in einer Einheit",
         "ATTENDANCE_NO_LEAD": "Abgeschlossene Anwesenheit ohne Haupttrainer",
-        "ATTENDANCE_MARK_NOT_FINALIZED": "Abgeschlossene Liste mit nicht abgeschlossenem Spieler"
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Abgeschlossene Liste mit nicht abgeschlossenem Spieler",
+        "ATHLETE_ELIGIBILITY_CHANGE": "Korrektur von Geburtsdatum / Geschlecht zu prüfen",
+        "ATHLETE_LINK_REQUEST": "Anfrage zur Verknüpfung mit einem Kind",
+        "POSSIBLE_DUPLICATE": "Mögliches Doppelprofil"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Absenzmeldungen zu diesem Spieler erreichen niemanden. Ergänzen Sie die Familie um eine erziehungsberechtigte Person mit aktivem Login.",
@@ -12526,7 +12530,10 @@
         "MIGRATION_ERROR": "Dieser Datensatz konnte nicht automatisch übernommen werden. Prüfen Sie ihn von Hand.",
         "MULTIPLE_LEADS": "Beide bestätigten Haupttrainer wurden behalten. Behalten Sie einen und stellen Sie die anderen auf Assistenz um.",
         "ATTENDANCE_NO_LEAD": "Niemand konnte als Haupttrainer eingetragen werden. Weisen Sie dem Team oder der Einheit einen Trainer zu.",
-        "ATTENDANCE_MARK_NOT_FINALIZED": "Ein Spieler dieser abgeschlossenen Liste hat keinen abgeschlossenen Status. Liste wieder öffnen, Spieler erfassen und erneut abschließen."
+        "ATTENDANCE_MARK_NOT_FINALIZED": "Ein Spieler dieser abgeschlossenen Liste hat keinen abgeschlossenen Status. Liste wieder öffnen, Spieler erfassen und erneut abschließen.",
+        "ATHLETE_ELIGIBILITY_CHANGE": "Eine Familie hat ein angemeldetes Kind korrigiert. Oben bestätigen oder ablehnen.",
+        "ATHLETE_LINK_REQUEST": "Eine erwachsene Person möchte Zugriff auf ein bestehendes Kind. Oben entscheiden (die Familie kann auch bestätigen).",
+        "POSSIBLE_DUPLICATE": "Eine Familie hat ein Profil mit gleichem Namen und Geburtsdatum wie ein bestehendes angelegt. Zusammenführen oder beide behalten."
       }
     }
   },
@@ -13753,6 +13760,205 @@
       "save": "Speichern",
       "saving": "Wird gespeichert…",
       "saved": "Einstellung zur Ratenzahlung gespeichert."
+    }
+  },
+  "participants": {
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "required": "Dieses Feld ist erforderlich.",
+      "invalidEmail": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "contactRequired": "Geben Sie eine E-Mail-Adresse oder Telefonnummer des Elternteils oder Erziehungsberechtigten an.",
+      "NOT_AUTHENTICATED": "Bitte melden Sie sich erneut an.",
+      "NO_ORG": "Ihr Konto ist noch keinem Verein zugeordnet.",
+      "REQUEST_ID_REQUIRED": "Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
+      "REQUEST_ID_REUSED": "Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
+      "NAME_REQUIRED": "Geben Sie Vor- und Nachnamen ein (max. 80 Zeichen).",
+      "DOB_REQUIRED": "Geben Sie das Geburtsdatum ein.",
+      "INVALID_DOB": "Geben Sie ein gültiges Geburtsdatum ein (nicht in der Zukunft).",
+      "INVALID_DATE": "Geben Sie ein gültiges Datum ein.",
+      "INVALID_SEX": "Wählen Sie männlich oder weiblich.",
+      "INVALID_HEIGHT": "Die Größe muss zwischen 40 und 250 cm liegen.",
+      "INVALID_WEIGHT": "Das Gewicht muss zwischen 10 und 250 kg liegen.",
+      "INVALID_JERSEY_NUMBER": "Trikotnummer: eine ganze Zahl von 0 bis 999.",
+      "TOO_LONG": "Dieser Text ist zu lang.",
+      "FAMILY_NOT_FOUND": "Diese Familie wurde in Ihrem Konto nicht gefunden.",
+      "NOT_FOUND": "Dieses Profil wurde nicht gefunden.",
+      "NOT_ALLOWED": "Sie sind dazu nicht berechtigt.",
+      "FIELD_NOT_ALLOWED": "Sie können nur Sportangaben ändern (Größe, Gewicht, Position, Trikot).",
+      "SELF_MUST_BE_ADULT": "„Ich selbst“ ist für Erwachsene (18 oder älter am Tag der Aktivität). Fügen Sie Minderjährige als Kind der Familie hinzu.",
+      "REVIEW_REQUIRED": "Diese Änderung betrifft eine Vereinsanmeldung und muss vom Verein geprüft werden.",
+      "INVALID_DECISION": "Diese Entscheidung ist ungültig.",
+      "INVALID_RELATION": "Wählen Sie Ihre Beziehung zur teilnehmenden Person.",
+      "NO_MATCH": "Kein passendes Profil gefunden. Prüfen Sie die Angaben oder fügen Sie das Kind hinzu.",
+      "EXPIRED": "Diese Anfrage ist abgelaufen.",
+      "THIRD_PARTY_NOT_ENABLED": "Buchungen für Personen außerhalb Ihrer Familie sind noch nicht verfügbar."
+    },
+    "sex": {
+      "male": "Männlich",
+      "female": "Weiblich"
+    },
+    "relations": {
+      "mother": "Mutter",
+      "father": "Vater",
+      "guardian": "Erziehungsberechtigte Person",
+      "other": "Andere betreuende Person"
+    },
+    "bookerRelations": {
+      "nephew_niece": "Neffe oder Nichte",
+      "friends_child": "Kind von Bekannten",
+      "other": "Andere"
+    },
+    "positions": {
+      "point_guard": "Point Guard",
+      "shooting_guard": "Shooting Guard",
+      "small_forward": "Small Forward",
+      "power_forward": "Power Forward",
+      "center": "Center"
+    },
+    "fields": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "dob": "Geburtsdatum",
+      "sex": "Geschlecht",
+      "sexOptional": "Geschlecht (optional)",
+      "height": "Größe (cm)",
+      "weight": "Gewicht (kg)",
+      "position": "Position",
+      "jerseySize": "Trikotgröße",
+      "preferredJerseyNumber": "Wunsch-Trikotnummer",
+      "preferredJerseyHint": "Nur ein Wunsch: Der Verein vergibt die Nummern pro Team."
+    },
+    "add": {
+      "title": "Teilnehmende Person hinzufügen",
+      "child": "Kind hinzufügen",
+      "intro": "Ein Kind Ihrer Familie. Das Profil gilt für alle Aktivitäten.",
+      "submit": "Hinzufügen",
+      "moreDetails": "Weitere Angaben (optional)",
+      "lessDetails": "Weniger Angaben",
+      "created": "Teilnehmende Person hinzugefügt.",
+      "missingChild": "Ihr Kind ist nicht in der Liste?"
+    },
+    "match": {
+      "title": "Dieses Kind ist vielleicht schon im Verein erfasst",
+      "body": "Aus Datenschutzgründen zeigen wir das bestehende Profil nicht an. Bitten Sie um Verknüpfung: Die erziehungsberechtigte Person oder der Verein bestätigt. Oder legen Sie ein neues Profil an, wenn es ein anderes Kind ist.",
+      "requestLink": "Verknüpfung anfragen",
+      "different": "Es ist ein anderes Kind",
+      "differentHint": "Ein neues Profil wird angelegt; der Verein prüft es."
+    },
+    "link": {
+      "relation": "Ihre Beziehung zum Kind",
+      "sent": "Anfrage gesendet.",
+      "sentBody": "Anfrage gesendet. Die erziehungsberechtigte Person oder der Verein bestätigt sie; Sie werden benachrichtigt.",
+      "approvedToast": "Verknüpfung bestätigt.",
+      "declinedToast": "Verknüpfung abgelehnt.",
+      "inboxTitle": "Verknüpfungsanfragen",
+      "inboxLine": "{name} ({relation}) möchte als erziehungsberechtigte Person von {child} hinzugefügt werden.",
+      "verifyHint": "Bestätigen Sie nur, wenn Sie die Person kennen. Sie sieht dann das Profil des Kindes und die Aktivitäten der Familie.",
+      "staffVerifyHint": "Prüfen Sie die Person mit der Familie, bevor Sie bestätigen.",
+      "permissions": "Was diese Person darf",
+      "receivesEmails": "Erhält E-Mails des Vereins",
+      "canPay": "Kann Rechnungen bezahlen",
+      "canSeeMedical": "Kann medizinische Angaben sehen",
+      "approve": "Bestätigen",
+      "decline": "Ablehnen",
+      "myTitle": "Meine Verknüpfungsanfragen",
+      "withdraw": "Zurückziehen",
+      "status": {
+        "pending": "Wartet auf Bestätigung",
+        "approved": "Bestätigt",
+        "declined": "Abgelehnt",
+        "withdrawn": "Zurückgezogen",
+        "expired": "Abgelaufen"
+      }
+    },
+    "picker": {
+      "label": "Wer nimmt teil?",
+      "self": "Ich selbst",
+      "child": "Ein Kind meiner Familie",
+      "other": "Jemand anderes",
+      "age": "{age} J.",
+      "otherBadge": "Einwilligung ausstehend",
+      "noChildren": "Noch kein Kind in Ihrer Familie.",
+      "alsoSelected": "Ebenfalls ausgewählt: {names}"
+    },
+    "self": {
+      "intro": "Ihr eigenes Teilnehmerprofil (nur Erwachsene). Das Geburtsdatum wird für Altersregeln benötigt.",
+      "submit": "Mein Profil verwenden"
+    },
+    "someoneElse": {
+      "intro": "Buchung für eine Person außerhalb Ihrer Familie. Sie bleiben buchende und zahlende Person; deren Elternteil oder erziehungsberechtigte Person wird um Einwilligung gebeten.",
+      "participant": "Teilnehmende Person",
+      "guardian": "Elternteil oder erziehungsberechtigte Person",
+      "guardianName": "Vollständiger Name",
+      "guardianEmail": "E-Mail",
+      "guardianPhone": "Telefon",
+      "consentHint": "Wir kontaktieren die Person für die Einwilligung; vorher wird nichts bestätigt.",
+      "relation": "Woher kennen Sie die teilnehmende Person?",
+      "submit": "Weiter"
+    },
+    "edit": {
+      "title": "Profil bearbeiten",
+      "save": "Profil speichern",
+      "saveSports": "Sportangaben speichern",
+      "sportsTitle": "Sportangaben",
+      "saved": "Gespeichert.",
+      "sentForReview": "Gespeichert. Die Korrektur von Geburtsdatum / Geschlecht betrifft eine Anmeldung: Der Verein prüft sie, bevor sie gilt.",
+      "pendingReview": "Korrektur wartet auf Prüfung durch den Verein: {changes} (gesendet am {date}).",
+      "withdraw": "Zurückziehen",
+      "eligibilityHint": "Geburtsdatum und Geschlecht bestimmen Altersklassen und Teams. Ist das Kind angemeldet, prüft der Verein die Korrektur zuerst."
+    },
+    "review": {
+      "changesTitle": "Zu prüfende Profilkorrekturen",
+      "linksTitle": "Anfragen zur Verknüpfung",
+      "dobChange": "Geburtsdatum: {from} → {to}",
+      "sexChange": "Geschlecht: {from} → {to}",
+      "requestedBy": "Angefragt von {name} am {date}",
+      "note": "Nachricht an die Familie (optional)",
+      "notePlaceholder": "Z. B. bitte eine Kopie des Ausweises senden",
+      "approve": "Bestätigen und übernehmen",
+      "decline": "Ablehnen",
+      "approvedToast": "Korrektur übernommen.",
+      "declinedToast": "Korrektur abgelehnt. Die Familie wurde benachrichtigt.",
+      "openAthlete": "Profil öffnen",
+      "impact": {
+        "team": "Team",
+        "registration": "Programm",
+        "application": "Bewerbung",
+        "membership": "Mitgliedschaft",
+        "camp": "Camp-Altersgruppe"
+      }
+    },
+    "notify": {
+      "linkRequestTitle": "Eine Verknüpfungsanfrage wartet auf Sie",
+      "linkRequestBody": "{name} möchte als erziehungsberechtigte Person von {child} hinzugefügt werden. Öffnen Sie Meine Familie in der App, um zu bestätigen oder abzulehnen.",
+      "linkApprovedTitle": "Verknüpfung bestätigt",
+      "linkDeclinedTitle": "Verknüpfungsanfrage abgelehnt",
+      "linkApprovedBody": "Sie haben jetzt Zugriff auf das Profil von {child} in der App.",
+      "linkDeclinedBody": "Ihre Anfrage zur Verknüpfung mit {child} wurde abgelehnt. Kontaktieren Sie den Verein, falls das ein Irrtum ist.",
+      "changeRequestTitle": "Profilkorrektur zu prüfen",
+      "changeRequestBody": "Eine Familie hat Geburtsdatum oder Geschlecht von {name} korrigiert. Prüfen Sie es unter Datenprüfung.",
+      "changeApprovedTitle": "Profilkorrektur übernommen",
+      "changeDeclinedTitle": "Profilkorrektur abgelehnt",
+      "changeApprovedBody": "Der Verein hat die Korrektur im Profil von {child} übernommen.",
+      "changeDeclinedBody": "Der Verein hat die Korrektur im Profil von {child} nicht übernommen.",
+      "message": "Nachricht des Vereins: {note}"
+    },
+    "children": {
+      "title": "Meine Kinder",
+      "description": "Profile, medizinische Angaben und Anmeldungen.",
+      "loadError": "Laden nicht möglich",
+      "emptyTitle": "Keine Kinder in Ihrem Konto",
+      "emptyHint": "Fügen Sie ein Kind hinzu, um Camps, Trainings und Programme zu buchen.",
+      "age": "{age} Jahre",
+      "activeRegistrations": "{count, plural, one {# aktive Anmeldung} other {# aktive Anmeldungen}}"
+    },
+    "coach": {
+      "title": "Sportangaben",
+      "hint": "Größe, Gewicht, Position und Trikotwunsch. Teamnummern werden im Kader vergeben."
+    },
+    "admin": {
+      "duplicateWarning": "Der Verein hat diese Person vielleicht schon: {names}. Prüfen Sie vor dem Anlegen oder wählen Sie „Trotzdem anlegen“.",
+      "confirmDuplicate": "Trotzdem anlegen (andere Person)"
     }
   }
 }
