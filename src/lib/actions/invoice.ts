@@ -141,7 +141,11 @@ const paymentSchema = z.object({
 });
 export type ManualPaymentInput = z.input<typeof paymentSchema>;
 
-export async function recordManualPayment(invoiceId: string, input: ManualPaymentInput): Promise<ActionResult> {
+/**
+ * Record a manual payment. `requestId` (one per submit in the form) makes a
+ * retry or a double click return the first payment instead of booking it twice.
+ */
+export async function recordManualPayment(invoiceId: string, input: ManualPaymentInput, requestId?: string): Promise<ActionResult> {
   const t = await moneyT();
   if (!(await requireMoneyStaff())) return notPermitted(t);
   const id = z.string().uuid().safeParse(invoiceId);
@@ -150,14 +154,21 @@ export async function recordManualPayment(invoiceId: string, input: ManualPaymen
   if (!parsed.success) return parsed.error.issues.some((i) => i.path[0] === "amount") ? moneyFail(t, "INVALID_AMOUNT") : invalidInput(t);
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("record_offline_payment", {
+  const rid = requestId ? z.string().uuid().safeParse(requestId) : null;
+  if (rid && !rid.success) return invalidInput(t);
+  const args = {
     p_invoice: id.data,
     p_amount: parsed.data.amount,
     p_method: parsed.data.method,
     p_paid_on: parsed.data.paid_on || null,
     p_reference: parsed.data.reference || null,
     p_note: parsed.data.note || null,
-  });
+  };
+  // With a request id: idempotent wrapper (20250420106000); not yet in the generated types.
+  const { error } = rid?.success
+    ? await (supabase as unknown as { rpc: (fn: string, a: Record<string, unknown>) => Promise<{ error: { message: string } | null }> })
+        .rpc("record_offline_payment_once", { ...args, p_request_id: rid.data })
+    : await supabase.rpc("record_offline_payment", args);
   if (error) return moneyFail(t, error);
   revalidateMoney([id.data]);
   return { ok: true };

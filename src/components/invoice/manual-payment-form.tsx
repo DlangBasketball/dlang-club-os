@@ -22,21 +22,30 @@ export function ManualPaymentForm({ invoiceId, balance, currency }: { invoiceId:
   const [note, setNote] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
+  // One request id per payment: a double click or a retry books it once (server replays).
+  const requestId = React.useRef<string>(crypto.randomUUID());
+  const inFlight = React.useRef(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (inFlight.current) return;
     const value = Number(amount);
     if (!(value > 0)) return setError(t("editMoney.errors.INVALID_AMOUNT"));
     const msg = value > balance
       ? t("editMoney.payment.recordOverConfirm", { amount: f.money(value, currency), balance: f.money(Math.max(0, balance), currency) })
       : t("editMoney.payment.recordConfirm", { amount: f.money(value, currency) });
     if (!window.confirm(msg)) return;
+    inFlight.current = true;
     setPending(true);
     setError(null);
-    const res = await recordManualPayment(invoiceId, { amount: value, method, paid_on: paidOn, reference, note });
-    setPending(false);
-    if (!res.ok) setError(res.error);
-    else { setReference(""); setNote(""); router.refresh(); }
+    try {
+      const res = await recordManualPayment(invoiceId, { amount: value, method, paid_on: paidOn, reference, note }, requestId.current);
+      if (!res.ok) setError(res.error);
+      else { requestId.current = crypto.randomUUID(); setReference(""); setNote(""); router.refresh(); }
+    } finally {
+      inFlight.current = false;
+      setPending(false);
+    }
   }
 
   return (
