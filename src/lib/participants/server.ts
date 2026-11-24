@@ -43,6 +43,12 @@ export async function getParticipantChoices(me: { id: string; orgId: string; ful
     .filter((k) => k.id !== selfRow?.id)
     .map((k) => ({ id: k.id, name: `${k.first_name} ${k.last_name}`, dob: k.dob, kind: "child" as const }));
   if (selfRow) participants.unshift({ id: selfRow.id, name: `${selfRow.first_name} ${selfRow.last_name}`, dob: selfRow.dob, kind: "self" });
+  // "Someone else" participants this adult booked before (Workstream B): only
+  // the name / DOB the booker typed, never the participant record.
+  const { data: others } = await supabase.rpc("booker_participants" as never);
+  for (const o of ((others ?? []) as { athlete_id: string; name: string; dob: string | null }[])) {
+    if (!participants.some((p) => p.id === o.athlete_id)) participants.push({ id: o.athlete_id, name: o.name, dob: o.dob, kind: "other" });
+  }
   const split = splitFullName(me.fullName);
   return {
     participants,

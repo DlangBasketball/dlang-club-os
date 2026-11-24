@@ -12,6 +12,7 @@ import { getOrgCover } from "@/lib/media/server";
 import { PublicSiteHeader } from "@/components/website/public-site-header";
 import { NewsList } from "@/components/website/widgets";
 import { getHubNews } from "@/lib/website/hub";
+import { EntryPoints } from "@/components/entry/entry-points";
 
 /** Public booking page for personal training (built by the training module). */
 export const TRAINING_BOOKING_PATH = "/book";
@@ -44,6 +45,8 @@ export async function ClubHub({ tenant, signedIn = false, canEditCover = false }
           edit={canEditCover && tenant.id ? { target: "org", id: tenant.id, canUseLibrary: true } : null}
           priority
         />
+
+        <EntryPoints t={t} signedIn={signedIn} />
 
         <InstallAppPrompt />
 

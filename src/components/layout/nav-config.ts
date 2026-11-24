@@ -1,4 +1,4 @@
-import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, GraduationCap, Lock, Split, BookOpenCheck, Undo2, ArchiveRestore, Medal, School, MoreHorizontal } from "lucide-react";
+import { Globe, CalendarCheck, ClipboardCheck, NotebookPen, Timer, LayoutDashboard, Users, UserCircle, CalendarRange, ClipboardList, FileText, CreditCard, CheckSquare, Dumbbell, Settings, CalendarClock, Home, Receipt, FolderOpen, Mail, type LucideIcon, Bell, ShieldCheck, Sparkles, Shield, CalendarDays, BarChart3, Upload, UserCog, Percent, Tent, Coins, Wallet, TrendingUp, MessagesSquare, Megaphone, Inbox, ShoppingBag, Trophy, MapPin, ClipboardPen, FilePen, ListOrdered, Repeat, Images, Boxes, Landmark, Shirt, IdCard, Hourglass, Award, BadgeCheck, HeartPulse, HandHeart, Car, UserPlus, GraduationCap, Lock, Split, BookOpenCheck, Undo2, ArchiveRestore, Medal, School, MoreHorizontal } from "lucide-react";
 import type { NamespaceKey } from "@/lib/i18n/translator";
 
 export type NavKey = "admin" | "coach" | "parent" | "player";
@@ -208,6 +208,7 @@ export const NAV: Record<NavKey, NavItem[]> = {
     { label: "Payment plans & autopay", labelKey: "paymentPlans", href: "/parent/payment-plans", icon: ListOrdered },
     { label: "Cancellations & refunds", labelKey: "refunds", href: "/parent/refunds", icon: Undo2 },
     { label: "Bookings", labelKey: "bookings", href: "/parent/bookings", icon: Dumbbell },
+    { label: "Bookings for others", labelKey: "bookingsForOthers", href: "/parent/bookings/others", icon: UserPlus },
     { label: "Attendance", labelKey: "attendance", href: "/parent/attendance", icon: CheckSquare },
     { label: "Incidents", labelKey: "incidents", href: "/parent/incidents", icon: HeartPulse },
     { label: "Notifications", labelKey: "notifications", href: "/parent/notifications", icon: Bell },

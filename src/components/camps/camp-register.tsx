@@ -15,6 +15,7 @@ import { InstalmentChooser } from "@/components/plans/instalment-chooser";
 import type { PlanSettings } from "@/lib/payments/plans";
 import { approvalBand, bandMessage, classifyCamper, type CampAgeBand } from "@/lib/camps/age-approval";
 import { ParticipantPicker } from "@/components/participants/participant-picker";
+import { someoneElseSlot } from "@/components/entry/someone-else-booking";
 import type { ParticipantOption, SelfState } from "@/lib/participants/validation";
 
 type Choice = { ageGroupId: string; daysCount: string; lunch: "" | "yes" | "no"; days: string[] };
@@ -371,7 +372,7 @@ export function CampRegister(props:
           <h2 className="text-lg font-semibold">{t("camps.register.whichChildren")}</h2>
           <ParticipantPicker multiple idPrefix="camp-pp" activityDate={edition.startsOn}
             participants={pickerList} self={props.self ?? { athleteId: null, dob: null, firstName: "", lastName: "" }}
-            allowSelf={!!props.self} onCreated={() => router.refresh()}
+            allowSelf={!!props.self} onCreated={() => router.refresh()} someoneElse={someoneElseSlot}
             value={parKids.map((c) => c.athleteId)}
             onChange={(ids, all) => {
               setPickerList(all);

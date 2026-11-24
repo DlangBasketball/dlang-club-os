@@ -44,6 +44,13 @@ const PUBLIC_PREFIXES = [
   "/api/club-admin/cron",
   // Waiting-list offer link (accept / decline); the URL token is the credential.
   "/waitlist",
+  // Club customer sign-up from a club entry point (Book a camp / training,
+  // Join the club) and its completion step (checks the session itself).
+  "/join",
+  // Guardian consent link for a booking made by another adult (hashed token).
+  "/consent",
+  // Guardian consent expiry job (cron bearer secret).
+  "/api/consent/cron",
   // Scout profile shared by a guardian (hashed link token; off by default).
   "/scout",
   // Team attendance: no-show alerts, roster ends, review flags (cron bearer secret).

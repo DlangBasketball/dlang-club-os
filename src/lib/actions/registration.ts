@@ -28,6 +28,7 @@ import { validateRegistrationExtras, type BuiltinField, type ChildExtras } from 
 import { issueContractsForRegistrations } from "@/lib/contracts/server";
 import { refillAfterCancellation } from "@/lib/club-admin/waitlist-server";
 import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
+import { submitClubRequestsForPublicForm } from "@/lib/public-entry/club-request";
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -126,8 +127,32 @@ export async function submitRegistration(input: RegistrationInput): Promise<Subm
   const hdrs = await headers();
   const ip = (hdrs.get("x-forwarded-for") ?? "").split(",")[0].trim() || null;
 
+  // Signed-in visitor (Workstream B): their own family and children are reused
+  // (no duplicate family / child). The profile id is resolved here from the
+  // session, never taken from the client; register_public honours it from the
+  // service role only.
+  const viewer = await getSessionUser();
+  const { data: rules } = await supabase.from("programs").select("*").eq("id", program.id).maybeSingle();
+  if ((rules as { requires_club_approval?: boolean } | null)?.requires_club_approval) {
+    // Club programme with club approval (Workstream C): a family request, never a direct registration.
+    const tEntry = await getTranslations(program.org_id);
+    if (!viewer) return { ok: false, formError: tEntry("entry.clubApproval.signIn") };
+    const sent = await submitClubRequestsForPublicForm({
+      profileId: viewer.id, currentOrgId: viewer.orgId, programId: program.id, orgId: program.org_id,
+      parent: { name: data.parent.name, email: data.parent.email, phone: data.parent.phone, address: keep("address", data.parent.address),
+                emergency_name: data.parent.emergencyName, emergency_phone: data.parent.emergencyPhone },
+      children: data.children.map((c) => ({ first_name: c.firstName, last_name: c.lastName, dob: c.dob, gender: keep("gender", c.gender),
+                                            allergies: keep("allergies", c.allergies), conditions: keep("conditions", c.conditions),
+                                            medical_notes: keep("medicalNotes", c.medicalNotes) })),
+    });
+    if (!sent.ok) return { ok: false, formError: tEntry.dynamic(sent.key, undefined, tEntry("entry.errors.generic")) };
+    revalidatePersonEverywhere(program.org_id);
+    redirect("/parent/club-programmes?requested=1");
+  }
+
   const payload = {
     program_id: program.id,
+    account_profile_id: viewer?.id ?? null,
     parent: {
       name: data.parent.name,
       email: data.parent.email,

@@ -27,6 +27,11 @@ import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
 import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 import { classifyCamper, type CampAgeBand } from "@/lib/camps/age-approval";
 import { submitApprovalRequests } from "@/lib/camps/approval-server";
+import { holdThirdPartyCamp, thirdPartyIds } from "@/lib/public-entry/server";
+import { ageOn } from "@/lib/camps/logic";
+import { consentErrorCode } from "@/lib/public-entry/shared";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { EntryClient } from "@/lib/public-entry/db";
 
 /**
  * Camp registration (public camp page + parent app).
@@ -242,6 +247,66 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
 
   const hdrs = await headers();
   const ip = (hdrs.get("x-forwarded-for") ?? "").split(",")[0].trim() || null;
+
+  // Signed-in visitor (Workstream B): their own family (or a bootstrapped
+  // guest family) and children are reused — no duplicate family or child.
+  // The profile id comes from the session, never from the client.
+  const viewer = await getSessionUser();
+  let account: { familyId: string; athleteIds: string[] } | null = null;
+  if (viewer) {
+    // Same COPPA gate as the public path of register_camp (VPC clubs: no under-13 online).
+    if (v.children.some((c) => (ageOn(c.dob, new Date().toISOString().slice(0, 10)) ?? 99) < 13)) {
+      const { data: vpc } = await (createAdminClient() as unknown as { rpc: (fn: string, a: Record<string, unknown>) => Promise<{ data: unknown }> })
+        .rpc("org_requires_vpc", { p_org: orgId });
+      if (vpc === true) return { ok: false, error: t.dynamic(campErrorKey("VPC_REQUIRED"), undefined, t("camps.errors.generic")) };
+    }
+    const { data: res, error: rerr } = await (createAdminClient() as unknown as EntryClient).rpc("public_entry_resolve_children", {
+      p_payload: {
+        profile_id: viewer.id, program_id: camp.program.id,
+        parent: { name: v.parent.name, phone: v.parent.phone, address: keep("address", v.parent.address),
+                  emergency_name: v.parent.emergencyName, emergency_phone: v.parent.emergencyPhone },
+        children: v.children.map((c) => ({
+          first_name: c.firstName, last_name: c.lastName, dob: c.dob, gender: keep("gender", c.gender),
+          allergies: keep("allergies", c.allergies), conditions: keep("conditions", c.conditions), medical_notes: keep("medicalNotes", c.medicalNotes),
+        })),
+      } as unknown as Json,
+    });
+    if (rerr) {
+      logError("camp.registerPublic.resolve", rerr);
+      return { ok: false, error: t.dynamic(campErrorKey(rerr.message), undefined, t("camps.errors.generic")) };
+    }
+    const rr = (res ?? {}) as { family_id?: string; athlete_ids?: string[] };
+    if (rr.family_id && rr.athlete_ids?.length === v.children.length) account = { familyId: rr.family_id, athleteIds: rr.athlete_ids };
+  }
+  if (account) {
+    const { data, error } = await campsAdminDb().rpc("register_camp", { p_payload: {
+      mode: "parent", program_id: camp.program.id, edition_id: v.editionId, family_id: account.familyId, registered_by: viewer!.id,
+      children: v.children.map((c, i) => ({
+        athlete_id: account!.athleteIds[i], age_group_id: c.ageGroupId, price_option_id: c.priceOptionId, days: c.days,
+        list_amount: q.quote.items[i].listAmount, discounts: payloadDiscounts(q.quote, String(i), v.promoCode),
+      })),
+      consents: v.consents, ip,
+    } as unknown as Json });
+    if (error) {
+      logError("camp.registerPublicSignedIn", error);
+      return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
+    }
+    const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
+    const regIds = r.registration_ids ?? [];
+    const athIds = r.athlete_ids ?? [];
+    if (await applyMemberPrices(orgId, "camp_registration", regIds)) r.total = await invoiceTotal(orgId, r.invoice_id, r.total);
+    const plan = await attachPlanAtCheckout(orgId, r.invoice_id, safeCount(instalments), "camp");
+    await storeRegistrationExtras(orgId, camp.program.id, config, perChild
+      .map((pc, i): ChildAnswers => ({ athleteId: athIds[i], registrationId: regIds[i], extras: pc.extras, answers: pc.answers }))
+      .filter((x) => x.athleteId && x.registrationId));
+    await issueContractsForRegistrations(orgId, regIds, viewer!.id);
+    await notify(orgId, camp.program.name, v.parent.name, v.parent.email, v.children.map((c) => `${c.firstName} ${c.lastName}`), r.invoice_number ?? "", Number(r.total ?? 0));
+    const qs = new URLSearchParams({ ref: r.invoice_number ?? "", account: "existing" });
+    if (plan.ok && plan.planId) qs.set("plan", String(safeCount(instalments)));
+    revalidatePersonEverywhere(orgId);
+    redirect(`/register/${v.programSlug}/success?${qs.toString()}`);
+  }
+
   const payload = {
     mode: "public",
     program_id: camp.program.id,
@@ -300,6 +365,31 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
   if (!me?.orgId) return { ok: false, error: t0("camps.errors.notPermitted") };
   const camp = await getMemberCamp(me.orgId, v.programId);
   if (!camp) return { ok: false, error: t0("camps.errors.db.PROGRAM_NOT_OPEN") };
+
+  // "Someone else" (Workstream B): a participant of another family is booked on
+  // its own; the place is held awaiting that child's guardian's consent (no
+  // invoice yet; the booker pays once the guardian consented).
+  const others = await thirdPartyIds(me.id, me.orgId, v.children.map((c) => c.athleteId));
+  if (others.size) {
+    if (v.children.length !== 1 || !(await tenantMatchesOrg(me.orgId))) {
+      return { ok: false, error: t0("consentRequest.errors.MIXED_PARTICIPANTS") };
+    }
+    const c = v.children[0];
+    const held = await holdThirdPartyCamp({
+      orgId: me.orgId, programId: camp.program.id, editionId: v.editionId, athleteId: c.athleteId,
+      ageGroupId: c.ageGroupId, priceOptionId: c.priceOptionId, days: c.days, requestId,
+    });
+    if (!held.ok) {
+      const own = consentErrorCode(held.message);
+      if (own) return { ok: false, error: t0.dynamic(`consentRequest.errors.${own}`, undefined, t0("consentRequest.errors.generic")) };
+      logError("camp.registerThirdParty", held.message);
+      return { ok: false, error: t0.dynamic(campErrorKey(held.message), undefined, t0("camps.errors.generic")) };
+    }
+    revalidatePath("/parent/bookings/others");
+    revalidatePersonEverywhere(me.orgId);
+    redirect("/parent/bookings/others?held=camp");
+  }
+
   const ctx = await parentContext(camp, v.children.map((c) => c.athleteId));
   if (!ctx) return { ok: false, error: t0("camps.errors.notPermitted") };
   const t = await getTranslations(ctx.orgId);

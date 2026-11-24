@@ -235,7 +235,8 @@
     },
     "approvals": "Aprobaciones",
     "clubRequests": "Solicitudes al club",
-    "clubProgrammes": "Programas del club"
+    "clubProgrammes": "Programas del club",
+    "bookingsForOthers": "Reservas para otros"
   },
   "shell": {
     "openMenu": "Abrir menú",
@@ -14133,6 +14134,180 @@
     "roster": {
       "title": "Aún no confirmados ({count})",
       "hint": "Aprobación, consentimiento o pago pendiente: no aparece en la hoja de asistencia hasta que se confirme."
+    }
+  },
+  "entry": {
+    "hub": {
+      "title": "Empieza aquí",
+      "camp": {
+        "title": "Reservar un campus",
+        "body": "Consulta los campus con inscripción abierta y reserva una plaza.",
+        "cta": "Ver campus"
+      },
+      "training": {
+        "title": "Reservar entrenamiento personal",
+        "body": "Elige una sesión con un entrenador a la hora que te convenga.",
+        "cta": "Reservar entrenamiento"
+      },
+      "join": {
+        "title": "Unirse al club",
+        "body": "Crea tu cuenta y solicita la afiliación al club.",
+        "cta": "Unirse"
+      },
+      "newHere": "¿Nuevo? Para reservar no necesitas invitación ni afiliación.",
+      "createAccount": "Crear una cuenta"
+    },
+    "callout": {
+      "title": "Reservar en la app",
+      "body": "Inicia sesión o crea una cuenta gratuita: vuelves a esta página y puedes reservar para ti, tus hijos u otra persona.",
+      "create": "Crear una cuenta",
+      "signIn": "Iniciar sesión",
+      "continueHere": "Continuar como cliente de este club"
+    },
+    "join": {
+      "metaTitle": "Crea tu cuenta",
+      "title": "Crea tu cuenta",
+      "intro": "Sin invitación, equipo ni afiliación. Te enviamos un enlace de acceso y vuelves a lo que elegiste.",
+      "noClub": "Abre esta página desde la web o la app de tu club para crear una cuenta en el club.",
+      "signOut": "Cerrar sesión",
+      "privacy": "Solo pedimos lo que la reserva necesita. Los datos de los menores los introduce y gestiona su padre, madre o tutor legal.",
+      "invalid": "Introduce tu nombre y un correo electrónico válido.",
+      "sent": "Revisa tu bandeja de entrada: enviamos un enlace de acceso a {email}.",
+      "choiceLabel": "¿Qué quieres hacer?",
+      "choice": {
+        "book": {
+          "title": "Reservar un campus o entrenamiento",
+          "body": "Para ti, tus hijos u otra persona."
+        },
+        "join": {
+          "title": "Unirse al club",
+          "body": "Crea tu cuenta y luego envía una solicitud de afiliación al club."
+        }
+      },
+      "name": "Tu nombre completo",
+      "email": "Correo electrónico",
+      "passwordOptional": "Contraseña (opcional, solo cuentas de demostración)",
+      "submit": "Enviar mi enlace de acceso",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión",
+      "signedInAs": "Sesión iniciada como {email}. Continuar con este club:"
+    },
+    "login": {
+      "newHere": "¿Nuevo en el club?",
+      "createAccount": "Crear una cuenta"
+    },
+    "clubApproval": {
+      "signIn": "Este programa necesita la aprobación del club. Inicia sesión o crea una cuenta para enviar una solicitud para tu hijo."
+    },
+    "errors": {
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "NOT_AUTHENTICATED": "Primero inicia sesión.",
+      "CLUB_NOT_FOUND": "No encontramos este club.",
+      "MEMBERSHIP_SUSPENDED": "Tu acceso a este club está suspendido. Contacta con el club.",
+      "invalidDob": "Revisa la fecha de nacimiento."
+    }
+  },
+  "consentRequest": {
+    "email": {
+      "someone": "Alguien",
+      "title": "Se necesita consentimiento para {child}",
+      "body": "{booker} reservó {activity} para {child}. Confirma o rechaza, por favor.",
+      "subject": "Confirma una reserva para {child} ({club})",
+      "heading": "Se necesita tu consentimiento",
+      "line": "{booker} reservó {activity} para {child} y te indicó como padre, madre o tutor legal.",
+      "dates": "Fechas: {when}",
+      "verify": "Para aceptar, inicia sesión o crea una cuenta con este correo electrónico. También puedes rechazar sin cuenta.",
+      "expires": "La plaza se reserva hasta el {when}; sin tu respuesta se libera.",
+      "ignore": "Si no conoces esta reserva, recházala o ignora este correo.",
+      "cta": "Ver la reserva"
+    },
+    "errors": {
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "NOT_AUTHENTICATED": "Primero inicia sesión.",
+      "NOT_FOUND": "Este enlace no es válido.",
+      "EXPIRED": "Esta solicitud caducó y la plaza se liberó.",
+      "CONSENT_NOT_PENDING": "Esta solicitud ya tiene respuesta.",
+      "BOOKER_CANNOT_CONSENT": "La persona que reservó no puede dar el consentimiento.",
+      "NOT_GUARDIAN": "Solo un padre, madre o tutor legal del participante puede responder.",
+      "EMAIL_MISMATCH": "Inicia sesión con el correo electrónico al que se envió esta solicitud.",
+      "CONSENT_REQUIRED": "Acepta todos los formularios obligatorios.",
+      "GUARDIAN_IS_BOOKER": "Indica al padre, madre o tutor legal del participante, no a ti.",
+      "GUARDIAN_EMAIL_REQUIRED": "El correo del padre, madre o tutor legal es obligatorio: pedimos el consentimiento por correo.",
+      "GUARDIAN_NAME_REQUIRED": "Indica el nombre del padre, madre o tutor legal.",
+      "CONSENT_PENDING": "El tutor legal del participante aún no ha dado su consentimiento.",
+      "AGE_OUT_OF_RANGE": "La edad del participante no corresponde a esta actividad.",
+      "EDITION_FULL": "Esta semana está completa.",
+      "ALREADY_REGISTERED": "El participante ya está reservado.",
+      "MIXED_PARTICIPANTS": "Reserva a un participante de otra familia por separado, de uno en uno.",
+      "CLUB_NOT_FOUND": "No encontramos este club.",
+      "MEMBERSHIP_SUSPENDED": "Tu acceso a este club está suspendido.",
+      "CLUB_APPROVAL_REQUIRED": "Este programa necesita la aprobación del club."
+    },
+    "held": {
+      "training": "Solicitud enviada. Se pidió el consentimiento al padre, madre o tutor legal del participante."
+    },
+    "notify": {
+      "acceptedTitle": "Consentimiento dado",
+      "acceptedBody": "El tutor legal de {name} dio su consentimiento para {activity}. La reserva continúa; verás el siguiente paso en Reservas para otros.",
+      "declinedTitle": "Consentimiento rechazado",
+      "declinedBody": "El tutor legal de {name} rechazó {activity}. La reserva se canceló y la plaza se liberó.",
+      "expiredTitle": "Reserva liberada",
+      "expiredBody": "El tutor legal de {name} no respondió a tiempo para {activity}. La reserva se canceló y la plaza se liberó.",
+      "guardianExpiredTitle": "Solicitud de reserva caducada",
+      "guardianExpiredBody": "La solicitud de reserva para {activity} caducó sin respuesta. La plaza se liberó; no hace falta nada más."
+    },
+    "status": {
+      "pending": "Consentimiento pendiente",
+      "accepted": "Consentimiento dado",
+      "declined": "Rechazado",
+      "expired": "Caducado",
+      "revoked": "Retirado"
+    },
+    "page": {
+      "notFound": "Este enlace no es válido o ya no está disponible.",
+      "title": "Reserva para {child}",
+      "intro": "{booker} ({relation}) reservó para {child} y te indicó como padre, madre o tutor legal. Nada se confirma sin tu acuerdo.",
+      "activities": "Actividad",
+      "expires": "La plaza se reserva hasta el {when}.",
+      "verifyEmail": "Para aceptar, inicia sesión con {email} (la dirección a la que se envió esta solicitud).",
+      "verifyFamily": "Para aceptar, inicia sesión con tu propia cuenta como padre, madre o tutor legal de {child}.",
+      "signInToAccept": "Inicia sesión o crea una cuenta para aceptar",
+      "signInHint": "Tras iniciar sesión vuelves a esta página.",
+      "signedInAs": "Sesión iniciada como {email}",
+      "forms": "Formularios de consentimiento",
+      "required": "Obligatorio",
+      "optional": "Opcional",
+      "readForm": "Leer el formulario",
+      "accept": "Aceptar y dar mi consentimiento",
+      "decline": "Rechazar",
+      "declineConfirm": "¿Rechazar esta reserva? La plaza se libera.",
+      "requiredHint": "Marca todos los formularios obligatorios para aceptar.",
+      "accepted": "Gracias. Tu consentimiento queda registrado y ahora eres el tutor legal del participante en la app.",
+      "declined": "Has rechazado. La reserva se canceló y se informó a quien reservó.",
+      "openApp": "Abrir la app",
+      "privacy": "Registramos tu respuesta con fecha y hora. Quien reservó solo ve el estado de la reserva, nunca los datos personales del participante.",
+      "done": {
+        "accepted": "Se dio el consentimiento.",
+        "declined": "Esta reserva fue rechazada.",
+        "expired": "Esta solicitud caducó y la plaza se liberó.",
+        "revoked": "Quien reservó retiró esta solicitud."
+      }
+    },
+    "others": {
+      "title": "Reservas para otros",
+      "back": "Reservas",
+      "description": "Campus y entrenamientos que reservaste para alguien fuera de tu familia: el estado y lo que debes, nada más.",
+      "held": "La plaza está reservada. Escribimos al padre, madre o tutor legal del participante; sin su consentimiento en 72 horas, la plaza se libera.",
+      "empty": "Aún no has reservado para nadie fuera de tu familia.",
+      "expires": "Reservada hasta el {when}",
+      "invoice": "Factura {number} · {due} pendiente · {status}",
+      "privacy": "Su perfil, fecha de nacimiento, datos médicos y documentos se quedan con su padre, madre o tutor legal.",
+      "withdraw": "Retirar esta reserva",
+      "withdrawConfirm": "¿Retirar esta reserva? La plaza se libera.",
+      "withdrawn": "Reserva retirada."
+    },
+    "slot": {
+      "explain": "Reservamos la plaza durante 72 horas y pedimos por correo el consentimiento a su padre, madre o tutor legal. Ves el estado de la reserva y lo que debes, nunca sus datos personales."
     }
   }
 }

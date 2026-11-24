@@ -235,7 +235,8 @@
     },
     "approvals": "Approvals",
     "clubRequests": "Club requests",
-    "clubProgrammes": "Club programmes"
+    "clubProgrammes": "Club programmes",
+    "bookingsForOthers": "Bookings for others"
   },
   "shell": {
     "openMenu": "Open menu",
@@ -14133,6 +14134,180 @@
     "roster": {
       "title": "Not yet confirmed ({count})",
       "hint": "Pending approval, consent or payment: not on the attendance sheet until confirmed."
+    }
+  },
+  "entry": {
+    "hub": {
+      "title": "Get started",
+      "camp": {
+        "title": "Book a camp",
+        "body": "Browse the camps open for registration and book a place.",
+        "cta": "See camps"
+      },
+      "training": {
+        "title": "Book personal training",
+        "body": "Choose a session with a coach at a time that suits you.",
+        "cta": "Book training"
+      },
+      "join": {
+        "title": "Join the club",
+        "body": "Create your account and ask the club for a membership.",
+        "cta": "Join"
+      },
+      "newHere": "New here? No invitation or membership needed to book.",
+      "createAccount": "Create an account"
+    },
+    "callout": {
+      "title": "Book in the app",
+      "body": "Sign in or create a free account: you come back to this page and can book for yourself, your children or someone else.",
+      "create": "Create an account",
+      "signIn": "Sign in",
+      "continueHere": "Continue as a customer of this club"
+    },
+    "join": {
+      "metaTitle": "Create your account",
+      "title": "Create your account",
+      "intro": "No invitation, team or membership needed. We send you a sign-in link; you come back to what you chose.",
+      "noClub": "Open this page from your club's website or app to create an account with the club.",
+      "signOut": "Sign out",
+      "privacy": "We only ask for what the booking needs. Children's details are entered and managed by their parent or legal guardian.",
+      "invalid": "Please enter your name and a valid e-mail address.",
+      "sent": "Check your inbox: we sent a sign-in link to {email}.",
+      "choiceLabel": "What would you like to do?",
+      "choice": {
+        "book": {
+          "title": "Book a camp or training",
+          "body": "For yourself, your children or someone else."
+        },
+        "join": {
+          "title": "Join the club",
+          "body": "Create your account, then send a membership request to the club."
+        }
+      },
+      "name": "Your full name",
+      "email": "E-mail",
+      "passwordOptional": "Password (optional, demo accounts only)",
+      "submit": "Send my sign-in link",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "signedInAs": "Signed in as {email}. Continue with this club:"
+    },
+    "login": {
+      "newHere": "New to the club?",
+      "createAccount": "Create an account"
+    },
+    "clubApproval": {
+      "signIn": "This programme needs the club's approval. Sign in or create an account to send a request for your child."
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "NOT_AUTHENTICATED": "Please sign in first.",
+      "CLUB_NOT_FOUND": "We could not find this club.",
+      "MEMBERSHIP_SUSPENDED": "Your access to this club is suspended. Please contact the club.",
+      "invalidDob": "Please check the date of birth."
+    }
+  },
+  "consentRequest": {
+    "email": {
+      "someone": "Someone",
+      "title": "Consent needed for {child}",
+      "body": "{booker} booked {activity} for {child}. Please confirm or decline.",
+      "subject": "Please confirm a booking for {child} ({club})",
+      "heading": "Your consent is needed",
+      "line": "{booker} booked {activity} for {child} and named you as parent or legal guardian.",
+      "dates": "Dates: {when}",
+      "verify": "To accept, sign in or create an account with this e-mail address. You can also decline without an account.",
+      "expires": "The place is held until {when}; without your answer it is released.",
+      "ignore": "If you do not know this booking, decline it or ignore this e-mail.",
+      "cta": "Review the booking"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "NOT_AUTHENTICATED": "Please sign in first.",
+      "NOT_FOUND": "This link is not valid.",
+      "EXPIRED": "This request has expired and the place was released.",
+      "CONSENT_NOT_PENDING": "This request has already been answered.",
+      "BOOKER_CANNOT_CONSENT": "The person who made the booking cannot give consent.",
+      "NOT_GUARDIAN": "Only a parent or legal guardian of the participant can answer.",
+      "EMAIL_MISMATCH": "Please sign in with the e-mail address this request was sent to.",
+      "CONSENT_REQUIRED": "Please accept every required form.",
+      "GUARDIAN_IS_BOOKER": "Enter the participant's parent or legal guardian, not yourself.",
+      "GUARDIAN_EMAIL_REQUIRED": "The parent or legal guardian's e-mail is required: we ask them for consent by e-mail.",
+      "GUARDIAN_NAME_REQUIRED": "Enter the parent or legal guardian's name.",
+      "CONSENT_PENDING": "The participant's guardian has not given consent yet.",
+      "AGE_OUT_OF_RANGE": "The participant's age does not fit this activity.",
+      "EDITION_FULL": "This week is full.",
+      "ALREADY_REGISTERED": "The participant is already booked for this.",
+      "MIXED_PARTICIPANTS": "Book a participant from another family on their own, one at a time.",
+      "CLUB_NOT_FOUND": "We could not find this club.",
+      "MEMBERSHIP_SUSPENDED": "Your access to this club is suspended.",
+      "CLUB_APPROVAL_REQUIRED": "This programme needs the club's approval."
+    },
+    "held": {
+      "training": "Request sent. The participant's parent or legal guardian has been asked for consent."
+    },
+    "notify": {
+      "acceptedTitle": "Consent given",
+      "acceptedBody": "The guardian of {name} gave consent for {activity}. The booking continues; you will see the next step under Bookings for others.",
+      "declinedTitle": "Consent declined",
+      "declinedBody": "The guardian of {name} declined {activity}. The booking was cancelled and the place released.",
+      "expiredTitle": "Booking released",
+      "expiredBody": "The guardian of {name} did not answer in time for {activity}. The booking was cancelled and the place released.",
+      "guardianExpiredTitle": "Booking request expired",
+      "guardianExpiredBody": "The booking request for {activity} expired without an answer. The place was released; nothing else is needed."
+    },
+    "status": {
+      "pending": "Awaiting consent",
+      "accepted": "Consent given",
+      "declined": "Declined",
+      "expired": "Expired",
+      "revoked": "Withdrawn"
+    },
+    "page": {
+      "notFound": "This link is not valid or no longer available.",
+      "title": "Booking for {child}",
+      "intro": "{booker} ({relation}) booked {child} and named you as parent or legal guardian. Nothing is confirmed before you agree.",
+      "activities": "Activity",
+      "expires": "The place is held until {when}.",
+      "verifyEmail": "To accept, sign in with {email} (the address this request was sent to).",
+      "verifyFamily": "To accept, sign in with your own account as {child}'s parent or legal guardian.",
+      "signInToAccept": "Sign in or create an account to accept",
+      "signInHint": "You come back to this page after signing in.",
+      "signedInAs": "Signed in as {email}",
+      "forms": "Consent forms",
+      "required": "Required",
+      "optional": "Optional",
+      "readForm": "Read the form",
+      "accept": "Accept and give consent",
+      "decline": "Decline",
+      "declineConfirm": "Decline this booking? The place is released.",
+      "requiredHint": "Tick every required form to accept.",
+      "accepted": "Thank you. Your consent is recorded and you are now the participant's guardian in the app.",
+      "declined": "You declined. The booking was cancelled and the person who booked is informed.",
+      "openApp": "Open the app",
+      "privacy": "We record your answer with its date and time. The person who booked sees only the booking status, never the participant's personal details.",
+      "done": {
+        "accepted": "Consent was given.",
+        "declined": "This booking was declined.",
+        "expired": "This request expired and the place was released.",
+        "revoked": "The person who booked withdrew this request."
+      }
+    },
+    "others": {
+      "title": "Bookings for others",
+      "back": "Bookings",
+      "description": "Camps and training you booked for someone outside your family: the status and what you owe, nothing more.",
+      "held": "The place is held. We e-mailed the participant's parent or legal guardian; without their consent within 72 hours, the place is released.",
+      "empty": "You have not booked for anyone outside your family yet.",
+      "expires": "Held until {when}",
+      "invoice": "Invoice {number} · {due} due · {status}",
+      "privacy": "Their profile, date of birth, medical details and documents stay with their parent or legal guardian.",
+      "withdraw": "Withdraw this booking",
+      "withdrawConfirm": "Withdraw this booking? The place is released.",
+      "withdrawn": "Booking withdrawn."
+    },
+    "slot": {
+      "explain": "We hold the place for 72 hours and e-mail their parent or legal guardian for consent. You see the booking status and what you owe, never their personal details."
     }
   }
 }

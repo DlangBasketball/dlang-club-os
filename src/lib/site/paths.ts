@@ -19,7 +19,7 @@ export const RESERVED_SEGMENTS = [
   "admin", "coach", "parent", "player", "platform", "login", "auth", "register", "book", "shop", "club", "embed",
   "embed.js", "api", "board", "scout", "waitlist", "onboarding", "signup", "legal", "offline", "pwa",
   "sw.js", "manifest.webmanifest", "_next", "favicon.ico", "sitemap.xml", "robots.txt", "icon",
-  "apple-icon", "opengraph-image", "monitoring",
+  "apple-icon", "opengraph-image", "monitoring", "join", "consent",
 ] as const;
 
 const RESERVED = new Set<string>(RESERVED_SEGMENTS);

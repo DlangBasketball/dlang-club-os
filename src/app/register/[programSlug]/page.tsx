@@ -18,6 +18,8 @@ import { getPublicSelection } from "@/lib/selection/data";
 import { PublicSelectionApply } from "@/components/selection/public-apply";
 import { todayIn } from "@/lib/payments/plans";
 import { hasFeature } from "@/lib/upgrades/server";
+import { getSessionUser } from "@/lib/auth/get-user";
+import { AppBookingCallout } from "@/components/entry/entry-points";
 
 export default async function PublicProgramPage({ params }: { params: Promise<{ programSlug: string }> }) {
   const { programSlug } = await params;
@@ -38,6 +40,9 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
           <Link href={`/register/camps${q}`} className="text-maroon hover:underline">{i18n.t("camps.basket.otherCamps")}</Link>
           <Link href={`/register/camps/basket${q}`} className="text-maroon hover:underline">{i18n.t("camps.basket.title")}</Link>
         </div>
+        {!(await getSessionUser()) && (
+          <AppBookingCallout t={i18n.t} intent="camp" next={`/parent/camps/${camp.program.id}`} club={(await getTenant()).slug ?? null} />
+        )}
         <I18nProvider ctx={i18n.ctx} messages={i18n.messages}>
           <BasketAdder mode="public" scope={`public:${camp.program.orgId}`} camps={[camp]} basketHref={`/register/camps/basket${q}`}
             title={i18n.t("camps.basket.adder.titleSeveral")} />

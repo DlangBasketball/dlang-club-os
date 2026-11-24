@@ -25,6 +25,7 @@ export type NotifType =
   | "consent_required"
   | "attendance_no_show"
   | "attendance_no_show_correction"
+  | "guardian_consent_request"
   | "announcement";
 
 export const ENUM_FOR: Record<NotifType, string> = {
@@ -42,6 +43,7 @@ export const ENUM_FOR: Record<NotifType, string> = {
   consent_required: "consent_required",
   attendance_no_show: "attendance_no_show",
   attendance_no_show_correction: "attendance_no_show_correction",
+  guardian_consent_request: "guardian_consent_request",
   announcement: "system",
 };
 
@@ -83,6 +85,11 @@ export type NotifVars = {
   previous_starts_at?: string;
   /** In-app link / call to action of a booking notice (coach, player or parent app); none without an account. */
   portal_path?: string;
+  // Guardian consent for a third-party booking (src/lib/public-entry/notify.ts)
+  /** Who booked (the booker's name only, never their contact details). */
+  booker_name?: string;
+  /** ISO instant the held place is released. */
+  expires_at?: string;
 };
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
@@ -391,6 +398,26 @@ export const TEMPLATES: Record<NotifType, Builder> = {
         html(`${N}.attendance_no_show_correction.line`, { athlete, team, when, status }, ["athlete"]),
         html(why),
       ], account ? { label: txt(`${N}.attendance_no_show.cta`), href: link } : undefined),
+    };
+  },
+  guardian_consent_request: (v) => {
+    const child = v.athlete_name ?? tr(`${N}.fallback.child`);
+    const booker = v.booker_name?.trim() || tr("consentRequest.email.someone");
+    const activity = v.program_name ?? "";
+    const link = v.portal_path ?? "/";
+    return {
+      title: txt("consentRequest.email.title", { child }),
+      body: txt("consentRequest.email.body", { booker, child, activity }),
+      link,
+      subject: txt("consentRequest.email.subject", { child, club: clubName(v) }),
+      html: shell(txt("consentRequest.email.heading"), [
+        greeting(v),
+        html("consentRequest.email.line", { booker, child, activity }, ["child"]),
+        ...(v.when ? [html("consentRequest.email.dates", { when: v.when })] : []),
+        html("consentRequest.email.verify"),
+        ...(v.expires_at ? [html("consentRequest.email.expires", { when: at(v.expires_at) })] : []),
+        html("consentRequest.email.ignore"),
+      ], { label: txt("consentRequest.email.cta"), href: link }),
     };
   },
   announcement: (v) => ({

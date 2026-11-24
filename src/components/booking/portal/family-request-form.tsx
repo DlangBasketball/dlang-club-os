@@ -17,6 +17,7 @@ import { useFormat, useT } from "@/lib/i18n/client";
 import { firstDueDate, instalmentChoices, type ServiceInstalmentInfo } from "@/lib/booking/instalments";
 import { InstalmentPicker } from "@/components/booking/instalment-picker";
 import { ParticipantPicker } from "@/components/participants/participant-picker";
+import { someoneElseSlot } from "@/components/entry/someone-else-booking";
 import type { ParticipantOption, SelfState } from "@/lib/participants/validation";
 
 export type DeclaredAvailability = DeclaredAvailabilityInput;
@@ -100,7 +101,8 @@ export function FamilyRequestForm({ kids, catalog, declared, todayKey, instalmen
     setBusy(false);
     if (!res.ok) { setErr(res.error); return; }
     ids.settle("confirm");
-    router.push(`/parent/bookings/${res.data!.booking_id}?requested=1`);
+    // A "someone else" participant: the booker follows the status only (never the booking detail).
+    router.push(res.data!.third_party ? "/parent/bookings/others?held=training" : `/parent/bookings/${res.data!.booking_id}?requested=1`);
   }
 
   const money = (n: number | null | undefined, cur?: string | null) => (n === null || n === undefined ? "—" : f.money(n, cur ?? service?.currency));
@@ -111,7 +113,7 @@ export function FamilyRequestForm({ kids, catalog, declared, todayKey, instalmen
       <Card><CardBody className="space-y-4">
         <ParticipantPicker idPrefix="fr-pp" legend={t("bookingRequests.family.child")} activityDate={s.date || todayKey}
           participants={pickerList} self={self ?? { athleteId: null, dob: null, firstName: "", lastName: "" }} allowSelf={!!self}
-          value={s.athleteId ? [s.athleteId] : []} disabled={busy}
+          value={s.athleteId ? [s.athleteId] : []} disabled={busy} someoneElse={someoneElseSlot}
           onChange={(ids) => choose(ids[0])} />
         <div>
           <Label htmlFor="fr-service">{t("adminBooking.form.service")}</Label>
