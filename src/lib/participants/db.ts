@@ -24,9 +24,18 @@ export type LinkRequestRow = {
   expires_at: string; created_at: string; updated_at: string;
 };
 
+/** Per-child link (20250420106300_flexible_links_finance_scope.sql). */
+export type AthleteGuardianLinkRow = {
+  id: string; org_id: string; athlete_id: string; profile_id: string; relation: string; can_register: boolean; can_pay: boolean;
+  can_see_medical: boolean; receives_emails: boolean; can_edit_profile: boolean; status: "active" | "revoked";
+  granted_by: string | null; granted_at: string; revoked_by: string | null; revoked_at: string | null; revoke_reason: string | null;
+  link_request_id: string | null; created_at: string; updated_at: string;
+};
+
 type ParticipantTables = {
   athlete_change_requests: T<ChangeRequestRow>;
   athlete_link_requests: T<LinkRequestRow>;
+  athlete_guardian_links: T<AthleteGuardianLinkRow>;
 };
 
 type ParticipantFunctions = {
@@ -51,6 +60,11 @@ type ParticipantFunctions = {
   athlete_merge: { Args: { p_keep: string; p_duplicate: string; p_reason: string | null; p_request_id: string }; Returns: Json };
   athlete_duplicate_pairs: { Args: Record<string, never>; Returns: Json };
   athlete_profile_history: { Args: { p_athlete: string; p_limit?: number }; Returns: Json };
+  // 20250420106300_flexible_links_finance_scope.sql
+  athlete_links_for: { Args: { p_athlete: string }; Returns: Json };
+  athlete_links_mine_to_manage: { Args: Record<string, never>; Returns: Json };
+  athlete_link_update: { Args: { p_link: string; p_permissions: Json }; Returns: Json };
+  athlete_link_revoke: { Args: { p_link: string; p_reason?: string | null }; Returns: Json };
 };
 
 type Pub = Database["public"];

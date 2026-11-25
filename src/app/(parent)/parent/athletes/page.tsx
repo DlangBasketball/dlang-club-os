@@ -74,6 +74,7 @@ function AthleteRow({ a, photo, active, t, f }: {
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium text-ink">{a.name}</span>
                 {a.kind === "self" && <Badge tone="accent">{t("myAthletes.myself")}</Badge>}
+                {a.kind === "linked" && <Badge tone="info">{t("myAthletes.linkedBadge", { relation: t.dynamic(`participants.childLinks.relations.${a.link?.relation ?? "other_carer"}`, undefined, a.link?.relation ?? "") })}</Badge>}
                 {active && <Badge tone="info">{t("myAthletes.activeBadge")}</Badge>}
                 {a.status === "inactive" && <Badge tone="neutral">{t("status.inactive")}</Badge>}
               </div>

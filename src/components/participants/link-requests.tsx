@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label } from "@/components/ui";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { decideLinkRequest, withdrawLinkRequest } from "@/lib/actions/participants";
-import type { LinkPermissions } from "@/lib/participants/validation";
+import { DEFAULT_CHILD_LINK, type ChildLinkPermissions, type LinkPermissions, type LinkScope } from "@/lib/participants/validation";
+import { ChildLinkPermissionFields } from "./child-links";
 
 export type InboxItem = {
   id: string; athleteFirstName: string; requesterName: string | null; requesterEmail: string | null; relation: string; createdAt: string;
@@ -19,12 +20,15 @@ export function LinkDecision({ item, staff = false }: { item: InboxItem; staff?:
   const f = useFormat();
   const router = useRouter();
   const [perm, setPerm] = React.useState<LinkPermissions>({ canPay: false, canSeeMedical: false, receivesEmails: true });
+  // Parents / co-guardians default to the whole family; anyone else to this child only.
+  const [scope, setScope] = React.useState<LinkScope>(["mother", "father", "guardian"].includes(item.relation) ? "family" : "athlete");
+  const [child, setChild] = React.useState<ChildLinkPermissions>(DEFAULT_CHILD_LINK);
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState<"approve" | "decline" | null>(null);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   async function decide(d: "approve" | "decline") {
     setBusy(d); setMsg(null);
-    const res = await decideLinkRequest(item.id, d, perm, note);
+    const res = await decideLinkRequest(item.id, d, perm, note, scope, child);
     setBusy(null);
     setMsg(res.ok ? { ok: true, text: res.message ?? "" } : { ok: false, text: res.error });
     if (res.ok) router.refresh();
@@ -50,11 +54,27 @@ export function LinkDecision({ item, staff = false }: { item: InboxItem; staff?:
       </p>
       <p className="text-xs text-text-muted">{staff ? t("participants.link.staffVerifyHint") : t("participants.link.verifyHint")}</p>
       <fieldset className="space-y-1.5">
-        <legend className="mb-1 text-xs font-medium text-text-muted">{t("participants.link.permissions")}</legend>
-        {box("receivesEmails", t("participants.link.receivesEmails"))}
-        {box("canPay", t("participants.link.canPay"))}
-        {box("canSeeMedical", t("participants.link.canSeeMedical"))}
+        <legend className="mb-1 text-xs font-medium text-text-muted">{t("participants.childLinks.scopeLabel")}</legend>
+        {(["athlete", "family"] as const).map((s) => (
+          <label key={s} className="flex items-start gap-2 text-sm text-text">
+            <input type="radio" name={`ld-scope-${item.id}`} className="mt-0.5 h-4 w-4 accent-[var(--red-primary)]" checked={scope === s} onChange={() => setScope(s)} />
+            <span>
+              <span className="font-medium">{t(`participants.childLinks.scope.${s}`)}</span>
+              <span className="block text-xs text-text-muted">{t(`participants.childLinks.scopeHint.${s}`, { child: staff && item.athleteName ? item.athleteName : item.athleteFirstName })}</span>
+            </span>
+          </label>
+        ))}
       </fieldset>
+      {scope === "athlete" ? (
+        <ChildLinkPermissionFields value={child} onChange={setChild} idPrefix={`ld-${item.id}`} />
+      ) : (
+        <fieldset className="space-y-1.5">
+          <legend className="mb-1 text-xs font-medium text-text-muted">{t("participants.link.permissions")}</legend>
+          {box("receivesEmails", t("participants.link.receivesEmails"))}
+          {box("canPay", t("participants.link.canPay"))}
+          {box("canSeeMedical", t("participants.link.canSeeMedical"))}
+        </fieldset>
+      )}
       <div>
         <Label htmlFor={`ld-note-${item.id}`}>{t("participants.review.note")}</Label>
         <Input id={`ld-note-${item.id}`} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} />

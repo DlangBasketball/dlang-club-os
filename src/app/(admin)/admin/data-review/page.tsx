@@ -4,7 +4,8 @@ import { PageHeader, Badge, Card, CardBody, EmptyState, ErrorState } from "@/com
 import { requireRole } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { listReviewFlags } from "@/lib/data/billing";
-import { canSeeFlag, decidedInPanel, flagGroup, flagHref, type FlagGroup } from "@/lib/attendance/review-flags";
+import { canSeeFlag, decidedInPanel, flagGroup, flagHref, isInformationalFlag, type FlagGroup } from "@/lib/attendance/review-flags";
+import { InviteGuardianButton } from "@/components/participants/invite-guardian-button";
 import { getReviewQueue } from "@/lib/participants/server";
 import { ParticipantReviewPanel } from "@/components/participants/review-panel";
 import { AthleteDataCheckButton, DuplicateMergePanel, SelfLinkPanel } from "@/components/participants/data-check-panels";
@@ -81,7 +82,11 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-medium text-text">{t.dynamic(`adminAttendance.review.codes.${x.reasonCode}`, undefined, x.reasonCode)}</span>
                         <Badge tone={flagGroup(x.reasonCode) === "attendance" ? "info" : "neutral"}>{t.dynamic(`adminAttendance.review.group.${flagGroup(x.reasonCode)}`, undefined, flagGroup(x.reasonCode))}</Badge>
+                        {isInformationalFlag(x.reasonCode) && <Badge tone="info">{t("adminAttendance.review.informational")}</Badge>}
                         {x.resolvedAt && <Badge tone="success">{t("adminAttendance.review.resolved")}</Badge>}
+                        {!x.resolvedAt && typeof x.details.invited_at === "string" && (
+                          <Badge tone="neutral">{t("adminAttendance.review.invite.invitedOn", { date: f.date(x.details.invited_at) })}</Badge>
+                        )}
                       </div>
                       <p className="text-xs text-text-muted">{t.dynamic(`adminAttendance.review.hints.${x.reasonCode}`, undefined, "")}</p>
                       <p className="text-xs text-text-muted">
@@ -91,7 +96,14 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
                       </p>
                       {link && <Link href={link} className="text-xs text-brand-primary hover:underline">{t("adminAttendance.review.openRecord")}</Link>}
                     </div>
-                    {!x.resolvedAt && !decidedInPanel(x.reasonCode) && <ResolveFlagForm flagId={x.id} />}
+                    {!x.resolvedAt && (
+                      <div className="flex flex-col items-stretch gap-2 sm:items-end">
+                        {roles.admin && x.reasonCode === "NO_GUARDIAN_LOGIN" && x.details.has_contact_email === true && (
+                          <InviteGuardianButton flagId={x.id} invitedAt={typeof x.details.invited_at === "string" ? x.details.invited_at : null} />
+                        )}
+                        {!decidedInPanel(x.reasonCode) && <ResolveFlagForm flagId={x.id} />}
+                      </div>
+                    )}
                   </li>
                 );
               })}

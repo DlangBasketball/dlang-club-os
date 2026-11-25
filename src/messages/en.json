@@ -12519,7 +12519,8 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "Date of birth / sex correction to review",
         "ATHLETE_LINK_REQUEST": "Request to be linked to a child",
         "POSSIBLE_DUPLICATE": "Possible duplicate profile",
-        "POSSIBLE_SELF_LINK": "Possible own login"
+        "POSSIBLE_SELF_LINK": "Possible own login",
+        "NO_GUARDIAN_LOGIN": "No guardian login yet"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "No-show alerts for this player cannot reach anyone. Add a guardian with an active login to the family.",
@@ -12541,7 +12542,19 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "A family corrected a child with a live enrolment. Approve or decline in the panel above.",
         "ATHLETE_LINK_REQUEST": "An adult asks for guardian access to an existing child. Decide in the panel above (the family can also approve).",
         "POSSIBLE_DUPLICATE": "A family created a profile with the same name and date of birth as an existing one. Merge or keep both.",
-        "POSSIBLE_SELF_LINK": "An adult player whose family contact e-mail and name match a login. Confirm the link or dismiss it."
+        "POSSIBLE_SELF_LINK": "An adult player whose family contact e-mail and name match a login. Confirm the link or dismiss it.",
+        "NO_GUARDIAN_LOGIN": "Registered by the club without a guardian login. That is fine; invite a guardian so the family can see bookings and invoices."
+      },
+      "informational": "Suggestion",
+      "invite": {
+        "button": "Invite a guardian",
+        "resend": "Invite again",
+        "sent": "Invitation sent to the family's contact e-mail.",
+        "failed": "The invitation could not be sent.",
+        "noEmail": "The family has no valid contact e-mail. Add one on the family page first.",
+        "notFound": "This suggestion is no longer open.",
+        "forbidden": "Only club admins can invite guardians.",
+        "invitedOn": "Invited {date}"
       }
     }
   },
@@ -13799,7 +13812,11 @@
       "INVALID_RELATION": "Choose your relationship to the participant.",
       "NO_MATCH": "We could not find a matching profile. Please check the details or add the child.",
       "EXPIRED": "This request has expired.",
-      "THIRD_PARTY_NOT_ENABLED": "Booking for someone outside your family is not available yet."
+      "THIRD_PARTY_NOT_ENABLED": "Booking for someone outside your family is not available yet.",
+      "INVALID_SCOPE": "Choose whole family or this child only.",
+      "REGISTER_NEEDS_PAY": "Booking needs the payment permission: bookings by this person are invoiced to them.",
+      "LINK_NOT_ACTIVE": "This access has already ended.",
+      "NO_GUARDIAN_CONTACT": "The child's family has no e-mail for the consent request. Please contact the club."
     },
     "sex": {
       "male": "Male",
@@ -13887,7 +13904,10 @@
       "age": "{age} y",
       "otherBadge": "Awaiting consent",
       "noChildren": "No child in your family yet.",
-      "alsoSelected": "Also selected: {names}"
+      "alsoSelected": "Also selected: {names}",
+      "linked": "A child I'm linked to",
+      "linkedBadge": "Linked",
+      "linkedHint": "A guardian of the child's family confirms each booking; the invoice is addressed to you."
     },
     "self": {
       "intro": "Your own participant profile (adults only). The date of birth is needed for age rules.",
@@ -13967,6 +13987,69 @@
     "admin": {
       "duplicateWarning": "The club may already have this person: {names}. Check before creating, or tick “Create anyway”.",
       "confirmDuplicate": "Create anyway (this is a different person)"
+    },
+    "childLinks": {
+      "title": "People linked to one child",
+      "description": "Relatives or friends who may act for one child only. They never see the other children, the family's details or the family's invoices.",
+      "relation": "Relationship to the child",
+      "relations": {
+        "aunt_uncle": "Aunt / uncle",
+        "grandparent": "Grandparent",
+        "adult_sibling": "Adult sibling",
+        "family_friend": "Family friend",
+        "other_carer": "Other carer"
+      },
+      "perm": {
+        "canRegister": "Can book camps, training and programmes for this child",
+        "canPay": "Pays for what they book (invoices addressed to them)",
+        "canSeeMedical": "Can see medical information (read only)",
+        "receivesEmails": "Receives e-mails about their bookings",
+        "canEditProfile": "Can edit the child's profile"
+      },
+      "short": {
+        "canRegister": "book",
+        "canPay": "pay",
+        "canSeeMedical": "medical",
+        "receivesEmails": "e-mails",
+        "canEditProfile": "profile"
+      },
+      "viewOnly": "View only",
+      "privacyHint": "Bookings still need the consent of a guardian of the family. This person never sees the other children, the family's address or invoices.",
+      "revokeConfirm": "End {name}'s access to this child now?",
+      "revokedBadge": "Ended",
+      "forChild": "for {child}",
+      "edit": "Change permissions",
+      "revoke": "End access",
+      "save": "Save permissions",
+      "saved": "Permissions saved.",
+      "revoked": "Access ended.",
+      "leave": "End my link to this child",
+      "leaveConfirm": "End your access to this child? Pending bookings awaiting consent are cancelled.",
+      "scopeLabel": "Access",
+      "scope": {
+        "athlete": "This child only",
+        "family": "Whole family"
+      },
+      "scopeHint": {
+        "athlete": "For relatives and friends: they can act for {child} only, never for the other children or the family's details.",
+        "family": "For a second parent or co-guardian: they see every child of the family and the family's activities."
+      },
+      "childPage": {
+        "intro": "You are linked to {child} only. Bookings are confirmed by a guardian of the family.",
+        "permissions": "What you may do",
+        "bookCamp": "Book a camp",
+        "bookTraining": "Book training",
+        "consentHint": "The family's guardian receives a consent request for each booking; the invoice is addressed to you once they accept.",
+        "medical": {
+          "allergies": "Allergies",
+          "conditions": "Conditions",
+          "medications": "Medication",
+          "notes": "Notes"
+        },
+        "noMedical": "No medical information recorded.",
+        "medicalReadOnly": "Only the family can change this information.",
+        "leaveHint": "You can end your access at any time."
+      }
     }
   },
   "nextStep": {
@@ -14245,7 +14328,8 @@
       "MIXED_PARTICIPANTS": "Book a participant from another family on their own, one at a time.",
       "CLUB_NOT_FOUND": "We could not find this club.",
       "MEMBERSHIP_SUSPENDED": "Your access to this club is suspended.",
-      "CLUB_APPROVAL_REQUIRED": "This programme needs the club's approval."
+      "CLUB_APPROVAL_REQUIRED": "This programme needs the club's approval.",
+      "NO_GUARDIAN_CONTACT": "The child's family has no e-mail for the consent request. Please contact the club."
     },
     "held": {
       "training": "Request sent. The participant's parent or legal guardian has been asked for consent."
@@ -14495,6 +14579,7 @@
         "noTeamHint": "Once your athlete is placed on a team, the schedule appears here."
       }
     },
-    "addChildTerm": "Add {term}"
+    "addChildTerm": "Add {term}",
+    "linkedBadge": "Linked · {relation}"
   }
 }

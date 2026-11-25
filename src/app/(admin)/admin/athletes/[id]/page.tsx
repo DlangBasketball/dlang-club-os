@@ -47,6 +47,8 @@ import { selectClass } from "@/components/teams/fields";
 import { Input } from "@/components/ui";
 import { ProfileHistory } from "@/components/participants/profile-history";
 import { getProfileHistory } from "@/lib/participants/admin-data";
+import { getChildLinks } from "@/lib/participants/server";
+import { ChildLinksManager } from "@/components/participants/child-links";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -85,7 +87,7 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
   const optionLabel = (group: "gender" | "hand", v: string | null) =>
     v ? t.dynamic(`editPeople.${group}.${v.trim().toLowerCase()}`, undefined, v) : null;
 
-  const [photos, cover, family, attendanceRes, teams, teamOptions, cardTag, alumniOn, memberships, bookings, billingOverview, profileHistory, currentSeasonId] = await Promise.all([
+  const [photos, cover, family, attendanceRes, teams, teamOptions, cardTag, alumniOn, memberships, bookings, billingOverview, profileHistory, currentSeasonId, childLinks] = await Promise.all([
     signAthletePhotos([{ id: a.id, photoPath: a.photoPath }], a.orgId),
     getAthleteCover(a.id),
     getFamily(a.familyId),
@@ -103,6 +105,8 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     // Profile history: admins only (finance / coaches / families never; the RPC re-checks).
     isAdmin ? getProfileHistory(a.id) : Promise.resolve(null),
     getCurrentSeasonId(),
+    // Adults linked to this child only (admins; the RPC re-checks).
+    isAdmin ? getChildLinks(a.id) : Promise.resolve([]),
   ]);
   const attendanceHistory = attendanceRes.data ?? [];
   const bookingRows = [...(bookings?.data?.upcoming ?? []), ...(bookings?.data?.past ?? [])];
@@ -171,6 +175,7 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
           <SponsorshipCard athleteId={id} sponsorship={a.sponsorship} editHref={isAdmin ? `/admin/athletes/${id}/edit#sponsorship` : undefined} inlineEdit={!isAdmin} />
         )}
         {canViewMedical && <MedicalSection medical={medical} athleteId={id} canView />}
+        {isAdmin && <ChildLinksManager links={childLinks} showChild={false} />}
         <ParentContactSection
           guardians={family.data?.guardians ?? []}
           familyPhone={family.data?.phone ?? null}

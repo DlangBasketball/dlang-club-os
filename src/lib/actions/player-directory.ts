@@ -6,6 +6,7 @@ import { getTranslations } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { logError } from "@/lib/log";
 import { HIDDEN_ATHLETE_STATUS_FILTER } from "@/lib/people/person-delete";
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 import { athleteSchema, familySchema } from "@/lib/people/validation";
 import { getMembershipFormPlayer, type MembershipFormPlayer } from "@/lib/data/player-billing";
@@ -39,9 +40,31 @@ export async function searchPlayers(input: string): Promise<DirectoryResult<Play
   const q = query.safeParse(input);
   if (!q.success) return { ok: true, data: [] };
   const db = await createClient();
+  const year = /^\d{4}$/.test(q.data) ? Number(q.data) : null;
+  if (!me.roles.includes("admin")) {
+    // Finance (20250420106300): names, family and status through billing_athletes;
+    // no DOB, so no birth-year search.
+    if (year) return { ok: true, data: [] };
+    let breq = asBillingClient(db).from("billing_athletes").select("id,first_name,last_name,status,family_id")
+      .eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
+    for (const w of q.data.replace(/[%,()*\\]/g, " ").split(/\s+/).filter(Boolean).slice(0, 3)) breq = breq.or(`first_name.ilike.%${w}%,last_name.ilike.%${w}%`);
+    const { data: rows, error: bErr } = await breq.order("last_name").order("first_name").limit(20);
+    if (bErr) {
+      logError("playerDirectory.search", bErr.message);
+      return { ok: false, error: t("playerBilling.errors.searchFailed") };
+    }
+    const famIds = Array.from(new Set((rows ?? []).map((a) => a.family_id)));
+    const { data: fams } = famIds.length ? await db.from("families").select("id,name").eq("org_id", me.orgId).in("id", famIds) : { data: [] };
+    const famName = new Map((fams ?? []).map((f) => [f.id, f.name]));
+    return {
+      ok: true,
+      data: (rows ?? []).map((a) => ({
+        id: a.id, name: `${a.first_name} ${a.last_name}`.trim(), dob: null, status: a.status, familyId: a.family_id, familyName: famName.get(a.family_id) ?? null,
+      })),
+    };
+  }
   let req = db.from("athletes").select("id,first_name,last_name,dob,status,family_id,families(name)")
     .eq("org_id", me.orgId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER);
-  const year = /^\d{4}$/.test(q.data) ? Number(q.data) : null;
   if (year) req = req.gte("dob", `${year}-01-01`).lte("dob", `${year}-12-31`);
   else for (const w of q.data.replace(/[%,()*\\]/g, " ").split(/\s+/).filter(Boolean).slice(0, 3)) req = req.or(`first_name.ilike.%${w}%,last_name.ilike.%${w}%`);
   const { data, error } = await req.order("last_name").order("first_name").limit(20);

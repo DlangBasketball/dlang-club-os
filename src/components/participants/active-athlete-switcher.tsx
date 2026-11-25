@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { setActiveAthlete } from "@/lib/actions/my-athletes";
 import { ALL_ATHLETES } from "@/lib/participants/active-athlete";
 
-export type SwitcherAthlete = { id: string; firstName: string; lastName?: string | null; kind: "self" | "child" };
+export type SwitcherAthlete = { id: string; firstName: string; lastName?: string | null; kind: "self" | "child" | "linked" };
 
 /**
  * Parent app: the active athlete (shown for 2+ athletes). The choice is saved

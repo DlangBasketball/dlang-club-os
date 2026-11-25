@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import "server-only";
 import { accountingDb, type AccountRow, type BankEntryRow, type DunningCaseRow, type DunningNoticeRow, type DunningPauseRow,
   type DunningSettingsRow, type ImportRow, type MappingRow, type OpenItemRow, type PeriodLockRow, type ReimbursementRow,
@@ -198,7 +199,7 @@ async function subjectNames(rows: RefundRequestRow[]): Promise<Map<string, strin
 export type Cancellable = { kind: "registration" | "booking"; id: string; label: string; athlete: string; startsOn: string | null };
 export async function listCancellable(orgId: string, familyIds: string[] | null): Promise<Cancellable[]> {
   const db = await accountingDb();
-  let athletesQ = db.from("athletes").select("id,first_name,family_id").eq("org_id", orgId);
+  let athletesQ = asBillingClient(db).from("billing_athletes").select("id,first_name,family_id").eq("org_id", orgId);
   if (familyIds) athletesQ = athletesQ.in("family_id", familyIds.length ? familyIds : ["00000000-0000-0000-0000-000000000000"]);
   const { data: athletes } = await athletesQ.limit(2000);
   const aList = (athletes ?? []) as { id: string; first_name: string; family_id: string }[];

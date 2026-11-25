@@ -11,8 +11,9 @@ import { revalidatePersonEverywhere } from "@/lib/people/revalidate";
 import type { Json } from "@/types/database";
 import { participantsDb } from "@/lib/participants/db";
 import {
-  firstIssue, linkPermissionsSchema, linkRequestSchema, participantCreateSchema, participantErrorCode, participantUpdateSchema,
-  selfProfileSchema, sportsSchema, sportsToRpc, type LinkPermissions, type LinkRequestInput, type ParticipantCreateInput,
+  childLinkPermissionsSchema, childLinkToRpc, DEFAULT_CHILD_LINK, firstIssue, LINK_SCOPES, linkPermissionsSchema, linkRequestSchema,
+  participantCreateSchema, participantErrorCode, participantUpdateSchema, selfProfileSchema, sportsSchema, sportsToRpc,
+  type ChildLinkPermissions, type LinkPermissions, type LinkRequestInput, type LinkScope, type ParticipantCreateInput,
   type ParticipantOption, type ParticipantUpdateInput, type SelfProfileInput, type SportsInput,
 } from "@/lib/participants/validation";
 import {
@@ -152,16 +153,29 @@ export async function withdrawLinkRequest(linkRequestId: string): Promise<PResul
  * (data review). Approval adds the requester as a guardian member of the
  * child's family with the chosen permissions.
  */
-export async function decideLinkRequest(linkRequestId: string, decision: "approve" | "decline", permissions?: Partial<LinkPermissions>, note?: string): Promise<PResult<{ status: string }>> {
+export async function decideLinkRequest(
+  linkRequestId: string, decision: "approve" | "decline", permissions?: Partial<LinkPermissions>, note?: string,
+  scope: LinkScope = "family", childPermissions?: Partial<ChildLinkPermissions>,
+): Promise<PResult<{ status: string }>> {
   const { me, t } = await session();
   if (!me) return denied(t);
   if (!uuid.safeParse(linkRequestId).success || !["approve", "decline"].includes(decision)) return fail(t, "INVALID_DECISION");
-  const perm = linkPermissionsSchema.safeParse(permissions ?? {});
-  if (!perm.success) return fail(t, "INVALID_DECISION");
+  if (!(LINK_SCOPES as readonly string[]).includes(scope)) return fail(t, "INVALID_SCOPE");
+  let payload: Record<string, unknown>;
+  if (scope === "athlete") {
+    // "This child only": per-child access (athlete_guardian_links), never the rest of the family.
+    const child = childLinkPermissionsSchema.safeParse({ ...DEFAULT_CHILD_LINK, ...(childPermissions ?? {}) });
+    if (!child.success) return fail(t, "REGISTER_NEEDS_PAY");
+    payload = { scope: "athlete", ...childLinkToRpc(child.data) };
+  } else {
+    const perm = linkPermissionsSchema.safeParse(permissions ?? {});
+    if (!perm.success) return fail(t, "INVALID_DECISION");
+    payload = { scope: "family", can_pay: perm.data.canPay, can_see_medical: perm.data.canSeeMedical, receives_emails: perm.data.receivesEmails };
+  }
   const db = await participantsDb();
   const { data, error } = await db.rpc("participant_link_decide", {
     p_request: linkRequestId, p_decision: decision,
-    p_permissions: { can_pay: perm.data.canPay, can_see_medical: perm.data.canSeeMedical, receives_emails: perm.data.receivesEmails } as Json,
+    p_permissions: payload as Json,
     p_note: note?.trim() ? note.trim().slice(0, 1000) : null,
   });
   if (error) return fail(t, error);
@@ -170,6 +184,41 @@ export async function decideLinkRequest(linkRequestId: string, decision: "approv
   if (!r.replayed) await notifyRequesterOfLinkDecision(me.orgId, linkRequestId);
   refresh(me.orgId);
   return { ok: true, message: (r.status === "approved" ? t("participants.link.approvedToast") : t("participants.link.declinedToast")), data: { status: r.status } };
+}
+
+/**
+ * Change what an adult linked to one child may do (a family guardian of the
+ * child or an admin; checked in SQL). Takes effect immediately; audited.
+ */
+export async function updateChildLink(linkId: string, permissions: ChildLinkPermissions): Promise<PResult> {
+  const { me, t } = await session();
+  if (!me) return denied(t);
+  if (!uuid.safeParse(linkId).success) return fail(t, "NOT_FOUND");
+  const p = childLinkPermissionsSchema.safeParse(permissions);
+  if (!p.success) return fail(t, "REGISTER_NEEDS_PAY");
+  const db = await participantsDb();
+  const { error } = await db.rpc("athlete_link_update", { p_link: linkId, p_permissions: childLinkToRpc(p.data) as Json });
+  if (error) return fail(t, error);
+  refresh(me.orgId);
+  for (const path of ["/parent/family", "/parent/athletes"]) { try { revalidatePath(path); } catch { /* no request context */ } }
+  return { ok: true, data: undefined, message: t("participants.childLinks.saved") };
+}
+
+/**
+ * End a per-child link at once: a family guardian of the child, an admin, or
+ * the linked adult themselves. Pending holds of that adult for the child are
+ * cancelled; bookings the guardian already consented to stay.
+ */
+export async function revokeChildLink(linkId: string, reason?: string): Promise<PResult> {
+  const { me, t } = await session();
+  if (!me) return denied(t);
+  if (!uuid.safeParse(linkId).success) return fail(t, "NOT_FOUND");
+  const db = await participantsDb();
+  const { error } = await db.rpc("athlete_link_revoke", { p_link: linkId, p_reason: reason?.trim() ? reason.trim().slice(0, 500) : null });
+  if (error) return fail(t, error);
+  refresh(me.orgId);
+  for (const path of ["/parent/family", "/parent/athletes", "/parent/bookings/others"]) { try { revalidatePath(path); } catch { /* no request context */ } }
+  return { ok: true, data: undefined, message: t("participants.childLinks.revoked") };
 }
 
 export type UpdateParticipantData = { reviewRequired: boolean; changeRequestId: string | null };

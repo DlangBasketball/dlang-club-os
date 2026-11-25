@@ -261,12 +261,15 @@ begin
   r := ma.as_('FINANCE', format($q$select public.participant_update_sports(%L, '{"height_cm":"170"}'::jsonb)::text$q$, ma.get('K1')));
   perform ma.ok(r like 'ERR:NOT_ALLOWED%', 'finance: sports edit RPC refused');
   r := ma.as_('FINANCE', format($q$update public.athletes set height_cm = 170 where id = %L returning id::text$q$, ma.get('K1')));
-  perform ma.ok(r like 'ERR:FIELD_NOT_ALLOWED%', 'finance: direct profile update refused (' || r || ')');
+  -- 20250420106300: finance has no table access at all (0 rows updated; the guard trigger stays as defence in depth).
+  perform ma.ok(r = 'OK:<null>' or r like 'ERR:FIELD_NOT_ALLOWED%', 'finance: direct profile update refused (' || r || ')');
   perform ma.ok((select height_cm from public.athletes where id = ma.get('K1')) = 160, 'finance: profile unchanged');
   r := ma.as_('FINANCE', format('select public.athlete_profile_history(%L)::text', ma.get('K1')));
   perform ma.ok(r like 'ERR:NOT_ALLOWED%', 'finance: no profile history');
-  perform ma.ok(ma.as_('FINANCE', format('select count(*)::text from public.athletes where id = %L', ma.get('K1'))) = 'OK:1',
-                'finance: still reads the athlete for billing');
+  perform ma.ok(ma.as_('FINANCE', format('select first_name || '' '' || last_name from public.billing_athletes where id = %L', ma.get('K1'))) = 'OK:Synthetic Maone',
+                'finance: still reads the athlete name for billing (billing_athletes)');
+  perform ma.ok(ma.as_('FINANCE', format('select count(*)::text from public.athletes where id = %L', ma.get('K1'))) = 'OK:0',
+                'finance: no direct read of the athlete record');
   r := ma.as_('FINANCE', 'select public.athlete_merge(gen_random_uuid(), gen_random_uuid(), null, gen_random_uuid())::text');
   perform ma.ok(r like 'ERR:NOT_ALLOWED%', 'finance: cannot merge athletes');
   r := ma.as_('FINANCE', 'select public.athlete_data_check()::text');
@@ -304,8 +307,10 @@ begin
                          and (details->>'profile_id')::uuid = ma.get('ADULT')),
                 'data check: adult player matching a login by family e-mail + name flagged POSSIBLE_SELF_LINK');
   perform ma.ok((select player_profile_id from public.athletes where id = ma.get('AP')) is null, 'data check: never links automatically');
-  perform ma.ok(exists (select 1 from public.data_review_flags where entity_id = ma.get('K4') and reason_code = 'ATHLETE_WITHOUT_GUARDIAN' and resolved_at is null),
-                'data check: athlete without any guardian flagged');
+  -- 20250420106300: a staff-created athlete without a guardian login is an informational suggestion, not a problem.
+  perform ma.ok(exists (select 1 from public.data_review_flags where entity_id = ma.get('K4') and reason_code = 'NO_GUARDIAN_LOGIN' and resolved_at is null)
+                and not exists (select 1 from public.data_review_flags where entity_id = ma.get('K4') and reason_code = 'ATHLETE_WITHOUT_GUARDIAN'),
+                'data check: athlete without a guardian login gets the NO_GUARDIAN_LOGIN suggestion');
   perform ma.ok(not exists (select 1 from public.data_review_flags where entity_id in (ma.get('K1'), ma.get('K2')) and reason_code = 'ATHLETE_WITHOUT_GUARDIAN'),
                 'data check: athletes with a guardian are not flagged');
   r := ma.as_('ADMIN', 'select public.athlete_data_check()::text');

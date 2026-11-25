@@ -77,7 +77,7 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-elevated text-maroon"><UserCircle className="h-5 w-5" /></div>
                           <div>
                             <div className="text-sm font-medium text-ink">{a.firstName} {a.lastName}</div>
-                            <div className="text-xs text-ink-3">{t("editPeople.familyDetail.born", { date: f.date(a.dob) })}</div>
+                            {a.dob && <div className="text-xs text-ink-3">{t("editPeople.familyDetail.born", { date: f.date(a.dob) })}</div>}
                           </div>
                         </div>
                         <span className="flex items-center gap-2">

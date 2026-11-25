@@ -37,10 +37,19 @@ export const PEOPLE_FLAG_CODES = [
   "POSSIBLE_DUPLICATE",
   // athlete data check (migration 20250420106200): staff confirm a login link
   "POSSIBLE_SELF_LINK",
+  // 20250420106300: staff-created athlete without a guardian login (informational: invite a guardian)
+  "NO_GUARDIAN_LOGIN",
 ] as const;
 
 /** Flags decided in the participant review panel (approve / decline), not with the generic resolve form. */
 export const DECIDED_IN_PANEL_CODES = ["ATHLETE_ELIGIBILITY_CHANGE", "ATHLETE_LINK_REQUEST", "POSSIBLE_SELF_LINK"] as const;
+
+/** Informational suggestions (not problems): marked apart, dismissable, never raised again once settled. */
+export const INFORMATIONAL_FLAG_CODES = ["NO_GUARDIAN_LOGIN"] as const;
+
+export function isInformationalFlag(code: string): boolean {
+  return (INFORMATIONAL_FLAG_CODES as readonly string[]).includes(code);
+}
 
 export type FlagGroup = "attendance" | "billing" | "people" | "other";
 
@@ -77,7 +86,7 @@ export function flagHref(f: FlagLike): string | null {
     case "teams":
       return id ? `/admin/teams/${id}?tab=coaches` : null;
     case "athletes":
-      return id ? `/admin/athletes/${id}${f.reasonCode === "ATHLETE_WITHOUT_GUARDIAN" || f.reasonCode === "POSSIBLE_DUPLICATE" || f.reasonCode === "POSSIBLE_SELF_LINK" ? "" : "?tab=billing"}` : null;
+      return id ? `/admin/athletes/${id}${f.reasonCode === "ATHLETE_WITHOUT_GUARDIAN" || f.reasonCode === "NO_GUARDIAN_LOGIN" || f.reasonCode === "POSSIBLE_DUPLICATE" || f.reasonCode === "POSSIBLE_SELF_LINK" ? "" : "?tab=billing"}` : null;
     case "athlete_change_requests":
     case "athlete_link_requests": {
       const athleteId = str(f.details.athlete_id);

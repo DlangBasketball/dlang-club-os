@@ -52,7 +52,8 @@ export default async function ParentBookingRequestPage({ searchParams }: { searc
   }
   const child = bookable.find((k) => k.id === wanted) ?? bookable[0];
   // "Someone else" (Workstream B): the booker's catalog (typed name only, no packages of the child's family).
-  const isOther = choices?.participants.some((p) => p.id === child.id && p.kind === "other") ?? false;
+  // A child linked to this adult only books through the same flow (guardian consent, invoice to the booker).
+  const isOther = choices?.participants.some((p) => p.id === child.id && (p.kind === "other" || p.kind === "linked")) ?? false;
   const [catalog, wizard] = await Promise.all([isOther ? getThirdPartyCatalog(child.id) : getFamilyBookingCatalog(child.id), getTrainingWizardData()]);
   if (catalog.error !== null) {
     return <div className="animate-fade-up max-w-2xl space-y-5">{back}<PageHeader title={t("bookingRequests.family.title")} />

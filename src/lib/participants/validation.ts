@@ -30,6 +30,46 @@ export type Sex = (typeof SEXES)[number];
 /** Relation of the requesting adult when linking to an existing child (family_members.relation). */
 export const LINK_RELATIONS = ["mother", "father", "guardian", "other"] as const;
 
+/**
+ * Scope of an approved link (20250420106300): the whole family (second parent
+ * / co-guardian, family_members) or this child only (athlete_guardian_links).
+ */
+export const LINK_SCOPES = ["family", "athlete"] as const;
+export type LinkScope = (typeof LINK_SCOPES)[number];
+
+/** Relation of an adult linked to one child only. */
+export const CHILD_LINK_RELATIONS = ["aunt_uncle", "grandparent", "adult_sibling", "family_friend", "other_carer"] as const;
+export type ChildLinkRelation = (typeof CHILD_LINK_RELATIONS)[number];
+
+/** Permissions of a per-child link (defaults for "This child only"). */
+export const childLinkPermissionsSchema = z.object({
+  relation: z.enum(CHILD_LINK_RELATIONS).default("other_carer"),
+  canRegister: z.boolean().default(true),
+  canPay: z.boolean().default(true),
+  canSeeMedical: z.boolean().default(false),
+  receivesEmails: z.boolean().default(true),
+  canEditProfile: z.boolean().default(false),
+}).refine((p) => !p.canRegister || p.canPay, { message: "participants.errors.REGISTER_NEEDS_PAY", path: ["canPay"] });
+export type ChildLinkPermissions = z.output<typeof childLinkPermissionsSchema>;
+export const DEFAULT_CHILD_LINK: ChildLinkPermissions = {
+  relation: "other_carer", canRegister: true, canPay: true, canSeeMedical: false, receivesEmails: true, canEditProfile: false,
+};
+
+/** Booking needs payment (a linker's bookings are invoiced to them): keep the pair consistent. */
+export function normaliseChildLink(p: ChildLinkPermissions, changed: keyof ChildLinkPermissions): ChildLinkPermissions {
+  if (changed === "canRegister" && p.canRegister) return { ...p, canPay: true };
+  if (changed === "canPay" && !p.canPay) return { ...p, canRegister: false };
+  return p;
+}
+
+/** Permissions payload of participant_link_decide / athlete_link_update. */
+export function childLinkToRpc(p: ChildLinkPermissions): Record<string, string | boolean> {
+  return {
+    relation: p.relation, can_register: p.canRegister, can_pay: p.canPay, can_see_medical: p.canSeeMedical,
+    receives_emails: p.receivesEmails, can_edit_profile: p.canEditProfile,
+  };
+}
+
 /** "Someone else": how the booker knows the participant. */
 export const BOOKER_RELATIONS = ["nephew_niece", "friends_child", "other"] as const;
 
@@ -44,6 +84,8 @@ export const PARTICIPANT_ERROR_CODES = [
   "INVALID_SEX", "INVALID_HEIGHT", "INVALID_WEIGHT", "INVALID_JERSEY_NUMBER", "TOO_LONG", "FAMILY_NOT_FOUND", "NOT_FOUND",
   "NOT_ALLOWED", "FIELD_NOT_ALLOWED", "SELF_MUST_BE_ADULT", "INVALID_DATE", "REVIEW_REQUIRED", "INVALID_DECISION",
   "INVALID_RELATION", "NO_MATCH", "EXPIRED", "THIRD_PARTY_NOT_ENABLED",
+  // 20250420106300_flexible_links_finance_scope.sql
+  "INVALID_SCOPE", "REGISTER_NEEDS_PAY", "LINK_NOT_ACTIVE", "NO_GUARDIAN_CONTACT",
 ] as const;
 export type ParticipantErrorCode = (typeof PARTICIPANT_ERROR_CODES)[number];
 
@@ -203,27 +245,44 @@ export function sportsToRpc(d: Partial<SportsData>): Record<string, string | num
 // ---------------------------------------------------------------------------
 // Picker logic
 // ---------------------------------------------------------------------------
-/** "other" = someone outside the family (Workstream B: third-party participant awaiting guardian consent). */
-export type ParticipantKind = "self" | "child" | "other";
-export type ParticipantOption = { id: string; name: string; dob: string | null; kind: ParticipantKind };
-export type PickerMode = "self" | "child" | "other";
+/**
+ * "other" = someone outside the family (Workstream B: third-party participant awaiting guardian consent);
+ * "linked" = a child the adult is linked to on its own ("This child only"; relation label). Both book
+ * through the guardian consent flow.
+ */
+export type ParticipantKind = "self" | "child" | "other" | "linked";
+export type ParticipantOption = { id: string; name: string; dob: string | null; kind: ParticipantKind; relation?: string | null };
+export type PickerMode = "self" | "child" | "linked" | "other";
 
 /** Self profile state for the picker: none yet (create on first use) or the existing one. */
 export type SelfState = { athleteId: string | null; dob: string | null; firstName: string; lastName: string };
 
 /** Modes the picker offers. "Myself" disappears when the self profile is known to be a minor on the date. */
-export function pickerModes(opts: { allowSelf: boolean; allowOther: boolean; self: SelfState | null; on: string }): PickerMode[] {
+export function pickerModes(opts: { allowSelf: boolean; allowOther: boolean; self: SelfState | null; on: string; hasLinked?: boolean }): PickerMode[] {
   const modes: PickerMode[] = [];
   if (opts.allowSelf && opts.self && !(opts.self.dob && !isAdultOn(opts.self.dob, opts.on))) modes.push("self");
   modes.push("child");
+  // Linked children book through the same guardian-consent flow as "Someone else".
+  if (opts.allowOther && opts.hasLinked) modes.push("linked");
   if (opts.allowOther) modes.push("other");
   return modes;
+}
+
+/** Picker mode of a participant. */
+export function participantMode(p: Pick<ParticipantOption, "kind">): PickerMode {
+  return p.kind === "self" ? "self" : p.kind === "other" ? "other" : p.kind === "linked" ? "linked" : "child";
+}
+
+/** Booked through the guardian consent flow (not the adult's own family). */
+export function needsGuardianConsent(p: Pick<ParticipantOption, "kind">): boolean {
+  return p.kind === "other" || p.kind === "linked";
 }
 
 /** Initial mode: the mode of the current selection, else children. */
 export function initialMode(selected: string[], participants: ParticipantOption[], modes: PickerMode[]): PickerMode {
   const first = participants.find((p) => selected.includes(p.id));
   if (first?.kind === "self" && modes.includes("self")) return "self";
+  if (first?.kind === "linked" && modes.includes("linked")) return "linked";
   return modes.includes("child") ? "child" : modes[0];
 }
 

@@ -18,6 +18,8 @@ import { LicenceCard } from "@/components/athlete/licence-card";
 import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
 import { ProfileEditForm } from "@/components/participants/profile-edit-form";
 import { getMyParticipantRequests, getSportsProfile } from "@/lib/participants/server";
+import { getMyAthletes } from "@/lib/participants/my-athletes";
+import { LinkedChildView } from "@/components/participants/linked-child-view";
 
 /**
  * Parent app: one child's player card. Guardians edit the photo, the cover
@@ -31,6 +33,15 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
   const { data, error } = await getChildProfile(id);
   if (error) return <ErrorState title={t("media.profile.loadError")} message={error} />;
   if (!data) notFound();
+  // An adult linked to this child only gets the restricted view (no family-wide parts).
+  const mine = (await getMyAthletes()).find((x) => x.id === data.id);
+  if (mine?.kind === "linked" && mine.link) {
+    const sp = mine.link.canEditProfile ? await getSportsProfile(data.id) : null;
+    const md = mine.link.canSeeMedical && data.medical
+      ? { allergies: data.medical.allergies ?? null, conditions: data.medical.conditions ?? null, medications: data.medical.medications ?? null, notes: data.medical.notes ?? null }
+      : null;
+    return <LinkedChildView athlete={mine} medical={md} sports={sp} />;
+  }
   const m = data.medical;
   const [photos, cover, teams, sheetMarks, sports, requests] = await Promise.all([
     photoUrlsForAthletes([data.id]),

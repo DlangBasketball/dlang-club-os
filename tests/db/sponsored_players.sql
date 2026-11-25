@@ -144,11 +144,17 @@ begin
   perform spn.ok(v = 'OK:100.00/00000000-0000-0000-0000-0000000000f1',
                  'admin sets a full sponsorship: percent forced to 100, sponsored_by = the caller (' || v || ')');
   -- finance: 50 % for Sophia (073), with scope season + recurring + membership + camp
-  v := spn.run_as(finance_a, $q$update public.athletes
-         set sponsorship_kind = 'partial', sponsorship_percent = 50, sponsor_name = 'Synthetic Company SA',
-             sponsorship_scope = '{recurring,season,membership,camp,season}'
-       where id = '00000000-0000-0000-0000-000000000073'
-       returning sponsorship_percent::text || '/' || array_to_string(sponsorship_scope, ',') || '/' || sponsored_by::text$q$);
+  -- (20250420106300: finance no longer writes the athletes table; it uses athlete_sponsorship_set.)
+  v := spn.run_as(finance_a, $q$update public.athletes set sponsorship_kind = 'partial', sponsorship_percent = 50
+       where id = '00000000-0000-0000-0000-000000000073' returning id$q$);
+  perform spn.ok(v = 'OK:<null>', 'finance: no direct write on the athletes table (' || v || ')');
+  v := spn.run_as(finance_a, $q$select array_length(public.athlete_sponsorship_set('00000000-0000-0000-0000-000000000073', null,
+         '{"sponsorship_kind":"partial","sponsorship_percent":50,"sponsor_name":"Synthetic Company SA",
+           "sponsorship_scope":["recurring","season","membership","camp","season"]}'::jsonb), 1)::text$q$);
+  perform spn.ok(v = 'OK:1', 'finance sponsorship RPC updates one athlete (' || v || ')');
+  v := spn.run_as(finance_a, $q$select sponsorship_percent::text || '/' || array_to_string(sponsorship_scope, ',')
+       from public.billing_athletes where id = '00000000-0000-0000-0000-000000000073'$q$)
+       || '/' || (select sponsored_by::text from public.athletes where id = '00000000-0000-0000-0000-000000000073');
   perform spn.ok(v = 'OK:50.00/camp,membership,recurring,season/00000000-0000-0000-0000-0000000000f2',
                  'finance sets a partial sponsorship; scope de-duplicated (' || v || ')');
   perform spn.ok((select sponsored_at is not null from public.athletes where id = '00000000-0000-0000-0000-000000000073'),

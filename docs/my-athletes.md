@@ -75,7 +75,10 @@ The original functions are kept unchanged as `club_request_submit_base`, `club_r
 |---|---|
 | `POSSIBLE_DUPLICATE` | same `bk_norm(first)`, `bk_norm(last)` and DOB in the club; every record but the oldest is flagged with `match_ids` |
 | `POSSIBLE_SELF_LINK` (new) | adult player (18+) without login whose family contact e-mail **and** name match exactly one login of the club / family that is not linked yet. Staff confirm with **Link to this login** (`athlete_self_link_decide` → `ta_link_player`) or dismiss. |
-| `ATHLETE_WITHOUT_GUARDIAN` | no family member and no own login (`source: data_check`) |
+| `NO_GUARDIAN_LOGIN` (since `20250420106300`, informational) | the family has no login and the athlete has none either — a staff-created / imported athlete. Expected, **not a problem**: shown with a "Suggestion" badge and a one-click **Invite a guardian** (`inviteGuardianForFlag` → existing `inviteUser`, role parent, family contact e-mail; the flag is marked `invited_at` and resolves itself once a guardian or the player logs in). Not raised for a "someone else" holding family awaiting consent. |
+| `ATHLETE_WITHOUT_GUARDIAN` | no longer raised by the data check; the attendance review raises it only for a rostered player whose family **has** logins none of which can be reached |
+
+Resolved or dismissed findings are never raised again (any earlier flag of the same code — open, resolved or dismissed — blocks a new one). The migration reclassified the open `ATHLETE_WITHOUT_GUARDIAN` flags of athletes without any login: each old flag is resolved with the note "Reclassified: …" (history kept, nothing deleted) and an informational `NO_GUARDIAN_LOGIN` flag (`details.previous_flag_id`) is opened.
 
 **Merge** — `/admin/data-review` lists open duplicate pairs side by side (`athlete_duplicate_pairs`: family, created, teams / registrations / invoices counts, login). Staff pick the record to keep (default: the older one), add an optional reason, confirm. `athlete_merge(keep, duplicate, reason, request_id)`:
 
@@ -90,7 +93,7 @@ The original functions are kept unchanged as `club_request_submit_base`, `club_r
 
 * Guardians: `my_athletes()` / `my_athlete_resolve()` only return their own athletes; profile writes stay on `participant_*` RPCs and the existing RLS.
 * Coaches: read only confirmed players of their teams / programme sessions (`coach_can_access_athlete`), write sports fields only (`participant_update_sports`, `FIELD_NOT_ALLOWED` for anything else); sports-only view of proposals.
-* Finance: **billing only**. `participant_is_staff()` is now admin-only (finance can no longer edit profiles through the participant RPCs), and `trg_athletes_finance_profile_guard` refuses profile-field changes by a finance-only caller through the table policy (`FIELD_NOT_ALLOWED`). Finance still reads athlete identity for invoices; no medical data, no sports profile RPC, no profile history, no merge / data check.
+* Finance: **billing only** (enforced in the database since `20250420106300`, see "Finance scope" below). `participant_is_staff()` is admin-only, finance has no read or write on the `athletes` table, reads billing columns through `billing_athletes`, sets sponsorships through `athlete_sponsorship_set`; no medical data, no sports profile RPC, no profile history, no merge / data check.
 * Admins: within their club (every RPC checks `current_org_id()`).
 
 ## Audit and profile history
@@ -104,8 +107,66 @@ The original functions are kept unchanged as `club_request_submit_base`, `club_r
 
 `tests/db/my_athletes.sql`: two children + self under one parent, switcher validation (own / foreign family / other club / stale / anonymous); coach restricted (other team, unconfirmed registration, sports-only writes); finance (medical, sports profile, RPC + direct edit, history, merge, data check); duplicate prevention (same parent twice → same athlete; other family → opaque `POSSIBLE_MATCH` + link request, no duplicate); data check flags + idempotency; self link only on staff confirmation; merge (permissions, cross-tenant, moved rows, recorded conflicts, archive, audit, replay, `ALREADY_MERGED`); club requests with proposals (pending → nothing applied; coach / admin views; approve applies values + roster number; taken number; reserved → assigned on confirmation; DOB through staff review; decline; replay); profile history (admin only); cross-tenant denial for every new RPC and the new table.
 
+## Flexible link access: "Whole family" or "This child only" (`20250420106300`)
+
+Migration `supabase/migrations/20250420106300_flexible_links_finance_scope.sql` · DB suite `tests/db/flexible_links.sql` (101 assertions) · unit `tests/unit/flexible-links.test.ts`.
+
+Aunts, uncles, grandparents and friends can register a family member's or a friend's child without seeing the rest of the family. Whoever approves a link request (a family guardian of the child in **/parent/family**, or staff in **/admin/data-review**) now chooses the **scope**:
+
+| Scope | Stored in | Access |
+|---|---|---|
+| **Whole family** (default for mother / father / guardian requests) | `family_members` (non-primary) with `can_pay`, `can_see_medical`, `receives_emails` | unchanged: a co-guardian, sees every child of the family |
+| **This child only** (default for anyone else) | `athlete_guardian_links` (org, athlete, profile, relation `aunt_uncle / grandparent / adult_sibling / family_friend / other_carer`, `can_register`, `can_pay`, `can_see_medical`, `receives_emails`, `can_edit_profile`, `granted_by`, `status active / revoked`, `revoked_by / _at / revoke_reason`, `link_request_id`) | that one athlete only |
+
+Defaults for "This child only": book + pay + e-mails on, medical + profile edits off; the approver can change them. Booking implies paying (`can_register ⇒ can_pay`, check constraint + `REGISTER_NEEDS_PAY`): a linker's bookings are invoiced to them, never to the family. One active link per (child, adult); the table has RLS on every verb (read: the linked adult, the child's family guardians, admins of the club; writes: RPCs only), the restrictive tenant-isolation policy, `updated_at` and the audit trigger; grant, permission change (`participant.link.permissions`, before / after) and revocation (`participant.link.revoked`, via guardian / staff / self) are audited.
+
+### How each permission is enforced
+
+The family helpers stay strictly family-scoped (`is_guardian_of_athlete`, `is_guardian_of_family`, `guardian_can_pay`, `is_primary_guardian`), so every family-wide surface — siblings, `families` (address, contact), `family_members`, family invoices / billing, documents, consents, forms, development, attendance overviews — stays closed to a linker. New helper `athlete_link_can(athlete, 'view' | 'register' | 'pay' | 'medical' | 'emails' | 'edit_profile')` (active link, current club, live athlete) is granted explicitly where it applies:
+
+| Permission | Where |
+|---|---|
+| view | `athletes_link_select` policy (the child's row only); `my_athlete_ids()` / `my_athletes()` (kind `linked`, relation, permissions; no family id, no balances, no memberships / club requests; sports fields only with `can_edit_profile`) → My Athletes, switcher, `/parent/children/[id]` (restricted `LinkedChildView`) |
+| can_see_medical | `guardian_can_see_medical()` → `medical_select` (read). Medical **writes** stay with the family (`medical_guardian_write` now also requires `is_guardian_of_athlete`) |
+| can_edit_profile | `participant_can_manage()` → `participant_update`, `participant_update_sports`, `participant_sports_profile`, corrections (DOB / sex still go to staff review when an enrolment is affected). No direct table write (`athletes_guardian_write` checks the family) |
+| can_register (+ can_pay) | a `participant_bookers` row (scope `linked`) kept in step by `athlete_link_sync_booker()`; `gc_is_booker()` honours it only while the link is active with `can_register`. Camp checkout (`submitCampParent` → `third_party_camp_hold`) and training requests (`/parent/bookings/request` → `third_party_training_request`) use the existing "someone else" flow. The picker shows the child under **"A child I'm linked to"** (relation badge) wherever "Someone else" is offered; forms without the consent flow (training wizard `/parent/bookings/new`, club programme / membership requests, selection applications, waiting list) do not offer linked children |
+| can_pay | invoices of what the linker booked are addressed to them (`billing_payers` kind `other`, `payer_profile_id`); the child's family billing is not touched |
+| receives_emails | stored and shown; booking e-mails (consent outcome, invoice) go to the linker as the booker. Club broadcasts to families do not include linkers (follow-up) |
+
+### Consent rule (default)
+
+A linker can never give the parental consent. Each booking is held (place kept, no invoice) and `gc_open_request()` creates a guardian consent request addressed to the child's family (`existing_child`; primary guardian's e-mail, else another guardian's, else the family contact e-mail — `NO_GUARDIAN_CONTACT` when none). Only a member of the child's family can accept (`NOT_GUARDIAN` otherwise, `BOOKER_CANNOT_CONSENT` for the linker); on acceptance the existing flow records the consents and issues the invoice to the linker. A club policy letting non-guardian carers consent themselves is **not** implemented (follow-up); the default above always applies.
+
+### Revocation and management
+
+* Family guardians see every active per-child link of their children in **/parent/family** ("People linked to one child": change permissions, end access); admins in the athlete page (`/admin/athletes/[id]`, guardians column); the linked adult can end their own link from the child page.
+* Revocation (`athlete_link_revoke`) is immediate: the row stops matching every helper, the booker row is removed, pending holds are cancelled (`gc_cancel_items`, request `revoked`, place freed). Bookings a guardian already consented to stay. The link row is kept as history (`status = revoked`).
+* Approving "Whole family" for an adult who already has a per-child link supersedes it (revoked, reason "superseded by family access").
+
+RPCs (all `security definer`, `search_path = public`, caller + club checked in SQL): `participant_link_decide(request, decision, {scope, relation, can_*}, note)`, `athlete_links_for(athlete)`, `athlete_links_mine_to_manage()`, `athlete_link_update(link, permissions)`, `athlete_link_revoke(link, reason)`.
+
+## Finance scope (`20250420106300`)
+
+Before, `athletes_select` and `athletes_admin_write` granted `is_finance()` (admin **or** finance) every column of every athlete. Now:
+
+* `athletes_select`: admins of the club, family guardians, coaches of the player (+ `athletes_link_select` for linkers). `athletes_admin_write`: admins only.
+* `billing_athletes` (security-barrier view, caller's club, `is_finance()` = admin or finance): `id, org_id, family_id, first_name, last_name, status, archived_at, merged_into_id, created_at`, sponsorship columns and `licence_fee`. **No** DOB, sex, height, weight, position, jersey, hand, nationality, school, notes, photo, licence identity, medical, documents. DOB is not needed by any billing screen (membership player search falls back to name search for finance; admins keep birth-year search).
+* `athlete_sponsorship_set(athlete | family, row)`: sponsorship writes for admin / finance (the existing guard stamps and audits).
+* Code paths switched to the view: `src/lib/data/money-edit.ts`, `player-billing.ts`, `families.ts`, `dashboard.ts`, `sponsorships.ts`, `registrations.ts`, `src/lib/plans/data.ts`, `src/lib/finance/data.ts`, `src/lib/accounting/data.ts`, `src/lib/actions/sponsorship.ts`, `player-directory.ts` (finance branch), the membership list (`src/lib/club-admin/data.ts` `decorateMemberships`), and `getAthleteDetail` / family detail fall back to billing columns for a finance-only caller (admins keep the full row). Admins (often also finance) are unaffected.
+
+## Privacy notes (nFADP / GDPR, minors)
+
+* **Data minimisation.** A per-child linker gets one child, not the family: no siblings, no family address / contact, no family invoices or balances, no memberships or club requests, no documents or consents. Medical data only when a family guardian (or staff) turns on `can_see_medical`, read-only; sports profile only with `can_edit_profile`.
+* **Consent stays with the family.** Parental consent for a booking is always given by a member of the child's family (guardian consent request, `existing_child`); a linker can never consent. The family can see, change and end every per-child link at any time (immediate effect).
+* **Accountability.** Every grant, permission change and revocation is written to `audit_logs` (who, when, before / after); revoked links are kept as history (`status = revoked`, `revoked_by`, `revoked_at`, `revoke_reason`) and fall under the club's normal retention for guardian records.
+* **Purpose limitation for finance.** Finance users process billing only: `billing_athletes` exposes identity, family, status and sponsorship, nothing about health, sport, school, nationality, photos or date of birth. Screens finance does not need (attendance, development, camp edition rosters, the assistant's athlete list) return no athlete rows to a finance-only user rather than profile data.
+* **Staff-created athletes.** A child registered by staff without a guardian login is lawful and expected; the data check only suggests inviting a guardian at the family contact e-mail already on file (no new data collected), and never re-raises a dismissed suggestion.
+* Synthetic data only in tests (`tests/db/flexible_links.sql`).
+
 ## Open points
 
-* Finance can still `select` sports columns of the `athletes` row through the existing billing read policy (column-level hiding would break the shared PostgREST reads); the RPCs and UI never show them to finance.
+* Finance-only users see no athlete names on screens that are not billing screens and still read the `athletes` table (e.g. camp edition lists, selection reports, forms exports): these degrade to missing names rather than exposing profile data. Switch them to `billing_athletes` when finance needs them.
+* A guardian cannot yet invite a relative directly for one child by e-mail (the invitations table / `consume_invitation` are family-scoped); today the relative requests the link and the guardian approves "This child only". Follow-up: an athlete-scoped invitation.
+* "Carers may consent" club policy (see Consent rule) and family broadcasts to linkers with `receives_emails` are follow-ups.
+* Club programme / membership requests and selection applications stay with family guardians (no consent flow there).
 * A merge of athletes from different families does not grant the other family's guardians access; staff use a link request / invitation.
-* Third-party ("Someone else") booking is not offered in the training wizard or club forms (no consent flow there yet).

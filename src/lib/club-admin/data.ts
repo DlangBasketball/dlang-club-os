@@ -4,6 +4,7 @@ import { DEFAULT_MANDATORY, DEFAULT_REMINDER_DAYS, type CertKind } from "./compl
 import { isExpiringSoon, effectiveStatus, type MembershipStatus } from "./membership";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS, isHiddenAthleteStatus } from "@/lib/people/person-delete";
 import { must } from "@/lib/data/must";
+import { asBillingClient } from "@/lib/people/billing-athletes";
 
 /**
  * Server reads for the club-admin pages. Everything goes through the signed-
@@ -60,7 +61,8 @@ async function decorateMemberships(orgId: string, rows: MembershipRow[], today: 
   const [types, fams, aths, invs, renewals] = await Promise.all([
     listMembershipTypes(orgId),
     famIds.length ? db.from("families").select("id,name,status").in("id", famIds) : Promise.resolve({ data: [] as (Named & { status: string })[] }),
-    athIds.length ? db.from("athletes").select("id,first_name,last_name,status").in("id", athIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string; status: string }[] }),
+    // Billing columns only (finance reaches this list): billing_athletes, never the athletes table.
+    athIds.length ? asBillingClient(db).from("billing_athletes").select("id,first_name,last_name,status").in("id", athIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string; status: string }[] }),
     invIds.length ? db.from("invoices").select("id,number").in("id", invIds) : Promise.resolve({ data: [] as { id: string; number: string }[] }),
     rows.length ? db.from("memberships").select("renewed_from_id").eq("org_id", orgId).in("renewed_from_id", rows.map((r) => r.id)).neq("status", "cancelled") : Promise.resolve({ data: [] as { renewed_from_id: string | null }[] }),
   ]);

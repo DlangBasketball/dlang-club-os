@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import "server-only";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
@@ -211,7 +212,7 @@ async function decorateMemberships(db: LooseDb, orgId: string, list: MembershipR
   const ids = list.map((m) => m.id);
   const today = await clubTodayFor(db, orgId);
   const [athletes, families, seasons, types, payers, invByMembership, legacyInv] = await Promise.all([
-    db.from("athletes").select("id,first_name,last_name").in("id", uniq(list.map((m) => m.athlete_id))),
+    asBillingClient(db).from("billing_athletes").select("id,first_name,last_name").in("id", uniq(list.map((m) => m.athlete_id))),
     db.from("families").select("id,name").in("id", uniq(list.map((m) => m.family_id))),
     db.from("seasons").select("id,name,starts_on,ends_on,is_current").in("id", uniq(list.map((m) => m.season_id))),
     db.from("membership_types").select("id,name").in("id", uniq(list.map((m) => m.membership_type_id))),
@@ -348,7 +349,7 @@ export async function listSeasonMemberships(filter: SeasonMembershipFilter): Pro
     }
     const q = (filter.q ?? "").replace(/[%,()*\\]/g, " ").trim().slice(0, 80);
     if (q) {
-      let aq = db.from("athletes").select("id").eq("org_id", me.orgId);
+      let aq = asBillingClient(db).from("billing_athletes").select("id").eq("org_id", me.orgId);
       for (const w of q.split(/\s+/).filter(Boolean).slice(0, 3)) aq = aq.or(`first_name.ilike.%${w}%,last_name.ilike.%${w}%`);
       const found = uniq(rows<{ id: string }>(await aq.limit(500)).map((a) => a.id));
       athleteFilter = athleteFilter ? athleteFilter.filter((id) => found.includes(id)) : found;
@@ -406,7 +407,12 @@ export async function getMembershipFormPlayer(athleteId: string): Promise<Result
   const db = await looseDb();
   const a = await db.from("athletes").select("id,first_name,last_name,dob,family_id").eq("org_id", me.orgId).eq("id", athleteId).maybeSingle();
   if (a.error) return fail(a.error.message);
-  const ath = a.data as { id: string; first_name: string; last_name: string; dob: string | null; family_id: string } | null;
+  let ath = a.data as { id: string; first_name: string; last_name: string; dob: string | null; family_id: string } | null;
+  if (!ath) {
+    // Finance-only caller: billing columns only (no DOB), 20250420106300.
+    const b = await asBillingClient(db).from("billing_athletes").select("id,first_name,last_name,family_id").eq("org_id", me.orgId).eq("id", athleteId).maybeSingle();
+    ath = b.data ? { ...b.data, dob: null } : null;
+  }
   if (!ath) return ok(null);
   const [fam, fm, tm, ms] = await Promise.all([
     db.from("families").select("id,name,contact_name,contact_email").eq("id", ath.family_id).maybeSingle(),
@@ -598,7 +604,7 @@ export async function getPayerContext(familyId: string): Promise<Result<PayerCon
     const [inv, aths] = await Promise.all([
       db.from("invoices").select(INVOICE_COLS).eq("org_id", me.orgId).eq("family_id", familyId).in("status", OPEN)
         .order("due_date", { ascending: true }).limit(300),
-      db.from("athletes").select("id,first_name,last_name").eq("org_id", me.orgId).eq("family_id", familyId).order("first_name"),
+      asBillingClient(db).from("billing_athletes").select("id,first_name,last_name").eq("org_id", me.orgId).eq("family_id", familyId).order("first_name"),
     ]);
     if (inv.error) return fail(inv.error.message);
     const athletes = rows<{ id: string; first_name: string; last_name: string }>(aths).map((a) => ({ id: a.id, name: `${a.first_name} ${a.last_name}`.trim() }));
@@ -628,7 +634,7 @@ export async function resolvePayerFamily(input: { athleteId?: string | null; inv
     return (r.data as { family_id?: string } | null)?.family_id ?? null;
   }
   if (isUuid(input.athleteId)) {
-    const r = await db.from("athletes").select("family_id").eq("org_id", me.orgId).eq("id", input.athleteId).maybeSingle();
+    const r = await asBillingClient(db).from("billing_athletes").select("family_id").eq("org_id", me.orgId).eq("id", input.athleteId).maybeSingle();
     return (r.data as { family_id?: string } | null)?.family_id ?? null;
   }
   return null;

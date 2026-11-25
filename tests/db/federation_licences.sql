@@ -154,8 +154,11 @@ declare v text;
   coach_a   uuid := '00000000-0000-0000-0000-0000000000f3';
   guardian  uuid := '00000000-0000-0000-0000-0000000000f4';
 begin
-  v := lic.run_as(finance_a, $q$select licence_fee::text from public.athletes where id = '00000000-0000-0000-0000-000000000071'$q$);
+  -- 20250420106300: finance reads billing columns through billing_athletes, never the athletes table.
+  v := lic.run_as(finance_a, $q$select licence_fee::text from public.billing_athletes where id = '00000000-0000-0000-0000-000000000071'$q$);
   perform lic.ok(v = 'OK:45.50', 'finance reads the licence fee (' || v || ')');
+  v := lic.run_as(finance_a, $q$select licence_number from public.athletes where id = '00000000-0000-0000-0000-000000000071'$q$);
+  perform lic.ok(v = 'OK:<null>', 'finance cannot read the athlete record itself (' || v || ')');
 
   v := lic.run_as(coach_a, $q$select licence_number || '/' || licence_category from public.athletes where id = '00000000-0000-0000-0000-000000000072'$q$);
   perform lic.ok(v = 'OK:SYN-1002/U14', 'coach reads the licence of an athlete he coaches (' || v || ')');
@@ -197,7 +200,8 @@ begin
   perform lic.ok(v = 'OK:8888', 'guardian updates her own family postal address (' || v || ')');
   v := lic.run_as(finance_a, $q$update public.athletes set licence_fee = 50
        where id = '00000000-0000-0000-0000-000000000071' returning licence_fee::text$q$);
-  perform lic.ok(v = 'OK:50.00', 'finance (club staff) may update the licence fee (' || v || ')');
+  -- 20250420106300: licence data is edited by admins (updateAthleteLicence is admin-only); finance has no table write.
+  perform lic.ok(v = 'OK:<null>', 'finance no longer writes the athletes table (licence fee unchanged) (' || v || ')');
   perform lic.ok((select licence_number = 'SYN-1001' from public.athletes where id = '00000000-0000-0000-0000-000000000071'),
                  'licence number unchanged after guardian attempts');
 end $$;

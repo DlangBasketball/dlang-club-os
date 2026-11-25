@@ -30,7 +30,7 @@ export function JoinClubRequestForm({ types, families, choices, active, today }:
   const rid = useRequestId();
   const [typeId, setTypeId] = React.useState(types[0]?.id ?? "");
   const [familyId, setFamilyId] = React.useState(families[0]?.id ?? "");
-  const [athleteId, setAthleteId] = React.useState(() => initialAthlete(active, choices.participants.filter((p) => p.kind !== "other").map((p) => p.id)));
+  const [athleteId, setAthleteId] = React.useState(() => initialAthlete(active, choices.participants.filter((p) => p.kind !== "other" && p.kind !== "linked").map((p) => p.id)));
   const [message, setMessage] = React.useState("");
   const [proposal, setProposal] = React.useState<ProposalDraft>(emptyProposal);
   const type = types.find((x) => x.id === typeId);

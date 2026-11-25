@@ -723,7 +723,8 @@ begin
   perform tat.ok(not exists (select 1 from public.data_review_flags where reason_code = 'ATTENDANCE_UNFINISHED'
                           and entity_id = '00000000-0000-0000-0000-0000000ac0e0'),
                  'a session before the go-live is never flagged');
-  perform tat.ok(exists (select 1 from public.data_review_flags where reason_code = 'ATHLETE_WITHOUT_GUARDIAN'
+  -- 20250420106300: no guardian login at all -> informational NO_GUARDIAN_LOGIN (invite a guardian).
+  perform tat.ok(exists (select 1 from public.data_review_flags where reason_code in ('ATHLETE_WITHOUT_GUARDIAN', 'NO_GUARDIAN_LOGIN')
                           and entity_id = '00000000-0000-0000-0000-00000000ac34'),
                  'player without a guardian is flagged');
   perform tat.ok(exists (select 1 from public.data_review_flags where reason_code = 'TEAM_WITHOUT_COACH'
@@ -873,14 +874,17 @@ select tat.ok(tat.svc($q$select public.attendance_review_flags('00000000-0000-00
 create temp table tat_counts as
   select (select count(*) from public.team_attendance_marks) m, (select count(*) from public.attendance_no_show_alerts) a,
          (select count(*) from public.team_memberships) tm, (select count(*) from public.team_membership_periods) p,
-         (select count(*) from public.data_review_flags) f, (select count(*) from public.team_attendance_sheets) s,
+         -- guardian-login flags excluded: re-applying the 20250420104000 file restores its older review rule (20250420106300 changed it)
+         (select count(*) from public.data_review_flags where reason_code not in ('ATHLETE_WITHOUT_GUARDIAN', 'NO_GUARDIAN_LOGIN')) f,
+         (select count(*) from public.team_attendance_sheets) s,
          (select count(*) from public.club_training_breaks) b, (select count(*) from public.events where status = 'cancelled') c;
 \set QUIET on
 \i supabase/migrations/20250420104000_team_attendance.sql
 \set QUIET off
 select tat.ok((select m = (select count(*) from public.team_attendance_marks) and a = (select count(*) from public.attendance_no_show_alerts)
                   and tm = (select count(*) from public.team_memberships) and p = (select count(*) from public.team_membership_periods)
-                  and f = (select count(*) from public.data_review_flags) and s = (select count(*) from public.team_attendance_sheets)
+                  and f = (select count(*) from public.data_review_flags where reason_code not in ('ATHLETE_WITHOUT_GUARDIAN', 'NO_GUARDIAN_LOGIN'))
+                  and s = (select count(*) from public.team_attendance_sheets)
                   and b = (select count(*) from public.club_training_breaks) and c = (select count(*) from public.events where status = 'cancelled')
                  from tat_counts),
               'migration re-run is idempotent (no row added or lost)');
