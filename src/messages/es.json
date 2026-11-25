@@ -472,7 +472,9 @@
       "next1": "Un responsable del club revisa y confirma tu plaza.",
       "next2": "Recibirás un correo para configurar tu cuenta de padre/madre.",
       "next3": "Paga la factura desde tu cuenta (tarjeta, TWINT o transferencia bancaria).",
-      "setupAccount": "Configurar tu cuenta"
+      "setupAccount": "Configurar tu cuenta",
+      "requestedNote": "{count, plural, one {# niño se envió al club para revisión: no hay factura hasta que se apruebe la solicitud.} other {# niños se enviaron al club para revisión: no hay factura hasta que se aprueben las solicitudes.}}",
+      "myBookings": "Ir a mis reservas"
     }
   },
   "invoices": {

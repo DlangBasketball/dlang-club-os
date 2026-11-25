@@ -472,7 +472,9 @@
       "next1": "A club admin reviews and confirms your spot.",
       "next2": "You'll get an email to set up your parent account.",
       "next3": "Pay the invoice from your account (card, TWINT or bank transfer).",
-      "setupAccount": "Set up your account"
+      "setupAccount": "Set up your account",
+      "requestedNote": "{count, plural, one {# child was sent to the club for review: no invoice until the request is approved.} other {# children were sent to the club for review: no invoice until the requests are approved.}}",
+      "myBookings": "Go to my bookings"
     }
   },
   "invoices": {

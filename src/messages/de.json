@@ -472,7 +472,9 @@
       "next1": "Ein Club-Admin prüft und bestätigt deinen Platz.",
       "next2": "Du erhältst eine E-Mail, um dein Elternkonto einzurichten.",
       "next3": "Bezahle die Rechnung in deinem Konto (Karte, TWINT oder Banküberweisung).",
-      "setupAccount": "Konto einrichten"
+      "setupAccount": "Konto einrichten",
+      "requestedNote": "{count, plural, one {# Kind wurde dem Verein zur Prüfung gesendet: keine Rechnung, bis die Anfrage angenommen ist.} other {# Kinder wurden dem Verein zur Prüfung gesendet: keine Rechnung, bis die Anfragen angenommen sind.}}",
+      "myBookings": "Zu meinen Buchungen"
     }
   },
   "invoices": {

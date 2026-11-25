@@ -330,6 +330,7 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
     await issueContractsForRegistrations(orgId, regIds, viewer!.id);
     await notify(orgId, camp.program.name, v.parent.name, v.parent.email, v.children.map((c) => `${c.firstName} ${c.lastName}`), r.invoice_number ?? "", Number(r.total ?? 0));
     const qs = new URLSearchParams({ ref: r.invoice_number ?? "", account: "existing" });
+    if (approvalIdx.length) qs.set("requested", String(approvalIdx.length));
     if (plan.ok && plan.planId) qs.set("plan", String(safeCount(instalments)));
     revalidatePersonEverywhere(orgId);
     redirect(`/register/${v.programSlug}/success?${qs.toString()}`);

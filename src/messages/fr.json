@@ -472,7 +472,9 @@
       "next1": "Un·e responsable du club vérifie et confirme votre place.",
       "next2": "Vous recevrez un e-mail pour créer votre compte parent.",
       "next3": "Réglez la facture depuis votre compte (carte, TWINT ou virement bancaire).",
-      "setupAccount": "Créer votre compte"
+      "setupAccount": "Créer votre compte",
+      "requestedNote": "{count, plural, one {# enfant a été envoyé au club pour validation : aucune facture tant que la demande n'est pas acceptée.} other {# enfants ont été envoyés au club pour validation : aucune facture tant que les demandes ne sont pas acceptées.}}",
+      "myBookings": "Voir mes réservations"
     }
   },
   "invoices": {

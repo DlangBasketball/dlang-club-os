@@ -472,7 +472,9 @@
       "next1": "Un responsabile del club verifica e conferma il tuo posto.",
       "next2": "Riceverai un'e-mail per configurare il tuo account genitore.",
       "next3": "Paga la fattura dal tuo account (carta, TWINT o bonifico bancario).",
-      "setupAccount": "Configura il tuo account"
+      "setupAccount": "Configura il tuo account",
+      "requestedNote": "{count, plural, one {# bambino è stato inviato al club per l'approvazione: nessuna fattura finché la richiesta non è accettata.} other {# bambini sono stati inviati al club per l'approvazione: nessuna fattura finché le richieste non sono accettate.}}",
+      "myBookings": "Vai alle mie prenotazioni"
     }
   },
   "invoices": {

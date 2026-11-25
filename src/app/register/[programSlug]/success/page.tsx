@@ -8,10 +8,12 @@ export default async function RegistrationSuccessPage({
   params, searchParams,
 }: {
   params: Promise<{ programSlug: string }>;
-  searchParams: Promise<{ ref?: string; account?: string; plan?: string; applied?: string }>;
+  searchParams: Promise<{ ref?: string; account?: string; plan?: string; applied?: string; requested?: string }>;
 }) {
   const { programSlug } = await params;
-  const { ref, account, plan, applied } = await searchParams;
+  const { ref, account, plan, applied, requested } = await searchParams;
+  const requestedCount = /^\d{1,2}$/.test(requested ?? "") ? Number(requested) : 0;
+  const existing = account === "existing";
   const planCount = /^\d{1,2}$/.test(plan ?? "") ? Number(plan) : 0;
   const data = await getPublicProgram(programSlug);
   const t = await getTranslations(data?.program.orgId);
@@ -35,6 +37,7 @@ export default async function RegistrationSuccessPage({
             </p>
           </div>
           {planCount > 1 && <p className="text-sm text-ink-2">{t("plans.choose.successNote", { count: planCount })}</p>}
+          {requestedCount > 0 && <p className="text-sm text-ink-2">{t("registration.success.requestedNote", { count: requestedCount })}</p>}
           {(account === "password" || account === "link") && (
             <p className="text-sm text-ink-2">{t(account === "password" ? "camps.account.confirmEmailSent" : "camps.account.linkSent")}</p>
           )}
@@ -49,12 +52,14 @@ export default async function RegistrationSuccessPage({
             ) : (
               <ol className="mt-2 list-decimal space-y-1 pl-5">
                 <li>{t("registration.success.next1")}</li>
-                <li>{t("registration.success.next2")}</li>
+                {!existing && <li>{t("registration.success.next2")}</li>}
                 <li>{t("registration.success.next3")}</li>
               </ol>
             )}
           </div>
-          <Link href="/login"><Button>{t("registration.success.setupAccount")}</Button></Link>
+          {existing
+            ? <Link href="/parent/bookings"><Button>{t("registration.success.myBookings")}</Button></Link>
+            : <Link href="/login"><Button>{t("registration.success.setupAccount")}</Button></Link>}
         </CardBody>
       </Card>
     </div>
