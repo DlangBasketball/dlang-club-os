@@ -129,8 +129,8 @@ begin
         from public.admin_session_attendance(null, '00000000-0000-0000-0000-00000000ad31')$q$);
   perform adt.ok(r = 'OK:00000000-0000-0000-0000-0000000ad0e1=present,00000000-0000-0000-0000-0000000ad0e2=late',
                  'player filter: only sessions the player is on, with the player status — ' || r);
-  r := adt.run_as('00000000-0000-0000-0000-0000000000f1', $q$select count(*)::text from public.admin_session_attendance('00000000-0000-0000-0000-00000000ad41', null, current_date - 1, current_date + 1)$q$);
-  perform adt.ok(r = 'OK:1', 'date range filter (local dates) — ' || r);
+  r := adt.run_as('00000000-0000-0000-0000-0000000000f1', $q$select count(*)::text from public.admin_session_attendance('00000000-0000-0000-0000-00000000ad41', null, ((now() - interval '26 hours') at time zone 'Europe/Zurich')::date, ((now() - interval '26 hours') at time zone 'Europe/Zurich')::date)$q$);
+  perform adt.ok(r = 'OK:1', 'date range filter (local dates: the club-local day of E2 only) — ' || r);
   r := adt.run_as('00000000-0000-0000-0000-0000000000f1', $q$select count(*)::text from public.admin_session_attendance('00000000-0000-0000-0000-00000000ad41', null, current_date, current_date - 3)$q$);
   perform adt.ok(r like 'ERR:INVALID_RANGE%', 'reversed range: INVALID_RANGE');
   r := adt.run_as('00000000-0000-0000-0000-00000000ad01', $q$select count(*)::text from public.admin_session_attendance('00000000-0000-0000-0000-00000000ad41')$q$);
