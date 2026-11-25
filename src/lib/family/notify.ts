@@ -9,6 +9,7 @@ import type { MessagingRole } from "@/lib/messaging/permissions";
 import { parseChannels, resolveDelivery, type NotificationCategory } from "@/lib/messaging/preferences";
 import { deliverPush } from "@/lib/push/send";
 import { familyAdminDb } from "./db";
+import { addLinked, linkedRecipientsFor } from "@/lib/notifications/linked";
 
 /**
  * In-app notification + Web Push for family features (event changes,
@@ -155,7 +156,9 @@ export async function notifyEventChange(orgId: string, eventIds: string[], kind:
         body: t.dynamic(`family.push.event.${kind}.body`, { date: f.dateTime(e.starts_at) }),
         path: app === "parent" ? "/parent/schedule" : app === "coach" ? "/coach/schedule" : `/admin/schedule/${e.id}`,
       });
-      await notifyMembers({ orgId, profileIds: guardianIds, category: "events", type: "practice", app: "parent", tag: `event-${e.id}`, urgent: kind === "cancelled", build });
+      // Relatives linked to one of these children (receives_emails) hear it too; one copy per person.
+      const audience = addLinked(guardianIds, await linkedRecipientsFor(orgId, Array.from(athleteIds)));
+      await notifyMembers({ orgId, profileIds: audience, category: "events", type: "practice", app: "parent", tag: `event-${e.id}`, urgent: kind === "cancelled", build });
       await notifyMembers({ orgId, profileIds: coachProfiles, category: "events", type: "practice", app: "coach", tag: `event-${e.id}`, build });
     }
   } catch (err) {

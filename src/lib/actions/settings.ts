@@ -133,6 +133,23 @@ export async function updatePrivacy(input: { parentAttendanceVisible: boolean; s
   return { ok: true };
 }
 
+/**
+ * "Linked relatives may give activity consent" (default OFF). Read by the
+ * database (org_carer_consent_enabled) in every consent RPC; turning it OFF
+ * grants nothing (stored can_consent flags are ignored while OFF).
+ */
+export async function updateCarerConsent(enabled: boolean): Promise<ActionResult> {
+  const me = await getAdmin();
+  const t = await getTranslations();
+  if (!me) return { ok: false, error: t("participants.errors.NOT_ALLOWED") };
+  const { error } = await patchSettings(me.orgId, { privacy: { carers_may_consent: enabled === true } });
+  if (error) return { ok: false, error: t("participants.errors.generic") };
+  await audit(me.orgId, me.id, "settings.carer_consent", { carers_may_consent: enabled === true });
+  revalidatePath("/admin/settings/privacy");
+  revalidatePath("/parent/family");
+  return { ok: true };
+}
+
 export async function updateRetention(months: number): Promise<ActionResult> {
   const me = await getAdmin();
   if (!me) return { ok: false, error: "Admins only" };

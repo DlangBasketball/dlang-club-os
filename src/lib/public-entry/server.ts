@@ -8,6 +8,7 @@ import { entryAdminDb, entryDb } from "./db";
 import { newConsentToken } from "./token";
 import { sendConsentRequest } from "./notify";
 import { whitelistBookerRow, type BookerStatusRow } from "./shared";
+import { acceptAsCarer, getCarerConsentStatus } from "@/lib/participants/carer-consent";
 
 /**
  * Third-party bookings (booker != guardian) — server helpers for the camp and
@@ -26,14 +27,24 @@ export async function thirdPartyIds(profileId: string, orgId: string, athleteIds
 }
 
 export type HoldResult =
-  | { ok: true; consentRequestId: string; itemId: string; replayed: boolean; raw: Record<string, unknown> }
+  | {
+      ok: true; consentRequestId: string; itemId: string; replayed: boolean; raw: Record<string, unknown>;
+      /** "carer": the linked relative consented themselves; "carer_pending": they may consent on Bookings for others; "family": the guardian was e-mailed. */
+      consent: "carer" | "carer_pending" | "family";
+    }
   | { ok: false; message: string };
 
-/** Hold a camp place awaiting the guardian's consent, then e-mail the guardian (new holds only). */
+/**
+ * Hold a camp place awaiting the guardian's consent, then e-mail the guardian
+ * (new holds only). A linked relative the club lets consent (setting ON,
+ * can_consent; checked again in SQL) accepts the consents ticked in the form
+ * instead, and no request is sent; if that fails the guardian is asked as before.
+ */
 export async function holdThirdPartyCamp(x: {
   orgId: string; programId: string; editionId: string; athleteId: string; ageGroupId: string; priceOptionId: string;
-  days: string[]; requestId?: string;
+  days: string[]; requestId?: string; consents?: string[];
 }): Promise<HoldResult> {
+  const carer = await getCarerConsentStatus(x.athleteId);
   const { token, hash } = newConsentToken();
   const db = await entryDb();
   const { data, error } = await db.rpc("third_party_camp_hold", {
@@ -46,12 +57,26 @@ export async function holdThirdPartyCamp(x: {
   if (error) return { ok: false, message: error.message };
   const r = (data ?? {}) as { registration_id?: string; consent_request_id?: string; replayed?: boolean };
   if (!r.registration_id || !r.consent_request_id) return { ok: false, message: "UNKNOWN" };
-  if (!r.replayed) await sendConsentRequest(x.orgId, r.consent_request_id, token);
-  return { ok: true, consentRequestId: r.consent_request_id, itemId: r.registration_id, replayed: Boolean(r.replayed), raw: r };
+  let consent: "carer" | "family" = "family";
+  if (!r.replayed) {
+    if (carer.canConsent && x.consents?.length) {
+      const c = await acceptAsCarer(x.orgId, r.consent_request_id, x.consents);
+      if (c.ok) consent = "carer";
+      else logError("publicEntry.carerConsent", c.message);
+    }
+    if (consent === "family") await sendConsentRequest(x.orgId, r.consent_request_id, token);
+  }
+  return { ok: true, consentRequestId: r.consent_request_id, itemId: r.registration_id, replayed: Boolean(r.replayed), raw: r, consent };
 }
 
-/** Training request for a third-party participant (requested + awaiting consent), then the guardian e-mail. */
+/**
+ * Training request for a third-party participant (requested + awaiting
+ * consent), then the guardian e-mail — unless the booker is a linked relative
+ * the club lets consent: they consent on Bookings for others (or ask the
+ * family from there).
+ */
 export async function holdThirdPartyTraining(orgId: string, payload: Record<string, unknown>, requestId: string): Promise<HoldResult> {
+  const carer = typeof payload.athlete_id === "string" ? await getCarerConsentStatus(payload.athlete_id) : null;
   const { token, hash } = newConsentToken();
   const db = await entryDb();
   const { data, error } = await db.rpc("third_party_training_request", {
@@ -61,8 +86,9 @@ export async function holdThirdPartyTraining(orgId: string, payload: Record<stri
   if (error) return { ok: false, message: error.message };
   const r = (data ?? {}) as { booking_id?: string; consent_request_id?: string; replayed?: boolean };
   if (!r.booking_id || !r.consent_request_id) return { ok: false, message: "UNKNOWN" };
-  if (!r.replayed) await sendConsentRequest(orgId, r.consent_request_id, token);
-  return { ok: true, consentRequestId: r.consent_request_id, itemId: r.booking_id, replayed: Boolean(r.replayed), raw: r };
+  const consent = carer?.canConsent ? "carer_pending" : "family";
+  if (!r.replayed && consent === "family") await sendConsentRequest(orgId, r.consent_request_id, token);
+  return { ok: true, consentRequestId: r.consent_request_id, itemId: r.booking_id, replayed: Boolean(r.replayed), raw: r, consent };
 }
 
 /** Quote for the booker (no promo codes). */

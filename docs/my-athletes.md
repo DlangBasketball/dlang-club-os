@@ -131,11 +131,12 @@ The family helpers stay strictly family-scoped (`is_guardian_of_athlete`, `is_gu
 | can_edit_profile | `participant_can_manage()` → `participant_update`, `participant_update_sports`, `participant_sports_profile`, corrections (DOB / sex still go to staff review when an enrolment is affected). No direct table write (`athletes_guardian_write` checks the family) |
 | can_register (+ can_pay) | a `participant_bookers` row (scope `linked`) kept in step by `athlete_link_sync_booker()`; `gc_is_booker()` honours it only while the link is active with `can_register`. Camp checkout (`submitCampParent` → `third_party_camp_hold`) and training requests (`/parent/bookings/request` → `third_party_training_request`) use the existing "someone else" flow. The picker shows the child under **"A child I'm linked to"** (relation badge) wherever "Someone else" is offered; forms without the consent flow (training wizard `/parent/bookings/new`, club programme / membership requests, selection applications, waiting list) do not offer linked children |
 | can_pay | invoices of what the linker booked are addressed to them (`billing_payers` kind `other`, `payer_profile_id`); the child's family billing is not touched |
-| receives_emails | stored and shown; booking e-mails (consent outcome, invoice) go to the linker as the booker. Club broadcasts to families do not include linkers (follow-up) |
+| receives_emails | booking e-mails (consent outcome, invoice) go to the linker as the booker; since `20250420106500` club messages about that child reach them too (see "Club messages reach linked relatives") |
+| can_consent (`20250420106500`) | `athlete_link_can(athlete, 'consent')` = `can_consent` **and** the club setting is ON; see "Carer consent" |
 
 ### Consent rule (default)
 
-A linker can never give the parental consent. Each booking is held (place kept, no invoice) and `gc_open_request()` creates a guardian consent request addressed to the child's family (`existing_child`; primary guardian's e-mail, else another guardian's, else the family contact e-mail — `NO_GUARDIAN_CONTACT` when none). Only a member of the child's family can accept (`NOT_GUARDIAN` otherwise, `BOOKER_CANNOT_CONSENT` for the linker); on acceptance the existing flow records the consents and issues the invoice to the linker. A club policy letting non-guardian carers consent themselves is **not** implemented (follow-up); the default above always applies.
+By default a linker cannot give the parental consent. Each booking is held (place kept, no invoice) and `gc_open_request()` creates a guardian consent request addressed to the child's family (`existing_child`; primary guardian's e-mail, else another guardian's, else the family contact e-mail — `NO_GUARDIAN_CONTACT` when none). Only a member of the child's family can accept (`NOT_GUARDIAN` otherwise, `BOOKER_CANNOT_CONSENT` for the linker); on acceptance the existing flow records the consents and issues the invoice to the linker. A club can let linked relatives consent themselves since `20250420106500` (setting OFF by default, see "Carer consent").
 
 ### Revocation and management
 
@@ -157,7 +158,7 @@ Before, `athletes_select` and `athletes_admin_write` granted `is_finance()` (adm
 ## Privacy notes (nFADP / GDPR, minors)
 
 * **Data minimisation.** A per-child linker gets one child, not the family: no siblings, no family address / contact, no family invoices or balances, no memberships or club requests, no documents or consents. Medical data only when a family guardian (or staff) turns on `can_see_medical`, read-only; sports profile only with `can_edit_profile`.
-* **Consent stays with the family.** Parental consent for a booking is always given by a member of the child's family (guardian consent request, `existing_child`); a linker can never consent. The family can see, change and end every per-child link at any time (immediate effect).
+* **Consent stays with the family by default.** Parental consent for a booking is given by a member of the child's family (guardian consent request, `existing_child`). Only where the club turned on "Linked relatives may give activity consent" and the family granted `can_consent` may a linker consent for their own booking (health declarations need medical access, COPPA never) — see `20250420106500`. The family can see, change and end every per-child link at any time (immediate effect).
 * **Accountability.** Every grant, permission change and revocation is written to `audit_logs` (who, when, before / after); revoked links are kept as history (`status = revoked`, `revoked_by`, `revoked_at`, `revoke_reason`) and fall under the club's normal retention for guardian records.
 * **Purpose limitation for finance.** Finance users process billing only: `billing_athletes` exposes identity, family, status and sponsorship, nothing about health, sport, school, nationality, photos or date of birth. Screens finance does not need (attendance, development, camp edition rosters, the assistant's athlete list) return no athlete rows to a finance-only user rather than profile data.
 * **Staff-created athletes.** A child registered by staff without a guardian login is lawful and expected; the data check only suggests inviting a guardian at the family contact e-mail already on file (no new data collected), and never re-raises a dismissed suggestion.
@@ -166,7 +167,66 @@ Before, `athletes_select` and `athletes_admin_write` granted `is_finance()` (adm
 ## Open points
 
 * Finance-only users see no athlete names on screens that are not billing screens and still read the `athletes` table (e.g. camp edition lists, selection reports, forms exports): these degrade to missing names rather than exposing profile data. Switch them to `billing_athletes` when finance needs them.
-* A guardian cannot yet invite a relative directly for one child by e-mail (the invitations table / `consume_invitation` are family-scoped); today the relative requests the link and the guardian approves "This child only". Follow-up: an athlete-scoped invitation.
-* "Carers may consent" club policy (see Consent rule) and family broadcasts to linkers with `receives_emails` are follow-ups.
+* Relative invitations, carer consent and linked recipients of club messages: done in `20250420106500` (below).
 * Club programme / membership requests and selection applications stay with family guardians (no consent flow there).
 * A merge of athletes from different families does not grant the other family's guardians access; staff use a link request / invitation.
+
+## Relatives for one child: invitations, carer consent, club messages (`20250420106500`)
+
+Migration `supabase/migrations/20250420106500_relative_invites_carer_consent.sql` · DB suite `tests/db/relative_invites.sql` (123 assertions; `tests/db/flexible_links.sql` re-applies the migration after 106300 / 106400) · unit `tests/unit/relative-invites.test.ts`.
+
+### 1. Invite a relative for one child
+
+| Where | What |
+|---|---|
+| `/parent/family` | **Invite a relative for one child** (child picker over the caller's own children, e-mail, relation, per-child permissions), **Invitations sent** (pending, revoke), and the per-child links list |
+| `/parent/children/[id]` | the same for that child (family guardians only; a linked adult sees the restricted view) |
+| `/admin/athletes/[id]` | admins see the child's invitations (all statuses) and can revoke; per-child links as before |
+| `/link-invite/[token]` | public, `noindex`, `no-referrer` (middleware PUBLIC prefix + reserved site path): club, child **first name**, relation, inviter's name, permissions, masked e-mail. Signed out: **Create an account** (`/join?next=/link-invite/<token>&club=<slug>` → `family_bootstrap` → back) or **Sign in**. Signed in: **Accept** |
+
+**Who may invite:** any guardian of the child's family (`is_guardian_of_athlete`: primary or not — the same people who may approve a link request today). Not a linker, not staff (staff see and revoke). Relations: `aunt_uncle`, `grandparent`, `adult_sibling`, `family_friend`, `other_carer`. Defaults as an approved "This child only" link: book + pay + e-mails on, medical + profile edits off, `can_consent` off; `can_register ⇒ can_pay` (`REGISTER_NEEDS_PAY`).
+
+**Table** `athlete_link_invitations` (org, athlete, invited_by, email citext, relation, permissions jsonb, `token_hash` (SHA-256 hex of 32 random bytes; the token is only in the e-mail), `expires_at` = +14 days, status `pending / accepted / revoked / expired`, sent_count, accepted_by / at, link_id, revoked_by / at). `org_id` + index, RLS on every verb (read: inviter, the child's family guardians, admins of the club; writes: RPCs only), restrictive tenant isolation, column grants (the token hash is not selectable through the API), `updated_at`, audit trigger with `token_hash` redacted. One pending invitation per (child, e-mail): inviting again re-sends it with a new token (the old link dies).
+
+**Limits:** 10 pending invitations per child (`INVITE_LIMIT`), 20 new invitations per inviter per day (`RATE_LIMITED`). Refused: yourself (`CANNOT_INVITE_SELF`), a member of the family (`ALREADY_GUARDIAN`), someone already linked to the child (`ALREADY_LINKED`).
+
+**Accept** (`athlete_link_invite_accept`, signed in): the caller's **confirmed sign-in e-mail from `auth.users`** must equal the invited e-mail (`EMAIL_MISMATCH`; same verification as the guardian consent). Single use (token cleared), expired (`EXPIRED`, lazy) and revoked tokens refused, idempotent replay for the same account. Effects: `gc_family_bootstrap` (a guest family in the club if the relative has none, like `/join`), the `athlete_guardian_links` row for **this child only** (`invitation_id`, `granted_by` = inviter) and `athlete_link_sync_booker()` — the same effects as an approved link request. Audit `participant.link.invite_created / _resent / _revoked / _accepted` (masked e-mail only). E-mail template `relative_invitation` through `dispatchNotification` (logged; `EMAIL_TEST_REDIRECT` applies on staging).
+
+RPCs: `athlete_link_invite_create(athlete, payload, token_hash, request_id)`, `athlete_link_invite_revoke(id)`, `athlete_link_invites_for(athlete)`, `athlete_link_invites_mine_to_manage()`, `athlete_link_invite_view(token_hash)` (signed in, or the server with the service role after hashing — no anon EXECUTE), `athlete_link_invite_accept(token_hash)`.
+
+### 2. Carer consent (club setting, default OFF)
+
+* Setting: **Admin → Settings → Privacy → Linked relatives** ("Linked relatives may give activity consent") = `app_settings.settings.privacy.carers_may_consent`, read in SQL by `org_carer_consent_enabled(org)`; change audited (`settings.carer_consent`).
+* Permission: `athlete_guardian_links.can_consent` (default false). Grantable by the inviter / approver / family guardian / admin **only while the setting is ON** (`CARER_CONSENT_DISABLED`; the UI hides the box while OFF). A stored flag is kept but **ignored while OFF**; an invitation carrying it that is accepted after the setting went OFF does not grant it.
+* Rule (`lc_eval`, enforced in `linker_consent_accept`): an active per-child linker (not a family member) of the child, setting ON, `can_consent` → may accept the forms of **their own** held booking. **Health / medical declarations** (form keys matching health / medical) need `can_see_medical` too; when such a form is required and the linker lacks it, the linker cannot consent at all (`HEALTH_NEEDS_GUARDIAN`) and the family is asked. **COPPA** (US club, child under 13): always the family (`COPPA_GUARDIAN_REQUIRED`) — verifiable parental consent cannot come from a relative.
+* Flow: camp — the consents ticked in the camp form are accepted at once after the hold (`holdThirdPartyCamp` → `linker_consent_accept`); no guardian e-mail is sent; if acceptance fails the guardian is asked exactly as before. Training — the request is held and the linker consents on **Bookings for others** (`linker_consent_pending()`, panel with the forms) or chooses **Ask the family instead** (`linker_consent_ask_family` → new token → the guardian e-mail).
+* Recorded: `consent_acceptances.accepted_by` = linker + `accepted_relation`; `guardian_consent_requests.accepted_via = 'linker'`, `accepted_relation`; audit `guardian_consent.accepted_by_carer`. The held items proceed exactly as after a guardian's consent (invoice to the linker). The family's guardians (receives_emails) get a notice naming who consented, the relation and the activity.
+* OFF or no `can_consent`: unchanged — `gc_open_request()` addresses the request to the family's primary guardian; `linker_consent_accept` refuses.
+
+### 3. Club messages reach linked relatives
+
+One audience rule: `athlete_linked_recipients(org, athletes[])` — active per-child links with `receives_emails`, login active and not suspended in the club, child live, **minus members of the child's family** (a guardian who is also linked gets one copy). Server code uses `linkedRecipientsFor()` (`src/lib/notifications/linked.ts`, via the service-role `athlete_linked_recipients_for`).
+
+| Path | Change |
+|---|---|
+| Training booking notices (`bk_enqueue_notifications`: confirmed, rescheduled, cancelled, request confirmed / declined) | + `recipient_kind 'linked'` rows for the child's linkers (same `p:<profile>` key as payer / guardian rows: no duplicates); link `/parent/bookings` |
+| Club alerts (`club_alert_recipients`, `club_alert_for_me`, RLS on `club_alerts`) | team / programme / camp-week audiences include the linkers of the children in scope (`msg_scope_athletes`, `msg_scope_linker`); `all` / `parents` / `staff` audiences unchanged |
+| Event changes (`notifyEventChange`: cancelled / postponed / moved) | + linkers of the roster's / RSVP's children |
+| Camp age-approval decisions (`notifyFamilyOfDecision`) | + the child's linkers, without the family's invoice details |
+| Invoices | overdue reminders and the invoice e-mail of an invoice addressed to a payer outside the family (`payer_kind 'other'`, e.g. what a linker booked) go to that payer; family invoices never go to linkers |
+
+Not included (by design): family-wide messages (`broadcastAnnouncement`, club request decisions, documents / consents / forms of the family), other children's messages, message-board group threads (they show other families' posts). A relative who created an account through `/join` has their own (empty) guest family, so club-wide "all parents" announcements reach them as any guest account — never with another family's data. Opt-outs: `receives_emails = false` removes the linker; per-category notification preferences and quiet hours apply as for everyone.
+
+### Privacy notes (`20250420106500`)
+
+* **Minimisation:** the invitation e-mail and page show the club, the child's first name, the relation, the inviter's name and the permissions only (no last name, DOB, family, medical data). The inviter sees the invited e-mail address they typed; the token is never stored or logged in clear (hash only, redacted from audit rows).
+* **Verification:** acceptance requires the confirmed sign-in e-mail of the invited address; residual risk as for guardian consent (an inviter who types an address they control) is limited to the inviter's own child and visible to the family and staff.
+* **Consent:** a relative's consent is valid only where the club opted in and the family granted `can_consent`; health declarations need medical access; COPPA consent stays with parents. Every carer consent names the relative and their relation in the consent record and the audit log, and the family is told. The club should mention this option in its privacy notice before enabling it (privacy-compliance-officer / counsel).
+* **Retention:** invitations are personal data of the invitee, audited and deleted with the child (cascade); expired / revoked rows stay as history under the club's normal retention. A purge of old invitations is a follow-up.
+
+### Open points
+
+* Link-request approval (`LinkDecision`) does not offer `can_consent`; the family grants it afterwards with **Change permissions** (or in the invitation).
+* `my_athletes()` does not carry `can_consent`; the linked child view does not yet mention the consent permission.
+* The camp form shows the programme's consent forms; when they differ from the club's active forms, carer acceptance fails and the guardian is asked (safe fallback).
+* No automatic purge of expired / revoked invitations.

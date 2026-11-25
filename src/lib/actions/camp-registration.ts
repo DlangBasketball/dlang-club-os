@@ -377,7 +377,7 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
     const c = v.children[0];
     const held = await holdThirdPartyCamp({
       orgId: me.orgId, programId: camp.program.id, editionId: v.editionId, athleteId: c.athleteId,
-      ageGroupId: c.ageGroupId, priceOptionId: c.priceOptionId, days: c.days, requestId,
+      ageGroupId: c.ageGroupId, priceOptionId: c.priceOptionId, days: c.days, requestId, consents: v.consents,
     });
     if (!held.ok) {
       const own = consentErrorCode(held.message);
@@ -387,7 +387,7 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
     }
     revalidatePath("/parent/bookings/others");
     revalidatePersonEverywhere(me.orgId);
-    redirect("/parent/bookings/others?held=camp");
+    redirect(held.consent === "carer" ? "/parent/bookings/others?held=camp_carer" : "/parent/bookings/others?held=camp");
   }
 
   const ctx = await parentContext(camp, v.children.map((c) => c.athleteId));

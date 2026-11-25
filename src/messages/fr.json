@@ -2510,7 +2510,8 @@
         "confirmedBody": "Bonne nouvelle : l'inscription de {child} pour {camp} ({dates}) a été approuvée et est confirmée.",
         "declinedTitle": "Inscription au camp non approuvée",
         "declinedBody": "Nous sommes désolés : l'inscription de {child} pour {camp} ({dates}) n'a pas pu être approuvée.",
-        "message": "Message du club : {note}"
+        "message": "Message du club : {note}",
+        "linkedApprovedBody": "Bonne nouvelle : l'inscription de {child} au {camp} ({dates}) a été approuvée."
       }
     }
   },
@@ -13816,7 +13817,25 @@
       "INVALID_SCOPE": "Choisissez toute la famille ou cet enfant uniquement.",
       "REGISTER_NEEDS_PAY": "La réservation nécessite l'autorisation de payer : les réservations de cette personne lui sont facturées.",
       "LINK_NOT_ACTIVE": "Cet accès a déjà pris fin.",
-      "NO_GUARDIAN_CONTACT": "La famille de l'enfant n'a pas d'e-mail pour la demande de consentement. Veuillez contacter le club."
+      "NO_GUARDIAN_CONTACT": "La famille de l'enfant n'a pas d'e-mail pour la demande de consentement. Veuillez contacter le club.",
+      "TOKEN_REQUIRED": "Le lien est manquant. Veuillez réessayer.",
+      "INVALID_EMAIL": "Saisissez une adresse e-mail valide.",
+      "CANNOT_INVITE_SELF": "Vous ne pouvez pas vous inviter vous-même.",
+      "ALREADY_GUARDIAN": "Cette personne est déjà responsable de la famille.",
+      "ALREADY_LINKED": "Cette personne est déjà liée à cet enfant.",
+      "INVITE_LIMIT": "Cet enfant a déjà 10 invitations en attente. Révoquez-en une ou attendez les réponses.",
+      "RATE_LIMITED": "Trop d'invitations aujourd'hui. Réessayez demain.",
+      "INVITE_NOT_PENDING": "Cette invitation n'est plus ouverte.",
+      "INVITE_USED": "Cette invitation a déjà été utilisée.",
+      "EMAIL_MISMATCH": "Connectez-vous avec l'adresse e-mail à laquelle l'invitation a été envoyée.",
+      "CARER_CONSENT_DISABLED": "Le club ne permet pas aux proches liés de donner leur consentement.",
+      "MEMBERSHIP_SUSPENDED": "Votre compte est suspendu dans ce club. Veuillez contacter le club.",
+      "NOT_LINKED": "Vous n'êtes pas lié à cet enfant.",
+      "NO_CONSENT_PERMISSION": "La famille ne vous a pas autorisé à donner le consentement pour cet enfant.",
+      "COPPA_GUARDIAN_REQUIRED": "Pour un enfant de moins de 13 ans, ce consentement doit être donné par un parent ou responsable.",
+      "HEALTH_NEEDS_GUARDIAN": "La déclaration de santé doit être donnée par la famille (vous ne voyez pas les informations médicales).",
+      "CONSENT_REQUIRED": "Acceptez tous les formulaires obligatoires.",
+      "CONSENT_NOT_PENDING": "Cette réservation n'attend plus de consentement."
     },
     "sex": {
       "male": "Masculin",
@@ -14008,14 +14027,16 @@
         "canPay": "Paie ce qu'il ou elle réserve (factures à son nom)",
         "canSeeMedical": "Peut voir les informations médicales (lecture seule)",
         "receivesEmails": "Reçoit les e-mails sur ses réservations",
-        "canEditProfile": "Peut modifier le profil de l'enfant"
+        "canEditProfile": "Peut modifier le profil de l'enfant",
+        "canConsent": "Peut donner les consentements d'activité pour ses propres réservations"
       },
       "short": {
         "canRegister": "réserver",
         "canPay": "payer",
         "canSeeMedical": "médical",
         "receivesEmails": "courriels",
-        "canEditProfile": "profil"
+        "canEditProfile": "profil",
+        "canConsent": "consentement"
       },
       "viewOnly": "Consultation seulement",
       "privacyHint": "Les réservations nécessitent toujours le consentement d'un parent de la famille. Cette personne ne voit jamais les autres enfants, l'adresse ou les factures de la famille.",
@@ -14053,6 +14074,90 @@
         "noMedical": "Aucune information médicale enregistrée.",
         "medicalReadOnly": "Seule la famille peut modifier ces informations.",
         "leaveHint": "Vous pouvez mettre fin à votre accès à tout moment."
+      },
+      "privacyHintCarer": "Les réservations nécessitent le consentement d'un responsable de la famille, sauf si vous autorisez cette personne à le donner. Elle ne voit jamais les autres enfants, l'adresse ni les factures de la famille."
+    },
+    "invite": {
+      "title": "Inviter un proche pour un enfant",
+      "open": "Inviter quelqu'un",
+      "description": "Envoyez une invitation par e-mail à une tante, un oncle, un grand-parent ou un ami. La personne n'a accès qu'à un seul enfant, avec les autorisations que vous choisissez.",
+      "child": "Enfant",
+      "email": {
+        "title": "Invitation pour {child}",
+        "body": "{inviter} vous invite à suivre {child} au club en tant que {relation}.",
+        "subject": "{inviter} vous invite pour {child} chez {club}",
+        "heading": "Vous êtes invité",
+        "line": "{inviter} vous invite à suivre {child} au club en tant que {relation}.",
+        "scope": "Vous aurez accès à {child} uniquement, avec les autorisations choisies par la famille. Vous ne verrez ni les autres enfants ni les données de la famille.",
+        "verify": "Pour accepter, connectez-vous ou créez un compte avec cette adresse e-mail.",
+        "expires": "L'invitation est valable jusqu'au {when} et ne sert qu'une fois.",
+        "ignore": "Si vous ne connaissez pas cette personne, ignorez cet e-mail.",
+        "cta": "Voir l'invitation"
+      },
+      "emailHint": "La personne accepte en se connectant avec cette adresse e-mail. L'invitation est valable 14 jours et ne sert qu'une fois. Elle verra le prénom de {child}, le club et votre nom.",
+      "send": "Envoyer l'invitation",
+      "sent": "Invitation envoyée à {email}.",
+      "resent": "Invitation renvoyée à {email} (le lien précédent ne fonctionne plus).",
+      "revoked": "Invitation révoquée.",
+      "revoke": "Révoquer",
+      "revokeConfirm": "Révoquer l'invitation envoyée à {email} ?",
+      "pendingTitle": "Invitations envoyées",
+      "by": "invité par {name}",
+      "expiresOn": "valable jusqu'au {date}",
+      "badge": "Invité par e-mail",
+      "status": {
+        "pending": "En attente",
+        "accepted": "Acceptée",
+        "revoked": "Révoquée",
+        "expired": "Expirée"
+      },
+      "page": {
+        "notFound": "Ce lien d'invitation n'est pas valable. Demandez à la famille d'envoyer une nouvelle invitation.",
+        "title": "Invitation pour {child}",
+        "intro": "{inviter} vous invite à suivre {child} au club ({relation}).",
+        "permissions": "Ce que vous pourriez faire pour {child}",
+        "scope": "Accès à {child} uniquement : jamais aux autres enfants, à l'adresse ni aux factures de la famille.",
+        "expires": "Valable jusqu'au {when}.",
+        "done": {
+          "accepted": "Cette invitation a été acceptée.",
+          "revoked": "La famille a révoqué cette invitation.",
+          "expired": "Cette invitation a expiré. Demandez à la famille d'en envoyer une nouvelle."
+        },
+        "openApp": "Ouvrir l'application",
+        "verifyEmail": "Acceptez avec l'adresse e-mail à laquelle l'invitation a été envoyée ({email}).",
+        "createAccount": "Créer un compte",
+        "signIn": "Se connecter",
+        "signInHint": "Nouveau ? Créez un compte avec l'adresse e-mail invitée ; vous revenez ensuite sur cette page.",
+        "privacy": "Le club enregistre qui a accepté et quand. La famille peut modifier ou mettre fin à votre accès à tout moment.",
+        "signedInAs": "Connecté en tant que {email}",
+        "accept": "Accepter l'invitation",
+        "accepted": "Invitation acceptée. Vous voyez maintenant cet enfant dans Mes athlètes."
+      },
+      "emailAddress": "Son adresse e-mail"
+    },
+    "carerConsent": {
+      "notify": {
+        "title": "Consentement donné pour {child}",
+        "body": "{name} ({relation}) a donné les consentements d'activité pour {child} : {activity}. Vous pouvez modifier ses autorisations dans Ma famille."
+      },
+      "given": "Consentement donné. La réservation continue.",
+      "askedFamily": "Le responsable de la famille a été invité à donner son consentement.",
+      "heldTraining": "Demande envoyée. Vous pouvez donner le consentement vous-même sous Réservations pour d'autres.",
+      "heldCamp": "Place réservée. Vous avez donné les consentements vous-même ; aucune demande n'a été envoyée à la famille.",
+      "panelIntro": "Le club et la famille vous permettent de donner vous-même le consentement pour cette réservation.",
+      "forms": "Formulaires de consentement",
+      "healthHint": "Seule la famille peut donner la déclaration de santé, car vous ne voyez pas les informations médicales.",
+      "give": "Donner le consentement",
+      "askFamily": "Demander plutôt à la famille",
+      "permissionHint": "Les déclarations de santé nécessitent toujours la famille, sauf si cette personne peut aussi voir les informations médicales.",
+      "setting": {
+        "title": "Proches liés",
+        "label": "Les proches liés peuvent donner le consentement d'activité",
+        "hintPermission": "Uniquement les proches liés à un enfant à qui la famille (ou le club) a donné l'autorisation « peut donner les consentements d'activité ».",
+        "hintHealth": "Les déclarations de santé nécessitent toujours un responsable de la famille, sauf si le proche peut voir les informations médicales. Dans les clubs américains, le consentement pour les moins de 13 ans (COPPA) reste toujours à la famille.",
+        "hintOff": "Désactivé (par défaut) : chaque réservation d'un proche envoie une demande de consentement à la famille. Le désactiver plus tard n'accorde rien : les autorisations données auparavant sont ignorées.",
+        "save": "Enregistrer",
+        "saved": "Enregistré"
       }
     }
   },

@@ -12,7 +12,7 @@ export type ClubSettings = {
   invoicing: { pattern: string; nextCounter: number };
   tax: { vatRate: number; vatNumber: string; inclusive: boolean };
   localization: { currency: string; defaultLocale: string; languages: string[] };
-  privacy: { parentAttendanceVisible: boolean; shareMediaInternally: boolean };
+  privacy: { parentAttendanceVisible: boolean; shareMediaInternally: boolean; carersMayConsent: boolean };
   retention: { months: number };
   acceptedMethods: string[];
 };
@@ -43,7 +43,7 @@ export async function getClubSettings(): Promise<ClubSettings | null> {
     invoicing: { pattern: as?.invoice_pattern ?? "INV-{YYYY}-{####}", nextCounter: (as?.invoice_counter ?? 0) + 1 },
     tax: { vatRate: typeof tax.vat_rate === "number" ? tax.vat_rate : 0, vatNumber: str(tax.vat_number), inclusive: Boolean(tax.inclusive) },
     localization: { currency: as?.currency ?? org?.currency ?? "CHF", defaultLocale: as?.default_locale ?? "en", languages },
-    privacy: { parentAttendanceVisible: s.parent_attendance_visible !== false, shareMediaInternally: Boolean(privacy.share_media_internally) },
+    privacy: { parentAttendanceVisible: s.parent_attendance_visible !== false, shareMediaInternally: Boolean(privacy.share_media_internally), carersMayConsent: privacy.carers_may_consent === true },
     retention: { months: typeof retention.months === "number" ? retention.months : 60 },
     acceptedMethods: methods,
   };

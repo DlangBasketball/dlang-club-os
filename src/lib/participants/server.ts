@@ -93,7 +93,7 @@ export async function getLinkInbox(): Promise<LinkInboxItem[]> {
 export type ChildLink = {
   id: string; athleteId: string; athleteFirstName: string | null; name: string | null; email: string | null; relation: string;
   status: "active" | "revoked"; canRegister: boolean; canPay: boolean; canSeeMedical: boolean; receivesEmails: boolean;
-  canEditProfile: boolean; grantedAt: string; revokedAt: string | null;
+  canEditProfile: boolean; canConsent: boolean; viaInvitation: boolean; grantedAt: string; revokedAt: string | null;
 };
 
 function toChildLink(r: Record<string, unknown>): ChildLink {
@@ -102,6 +102,7 @@ function toChildLink(r: Record<string, unknown>): ChildLink {
     name: (r.name as string | null) ?? null, email: (r.email as string | null) ?? null, relation: String(r.relation ?? "other_carer"),
     status: r.status === "revoked" ? "revoked" : "active", canRegister: r.can_register === true, canPay: r.can_pay === true,
     canSeeMedical: r.can_see_medical === true, receivesEmails: r.receives_emails === true, canEditProfile: r.can_edit_profile === true,
+    canConsent: r.can_consent === true, viaInvitation: r.via_invitation === true,
     grantedAt: String(r.granted_at ?? ""), revokedAt: (r.revoked_at as string | null) ?? null,
   };
 }
@@ -120,6 +121,51 @@ export async function getChildLinksToManage(): Promise<ChildLink[]> {
   const { data, error } = await db.rpc("athlete_links_mine_to_manage", {});
   if (error) return [];
   return ((data ?? []) as Record<string, unknown>[]).map(toChildLink);
+}
+
+/** An e-mail invitation of a relative / friend for one child (inviter, family guardians, admins). */
+export type ChildLinkInvite = {
+  id: string; athleteId: string; athleteFirstName: string | null; email: string; relation: string;
+  status: "pending" | "accepted" | "revoked" | "expired"; expiresAt: string; createdAt: string; invitedByName: string | null;
+  permissions: { canRegister: boolean; canPay: boolean; canSeeMedical: boolean; receivesEmails: boolean; canEditProfile: boolean; canConsent: boolean };
+};
+
+function toInvite(r: Record<string, unknown>): ChildLinkInvite {
+  const p = (r.permissions ?? {}) as Record<string, unknown>;
+  const st = String(r.status ?? "pending");
+  return {
+    id: String(r.id), athleteId: String(r.athlete_id), athleteFirstName: (r.athlete_first_name as string | null) ?? null,
+    email: String(r.email ?? ""), relation: String(r.relation ?? "other_carer"),
+    status: (["pending", "accepted", "revoked", "expired"].includes(st) ? st : "pending") as ChildLinkInvite["status"],
+    expiresAt: String(r.expires_at ?? ""), createdAt: String(r.created_at ?? ""), invitedByName: (r.invited_by_name as string | null) ?? null,
+    permissions: {
+      canRegister: p.can_register === true, canPay: p.can_pay === true, canSeeMedical: p.can_see_medical === true,
+      receivesEmails: p.receives_emails === true, canEditProfile: p.can_edit_profile === true, canConsent: p.can_consent === true,
+    },
+  };
+}
+
+/** Invitations of one child (family guardians of the child, admins); [] for anyone else. */
+export async function getChildLinkInvites(athleteId: string): Promise<ChildLinkInvite[]> {
+  const db = await participantsDb();
+  const { data, error } = await db.rpc("athlete_link_invites_for", { p_athlete: athleteId });
+  if (error) return [];
+  return ((data ?? []) as Record<string, unknown>[]).map(toInvite);
+}
+
+/** Pending invitations over every child the signed-in guardian's families hold. */
+export async function getChildLinkInvitesToManage(): Promise<ChildLinkInvite[]> {
+  const db = await participantsDb();
+  const { data, error } = await db.rpc("athlete_link_invites_mine_to_manage", {});
+  if (error) return [];
+  return ((data ?? []) as Record<string, unknown>[]).map(toInvite);
+}
+
+/** Club setting "Linked relatives may give activity consent" (current club). */
+export async function getCarerConsentSetting(): Promise<boolean> {
+  const db = await participantsDb();
+  const { data, error } = await db.rpc("carer_consent_setting", {});
+  return !error && data === true;
 }
 
 export type MyRequests = {

@@ -2510,7 +2510,8 @@
         "confirmedBody": "Gute Nachricht: Die Anmeldung von {child} für {camp} ({dates}) wurde freigegeben und ist bestätigt.",
         "declinedTitle": "Camp-Anmeldung nicht freigegeben",
         "declinedBody": "Es tut uns leid: Die Anmeldung von {child} für {camp} ({dates}) konnte nicht freigegeben werden.",
-        "message": "Nachricht des Vereins: {note}"
+        "message": "Nachricht des Vereins: {note}",
+        "linkedApprovedBody": "Gute Nachricht: Die Anmeldung von {child} für {camp} ({dates}) wurde genehmigt."
       }
     }
   },
@@ -13816,7 +13817,25 @@
       "INVALID_SCOPE": "Wählen Sie die ganze Familie oder nur dieses Kind.",
       "REGISTER_NEEDS_PAY": "Buchen setzt die Zahlungsberechtigung voraus: Buchungen dieser Person werden ihr in Rechnung gestellt.",
       "LINK_NOT_ACTIVE": "Dieser Zugang ist bereits beendet.",
-      "NO_GUARDIAN_CONTACT": "Die Familie des Kindes hat keine E-Mail-Adresse für die Einwilligungsanfrage. Bitte wenden Sie sich an den Verein."
+      "NO_GUARDIAN_CONTACT": "Die Familie des Kindes hat keine E-Mail-Adresse für die Einwilligungsanfrage. Bitte wenden Sie sich an den Verein.",
+      "TOKEN_REQUIRED": "Der Link fehlt. Bitte versuchen Sie es erneut.",
+      "INVALID_EMAIL": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "CANNOT_INVITE_SELF": "Sie können sich nicht selbst einladen.",
+      "ALREADY_GUARDIAN": "Diese Person ist bereits Erziehungsberechtigte der Familie.",
+      "ALREADY_LINKED": "Diese Person ist bereits mit diesem Kind verknüpft.",
+      "INVITE_LIMIT": "Für dieses Kind sind bereits 10 Einladungen offen. Widerrufen Sie eine oder warten Sie auf die Antworten.",
+      "RATE_LIMITED": "Heute wurden zu viele Einladungen versendet. Bitte versuchen Sie es morgen erneut.",
+      "INVITE_NOT_PENDING": "Diese Einladung ist nicht mehr offen.",
+      "INVITE_USED": "Diese Einladung wurde bereits verwendet.",
+      "EMAIL_MISMATCH": "Melden Sie sich mit der E-Mail-Adresse an, an die die Einladung gesendet wurde.",
+      "CARER_CONSENT_DISABLED": "Der Verein erlaubt verknüpften Angehörigen keine Einwilligung.",
+      "MEMBERSHIP_SUSPENDED": "Ihr Konto ist in diesem Verein gesperrt. Bitte wenden Sie sich an den Verein.",
+      "NOT_LINKED": "Sie sind nicht mit diesem Kind verknüpft.",
+      "NO_CONSENT_PERMISSION": "Die Familie hat Ihnen nicht erlaubt, für dieses Kind einzuwilligen.",
+      "COPPA_GUARDIAN_REQUIRED": "Für ein Kind unter 13 Jahren muss ein Elternteil oder Erziehungsberechtigter einwilligen.",
+      "HEALTH_NEEDS_GUARDIAN": "Die Gesundheitserklärung muss von der Familie abgegeben werden (Sie sehen keine medizinischen Angaben).",
+      "CONSENT_REQUIRED": "Akzeptieren Sie alle Pflichtformulare.",
+      "CONSENT_NOT_PENDING": "Diese Buchung wartet nicht mehr auf eine Einwilligung."
     },
     "sex": {
       "male": "Männlich",
@@ -14008,14 +14027,16 @@
         "canPay": "Bezahlt, was sie bucht (Rechnungen an sie)",
         "canSeeMedical": "Darf medizinische Angaben sehen (nur lesen)",
         "receivesEmails": "Erhält E-Mails zu den eigenen Buchungen",
-        "canEditProfile": "Darf das Profil des Kindes bearbeiten"
+        "canEditProfile": "Darf das Profil des Kindes bearbeiten",
+        "canConsent": "Darf die Einwilligungen für eigene Buchungen geben"
       },
       "short": {
         "canRegister": "buchen",
         "canPay": "bezahlen",
         "canSeeMedical": "medizinisch",
         "receivesEmails": "E-Mails",
-        "canEditProfile": "Profil"
+        "canEditProfile": "Profil",
+        "canConsent": "Einwilligung"
       },
       "viewOnly": "Nur ansehen",
       "privacyHint": "Buchungen brauchen weiterhin die Einwilligung eines Elternteils der Familie. Diese Person sieht nie die anderen Kinder, die Adresse oder die Rechnungen der Familie.",
@@ -14053,6 +14074,90 @@
         "noMedical": "Keine medizinischen Angaben erfasst.",
         "medicalReadOnly": "Nur die Familie kann diese Angaben ändern.",
         "leaveHint": "Sie können Ihren Zugang jederzeit beenden."
+      },
+      "privacyHintCarer": "Buchungen brauchen die Einwilligung einer erziehungsberechtigten Person der Familie, ausser Sie erlauben dieser Person, sie zu geben. Diese Person sieht nie die anderen Kinder, die Adresse oder die Rechnungen der Familie."
+    },
+    "invite": {
+      "title": "Angehörige für ein Kind einladen",
+      "open": "Jemanden einladen",
+      "description": "Senden Sie eine Einladung per E-Mail an eine Tante, einen Onkel, Grosseltern oder Freunde. Sie erhalten Zugang zu einem einzigen Kind, mit den Berechtigungen, die Sie wählen.",
+      "child": "Kind",
+      "email": {
+        "title": "Einladung für {child}",
+        "body": "{inviter} lädt Sie ein, {child} im Verein als {relation} zu begleiten.",
+        "subject": "{inviter} lädt Sie für {child} bei {club} ein",
+        "heading": "Sie sind eingeladen",
+        "line": "{inviter} lädt Sie ein, {child} im Verein als {relation} zu begleiten.",
+        "scope": "Sie erhalten nur Zugang zu {child}, mit den von der Familie gewählten Berechtigungen. Andere Kinder und die Angaben der Familie sehen Sie nicht.",
+        "verify": "Um anzunehmen, melden Sie sich mit dieser E-Mail-Adresse an oder erstellen Sie ein Konto.",
+        "expires": "Die Einladung gilt bis {when} und kann einmal verwendet werden.",
+        "ignore": "Wenn Sie diese Person nicht kennen, ignorieren Sie diese E-Mail.",
+        "cta": "Einladung ansehen"
+      },
+      "emailHint": "Die Person nimmt an, indem sie sich mit dieser E-Mail-Adresse anmeldet. Die Einladung gilt 14 Tage und nur einmal. Sie sieht den Vornamen von {child}, den Verein und Ihren Namen.",
+      "send": "Einladung senden",
+      "sent": "Einladung an {email} gesendet.",
+      "resent": "Einladung erneut an {email} gesendet (der frühere Link funktioniert nicht mehr).",
+      "revoked": "Einladung widerrufen.",
+      "revoke": "Widerrufen",
+      "revokeConfirm": "Die an {email} gesendete Einladung widerrufen?",
+      "pendingTitle": "Gesendete Einladungen",
+      "by": "eingeladen von {name}",
+      "expiresOn": "gültig bis {date}",
+      "badge": "Per E-Mail eingeladen",
+      "status": {
+        "pending": "Offen",
+        "accepted": "Angenommen",
+        "revoked": "Widerrufen",
+        "expired": "Abgelaufen"
+      },
+      "page": {
+        "notFound": "Dieser Einladungslink ist nicht gültig. Bitten Sie die Familie um eine neue Einladung.",
+        "title": "Einladung für {child}",
+        "intro": "{inviter} lädt Sie ein, {child} im Verein zu begleiten ({relation}).",
+        "permissions": "Was Sie für {child} tun könnten",
+        "scope": "Nur Zugang zu {child}: nie zu den anderen Kindern, der Adresse oder den Rechnungen der Familie.",
+        "expires": "Gültig bis {when}.",
+        "done": {
+          "accepted": "Diese Einladung wurde angenommen.",
+          "revoked": "Die Familie hat diese Einladung widerrufen.",
+          "expired": "Diese Einladung ist abgelaufen. Bitten Sie die Familie um eine neue."
+        },
+        "openApp": "App öffnen",
+        "verifyEmail": "Nehmen Sie mit der E-Mail-Adresse an, an die die Einladung gesendet wurde ({email}).",
+        "createAccount": "Konto erstellen",
+        "signIn": "Anmelden",
+        "signInHint": "Neu hier? Erstellen Sie ein Konto mit der eingeladenen E-Mail-Adresse; danach kommen Sie auf diese Seite zurück.",
+        "privacy": "Der Verein speichert, wer wann angenommen hat. Die Familie kann Ihren Zugang jederzeit ändern oder beenden.",
+        "signedInAs": "Angemeldet als {email}",
+        "accept": "Einladung annehmen",
+        "accepted": "Einladung angenommen. Sie sehen dieses Kind jetzt unter Meine Athleten."
+      },
+      "emailAddress": "Ihre E-Mail-Adresse"
+    },
+    "carerConsent": {
+      "notify": {
+        "title": "Einwilligung für {child} gegeben",
+        "body": "{name} ({relation}) hat die Einwilligungen für {child} gegeben: {activity}. Sie können die Berechtigungen unter Meine Familie ändern."
+      },
+      "given": "Einwilligung gegeben. Die Buchung geht weiter.",
+      "askedFamily": "Die erziehungsberechtigte Person der Familie wurde um ihre Einwilligung gebeten.",
+      "heldTraining": "Anfrage gesendet. Sie können die Einwilligung selbst unter Buchungen für andere geben.",
+      "heldCamp": "Platz gebucht. Sie haben die Einwilligungen selbst gegeben; an die Familie wurde keine Anfrage gesendet.",
+      "panelIntro": "Der Verein und die Familie erlauben Ihnen, die Einwilligung für diese Buchung selbst zu geben.",
+      "forms": "Einwilligungsformulare",
+      "healthHint": "Die Gesundheitserklärung kann nur die Familie abgeben, weil Sie keine medizinischen Angaben sehen.",
+      "give": "Einwilligung geben",
+      "askFamily": "Stattdessen die Familie fragen",
+      "permissionHint": "Gesundheitserklärungen brauchen weiterhin die Familie, ausser diese Person darf auch medizinische Angaben sehen.",
+      "setting": {
+        "title": "Verknüpfte Angehörige",
+        "label": "Verknüpfte Angehörige dürfen in Aktivitäten einwilligen",
+        "hintPermission": "Nur Angehörige, die mit einem Kind verknüpft sind und von der Familie (oder vom Verein) die Berechtigung «darf die Einwilligungen geben» erhalten haben.",
+        "hintHealth": "Gesundheitserklärungen brauchen weiterhin eine erziehungsberechtigte Person, ausser die angehörige Person darf medizinische Angaben sehen. Die Einwilligung für unter 13-Jährige in US-Vereinen (COPPA) bleibt immer bei der Familie.",
+        "hintOff": "Aus (Standard): Jede Buchung durch Angehörige sendet eine Einwilligungsanfrage an die Familie. Späteres Ausschalten gewährt nichts: früher erteilte Berechtigungen werden ignoriert.",
+        "save": "Speichern",
+        "saved": "Gespeichert"
       }
     }
   },

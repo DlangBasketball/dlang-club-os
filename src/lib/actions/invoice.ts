@@ -84,7 +84,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
   const { data: inv } = await supabase
     .from("invoices")
-    .select("id,number,status,description,total_chf,adjustments_total,currency,due_date,family_id,locale")
+    .select("id,number,status,description,total_chf,adjustments_total,currency,due_date,family_id,locale,payer_kind,payer_profile_id")
     .eq("id", id)
     .maybeSingle();
   if (!inv) return { ok: false, error: "Invoice not found" };
@@ -93,7 +93,16 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
   const { error } = await supabase.from("invoices").update({ status: "sent" }).eq("id", id);
   if (error) return { ok: false, error: error.message };
 
-  const { data: family } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
+  const { data: fam } = await supabase.from("families").select("contact_name,contact_email").eq("id", inv.family_id).maybeSingle();
+  let family = fam as { contact_name: string | null; contact_email: string | null } | null;
+  // An invoice addressed to someone outside the family (a relative linked to one child,
+  // kind 'other') goes to that payer, never to the family contact.
+  const payer = inv as unknown as { payer_kind?: string | null; payer_profile_id?: string | null };
+  if (payer.payer_kind === "other" && payer.payer_profile_id) {
+    const { data: pp } = await createAdminClient().from("profiles").select("full_name,email").eq("id", payer.payer_profile_id).maybeSingle();
+    const p = pp as { full_name: string | null; email: string | null } | null;
+    family = { contact_name: p?.full_name ?? null, contact_email: p?.email ?? null };
+  }
   if (family?.contact_email) {
     const org = await getOrgEmailContext(me.orgId, inv.locale);
     const clubName = org.clubName;

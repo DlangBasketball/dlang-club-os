@@ -49,10 +49,13 @@ export const childLinkPermissionsSchema = z.object({
   canSeeMedical: z.boolean().default(false),
   receivesEmails: z.boolean().default(true),
   canEditProfile: z.boolean().default(false),
+  /** Activity consent by the linker: only effective while the club setting is ON. */
+  canConsent: z.boolean().default(false),
 }).refine((p) => !p.canRegister || p.canPay, { message: "participants.errors.REGISTER_NEEDS_PAY", path: ["canPay"] });
 export type ChildLinkPermissions = z.output<typeof childLinkPermissionsSchema>;
 export const DEFAULT_CHILD_LINK: ChildLinkPermissions = {
   relation: "other_carer", canRegister: true, canPay: true, canSeeMedical: false, receivesEmails: true, canEditProfile: false,
+  canConsent: false,
 };
 
 /** Booking needs payment (a linker's bookings are invoiced to them): keep the pair consistent. */
@@ -66,8 +69,20 @@ export function normaliseChildLink(p: ChildLinkPermissions, changed: keyof Child
 export function childLinkToRpc(p: ChildLinkPermissions): Record<string, string | boolean> {
   return {
     relation: p.relation, can_register: p.canRegister, can_pay: p.canPay, can_see_medical: p.canSeeMedical,
-    receives_emails: p.receivesEmails, can_edit_profile: p.canEditProfile,
+    receives_emails: p.receivesEmails, can_edit_profile: p.canEditProfile, can_consent: p.canConsent,
   };
+}
+
+/** Invite a relative / friend by e-mail for one child (permissions as a per-child link). */
+export const relativeInviteSchema = z.object({
+  email: z.string().trim().toLowerCase().email("participants.errors.INVALID_EMAIL").max(254, "participants.errors.INVALID_EMAIL"),
+  permissions: childLinkPermissionsSchema,
+});
+export type RelativeInviteInput = z.input<typeof relativeInviteSchema>;
+
+/** Invitation link token shape (32 random bytes, base64url). */
+export function isInviteToken(token: string): boolean {
+  return /^[A-Za-z0-9_-]{43}$/.test(token);
 }
 
 /** "Someone else": how the booker knows the participant. */
@@ -86,6 +101,9 @@ export const PARTICIPANT_ERROR_CODES = [
   "INVALID_RELATION", "NO_MATCH", "EXPIRED", "THIRD_PARTY_NOT_ENABLED",
   // 20250420106300_flexible_links_finance_scope.sql
   "INVALID_SCOPE", "REGISTER_NEEDS_PAY", "LINK_NOT_ACTIVE", "NO_GUARDIAN_CONTACT",
+  // 20250420106500_relative_invites_carer_consent.sql
+  "TOKEN_REQUIRED", "INVALID_EMAIL", "CANNOT_INVITE_SELF", "ALREADY_GUARDIAN", "ALREADY_LINKED", "INVITE_LIMIT", "RATE_LIMITED",
+  "INVITE_NOT_PENDING", "INVITE_USED", "EMAIL_MISMATCH", "CARER_CONSENT_DISABLED", "MEMBERSHIP_SUSPENDED",
 ] as const;
 export type ParticipantErrorCode = (typeof PARTICIPANT_ERROR_CODES)[number];
 
