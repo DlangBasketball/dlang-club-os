@@ -20,7 +20,7 @@ type Msg = { ok: boolean; text: string } | null;
  * and optional watermark (defaults to the logo). A brand without a logo shows
  * a text-only lockup. Live preview with a synthetic name.
  */
-export function MemberCardBrandsEditor({ rows, canEdit }: { rows: CardBrandRow[]; canEdit: boolean }) {
+export function MemberCardBrandsEditor({ rows, canEdit, checkIn = false }: { rows: CardBrandRow[]; canEdit: boolean; checkIn?: boolean }) {
   const t = useT();
   return (
     <Card>
@@ -33,13 +33,13 @@ export function MemberCardBrandsEditor({ rows, canEdit }: { rows: CardBrandRow[]
       <CardBody className="space-y-6">
         <p className="text-sm text-text-muted">{t("memberCard.brands.intro")}</p>
         {rows.length === 0 && <p className="text-sm text-text-muted">{t("memberCard.brands.noEntities")}</p>}
-        {rows.map((r) => <BrandRow key={r.entityId} row={r} canEdit={canEdit} />)}
+        {rows.map((r) => <BrandRow key={r.entityId} row={r} canEdit={canEdit} checkIn={checkIn} />)}
       </CardBody>
     </Card>
   );
 }
 
-function BrandRow({ row, canEdit }: { row: CardBrandRow; canEdit: boolean }) {
+function BrandRow({ row, canEdit, checkIn }: { row: CardBrandRow; canEdit: boolean; checkIn: boolean }) {
   const t = useT();
   const router = useRouter();
   const [displayName, setDisplayName] = React.useState(row.displayName ?? row.entityName);
@@ -162,7 +162,7 @@ function BrandRow({ row, canEdit }: { row: CardBrandRow; canEdit: boolean }) {
         <CourtsideCard
           brand={{ entityId: row.entityId, displayName: displayName || row.entityName, subtitle: subtitle || null, logoUrl, watermarkUrl,
                    sources: [], isFallback: false }}
-          name={PREVIEW_NAMES[0]} photoUrl={null} qrSvg={null} cardActive={false}
+          name={PREVIEW_NAMES[0]} photoUrl={null} qrSvg={null} cardActive={false} showQr={checkIn}
           labels={{ ...labels, inactive: t("memberCard.brands.sampleQr") }} />
       </div>
     </section>

@@ -21,7 +21,7 @@ export default async function BillingEntitiesPage() {
   return (
     <div className="space-y-6">
       <BillingEntitiesEditor view={res.data} />
-      {brands.ok && <MemberCardBrandsEditor rows={brands.rows} canEdit={brands.canEdit} />}
+      {brands.ok && <MemberCardBrandsEditor rows={brands.rows} canEdit={brands.canEdit} checkIn={checkIn} />}
       {brands.ok && <CardCheckInSettingForm enabled={checkIn} canEdit={brands.canEdit} />}
     </div>
   );
