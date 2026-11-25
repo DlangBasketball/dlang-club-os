@@ -42,7 +42,8 @@ export async function CourtsideCardSection({
         {!readOnly && (
           <>
             <PhotoManager athleteId={athleteId} name={name} photoUrl={res.card.photoUrl} variant="card" />
-            {pdfHref && (
+            {/* QR tools (show / print QR, lost card, NFC tag) belong to the check-in decision. */}
+            {pdfHref && res.card.checkIn && (
               <div className="border-t border-border pt-4">
                 <MemberCardPanel athleteId={athleteId} pdfHref={pdfHref} admin={admin} initialTag={initialTag} />
               </div>
