@@ -7,7 +7,7 @@ import { FinalAttendanceSheet } from "@/components/attendance/coach/final-sheet"
 import { RequestAccessPanel } from "@/components/attendance/coach/request-access";
 import { SessionHeader } from "@/components/attendance/coach/session-header";
 import { openAttendance } from "@/lib/actions/team-attendance";
-import { getCoachOptions, getDefaultLeadId, getEventSummary, getMySessionAccess } from "@/lib/attendance/coach-data";
+import { getCoachOptions, getDefaultLeadId, getEventSummary, getMySessionAccess, getMySessionRole } from "@/lib/attendance/coach-data";
 import { getAttendanceSheet } from "@/lib/attendance/data";
 import { uuidSchema, type AttendanceSheet } from "@/lib/attendance/types";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -63,12 +63,13 @@ export default async function TakeAttendancePage({ params }: { params: Promise<{
   }
 
   const ev = sheet.event;
+  const myRole = me ? await getMySessionRole(eventId, me.id) : null;
   const cancelled = ev.status === "cancelled";
   const final = sheet.sheet?.status === "final";
   const header = (
     <SessionHeader t={t} f={f} teamName={ev.team_name} title={ev.title} type={ev.type} startsAt={ev.starts_at} endsAt={ev.ends_at}
                    location={ev.location_name} cancelled={cancelled} sheetStatus={sheet.sheet?.status ?? null}
-                   substitute={sheet.access.is_substitute && !ev.training_session_id} booked={!!ev.training_session_id}
+                   substitute={sheet.access.is_substitute && !ev.training_session_id} role={ev.training_session_id ? null : myRole} booked={!!ev.training_session_id}
                    links={<Link href={`/coach/trainings/${eventId}`} className={buttonVariants({ variant: "ghost", size: "sm" })}>{t("coachTrainings.sheet.details")}</Link>} />
   );
 

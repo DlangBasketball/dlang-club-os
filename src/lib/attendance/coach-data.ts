@@ -60,6 +60,18 @@ export async function getDefaultLeadId(eventId: string): Promise<string | null> 
   return row?.coverage?.led_by_coach_id ?? null;
 }
 
+/** The signed-in coach's approved role on one session (lead / assistant / substitute), or null. */
+export async function getMySessionRole(eventId: string, profileId: string): Promise<"lead" | "assistant" | "substitute" | null> {
+  const db = await createClient();
+  const [{ data: me }, { data }] = await Promise.all([
+    db.from("coaches").select("id").eq("profile_id", profileId).limit(1).maybeSingle(),
+    db.rpc("session_coverage", { p_events: [eventId] }),
+  ]);
+  const cov = ((data ?? [])[0] as { coverage?: { coaches?: { coach_id: string; role: string; source: string }[] } } | undefined)?.coverage;
+  const mine = cov?.coaches?.find((c) => c.coach_id === me?.id && c.source === "session");
+  return mine && (mine.role === "lead" || mine.role === "assistant" || mine.role === "substitute") ? mine.role : null;
+}
+
 export type SessionAccessState = { status: "pending" | "approved" | "rejected"; decisionNote: string | null; decidedAt: string | null } | null;
 
 /** The signed-in coach's own access request / assignment for one session. */

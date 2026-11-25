@@ -6,10 +6,11 @@ import { CorrectionRequestList, type CorrectionRequestRow } from "@/components/a
 import { RequestAccessPanel } from "@/components/attendance/coach/request-access";
 import { SessionHeader } from "@/components/attendance/coach/session-header";
 import { STATUS_TONE } from "@/components/attendance/coach/status-picker";
-import { getEventSummary, getMySessionAccess, getSheetHistory, type HistoryChange } from "@/lib/attendance/coach-data";
+import { getEventSummary, getMySessionAccess, getSheetHistory, getMySessionRole, type HistoryChange } from "@/lib/attendance/coach-data";
 import { getAttendanceSheet, getCorrectionRequests } from "@/lib/attendance/data";
 import { uuidSchema, type FinalStatus, type MarkStatus } from "@/lib/attendance/types";
 import type { Formatter } from "@/lib/format";
+import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import type { Translator } from "@/lib/i18n/translator";
 import { cn } from "@/lib/utils";
@@ -76,6 +77,8 @@ export default async function TrainingDetailsPage({ params }: { params: Promise<
   const sheet = read.data;
   const ev = sheet.event;
   const cancelled = ev.status === "cancelled";
+  const me = await getSessionUser();
+  const myRole = me ? await getMySessionRole(eventId, me.id) : null;
   const [history, requests] = await Promise.all([
     getSheetHistory(eventId),
     sheet.access.can_resolve_requests ? getCorrectionRequests({ status: null }) : Promise.resolve({ data: [], error: null }),
@@ -91,7 +94,7 @@ export default async function TrainingDetailsPage({ params }: { params: Promise<
     <div className="mx-auto max-w-3xl space-y-5">
       <SessionHeader t={t} f={f} teamName={ev.team_name} title={ev.title} type={ev.type} startsAt={ev.starts_at} endsAt={ev.ends_at}
                      location={ev.location_name} cancelled={cancelled} sheetStatus={sheet.sheet?.status ?? null}
-                     substitute={sheet.access.is_substitute && !ev.training_session_id} booked={!!ev.training_session_id}
+                     substitute={sheet.access.is_substitute && !ev.training_session_id} role={ev.training_session_id ? null : myRole} booked={!!ev.training_session_id}
                      links={!cancelled && (
                        <Link href={`/coach/trainings/${eventId}/attendance`} className={buttonVariants({ variant: final ? "secondary" : "primary", size: "lg" })}>
                          {actionLabel}

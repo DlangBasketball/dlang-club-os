@@ -7,11 +7,13 @@ import { SheetStatusBadge, eventTypeLabel } from "./training-card";
 
 /** Session header shared by the sheet and details pages (server component). */
 export function SessionHeader({
-  t, f, teamName, title, type, startsAt, endsAt, location, cancelled, sheetStatus, substitute, booked, links,
+  t, f, teamName, title, type, startsAt, endsAt, location, cancelled, sheetStatus, substitute, role = null, booked, links,
 }: {
   t: Translator; f: Formatter;
   teamName: string | null; title: string | null; type: string; startsAt: string; endsAt: string; location?: string | null;
   cancelled: boolean; sheetStatus?: "draft" | "final" | "reopened" | null; substitute?: boolean;
+  /** The viewer's approved role on this session (event_coach_assignments), shown instead of a generic badge. */
+  role?: "lead" | "assistant" | "substitute" | null;
   /** A booked private / group session (no team): the title is the service name. */
   booked?: boolean;
   links?: React.ReactNode;
@@ -26,7 +28,9 @@ export function SessionHeader({
         <div className="flex flex-wrap gap-1.5">
           {cancelled ? <Badge tone="danger">{t("coachTrainings.card.cancelled")}</Badge>
             : sheetStatus !== undefined && <SheetStatusBadge status={sheetStatus} t={t} />}
-          {substitute && <Badge tone="info">{t("coachTrainings.card.substitute")}</Badge>}
+          {role === "lead" ? <Badge tone="info">{t("coachTrainings.card.lead")}</Badge>
+            : role === "assistant" ? <Badge tone="info">{t("attendanceCoverage.assistantBadge")}</Badge>
+            : (role === "substitute" || (substitute && !role)) && <Badge tone="info">{t("coachTrainings.card.substitute")}</Badge>}
           {booked && <Badge tone="accent">{t("bookingPortal.bookedSession")}</Badge>}
         </div>
       </div>
