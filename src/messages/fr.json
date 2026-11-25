@@ -12050,12 +12050,14 @@
     },
     "upcoming": {
       "title": "Prochaines séances",
-      "hint": "30 prochains jours, dans le fuseau horaire du club.",
+      "hint": "Aujourd'hui et les 30 prochains jours, dans le fuseau horaire du club.",
       "empty": "Aucune séance dans les 30 prochains jours.",
       "cancelled": "Annulée",
       "cancelledReason": "Annulée : {reason}",
       "rescheduled": "Déplacée (prévue le {when})",
       "postponed": "Reportée",
+      "inProgress": "En cours",
+      "awaitingAttendance": "Présences pas encore validées",
       "types": {
         "training": "Entraînement",
         "game": "Match",

@@ -12050,12 +12050,14 @@
     },
     "upcoming": {
       "title": "Prossime sessioni",
-      "hint": "Prossimi 30 giorni, nel fuso orario del club.",
+      "hint": "Oggi e i prossimi 30 giorni, nel fuso orario del club.",
       "empty": "Nessuna sessione nei prossimi 30 giorni.",
       "cancelled": "Annullata",
       "cancelledReason": "Annullata: {reason}",
       "rescheduled": "Spostata (prima {when})",
       "postponed": "Rinviata",
+      "inProgress": "In corso",
+      "awaitingAttendance": "Presenze non ancora confermate",
       "types": {
         "training": "Allenamento",
         "game": "Partita",

@@ -30,12 +30,14 @@ type CoachOption = { id: string; name: string };
  * going offline (kept on this device until the server confirms them).
  */
 export function CoachAttendanceSheet({
-  eventId, initialSheet, coaches, myCoachId, userId,
+  eventId, initialSheet, coaches, myCoachId, defaultLeadId = null, userId,
 }: {
   eventId: string;
   initialSheet: AttendanceSheet;
   coaches: CoachOption[];
   myCoachId: string | null;
+  /** Approved lead of the session (session lead > booked coach > team head): the Led-by default. */
+  defaultLeadId?: string | null;
   userId: string;
 }) {
   const t = useT();
@@ -54,7 +56,7 @@ export function CoachAttendanceSheet({
   const [ackFor, setAckFor] = React.useState<string | null>(null);
   const [guestOpen, setGuestOpen] = React.useState(false);
   const [finalOpen, setFinalOpen] = React.useState(false);
-  const [ledBy, setLedBy] = React.useState<string>(initialSheet.sheet?.led_by_coach_id ?? myCoachId ?? "");
+  const [ledBy, setLedBy] = React.useState<string>(initialSheet.sheet?.led_by_coach_id ?? defaultLeadId ?? myCoachId ?? "");
   const [restored, setRestored] = React.useState(false);
 
   const byId = React.useMemo(() => new Map(sheet.marks.map((m) => [m.athlete_id, m])), [sheet.marks]);

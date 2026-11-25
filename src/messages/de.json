@@ -12050,12 +12050,14 @@
     },
     "upcoming": {
       "title": "Nächste Einheiten",
-      "hint": "Die nächsten 30 Tage, in der Zeitzone des Vereins.",
+      "hint": "Heute und die nächsten 30 Tage, in der Zeitzone des Vereins.",
       "empty": "Keine Einheiten in den nächsten 30 Tagen.",
       "cancelled": "Abgesagt",
       "cancelledReason": "Abgesagt: {reason}",
       "rescheduled": "Verschoben (ursprünglich {when})",
       "postponed": "Verschoben",
+      "inProgress": "Läuft",
+      "awaitingAttendance": "Anwesenheit noch nicht abgeschlossen",
       "types": {
         "training": "Trainingseinheit",
         "game": "Spiel",

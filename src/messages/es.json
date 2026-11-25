@@ -12050,12 +12050,14 @@
     },
     "upcoming": {
       "title": "Próximas sesiones",
-      "hint": "Próximos 30 días, en la zona horaria del club.",
+      "hint": "Hoy y los próximos 30 días, en la zona horaria del club.",
       "empty": "No hay sesiones en los próximos 30 días.",
       "cancelled": "Cancelada",
       "cancelledReason": "Cancelada: {reason}",
       "rescheduled": "Cambiada (antes {when})",
       "postponed": "Aplazada",
+      "inProgress": "En curso",
+      "awaitingAttendance": "Asistencia aún no confirmada",
       "types": {
         "training": "Entrenamiento",
         "game": "Partido",

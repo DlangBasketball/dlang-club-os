@@ -52,6 +52,14 @@ export async function getCoachOptions(profileId: string): Promise<{ coaches: Coa
   return { coaches: rows.filter((c) => c.is_active || c.id === mine).map((c) => ({ id: c.id, name: c.display_name })), myCoachId: mine };
 }
 
+/** The session's approved lead (session lead > booked-session coach > team head coach), or null. */
+export async function getDefaultLeadId(eventId: string): Promise<string | null> {
+  const db = await createClient();
+  const { data } = await db.rpc("session_coverage", { p_events: [eventId] });
+  const row = (data ?? [])[0] as { coverage?: { led_by_coach_id?: string | null } } | undefined;
+  return row?.coverage?.led_by_coach_id ?? null;
+}
+
 export type SessionAccessState = { status: "pending" | "approved" | "rejected"; decisionNote: string | null; decidedAt: string | null } | null;
 
 /** The signed-in coach's own access request / assignment for one session. */

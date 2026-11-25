@@ -7,7 +7,7 @@ import { FinalAttendanceSheet } from "@/components/attendance/coach/final-sheet"
 import { RequestAccessPanel } from "@/components/attendance/coach/request-access";
 import { SessionHeader } from "@/components/attendance/coach/session-header";
 import { openAttendance } from "@/lib/actions/team-attendance";
-import { getCoachOptions, getEventSummary, getMySessionAccess } from "@/lib/attendance/coach-data";
+import { getCoachOptions, getDefaultLeadId, getEventSummary, getMySessionAccess } from "@/lib/attendance/coach-data";
 import { getAttendanceSheet } from "@/lib/attendance/data";
 import { uuidSchema, type AttendanceSheet } from "@/lib/attendance/types";
 import { getSessionUser } from "@/lib/auth/get-user";
@@ -96,7 +96,7 @@ export default async function TakeAttendancePage({ params }: { params: Promise<{
     );
   }
 
-  const [{ coaches, myCoachId }, cardScan] = await Promise.all([getCoachOptions(me.id), hasFeature(me.orgId, "member_cards")]);
+  const [{ coaches, myCoachId }, cardScan, defaultLeadId] = await Promise.all([getCoachOptions(me.id), hasFeature(me.orgId, "member_cards"), getDefaultLeadId(eventId)]);
   return (
     <div className="mx-auto max-w-3xl">
       {header}
@@ -106,7 +106,7 @@ export default async function TakeAttendancePage({ params }: { params: Promise<{
       {!ev.ended && <p className="mb-3 text-xs text-text-muted">{t("coachTrainings.sheet.notEnded")}</p>}
       {/* Member card check-in saves on this sheet; the key remounts the sheet with the saved marks (local drafts are restored). */}
       {cardScan && <CardCheckIn eventId={eventId} />}
-      <CoachAttendanceSheet key={sheet.sheet?.version ?? 0} eventId={eventId} initialSheet={sheet} coaches={coaches} myCoachId={myCoachId} userId={me.id} />
+      <CoachAttendanceSheet key={sheet.sheet?.version ?? 0} eventId={eventId} initialSheet={sheet} coaches={coaches} myCoachId={myCoachId} defaultLeadId={defaultLeadId} userId={me.id} />
     </div>
   );
 }

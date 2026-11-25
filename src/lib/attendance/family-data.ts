@@ -20,6 +20,8 @@ import type { Read } from "./data";
 export type UpcomingSession = {
   event_id: string; team_id: string | null; team_name: string; training_session_id?: string | null; type: string; title: string | null; starts_at: string; ends_at: string;
   status: string; cancel_reason: string | null; rescheduled_from: string | null; location: string | null; can_report: boolean;
+  /** Today's session after its start, until this child's attendance is final (20250420106700). */
+  today_state?: "in_progress" | "awaiting_attendance" | null;
   report: null | { report_id: string; status: string; reason: string | null; reason_category: string; needs_review: boolean; created_at: string };
 };
 export type HistoryEntry = {

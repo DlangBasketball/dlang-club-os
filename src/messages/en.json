@@ -12050,12 +12050,14 @@
     },
     "upcoming": {
       "title": "Upcoming sessions",
-      "hint": "Next 30 days, in the club's time zone.",
+      "hint": "Today and the next 30 days, in the club's time zone.",
       "empty": "No sessions in the next 30 days.",
       "cancelled": "Canceled",
       "cancelledReason": "Canceled: {reason}",
       "rescheduled": "Moved from {when}",
       "postponed": "Postponed",
+      "inProgress": "In progress",
+      "awaitingAttendance": "Attendance not final yet",
       "types": {
         "training": "Training",
         "game": "Game",

@@ -99,6 +99,8 @@ export async function loadCalendarItems(
   const isCoach = audience === "coach";
   const isParent = audience === "parent";
 
+  const uniq = (xs: (string | null | undefined)[]) => Array.from(new Set(xs.filter((x): x is string => !!x)));
+
   // ---- team events --------------------------------------------------------
   const eventsQ = (async () => {
     let q = db.from("events")
@@ -108,7 +110,35 @@ export async function loadCalendarItems(
       q = scope.teamIds.length ? q.or(`team_id.is.null,team_id.in.(${scope.teamIds.join(",")})`) : q.is("team_id", null);
     }
     const { data } = await q;
-    return data ?? [];
+    let rows = data ?? [];
+    if (isAdmin) return rows;
+    // Booked sessions (team-less events of a training session) belong to their
+    // coach and to the booked athletes' families only, never to every coach or family.
+    const tsIds = uniq(rows.map((e) => e.training_session_id));
+    if (tsIds.length) {
+      let mine = new Set<string>();
+      if (isCoach && scope.coachId) {
+        const { data: ts } = await db.from("training_sessions").select("id").eq("org_id", orgId).eq("coach_id", scope.coachId).in("id", tsIds);
+        mine = new Set((ts ?? []).map((x) => x.id as string));
+      } else if (isParent && scope.athleteIds.length) {
+        const { data: bk } = await db.from("training_bookings").select("session_id").eq("org_id", orgId).in("session_id", tsIds).in("athlete_id", scope.athleteIds);
+        mine = new Set((bk ?? []).map((x) => x.session_id as string));
+      }
+      rows = rows.filter((e) => !e.training_session_id || mine.has(e.training_session_id));
+    }
+    // Sessions of other teams this coach was approved for (lead / assistant / substitute).
+    if (isCoach && scope.coachId) {
+      const { data: asg } = await db.from("event_coach_assignments").select("event_id").eq("org_id", orgId).eq("coach_id", scope.coachId).eq("status", "approved");
+      const have = new Set(rows.map((e) => e.id));
+      const extra = uniq((asg ?? []).map((x) => x.event_id as string)).filter((id) => !have.has(id));
+      if (extra.length) {
+        const { data: more } = await db.from("events")
+          .select("id,team_id,program_session_id,training_session_id,type,title,venue_id,location_text,starts_at,ends_at,opponent,status,notes")
+          .eq("org_id", orgId).in("id", extra.slice(0, 300)).lt("starts_at", toIso).gt("ends_at", fromIso);
+        rows = [...rows, ...(more ?? [])].sort((x, y) => x.starts_at.localeCompare(y.starts_at));
+      }
+    }
+    return rows;
   })();
 
   // ---- programme sessions -------------------------------------------------
@@ -179,7 +209,6 @@ export async function loadCalendarItems(
   }
 
   // ---- lookups ----------------------------------------------------------------
-  const uniq = (xs: (string | null | undefined)[]) => Array.from(new Set(xs.filter((x): x is string => !!x)));
   const teamIds = uniq([...events.map((e) => e.team_id), ...clubEvents.map((c) => c.team_id)]);
   const programIds = uniq([...sessions.map((s) => s.program_id), ...camps.map((c) => c.program_id)]);
   const venueIds = uniq([...events.map((e) => e.venue_id), ...camps.map((c) => c.venue_id), ...templates.map((s) => s.venue_id), ...clubEvents.map((c) => c.venue_id)]);

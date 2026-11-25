@@ -60,10 +60,14 @@ export async function UpcomingSessions({ overview, athleteId }: { overview: Fami
                       </Badge>
                     ) : s.status === "postponed" ? (
                       <Badge tone="warning">{t("familyAttendance.upcoming.postponed")}</Badge>
+                    ) : s.today_state === "in_progress" ? (
+                      <Badge tone="info">{t("familyAttendance.upcoming.inProgress")}</Badge>
+                    ) : s.today_state === "awaiting_attendance" ? (
+                      <Badge tone="neutral">{t("familyAttendance.upcoming.awaitingAttendance")}</Badge>
                     ) : null}
                   </div>
                   {/* Team sessions and booked sessions (since 20250420104700) take absence reports until they start. */}
-                  {!cancelled && (
+                  {!cancelled && !s.today_state && (
                     <AbsenceControl eventId={s.event_id} athleteId={athleteId} report={s.report} canReport={s.can_report} />
                   )}
                 </li>
