@@ -1,5 +1,6 @@
 "use server";
 
+import { createAdminClient } from "@/lib/supabase/admin";
 import { assertFeature, hasFeature } from "@/lib/upgrades/server";
 import { applyMemberPrices } from "@/lib/club-admin/member-price";
 import { headers } from "next/headers";
@@ -321,6 +322,12 @@ async function checkout(ctxInput: BasketContext, input: BasketInput, extras: Che
     return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
   }
   const out = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; lines?: { registration_id: string }[] };
+  // The number series (e.g. DL CAMP-…) is assigned after the RPC built its reply: read the final number.
+  if (out.invoice_id) {
+    const { data: inv } = await (createAdminClient() as unknown as { from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => Promise<{ data: { number?: string | null } | null }> } } } })
+      .from("invoices").select("number").eq("id", out.invoice_id).maybeSingle();
+    if (inv?.number) out.invoice_number = inv.number;
+  }
   const regIds = (out.lines ?? []).map((l) => l.registration_id);
   // Member families pay the optional member price (never fatal).
   if (await applyMemberPrices(r.orgId, "camp_registration", regIds) && out.invoice_id) {

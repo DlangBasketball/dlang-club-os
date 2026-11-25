@@ -318,6 +318,8 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
       return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
     }
     const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
+  // The number series (e.g. DL CAMP-…) is assigned after the RPC built its reply: read the final number.
+  r.invoice_number = await finalInvoiceNumber(orgId, r.invoice_id, r.invoice_number);
     const regIds = r.registration_ids ?? [];
     const athIds = r.athlete_ids ?? [];
     if (await applyMemberPrices(orgId, "camp_registration", regIds)) r.total = await invoiceTotal(orgId, r.invoice_id, r.total);
@@ -358,6 +360,8 @@ export async function submitCampPublic(input: CampPublicRegistrationInput, accou
     return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
   }
   const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
+  // The number series (e.g. DL CAMP-…) is assigned after the RPC built its reply: read the final number.
+  r.invoice_number = await finalInvoiceNumber(orgId, r.invoice_id, r.invoice_number);
   const regIds = r.registration_ids ?? [];
   const athIds = r.athlete_ids ?? [];
   // Member families pay the optional member price (never fatal).
@@ -493,6 +497,8 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
     return { ok: false, error: t.dynamic(campErrorKey(error.message), undefined, t("camps.errors.generic")) };
   }
   const r = (data ?? {}) as { invoice_id?: string; invoice_number?: string; total?: number; registration_ids?: string[]; athlete_ids?: string[] };
+  // The number series (e.g. DL CAMP-…) is assigned after the RPC built its reply: read the final number.
+  r.invoice_number = await finalInvoiceNumber(ctx.orgId, r.invoice_id, r.invoice_number);
   const regIds = r.registration_ids ?? [];
   const athIds = r.athlete_ids ?? [];
   if (await applyMemberPrices(ctx.orgId, "camp_registration", regIds)) r.total = await invoiceTotal(ctx.orgId, r.invoice_id, r.total);
@@ -508,6 +514,12 @@ export async function submitCampParent(input: CampParentRegistrationInput, insta
 }
 
 /** Invoice total after the member price hook (falls back to the RPC total). */
+async function finalInvoiceNumber(orgId: string, invoiceId: string | undefined, fallback: string | undefined): Promise<string | undefined> {
+  if (!invoiceId) return fallback;
+  const { data } = await campsAdminDb().from("invoices").select("number").eq("id", invoiceId).eq("org_id", orgId).maybeSingle();
+  return (data as { number?: string | null } | null)?.number ?? fallback;
+}
+
 async function invoiceTotal(orgId: string, invoiceId: string | undefined, fallback: number | undefined): Promise<number | undefined> {
   if (!invoiceId) return fallback;
   const { data } = await campsAdminDb().from("invoices").select("total_chf").eq("id", invoiceId).eq("org_id", orgId).maybeSingle();
