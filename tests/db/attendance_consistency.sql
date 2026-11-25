@@ -104,7 +104,7 @@ update public.app_settings set attendance_tracking_starts_on = null where org_id
 -- (yesterday, T2, nobody), E8 (3 hours ago, T1, draft), E9 (3 days ago, T1).
 insert into public.events (id, org_id, team_id, type, title, starts_at, ends_at) values
   ('00000000-0000-0000-0000-0000000ac0e1', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', 'training', 'AC E1', now() - interval '2 days 2 hours', now() - interval '2 days'),
-  ('00000000-0000-0000-0000-0000000ac0e2', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', 'training', 'AC E2', now() - interval '26 hours', now() - interval '24 hours'),
+  ('00000000-0000-0000-0000-0000000ac0e2', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', 'training', 'AC E2', now() - interval '29 hours', now() - interval '27 hours'),
   ('00000000-0000-0000-0000-0000000ac0e5', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac41', 'training', 'AC E5', now() - interval '10 days 2 hours', now() - interval '10 days'),
   ('00000000-0000-0000-0000-0000000ac0e6', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac42', 'training', 'AC E6', now() - interval '28 hours', now() - interval '27 hours'),
   ('00000000-0000-0000-0000-0000000ac0e7', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000ac42', 'training', 'AC E7', now() - interval '30 hours', now() - interval '29 hours'),
