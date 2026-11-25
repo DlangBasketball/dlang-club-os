@@ -13826,7 +13826,11 @@
       "mother": "Mère",
       "father": "Père",
       "guardian": "Représentant légal",
-      "other": "Autre personne responsable"
+      "other": "Autre personne responsable",
+      "aunt_uncle": "Tante / oncle",
+      "grandparent": "Grand-parent",
+      "adult_sibling": "Frère / sœur adulte",
+      "family_friend": "Ami·e de la famille"
     },
     "bookerRelations": {
       "nephew_niece": "Neveu ou nièce",

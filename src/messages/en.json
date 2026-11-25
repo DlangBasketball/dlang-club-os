@@ -13826,7 +13826,11 @@
       "mother": "Mother",
       "father": "Father",
       "guardian": "Legal guardian",
-      "other": "Other carer"
+      "other": "Other carer",
+      "aunt_uncle": "Aunt / uncle",
+      "grandparent": "Grandparent",
+      "adult_sibling": "Adult brother / sister",
+      "family_friend": "Family friend"
     },
     "bookerRelations": {
       "nephew_niece": "Nephew or niece",

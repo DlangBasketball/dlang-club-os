@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label } from "@/components/ui";
 import { useFormat, useT } from "@/lib/i18n/client";
 import { decideLinkRequest, withdrawLinkRequest } from "@/lib/actions/participants";
-import { DEFAULT_CHILD_LINK, type ChildLinkPermissions, type LinkPermissions, type LinkScope } from "@/lib/participants/validation";
+import { CHILD_LINK_RELATIONS, DEFAULT_CHILD_LINK, type ChildLinkPermissions, type LinkPermissions, type LinkScope } from "@/lib/participants/validation";
 import { ChildLinkPermissionFields } from "./child-links";
 
 export type InboxItem = {
@@ -22,7 +22,11 @@ export function LinkDecision({ item, staff = false }: { item: InboxItem; staff?:
   const [perm, setPerm] = React.useState<LinkPermissions>({ canPay: false, canSeeMedical: false, receivesEmails: true });
   // Parents / co-guardians default to the whole family; anyone else to this child only.
   const [scope, setScope] = React.useState<LinkScope>(["mother", "father", "guardian"].includes(item.relation) ? "family" : "athlete");
-  const [child, setChild] = React.useState<ChildLinkPermissions>(DEFAULT_CHILD_LINK);
+  // Per-child links keep the relation the requester named (aunt / uncle, grandparent ...).
+  const [child, setChild] = React.useState<ChildLinkPermissions>(() =>
+    (CHILD_LINK_RELATIONS as readonly string[]).includes(item.relation)
+      ? { ...DEFAULT_CHILD_LINK, relation: item.relation as ChildLinkPermissions["relation"] }
+      : DEFAULT_CHILD_LINK);
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState<"approve" | "decline" | null>(null);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);

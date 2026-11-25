@@ -28,7 +28,7 @@ export const SEXES = ["male", "female"] as const;
 export type Sex = (typeof SEXES)[number];
 
 /** Relation of the requesting adult when linking to an existing child (family_members.relation). */
-export const LINK_RELATIONS = ["mother", "father", "guardian", "other"] as const;
+export const LINK_RELATIONS = ["mother", "father", "guardian", "aunt_uncle", "grandparent", "adult_sibling", "family_friend", "other"] as const;
 
 /**
  * Scope of an approved link (20250420106300): the whole family (second parent

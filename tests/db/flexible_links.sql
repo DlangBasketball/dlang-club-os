@@ -436,6 +436,9 @@ end $$;
 \set QUIET on
 \i supabase/migrations/20250420106300_flexible_links_finance_scope.sql
 \i supabase/migrations/20250420106300_flexible_links_finance_scope.sql
+-- Later migrations that replace functions of 106300 are re-applied after it (as in the real order).
+\i supabase/migrations/20250420106400_link_request_relations.sql
+\i supabase/migrations/20250420106400_link_request_relations.sql
 \set QUIET off
 do $$
 begin
@@ -519,4 +522,23 @@ begin
   r := fl.as_('ADMIN', format($q$delete from public.athlete_guardian_links where profile_id = %L returning id::text$q$, fl.get('AU')));
   perform fl.ok(r = 'OK:<null>' or r like 'ERR:%', 'no direct delete (history kept)');
   perform fl.ok(fl.run_as(null, format('select public.athlete_link_can(%L, ''view'')::text', fl.get('K1'))) like 'ERR:%', 'anon has no EXECUTE');
+end $$;
+
+-- 20250420106400: relatives name their relation; a per-child approval keeps it.
+do $$
+declare r text;
+begin
+  insert into public.athlete_link_requests (id, org_id, athlete_id, requester_profile_id, relation) values
+    ('00000000-0000-0000-0000-0000000fa0b9', '00000000-0000-0000-0000-000000000001', fl.get('K2'), fl.get('GP'), 'aunt_uncle');
+  perform fl.ok(true, 'a link request can name an aunt / uncle relation');
+  r := fl.as_('G', $q$select public.participant_link_decide('00000000-0000-0000-0000-0000000fa0b9', 'approve', '{"scope":"athlete"}'::jsonb, null)::text$q$);
+  perform fl.ok(fl.j(r)->>'scope' = 'athlete'
+                and (select relation from public.athlete_guardian_links where athlete_id = fl.get('K2') and profile_id = fl.get('GP') and status = 'active') = 'aunt_uncle',
+                'per-child approval keeps the requested relation (aunt / uncle) (' || r || ' req=' || (select relation from public.athlete_link_requests where id = '00000000-0000-0000-0000-0000000fa0b9') || ' rel=' || coalesce((select string_agg(relation || ':' || status || ':' || coalesce(link_request_id::text,'-'), ',') from public.athlete_guardian_links where athlete_id = fl.get('K2') and profile_id = fl.get('GP')), 'none') || ')');
+  begin
+    insert into public.athlete_link_requests (org_id, athlete_id, requester_profile_id, relation)
+    values ('00000000-0000-0000-0000-000000000001', fl.get('K2'), fl.get('GP'), 'cousin_of_a_friend');
+    perform fl.ok(false, 'unknown relation refused');
+  exception when check_violation then perform fl.ok(true, 'unknown relation refused');
+  end;
 end $$;

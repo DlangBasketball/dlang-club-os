@@ -13826,7 +13826,11 @@
       "mother": "Madre",
       "father": "Padre",
       "guardian": "Tutore legale",
-      "other": "Altra persona di riferimento"
+      "other": "Altra persona di riferimento",
+      "aunt_uncle": "Zia / zio",
+      "grandparent": "Nonno / nonna",
+      "adult_sibling": "Fratello / sorella maggiorenne",
+      "family_friend": "Amico/a di famiglia"
     },
     "bookerRelations": {
       "nephew_niece": "Nipote",
