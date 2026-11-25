@@ -49,6 +49,8 @@ export type LegalTenant = {
   chRepresentative: string;
   ferpaAnnualNoticeUrl: string;
   aiAssistantEnabled: boolean;
+  /** Club setting: relatives linked to one child may give activity consent (privacy.carers_may_consent). */
+  carersMayConsent?: boolean;
   lastUpdated: string;        // ISO date
   subprocessors: LegalSubprocessor[];
   /** Optional per-section text overrides: { "privacy.contact": "..." }. */
@@ -120,6 +122,10 @@ function privacy(t: LegalTenant): LegalDocument {
       `Most of our participants are minors. A parent or guardian registers each child and manages their data. Below the age of ${p.childConsentAge} we always rely on the consent of the parent or guardian.`,
       ...(p.requiresVerifiableParentalConsent
         ? ["Children under 13 in the United States cannot be registered through our online form. As required by COPPA, we collect their personal information only after obtaining verifiable parental consent directly from a parent or guardian; please contact the club to register them. Parents can review their child's information, have it deleted and refuse further collection at any time, and can consent to collection without consenting to disclosure to third parties."]
+        : []),
+      "A parent or guardian can give a relative or family friend (for example an aunt, uncle or grandparent) access to one child only. That person sees only that child, with the permissions the parent or guardian chooses (for example booking activities, paying for them, receiving messages about that child, seeing medical information). They never see the family's other children, address or invoices. The parent or guardian can change or end this access at any time, and every change is recorded.",
+      ...(t.carersMayConsent
+        ? ["The club allows such a linked relative, when the parent or guardian has given them this permission, to give the activity consents (for example participation, photos and, if they may see medical information, the health declaration) when they book an activity for that child. We record who gave each consent, in which relationship and when, and inform the parent or guardian. A consent given by a linked relative counts in the same way as a consent given by a parent or guardian; the parent or guardian can withdraw it at any time."]
         : []),
       "We do not sell children's data, do not use it for advertising and do not create profiles for marketing.",
     ]),

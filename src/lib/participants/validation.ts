@@ -50,12 +50,13 @@ export const childLinkPermissionsSchema = z.object({
   receivesEmails: z.boolean().default(true),
   canEditProfile: z.boolean().default(false),
   /** Activity consent by the linker: only effective while the club setting is ON. */
-  canConsent: z.boolean().default(false),
+  // Granted by default with a per-child link (founder decision); counts only while the club setting is ON.
+  canConsent: z.boolean().default(true),
 }).refine((p) => !p.canRegister || p.canPay, { message: "participants.errors.REGISTER_NEEDS_PAY", path: ["canPay"] });
 export type ChildLinkPermissions = z.output<typeof childLinkPermissionsSchema>;
 export const DEFAULT_CHILD_LINK: ChildLinkPermissions = {
   relation: "other_carer", canRegister: true, canPay: true, canSeeMedical: false, receivesEmails: true, canEditProfile: false,
-  canConsent: false,
+  canConsent: true,
 };
 
 /** Booking needs payment (a linker's bookings are invoiced to them): keep the pair consistent. */

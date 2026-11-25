@@ -15,7 +15,7 @@ export type InboxItem = {
 };
 
 /** Approve / decline one link request; the approver chooses what the new guardian may do. */
-export function LinkDecision({ item, staff = false }: { item: InboxItem; staff?: boolean }) {
+export function LinkDecision({ item, staff = false, carerConsent = false }: { item: InboxItem; staff?: boolean; carerConsent?: boolean }) {
   const t = useT();
   const f = useFormat();
   const router = useRouter();
@@ -32,7 +32,8 @@ export function LinkDecision({ item, staff = false }: { item: InboxItem; staff?:
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   async function decide(d: "approve" | "decline") {
     setBusy(d); setMsg(null);
-    const res = await decideLinkRequest(item.id, d, perm, note, scope, child);
+    // Consent permission is granted with the approval when the club allows carers to consent.
+    const res = await decideLinkRequest(item.id, d, perm, note, scope, { ...child, canConsent: carerConsent && child.canConsent });
     setBusy(null);
     setMsg(res.ok ? { ok: true, text: res.message ?? "" } : { ok: false, text: res.error });
     if (res.ok) router.refresh();
@@ -70,7 +71,7 @@ export function LinkDecision({ item, staff = false }: { item: InboxItem; staff?:
         ))}
       </fieldset>
       {scope === "athlete" ? (
-        <ChildLinkPermissionFields value={child} onChange={setChild} idPrefix={`ld-${item.id}`} />
+        <ChildLinkPermissionFields value={child} onChange={setChild} idPrefix={`ld-${item.id}`} carerConsent={carerConsent} />
       ) : (
         <fieldset className="space-y-1.5">
           <legend className="mb-1 text-xs font-medium text-text-muted">{t("participants.link.permissions")}</legend>
@@ -93,14 +94,14 @@ export function LinkDecision({ item, staff = false }: { item: InboxItem; staff?:
 }
 
 /** Parent app (My family): requests from adults who say they care for one of the family's children. */
-export function LinkInbox({ items }: { items: InboxItem[] }) {
+export function LinkInbox({ items, carerConsent = false }: { items: InboxItem[]; carerConsent?: boolean }) {
   const t = useT();
   if (!items.length) return null;
   return (
     <Card>
       <CardHeader><CardTitle>{t("participants.link.inboxTitle")}</CardTitle></CardHeader>
       <CardBody className="space-y-5 divide-y divide-border-soft">
-        {items.map((i) => <div key={i.id} className="pt-4 first:pt-0"><LinkDecision item={i} /></div>)}
+        {items.map((i) => <div key={i.id} className="pt-4 first:pt-0"><LinkDecision item={i} carerConsent={carerConsent} /></div>)}
       </CardBody>
     </Card>
   );

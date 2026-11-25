@@ -54,7 +54,7 @@ function ChangeDecision({ c }: { c: ReviewQueue["changes"][number] }) {
  * eligibility, and requests to be linked to an existing child (full match
  * visible to staff only).
  */
-export function ParticipantReviewPanel({ queue }: { queue: ReviewQueue }) {
+export function ParticipantReviewPanel({ queue, carerConsent = false }: { queue: ReviewQueue; carerConsent?: boolean }) {
   const t = useT();
   if (!queue.changes.length && !queue.links.length) return null;
   return (
@@ -73,7 +73,7 @@ export function ParticipantReviewPanel({ queue }: { queue: ReviewQueue }) {
           <CardBody className="space-y-5 divide-y divide-border-soft">
             {queue.links.map((l) => (
               <div key={l.id} className="pt-4 first:pt-0">
-                <LinkDecision staff item={{
+                <LinkDecision staff carerConsent={carerConsent} item={{
                   id: l.id, athleteFirstName: l.athleteName, athleteName: l.athleteName, familyName: l.familyName,
                   requesterName: l.requesterName, requesterEmail: l.requesterEmail, relation: l.relation, createdAt: l.createdAt,
                   athleteHref: `/admin/athletes/${l.athleteId}`,

@@ -441,6 +441,7 @@ end $$;
 \i supabase/migrations/20250420106400_link_request_relations.sql
 \i supabase/migrations/20250420106500_relative_invites_carer_consent.sql
 \i supabase/migrations/20250420106500_relative_invites_carer_consent.sql
+\i supabase/migrations/20250420106600_carer_consent_default.sql
 \set QUIET off
 do $$
 begin

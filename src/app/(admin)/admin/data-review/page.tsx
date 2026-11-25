@@ -6,7 +6,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { listReviewFlags } from "@/lib/data/billing";
 import { canSeeFlag, decidedInPanel, flagGroup, flagHref, isInformationalFlag, type FlagGroup } from "@/lib/attendance/review-flags";
 import { InviteGuardianButton } from "@/components/participants/invite-guardian-button";
-import { getReviewQueue } from "@/lib/participants/server";
+import { getCarerConsentSetting, getReviewQueue } from "@/lib/participants/server";
 import { ParticipantReviewPanel } from "@/components/participants/review-panel";
 import { AthleteDataCheckButton, DuplicateMergePanel, SelfLinkPanel } from "@/components/participants/data-check-panels";
 import { getDuplicatePairs, getSelfLinkFindings } from "@/lib/participants/admin-data";
@@ -32,9 +32,10 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
   const roles = { admin: me.roles.includes("admin"), finance: me.roles.includes("finance") };
   const group = (GROUPS as readonly string[]).includes(sp.group ?? "") ? (sp.group as (typeof GROUPS)[number]) : "all";
   const includeResolved = sp.resolved === "1";
-  const [res, queue, pairs, selfLinks] = await Promise.all([
+  const [res, queue, pairs, selfLinks, carerConsent] = await Promise.all([
     listReviewFlags({ includeResolved }), roles.admin ? getReviewQueue() : Promise.resolve(null),
     roles.admin ? getDuplicatePairs() : Promise.resolve([]), roles.admin ? getSelfLinkFindings() : Promise.resolve([]),
+    roles.admin ? getCarerConsentSetting() : Promise.resolve(false),
   ]);
   const header = (
     <PageHeader title={t("adminAttendance.review.title")} description={t("adminAttendance.review.description")}
@@ -60,7 +61,7 @@ export default async function DataReviewPage({ searchParams }: { searchParams: P
         </Link>
       </nav>
 
-      {queue && (group === "all" || group === "people") && <ParticipantReviewPanel queue={queue} />}
+      {queue && (group === "all" || group === "people") && <ParticipantReviewPanel queue={queue} carerConsent={carerConsent} />}
       {roles.admin && (group === "all" || group === "people") && (pairs.length > 0 || selfLinks.length > 0) && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <DuplicateMergePanel pairs={pairs} />

@@ -170,8 +170,10 @@ begin
   perform ri.ok(r like 'ERR:NOT_FOUND%', 'cross-tenant: admin of org B cannot invite for an org A child');
   r := ri.invite('G', 'BK', '{"email":"ri-rel@example.test","relation":"aunt_uncle"}', 'tok-bk');
   perform ri.ok(r like 'ERR:NOT_FOUND%', 'cross-tenant: an org A guardian cannot invite for an org B child');
-  r := ri.invite('G', 'K1', '{"email":"ri-rel@example.test","relation":"aunt_uncle","can_consent":true}', 'tok-c');
-  perform ri.ok(r like 'ERR:CARER_CONSENT_DISABLED%', 'can_consent cannot be granted while the club setting is OFF (' || r || ')');
+  r := ri.invite('G', 'K1', '{"email":"ri-off@example.test","relation":"aunt_uncle","can_consent":true}', 'tok-c');
+  perform ri.ok(r like 'OK:%' and (select (permissions->>'can_consent')::boolean from public.athlete_link_invitations where email = 'ri-off@example.test') = false,
+                'setting OFF: the invitation is created, can_consent stored as not granted (' || r || ')');
+  delete from public.athlete_link_invitations where email = 'ri-off@example.test';
   r := ri.invite('G', 'K1', '{"email":"ri-rel@example.test","relation":"aunt_uncle","can_register":true,"can_pay":false}', 'tok-p');
   perform ri.ok(r like 'ERR:REGISTER_NEEDS_PAY%', 'booking without paying refused');
   r := ri.invite('G', 'K1', '{"email":"not-an-email","relation":"aunt_uncle"}', 'tok-e');
@@ -377,7 +379,8 @@ begin
   perform ri.ok(r like 'ERR:CARER_CONSENT_DISABLED%', 'OFF: linker_consent_accept refused (' || r || ')');
   perform ri.ok((select status from public.guardian_consent_requests where id = v_req) = 'pending', 'OFF: the request stays with the guardian');
   r := ri.as_('G', format('select public.athlete_link_update(%L, ''{"can_consent":true}'')::text', ri.get('LINK_REL')));
-  perform ri.ok(r like 'ERR:CARER_CONSENT_DISABLED%', 'OFF: the guardian cannot grant can_consent (' || r || ')');
+  perform ri.ok(r like 'OK:%' and not (select can_consent from public.athlete_guardian_links where id = ri.get('LINK_REL')),
+                'OFF: granting can_consent is stored as not granted (' || r || ')');
   r := ri.as_('G', format('select public.participant_link_decide(%L, ''approve'', ''{"scope":"athlete","can_consent":true}'', null)::text', gen_random_uuid()));
   perform ri.ok(r like 'ERR:NOT_FOUND%', 'link decide with an unknown request: NOT_FOUND');
 

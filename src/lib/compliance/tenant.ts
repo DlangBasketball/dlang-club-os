@@ -88,6 +88,7 @@ export const getLegalTenant = cache(async (slug: string): Promise<LegalTenant | 
     chRepresentative: cs?.ch_representative ?? "",
     ferpaAnnualNoticeUrl: cs?.ferpa_annual_notice_url ?? "",
     aiAssistantEnabled: aiEnabled,
+    carersMayConsent: obj(s.privacy).carers_may_consent === true,
     lastUpdated: String(updated).slice(0, 10),
     subprocessors,
     overrides,

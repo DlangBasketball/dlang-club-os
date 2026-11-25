@@ -35,7 +35,7 @@ export function InviteRelativeForm({ kids, carerConsent = false, defaultOpen = f
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true); setMsg(null);
-    const res = await inviteRelative(child.id, { email, permissions: perm }, requestId.current);
+    const res = await inviteRelative(child.id, { email, permissions: { ...perm, canConsent: carerConsent && perm.canConsent } }, requestId.current);
     setBusy(false);
     setMsg({ ok: res.ok, text: res.ok ? res.message ?? "" : res.error });
     if (res.ok) {

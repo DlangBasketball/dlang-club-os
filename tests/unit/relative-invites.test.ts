@@ -11,7 +11,7 @@ describe("relative invitation input", () => {
     const p = relativeInviteSchema.parse({ email: "  Synthetic.Aunt@Example.TEST ", permissions: {} });
     expect(p.email).toBe("synthetic.aunt@example.test");
     expect(p.permissions).toEqual(DEFAULT_CHILD_LINK);
-    expect(p.permissions.canConsent).toBe(false);
+    expect(p.permissions.canConsent).toBe(true);
   });
   it("refuses an invalid e-mail and booking without paying", () => {
     expect(relativeInviteSchema.safeParse({ email: "nope", permissions: {} }).success).toBe(false);

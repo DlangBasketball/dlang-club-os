@@ -12,7 +12,7 @@ const self: SelfState = { athleteId: null, dob: "1985-01-01", firstName: "Synthe
 describe("per-child link permissions", () => {
   it("defaults for 'This child only': book + pay + e-mails, no medical, no profile edits", () => {
     expect(DEFAULT_CHILD_LINK).toEqual({
-      relation: "other_carer", canRegister: true, canPay: true, canSeeMedical: false, receivesEmails: true, canEditProfile: false, canConsent: false,
+      relation: "other_carer", canRegister: true, canPay: true, canSeeMedical: false, receivesEmails: true, canEditProfile: false, canConsent: true,
     });
     expect(childLinkPermissionsSchema.parse({})).toEqual(DEFAULT_CHILD_LINK);
   });
@@ -26,7 +26,7 @@ describe("per-child link permissions", () => {
   it("rejects unknown relations and maps to the RPC payload", () => {
     expect(childLinkPermissionsSchema.safeParse({ relation: "mother" }).success).toBe(false);
     expect(childLinkToRpc({ ...DEFAULT_CHILD_LINK, relation: "aunt_uncle", canSeeMedical: true })).toEqual({
-      relation: "aunt_uncle", can_register: true, can_pay: true, can_see_medical: true, receives_emails: true, can_edit_profile: false, can_consent: false,
+      relation: "aunt_uncle", can_register: true, can_pay: true, can_see_medical: true, receives_emails: true, can_edit_profile: false, can_consent: true,
     });
   });
   it("knows the new error codes", () => {

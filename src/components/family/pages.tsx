@@ -54,7 +54,7 @@ export async function FamilyPage() {
     <div className="animate-fade-up max-w-3xl space-y-5">
       <PageHeader title={t("family.pages.family.title")} description={t("family.pages.family.description")}
         actions={<AddParticipantButton variant="primary" />} />
-      <LinkInbox items={inbox} />
+      <LinkInbox items={inbox} carerConsent={carerConsent} />
       {families.length === 0 ? <EmptyState title={t("family.pages.family.empty")} /> : <FamilyPanels families={families} />}
       <ChildLinksManager links={childLinks} carerConsent={carerConsent} />
       <RelativeInvitesList invites={invites} />
