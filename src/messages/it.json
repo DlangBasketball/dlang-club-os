@@ -13881,7 +13881,7 @@
       "approvedToast": "Collegamento approvato.",
       "declinedToast": "Collegamento rifiutato.",
       "inboxTitle": "Richieste di collegamento",
-      "inboxLine": "{name} ({relation}) chiede di essere aggiunto come tutore di {child}.",
+      "inboxLine": "{name} ({relation}) chiede l’accesso a {child}.",
       "verifyHint": "Approva solo se conosci questa persona. Vedrà il profilo del figlio e le attività della famiglia.",
       "staffVerifyHint": "Verifica la persona con la famiglia prima di approvare.",
       "permissions": "Cosa può fare questo tutore",
@@ -13962,7 +13962,7 @@
     },
     "notify": {
       "linkRequestTitle": "Una richiesta di collegamento ti attende",
-      "linkRequestBody": "{name} chiede di essere aggiunto come tutore di {child}. Apri La mia famiglia nell'app per approvare o rifiutare.",
+      "linkRequestBody": "{name} chiede l’accesso a {child}. Apri La mia famiglia nell’app per approvare o rifiutare.",
       "linkApprovedTitle": "Collegamento approvato",
       "linkDeclinedTitle": "Richiesta di collegamento rifiutata",
       "linkApprovedBody": "Ora hai accesso al profilo di {child} nell'app.",

@@ -13881,7 +13881,7 @@
       "approvedToast": "Link approved.",
       "declinedToast": "Link declined.",
       "inboxTitle": "Link requests",
-      "inboxLine": "{name} ({relation}) asks to be added as a guardian of {child}.",
+      "inboxLine": "{name} ({relation}) asks for access to {child}.",
       "verifyHint": "Approve only if you know this person. They will see the child's profile and the family's activities.",
       "staffVerifyHint": "Verify the person with the family before approving.",
       "permissions": "What this guardian may do",
@@ -13962,7 +13962,7 @@
     },
     "notify": {
       "linkRequestTitle": "A guardian link request needs you",
-      "linkRequestBody": "{name} asks to be added as a guardian of {child}. Open My family in the app to approve or decline.",
+      "linkRequestBody": "{name} asks for access to {child}. Open My family in the app to approve or decline.",
       "linkApprovedTitle": "Link approved",
       "linkDeclinedTitle": "Link request declined",
       "linkApprovedBody": "You now have access to {child}'s profile in the app.",

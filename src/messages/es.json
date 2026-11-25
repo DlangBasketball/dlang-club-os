@@ -13881,7 +13881,7 @@
       "approvedToast": "Vínculo aprobado.",
       "declinedToast": "Vínculo rechazado.",
       "inboxTitle": "Solicitudes de vínculo",
-      "inboxLine": "{name} ({relation}) pide ser añadido como tutor de {child}.",
+      "inboxLine": "{name} ({relation}) solicita acceso a {child}.",
       "verifyHint": "Aprueba solo si conoces a esta persona. Verá el perfil del menor y las actividades de la familia.",
       "staffVerifyHint": "Verifica a la persona con la familia antes de aprobar.",
       "permissions": "Qué puede hacer este tutor",
@@ -13962,7 +13962,7 @@
     },
     "notify": {
       "linkRequestTitle": "Tienes una solicitud de vínculo pendiente",
-      "linkRequestBody": "{name} pide ser añadido como tutor de {child}. Abre Mi familia en la app para aprobar o rechazar.",
+      "linkRequestBody": "{name} solicita acceso a {child}. Abre Mi familia en la app para aprobar o rechazar.",
       "linkApprovedTitle": "Vínculo aprobado",
       "linkDeclinedTitle": "Solicitud de vínculo rechazada",
       "linkApprovedBody": "Ya tienes acceso al perfil de {child} en la app.",

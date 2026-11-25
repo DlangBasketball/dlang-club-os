@@ -13881,7 +13881,7 @@
       "approvedToast": "Lien approuvé.",
       "declinedToast": "Lien refusé.",
       "inboxTitle": "Demandes de lien",
-      "inboxLine": "{name} ({relation}) demande à être ajouté comme représentant de {child}.",
+      "inboxLine": "{name} ({relation}) demande l’accès à {child}.",
       "verifyHint": "N'approuvez que si vous connaissez cette personne. Elle verra le profil de l'enfant et les activités de la famille.",
       "staffVerifyHint": "Vérifiez l'identité de la personne auprès de la famille avant d'approuver.",
       "permissions": "Ce que ce représentant peut faire",
@@ -13962,7 +13962,7 @@
     },
     "notify": {
       "linkRequestTitle": "Une demande de lien de représentant vous attend",
-      "linkRequestBody": "{name} demande à être ajouté comme représentant de {child}. Ouvrez Ma famille dans l'application pour approuver ou refuser.",
+      "linkRequestBody": "{name} demande l’accès à {child}. Ouvrez Ma famille dans l’app pour accepter ou refuser.",
       "linkApprovedTitle": "Lien approuvé",
       "linkDeclinedTitle": "Demande de lien refusée",
       "linkApprovedBody": "Vous avez désormais accès au profil de {child} dans l'application.",

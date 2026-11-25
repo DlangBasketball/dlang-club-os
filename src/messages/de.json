@@ -13881,7 +13881,7 @@
       "approvedToast": "Verknüpfung bestätigt.",
       "declinedToast": "Verknüpfung abgelehnt.",
       "inboxTitle": "Verknüpfungsanfragen",
-      "inboxLine": "{name} ({relation}) möchte als erziehungsberechtigte Person von {child} hinzugefügt werden.",
+      "inboxLine": "{name} ({relation}) bittet um Zugang zu {child}.",
       "verifyHint": "Bestätigen Sie nur, wenn Sie die Person kennen. Sie sieht dann das Profil des Kindes und die Aktivitäten der Familie.",
       "staffVerifyHint": "Prüfen Sie die Person mit der Familie, bevor Sie bestätigen.",
       "permissions": "Was diese Person darf",
@@ -13962,7 +13962,7 @@
     },
     "notify": {
       "linkRequestTitle": "Eine Verknüpfungsanfrage wartet auf Sie",
-      "linkRequestBody": "{name} möchte als erziehungsberechtigte Person von {child} hinzugefügt werden. Öffnen Sie Meine Familie in der App, um zu bestätigen oder abzulehnen.",
+      "linkRequestBody": "{name} bittet um Zugang zu {child}. Öffnen Sie «Meine Familie» in der App, um anzunehmen oder abzulehnen.",
       "linkApprovedTitle": "Verknüpfung bestätigt",
       "linkDeclinedTitle": "Verknüpfungsanfrage abgelehnt",
       "linkApprovedBody": "Sie haben jetzt Zugriff auf das Profil von {child} in der App.",
