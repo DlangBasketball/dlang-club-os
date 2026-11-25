@@ -32,6 +32,8 @@ export type CourtsideCardData = {
   /** SVG markup of the QR code (server-generated from the opaque token), null when the card is inactive. */
   qrSvg: string | null;
   cardActive: boolean;
+  /** Club decision: QR check-in on (the card shows its QR) or off (no QR on the card). */
+  checkIn: boolean;
   photoUrl: string | null;
   brands: CourtsideBrand[];
 };

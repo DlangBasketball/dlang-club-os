@@ -104,6 +104,8 @@ begin
          'guardian_has_athlete_in_program', 'guardian_has_athlete_on_team',
          'can_manage_event', 'can_read_event', 'event_team', 'sportsops_same_org',
          'suspended_org_ids',
+         -- RLS helper on invoices (20250420106800): false without a signed-in user (tests/db/booker_invoice_access.sql)
+         'is_invoice_payer',
          -- website connection: allowed embed origins of a club with the connection enabled (public anyway: CSP header)
          'website_embed_origins',
          -- club website: PUBLISHED content of an ENABLED site of exactly the given club

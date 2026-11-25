@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCardCheckInEnabled } from "@/lib/member-cards/check-in-setting";
 import { ChevronLeft } from "lucide-react";
 import { Card, CardBody, CardHeader, CardTitle, ErrorState } from "@/components/ui";
 import { CourtsideCard, type CourtsideLabels } from "@/components/member-card/courtside-card";
@@ -37,6 +38,7 @@ export default async function CardPreviewPage() {
     inactive: t("memberCard.inactive"), photoAlt: "", cardAria: t("memberCard.cardAria", { name, brand }),
   });
 
+  const checkIn = await getCardCheckInEnabled();
   return (
     <div className="space-y-6">
       <Link href="/admin/settings/billing-entities" className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text">
@@ -55,14 +57,14 @@ export default async function CardPreviewPage() {
                 </h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {PREVIEW_NAMES.map((name) => (
-                    <CourtsideCard key={name} brand={b} name={name} photoUrl={null} samplePhoto={layout === "photo"} qrSvg={qrSvg}
+                    <CourtsideCard key={name} brand={b} name={name} photoUrl={null} samplePhoto={layout === "photo"} qrSvg={qrSvg} showQr={checkIn}
                       labels={labels(name, b.displayName)} />
                   ))}
                 </div>
                 <div className="mt-4 w-[320px] max-w-full">
                   <p className="mb-1 text-xs text-text-muted">{t("memberCard.preview.phoneWidth")}</p>
                   <CourtsideCard brand={b} name={PREVIEW_NAMES[PREVIEW_NAMES.length - 1]} photoUrl={null} samplePhoto={layout === "photo"}
-                    qrSvg={qrSvg} labels={labels(PREVIEW_NAMES[PREVIEW_NAMES.length - 1], b.displayName)} />
+                    qrSvg={qrSvg} showQr={checkIn} labels={labels(PREVIEW_NAMES[PREVIEW_NAMES.length - 1], b.displayName)} />
                 </div>
               </div>
             ))}

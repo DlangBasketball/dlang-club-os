@@ -13650,7 +13650,8 @@
         "NOT_ON_SHEET": "{name} is not on this session's roster. Add them as a guest first.",
         "SHEET_FINAL": "Attendance for this session is final. Reopen it to make changes.",
         "CONFLICT": "Someone else just changed this player's mark. Check the sheet."
-      }
+      },
+      "disabled": "QR check-in is not turned on for this club."
     },
     "brands": {
       "title": "Member card brands",
@@ -13698,7 +13699,17 @@
       "phoneWidth": "Narrow phone (320 px)"
     },
     "cardTitle": "Member card",
-    "checkInHint": "Show at training for check-in."
+    "checkInHint": "Show at training for check-in.",
+    "checkInSetting": {
+      "title": "QR check-in with member cards",
+      "label": "Coaches can check players in by scanning their member card (QR code or NFC tag)",
+      "hintOff": "Off (default): the cards show the brand, the photo and the name only; no QR code and no scanner for coaches.",
+      "hintOn": "On: each card shows its personal QR code and coaches get the scanner on the attendance sheet. Existing cards work at once.",
+      "save": "Save",
+      "saved": "Saved.",
+      "failed": "The setting could not be saved. Try again.",
+      "notAllowed": "Only club admins can change this setting."
+    }
   },
   "programDelete": {
     "button": "Delete",

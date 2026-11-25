@@ -13650,7 +13650,8 @@
         "NOT_ON_SHEET": "{name} no está en la lista de esta sesión. Añádelo primero como invitado.",
         "SHEET_FINAL": "La asistencia de esta sesión está cerrada. Reábrela para hacer cambios.",
         "CONFLICT": "Otra persona acaba de cambiar la asistencia de este jugador. Revisa la hoja."
-      }
+      },
+      "disabled": "El registro por QR no está activado para este club."
     },
     "brands": {
       "title": "Marcas de las tarjetas de socio",
@@ -13698,7 +13699,17 @@
       "phoneWidth": "Móvil estrecho (320 px)"
     },
     "cardTitle": "Carné de socio",
-    "checkInHint": "Muéstralo en el entrenamiento para registrar la asistencia."
+    "checkInHint": "Muéstralo en el entrenamiento para registrar la asistencia.",
+    "checkInSetting": {
+      "title": "Registro por QR con las tarjetas de socio",
+      "label": "Los entrenadores pueden registrar a los jugadores escaneando su tarjeta de socio (código QR o etiqueta NFC)",
+      "hintOff": "Desactivado (predeterminado): la tarjeta muestra la marca, la foto y el nombre; sin código QR ni escáner para los entrenadores.",
+      "hintOn": "Activado: cada tarjeta muestra su código QR personal y los entrenadores tienen el escáner en la hoja de asistencia. Las tarjetas existentes funcionan de inmediato.",
+      "save": "Guardar",
+      "saved": "Guardado.",
+      "failed": "No se pudo guardar el ajuste. Inténtalo de nuevo.",
+      "notAllowed": "Solo los administradores del club pueden cambiar este ajuste."
+    }
   },
   "programDelete": {
     "button": "Eliminar",

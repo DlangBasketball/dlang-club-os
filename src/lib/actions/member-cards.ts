@@ -113,6 +113,7 @@ export async function checkInWithCard(eventId: string, raw: string, requestId: s
     if (error) {
       if (/NOT_AUTHORIZED|EVENT_NOT_FOUND|permission denied/.test(error.message)) return fail("notPermitted", me.orgId);
       if (/EVENT_CANCELLED/.test(error.message)) return { ok: false, error: t("memberCard.checkIn.cancelled") };
+      if (/CHECK_IN_DISABLED/.test(error.message)) return { ok: false, error: t("memberCard.checkIn.disabled") };
       throw error;
     }
     const r = data as { ok: boolean; code?: string; already?: boolean; athlete_id?: string | null; name?: string | null };

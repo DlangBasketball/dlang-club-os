@@ -106,7 +106,7 @@ function BrandMark({ brand, size }: { brand: CourtsideBrand; size: "top" | "side
 }
 
 /** "MEMBER CARD", the name on a cream banner between red slashes, and the check-in line. */
-function Identity({ name, layout, labels }: { name: string; layout: CardLayout; labels: CourtsideLabels }) {
+function Identity({ name, layout, labels, showCheckIn = true }: { name: string; layout: CardLayout; labels: CourtsideLabels; showCheckIn?: boolean }) {
   const fitted = fitName(name, layout);
   const slash = "h-[5cqw] w-[0.9cqw] shrink-0 -skew-x-[22deg] bg-courtside-red";
   return (
@@ -126,17 +126,19 @@ function Identity({ name, layout, labels }: { name: string; layout: CardLayout; 
         <span aria-hidden className={slash} />
         <span aria-hidden className={slash} />
       </div>
-      <div className="mt-[1.6cqw] flex w-full items-center justify-center gap-[1.4cqw]">
-        <span aria-hidden className="h-[0.25cqw] w-[2.6cqw] shrink-0 bg-courtside-cream" />
-        <p className="whitespace-nowrap font-display italic leading-tight text-courtside-cream [font-size:1.85cqw]">{labels.checkIn}</p>
-        <span aria-hidden className="h-[0.25cqw] w-[2.6cqw] shrink-0 bg-courtside-cream" />
-      </div>
+      {showCheckIn && (
+        <div className="mt-[1.6cqw] flex w-full items-center justify-center gap-[1.4cqw]">
+          <span aria-hidden className="h-[0.25cqw] w-[2.6cqw] shrink-0 bg-courtside-cream" />
+          <p className="whitespace-nowrap font-display italic leading-tight text-courtside-cream [font-size:1.85cqw]">{labels.checkIn}</p>
+          <span aria-hidden className="h-[0.25cqw] w-[2.6cqw] shrink-0 bg-courtside-cream" />
+        </div>
+      )}
     </div>
   );
 }
 
 export function CourtsideCard({
-  brand, name, photoUrl, samplePhoto = false, qrSvg, cardActive = true, labels, onEnlarge, className,
+  brand, name, photoUrl, samplePhoto = false, qrSvg, cardActive = true, showQr = true, labels, onEnlarge, className,
 }: {
   brand: CourtsideBrand;
   name: string;
@@ -145,6 +147,8 @@ export function CourtsideCard({
   samplePhoto?: boolean;
   qrSvg: string | null;
   cardActive?: boolean;
+  /** Club decision: without QR check-in the card has no QR column (name and logo get the room). */
+  showQr?: boolean;
   labels: CourtsideLabels;
   onEnlarge?: () => void;
   className?: string;
@@ -174,7 +178,7 @@ export function CourtsideCard({
             layout === "photo" ? "left-[56%] top-[4%] h-[46%] w-[26%]" : "left-[40%] top-[3%] h-[60%] w-[34%]")} />
       )}
 
-      <div className="relative grid h-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[2.2cqw] px-[6cqw] py-[4.5cqw]">
+      <div className={cn("relative grid h-full items-center gap-[2.2cqw] px-[6cqw] py-[4.5cqw]", showQr ? "grid-cols-[auto_minmax(0,1fr)_auto]" : "grid-cols-[auto_minmax(0,1fr)]")}>
         {layout === "photo" ? (
           <div className="relative w-[21cqw] self-center">
             {/* cream offset corner behind the frame */}
@@ -195,10 +199,10 @@ export function CourtsideCard({
 
         <div className="flex min-w-0 flex-col items-center justify-center gap-[1.2cqw]">
           {layout === "photo" && <BrandMark brand={brand} size="top" />}
-          <Identity name={name} layout={layout} labels={labels} />
+          <Identity name={name} layout={layout} labels={labels} showCheckIn={showQr} />
         </div>
 
-        <div className={cn("shrink-0 self-center", layout === "photo" ? "w-[18cqw] mt-[8cqw]" : "w-[18cqw]")}>
+        {showQr && <div className={cn("shrink-0 self-center", layout === "photo" ? "w-[18cqw] mt-[8cqw]" : "w-[18cqw]")}>
           {onEnlarge && live ? (
             <button type="button" onClick={onEnlarge} aria-label={labels.enlargeQr}
               className={cn(qrFrame, "outline-none ring-courtside-red focus-visible:ring-[0.6cqw]")}>
@@ -210,7 +214,7 @@ export function CourtsideCard({
           {onEnlarge && live && (
             <p className="mt-[0.6cqw] text-center font-sans text-[length:1.6cqw] text-courtside-cream-muted">{labels.tapToEnlarge}</p>
           )}
-        </div>
+        </div>}
       </div>
     </div>
   );

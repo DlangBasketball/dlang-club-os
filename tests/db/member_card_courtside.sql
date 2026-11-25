@@ -323,6 +323,26 @@ insert into public.events (id, org_id, team_id, season_id, type, title, starts_a
   ('00000000-0000-0000-0000-0000000007d1', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000007c1',
    '00000000-0000-0000-0000-0000000007a1', 'training', 'MC training', now() - interval '30 minutes', now() + interval '90 minutes');
 
+-- QR check-in is a separate club decision (20250420106900): off by default.
+do $$
+declare j jsonb;
+begin
+  perform mc.ok(not public.org_card_check_in_enabled('00000000-0000-0000-0000-000000000001'), 'QR check-in is off by default');
+  j := mc.j('00000000-0000-0000-0000-0000000000f3', format($q$select public.member_card_check_in('00000000-0000-0000-0000-0000000007d1', '%s', null)::text$q$, mc.get('tok71')));
+  perform mc.ok(j->>'err' like '%CHECK_IN_DISABLED%', 'setting off: a scan is refused (' || j::text || ')');
+  perform mc.ok(not exists (select 1 from public.team_attendance_marks where event_id = '00000000-0000-0000-0000-0000000007d1' and status = 'present'),
+                'setting off: nothing written');
+  j := mc.j('00000000-0000-0000-0000-0000000000f3', 'select public.card_check_in_setting()::text');
+  perform mc.ok(j = 'false'::jsonb, 'coach reads the setting (off)');
+end $$;
+update public.app_settings set settings = jsonb_set(coalesce(settings, '{}'::jsonb), '{member_card}', '{"qr_check_in": true}'::jsonb)
+ where org_id = '00000000-0000-0000-0000-000000000001';
+do $$
+begin
+  perform mc.ok(public.org_card_check_in_enabled('00000000-0000-0000-0000-000000000001'), 'club turns QR check-in on');
+  perform mc.ok(not public.org_card_check_in_enabled('10000000-0000-0000-0000-000000000002'), 'the other club stays off');
+end $$;
+
 do $$
 declare j jsonb; v_req uuid := gen_random_uuid(); v_tok73 text; v_hist int;
 begin
@@ -378,7 +398,7 @@ begin
   j := mc.j('00000000-0000-0000-0000-0000000000f4', format($q$select public.member_card_check_in('00000000-0000-0000-0000-0000000007d1', '%s', null)::text$q$, mc.get('tok71')));
   perform mc.ok(j ? 'err', 'a guardian cannot check in');
   j := mc.j('b0000000-0000-0000-0000-0000000007b4', format($q$select public.member_card_check_in('00000000-0000-0000-0000-0000000007d1', '%s', null)::text$q$, mc.get('tok71')));
-  perform mc.ok(j->>'err' like '%EVENT_NOT_FOUND%', 'cross-tenant: another club''s admin gets not found');
+  perform mc.ok(j->>'err' like '%EVENT_NOT_FOUND%' or j->>'err' like '%CHECK_IN_DISABLED%', 'cross-tenant: another club''s admin is refused (' || j::text || ')');
 
   -- admin scans the player's card for …072 (another mark on the same sheet)
   j := mc.j('00000000-0000-0000-0000-0000000000f1', format($q$select public.member_card_check_in('00000000-0000-0000-0000-0000000007d1', '%s', null)::text$q$,

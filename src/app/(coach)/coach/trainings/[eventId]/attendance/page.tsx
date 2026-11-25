@@ -13,6 +13,7 @@ import { uuidSchema, type AttendanceSheet } from "@/lib/attendance/types";
 import { getSessionUser } from "@/lib/auth/get-user";
 import { getI18n } from "@/lib/i18n/server";
 import { hasFeature } from "@/lib/upgrades/server";
+import { getCardCheckInEnabled } from "@/lib/member-cards/check-in-setting";
 import { CardCheckIn } from "@/components/member-card/card-check-in";
 
 export const dynamic = "force-dynamic";
@@ -97,7 +98,9 @@ export default async function TakeAttendancePage({ params }: { params: Promise<{
     );
   }
 
-  const [{ coaches, myCoachId }, cardScan, defaultLeadId] = await Promise.all([getCoachOptions(me.id), hasFeature(me.orgId, "member_cards"), getDefaultLeadId(eventId)]);
+  const [{ coaches, myCoachId }, cardFeature, checkInOn, defaultLeadId] = await Promise.all([getCoachOptions(me.id), hasFeature(me.orgId, "member_cards"), getCardCheckInEnabled(), getDefaultLeadId(eventId)]);
+  // Card check-in needs the feature AND the club's separate decision to use it.
+  const cardScan = cardFeature && checkInOn;
   return (
     <div className="mx-auto max-w-3xl">
       {header}

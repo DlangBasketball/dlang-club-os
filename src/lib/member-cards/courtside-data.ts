@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getCardCheckInEnabled } from "./check-in-setting";
 import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -106,10 +107,12 @@ export async function loadCourtsideCard(athleteId: string): Promise<LoadCardResu
   }
   const row = data as RpcCard;
   const viewer: CardViewer = roles.includes("admin") ? "admin" : roles.includes("parent") ? "guardian" : "player";
+  const checkIn = await getCardCheckInEnabled();
   const [assets, photoUrl, qrSvg] = await Promise.all([
     signBrandAssets(me.orgId, row.brands.flatMap((b) => [b.logo_path, b.watermark_path])),
     signPhoto(row.photo_path, me.orgId, row.athlete_id),
-    row.token ? qrSvgFor(row.token) : Promise.resolve(null),
+    // No QR is rendered (nor sent to the browser) while the club has not turned check-in on.
+    row.token && checkIn ? qrSvgFor(row.token) : Promise.resolve(null),
   ]);
 
   let brands: CourtsideBrand[] = row.brands.map((b) => ({
@@ -136,6 +139,7 @@ export async function loadCourtsideCard(athleteId: string): Promise<LoadCardResu
       name: `${row.first_name} ${row.last_name}`.replace(/\s+/g, " ").trim(),
       qrSvg,
       cardActive: row.card_active,
+      checkIn,
       photoUrl,
       brands,
     },

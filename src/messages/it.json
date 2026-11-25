@@ -13650,7 +13650,8 @@
         "NOT_ON_SHEET": "{name} non è nell’elenco di questa sessione. Aggiungilo prima come ospite.",
         "SHEET_FINAL": "Le presenze di questa sessione sono definitive. Riaprile per modificarle.",
         "CONFLICT": "Qualcuno ha appena modificato la presenza di questo giocatore. Controlla il foglio."
-      }
+      },
+      "disabled": "Il check-in QR non è attivo per questo club."
     },
     "brands": {
       "title": "Marchi delle tessere socio",
@@ -13698,7 +13699,17 @@
       "phoneWidth": "Telefono stretto (320 px)"
     },
     "cardTitle": "Tessera socio",
-    "checkInHint": "Da mostrare all’allenamento per il check-in."
+    "checkInHint": "Da mostrare all’allenamento per il check-in.",
+    "checkInSetting": {
+      "title": "Check-in QR con le tessere",
+      "label": "Gli allenatori possono registrare i giocatori scansionando la loro tessera (codice QR o tag NFC)",
+      "hintOff": "Disattivato (predefinito): la tessera mostra marchio, foto e nome; nessun codice QR né scanner per gli allenatori.",
+      "hintOn": "Attivato: ogni tessera mostra il proprio codice QR e gli allenatori hanno lo scanner sul foglio presenze. Le tessere esistenti funzionano subito.",
+      "save": "Salva",
+      "saved": "Salvato.",
+      "failed": "Impossibile salvare l'impostazione. Riprova.",
+      "notAllowed": "Solo gli amministratori del club possono modificare questa impostazione."
+    }
   },
   "programDelete": {
     "button": "Elimina",

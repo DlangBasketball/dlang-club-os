@@ -13650,7 +13650,8 @@
         "NOT_ON_SHEET": "{name} ne figure pas sur la liste de cette séance. Ajoutez d’abord ce joueur comme invité.",
         "SHEET_FINAL": "Les présences de cette séance sont validées. Rouvrez la feuille pour les modifier.",
         "CONFLICT": "Quelqu’un vient de modifier la présence de ce joueur. Vérifiez la feuille."
-      }
+      },
+      "disabled": "Le pointage par QR n'est pas activé pour ce club."
     },
     "brands": {
       "title": "Marques des cartes de membre",
@@ -13698,7 +13699,17 @@
       "phoneWidth": "Téléphone étroit (320 px)"
     },
     "cardTitle": "Carte de membre",
-    "checkInHint": "À présenter à l’entraînement pour le pointage."
+    "checkInHint": "À présenter à l’entraînement pour le pointage.",
+    "checkInSetting": {
+      "title": "Pointage par QR avec les cartes de membre",
+      "label": "Les coachs peuvent pointer les joueurs en scannant leur carte de membre (code QR ou puce NFC)",
+      "hintOff": "Désactivé (par défaut) : la carte affiche la marque, la photo et le nom ; pas de code QR ni de scanner pour les coachs.",
+      "hintOn": "Activé : chaque carte affiche son code QR personnel et les coachs disposent du scanner sur la feuille de présence. Les cartes existantes fonctionnent immédiatement.",
+      "save": "Enregistrer",
+      "saved": "Enregistré.",
+      "failed": "Le réglage n'a pas pu être enregistré. Réessayez.",
+      "notAllowed": "Seuls les administrateurs du club peuvent modifier ce réglage."
+    }
   },
   "programDelete": {
     "button": "Supprimer",

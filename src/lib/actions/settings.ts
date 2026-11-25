@@ -150,6 +150,24 @@ export async function updateCarerConsent(enabled: boolean): Promise<ActionResult
   return { ok: true };
 }
 
+/**
+ * "QR check-in with member cards" (default OFF): a separate club decision from
+ * the card itself. Read by the database (org_card_check_in_enabled) in
+ * member_card_check_in; the card shows its QR only while ON.
+ */
+export async function updateCardCheckIn(enabled: boolean): Promise<ActionResult> {
+  const me = await getAdmin();
+  const t = await getTranslations();
+  if (!me) return { ok: false, error: t("memberCard.checkInSetting.notAllowed") };
+  const { error } = await patchSettings(me.orgId, { member_card: { qr_check_in: enabled === true } });
+  if (error) return { ok: false, error: t("memberCard.checkInSetting.failed") };
+  await audit(me.orgId, me.id, "settings.card_check_in", { qr_check_in: enabled === true });
+  revalidatePath("/admin/settings/billing-entities");
+  revalidatePath("/parent", "layout");
+  revalidatePath("/admin/athletes", "layout");
+  return { ok: true };
+}
+
 export async function updateRetention(months: number): Promise<ActionResult> {
   const me = await getAdmin();
   if (!me) return { ok: false, error: "Admins only" };

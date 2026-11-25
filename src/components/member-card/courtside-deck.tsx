@@ -65,7 +65,7 @@ export function CourtsideDeck({ card, className }: { card: CourtsideCardData; cl
       <div id={`${tabsId}-panel`} role={brands.length > 1 ? "tabpanel" : undefined}
         aria-labelledby={brands.length > 1 ? `${tabsId}-tab-${index}` : undefined}
         onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="touch-pan-y">
-        <CourtsideCard brand={brand} name={card.name} photoUrl={card.photoUrl} qrSvg={card.qrSvg} cardActive={card.cardActive}
+        <CourtsideCard brand={brand} name={card.name} photoUrl={card.photoUrl} qrSvg={card.qrSvg} cardActive={card.cardActive} showQr={card.checkIn}
           labels={labels} onEnlarge={() => setEnlarged(true)} />
       </div>
       {brands.length > 1 && (

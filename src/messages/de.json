@@ -13650,7 +13650,8 @@
         "NOT_ON_SHEET": "{name} steht nicht auf der Liste dieses Trainings. Zuerst als Gast hinzufügen.",
         "SHEET_FINAL": "Die Anwesenheit dieses Trainings ist abgeschlossen. Zum Ändern wieder öffnen.",
         "CONFLICT": "Jemand hat die Anwesenheit dieses Spielers gerade geändert. Bitte die Liste prüfen."
-      }
+      },
+      "disabled": "Der QR-Check-in ist für diesen Verein nicht aktiviert."
     },
     "brands": {
       "title": "Marken der Mitgliedskarten",
@@ -13698,7 +13699,17 @@
       "phoneWidth": "Schmales Handy (320 px)"
     },
     "cardTitle": "Mitgliedskarte",
-    "checkInHint": "Beim Training zum Einchecken vorzeigen."
+    "checkInHint": "Beim Training zum Einchecken vorzeigen.",
+    "checkInSetting": {
+      "title": "QR-Check-in mit Mitgliederkarten",
+      "label": "Trainer können Spieler durch Scannen ihrer Mitgliederkarte einchecken (QR-Code oder NFC-Tag)",
+      "hintOff": "Aus (Standard): Die Karte zeigt Marke, Foto und Namen; kein QR-Code und kein Scanner für Trainer.",
+      "hintOn": "Ein: Jede Karte zeigt ihren persönlichen QR-Code und Trainer erhalten den Scanner auf der Anwesenheitsliste. Bestehende Karten funktionieren sofort.",
+      "save": "Speichern",
+      "saved": "Gespeichert.",
+      "failed": "Die Einstellung konnte nicht gespeichert werden. Bitte erneut versuchen.",
+      "notAllowed": "Nur Vereinsadministratoren können diese Einstellung ändern."
+    }
   },
   "programDelete": {
     "button": "Löschen",
