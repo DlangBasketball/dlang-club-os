@@ -2510,7 +2510,8 @@
         "confirmedBody": "Good news: the registration of {child} for {camp} ({dates}) was approved and is confirmed.",
         "declinedTitle": "Camp registration not approved",
         "declinedBody": "We are sorry: the registration of {child} for {camp} ({dates}) could not be approved.",
-        "message": "Message from the club: {note}"
+        "message": "Message from the club: {note}",
+        "linkedApprovedBody": "Good news: the registration of {child} for {camp} ({dates}) was approved."
       }
     }
   },
@@ -13816,7 +13817,25 @@
       "INVALID_SCOPE": "Choose whole family or this child only.",
       "REGISTER_NEEDS_PAY": "Booking needs the payment permission: bookings by this person are invoiced to them.",
       "LINK_NOT_ACTIVE": "This access has already ended.",
-      "NO_GUARDIAN_CONTACT": "The child's family has no e-mail for the consent request. Please contact the club."
+      "NO_GUARDIAN_CONTACT": "The child's family has no e-mail for the consent request. Please contact the club.",
+      "TOKEN_REQUIRED": "The link is missing. Please try again.",
+      "INVALID_EMAIL": "Enter a valid e-mail address.",
+      "CANNOT_INVITE_SELF": "You cannot invite yourself.",
+      "ALREADY_GUARDIAN": "This person is already a guardian of the family.",
+      "ALREADY_LINKED": "This person is already linked to this child.",
+      "INVITE_LIMIT": "This child already has 10 open invitations. Revoke one or wait until they are answered.",
+      "RATE_LIMITED": "Too many invitations today. Please try again tomorrow.",
+      "INVITE_NOT_PENDING": "This invitation is no longer open.",
+      "INVITE_USED": "This invitation has already been used.",
+      "EMAIL_MISMATCH": "Sign in with the e-mail address the invitation was sent to.",
+      "CARER_CONSENT_DISABLED": "The club does not let linked relatives give consent.",
+      "MEMBERSHIP_SUSPENDED": "Your account is suspended in this club. Please contact the club.",
+      "NOT_LINKED": "You are not linked to this child.",
+      "NO_CONSENT_PERMISSION": "The family has not allowed you to give consent for this child.",
+      "COPPA_GUARDIAN_REQUIRED": "For a child under 13, a parent or guardian must give this consent.",
+      "HEALTH_NEEDS_GUARDIAN": "The health declaration must be given by the family (you cannot see medical information).",
+      "CONSENT_REQUIRED": "Accept every required form.",
+      "CONSENT_NOT_PENDING": "This booking no longer awaits consent."
     },
     "sex": {
       "male": "Male",
@@ -14008,14 +14027,16 @@
         "canPay": "Pays for what they book (invoices addressed to them)",
         "canSeeMedical": "Can see medical information (read only)",
         "receivesEmails": "Receives e-mails about their bookings",
-        "canEditProfile": "Can edit the child's profile"
+        "canEditProfile": "Can edit the child's profile",
+        "canConsent": "Can give the activity consents for their own bookings"
       },
       "short": {
         "canRegister": "book",
         "canPay": "pay",
         "canSeeMedical": "medical",
         "receivesEmails": "e-mails",
-        "canEditProfile": "profile"
+        "canEditProfile": "profile",
+        "canConsent": "consent"
       },
       "viewOnly": "View only",
       "privacyHint": "Bookings still need the consent of a guardian of the family. This person never sees the other children, the family's address or invoices.",
@@ -14053,6 +14074,90 @@
         "noMedical": "No medical information recorded.",
         "medicalReadOnly": "Only the family can change this information.",
         "leaveHint": "You can end your access at any time."
+      },
+      "privacyHintCarer": "Bookings need the consent of a guardian of the family, unless you let this person give it. This person never sees the other children, the family's address or invoices."
+    },
+    "invite": {
+      "title": "Invite a relative for one child",
+      "open": "Invite someone",
+      "description": "Send an invitation by e-mail to an aunt, uncle, grandparent or friend. They get access to one child only, with the permissions you choose.",
+      "child": "Child",
+      "email": {
+        "title": "Invitation for {child}",
+        "body": "{inviter} invites you to follow {child} at the club as {relation}.",
+        "subject": "{inviter} invites you for {child} at {club}",
+        "heading": "You are invited",
+        "line": "{inviter} invites you to follow {child} at the club as {relation}.",
+        "scope": "You will have access to {child} only, with the permissions chosen by the family. You will not see other children or the family's details.",
+        "verify": "To accept, sign in or create an account with this e-mail address.",
+        "expires": "The invitation is valid until {when} and can be used once.",
+        "ignore": "If you do not know this person, ignore this e-mail.",
+        "cta": "View the invitation"
+      },
+      "emailHint": "They accept by signing in with this e-mail address. The invitation is valid for 14 days and works once. They will see {child}'s first name, the club and your name.",
+      "send": "Send invitation",
+      "sent": "Invitation sent to {email}.",
+      "resent": "Invitation sent again to {email} (the earlier link no longer works).",
+      "revoked": "Invitation revoked.",
+      "revoke": "Revoke",
+      "revokeConfirm": "Revoke the invitation sent to {email}?",
+      "pendingTitle": "Invitations sent",
+      "by": "invited by {name}",
+      "expiresOn": "valid until {date}",
+      "badge": "Invited by e-mail",
+      "status": {
+        "pending": "Waiting",
+        "accepted": "Accepted",
+        "revoked": "Revoked",
+        "expired": "Expired"
+      },
+      "page": {
+        "notFound": "This invitation link is not valid. Ask the family to send a new invitation.",
+        "title": "Invitation for {child}",
+        "intro": "{inviter} invites you to follow {child} at the club ({relation}).",
+        "permissions": "What you could do for {child}",
+        "scope": "Access to {child} only: never to the other children, the family's address or the family's invoices.",
+        "expires": "Valid until {when}.",
+        "done": {
+          "accepted": "This invitation was accepted.",
+          "revoked": "The family revoked this invitation.",
+          "expired": "This invitation has expired. Ask the family to send a new one."
+        },
+        "openApp": "Open the app",
+        "verifyEmail": "Accept with the e-mail address the invitation was sent to ({email}).",
+        "createAccount": "Create an account",
+        "signIn": "Sign in",
+        "signInHint": "New here? Create an account with the invited e-mail address; you come back to this page afterwards.",
+        "privacy": "The club records who accepted and when. The family can change or end your access at any time.",
+        "signedInAs": "Signed in as {email}",
+        "accept": "Accept the invitation",
+        "accepted": "Invitation accepted. You can now see this child in My Athletes."
+      },
+      "emailAddress": "Their e-mail address"
+    },
+    "carerConsent": {
+      "notify": {
+        "title": "Consent given for {child}",
+        "body": "{name} ({relation}) gave the activity consents for {child}: {activity}. You can change their permissions in My family."
+      },
+      "given": "Consent given. The booking continues.",
+      "askedFamily": "The family's guardian has been asked to consent.",
+      "heldTraining": "Request sent. You may give the consent yourself under Bookings for others.",
+      "heldCamp": "Place booked. You gave the consents yourself; no request was sent to the family.",
+      "panelIntro": "The club and the family allow you to give the consent for this booking yourself.",
+      "forms": "Consent forms",
+      "healthHint": "The health declaration can only be given by the family, because you cannot see medical information.",
+      "give": "Give the consent",
+      "askFamily": "Ask the family instead",
+      "permissionHint": "Health declarations still need the family unless this person may also see medical information.",
+      "setting": {
+        "title": "Linked relatives",
+        "label": "Linked relatives may give activity consent",
+        "hintPermission": "Only relatives linked to one child to whom the family (or staff) gave the permission \"can give the activity consents\".",
+        "hintHealth": "Health declarations still need a family guardian unless the relative may see medical information. Under-13 consent in US clubs (COPPA) always stays with the family.",
+        "hintOff": "Off (default): every booking by a relative sends a consent request to the family. Turning it off later grants nothing: permissions given earlier are ignored.",
+        "save": "Save",
+        "saved": "Saved"
       }
     }
   },

@@ -26,6 +26,7 @@ export type NotifType =
   | "attendance_no_show"
   | "attendance_no_show_correction"
   | "guardian_consent_request"
+  | "relative_invitation"
   | "announcement";
 
 export const ENUM_FOR: Record<NotifType, string> = {
@@ -44,6 +45,8 @@ export const ENUM_FOR: Record<NotifType, string> = {
   attendance_no_show: "attendance_no_show",
   attendance_no_show_correction: "attendance_no_show_correction",
   guardian_consent_request: "guardian_consent_request",
+  // E-mail only (the invitee has no account in the club yet): no in-app row.
+  relative_invitation: "system",
   announcement: "system",
 };
 
@@ -88,8 +91,11 @@ export type NotifVars = {
   // Guardian consent for a third-party booking (src/lib/public-entry/notify.ts)
   /** Who booked (the booker's name only, never their contact details). */
   booker_name?: string;
-  /** ISO instant the held place is released. */
+  /** ISO instant the held place is released (consent) / the invitation ends. */
   expires_at?: string;
+  // Relative invitation (src/lib/participants/invite-notify.ts)
+  /** aunt_uncle | grandparent | adult_sibling | family_friend | other_carer */
+  relation?: string;
 };
 
 export type Rendered = { title: string; body: string; link?: string; subject: string; html: string };
@@ -418,6 +424,26 @@ export const TEMPLATES: Record<NotifType, Builder> = {
         ...(v.expires_at ? [html("consentRequest.email.expires", { when: at(v.expires_at) })] : []),
         html("consentRequest.email.ignore"),
       ], { label: txt("consentRequest.email.cta"), href: link }),
+    };
+  },
+  relative_invitation: (v) => {
+    const child = v.athlete_name ?? tr(`${N}.fallback.child`);
+    const inviter = v.booker_name?.trim() || tr("consentRequest.email.someone");
+    const relation = tidy(tr(`participants.childLinks.relations.${v.relation ?? "other_carer"}` as MessageKey));
+    const link = v.portal_path ?? "/";
+    return {
+      title: txt("participants.invite.email.title", { child }),
+      body: txt("participants.invite.email.body", { inviter, child, relation }),
+      link,
+      subject: txt("participants.invite.email.subject", { inviter, child, club: clubName(v) }),
+      html: shell(txt("participants.invite.email.heading"), [
+        greeting(v),
+        html("participants.invite.email.line", { inviter, child, relation }, ["child"]),
+        html("participants.invite.email.scope", { child }),
+        html("participants.invite.email.verify"),
+        ...(v.expires_at ? [html("participants.invite.email.expires", { when: at(v.expires_at) })] : []),
+        html("participants.invite.email.ignore"),
+      ], { label: txt("participants.invite.email.cta"), href: link }),
     };
   },
   announcement: (v) => ({

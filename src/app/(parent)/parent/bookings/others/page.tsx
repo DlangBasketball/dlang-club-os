@@ -7,6 +7,8 @@ import { nextStep } from "@/lib/status/next-step";
 import { getBookerStatus } from "@/lib/public-entry/server";
 import { consentState } from "@/lib/public-entry/shared";
 import { WithdrawRequest } from "./withdraw-request";
+import { CarerConsentPanel } from "./carer-consent";
+import { getCarerConsentPending } from "@/lib/participants/carer-consent";
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -21,13 +23,17 @@ export async function generateMetadata() {
  * (booker_booking_status() whitelists the fields).
  */
 export default async function BookingsForOthersPage({ searchParams }: { searchParams: Promise<{ held?: string }> }) {
-  const [{ t, f }, sp, rows] = await Promise.all([getI18n(), searchParams, getBookerStatus()]);
+  const [{ t, f }, sp, rows, carer] = await Promise.all([getI18n(), searchParams, getBookerStatus(), getCarerConsentPending()]);
+  const carerFor = new Map(carer.map((c) => [c.requestId, c]));
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
       <Link href="/parent/bookings" className="inline-flex items-center gap-1 text-xs text-ink-3 hover:text-ink">
         <ChevronLeft className="h-3.5 w-3.5" aria-hidden /> {t("consentRequest.others.back")}
       </Link>
       <PageHeader title={t("consentRequest.others.title")} description={t("consentRequest.others.description")} />
+      {sp.held === "camp_carer" && (
+        <p role="status" className="rounded-md border border-border bg-surface p-3 text-sm text-text">{t("participants.carerConsent.heldCamp")}</p>
+      )}
       {(sp.held === "camp" || sp.held === "training") && (
         <p role="status" className="rounded-md border border-border bg-surface p-3 text-sm text-text">{t("consentRequest.others.held")}</p>
       )}
@@ -72,6 +78,9 @@ export default async function BookingsForOthersPage({ searchParams }: { searchPa
                       </span>
                     )}
                   </div>
+                  {step === "awaiting_guardian_consent" && carerFor.has(r.consent_request_id) && (
+                    <CarerConsentPanel requestId={r.consent_request_id} forms={carerFor.get(r.consent_request_id)!.forms} />
+                  )}
                   {step === "awaiting_guardian_consent" && <WithdrawRequest requestId={r.consent_request_id} />}
                 </CardBody></Card>
               </li>

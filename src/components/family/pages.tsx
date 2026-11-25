@@ -22,7 +22,9 @@ import { RESTORE_WINDOW_DAYS } from "@/lib/people/person-delete";
 import { AddParticipantButton } from "@/components/participants/add-participant-dialog";
 import { LinkInbox, MyLinkRequests } from "@/components/participants/link-requests";
 import { ChildLinksManager } from "@/components/participants/child-links";
-import { getChildLinksToManage, getLinkInbox, getMyParticipantRequests } from "@/lib/participants/server";
+import { getCarerConsentSetting, getChildLinkInvitesToManage, getChildLinksToManage, getLinkInbox, getMyParticipantRequests } from "@/lib/participants/server";
+import { getMyAthletes } from "@/lib/participants/my-athletes";
+import { InviteRelativeForm, RelativeInvitesList } from "@/components/participants/relative-invites";
 
 type App = "admin" | "coach" | "parent";
 const ROLES: Record<App, ("admin" | "finance" | "coach" | "parent")[]> = {
@@ -42,14 +44,21 @@ async function member(app: App) {
 export async function FamilyPage() {
   const me = await member("parent");
   const { t } = await getI18n();
-  const [families, inbox, mine, childLinks] = await Promise.all([getFamilyPanels(me), getLinkInbox(), getMyParticipantRequests(), getChildLinksToManage()]);
+  const [families, inbox, mine, childLinks, invites, athletes, carerConsent] = await Promise.all([
+    getFamilyPanels(me), getLinkInbox(), getMyParticipantRequests(), getChildLinksToManage(), getChildLinkInvitesToManage(),
+    getMyAthletes(), getCarerConsentSetting(),
+  ]);
+  // Children of the caller's own families (never linked children or the adult's own profile).
+  const kids = athletes.filter((a) => a.kind === "child").map((a) => ({ id: a.id, firstName: a.firstName }));
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
       <PageHeader title={t("family.pages.family.title")} description={t("family.pages.family.description")}
         actions={<AddParticipantButton variant="primary" />} />
       <LinkInbox items={inbox} />
       {families.length === 0 ? <EmptyState title={t("family.pages.family.empty")} /> : <FamilyPanels families={families} />}
-      <ChildLinksManager links={childLinks} />
+      <ChildLinksManager links={childLinks} carerConsent={carerConsent} />
+      <RelativeInvitesList invites={invites} />
+      <InviteRelativeForm kids={kids} carerConsent={carerConsent} />
       <MyLinkRequests items={mine.links} />
     </div>
   );

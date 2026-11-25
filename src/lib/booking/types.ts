@@ -39,7 +39,7 @@ export const NOTIFICATION_KINDS = [
 export type BookingNotificationKind = (typeof NOTIFICATION_KINDS)[number];
 export const NOTIFICATION_STATUSES = ["pending", "sending", "sent", "failed", "no_contact", "skipped"] as const;
 export type BookingNotificationStatus = (typeof NOTIFICATION_STATUSES)[number];
-export const RECIPIENT_KINDS = ["payer", "guardian", "family", "coach", "player", "admin"] as const;
+export const RECIPIENT_KINDS = ["payer", "guardian", "family", "coach", "player", "admin", "linked"] as const;
 
 /** Club setting app_settings.settings.booking.availability_mode (default "declared"). */
 export const AVAILABILITY_MODES = ["declared", "open_confirm"] as const;

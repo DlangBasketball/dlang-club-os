@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchNotification } from "@/lib/notifications/dispatch";
+import { linkedRecipientsFor } from "@/lib/notifications/linked";
 import { getOrgEmailContext } from "@/lib/email/org-context";
 import { emailTranslator } from "@/lib/email/templates";
 import { getOrgAlertRecipients } from "@/lib/data/org-alert-recipients";
@@ -66,6 +67,8 @@ export async function notifyAdminsOfRequest(ctx: ApprovalNoticeContext & { age: 
 /** The decision: every guardian of the family with a login (in-app + e-mail), else the family contact e-mail. */
 export async function notifyFamilyOfDecision(ctx: ApprovalNoticeContext & {
   familyId: string; decision: "approved" | "confirmed" | "declined"; note: string | null; invoiceNumber: string | null; amount: number | null; currency: string | null;
+  /** The child: relatives linked to this child only also hear the decision (without invoice details). */
+  athleteId?: string;
 }): Promise<void> {
   try {
     const admin = createAdminClient();
@@ -93,6 +96,25 @@ export async function notifyFamilyOfDecision(ctx: ApprovalNoticeContext & {
       const p = locales.get(id)!;
       const v = await render(p.locale);
       await dispatchNotification({ orgId: ctx.orgId, type: "announcement", recipientProfileId: id, toEmail: p.email, vars: { title: v.title, message: v.message } });
+    }
+    // Relatives linked to this child (receives_emails): the decision, never the family's invoice.
+    if (ctx.athleteId) {
+      const linked = (await linkedRecipientsFor(ctx.orgId, [ctx.athleteId])).filter((l) => !ids.includes(l.profileId));
+      const linkedLocales = await profileLocales(ctx.orgId, linked.map((l) => l.profileId));
+      for (const l of linked) {
+        const p = linkedLocales.get(l.profileId);
+        if (!p) continue;
+        const { t, f } = await langFor(ctx.orgId, p.locale);
+        const values = { child: ctx.childName, camp: ctx.programName, dates: f.dateRange(ctx.startsOn, ctx.endsOn) };
+        const declined = ctx.decision === "declined";
+        await dispatchNotification({
+          orgId: ctx.orgId, type: "announcement", recipientProfileId: l.profileId, toEmail: p.email,
+          vars: {
+            title: declined ? t("camps.approval.notify.declinedTitle") : t("camps.approval.notify.approvedTitle"),
+            message: declined ? t("camps.approval.notify.declinedBody", values) : t("camps.approval.notify.linkedApprovedBody", values),
+          },
+        });
+      }
     }
     if (!reachable.length) {
       const { data: fam } = await admin.from("families").select("contact_email").eq("id", ctx.familyId).eq("org_id", ctx.orgId).maybeSingle();

@@ -49,6 +49,8 @@ const PUBLIC_PREFIXES = [
   "/join",
   // Guardian consent link for a booking made by another adult (hashed token).
   "/consent",
+  // Invitation of a relative for one child (hashed token; accepting checks the session).
+  "/link-invite",
   // Guardian consent expiry job (cron bearer secret).
   "/api/consent/cron",
   // Scout profile shared by a guardian (hashed link token; off by default).

@@ -47,8 +47,9 @@ import { selectClass } from "@/components/teams/fields";
 import { Input } from "@/components/ui";
 import { ProfileHistory } from "@/components/participants/profile-history";
 import { getProfileHistory } from "@/lib/participants/admin-data";
-import { getChildLinks } from "@/lib/participants/server";
+import { getCarerConsentSetting, getChildLinkInvites, getChildLinks } from "@/lib/participants/server";
 import { ChildLinksManager } from "@/components/participants/child-links";
+import { RelativeInvitesList } from "@/components/participants/relative-invites";
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
@@ -108,6 +109,9 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
     // Adults linked to this child only (admins; the RPC re-checks).
     isAdmin ? getChildLinks(a.id) : Promise.resolve([]),
   ]);
+  // Relative invitations for this child (admins; the RPC re-checks) and the club's carer-consent setting.
+  const childInvites = isAdmin ? await getChildLinkInvites(a.id) : [];
+  const carerConsent = isAdmin ? await getCarerConsentSetting() : false;
   const attendanceHistory = attendanceRes.data ?? [];
   const bookingRows = [...(bookings?.data?.upcoming ?? []), ...(bookings?.data?.past ?? [])];
   const bookedMarks = isAdmin ? await getBookedSessionMarks(a.id, bookingRows) : [];
@@ -175,7 +179,8 @@ export default async function AthleteDetailPage({ params, searchParams }: { para
           <SponsorshipCard athleteId={id} sponsorship={a.sponsorship} editHref={isAdmin ? `/admin/athletes/${id}/edit#sponsorship` : undefined} inlineEdit={!isAdmin} />
         )}
         {canViewMedical && <MedicalSection medical={medical} athleteId={id} canView />}
-        {isAdmin && <ChildLinksManager links={childLinks} showChild={false} />}
+        {isAdmin && <ChildLinksManager links={childLinks} showChild={false} carerConsent={carerConsent} />}
+        {isAdmin && <RelativeInvitesList invites={childInvites} showChild={false} />}
         <ParentContactSection
           guardians={family.data?.guardians ?? []}
           familyPhone={family.data?.phone ?? null}

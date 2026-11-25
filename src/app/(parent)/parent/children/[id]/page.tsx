@@ -17,7 +17,9 @@ import { CourtsideCardSection } from "@/components/member-card/courtside-section
 import { LicenceCard } from "@/components/athlete/licence-card";
 import { SponsorshipNote } from "@/components/athlete/sponsorship-badge";
 import { ProfileEditForm } from "@/components/participants/profile-edit-form";
-import { getMyParticipantRequests, getSportsProfile } from "@/lib/participants/server";
+import { getCarerConsentSetting, getChildLinkInvites, getChildLinks, getMyParticipantRequests, getSportsProfile } from "@/lib/participants/server";
+import { InviteRelativeForm, RelativeInvitesList } from "@/components/participants/relative-invites";
+import { ChildLinksManager } from "@/components/participants/child-links";
 import { getMyAthletes } from "@/lib/participants/my-athletes";
 import { LinkedChildView } from "@/components/participants/linked-child-view";
 
@@ -43,6 +45,11 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
     return <LinkedChildView athlete={mine} medical={md} sports={sp} />;
   }
   const m = data.medical;
+  // Family guardians of this child: per-child links, invitations, invite a relative.
+  const isFamilyChild = mine?.kind === "child";
+  const [childLinks, childInvites, carerConsent] = isFamilyChild
+    ? await Promise.all([getChildLinks(data.id), getChildLinkInvites(data.id), getCarerConsentSetting()])
+    : [[], [], false];
   const [photos, cover, teams, sheetMarks, sports, requests] = await Promise.all([
     photoUrlsForAthletes([data.id]),
     getAthleteCover(data.id),
@@ -112,6 +119,13 @@ export default async function ChildProfilePage({ params }: { params: Promise<{ i
           }} />
         </CardBody>
       </Card>
+      {isFamilyChild && (
+        <div className="space-y-4 lg:col-span-2">
+          <ChildLinksManager links={childLinks.filter((l) => l.status === "active")} showChild={false} carerConsent={carerConsent} />
+          <RelativeInvitesList invites={childInvites.filter((i) => i.status === "pending")} showChild={false} />
+          <InviteRelativeForm kids={[{ id: data.id, firstName: data.firstName }]} carerConsent={carerConsent} />
+        </div>
+      )}
     </div>
   );
 

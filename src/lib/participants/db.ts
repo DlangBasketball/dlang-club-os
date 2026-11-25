@@ -27,7 +27,7 @@ export type LinkRequestRow = {
 /** Per-child link (20250420106300_flexible_links_finance_scope.sql). */
 export type AthleteGuardianLinkRow = {
   id: string; org_id: string; athlete_id: string; profile_id: string; relation: string; can_register: boolean; can_pay: boolean;
-  can_see_medical: boolean; receives_emails: boolean; can_edit_profile: boolean; status: "active" | "revoked";
+  can_see_medical: boolean; receives_emails: boolean; can_edit_profile: boolean; can_consent: boolean; status: "active" | "revoked";
   granted_by: string | null; granted_at: string; revoked_by: string | null; revoked_at: string | null; revoke_reason: string | null;
   link_request_id: string | null; created_at: string; updated_at: string;
 };
@@ -65,6 +65,20 @@ type ParticipantFunctions = {
   athlete_links_mine_to_manage: { Args: Record<string, never>; Returns: Json };
   athlete_link_update: { Args: { p_link: string; p_permissions: Json }; Returns: Json };
   athlete_link_revoke: { Args: { p_link: string; p_reason?: string | null }; Returns: Json };
+  // 20250420106500_relative_invites_carer_consent.sql
+  athlete_link_invite_create: { Args: { p_athlete: string; p_payload: Json; p_token_hash: string; p_request_id: string }; Returns: Json };
+  athlete_link_invite_revoke: { Args: { p_invitation: string }; Returns: Json };
+  athlete_link_invites_for: { Args: { p_athlete: string }; Returns: Json };
+  athlete_link_invites_mine_to_manage: { Args: Record<string, never>; Returns: Json };
+  athlete_link_invite_view: { Args: { p_token_hash: string }; Returns: Json };
+  athlete_link_invite_accept: { Args: { p_token_hash: string }; Returns: Json };
+  carer_consent_setting: { Args: Record<string, never>; Returns: boolean };
+  linker_consent_status: { Args: { p_athlete: string }; Returns: Json };
+  linker_consent_pending: { Args: Record<string, never>; Returns: Json };
+  linker_consent_accept: { Args: { p_request: string; p_payload: Json }; Returns: Json };
+  linker_consent_ask_family: { Args: { p_request: string; p_token_hash: string }; Returns: Json };
+  athlete_linked_recipients_for: { Args: { p_org: string; p_athletes: string[] }; Returns: Json };
+  switch_current_org: { Args: { p_org: string }; Returns: Json };
 };
 
 type Pub = Database["public"];

@@ -122,7 +122,7 @@ export async function decideCampApproval(input: DecideCampApprovalInput): Promis
       const e = ed as { starts_on: string; ends_on: string } | null;
       if (a) {
         await notifyFamilyOfDecision({
-          orgId: me.orgId, familyId: a.family_id, programName: (prog as { name: string } | null)?.name ?? "", childName: a.first_name,
+          orgId: me.orgId, familyId: a.family_id, athleteId: row.athlete_id, programName: (prog as { name: string } | null)?.name ?? "", childName: a.first_name,
           startsOn: e?.starts_on ?? "", endsOn: e?.ends_on ?? "", decision: outcome, note: v.note || null,
           invoiceNumber: r.invoice_number ?? null, amount, currency: r.currency ?? null,
         });

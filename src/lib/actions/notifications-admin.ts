@@ -44,7 +44,11 @@ export async function sendOverdueReminders(): Promise<BulkResult> {
   for (const p of paysRes.data ?? []) paid.set(p.invoice_id, (paid.get(p.invoice_id) ?? 0) + Number(p.amount_chf));
 
   const members = membersRes.data ?? [];
-  const profIds = Array.from(new Set(members.map((m) => m.profile_id)));
+  // A payer outside the family (a relative linked to one child who booked it) is reminded
+  // of their own invoice; the family is not (pickBillingRecipients keeps the payer only).
+  const outsidePayers = new Set(invs.map((i) => i.payer_profile_id).filter((x): x is string => Boolean(x))
+    .filter((id) => !members.some((m) => m.profile_id === id)));
+  const profIds = Array.from(new Set([...members.map((m) => m.profile_id), ...outsidePayers]));
   const profs = profIds.length ? (await admin.from("profiles").select("id,full_name,email").in("id", profIds)).data ?? [] : [];
   const profById = new Map(profs.map((p) => [p.id, p]));
   const guardiansByFam = new Map<string, { id: string; full_name: string | null; email: string }[]>();
@@ -65,7 +69,8 @@ export async function sendOverdueReminders(): Promise<BulkResult> {
     const balance = Math.round((Number(inv.total_chf) + Number(inv.adjustments_total ?? 0) - (paid.get(inv.id) ?? 0)) * 100) / 100;
     if (balance <= 0) continue;
     // Split invoices go to their responsible payer; otherwise to guardians who receive emails.
-    const fam = (guardiansByFam.get(inv.family_id) ?? []).map((g) => ({ ...g, profileId: g.id as string | null }));
+    const outside = inv.payer_profile_id && outsidePayers.has(inv.payer_profile_id) ? profById.get(inv.payer_profile_id) : undefined;
+    const fam = [...(guardiansByFam.get(inv.family_id) ?? []), ...(outside ? [outside] : [])].map((g) => ({ ...g, profileId: g.id as string | null }));
     const receives = new Set(members.filter((m) => m.family_id === inv.family_id && m.receives_emails !== false).map((m) => m.profile_id));
     const payerId = inv.payer_profile_id ?? null;
     for (const g of pickBillingRecipients(fam, { payerId, receivesEmails: receives })) {

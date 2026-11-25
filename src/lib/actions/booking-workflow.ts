@@ -178,7 +178,10 @@ export async function createFamilyRequest(input: FamilyRequestInput, requestId: 
       return fail(t, h.message);
     }
     revalidatePath("/parent/bookings/others");
-    return { ok: true, data: { ...(h.raw as unknown as FamilyRequestResult), third_party: true }, message: t("consentRequest.held.training") };
+    return {
+      ok: true, data: { ...(h.raw as unknown as FamilyRequestResult), third_party: true },
+      message: t(h.consent === "carer_pending" ? "participants.carerConsent.heldTraining" : "consentRequest.held.training"),
+    };
   }
   const db = await instalmentsDb();
   const { data, error } = await db.rpc("booking_family_request_plan", {
