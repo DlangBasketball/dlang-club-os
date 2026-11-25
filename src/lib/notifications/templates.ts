@@ -45,8 +45,7 @@ export const ENUM_FOR: Record<NotifType, string> = {
   attendance_no_show: "attendance_no_show",
   attendance_no_show_correction: "attendance_no_show_correction",
   guardian_consent_request: "guardian_consent_request",
-  // E-mail only (the invitee has no account in the club yet): no in-app row.
-  relative_invitation: "system",
+  relative_invitation: "relative_invitation",
   announcement: "system",
 };
 

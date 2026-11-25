@@ -1,4 +1,5 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { dispatchNotification } from "@/lib/notifications/dispatch";
 import { getOrgEmailContext } from "@/lib/email/org-context";
 import { emailTranslator } from "@/lib/email/templates";
@@ -18,7 +19,7 @@ type Invite = { id: string; org_id: string; athlete_id: string; invited_by: stri
 /** The invitation e-mail with the one-time link (to the invited address only). */
 export async function sendRelativeInvitation(orgId: string, invitationId: string, token: string): Promise<boolean> {
   try {
-    const db = participantsAdminDb() as unknown as { from: (t: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const db = participantsAdminDb() as unknown as SupabaseClient;
     const { data } = await db.from("athlete_link_invitations").select("id,org_id,athlete_id,invited_by,email,relation,expires_at,status")
       .eq("id", invitationId).eq("org_id", orgId).maybeSingle();
     const i = data as Invite | null;
@@ -50,7 +51,7 @@ export async function sendRelativeInvitation(orgId: string, invitationId: string
  */
 export async function notifyFamilyOfCarerConsent(orgId: string, athleteId: string, carerProfileId: string, relation: string, activity: string): Promise<void> {
   try {
-    const db = participantsAdminDb() as unknown as { from: (t: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const db = participantsAdminDb() as unknown as SupabaseClient;
     const { data: a } = await db.from("athletes").select("family_id,first_name").eq("id", athleteId).eq("org_id", orgId).maybeSingle();
     const ath = a as { family_id: string; first_name: string } | null;
     if (!ath) return;

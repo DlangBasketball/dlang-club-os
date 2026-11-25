@@ -33,6 +33,9 @@
 -- ===========================================================================
 -- 1) Columns
 -- ===========================================================================
+-- Notification type of the invitation e-mail (logged like every notice).
+alter type public.notification_type add value if not exists 'relative_invitation';
+
 alter table public.athlete_guardian_links add column if not exists can_consent boolean not null default false;
 
 alter table public.guardian_consent_requests add column if not exists accepted_via text;
