@@ -2512,6 +2512,10 @@
         "declinedBody": "Ci dispiace: l'iscrizione di {child} a {camp} ({dates}) non ha potuto essere approvata.",
         "message": "Messaggio del club: {note}",
         "linkedApprovedBody": "Buone notizie: l'iscrizione di {child} a {camp} ({dates}) è stata approvata."
+      },
+      "public": {
+        "needsAccount": "I bambini di questa età devono essere approvati dal club. Crea un account (o accedi) per inviare la richiesta: la risposta del club arriverà su quell'account.",
+        "createAccount": "Crea un account"
       }
     }
   },
@@ -14503,7 +14507,8 @@
       "privacy": "Profilo, data di nascita, dati medici e documenti restano al genitore o rappresentante legale.",
       "withdraw": "Ritira questa prenotazione",
       "withdrawConfirm": "Ritirare questa prenotazione? Il posto viene liberato.",
-      "withdrawn": "Prenotazione ritirata."
+      "withdrawn": "Prenotazione ritirata.",
+      "payInvoice": "Paga la fattura"
     },
     "slot": {
       "explain": "Teniamo il posto per 72 ore e chiediamo via e-mail il consenso al genitore o rappresentante legale. Vedi lo stato della prenotazione e quanto devi, mai i suoi dati personali."

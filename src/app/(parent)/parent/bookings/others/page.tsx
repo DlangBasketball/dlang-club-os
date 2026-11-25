@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 import { CalendarDays, ChevronLeft, Clock, Receipt } from "lucide-react";
-import { Card, CardBody, EmptyState, PageHeader } from "@/components/ui";
+import { Card, CardBody, EmptyState, PageHeader, buttonVariants } from "@/components/ui";
 import { NextStepBadge } from "@/components/approvals/next-step-badge";
 import { getI18n } from "@/lib/i18n/server";
 import { nextStep } from "@/lib/status/next-step";
@@ -25,6 +26,13 @@ export async function generateMetadata() {
 export default async function BookingsForOthersPage({ searchParams }: { searchParams: Promise<{ held?: string }> }) {
   const [{ t, f }, sp, rows, carer] = await Promise.all([getI18n(), searchParams, getBookerStatus(), getCarerConsentPending()]);
   const carerFor = new Map(carer.map((c) => [c.requestId, c]));
+  // Invoices this booker pays (readable through the payer policy, 20250420106800): link to pay.
+  const numbers = Array.from(new Set(rows.map((r) => r.invoice?.number).filter((n): n is string => !!n)));
+  const invoiceIds = new Map<string, string>();
+  if (numbers.length) {
+    const { data } = await (await createClient()).from("invoices").select("id,number").in("number", numbers);
+    for (const i of data ?? []) if (i.number) invoiceIds.set(i.number, i.id);
+  }
   return (
     <div className="animate-fade-up max-w-3xl space-y-5">
       <Link href="/parent/bookings" className="inline-flex items-center gap-1 text-xs text-ink-3 hover:text-ink">
@@ -82,6 +90,11 @@ export default async function BookingsForOthersPage({ searchParams }: { searchPa
                     <CarerConsentPanel requestId={r.consent_request_id} forms={carerFor.get(r.consent_request_id)!.forms} />
                   )}
                   {step === "awaiting_guardian_consent" && <WithdrawRequest requestId={r.consent_request_id} />}
+                  {r.invoice && Number(r.invoice.balance) > 0 && invoiceIds.has(r.invoice.number) && (
+                    <Link href={`/parent/invoices/${invoiceIds.get(r.invoice.number)}`} className={buttonVariants({ size: "sm" })}>
+                      {t("consentRequest.others.payInvoice")}
+                    </Link>
+                  )}
                 </CardBody></Card>
               </li>
             );

@@ -235,8 +235,12 @@ export async function createCheckoutSession(invoiceId: string): Promise<{ ok: tr
   if (!inv.ok) return inv;
   // A second guardian without the "can pay" permission cannot start a payment.
   if (!me.roles.includes("admin") && !me.roles.includes("finance")) {
-    const { data: famRow } = await (await createClient()).from("invoices").select("family_id").eq("id", inv.id).maybeSingle();
-    if (famRow?.family_id && !(await guardianMayPay(inv.orgId, famRow.family_id, me.id))) {
+    const db = await createClient();
+    const { data: famRow } = await db.from("invoices").select("family_id").eq("id", inv.id).maybeSingle();
+    // The invoice's own payer (e.g. someone who booked for another family's child) may always pay it.
+    const { data: isPayer } = await (db as unknown as { rpc: (fn: string, a: Record<string, unknown>) => Promise<{ data: unknown }> })
+      .rpc("is_invoice_payer", { p_invoice: inv.id });
+    if (isPayer !== true && famRow?.family_id && !(await guardianMayPay(inv.orgId, famRow.family_id, me.id))) {
       return { ok: false, error: (await getTranslations())("family.errors.cannotPay") };
     }
   }

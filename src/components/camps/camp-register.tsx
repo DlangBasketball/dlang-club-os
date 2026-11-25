@@ -40,7 +40,9 @@ function placeOf(e: Edition): { label: string; query: string } {
 type PlanRules = { settings: PlanSettings; today: string } | null;
 
 export function CampRegister(props:
-  | { mode: "public"; camp: PublicCamp; slug: string; config?: RegistrationConfig; planRules?: PlanRules }
+  | { mode: "public"; camp: PublicCamp; slug: string; config?: RegistrationConfig; planRules?: PlanRules;
+      /** Signed-in visitor: children aged in the approval band can be submitted for review (needs an account). */
+      signedIn?: boolean; joinHref?: string }
   | { mode: "parent"; camp: PublicCamp; kids: { id: string; name: string; dob: string | null }[]; config?: RegistrationConfig; planRules?: PlanRules;
       /** Participant picker (Myself / child / someone else); defaults to the kids as children. */
       participants?: ParticipantOption[]; self?: SelfState;
@@ -81,10 +83,10 @@ export function CampRegister(props:
   const requestId = React.useRef<string>("");
   if (!requestId.current && typeof crypto !== "undefined" && "randomUUID" in crypto) requestId.current = crypto.randomUUID();
 
-  // Age approval band (parent app): age on the week's first day.
+  // Age approval band (parent app and public page): age on the week's first day.
   const band = camp.program.ages ? approvalBand(camp.program.ages) : null;
   const bandOf = (dob: string | null): { age: number | null; band: CampAgeBand } =>
-    props.mode === "parent" && band && edition && camp.program.ages ? classifyCamper(dob, edition.startsOn, camp.program.ages) : { age: null, band: "standard" };
+    band && edition && camp.program.ages ? classifyCamper(dob, edition.startsOn, camp.program.ages) : { age: null, band: "standard" };
 
   const optionFor = (c: Choice) => {
     const n = Number(c.daysCount);
@@ -151,6 +153,7 @@ export function CampRegister(props:
       if (!o) return t("camps.register.pickOption");
       if (k.days.length !== o.daysCount) return t("camps.register.pickDays", { count: o.daysCount });
     }
+    if (props.mode === "public" && !props.signedIn && kids.some((k) => bandOf(k.dob).band === "approval")) return t("camps.approval.public.needsAccount");
     const missing = camp.consents.filter((c) => c.required && !accepted.has(c.key));
     if (missing.length) return t("registration.consents.missing");
     if (props.mode === "public" && account === "password" && password.length < 10) return t("camps.errors.password");
@@ -182,7 +185,7 @@ export function CampRegister(props:
       ? await submitCampPublic({
           programSlug: props.slug, editionId, promoCode: promo, consents, parent,
           children: pubKids.map((c) => ({ ...c, priceOptionId: optionFor(c)?.id ?? "", ageGroupId: c.ageGroupId, days: c.days })),
-        }, account === "password" ? { mode: "password", password } : { mode: account }, instalments)
+        }, account === "password" ? { mode: "password", password } : { mode: account }, instalments, requestId.current || undefined)
       : await submitCampParent({
           programId: camp.program.id, editionId, promoCode: promo, consents,
           children: parKids.map((c) => ({ athleteId: c.athleteId, priceOptionId: optionFor(c)?.id ?? "", ageGroupId: c.ageGroupId, days: c.days, answers: c.answers })),
@@ -464,6 +467,12 @@ export function CampRegister(props:
             <div role="note" className="rounded-md border border-info/40 bg-info-soft px-4 py-3 text-sm text-ink">
               <p>{t(bandMessage(band).key, bandMessage(band).values)}</p>
               <p className="mt-1 text-xs text-ink-3">{t("camps.approval.parent.noInvoice")}</p>
+              {props.mode === "public" && !props.signedIn && (
+                <p className="mt-2 text-sm">
+                  {t("camps.approval.public.needsAccount")}{" "}
+                  {props.joinHref && <a href={props.joinHref} className="font-medium text-maroon hover:underline">{t("camps.approval.public.createAccount")}</a>}
+                </p>
+              )}
             </div>
           )}
           {error && <div role="alert" className="rounded-md border border-danger/40 bg-danger-soft px-4 py-3 text-sm text-danger">{error}</div>}

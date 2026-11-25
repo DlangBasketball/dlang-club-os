@@ -30,6 +30,7 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
     const i18n = await getI18n(camp.program.orgId);
     const season = camp.program.season;
     const q = `?camp=${encodeURIComponent(programSlug)}`;
+    const signedIn = !!(await getSessionUser());
     return (
       <div className="animate-fade-up space-y-8">
         <CampHero coverUrl={camp.program.coverUrl} focalX={camp.program.coverFocalX} focalY={camp.program.coverFocalY}
@@ -40,13 +41,14 @@ export default async function PublicProgramPage({ params }: { params: Promise<{ 
           <Link href={`/register/camps${q}`} className="text-maroon hover:underline">{i18n.t("camps.basket.otherCamps")}</Link>
           <Link href={`/register/camps/basket${q}`} className="text-maroon hover:underline">{i18n.t("camps.basket.title")}</Link>
         </div>
-        {!(await getSessionUser()) && (
+        {!signedIn && (
           <AppBookingCallout t={i18n.t} intent="camp" next={`/parent/camps/${camp.program.id}`} club={(await getTenant()).slug ?? null} />
         )}
         <I18nProvider ctx={i18n.ctx} messages={i18n.messages}>
           <BasketAdder mode="public" scope={`public:${camp.program.orgId}`} camps={[camp]} basketHref={`/register/camps/basket${q}`}
             title={i18n.t("camps.basket.adder.titleSeveral")} />
-          <CampRegister mode="public" camp={camp} slug={programSlug} config={await getRegistrationConfig(camp.program.orgId, camp.program.id)}
+          <CampRegister mode="public" camp={camp} slug={programSlug} signedIn={signedIn}
+            joinHref={`/join?intent=camp&next=${encodeURIComponent(`/parent/camps/${camp.program.id}`)}`} config={await getRegistrationConfig(camp.program.orgId, camp.program.id)}
             planRules={await getCheckoutPlanOffer(camp.program.orgId, "camp", camp.program.currency)} />
           <ContactForm compact defaultInterest="camp" programId={camp.program.id} source={`/register/${programSlug}`} />
         </I18nProvider>

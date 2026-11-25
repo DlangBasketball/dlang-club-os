@@ -2512,6 +2512,10 @@
         "declinedBody": "Es tut uns leid: Die Anmeldung von {child} für {camp} ({dates}) konnte nicht freigegeben werden.",
         "message": "Nachricht des Vereins: {note}",
         "linkedApprovedBody": "Gute Nachricht: Die Anmeldung von {child} für {camp} ({dates}) wurde genehmigt."
+      },
+      "public": {
+        "needsAccount": "Kinder in diesem Alter werden vom Verein geprüft. Erstellen Sie ein Konto (oder melden Sie sich an), um die Anfrage zu senden: Die Antwort des Vereins erhalten Sie in diesem Konto.",
+        "createAccount": "Konto erstellen"
       }
     }
   },
@@ -14503,7 +14507,8 @@
       "privacy": "Profil, Geburtsdatum, medizinische Angaben und Dokumente bleiben beim Elternteil oder der gesetzlichen Vertretung.",
       "withdraw": "Buchung zurückziehen",
       "withdrawConfirm": "Diese Buchung zurückziehen? Der Platz wird freigegeben.",
-      "withdrawn": "Buchung zurückgezogen."
+      "withdrawn": "Buchung zurückgezogen.",
+      "payInvoice": "Rechnung bezahlen"
     },
     "slot": {
       "explain": "Wir reservieren den Platz für 72 Stunden und bitten das Elternteil oder die gesetzliche Vertretung per E-Mail um Einwilligung. Du siehst den Buchungsstatus und den offenen Betrag, nie die persönlichen Daten."

@@ -2512,6 +2512,10 @@
         "declinedBody": "We are sorry: the registration of {child} for {camp} ({dates}) could not be approved.",
         "message": "Message from the club: {note}",
         "linkedApprovedBody": "Good news: the registration of {child} for {camp} ({dates}) was approved."
+      },
+      "public": {
+        "needsAccount": "Children of this age need a review by the club. Create an account (or sign in) to send the request: the club's answer comes to that account.",
+        "createAccount": "Create an account"
       }
     }
   },
@@ -14503,7 +14507,8 @@
       "privacy": "Their profile, date of birth, medical details and documents stay with their parent or legal guardian.",
       "withdraw": "Withdraw this booking",
       "withdrawConfirm": "Withdraw this booking? The place is released.",
-      "withdrawn": "Booking withdrawn."
+      "withdrawn": "Booking withdrawn.",
+      "payInvoice": "Pay invoice"
     },
     "slot": {
       "explain": "We hold the place for 72 hours and e-mail their parent or legal guardian for consent. You see the booking status and what you owe, never their personal details."
