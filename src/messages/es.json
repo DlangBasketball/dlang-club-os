@@ -12519,7 +12519,8 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "Corrección de fecha de nacimiento / sexo por revisar",
         "ATHLETE_LINK_REQUEST": "Solicitud de vínculo con un menor",
         "POSSIBLE_DUPLICATE": "Posible perfil duplicado",
-        "POSSIBLE_SELF_LINK": "Posible cuenta propia"
+        "POSSIBLE_SELF_LINK": "Posible cuenta propia",
+        "NO_GUARDIAN_LOGIN": "Aún sin acceso de tutor"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Los avisos de ausencia de este jugador no llegan a nadie. Añade a la familia un tutor con acceso activo.",
@@ -12541,7 +12542,19 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "Una familia corrigió a un menor inscrito. Aprueba o rechaza en el panel de arriba.",
         "ATHLETE_LINK_REQUEST": "Un adulto pide acceso de tutor a un menor existente. Decide en el panel de arriba (la familia también puede aprobar).",
         "POSSIBLE_DUPLICATE": "Una familia creó un perfil con el mismo nombre y fecha de nacimiento que uno existente. Fusiona o conserva ambos.",
-        "POSSIBLE_SELF_LINK": "Un jugador adulto cuyo correo de contacto familiar y nombre coinciden con una cuenta. Confirma el vínculo o descártalo."
+        "POSSIBLE_SELF_LINK": "Un jugador adulto cuyo correo de contacto familiar y nombre coinciden con una cuenta. Confirma el vínculo o descártalo.",
+        "NO_GUARDIAN_LOGIN": "Registrado por el club sin acceso de tutor. Es normal; invita a un tutor para que la familia vea reservas y facturas."
+      },
+      "informational": "Sugerencia",
+      "invite": {
+        "button": "Invitar a un tutor",
+        "resend": "Invitar de nuevo",
+        "sent": "Invitación enviada al correo de contacto de la familia.",
+        "failed": "No se pudo enviar la invitación.",
+        "noEmail": "La familia no tiene un correo de contacto válido. Añade uno en la página de la familia.",
+        "notFound": "Esta sugerencia ya no está abierta.",
+        "forbidden": "Solo los administradores del club pueden invitar a tutores.",
+        "invitedOn": "Invitado el {date}"
       }
     }
   },
@@ -13799,7 +13812,11 @@
       "INVALID_RELATION": "Elige tu relación con el participante.",
       "NO_MATCH": "No encontramos un perfil coincidente. Revisa los datos o añade al menor.",
       "EXPIRED": "Esta solicitud ha caducado.",
-      "THIRD_PARTY_NOT_ENABLED": "Aún no se puede reservar para alguien fuera de tu familia."
+      "THIRD_PARTY_NOT_ENABLED": "Aún no se puede reservar para alguien fuera de tu familia.",
+      "INVALID_SCOPE": "Elige toda la familia o solo este niño.",
+      "REGISTER_NEEDS_PAY": "Reservar requiere el permiso de pago: las reservas de esta persona se le facturan a ella.",
+      "LINK_NOT_ACTIVE": "Este acceso ya ha terminado.",
+      "NO_GUARDIAN_CONTACT": "La familia del niño no tiene un correo para la solicitud de consentimiento. Contacta con el club."
     },
     "sex": {
       "male": "Masculino",
@@ -13887,7 +13904,10 @@
       "age": "{age} años",
       "otherBadge": "Consentimiento pendiente",
       "noChildren": "Aún no hay menores en tu familia.",
-      "alsoSelected": "También seleccionados: {names}"
+      "alsoSelected": "También seleccionados: {names}",
+      "linked": "Un niño al que estoy vinculado/a",
+      "linkedBadge": "Vinculado",
+      "linkedHint": "Un tutor de la familia del niño confirma cada reserva; la factura va a tu nombre."
     },
     "self": {
       "intro": "Tu propio perfil de participante (solo adultos). La fecha de nacimiento se usa para las reglas de edad.",
@@ -13967,6 +13987,69 @@
     "admin": {
       "duplicateWarning": "Puede que el club ya tenga a esta persona: {names}. Comprueba antes de crear o marca «Crear de todos modos».",
       "confirmDuplicate": "Crear de todos modos (es otra persona)"
+    },
+    "childLinks": {
+      "title": "Personas vinculadas a un solo niño",
+      "description": "Familiares o amigos que pueden actuar solo para un niño. Nunca ven a los demás niños, los datos de la familia ni sus facturas.",
+      "relation": "Relación con el niño",
+      "relations": {
+        "aunt_uncle": "Tía / tío",
+        "grandparent": "Abuelo / abuela",
+        "adult_sibling": "Hermano/a mayor de edad",
+        "family_friend": "Amigo/a de la familia",
+        "other_carer": "Otro cuidador"
+      },
+      "perm": {
+        "canRegister": "Puede reservar campamentos, entrenamientos y programas para este niño",
+        "canPay": "Paga lo que reserva (facturas a su nombre)",
+        "canSeeMedical": "Puede ver la información médica (solo lectura)",
+        "receivesEmails": "Recibe correos sobre sus reservas",
+        "canEditProfile": "Puede editar el perfil del niño"
+      },
+      "short": {
+        "canRegister": "reservar",
+        "canPay": "pagar",
+        "canSeeMedical": "médico",
+        "receivesEmails": "correos",
+        "canEditProfile": "perfil"
+      },
+      "viewOnly": "Solo consulta",
+      "privacyHint": "Las reservas siguen necesitando el consentimiento de un tutor de la familia. Esta persona nunca ve a los demás niños, la dirección ni las facturas de la familia.",
+      "revokeConfirm": "¿Terminar ahora el acceso de {name} a este niño?",
+      "revokedBadge": "Terminado",
+      "forChild": "para {child}",
+      "edit": "Cambiar permisos",
+      "revoke": "Terminar acceso",
+      "save": "Guardar permisos",
+      "saved": "Permisos guardados.",
+      "revoked": "Acceso terminado.",
+      "leave": "Terminar mi vínculo con este niño",
+      "leaveConfirm": "¿Terminar tu acceso a este niño? Las reservas pendientes de consentimiento se cancelan.",
+      "scopeLabel": "Acceso",
+      "scope": {
+        "athlete": "Solo este niño",
+        "family": "Toda la familia"
+      },
+      "scopeHint": {
+        "athlete": "Para familiares y amigos: actúan solo para {child}, nunca para los demás niños ni los datos de la familia.",
+        "family": "Para un segundo progenitor o cotutor: ve a todos los niños de la familia y sus actividades."
+      },
+      "childPage": {
+        "intro": "Estás vinculado/a solo a {child}. Las reservas las confirma un tutor de la familia.",
+        "permissions": "Qué puedes hacer",
+        "bookCamp": "Reservar un campamento",
+        "bookTraining": "Reservar un entrenamiento",
+        "consentHint": "El tutor de la familia recibe una solicitud de consentimiento por cada reserva; tras aceptarla, la factura va a tu nombre.",
+        "medical": {
+          "allergies": "Alergias",
+          "conditions": "Afecciones",
+          "medications": "Medicación",
+          "notes": "Notas"
+        },
+        "noMedical": "No hay información médica registrada.",
+        "medicalReadOnly": "Solo la familia puede cambiar esta información.",
+        "leaveHint": "Puedes terminar tu acceso en cualquier momento."
+      }
     }
   },
   "nextStep": {
@@ -14245,7 +14328,8 @@
       "MIXED_PARTICIPANTS": "Reserva a un participante de otra familia por separado, de uno en uno.",
       "CLUB_NOT_FOUND": "No encontramos este club.",
       "MEMBERSHIP_SUSPENDED": "Tu acceso a este club está suspendido.",
-      "CLUB_APPROVAL_REQUIRED": "Este programa necesita la aprobación del club."
+      "CLUB_APPROVAL_REQUIRED": "Este programa necesita la aprobación del club.",
+      "NO_GUARDIAN_CONTACT": "La familia del niño no tiene un correo para la solicitud de consentimiento. Contacta con el club."
     },
     "held": {
       "training": "Solicitud enviada. Se pidió el consentimiento al padre, madre o tutor legal del participante."
@@ -14495,6 +14579,7 @@
         "noTeamHint": "Cuando tu deportista esté en un equipo, el calendario aparecerá aquí."
       }
     },
-    "addChildTerm": "Añadir {term}"
+    "addChildTerm": "Añadir {term}",
+    "linkedBadge": "Vinculado · {relation}"
   }
 }

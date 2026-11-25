@@ -12519,7 +12519,8 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "Korrektur von Geburtsdatum / Geschlecht zu prüfen",
         "ATHLETE_LINK_REQUEST": "Anfrage zur Verknüpfung mit einem Kind",
         "POSSIBLE_DUPLICATE": "Mögliches Doppelprofil",
-        "POSSIBLE_SELF_LINK": "Mögliches eigenes Konto"
+        "POSSIBLE_SELF_LINK": "Mögliches eigenes Konto",
+        "NO_GUARDIAN_LOGIN": "Noch kein Eltern-Login"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Absenzmeldungen zu diesem Spieler erreichen niemanden. Ergänzen Sie die Familie um eine erziehungsberechtigte Person mit aktivem Login.",
@@ -12541,7 +12542,19 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "Eine Familie hat ein angemeldetes Kind korrigiert. Oben bestätigen oder ablehnen.",
         "ATHLETE_LINK_REQUEST": "Eine erwachsene Person möchte Zugriff auf ein bestehendes Kind. Oben entscheiden (die Familie kann auch bestätigen).",
         "POSSIBLE_DUPLICATE": "Eine Familie hat ein Profil mit gleichem Namen und Geburtsdatum wie ein bestehendes angelegt. Zusammenführen oder beide behalten.",
-        "POSSIBLE_SELF_LINK": "Ein erwachsener Spieler, dessen Familien-E-Mail und Name zu einem Konto passen. Verknüpfung bestätigen oder verwerfen."
+        "POSSIBLE_SELF_LINK": "Ein erwachsener Spieler, dessen Familien-E-Mail und Name zu einem Konto passen. Verknüpfung bestätigen oder verwerfen.",
+        "NO_GUARDIAN_LOGIN": "Vom Verein ohne Eltern-Login erfasst. Das ist in Ordnung; laden Sie einen Elternteil ein, damit die Familie Buchungen und Rechnungen sieht."
+      },
+      "informational": "Vorschlag",
+      "invite": {
+        "button": "Elternteil einladen",
+        "resend": "Erneut einladen",
+        "sent": "Einladung an die Kontakt-E-Mail der Familie gesendet.",
+        "failed": "Die Einladung konnte nicht gesendet werden.",
+        "noEmail": "Die Familie hat keine gültige Kontakt-E-Mail. Fügen Sie zuerst eine auf der Familienseite hinzu.",
+        "notFound": "Dieser Vorschlag ist nicht mehr offen.",
+        "forbidden": "Nur Vereinsadmins können Eltern einladen.",
+        "invitedOn": "Eingeladen am {date}"
       }
     }
   },
@@ -13799,7 +13812,11 @@
       "INVALID_RELATION": "Wählen Sie Ihre Beziehung zur teilnehmenden Person.",
       "NO_MATCH": "Kein passendes Profil gefunden. Prüfen Sie die Angaben oder fügen Sie das Kind hinzu.",
       "EXPIRED": "Diese Anfrage ist abgelaufen.",
-      "THIRD_PARTY_NOT_ENABLED": "Buchungen für Personen außerhalb Ihrer Familie sind noch nicht verfügbar."
+      "THIRD_PARTY_NOT_ENABLED": "Buchungen für Personen außerhalb Ihrer Familie sind noch nicht verfügbar.",
+      "INVALID_SCOPE": "Wählen Sie die ganze Familie oder nur dieses Kind.",
+      "REGISTER_NEEDS_PAY": "Buchen setzt die Zahlungsberechtigung voraus: Buchungen dieser Person werden ihr in Rechnung gestellt.",
+      "LINK_NOT_ACTIVE": "Dieser Zugang ist bereits beendet.",
+      "NO_GUARDIAN_CONTACT": "Die Familie des Kindes hat keine E-Mail-Adresse für die Einwilligungsanfrage. Bitte wenden Sie sich an den Verein."
     },
     "sex": {
       "male": "Männlich",
@@ -13887,7 +13904,10 @@
       "age": "{age} J.",
       "otherBadge": "Einwilligung ausstehend",
       "noChildren": "Noch kein Kind in Ihrer Familie.",
-      "alsoSelected": "Ebenfalls ausgewählt: {names}"
+      "alsoSelected": "Ebenfalls ausgewählt: {names}",
+      "linked": "Ein Kind, mit dem ich verknüpft bin",
+      "linkedBadge": "Verknüpft",
+      "linkedHint": "Ein Elternteil der Familie des Kindes bestätigt jede Buchung; die Rechnung geht an Sie."
     },
     "self": {
       "intro": "Ihr eigenes Teilnehmerprofil (nur Erwachsene). Das Geburtsdatum wird für Altersregeln benötigt.",
@@ -13967,6 +13987,69 @@
     "admin": {
       "duplicateWarning": "Der Verein hat diese Person vielleicht schon: {names}. Prüfen Sie vor dem Anlegen oder wählen Sie „Trotzdem anlegen“.",
       "confirmDuplicate": "Trotzdem anlegen (andere Person)"
+    },
+    "childLinks": {
+      "title": "Personen, die mit einem Kind verknüpft sind",
+      "description": "Verwandte oder Freunde, die nur für ein Kind handeln dürfen. Sie sehen nie die anderen Kinder, die Familiendaten oder die Rechnungen der Familie.",
+      "relation": "Beziehung zum Kind",
+      "relations": {
+        "aunt_uncle": "Tante / Onkel",
+        "grandparent": "Grosselternteil",
+        "adult_sibling": "Volljährige Geschwister",
+        "family_friend": "Freund/in der Familie",
+        "other_carer": "Andere Betreuungsperson"
+      },
+      "perm": {
+        "canRegister": "Darf Camps, Trainings und Programme für dieses Kind buchen",
+        "canPay": "Bezahlt, was sie bucht (Rechnungen an sie)",
+        "canSeeMedical": "Darf medizinische Angaben sehen (nur lesen)",
+        "receivesEmails": "Erhält E-Mails zu den eigenen Buchungen",
+        "canEditProfile": "Darf das Profil des Kindes bearbeiten"
+      },
+      "short": {
+        "canRegister": "buchen",
+        "canPay": "bezahlen",
+        "canSeeMedical": "medizinisch",
+        "receivesEmails": "E-Mails",
+        "canEditProfile": "Profil"
+      },
+      "viewOnly": "Nur ansehen",
+      "privacyHint": "Buchungen brauchen weiterhin die Einwilligung eines Elternteils der Familie. Diese Person sieht nie die anderen Kinder, die Adresse oder die Rechnungen der Familie.",
+      "revokeConfirm": "Den Zugang von {name} zu diesem Kind jetzt beenden?",
+      "revokedBadge": "Beendet",
+      "forChild": "für {child}",
+      "edit": "Berechtigungen ändern",
+      "revoke": "Zugang beenden",
+      "save": "Berechtigungen speichern",
+      "saved": "Berechtigungen gespeichert.",
+      "revoked": "Zugang beendet.",
+      "leave": "Meine Verknüpfung mit diesem Kind beenden",
+      "leaveConfirm": "Ihren Zugang zu diesem Kind beenden? Buchungen, die auf die Einwilligung warten, werden storniert.",
+      "scopeLabel": "Zugang",
+      "scope": {
+        "athlete": "Nur dieses Kind",
+        "family": "Ganze Familie"
+      },
+      "scopeHint": {
+        "athlete": "Für Verwandte und Freunde: Sie handeln nur für {child}, nie für die anderen Kinder oder die Familiendaten.",
+        "family": "Für einen zweiten Elternteil oder Mit-Erziehungsberechtigten: sieht alle Kinder der Familie und ihre Aktivitäten."
+      },
+      "childPage": {
+        "intro": "Sie sind nur mit {child} verknüpft. Buchungen bestätigt ein Elternteil der Familie.",
+        "permissions": "Was Sie dürfen",
+        "bookCamp": "Camp buchen",
+        "bookTraining": "Training buchen",
+        "consentHint": "Der Elternteil der Familie erhält für jede Buchung eine Einwilligungsanfrage; nach der Zustimmung geht die Rechnung an Sie.",
+        "medical": {
+          "allergies": "Allergien",
+          "conditions": "Erkrankungen",
+          "medications": "Medikamente",
+          "notes": "Bemerkungen"
+        },
+        "noMedical": "Keine medizinischen Angaben erfasst.",
+        "medicalReadOnly": "Nur die Familie kann diese Angaben ändern.",
+        "leaveHint": "Sie können Ihren Zugang jederzeit beenden."
+      }
     }
   },
   "nextStep": {
@@ -14245,7 +14328,8 @@
       "MIXED_PARTICIPANTS": "Buche eine Person aus einer anderen Familie separat, eine nach der anderen.",
       "CLUB_NOT_FOUND": "Dieser Club wurde nicht gefunden.",
       "MEMBERSHIP_SUSPENDED": "Dein Zugang zu diesem Club ist gesperrt.",
-      "CLUB_APPROVAL_REQUIRED": "Für dieses Programm braucht es die Freigabe des Clubs."
+      "CLUB_APPROVAL_REQUIRED": "Für dieses Programm braucht es die Freigabe des Clubs.",
+      "NO_GUARDIAN_CONTACT": "Die Familie des Kindes hat keine E-Mail-Adresse für die Einwilligungsanfrage. Bitte wenden Sie sich an den Verein."
     },
     "held": {
       "training": "Anfrage gesendet. Das Elternteil oder die gesetzliche Vertretung wurde um Einwilligung gebeten."
@@ -14495,6 +14579,7 @@
         "noTeamHint": "Sobald Ihr Athlet einem Team zugeteilt ist, erscheinen hier die Termine."
       }
     },
-    "addChildTerm": "{term} hinzufügen"
+    "addChildTerm": "{term} hinzufügen",
+    "linkedBadge": "Verknüpft · {relation}"
   }
 }

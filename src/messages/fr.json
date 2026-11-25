@@ -12519,7 +12519,8 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "Correction de date de naissance / sexe à vérifier",
         "ATHLETE_LINK_REQUEST": "Demande de lien avec un enfant",
         "POSSIBLE_DUPLICATE": "Doublon de profil possible",
-        "POSSIBLE_SELF_LINK": "Compte personnel possible"
+        "POSSIBLE_SELF_LINK": "Compte personnel possible",
+        "NO_GUARDIAN_LOGIN": "Pas encore de compte parent"
       },
       "hints": {
         "ATHLETE_WITHOUT_GUARDIAN": "Les alertes d'absence de ce joueur ne peuvent joindre personne. Ajoutez à la famille un représentant avec un compte actif.",
@@ -12541,7 +12542,19 @@
         "ATHLETE_ELIGIBILITY_CHANGE": "Une famille a corrigé un enfant inscrit. Approuvez ou refusez dans le panneau ci-dessus.",
         "ATHLETE_LINK_REQUEST": "Un adulte demande l'accès de représentant à un enfant existant. Décidez dans le panneau ci-dessus (la famille peut aussi approuver).",
         "POSSIBLE_DUPLICATE": "Une famille a créé un profil avec le même nom et la même date de naissance qu'un profil existant. Fusionnez ou conservez les deux.",
-        "POSSIBLE_SELF_LINK": "Un joueur adulte dont l'e-mail du contact familial et le nom correspondent à un compte. Confirmez le lien ou écartez-le."
+        "POSSIBLE_SELF_LINK": "Un joueur adulte dont l'e-mail du contact familial et le nom correspondent à un compte. Confirmez le lien ou écartez-le.",
+        "NO_GUARDIAN_LOGIN": "Inscrit·e par le club sans compte parent. C'est normal ; invitez un parent pour que la famille voie réservations et factures."
+      },
+      "informational": "Proposition",
+      "invite": {
+        "button": "Inviter un parent",
+        "resend": "Inviter à nouveau",
+        "sent": "Invitation envoyée à l'e-mail de contact de la famille.",
+        "failed": "L'invitation n'a pas pu être envoyée.",
+        "noEmail": "La famille n'a pas d'e-mail de contact valide. Ajoutez-en un sur la page de la famille.",
+        "notFound": "Cette suggestion n'est plus ouverte.",
+        "forbidden": "Seuls les administrateurs du club peuvent inviter des parents.",
+        "invitedOn": "Invité le {date}"
       }
     }
   },
@@ -13799,7 +13812,11 @@
       "INVALID_RELATION": "Choisissez votre lien avec le participant.",
       "NO_MATCH": "Aucun profil correspondant. Vérifiez les informations ou ajoutez l'enfant.",
       "EXPIRED": "Cette demande a expiré.",
-      "THIRD_PARTY_NOT_ENABLED": "La réservation pour une personne hors de votre famille n'est pas encore disponible."
+      "THIRD_PARTY_NOT_ENABLED": "La réservation pour une personne hors de votre famille n'est pas encore disponible.",
+      "INVALID_SCOPE": "Choisissez toute la famille ou cet enfant uniquement.",
+      "REGISTER_NEEDS_PAY": "La réservation nécessite l'autorisation de payer : les réservations de cette personne lui sont facturées.",
+      "LINK_NOT_ACTIVE": "Cet accès a déjà pris fin.",
+      "NO_GUARDIAN_CONTACT": "La famille de l'enfant n'a pas d'e-mail pour la demande de consentement. Veuillez contacter le club."
     },
     "sex": {
       "male": "Masculin",
@@ -13887,7 +13904,10 @@
       "age": "{age} ans",
       "otherBadge": "Consentement en attente",
       "noChildren": "Aucun enfant dans votre famille pour l'instant.",
-      "alsoSelected": "Également sélectionnés : {names}"
+      "alsoSelected": "Également sélectionnés : {names}",
+      "linked": "Un enfant auquel je suis lié·e",
+      "linkedBadge": "Lié",
+      "linkedHint": "Un parent de la famille de l'enfant confirme chaque réservation ; la facture vous est adressée."
     },
     "self": {
       "intro": "Votre propre profil de participant (adultes uniquement). La date de naissance sert aux règles d'âge.",
@@ -13967,6 +13987,69 @@
     "admin": {
       "duplicateWarning": "Le club a peut-être déjà cette personne : {names}. Vérifiez avant de créer, ou cochez « Créer quand même ».",
       "confirmDuplicate": "Créer quand même (c'est une autre personne)"
+    },
+    "childLinks": {
+      "title": "Personnes liées à un seul enfant",
+      "description": "Proches ou amis qui peuvent agir pour un seul enfant. Ils ne voient jamais les autres enfants, les données de la famille ni ses factures.",
+      "relation": "Lien avec l'enfant",
+      "relations": {
+        "aunt_uncle": "Tante / oncle",
+        "grandparent": "Grand-parent",
+        "adult_sibling": "Frère ou sœur majeur·e",
+        "family_friend": "Ami·e de la famille",
+        "other_carer": "Autre accompagnant·e"
+      },
+      "perm": {
+        "canRegister": "Peut réserver camps, entraînements et programmes pour cet enfant",
+        "canPay": "Paie ce qu'il ou elle réserve (factures à son nom)",
+        "canSeeMedical": "Peut voir les informations médicales (lecture seule)",
+        "receivesEmails": "Reçoit les e-mails sur ses réservations",
+        "canEditProfile": "Peut modifier le profil de l'enfant"
+      },
+      "short": {
+        "canRegister": "réserver",
+        "canPay": "payer",
+        "canSeeMedical": "médical",
+        "receivesEmails": "courriels",
+        "canEditProfile": "profil"
+      },
+      "viewOnly": "Consultation seulement",
+      "privacyHint": "Les réservations nécessitent toujours le consentement d'un parent de la famille. Cette personne ne voit jamais les autres enfants, l'adresse ou les factures de la famille.",
+      "revokeConfirm": "Mettre fin maintenant à l'accès de {name} à cet enfant ?",
+      "revokedBadge": "Terminé",
+      "forChild": "pour {child}",
+      "edit": "Modifier les autorisations",
+      "revoke": "Mettre fin à l'accès",
+      "save": "Enregistrer les autorisations",
+      "saved": "Autorisations enregistrées.",
+      "revoked": "Accès terminé.",
+      "leave": "Mettre fin à mon lien avec cet enfant",
+      "leaveConfirm": "Mettre fin à votre accès à cet enfant ? Les réservations en attente de consentement sont annulées.",
+      "scopeLabel": "Accès",
+      "scope": {
+        "athlete": "Cet enfant uniquement",
+        "family": "Toute la famille"
+      },
+      "scopeHint": {
+        "athlete": "Pour les proches et amis : ils agissent uniquement pour {child}, jamais pour les autres enfants ni les données de la famille.",
+        "family": "Pour un deuxième parent ou co-représentant légal : il voit tous les enfants de la famille et ses activités."
+      },
+      "childPage": {
+        "intro": "Vous êtes lié·e uniquement à {child}. Les réservations sont confirmées par un parent de la famille.",
+        "permissions": "Ce que vous pouvez faire",
+        "bookCamp": "Réserver un camp",
+        "bookTraining": "Réserver un entraînement",
+        "consentHint": "Le parent de la famille reçoit une demande de consentement pour chaque réservation ; la facture vous est adressée une fois acceptée.",
+        "medical": {
+          "allergies": "Allergies connues",
+          "conditions": "Problèmes de santé",
+          "medications": "Médicaments",
+          "notes": "Remarques"
+        },
+        "noMedical": "Aucune information médicale enregistrée.",
+        "medicalReadOnly": "Seule la famille peut modifier ces informations.",
+        "leaveHint": "Vous pouvez mettre fin à votre accès à tout moment."
+      }
     }
   },
   "nextStep": {
@@ -14245,7 +14328,8 @@
       "MIXED_PARTICIPANTS": "Réservez un participant d'une autre famille séparément, un à la fois.",
       "CLUB_NOT_FOUND": "Ce club est introuvable.",
       "MEMBERSHIP_SUSPENDED": "Votre accès à ce club est suspendu.",
-      "CLUB_APPROVAL_REQUIRED": "Ce programme nécessite l'approbation du club."
+      "CLUB_APPROVAL_REQUIRED": "Ce programme nécessite l'approbation du club.",
+      "NO_GUARDIAN_CONTACT": "La famille de l'enfant n'a pas d'e-mail pour la demande de consentement. Veuillez contacter le club."
     },
     "held": {
       "training": "Demande envoyée. Le parent ou représentant légal du participant a été invité à donner son consentement."
@@ -14495,6 +14579,7 @@
         "noTeamHint": "Dès que votre athlète est placé dans une équipe, le calendrier apparaît ici."
       }
     },
-    "addChildTerm": "Ajouter {term}"
+    "addChildTerm": "Ajouter {term}",
+    "linkedBadge": "Lié · {relation}"
   }
 }

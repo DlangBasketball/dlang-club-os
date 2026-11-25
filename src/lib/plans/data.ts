@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import "server-only";
 import { fromMinorUnits, toMinorUnits } from "@/lib/payments/currency";
 import { instalmentStatus, planDisplayStatus, planOffer, todayIn, upcomingPeriods, type InstalmentStatus, type PlanOffer, type PlanSettings } from "@/lib/payments/plans";
@@ -68,7 +69,7 @@ async function namesFor(db: Awaited<ReturnType<typeof plansDb>>, plans: PlanRow[
   const inv = Array.from(new Set(plans.map((p) => p.invoice_id).filter((x): x is string => !!x)));
   const [f, a, i] = await Promise.all([
     fam.length ? db.from("families").select("id,name").in("id", fam) : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-    ath.length ? db.from("athletes").select("id,first_name,last_name").in("id", ath) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
+    ath.length ? asBillingClient(db).from("billing_athletes").select("id,first_name,last_name").in("id", ath) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
     inv.length ? db.from("invoices").select("id,number").in("id", inv) : Promise.resolve({ data: [] as { id: string; number: string }[] }),
   ]);
   return {
@@ -201,7 +202,7 @@ export async function enrolOptions(orgId: string, keepProgramIds: string[] = [])
   const [{ data: teams }, { data: programRows }, { data: athletes }] = await Promise.all([
     db.from("teams").select("id,name").eq("org_id", orgId).eq("is_active", true).order("name"),
     db.from("programs").select("id,name,status").eq("org_id", orgId).order("name"),
-    db.from("athletes").select("id,first_name,last_name").eq("org_id", orgId).eq("status", "active").order("last_name").limit(2000),
+    asBillingClient(db).from("billing_athletes").select("id,first_name,last_name").eq("org_id", orgId).eq("status", "active").order("last_name").limit(2000),
   ]);
   return {
     teams: (teams ?? []) as { id: string; name: string }[],

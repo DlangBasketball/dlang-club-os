@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import { createClient } from "@/lib/supabase/server";
 import { isHiddenAthleteStatus } from "@/lib/people/person-delete";
 import { campsDb } from "@/lib/camps/db";
@@ -59,7 +60,7 @@ export async function findRegistrations(filter: RegistrationFilter = {}): Promis
   if (term || familyId) {
     let famAthletes: Set<string> | null = null;
     if (familyId) {
-      const { data, error } = await db.from("athletes").select("id").eq("family_id", familyId).limit(500);
+      const { data, error } = await asBillingClient(db).from("billing_athletes").select("id").eq("family_id", familyId).limit(500);
       if (error) return fail(error.message);
       famAthletes = new Set((data ?? []).map((a) => a.id));
     }
@@ -74,7 +75,7 @@ export async function findRegistrations(filter: RegistrationFilter = {}): Promis
       matched = new Set((byName.data ?? []).map((a) => a.id));
       const famIds = (fams.data ?? []).map((f) => f.id);
       if (famIds.length) {
-        const { data, error } = await db.from("athletes").select("id").in("family_id", famIds).limit(1000);
+        const { data, error } = await asBillingClient(db).from("billing_athletes").select("id").in("family_id", famIds).limit(1000);
         if (error) return fail(error.message);
         for (const a of data ?? []) matched.add(a.id);
       }
@@ -101,7 +102,7 @@ export async function findRegistrations(filter: RegistrationFilter = {}): Promis
   const pIds = uniq(regs.map((r) => r.program_id));
   const eIds = uniq(regs.map((r) => r.camp_edition_id));
   const [athletes, programs, editions] = await Promise.all([
-    aIds.length ? db.from("athletes").select("id,first_name,last_name,family_id,status").in("id", aIds) : Promise.resolve({ data: [], error: null }),
+    aIds.length ? asBillingClient(db).from("billing_athletes").select("id,first_name,last_name,family_id,status").in("id", aIds) : Promise.resolve({ data: [], error: null }),
     pIds.length ? db.from("programs").select("id,name").in("id", pIds) : Promise.resolve({ data: [], error: null }),
     eIds.length ? db.from("camp_editions").select("id,name,starts_on").in("id", eIds) : Promise.resolve({ data: [], error: null }),
   ]);

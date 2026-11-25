@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import { createClient } from "@/lib/supabase/server";
 import { zonedDayKey, addDayKey } from "@/lib/staff/hours";
 import { zonedWallTimeToUtc } from "@/lib/format";
@@ -66,7 +67,7 @@ export async function getKpis(timeZone: string): Promise<Result<Kpis>> {
   // Families with an active athlete (paged: PostgREST caps a response at ~1000 rows).
   const families = new Set<string>();
   for (let from = 0; from < 100_000; from += 1000) {
-    const { data, error } = await supabase.from("athletes").select("family_id").eq("status", "active").order("id").range(from, from + 999);
+    const { data, error } = await asBillingClient(supabase).from("billing_athletes").select("family_id").eq("status", "active").order("id").range(from, from + 999);
     if (error) return fail(error.message);
     for (const a of data ?? []) if (a.family_id) families.add(a.family_id);
     if (!data || data.length < 1000) break;

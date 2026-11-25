@@ -45,6 +45,21 @@ export async function getParticipantChoices(me: { id: string; orgId: string; ful
   if (selfRow) participants.unshift({ id: selfRow.id, name: `${selfRow.first_name} ${selfRow.last_name}`, dob: selfRow.dob, kind: "self" });
   // "Someone else" participants this adult booked before (Workstream B): only
   // the name / DOB the booker typed, never the participant record.
+  // Children this adult is linked to on their own ("This child only") with the
+  // booking permission: they book through the guardian consent flow.
+  const pdb = await participantsDb();
+  const { data: childLinks } = await pdb.from("athlete_guardian_links").select("athlete_id,relation")
+    .eq("profile_id", me.id).eq("org_id", me.orgId).eq("status", "active").eq("can_register", true);
+  const linkRows = (childLinks ?? []) as { athlete_id: string; relation: string }[];
+  if (linkRows.length) {
+    const { data: linked } = await supabase.from("athletes").select("id,first_name,last_name,dob")
+      .eq("org_id", me.orgId).in("id", linkRows.map((l) => l.athlete_id)).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
+    for (const k of (linked ?? []) as { id: string; first_name: string; last_name: string; dob: string | null }[]) {
+      if (participants.some((p) => p.id === k.id)) continue;
+      participants.push({ id: k.id, name: `${k.first_name} ${k.last_name}`, dob: k.dob, kind: "linked",
+        relation: linkRows.find((l) => l.athlete_id === k.id)?.relation ?? null });
+    }
+  }
   const { data: others } = await supabase.rpc("booker_participants" as never);
   for (const o of ((others ?? []) as { athlete_id: string; name: string; dob: string | null }[])) {
     if (!participants.some((p) => p.id === o.athlete_id)) participants.push({ id: o.athlete_id, name: o.name, dob: o.dob, kind: "other" });
@@ -72,6 +87,39 @@ export async function getLinkInbox(): Promise<LinkInboxItem[]> {
     requesterName: r.requester_name, requesterEmail: r.requester_email, relation: r.relation ?? "guardian",
     createdAt: r.created_at as string, expiresAt: r.expires_at as string,
   }));
+}
+
+/** A per-child link as its managers see it (the child's family guardians, admins). */
+export type ChildLink = {
+  id: string; athleteId: string; athleteFirstName: string | null; name: string | null; email: string | null; relation: string;
+  status: "active" | "revoked"; canRegister: boolean; canPay: boolean; canSeeMedical: boolean; receivesEmails: boolean;
+  canEditProfile: boolean; grantedAt: string; revokedAt: string | null;
+};
+
+function toChildLink(r: Record<string, unknown>): ChildLink {
+  return {
+    id: String(r.id), athleteId: String(r.athlete_id), athleteFirstName: (r.athlete_first_name as string | null) ?? null,
+    name: (r.name as string | null) ?? null, email: (r.email as string | null) ?? null, relation: String(r.relation ?? "other_carer"),
+    status: r.status === "revoked" ? "revoked" : "active", canRegister: r.can_register === true, canPay: r.can_pay === true,
+    canSeeMedical: r.can_see_medical === true, receivesEmails: r.receives_emails === true, canEditProfile: r.can_edit_profile === true,
+    grantedAt: String(r.granted_at ?? ""), revokedAt: (r.revoked_at as string | null) ?? null,
+  };
+}
+
+/** Per-child links of one child (family guardians of the child, admins); [] for anyone else. */
+export async function getChildLinks(athleteId: string): Promise<ChildLink[]> {
+  const db = await participantsDb();
+  const { data, error } = await db.rpc("athlete_links_for", { p_athlete: athleteId });
+  if (error) return [];
+  return ((data ?? []) as Record<string, unknown>[]).map(toChildLink);
+}
+
+/** Active per-child links over every child the signed-in guardian's families hold. */
+export async function getChildLinksToManage(): Promise<ChildLink[]> {
+  const db = await participantsDb();
+  const { data, error } = await db.rpc("athlete_links_mine_to_manage", {});
+  if (error) return [];
+  return ((data ?? []) as Record<string, unknown>[]).map(toChildLink);
 }
 
 export type MyRequests = {

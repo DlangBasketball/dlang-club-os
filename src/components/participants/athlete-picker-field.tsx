@@ -37,7 +37,7 @@ export function AthletePickerField({
 }) {
   const router = useRouter();
   const participants = React.useMemo(
-    () => choices.participants.filter((p) => (allowOther || p.kind !== "other") && !(exclude ?? []).includes(p.id)),
+    () => choices.participants.filter((p) => (allowOther || (p.kind !== "other" && p.kind !== "linked")) && !(exclude ?? []).includes(p.id)),
     [choices.participants, allowOther, exclude],
   );
   return (

@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { logError } from "@/lib/log";
@@ -19,8 +20,8 @@ export async function getInvoiceSponsorships(invoiceId: string): Promise<Invoice
     if (!inv) return [];
     const ids = Array.from(new Set([inv.athlete_id, ...((regs ?? []) as { athlete_id: string }[]).map((r) => r.athlete_id)].filter((x): x is string => !!x)));
     if (!ids.length) return [];
-    const { data } = await supabase
-      .from("athletes")
+    const { data } = await asBillingClient(supabase)
+      .from("billing_athletes")
       .select("id,first_name,last_name,sponsorship_kind,sponsorship_percent,sponsor_name")
       .in("id", ids)
       .neq("sponsorship_kind", "none");
@@ -55,7 +56,7 @@ export async function getSponsorshipReport(range: { from: string; to: string }):
   const adjIds = rows.map((r) => r.invoice_adjustment_id).filter((x): x is string => !!x);
   const invIds = Array.from(new Set(rows.map((r) => r.invoice_id).filter((x): x is string => !!x)));
   const [ath, adj, inv] = await Promise.all([
-    athleteIds.length ? supabase.from("athletes").select("id,first_name,last_name").in("id", athleteIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
+    athleteIds.length ? asBillingClient(supabase).from("billing_athletes").select("id,first_name,last_name").in("id", athleteIds) : Promise.resolve({ data: [] as { id: string; first_name: string; last_name: string }[] }),
     adjIds.length ? supabase.from("invoice_adjustments").select("id,voided_at").in("id", adjIds) : Promise.resolve({ data: [] as { id: string; voided_at: string | null }[] }),
     invIds.length ? supabase.from("invoices").select("id,number").in("id", invIds) : Promise.resolve({ data: [] as { id: string; number: string }[] }),
   ]);

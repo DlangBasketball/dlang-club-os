@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import { createClient } from "@/lib/supabase/server";
 import { HIDDEN_ATHLETE_STATUS_FILTER, VISIBLE_FAMILY_STATUS } from "@/lib/people/person-delete";
 import { loadOpenInvoices } from "@/lib/data/open-invoices";
@@ -50,7 +51,7 @@ export async function listFamilies(membership?: "member" | "guest" | null, searc
       return qb.order("name").order("id").range(from, to);
     }),
     allRows<{ id: string; family_id: string }>((from, to) =>
-      supabase.from("athletes").select("id,family_id").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("id").range(from, to)),
+      asBillingClient(supabase).from("billing_athletes").select("id,family_id").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("id").range(from, to)),
     loadOpenInvoices(supabase),
   ]);
   if (families.error) return fail(families.error);
@@ -87,7 +88,8 @@ export type FamilyAthlete = {
   id: string;
   firstName: string;
   lastName: string;
-  dob: string;
+  /** Null for a finance-only caller (billing columns only). */
+  dob: string | null;
   status: string;
   sponsorshipKind: "none" | "full" | "partial";
   sponsorshipPercent: number | null;
@@ -141,7 +143,7 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
 
   const [members, athletes, invoices, famDocs] = await Promise.all([
     supabase.from("family_members").select("profile_id,relation,is_primary").eq("family_id", id),
-    supabase.from("athletes").select("id,first_name,last_name,dob,status,sponsorship_kind,sponsorship_percent").eq("family_id", id).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name"),
+    familyAthletes(supabase, id),
     supabase.from("invoices").select("id,number,total_chf,currency,status,due_date,issued_at").eq("family_id", id).order("issued_at", { ascending: false }),
     supabase.from("documents").select("id,kind,file_name,created_at,athlete_id").eq("family_id", id),
   ]);
@@ -218,4 +220,19 @@ export async function getFamily(id: string): Promise<Result<FamilyDetail | null>
     registrationCount: (regCount as { count: number | null }).count ?? 0,
     documents: Array.from(docMap.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   });
+}
+
+/**
+ * Children of a family: the full row for admins; billing columns (no DOB, no
+ * profile fields) through billing_athletes for a finance-only caller
+ * (20250420106300: finance never selects the athletes table).
+ */
+async function familyAthletes(supabase: Awaited<ReturnType<typeof createClient>>, familyId: string) {
+  type Row = { id: string; first_name: string; last_name: string; dob: string | null; status: string; sponsorship_kind: "none" | "full" | "partial"; sponsorship_percent: number | null };
+  const full = await supabase.from("athletes").select("id,first_name,last_name,dob,status,sponsorship_kind,sponsorship_percent")
+    .eq("family_id", familyId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
+  if (full.error || (full.data ?? []).length) return { data: (full.data ?? []) as Row[], error: full.error };
+  const b = await asBillingClient(supabase).from("billing_athletes").select("id,first_name,last_name,status,sponsorship_kind,sponsorship_percent")
+    .eq("family_id", familyId).not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name");
+  return { data: (b.data ?? []).map((a): Row => ({ ...a, sponsorship_kind: a.sponsorship_kind as Row["sponsorship_kind"], dob: null })), error: b.error };
 }

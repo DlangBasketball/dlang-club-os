@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import "server-only";
 import { financeDb, type FinanceClient } from "./db";
 import { clockMinutesForPayouts } from "./clock-hook";
@@ -411,7 +412,7 @@ export type StudentFacts = { createdDate: string; status: string }[];
 
 export async function loadStudents(orgId: string): Promise<StudentFacts> {
   const db = await financeDb();
-  const rows = await fetchAll((a, b) => db.from("athletes").select("created_at,status").eq("org_id", orgId).range(a, b));
+  const rows = await fetchAll((a, b) => asBillingClient(db).from("billing_athletes").select("created_at,status").eq("org_id", orgId).range(a, b));
   return rows.map((x) => ({ createdDate: day(x.created_at), status: x.status }));
 }
 

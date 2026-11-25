@@ -58,6 +58,8 @@ Matching is private: normalised first + last name (`bk_norm`, case and accents) 
 
 `participant_link_decide(request, 'approve', permissions)` — by a guardian of the child (not the requester) or an admin — inserts the requester into the child's **family** (`family_members`, `is_primary = false`, relation from the request; `other` is stored as `guardian`) with the permissions the approver chose: `can_pay`, `can_see_medical`, `receives_emails` (defaults: no payment, no medical, e-mails on). The existing guardian model is family-scoped, so the new guardian sees every child of that family, exactly like an invited second guardian; the primary guardian or an admin can change the permissions later (`set_guardian_permissions`) or remove them (`remove_family_guardian`). No duplicate athlete is created. Requests expire after 30 days; the requester can withdraw.
 
+Since `20250420106300` the approver also chooses the **scope**: "Whole family" (above) or "This child only" (`athlete_guardian_links`, one child, its own permissions; see docs/my-athletes.md "Flexible link access").
+
 Admin-created athletes (`createAthlete`) warn about a same-name-and-DOB match (names visible to staff) and need "Create anyway".
 
 ## Parent app screens

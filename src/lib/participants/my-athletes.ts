@@ -12,9 +12,14 @@ export type MyAthleteTeam = { id: string; name: string; jerseyNumber: number | n
 export type MyAthleteProgramme = { id: string; registrationId: string; name: string; kind: string; status: string; balance: number | null };
 export type MyAthleteMembership = { id: string; name: string; status: string; balance: number | null };
 export type MyAthleteRequest = { id: string; status: "pending" | "info_requested"; subjectKind: string; name: string | null };
+export type MyAthleteLink = {
+  id: string; relation: string; canRegister: boolean; canPay: boolean; canSeeMedical: boolean; receivesEmails: boolean; canEditProfile: boolean;
+};
 export type MyAthlete = {
   id: string; firstName: string; lastName: string; name: string; dob: string | null; gender: string | null; status: string;
-  familyId: string | null; kind: "self" | "child"; age: number | null;
+  familyId: string | null; kind: "self" | "child" | "linked"; age: number | null;
+  /** "A child I'm linked to" (this child only): relation + what the adult may do. Null for own family / self. */
+  link: MyAthleteLink | null;
   sports: { heightCm: number | null; weightKg: number | null; positionPref: string | null; jerseySize: string | null; preferredJerseyNumber: number | null };
   teams: MyAthleteTeam[]; programmes: MyAthleteProgramme[]; memberships: MyAthleteMembership[]; requests: MyAthleteRequest[];
   pendingCorrections: number;
@@ -30,7 +35,14 @@ export function toMyAthlete(r: Record<string, unknown>): MyAthlete {
   return {
     id: String(r.id), firstName: first, lastName: last, name: `${first} ${last}`.trim(),
     dob: (r.dob as string | null) ?? null, gender: (r.gender as string | null) ?? null, status: String(r.status ?? "active"),
-    familyId: (r.family_id as string | null) ?? null, kind: r.kind === "self" ? "self" : "child", age: num(r.age),
+    familyId: (r.family_id as string | null) ?? null, kind: r.kind === "self" ? "self" : r.kind === "linked" ? "linked" : "child", age: num(r.age),
+    link: r.kind === "linked" && r.link && typeof r.link === "object" ? (() => {
+      const l = r.link as Record<string, unknown>;
+      return {
+        id: String(l.id), relation: String(l.relation ?? "other_carer"), canRegister: l.can_register === true, canPay: l.can_pay === true,
+        canSeeMedical: l.can_see_medical === true, receivesEmails: l.receives_emails === true, canEditProfile: l.can_edit_profile === true,
+      };
+    })() : null,
     sports: {
       heightCm: num(s.height_cm), weightKg: num(s.weight_kg), positionPref: (s.position_pref as string | null) ?? null,
       jerseySize: (s.jersey_size as string | null) ?? null, preferredJerseyNumber: num(s.preferred_jersey_number),

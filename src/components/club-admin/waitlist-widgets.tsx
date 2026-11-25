@@ -116,7 +116,7 @@ export function ParentJoinWaitlist({ targets, choices, active, today, options, g
   const t = useT();
   const { busy, run, note } = useCaAction();
   const [target, setTarget] = React.useState("");
-  const [athleteId, setAthleteId] = React.useState(() => initialAthlete(active, choices.participants.map((p) => p.id)) || (choices.participants[0]?.id ?? ""));
+  const [athleteId, setAthleteId] = React.useState(() => initialAthlete(active, choices.participants.filter((p) => p.kind !== "linked").map((p) => p.id)) || (choices.participants.find((p) => p.kind !== "linked")?.id ?? ""));
   const [optionId, setOptionId] = React.useState("");
   const [groupId, setGroupId] = React.useState("");
   const tg = targets.find((x) => `${x.kind}:${x.id}` === target);

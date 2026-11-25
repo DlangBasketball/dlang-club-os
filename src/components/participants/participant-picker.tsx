@@ -7,7 +7,7 @@ import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { ensureSelfParticipant } from "@/lib/actions/participants";
 import {
-  ageOn, initialMode, isAdultOn, mergeParticipants, pickerModes, selectParticipant, SEXES,
+  ageOn, initialMode, isAdultOn, mergeParticipants, participantMode, pickerModes, selectParticipant, SEXES,
   type ParticipantOption, type PickerMode, type SelfState,
 } from "@/lib/participants/validation";
 import { AddParticipantDialog } from "./add-participant-dialog";
@@ -65,7 +65,7 @@ export function ParticipantPicker(props: ParticipantPickerProps) {
   const [added, setAdded] = React.useState<ParticipantOption[]>([]);
   const [selfState, setSelfState] = React.useState<SelfState>(self);
   const all = React.useMemo(() => mergeParticipants(props.participants, added), [props.participants, added]);
-  const modes = pickerModes({ allowSelf, allowOther, self: selfState, on: activityDate });
+  const modes = pickerModes({ allowSelf, allowOther, self: selfState, on: activityDate, hasLinked: all.some((p) => p.kind === "linked") });
   const [mode, setMode] = React.useState<PickerMode>(() => initialMode(value, all, modes));
   const [adding, setAdding] = React.useState(false);
   const activeMode = modes.includes(mode) ? mode : "child";
@@ -73,6 +73,7 @@ export function ParticipantPicker(props: ParticipantPickerProps) {
   const selfOption = all.find((p) => p.kind === "self") ?? null;
   const children = all.filter((p) => p.kind === "child");
   const others = all.filter((p) => p.kind === "other");
+  const linked = all.filter((p) => p.kind === "linked");
 
   function toggle(p: ParticipantOption, list = all) {
     onChange(selectParticipant(value, p.id, multiple), list);
@@ -88,6 +89,7 @@ export function ParticipantPicker(props: ParticipantPickerProps) {
   const modeLabel: Record<PickerMode, string> = {
     self: t("participants.picker.self"),
     child: t("participants.picker.child"),
+    linked: t("participants.picker.linked"),
     other: t("participants.picker.other"),
   };
 
@@ -103,6 +105,7 @@ export function ParticipantPicker(props: ParticipantPickerProps) {
           <span>{p.name}</span>
           {age !== null && <span className="text-xs text-text-muted">{t("participants.picker.age", { age })}</span>}
           {p.kind === "other" && <Badge tone="info">{t("participants.picker.otherBadge")}</Badge>}
+          {p.kind === "linked" && <Badge tone="info">{t.dynamic(`participants.childLinks.relations.${p.relation ?? "other_carer"}`, undefined, t("participants.picker.linkedBadge"))}</Badge>}
           {renderBadge?.(p)}
         </label>
         {reason && <p className="text-xs text-text-muted">{reason}</p>}
@@ -143,6 +146,13 @@ export function ParticipantPicker(props: ParticipantPickerProps) {
         </div>
       )}
 
+      {activeMode === "linked" && (
+        <div className="space-y-3">
+          <ul className="space-y-3">{linked.map((p) => row(p))}</ul>
+          <p className="text-xs text-text-muted">{t("participants.picker.linkedHint")}</p>
+        </div>
+      )}
+
       {activeMode === "other" && (
         <div className="space-y-3">
           {others.length > 0 && <ul className="space-y-3">{others.map((p) => row(p))}</ul>}
@@ -163,7 +173,7 @@ export function ParticipantPicker(props: ParticipantPickerProps) {
 }
 
 function modeOf(p: ParticipantOption): PickerMode {
-  return p.kind === "self" ? "self" : p.kind === "other" ? "other" : "child";
+  return participantMode(p);
 }
 
 /** "Myself" on first use: the adult's name (prefilled), DOB (required: 18+), sex. */

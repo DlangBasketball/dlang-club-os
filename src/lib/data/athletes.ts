@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import { createClient } from "@/lib/supabase/server";
 import { licenceFromRow, type Licence } from "@/lib/people/licence";
 import { sponsorshipFromRow, type Sponsorship } from "@/lib/people/sponsorship";
@@ -15,7 +16,8 @@ export type AthleteCore = {
   familyName: string | null;
   firstName: string;
   lastName: string;
-  dob: string;
+  /** Null for a finance-only caller (billing columns only). */
+  dob: string | null;
   gender: string | null;
   nationality: string | null;
   school: string | null;
@@ -70,7 +72,7 @@ export type AthleteDetail = {
 export async function getAthleteDetail(id: string): Promise<Result<AthleteDetail | null>> {
   const supabase = await createClient();
 
-  const { data: a, error } = await supabase
+  const { data: full, error } = await supabase
     .from("athletes")
     .select(
       "id,org_id,family_id,first_name,last_name,dob,gender,nationality,school,jersey_size,dominant_hand,position_pref,status,notes,photo_path,licence_number,licence_category,licence_federation,licence_issued_on,licence_fee,sponsorship_kind,sponsorship_percent,sponsorship_scope,sponsor_name,sponsorship_reason,sponsorship_from,sponsorship_until,sponsored_at",
@@ -78,6 +80,22 @@ export async function getAthleteDetail(id: string): Promise<Result<AthleteDetail
     .eq("id", id)
     .maybeSingle();
   if (error) return fail(error.message);
+  type Row = Omit<NonNullable<typeof full>, "dob"> & { dob: string | null };
+  let a: Row | null = full;
+  if (!a) {
+    // Finance (20250420106300): billing columns only, through billing_athletes —
+    // no DOB, sex, sports / profile fields, school, notes, photo or licence identity.
+    const { data: b } = await asBillingClient(supabase)
+      .from("billing_athletes")
+      .select("id,org_id,family_id,first_name,last_name,status,licence_fee,sponsorship_kind,sponsorship_percent,sponsorship_scope,sponsor_name,sponsorship_reason,sponsorship_from,sponsorship_until,sponsored_at")
+      .eq("id", id)
+      .maybeSingle();
+    if (!b) return ok(null);
+    a = {
+      ...b, dob: null, gender: null, nationality: null, school: null, jersey_size: null, dominant_hand: null, position_pref: null,
+      notes: null, photo_path: null, licence_number: null, licence_category: null, licence_federation: null, licence_issued_on: null,
+    } as unknown as Row;
+  }
   if (!a) return ok(null);
 
   const [familyRes, medicalRes, safetyRes, regsRes, marksRes, consentsRes] =

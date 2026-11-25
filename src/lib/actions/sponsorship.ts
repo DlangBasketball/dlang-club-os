@@ -13,6 +13,8 @@ import {
   type SponsorshipInput,
 } from "@/lib/people/sponsorship";
 import { logError } from "@/lib/log";
+import { asBillingClient, billingDb } from "@/lib/people/billing-athletes";
+import type { Json } from "@/types/database";
 
 export type { SponsorshipInput } from "@/lib/people/sponsorship";
 
@@ -39,16 +41,18 @@ export async function updateAthleteSponsorship(athleteId: string, input: Sponsor
   if (!uuidRe.test(athleteId)) return { ok: false, error: t("sponsorship.errors.notFound") };
   const p = sponsorshipSchema.safeParse(input);
   if (!p.success) return { ok: false, error: t.dynamic(sponsorshipErrorKey(p.error)) };
-  const supabase = await createClient();
-  const { data: before } = await supabase
-    .from("athletes")
+  // Finance reads billing columns through billing_athletes and writes through
+  // athlete_sponsorship_set (20250420106300: no athletes table access for finance).
+  const db = await billingDb();
+  const { data: before } = await db
+    .from("billing_athletes")
     .select(`id,family_id,${SPONSORSHIP_COLUMNS}`)
     .eq("id", athleteId)
     .eq("org_id", me.orgId)
     .maybeSingle();
   if (!before) return { ok: false, error: t("sponsorship.errors.notFound") };
   const row = sponsorshipToRow(p.data);
-  const { error } = await supabase.from("athletes").update(row).eq("id", athleteId).eq("org_id", me.orgId);
+  const { error } = await db.rpc("athlete_sponsorship_set", { p_athlete: athleteId, p_family: null, p_row: row as unknown as Json });
   if (error) {
     logError("updateAthleteSponsorship", error);
     return { ok: false, error: t.dynamic(sponsorshipDbErrorKey(error.message)) };
@@ -74,18 +78,13 @@ export async function sponsorFamilyPlayers(familyId: string, input: SponsorshipI
   const { data: fam } = await supabase.from("families").select("id").eq("id", familyId).eq("org_id", me.orgId).maybeSingle();
   if (!fam) return { ok: false, error: t("sponsorship.errors.notFound") };
   const row = sponsorshipToRow(p.data);
-  const { data, error } = await supabase
-    .from("athletes")
-    .update(row)
-    .eq("family_id", familyId)
-    .eq("org_id", me.orgId)
-    .neq("status", "archived")
-    .select("id");
+  const { data, error } = await asBillingClient(supabase)
+    .rpc("athlete_sponsorship_set", { p_athlete: null, p_family: familyId, p_row: row as unknown as Json });
   if (error) {
     logError("sponsorFamilyPlayers", error);
     return { ok: false, error: t.dynamic(sponsorshipDbErrorKey(error.message)) };
   }
-  const ids = (data ?? []).map((r) => r.id);
+  const ids = (data ?? []) as string[];
   await writeAudit(me, "family.sponsorship.update", "families", familyId, {
     athletes: ids, kind: row.sponsorship_kind, percent: row.sponsorship_percent, scope: row.sponsorship_scope, sponsor: row.sponsor_name,
   });

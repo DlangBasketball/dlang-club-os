@@ -1,3 +1,4 @@
+import { asBillingClient } from "@/lib/people/billing-athletes";
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { creditBalance, invoiceMoney, netPaid } from "@/lib/payments/adjustments";
@@ -162,7 +163,7 @@ export type CreditTotalsRow = {
 /** Per-athlete training-credit totals and usage (adjust dialog). */
 export async function listTrainingCreditTotals(): Promise<Result<CreditTotalsRow[]>> {
   const supabase = await createClient();
-  const { data: athletes, error } = await supabase.from("athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name").limit(2000);
+  const { data: athletes, error } = await asBillingClient(supabase).from("billing_athletes").select("id,first_name,last_name").not("status", "in", HIDDEN_ATHLETE_STATUS_FILTER).order("first_name").limit(2000);
   if (error) return fail(error.message);
   const ids = (athletes ?? []).map((a) => a.id);
   const { data: credits } = ids.length
@@ -202,7 +203,7 @@ export async function listTrainingCreditLedger(limit = 50): Promise<Result<Credi
     .limit(limit);
   if (error) return fail(error.message);
   const ids = Array.from(new Set((data ?? []).map((r) => r.athlete_id)));
-  const { data: ath } = ids.length ? await supabase.from("athletes").select("id,first_name,last_name").in("id", ids) : { data: [] as { id: string; first_name: string; last_name: string }[] };
+  const { data: ath } = ids.length ? await asBillingClient(supabase).from("billing_athletes").select("id,first_name,last_name").in("id", ids) : { data: [] as { id: string; first_name: string; last_name: string }[] };
   const name = new Map((ath ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`]));
   return ok(
     (data ?? []).map((r) => ({
