@@ -64,8 +64,8 @@ export function RoleModeSwitcher({ modes, mode, roles, className }: {
     <div ref={boxRef} className={cn("relative", className)}>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} disabled={busy}
         aria-label={t("roleMode.current", { mode: label(mode) })}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-brand-primary/50 bg-brand-primary/10 px-3 text-sm font-medium text-text hover:bg-brand-primary/20 disabled:opacity-60">
-        <Repeat className="h-3.5 w-3.5 text-brand-primary" aria-hidden />
+        className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-brand-primary/50 bg-brand-primary/10 px-2.5 text-[13px] font-medium text-text hover:bg-brand-primary/20 disabled:opacity-60 sm:gap-1.5 sm:px-3 sm:text-sm">
+        <Repeat className="hidden h-3.5 w-3.5 text-brand-primary sm:block" aria-hidden />
         <span>{busy ? t("roleMode.switching") : label(mode)}</span>
         <ChevronDown className="h-3.5 w-3.5 text-text-muted" aria-hidden />
       </button>

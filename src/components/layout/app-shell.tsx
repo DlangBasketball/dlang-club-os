@@ -344,11 +344,11 @@ function BottomShell({
   return (
     <div className="grain mx-auto flex min-h-dvh max-w-2xl flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-bg-secondary/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-bg-secondary/75">
-        <div className="flex min-w-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <BrandMark compact />
           <RoleModeSwitcher modes={user.modes} mode={user.mode} roles={user.allRoles} />
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className={cn("flex min-w-0 items-center", user.modes.length > 1 ? "gap-0.5 sm:gap-1.5" : "gap-1.5")}>
           <ShellOrgSwitcher className="max-sm:[&_svg]:hidden" />
           <CommandPalette />
           <LanguageSwitcher variant="compact" />
@@ -356,8 +356,10 @@ function BottomShell({
             <NotificationBell initial={notifications.data} viewAllHref={notifications.viewAllHref} />
           )}
           {profilePhotoUrl !== undefined && (
-            <Avatar name={user.fullName ?? user.email} src={profilePhotoUrl} size="md" tone="accent"
-              alt={profilePhotoUrl ? t("athletePhoto.alt", { name: user.fullName ?? user.email }) : undefined} />
+            <span className={user.modes.length > 1 ? "hidden sm:inline-flex" : "inline-flex"}>
+              <Avatar name={user.fullName ?? user.email} src={profilePhotoUrl} size="md" tone="accent"
+                alt={profilePhotoUrl ? t("athletePhoto.alt", { name: user.fullName ?? user.email }) : undefined} />
+            </span>
           )}
           <SignOutButton />
         </div>
