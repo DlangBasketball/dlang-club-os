@@ -1,0 +1,29 @@
+1
+00:00:00,200 --> 00:00:04,000
+Un athlète arrive.
+Combien de mises à jour ?
+
+2
+00:00:04,100 --> 00:00:09,800
+Les parents inscrivent chaque enfant
+depuis un seul compte.
+
+3
+00:00:09,900 --> 00:00:15,800
+Dès qu'Alex est validé,
+
+4
+00:00:15,900 --> 00:00:21,800
+Coach Taylor voit Alex
+dans l'effectif. Rien à ressaisir.
+
+5
+00:00:21,900 --> 00:00:25,800
+Réservation, facture et paiement
+restent liés.
+
+6
+00:00:25,900 --> 00:00:29,800
+Un club ou une académie ?
+Essayez la démo.
+

@@ -27,6 +27,10 @@ export const envSchema = z.object({
   DATA_REGION: z.enum(["eu", "us"]).optional(),
   PLATFORM_ROOT_DOMAIN: optionalStr,
   NEXT_PUBLIC_AUTH_PASSWORD_LOGIN: z.enum(["true", "false"]).optional(),
+  // --- Prospect demo sandboxes (staging only; docs/demo/PROSPECT_DEMO.md) ---
+  DEMO_SANDBOX_ENABLED: z.enum(["true", "false"]).optional(),
+  DEMO_WALKTHROUGH_URL: z.string().trim().url().refine((v) => v.startsWith("https://"), "must be https://").optional(),
+  DEMO_MAX_SANDBOXES_PER_HOUR: z.string().trim().regex(/^\d{1,4}$/, "whole number").optional(),
   // --- Payments ---
   STRIPE_SECRET_KEY: z.string().trim().regex(/^(sk|rk)_(test|live)_/, "must start with sk_test_/sk_live_").optional(),
   STRIPE_WEBHOOK_SECRET: z.string().trim().regex(/^whsec_/, "must start with whsec_").optional(),
@@ -106,9 +110,13 @@ export function checkEnv(source: Record<string, string | undefined> = process.en
       invalid.push({ name: "NEXT_PUBLIC_SITE_URL", issue: "must be https:// in production" });
     if (input.NEXT_PUBLIC_AUTH_PASSWORD_LOGIN === "true")
       invalid.push({ name: "NEXT_PUBLIC_AUTH_PASSWORD_LOGIN", issue: "password sign-in is for staging/demo only" });
+    if (input.DEMO_SANDBOX_ENABLED === "true")
+      invalid.push({ name: "DEMO_SANDBOX_ENABLED", issue: "prospect demo sandboxes are for staging only" });
     if (input.EMAIL_TEST_REDIRECT) warnings.push("EMAIL_TEST_REDIRECT is set in production — every e-mail goes to the test address");
     if (!input.SENTRY_DSN) warnings.push("SENTRY_DSN not set — errors only go to logs");
   }
+  if (input.DEMO_SANDBOX_ENABLED === "true" && input.STRIPE_SECRET_KEY && /^(sk|rk)_live_/.test(input.STRIPE_SECRET_KEY))
+    invalid.push({ name: "STRIPE_SECRET_KEY", issue: "a live Stripe key is not allowed while demo sandboxes are enabled" });
   for (const [k, v] of Object.entries(input)) {
     if (k.startsWith("NEXT_PUBLIC_") && /service_role|sk_live|sk_test|whsec_|re_[A-Za-z0-9]{8}/.test(v))
       invalid.push({ name: k, issue: "public variable appears to contain a secret" });

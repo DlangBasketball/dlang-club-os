@@ -20,6 +20,7 @@ export const RESERVED_SEGMENTS = [
   "embed.js", "api", "board", "scout", "waitlist", "onboarding", "signup", "legal", "offline", "pwa",
   "sw.js", "manifest.webmanifest", "_next", "favicon.ico", "sitemap.xml", "robots.txt", "icon",
   "apple-icon", "opengraph-image", "monitoring", "join", "consent", "link-invite",
+  "demo",
 ] as const;
 
 const RESERVED = new Set<string>(RESERVED_SEGMENTS);

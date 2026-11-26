@@ -1,0 +1,47 @@
+1
+00:00:00,300 --> 00:00:05,800
+Combien d'endroits votre équipe doit-elle
+mettre à jour quand un athlète arrive ?
+
+2
+00:00:06,000 --> 00:00:11,800
+Avec DLang Sports OS, les parents gèrent
+leurs deux enfants depuis un seul compte
+
+3
+00:00:11,900 --> 00:00:17,800
+et voient où en est chaque inscription.
+
+4
+00:00:18,000 --> 00:00:24,800
+Dès qu'Alex est validé, Coach Taylor
+voit Alex dans l'effectif de l'équipe
+
+5
+00:00:24,900 --> 00:00:31,800
+et fait l'appel depuis la salle.
+
+6
+00:00:32,000 --> 00:00:39,800
+Quand une famille réserve un programme,
+
+7
+00:00:39,900 --> 00:00:47,800
+le staff suit la réservation, la facture
+et le paiement dans le même flux.
+
+8
+00:00:48,000 --> 00:00:59,600
+Athlètes et familles trouvent
+ce qu'il leur faut avant l'entraînement.
+
+9
+00:01:00,000 --> 00:01:05,800
+Vous dirigez un club ou une académie ?
+Essayez DLang Sports OS côté équipe.
+
+10
+00:01:05,900 --> 00:01:11,800
+Puis réservez une présentation
+pour votre organisation.
+

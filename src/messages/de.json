@@ -14710,5 +14710,104 @@
     },
     "addChildTerm": "{term} hinzufügen",
     "linkedBadge": "Verknüpft · {relation}"
+  },
+  "demo": {
+    "meta": {
+      "title": "Demo testen"
+    },
+    "hero": {
+      "eyebrow": "Produktdemo · fiktiver Verein",
+      "title": "Erleben Sie {product} aus der Sicht Ihres Teams.",
+      "lead": "Ein fiktiver Verein, fünf Rollen. Melden Sie Alex als Elternteil an, bestätigen Sie Alex als Vereinsadmin und öffnen Sie dann das Kader von Coach Taylor: Dort erscheint derselbe Athlet. Nichts, was Sie hier tun, erreicht eine echte Person oder bewegt echtes Geld."
+    },
+    "path": {
+      "title": "Der Zwei-Minuten-Ablauf",
+      "one": "Elternteil: Anmeldung von Alex für die U14 Falcons absenden.",
+      "two": "Vereinsadmin: Alex bestätigen.",
+      "three": "Coach: Alex im Kader der U14 Falcons finden und als anwesend markieren."
+    },
+    "session": {
+      "active": "Ihr Demo-Verein ist bereit. Wechseln Sie jederzeit die Rolle: Änderungen bleiben erhalten.",
+      "expires": "Verfügbar bis {time}.",
+      "none": "Wählen Sie eine Rolle. Ihr eigener Demo-Verein wird beim ersten Klick erstellt."
+    },
+    "startHere": "Hier starten",
+    "roles": {
+      "parent": {
+        "title": "Elternteil",
+        "start": "Zwischen Alex und Sam wechseln, dann Vereinsprogramme öffnen und für Alex einen Platz bei den U14 Falcons anfragen.",
+        "tasks": "Trainingsplan und Anmeldestatus jedes Kindes prüfen. Danach das Skills Camp oder ein Trainingspaket buchen.",
+        "button": "Als Jamie starten"
+      },
+      "admin": {
+        "title": "Vereinsadmin",
+        "start": "Freigaben öffnen, Alex für die U14 Falcons bestätigen und dann das Teamkader öffnen.",
+        "tasks": "Alex erscheint im Kader der U14 Falcons mit den Angaben, die Jamie erfasst hat.",
+        "button": "Als Vereinsadmin starten"
+      },
+      "coach": {
+        "title": "Coach",
+        "start": "U14 Falcons öffnen, Alex im Kader finden und im heutigen Training als anwesend markieren.",
+        "tasks": "Coach Taylor sieht nur die Teams, die Coach Taylor zugewiesen sind.",
+        "button": "Als Coach Taylor starten"
+      },
+      "player": {
+        "title": "Athlet",
+        "start": "Trainingsplan und Anwesenheit von Alex öffnen.",
+        "tasks": "Sobald der Coach die Präsenzliste abschliesst, sieht Alex das Training als anwesend.",
+        "button": "Als Alex starten"
+      },
+      "finance": {
+        "title": "Finanzen",
+        "start": "Rechnungen öffnen, die Rechnung zu Jamies Buchung finden und den Status der Testzahlung verfolgen.",
+        "tasks": "Die externe Camp-Buchung von Casey Brooks ist ein zweites, bereits bezahltes Beispiel.",
+        "button": "Als Finanzen starten"
+      }
+    },
+    "reset": {
+      "button": "Demo zurücksetzen",
+      "hint": "Setzt Ihren Demo-Verein auf das Ausgangsszenario zurück. Andere Interessenten sind nicht betroffen.",
+      "done": "Ihr Demo-Verein ist wieder im Ausgangsszenario."
+    },
+    "errors": {
+      "busy": "In der letzten Stunde wurden zu viele Demo-Vereine gestartet. Bitte versuchen Sie es in einigen Minuten erneut.",
+      "failed": "Der Demo-Verein konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+      "expired": "Ihre Demo-Sitzung ist abgelaufen. Wählen Sie eine Rolle, um eine neue zu starten.",
+      "role": "Unbekannte Rolle. Bitte wählen Sie eine der fünf Rollen."
+    },
+    "safety": {
+      "title": "Gefahrlos ausprobieren",
+      "people": "Nur fiktive Personen und Kontaktdaten.",
+      "messages": "Es werden keine E-Mails, SMS oder Push-Mitteilungen versendet.",
+      "payments": "Zahlungen sind Testbuchungen. Keine Karte wird belastet.",
+      "isolation": "Ihr Demo-Verein ist von anderen Interessenten und von echten Vereinen getrennt."
+    },
+    "plans": {
+      "title": "Pläne vergleichen",
+      "lead": "Enthaltene Module pro Plan. Die Preise bestätigen wir bei Ihrer Vorführung.",
+      "module": "Modul",
+      "athletes": "Athleten",
+      "staff": "Mitarbeiter-Logins",
+      "negotiated": "Nach Vereinbarung",
+      "included": "Enthalten",
+      "notIncluded": "Nicht enthalten",
+      "names": {
+        "starter": "Starter",
+        "club": "Verein",
+        "academy": "Akademie",
+        "federation": "Mehrere Standorte & Verband"
+      },
+      "unavailable": "Der Planvergleich ist im Moment nicht verfügbar."
+    },
+    "cta": {
+      "title": "Sie leiten einen Verein oder eine Akademie?",
+      "lead": "Testen Sie {product} aus der Sicht Ihres Teams und buchen Sie dann eine Vorführung für Ihre Organisation.",
+      "button": "Vorführung buchen",
+      "missing": "Buchungslink nicht konfiguriert. DEMO_WALKTHROUGH_URL vor der externen Freigabe setzen."
+    },
+    "bar": {
+      "label": "Demo",
+      "switch": "Rolle wechseln"
+    }
   }
 }

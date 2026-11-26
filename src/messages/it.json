@@ -14710,5 +14710,104 @@
     },
     "addChildTerm": "Aggiungi {term}",
     "linkedBadge": "Collegato · {relation}"
+  },
+  "demo": {
+    "meta": {
+      "title": "Prova la demo"
+    },
+    "hero": {
+      "eyebrow": "Demo del prodotto · club fittizio",
+      "title": "Scopri {product} dal punto di vista del tuo team.",
+      "lead": "Un club fittizio, cinque ruoli. Iscrivi Alex come genitore, approva Alex come amministratore del club, poi apri la rosa di Coach Taylor: compare lo stesso atleta. Nulla di ciò che fai qui raggiunge una persona reale o muove denaro reale."
+    },
+    "path": {
+      "title": "Il percorso in due minuti",
+      "one": "Genitore: invia l'iscrizione di Alex agli U14 Falcons.",
+      "two": "Amministratore del club: approva Alex.",
+      "three": "Coach: trova Alex nella rosa degli U14 Falcons e segna Alex presente."
+    },
+    "session": {
+      "active": "Il tuo club demo è pronto. Cambia ruolo quando vuoi: le modifiche restano.",
+      "expires": "Disponibile fino al {time}.",
+      "none": "Scegli un ruolo per iniziare. Il tuo club demo viene creato al primo clic."
+    },
+    "startHere": "Inizia qui",
+    "roles": {
+      "parent": {
+        "title": "Genitore",
+        "start": "Passa da Alex a Sam, poi apri Programmi del club e chiedi un posto negli U14 Falcons per Alex.",
+        "tasks": "Controlla il calendario e lo stato d'iscrizione di ogni figlio. Poi prenota lo Skills Camp o un pacchetto di allenamenti.",
+        "button": "Inizia come Jamie"
+      },
+      "admin": {
+        "title": "Amministratore del club",
+        "start": "Apri Approvazioni, approva Alex per gli U14 Falcons, poi apri la rosa della squadra.",
+        "tasks": "Alex compare nella rosa degli U14 Falcons con i dati inseriti da Jamie.",
+        "button": "Inizia come amministratore"
+      },
+      "coach": {
+        "title": "Coach",
+        "start": "Apri gli U14 Falcons, trova Alex nella rosa e segna Alex presente all'allenamento di oggi.",
+        "tasks": "Coach Taylor vede solo le squadre assegnate a Coach Taylor.",
+        "button": "Inizia come Coach Taylor"
+      },
+      "player": {
+        "title": "Atleta",
+        "start": "Apri il calendario e le presenze di Alex.",
+        "tasks": "Dopo che il coach ha inviato il registro, Alex vede l'allenamento segnato come presente.",
+        "button": "Inizia come Alex"
+      },
+      "finance": {
+        "title": "Finanze",
+        "start": "Apri Fatture, trova la fattura della prenotazione di Jamie e segui lo stato del pagamento di prova.",
+        "tasks": "La prenotazione esterna al camp di Casey Brooks è un secondo esempio, già pagato.",
+        "button": "Inizia come Finanze"
+      }
+    },
+    "reset": {
+      "button": "Reimposta la demo",
+      "hint": "Riporta il tuo club demo allo scenario iniziale. Gli altri potenziali clienti non sono interessati.",
+      "done": "Il tuo club demo è tornato allo scenario iniziale."
+    },
+    "errors": {
+      "busy": "Nell'ultima ora sono stati avviati troppi club demo. Riprova tra qualche minuto.",
+      "failed": "Non è stato possibile aprire il club demo. Riprova.",
+      "expired": "La tua sessione demo è terminata. Scegli un ruolo per iniziarne una nuova.",
+      "role": "Ruolo sconosciuto. Scegli uno dei cinque ruoli."
+    },
+    "safety": {
+      "title": "Da esplorare senza rischi",
+      "people": "Solo persone e recapiti fittizi.",
+      "messages": "Non viene inviata alcuna e-mail, SMS o notifica push.",
+      "payments": "I pagamenti sono registrazioni di prova. Nessuna carta viene addebitata.",
+      "isolation": "Il tuo club demo è separato dagli altri potenziali clienti e dai club reali."
+    },
+    "plans": {
+      "title": "Confronta i piani",
+      "lead": "Moduli inclusi in ogni piano. I prezzi vengono confermati durante la presentazione.",
+      "module": "Modulo",
+      "athletes": "Atleti",
+      "staff": "Accessi staff",
+      "negotiated": "Su accordo",
+      "included": "Incluso",
+      "notIncluded": "Non incluso",
+      "names": {
+        "starter": "Starter",
+        "club": "Club",
+        "academy": "Accademia",
+        "federation": "Multi-sede & Federazione"
+      },
+      "unavailable": "Il confronto dei piani non è disponibile al momento."
+    },
+    "cta": {
+      "title": "Gestisci un club o un'accademia?",
+      "lead": "Prova {product} dal punto di vista del tuo team, poi prenota una presentazione per la tua organizzazione.",
+      "button": "Prenota una presentazione",
+      "missing": "Link di prenotazione non configurato. Imposta DEMO_WALKTHROUGH_URL prima della diffusione esterna."
+    },
+    "bar": {
+      "label": "Demo",
+      "switch": "Cambia ruolo"
+    }
   }
 }

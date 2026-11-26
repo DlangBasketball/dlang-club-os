@@ -27,6 +27,9 @@ export async function deliverPush(orgId: string, items: (PushMessage & { profile
   let sent = 0;
   try {
     const db = familyAdminDb();
+    // Prospect demo sandboxes never send push notifications.
+    const { data: demo } = await db.from("organizations").select("demo_sandbox_id").eq("id", orgId).maybeSingle();
+    if ((demo as { demo_sandbox_id?: string | null } | null)?.demo_sandbox_id) return 0;
     const ids = Array.from(new Set(items.map((i) => i.profileId)));
     const { data: subs, error } = await db
       .from("push_subscriptions")

@@ -2,6 +2,10 @@
 
 Status: 12 Nov 2026. **Synthetic data only.** All people, families, addresses, phone numbers and emails in the demo are invented. Emails use the reserved `example.com` domain.
 
+## Prospect demo sandboxes
+
+Self-serve sales demo on `/demo` (one fictional club per prospect, five role logins, reset): see [PROSPECT_DEMO.md](PROSPECT_DEMO.md), the one-page [BUYER_WALKTHROUGH.md](BUYER_WALKTHROUGH.md) and the video handoff in [video/](video/VIDEO_HANDOFF.md).
+
 ## URLs
 
 | Front door | URL | Tenant shown before sign-in |

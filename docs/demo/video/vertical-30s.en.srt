@@ -1,0 +1,29 @@
+1
+00:00:00,200 --> 00:00:04,000
+One athlete joins.
+How many places do you update?
+
+2
+00:00:04,100 --> 00:00:09,800
+Parents register each child
+from one account.
+
+3
+00:00:09,900 --> 00:00:15,800
+Once Alex is approved,
+
+4
+00:00:15,900 --> 00:00:21,800
+Coach Taylor sees Alex
+on the roster. No re-entry.
+
+5
+00:00:21,900 --> 00:00:25,800
+The booking, invoice and payment
+stay connected.
+
+6
+00:00:25,900 --> 00:00:29,800
+Run a club or academy?
+Try the demo.
+
