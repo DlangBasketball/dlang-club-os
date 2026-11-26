@@ -166,6 +166,15 @@ begin
   perform arm.ok(r like 'OK:%"mode": "admin"%', 'next state call moves to a mode still held (' || r || ')');
   r := arm.run_as(f, $q$select public.set_active_mode('coach')::text$q$);
   perform arm.ok(r like 'ERR:%MODE_NOT_AVAILABLE%', 'cannot switch back to the revoked mode');
+  -- a coach-only person whose coach role is removed loses the coach scope too (coach record kept)
+  insert into public.coaches (id, org_id, display_name, profile_id) values
+    ('00000000-0000-0000-0000-00000000a953', '00000000-0000-0000-0000-000000000001', 'Synthetic Coach Only', '00000000-0000-0000-0000-00000000a903');
+  r := arm.run_as('00000000-0000-0000-0000-00000000a903', 'select (public.current_coach_id() is not null)::text');
+  perform arm.ok(r = 'OK:true', 'coach with the role: coach scope');
+  delete from public.staff_roles where profile_id = '00000000-0000-0000-0000-00000000a903' and role = 'coach';
+  r := arm.run_as('00000000-0000-0000-0000-00000000a903', 'select (public.current_coach_id() is not null)::text');
+  perform arm.ok(r = 'OK:false', 'coach role revoked: the coach record no longer gives access (' || r || ')');
+  insert into public.staff_roles (org_id, profile_id, role) values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000a903', 'coach');
   insert into public.staff_roles (org_id, profile_id, role) values ('00000000-0000-0000-0000-000000000001', f, 'coach');
 end $$;
 
