@@ -1,0 +1,28 @@
+[
+  {
+    "id": 5001,
+    "status": "publish",
+    "date": "2025-10-04T16:00:00",
+    "date_gmt": "2025-10-04T14:00:00",
+    "link": "https://www.club.example/event/u14-vs-rival/",
+    "title": { "rendered": "Synthetic U14 vs Rival Synthetic Club" },
+    "teams": [101, 201],
+    "minutes": 90,
+    "results": { "101": { "points": "78", "outcome": ["win"] }, "201": { "points": "65", "outcome": ["loss"] } },
+    "players": { "101": { "9001": { "number": "7", "name": "Synthetic Child Fullname", "pts": "20" } } },
+    "performance": { "101": { "9001": { "pts": 20 } } }
+  },
+  {
+    "id": 5002,
+    "status": "future",
+    "date": "2099-11-20T19:30:00",
+    "date_gmt": "2099-11-20T18:30:00",
+    "link": "https://www.club.example/event/rival-vs-u16/",
+    "title": { "rendered": "Rival Synthetic Club &#8211; Synthetic U16" },
+    "teams": [201, 102],
+    "results": []
+  },
+  { "id": 5003, "status": "publish", "date_gmt": "2025-09-01T10:00:00", "teams": [201, 202], "title": { "rendered": "Other clubs only" } },
+  { "id": 5004, "status": "draft", "date_gmt": "2025-09-02T10:00:00", "teams": [101, 201], "title": { "rendered": "Draft" } },
+  { "id": 5005, "status": "publish", "teams": [101, 201], "title": { "rendered": "No date" } }
+]

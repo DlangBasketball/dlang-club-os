@@ -1,0 +1,56 @@
+{
+	"club": {
+		"slug": "demo-club",
+		"name": "Demo Hoops Club",
+		"logo_url": "https://app.example.org/logo.png",
+		"theme": {
+			"--brand-primary": "#0B5FFF",
+			"--brand-primary-contrast": "#FFFFFF",
+			"--bg": "#0A0A0A",
+			"--surface": "#1A1A1A",
+			"--text": "#F1F1F1",
+			"--font-ui": "\"Inter\", sans-serif",
+			"--evil": "red",
+			"--brand-accent": "red;background:url(https://evil.example/x)"
+		},
+		"locale": "fr-CH",
+		"currency": "CHF",
+		"app_url": "https://app.example.org"
+	},
+	"data": [
+		{
+			"season": "summer",
+			"year": 2027,
+			"title": "Summer camps 2027",
+			"url": "https://app.example.org/camps/summer-2027",
+			"editions": [
+				{
+					"id": "ed-1",
+					"name": "Week 1 <script>alert('x')</script>",
+					"dates": { "start": "2027-07-05", "end": "2027-07-09", "formatted": "5–9 juillet 2027" },
+					"venue": { "name": "Salle \"><img src=x onerror=alert(1)>", "address": "Rue Exemple 1, 1000 Lausanne" },
+					"ages": { "min": 8, "max": 14 },
+					"price_options": [
+						{ "days": 5, "lunch": true, "price": { "amount": 550.0, "currency": "CHF", "formatted": "CHF 550.00" }, "member_price": { "amount": 495.0, "currency": "CHF", "formatted": "CHF 495.00" } },
+						{ "days": 1, "lunch": false, "price": { "amount": 120.0, "currency": "CHF", "formatted": "CHF 120.00" } }
+					],
+					"places_left": 4,
+					"status": "open",
+					"action_url": "https://app.example.org/camps/summer-2027?add=ed-1"
+				},
+				{
+					"id": "ed-2",
+					"name": "Week 2 </script><script>alert(2)</script>",
+					"dates": { "start": "2027-07-12", "end": "2027-07-16" },
+					"venue": "Gym B",
+					"ages": "10-16",
+					"price_options": [],
+					"places_left": 0,
+					"status": "full",
+					"action_url": "javascript:alert(document.cookie)"
+				}
+			]
+		}
+	],
+	"generated_at": "2027-01-10T10:00:00+01:00"
+}

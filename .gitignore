@@ -1,0 +1,16 @@
+node_modules
+.next
+.env*.local
+.env
+.DS_Store
+npm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+
+# Agent worktrees (temporary)
+.claude/worktrees/
+
+# Test artifacts
+/test-results/
+/playwright-report/
+/coverage/

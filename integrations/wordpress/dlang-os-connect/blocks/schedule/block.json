@@ -1,0 +1,55 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "dlang-os/schedule",
+	"version": "1.0.0",
+	"title": "DLang OS schedule",
+	"category": "dlang-os",
+	"icon": "calendar",
+	"description": "Upcoming games, trainings and events.",
+	"keywords": [
+		"dlang",
+		"club",
+		"sport"
+	],
+	"textdomain": "dlang-os-connect",
+	"attributes": {
+		"team": {
+			"type": "string",
+			"default": ""
+		},
+		"type": {
+			"type": "string",
+			"default": ""
+		},
+		"days": {
+			"type": "string",
+			"default": "60"
+		},
+		"limit": {
+			"type": "string",
+			"default": ""
+		},
+		"schema": {
+			"type": "boolean",
+			"default": true
+		},
+		"lang": {
+			"type": "string",
+			"default": ""
+		},
+		"theme": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		]
+	},
+	"editorScript": "dlos-blocks-editor",
+	"style": "dlos-front"
+}

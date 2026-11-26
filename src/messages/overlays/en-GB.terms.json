@@ -1,0 +1,27 @@
+{
+  "camps": {
+    "seasons": {
+      "names": {
+        "fall": "Autumn"
+      },
+      "campNames": {
+        "fall": "Autumn Camp {year}"
+      }
+    }
+  },
+  "editOps": {
+    "events": {
+      "addressPlaceholder": "Street, postcode, city"
+    }
+  },
+  "sports": {
+    "locations": {
+      "postalCode": "Postcode"
+    }
+  },
+  "operations": {
+    "customers": {
+      "postalCode": "Postcode"
+    }
+  }
+}

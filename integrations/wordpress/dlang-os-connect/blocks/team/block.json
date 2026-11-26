@@ -1,0 +1,59 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "dlang-os/team",
+	"version": "1.0.0",
+	"title": "DLang OS team",
+	"category": "dlang-os",
+	"icon": "shield",
+	"description": "One team page: coaches, training times, next games and results.",
+	"keywords": [
+		"dlang",
+		"club",
+		"sport"
+	],
+	"textdomain": "dlang-os-connect",
+	"attributes": {
+		"slug": {
+			"type": "string",
+			"default": ""
+		},
+		"show_roster": {
+			"type": "boolean",
+			"default": false
+		},
+		"show_schedule": {
+			"type": "boolean",
+			"default": true
+		},
+		"show_results": {
+			"type": "boolean",
+			"default": true
+		},
+		"limit": {
+			"type": "string",
+			"default": "5"
+		},
+		"schema": {
+			"type": "boolean",
+			"default": true
+		},
+		"lang": {
+			"type": "string",
+			"default": ""
+		},
+		"theme": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		]
+	},
+	"editorScript": "dlos-blocks-editor",
+	"style": "dlos-front"
+}

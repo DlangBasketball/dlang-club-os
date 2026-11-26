@@ -1,0 +1,6 @@
+[
+  { "id": 101, "slug": "synthetic-u14", "link": "https://www.club.example/team/synthetic-u14/", "title": { "rendered": "Synthetic U14" }, "content": { "rendered": "<p>Our U14 team.</p>" } },
+  { "id": 102, "slug": "synthetic-u16", "link": "http://www.club.example/team/synthetic-u16/", "title": { "rendered": "Synthetic U16 &#8211; Elite" } },
+  { "id": 201, "slug": "rival-club", "link": "https://www.club.example/team/rival-club/", "title": { "rendered": "Rival Synthetic Club" } },
+  { "id": "x", "title": { "rendered": "Broken" } }
+]

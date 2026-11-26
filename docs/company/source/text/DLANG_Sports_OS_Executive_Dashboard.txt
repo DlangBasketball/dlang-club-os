@@ -1,0 +1,126 @@
+DL
+
+DLANG Sports OS — Executive Dashboard
+
+THREE-YEAR PLAN · BASE CURRENCY CHF · SEP 2026 – AUG 2029
+
+Bear
+
+Base
+
+Bull
+
+AS AT 18 AUG 2026
+SCENARIO: BASE
+
+Headline
+
+Recomputed live from the same assumptions as the financial model
+
+Cash and runway
+
+Closing cash by month, after the round, the FIT grant and founder funds
+
+The capital question
+
+Below the zero line the company is out of money. The depth of the trough
+is the additional capital the plan requires.
+
+Closing cash Funding event Zero line
+
+Growth
+
+Club base and annual recurring revenue
+
+ARR build
+
+Annual recurring revenue at the end of each month, net of churn
+
+Club base
+
+Paying clubs at year end
+
+  ----------------------------- --
+  Gross clubs signed, 3 years   
+  Clubs lost to churn           
+  Monthly logo churn            
+  Modelled club lifetime        
+  ----------------------------- --
+
+Profit and loss
+
+CHF, by year
+
+Unit economics
+
+Per club — the numbers that decide how hard this can be pushed
+
+Per club, per month
+
+Year 2 basis
+
+What a 140-athlete Swiss club pays today
+
+Software plus payment-rail cost, CHF per year, on CHF 63,000 collected.
+Where the vendor supports QR-bill, half the volume is assumed free.
+Spond has no QR-bill, so all of it goes on card at 2.5%.
+
+Beta pipeline
+
+Targets for the 90-day rollout, 24 Aug – 22 Nov 2026
+
+Founding cohort funnel
+
+Target conversion. Update the actuals column weekly.
+
+Six numbers, watched weekly
+
+If only one can be watched, watch weekly active admins — it leads churn
+by about two months.
+
+Milestones and gates
+
+Red markers are hard gates with a written failure response
+
+90-day rollout
+
+Weeks 1–13
+
+Year 1
+
+Months 1–12
+
+Red lines
+
+Miss one and the plan changes that week — the response is decided in
+advance
+
+Capital plan
+
+Sources, timing and the gap
+
+Sources
+
+CHF · follows the scenario toggle
+
+Dated actions that cannot slip
+
+These close. Everything else can move by a week.
+
+Basis of preparation. This dashboard recomputes the base, bull and bear
+cases from the same assumptions as DLANG_Sports_OS_Financial_Model.xlsx.
+Market figures are sourced in Appendix A of the business plan. DLANG
+Sports OS has zero paying external clubs as at 18 August 2026 — every
+growth, churn and revenue figure here is a modelled assumption, not a
+measured outcome. Figures supplied by the founder (athlete counts, warm
+network size, available founder funds, existing build state, round
+terms) have not been independently verified.
+Key assumptions. Blended ARPA CHF 330 / 400 / 450 by year. Logo churn
+1.5% a month in the base case. Support delivery CHF 55 per club per
+month — the line that sets gross margin. Payments: 50% of collections
+through the platform at a 0.9% net margin, QR-bill free. Onboarding fee
+CHF 900 average, waived for the five founding clubs. EUR/CHF 0.93. FIT
+Digital Grant CHF 20,000 modelled at 100% probability — set it to 50%
+for the risk-adjusted view.
+Confidential · Prepared 18 August 2026 · Companion to the DLANG Sports
+OS Business Plan and 90-Day Operational Rollout

@@ -1,0 +1,27 @@
+# Keep the build context small and secret-free.
+node_modules
+.next
+out
+.git
+.github
+.claude
+.vercel
+*.log
+npm-debug.log*
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets / local env — provide at runtime with --env-file instead.
+.env
+.env.*
+!.env.example
+
+# Not needed in the image
+docs
+testing
+supabase
+scripts
+DEPLOYMENT_GUIDE.html
+Dockerfile
+.dockerignore

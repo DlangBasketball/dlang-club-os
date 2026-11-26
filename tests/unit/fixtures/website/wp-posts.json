@@ -1,0 +1,14 @@
+[
+  {
+    "id": 401,
+    "status": "publish",
+    "date": "2025-11-01T09:00:00",
+    "date_gmt": "2025-11-01T08:00:00",
+    "link": "https://www.club.example/2025/11/season-start/",
+    "title": { "rendered": "Season start &#8211; welcome back!" },
+    "excerpt": { "rendered": "<p>The new season starts on Monday&hellip;</p>" },
+    "content": { "rendered": "<p>The new season <strong>starts</strong> on Monday.</p><script>document.cookie</script><img src=\"https://www.club.example/kids.jpg\"><p><a href=\"javascript:alert(1)\" onclick=\"x()\">bad</a> <a href=\"https://www.club.example/teams\">teams</a></p><iframe src=\"https://evil.example\"></iframe>" }
+  },
+  { "id": 402, "status": "draft", "date_gmt": "2025-11-02T08:00:00", "title": { "rendered": "Draft post" }, "content": { "rendered": "" } },
+  { "id": 403, "status": "publish", "date_gmt": "2025-11-03T08:00:00", "link": "https://www.club.example/?p=403", "title": { "rendered": "" } }
+]

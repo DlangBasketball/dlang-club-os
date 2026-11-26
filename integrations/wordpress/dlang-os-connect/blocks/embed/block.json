@@ -1,0 +1,75 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "dlang-os/embed",
+	"version": "1.0.0",
+	"title": "DLang OS app widget",
+	"category": "dlang-os",
+	"icon": "embed-generic",
+	"description": "Embed an interactive app widget (booking, registration form, shop...).",
+	"keywords": [
+		"dlang",
+		"club",
+		"sport"
+	],
+	"textdomain": "dlang-os-connect",
+	"attributes": {
+		"widget": {
+			"type": "string",
+			"default": "camps"
+		},
+		"season": {
+			"type": "string",
+			"default": ""
+		},
+		"year": {
+			"type": "string",
+			"default": ""
+		},
+		"team": {
+			"type": "string",
+			"default": ""
+		},
+		"type": {
+			"type": "string",
+			"default": ""
+		},
+		"kind": {
+			"type": "string",
+			"default": ""
+		},
+		"category": {
+			"type": "string",
+			"default": ""
+		},
+		"campaign": {
+			"type": "string",
+			"default": ""
+		},
+		"program": {
+			"type": "string",
+			"default": ""
+		},
+		"height": {
+			"type": "string",
+			"default": ""
+		},
+		"lang": {
+			"type": "string",
+			"default": ""
+		},
+		"theme": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		]
+	},
+	"editorScript": "dlos-blocks-editor",
+	"style": "dlos-front"
+}

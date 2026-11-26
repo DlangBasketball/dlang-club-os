@@ -1,0 +1,41 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["fra1"],
+  "functions": {
+    "src/app/api/stripe/webhook/route.ts": { "maxDuration": 30 },
+    "src/app/api/health/route.ts": { "maxDuration": 10 },
+    "src/app/api/billing/cron/route.ts": { "maxDuration": 300 },
+    "src/app/api/club-admin/cron/route.ts": { "maxDuration": 300 },
+    "src/app/api/attendance/cron/route.ts": { "maxDuration": 300 }
+  },
+  "crons": [
+    { "path": "/api/billing/cron", "schedule": "0 5 * * *" },
+    { "path": "/api/operations/cron", "schedule": "20 6 * * *" },
+    { "path": "/api/club-admin/cron", "schedule": "15 6 * * *" },
+    { "path": "/api/family/cron", "schedule": "30 5 * * *" },
+    { "path": "/api/website/cron", "schedule": "40 4 * * *" },
+    { "path": "/api/platform/cron/upgrades", "schedule": "50 3 * * *" },
+    { "path": "/api/attendance/cron", "schedule": "10 17 * * *" },
+    { "path": "/api/consent/cron", "schedule": "45 7 * * *" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(self)" }
+      ]
+    },
+    {
+      "source": "/((?!embed/|embed$).*)",
+      "headers": [{ "key": "X-Frame-Options", "value": "SAMEORIGIN" }]
+    },
+    {
+      "source": "/api/health",
+      "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }]
+    }
+  ]
+}

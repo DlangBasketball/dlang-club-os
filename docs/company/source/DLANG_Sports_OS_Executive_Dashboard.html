@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DLANG Sports OS — Executive Dashboard</title>
+<style>
+:root{
+  --bg:#0A0A0A; --surface:#141414; --elev:#1C1C1C; --input:#202020;
+  --border:#2A2A2A; --border-soft:#222;
+  --red:#DA2627; --red-dk:#8C1A1A; --gold:#E0A82E; --gold-dk:#9A7315;
+  --txt:#F1F1F1; --txt2:#ADADAD; --txt3:#6E6E6E;
+  --ok:#3FA96A; --warn:#D9982E; --bad:#DA2627; --teal:#3E9E9E; --slate:#7B8794;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;padding:0 0 60px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 24px}
+
+/* header */
+header{border-bottom:1px solid var(--border);background:linear-gradient(180deg,#111 0%,#0A0A0A 100%);
+  padding:26px 0 22px;margin-bottom:26px;position:sticky;top:0;z-index:20;backdrop-filter:blur(8px)}
+.hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--red) 0%,var(--red-dk) 100%);
+  display:grid;place-items:center;font-weight:800;font-size:15px;letter-spacing:-.5px;color:#fff;flex:none}
+h1{font-size:19px;font-weight:700;letter-spacing:-.2px}
+.sub{font-size:12px;color:var(--txt3);margin-top:2px;letter-spacing:.3px}
+.toggle{display:flex;gap:0;background:var(--input);border:1px solid var(--border);border-radius:9px;padding:3px}
+.toggle button{background:none;border:0;color:var(--txt2);font:600 12.5px/1 var(--sans);padding:9px 18px;
+  border-radius:6px;cursor:pointer;transition:.15s;letter-spacing:.3px}
+.toggle button:hover{color:var(--txt)}
+.toggle button[aria-pressed="true"]{background:var(--red);color:#fff}
+.stamp{font:500 11px/1.6 var(--mono);color:var(--txt3);text-align:right}
+
+/* sections */
+section{margin-bottom:34px}
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--border-soft)}
+.sh h2{font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold)}
+.sh .note{font-size:12px;color:var(--txt3)}
+
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(186px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px 17px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.kpi.r::before{background:var(--red)}
+.kpi.g::before{background:var(--ok)}
+.kpi.a::before{background:var(--warn)}
+.kpi .lab{font-size:10.5px;letter-spacing:.9px;text-transform:uppercase;color:var(--txt3);font-weight:600}
+.kpi .val{font:700 27px/1.15 var(--sans);margin:7px 0 3px;letter-spacing:-.8px;font-variant-numeric:tabular-nums}
+.kpi .meta{font-size:11.5px;color:var(--txt2)}
+
+/* cards */
+.grid2{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.grid2,.grid2b{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 19px}
+.card h3{font-size:13px;font-weight:700;margin-bottom:3px}
+.card .cs{font-size:11.5px;color:var(--txt3);margin-bottom:14px}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.9px;text-transform:uppercase;color:var(--txt3);
+  font-weight:700;padding:0 10px 9px 0;border-bottom:1px solid var(--border)}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--border-soft);vertical-align:top;color:var(--txt2)}
+td.n{font-variant-numeric:tabular-nums;text-align:right;font-family:var(--mono);font-size:12px;color:var(--txt)}
+td strong{color:var(--txt);font-weight:600}
+tr:last-child td{border-bottom:0}
+
+/* pills */
+.pill{display:inline-block;padding:2.5px 9px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:.4px;white-space:nowrap}
+.p-ok{background:rgba(63,169,106,.15);color:#66C98C;border:1px solid rgba(63,169,106,.3)}
+.p-warn{background:rgba(217,152,46,.15);color:#E8B85C;border:1px solid rgba(217,152,46,.3)}
+.p-bad{background:rgba(218,38,39,.15);color:#F0706F;border:1px solid rgba(218,38,39,.32)}
+.p-n{background:rgba(255,255,255,.05);color:var(--txt3);border:1px solid var(--border)}
+
+/* timeline */
+.tl{position:relative;padding-left:20px}
+.tl::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--border)}
+.tl-i{position:relative;padding:0 0 15px 0}
+.tl-i::before{content:"";position:absolute;left:-19px;top:5px;width:9px;height:9px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--slate)}
+.tl-i.gate::before{border-color:var(--red);background:var(--red);box-shadow:0 0 0 3px rgba(218,38,39,.18)}
+.tl-i.cap::before{border-color:var(--gold);background:var(--gold)}
+.tl-w{font:700 10.5px/1 var(--mono);color:var(--txt3);letter-spacing:.5px}
+.tl-t{font-size:13px;font-weight:600;color:var(--txt);margin:3px 0 2px}
+.tl-d{font-size:11.5px;color:var(--txt3)}
+
+/* funnel */
+.fn{display:flex;flex-direction:column;gap:7px}
+.fn-r{display:flex;align-items:center;gap:12px}
+.fn-w{flex:0 0 48%}
+.fn-b{height:30px;border-radius:5px;background:linear-gradient(90deg,var(--red-dk),var(--red));
+  display:flex;align-items:center;padding:0 11px;font:700 12px var(--mono);color:#fff;min-width:44px}
+.fn-l{font-size:12px;color:var(--txt2);flex:1}
+
+/* misc */
+.foot{font-size:11px;color:var(--txt3);line-height:1.7;border-top:1px solid var(--border);padding-top:16px;margin-top:8px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--txt3);margin-top:11px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+svg{display:block;width:100%;overflow:visible}
+.axl{font:500 10px var(--mono);fill:var(--txt3)}
+.gl{stroke:var(--border-soft);stroke-width:1}
+.zl{stroke:#3A3A3A;stroke-width:1;stroke-dasharray:3 3}
+@media print{body{background:#fff;color:#000}header{position:static}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hrow">
+    <div class="brand">
+      <div class="mark">DL</div>
+      <div>
+        <h1>DLANG Sports OS — Executive Dashboard</h1>
+        <div class="sub">THREE-YEAR PLAN · BASE CURRENCY CHF · SEP 2026 – AUG 2029</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <div class="toggle" role="group" aria-label="Scenario">
+        <button data-s="bear" aria-pressed="false">Bear</button>
+        <button data-s="base" aria-pressed="true">Base</button>
+        <button data-s="bull" aria-pressed="false">Bull</button>
+      </div>
+      <div class="stamp">AS AT 18 AUG 2026<br><span id="stamp2">SCENARIO: BASE</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section>
+  <div class="sh"><h2>Headline</h2><span class="note">Recomputed live from the same assumptions as the financial model</span></div>
+  <div class="kpis" id="kpis"></div>
+</section>
+
+<section>
+  <div class="sh"><h2>Cash and runway</h2><span class="note">Closing cash by month, after the round, the FIT grant and founder funds</span></div>
+  <div class="card">
+    <h3>The capital question</h3>
+    <div class="cs">Below the zero line the company is out of money. The depth of the trough is the additional capital the plan requires.</div>
+    <div id="cashChart"></div>
+    <div class="legend">
+      <span><i style="background:var(--gold)"></i>Closing cash</span>
+      <span><i style="background:var(--ok)"></i>Funding event</span>
+      <span><i style="background:#3A3A3A"></i>Zero line</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><h2>Growth</h2><span class="note">Club base and annual recurring revenue</span></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>ARR build</h3>
+      <div class="cs">Annual recurring revenue at the end of each month, net of churn</div>
+      <div id="arrChart"></div>
+    </div>
+    <div class="card">
+      <h3>Club base</h3>
+      <div class="cs">Paying clubs at year end</div>
+      <div id="clubChart"></div>
+      <table style="margin-top:14px">
+        <tr><td>Gross clubs signed, 3 years</td><td class="n" id="tGross"></td></tr>
+        <tr><td>Clubs lost to churn</td><td class="n" id="tLost"></td></tr>
+        <tr><td>Monthly logo churn</td><td class="n" id="tChurn"></td></tr>
+        <tr><td>Modelled club lifetime</td><td class="n" id="tLife"></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><h2>Profit and loss</h2><span class="note">CHF, by year</span></div>
+  <div class="card">
+    <table id="plTable"></table>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><h2>Unit economics</h2><span class="note">Per club — the numbers that decide how hard this can be pushed</span></div>
+  <div class="grid2b">
+    <div class="card">
+      <h3>Per club, per month</h3>
+      <div class="cs">Year 2 basis</div>
+      <table id="ueTable"></table>
+    </div>
+    <div class="card">
+      <h3>What a 140-athlete Swiss club pays today</h3>
+      <div class="cs">Software plus payment-rail cost, CHF per year, on CHF 63,000 collected. Where the vendor supports QR-bill, half the volume is assumed free. Spond has no QR-bill, so all of it goes on card at 2.5%.</div>
+      <div id="compChart"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><h2>Beta pipeline</h2><span class="note">Targets for the 90-day rollout, 24 Aug – 22 Nov 2026</span></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Founding cohort funnel</h3>
+      <div class="cs">Target conversion. Update the actuals column weekly.</div>
+      <div class="fn" id="funnel"></div>
+    </div>
+    <div class="card">
+      <h3>Six numbers, watched weekly</h3>
+      <div class="cs">If only one can be watched, watch weekly active admins — it leads churn by about two months.</div>
+      <table id="watchTable"></table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><h2>Milestones and gates</h2><span class="note">Red markers are hard gates with a written failure response</span></div>
+  <div class="grid2b">
+    <div class="card">
+      <h3>90-day rollout</h3>
+      <div class="cs">Weeks 1–13</div>
+      <div class="tl" id="tl90"></div>
+    </div>
+    <div class="card">
+      <h3>Year 1</h3>
+      <div class="cs">Months 1–12</div>
+      <div class="tl" id="tlY1"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><h2>Red lines</h2><span class="note">Miss one and the plan changes that week — the response is decided in advance</span></div>
+  <div class="card"><table id="redTable"></table></div>
+</section>
+
+<section>
+  <div class="sh"><h2>Capital plan</h2><span class="note">Sources, timing and the gap</span></div>
+  <div class="grid2b">
+    <div class="card"><h3>Sources</h3><div class="cs">CHF · follows the scenario toggle</div><table id="capTable"></table></div>
+    <div class="card"><h3>Dated actions that cannot slip</h3><div class="cs">These close. Everything else can move by a week.</div><table id="dateTable"></table></div>
+  </div>
+</section>
+
+<div class="foot">
+  <strong style="color:var(--txt2)">Basis of preparation.</strong> This dashboard recomputes the base, bull and bear cases from the same assumptions as DLANG_Sports_OS_Financial_Model.xlsx. Market figures are sourced in Appendix A of the business plan. DLANG Sports OS has zero paying external clubs as at 18 August 2026 — every growth, churn and revenue figure here is a modelled assumption, not a measured outcome. Figures supplied by the founder (athlete counts, warm network size, available founder funds, existing build state, round terms) have not been independently verified.<br><br>
+  <strong style="color:var(--txt2)">Key assumptions.</strong> Blended ARPA CHF 330 / 400 / 450 by year. Logo churn 1.5% a month in the base case. Support delivery CHF 55 per club per month — the line that sets gross margin. Payments: 50% of collections through the platform at a 0.9% net margin, QR-bill free. Onboarding fee CHF 900 average, waived for the five founding clubs. EUR/CHF 0.93. FIT Digital Grant CHF 20,000 modelled at 100% probability — set it to 50% for the risk-adjusted view.<br><br>
+  Confidential · Prepared 18 August 2026 · Companion to the DLANG Sports OS Business Plan and 90-Day Operational Rollout
+</div>
+
+</div>
+
+<script>
+"use strict";
+/* ---------------- model ---------------- */
+var ADDS = {
+  base:[0,0,2,2,1,1,1,1,1,1,2,2, 2,2,3,3,3,3,4,4,4,4,5,5, 5,5,6,6,6,7,7,7,8,8,8,9],
+  bull:[0,0,3,3,2,2,2,2,2,2,3,3, 4,4,5,5,5,6,6,6,7,7,8,8, 8,9,9,10,10,11,11,12,12,13,13,14],
+  bear:[0,0,1,1,1,1,0,1,0,1,1,1, 1,1,1,2,2,2,2,2,2,3,3,3, 3,3,3,4,4,4,4,5,5,5,5,6]
+};
+var CHURN = {base:0.015, bull:0.010, bear:0.025};
+var A = {
+  arpa:[330,400,450], athletes:140, setupFee:900, founding:5,
+  addonPrice:90, addonAttach:0.25,
+  payVol:63000, payShare:0.50, payTake:0.009,
+  cHost:8, cFixed:250, cAI:6, cComms:5, cSupp:55,
+  opex:[[2500,6000,8500],[4500,8500,16000],[300,900,1800],[800,2500,6000],[700,900,1400],[350,600,1100],[250,450,800]],
+  fx:0.93, invEUR:50000, invMonth:3, own:15000, grant:20000, grantMonth:5, grantP:1
+};
+var MONTHS = (function(){var o=[],y=2026,m=9,N=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  for(var i=0;i<36;i++){o.push(N[m-1]+"-"+String(y).slice(2));m++;if(m===13){m=1;y++;}} return o;})();
+
+function run(scn){
+  var adds=ADDS[scn], ch=CHURN[scn], r={m:[],};
+  var close=0, cash=0;
+  var cumNew=0, lost=0;
+  for(var i=0;i<36;i++){
+    var fy = i<12?0:(i<24?1:2);
+    var churned = i===0?0:close*ch;
+    var prev = close;
+    close = close + adds[i] - churned;
+    lost += churned;
+    cumNew += adds[i];
+    var avg = i===0?close:(prev+close)/2;
+    var arpa = A.arpa[fy];
+    var chargeable = cumNew<=A.founding?0:Math.min(adds[i], cumNew-A.founding);
+    if(chargeable<0) chargeable=0;
+    var sub = avg*arpa;
+    var addon = fy===0?0:close*A.addonAttach*A.addonPrice;
+    var pay = avg*A.payVol/12*A.payShare*A.payTake;
+    var setup = chargeable*A.setupFee;
+    var rev = sub+addon+pay+setup;
+    var cogs = close*A.cHost + A.cFixed + (fy===0?0:close*A.cAI) + close*A.cComms + close*A.cSupp;
+    var gp = rev-cogs;
+    var opex = 0; for(var k=0;k<A.opex.length;k++) opex += A.opex[k][fy];
+    var ebitda = gp-opex;
+    var fund = (i===0?A.own:0) + (i+1===A.invMonth?A.invEUR*A.fx:0) + (i+1===A.grantMonth?A.grant*A.grantP:0);
+    cash = cash + ebitda + fund;
+    r.m.push({i:i,fy:fy,close:close,adds:adds[i],rev:rev,sub:sub,addon:addon,pay:pay,setup:setup,
+      cogs:cogs,gp:gp,opex:opex,ebitda:ebitda,fund:fund,cash:cash,
+      mrr:close*arpa+addon, arr:(close*arpa+addon)*12});
+  }
+  r.churn=ch; r.gross=cumNew; r.lost=lost;
+  r.yr=[0,1,2].map(function(y){
+    var s={rev:0,sub:0,addon:0,pay:0,setup:0,cogs:0,gp:0,opex:0,ebitda:0};
+    for(var i=y*12;i<y*12+12;i++){for(var k in s) s[k]+=r.m[i][k];}
+    s.close=r.m[y*12+11].close; s.arr=r.m[y*12+11].arr; s.cash=r.m[y*12+11].cash;
+    s.gm = s.rev? s.gp/s.rev : 0;
+    return s;
+  });
+  r.peak = Math.min.apply(null, r.m.map(function(x){return x.cash;}));
+  r.breakeven = (function(){for(var i=0;i<36;i++) if(r.m[i].ebitda>0) return MONTHS[i]; return "not within 36 months";})();
+  return r;
+}
+
+/* ---------------- helpers ---------------- */
+function n0(v){return Math.round(v).toLocaleString("en-CH").replace(/,/g," ");}
+function k(v){var a=Math.abs(v);var s=v<0?"(":"";var e=v<0?")":"";
+  if(a>=1000000) return s+"CHF "+(a/1000000).toFixed(2)+"m"+e;
+  if(a>=1000) return s+"CHF "+Math.round(a/1000)+"k"+e;
+  return s+"CHF "+Math.round(a)+e;}
+function pct(v){return (v*100).toFixed(0)+"%";}
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+
+/* ---------------- charts ---------------- */
+function lineChart(host, series, opts){
+  var W=920,H=250,PL=62,PR=14,PT=14,PB=30;
+  var vals=series.map(function(d){return d.v;});
+  var mx=Math.max.apply(null,vals), mn=Math.min.apply(null,vals);
+  if(mn>0) mn=0; if(mx<0) mx=0;
+  var pad=(mx-mn)*0.12||1; mx+=pad; mn-=pad;
+  var x=function(i){return PL+i*(W-PL-PR)/(series.length-1);};
+  var y=function(v){return PT+(mx-v)*(H-PT-PB)/(mx-mn);};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" role="img">';
+  // gridlines
+  for(var g=0;g<=4;g++){
+    var v=mn+(mx-mn)*g/4;
+    s+='<line class="'+(Math.abs(v)<(mx-mn)/100?"zl":"gl")+'" x1="'+PL+'" x2="'+(W-PR)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'"/>';
+    s+='<text class="axl" x="'+(PL-8)+'" y="'+(y(v)+3.5).toFixed(1)+'" text-anchor="end">'+(opts.fmt?opts.fmt(v):n0(v))+'</text>';
+  }
+  // area
+  var d="", a="";
+  series.forEach(function(p,i){d+=(i?"L":"M")+x(i).toFixed(1)+","+y(p.v).toFixed(1)+" ";});
+  a=d+"L"+x(series.length-1).toFixed(1)+","+y(Math.max(mn,0)).toFixed(1)+" L"+x(0).toFixed(1)+","+y(Math.max(mn,0)).toFixed(1)+" Z";
+  s+='<defs><linearGradient id="lg'+opts.id+'" x1="0" y1="0" x2="0" y2="1">'+
+     '<stop offset="0%" stop-color="'+opts.color+'" stop-opacity=".28"/>'+
+     '<stop offset="100%" stop-color="'+opts.color+'" stop-opacity="0"/></linearGradient></defs>';
+  s+='<path d="'+a+'" fill="url(#lg'+opts.id+')"/>';
+  s+='<path d="'+d+'" fill="none" stroke="'+opts.color+'" stroke-width="2.2" stroke-linejoin="round"/>';
+  // markers
+  (opts.markers||[]).forEach(function(m){
+    s+='<circle cx="'+x(m.i).toFixed(1)+'" cy="'+y(series[m.i].v).toFixed(1)+'" r="4.5" fill="'+(m.c||"#3FA96A")+'" stroke="#0A0A0A" stroke-width="2"/>';
+    var anc = m.i===0?"start":(m.i>=series.length-2?"end":"middle");
+    var dx = m.i===0?7:(anc==="end"?-7:0);
+    s+='<text class="axl" x="'+(x(m.i)+dx).toFixed(1)+'" y="'+(y(series[m.i].v)-11).toFixed(1)+'" text-anchor="'+anc+'" fill="'+(m.c||"#3FA96A")+'">'+m.t+'</text>';
+  });
+  // x labels
+  [0,6,12,18,24,30,35].forEach(function(i){
+    s+='<text class="axl" x="'+x(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle">'+series[i].l+'</text>';
+  });
+  s+='</svg>';
+  host.innerHTML=s;
+}
+
+function barChart(host,data,opts){
+  var W=440,H=opts.h||210,PL=opts.pl||46,PR=10,PT=12,PB=26;
+  var mx=Math.max.apply(null,data.map(function(d){return d.v;}))*1.16||1;
+  var bw=(W-PL-PR)/data.length;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" role="img">';
+  for(var g=0;g<=3;g++){
+    var v=mx*g/3, yy=PT+(H-PT-PB)*(1-g/3);
+    s+='<line class="gl" x1="'+PL+'" x2="'+(W-PR)+'" y1="'+yy.toFixed(1)+'" y2="'+yy.toFixed(1)+'"/>';
+    s+='<text class="axl" x="'+(PL-7)+'" y="'+(yy+3.5).toFixed(1)+'" text-anchor="end">'+(opts.fmt?opts.fmt(v):n0(v))+'</text>';
+  }
+  data.forEach(function(d,i){
+    var h=(H-PT-PB)*d.v/mx, xx=PL+i*bw+bw*0.2, w=bw*0.6, yy=H-PB-h;
+    s+='<rect x="'+xx.toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+Math.max(h,1).toFixed(1)+'" rx="3" fill="'+(d.c||opts.color||"#E0A82E")+'"/>';
+    s+='<text class="axl" x="'+(xx+w/2).toFixed(1)+'" y="'+(yy-6).toFixed(1)+'" text-anchor="middle" fill="#F1F1F1">'+(opts.vfmt?opts.vfmt(d.v):n0(d.v))+'</text>';
+    s+='<text class="axl" x="'+(xx+w/2).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+d.l+'</text>';
+  });
+  s+='</svg>';
+  host.innerHTML=s;
+}
+
+function hbarChart(host,data){
+  var W=440,rowH=27,PL=168,PR=54,H=data.length*rowH+10;
+  var mx=Math.max.apply(null,data.map(function(d){return d.v;}))*1.02;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" role="img">';
+  data.forEach(function(d,i){
+    var y=i*rowH+6, w=(W-PL-PR)*d.v/mx;
+    s+='<text class="axl" x="'+(PL-8)+'" y="'+(y+13)+'" text-anchor="end" fill="'+(d.hl?"#F1F1F1":"#ADADAD")+'">'+esc(d.l)+'</text>';
+    s+='<rect x="'+PL+'" y="'+y+'" width="'+Math.max(w,2).toFixed(1)+'" height="17" rx="3" fill="'+(d.hl?"#DA2627":"#4A4A4A")+'"/>';
+    s+='<text class="axl" x="'+(PL+w+7).toFixed(1)+'" y="'+(y+13)+'" fill="#F1F1F1">'+n0(d.v)+'</text>';
+  });
+  s+='</svg>';
+  host.innerHTML=s;
+}
+
+/* ---------------- static content ---------------- */
+var COMP=[
+  {l:"Fairgate (3 modules)",v:470},{l:"ClubDesk M",v:650},
+  {l:"Webling Plus",v:721},{l:"Paak One",v:863},
+  {l:"Twizzit Hattrick",v:1133},{l:"Spond Club + website",v:1755},
+  {l:"SportsNow + card module",v:2009},
+  {l:"DLANG Club (proposed)",v:6573,hl:true}
+];
+var FUNNEL=[
+  {l:"Named target organisations",v:40},
+  {l:"Approached",v:40},
+  {l:"Workflow audits completed",v:10},
+  {l:"Demos delivered",v:6},
+  {l:"Proposals issued",v:5},
+  {l:"Founding clubs signed by Jan 2027",v:5}
+];
+var WATCH=[
+  ["Paying clubs","Billing","On milestone map","1 month behind","2 months behind"],
+  ["MRR","Billing","On plan","−20%","−40%"],
+  ["Weekly active admins / club","Product analytics","3+ per week","1–2","0 for two weeks"],
+  ["Cash runway","Bank ÷ trailing burn","6+ months","3–6 months","Under 3 months"],
+  ["Support response","Support log","&lt;4h founding","&lt;24h","&gt;24h"],
+  ["Conversations this week","CRM","3+","1–2","Zero"]
+];
+var TL90=[
+  ["W1","24–30 Aug","Incorporate in Vaud · GENILEM filed · 40-name target list built",""],
+  ["W2","31 Aug–6 Sep","Claim audit across every asset · one price list published",""],
+  ["W3","7–13 Sep","Workflow audits 4–7 · price tested verbatim in three calls",""],
+  ["W4","14–20 Sep","GATE 1 — does the price survive ten buyers?","gate"],
+  ["W5–6","21 Sep–4 Oct","Demos, proposals, first close attempt · FIT application drafted","cap"],
+  ["W7","5–11 Oct","Founding club #1 signed · deploy into the founder's own academy",""],
+  ["W8","12–18 Oct","GATE 2 — a real TWINT payment reconciles automatically","gate"],
+  ["W9–10","19 Oct–1 Nov","Coach attendance live · club #1 migrated · club #2 signed",""],
+  ["W11","2–8 Nov","First measured reminder cycle · first case study · FIT FILED (deadline 10 Nov)","cap"],
+  ["W12","9–15 Nov","Security review actioned · onboarding productised · referral live",""],
+  ["W13","16–22 Nov","GATE 3 — club #1 genuinely operating on DLANG","gate"]
+];
+var TLY1=[
+  ["M3","Nov 26","First paid signature · round closed · FIT filed","cap"],
+  ["M4","Dec 26","Gate 2 RED LINE: money moves end to end (rollout targets 18 Oct)","gate"],
+  ["M5","Jan 27","Five founding clubs signed · FIT committee decision","cap"],
+  ["M6","Feb 27","First case study with measured before-and-after numbers",""],
+  ["M7","Mar 27","Gate 3: all founding clubs logging in weekly","gate"],
+  ["M9","May 27","Second reference club live · onboarding productised",""],
+  ["M10","Jun 27","Federation conversations opened with two associations",""],
+  ["M11","Jul 27","Founding cohort closed at five · every new club pays list price",""],
+  ["M12","Aug 27","12+ clubs · CHF 4,000+ MRR · Year-2 capital plan agreed","gate"]
+];
+var RED=[
+  ["First paid signature","By 30 Nov 2026","The offer is wrong, not the product. Stop building; run 20 more discovery calls."],
+  ["Founding cohort complete","5 clubs by 31 Jan 2027","Cut the programme to 3 and move to public pricing. A long discount period trains the market to wait."],
+  ["Payment flow live end to end","TWINT reconciled by 31 Dec 2026","Everything downstream is theatre until real money moves. Freeze all other feature work."],
+  ["Weekly active admin per club","3+ sessions/week by Q3","The club is not running on the platform. Fix onboarding before selling another club."],
+  ["Logo churn","Below 2.0% per month","Above 2.5% the model never reaches breakeven at any club count. Stop acquisition; fix retention."],
+  ["Gross margin","Above 75%","Support cost per club is the usual culprit, not infrastructure. Productise onboarding."],
+  ["Cash runway","Never below 3 months","Cut engineering to maintenance; take the bridge or move to the capital-light structure."],
+  ["nFADP readiness","Record of processing + DPIA before club #1","Do not accept minors' medical data without them. The penalty falls on the individual, not the company."]
+];
+function caps(r){
+  var y1req = -(r.yr[0].rev - r.yr[0].cogs - r.yr[0].opex);
+  return [
+    ["Founder funds / academy cash","15 000","Month 1 · no dilution"],
+    ["Investment round (EUR 50k at 0.93)","46 500","Month 3 · 10%, or deferred via convertible"],
+    ["FIT Digital Grant","20 000","Month 5, subject to the 1 Dec committee · no dilution"],
+    ["Total available","81 500",""],
+    ["Year 1 cash requirement (incl. cost of revenue)",n0(y1req),""],
+    ["Cash at end of Year 1",n0(r.yr[0].cash),r.yr[0].cash<0?"The round, the grant and founder funds together do not quite reach Month 12":"Funded, with nothing spare"],
+    ["Peak capital shortfall over 36 months",n0(r.peak),"Close it via the co-founder route in section 9.2 of the plan"]
+  ];
+}
+var DATES=[
+  ["1 Oct – 30 Nov 2026","&gt;&gt;venture&gt;&gt; 2027 submissions open","Vertical winner CHF 50k, grand prize CHF 150k. Free, non-dilutive."],
+  ["10 Nov 2026","FIT Digital application deadline","CHF 20k non-repayable. Requires Vaud incorporation. Route via Innovaud."],
+  ["14 Nov 2026","Swiss QR-bill Implementation Guidelines v2.4 in force","Build to v2.4 directly, not v2.3."],
+  ["1 Dec 2026","FIT selection committee","10-minute pitch + 10 minutes of questions. Rehearse five times."],
+  ["Jan 2027 (expected)","MassChallenge Switzerland 2027 opens","Up to CHF 1m equity-free. Under CHF 2m raised."]
+];
+
+/* ---------------- render ---------------- */
+var SCN="base";
+function render(){
+  var r=run(SCN);
+  el("stamp2").textContent="SCENARIO: "+SCN.toUpperCase();
+
+  /* KPI */
+  var gapCls = r.peak < -60000 ? "r" : (r.peak < 0 ? "a" : "g");
+  var kp=[
+    {l:"Clubs at end of Year 3",v:Math.round(r.yr[2].close),m:"from "+r.gross+" gross signed over 36 months",c:""},
+    {l:"ARR at end of Year 3",v:k(r.yr[2].arr),m:"deck target is EUR 808k",c:""},
+    {l:"Year 3 revenue",v:k(r.yr[2].rev),m:"all lines incl. onboarding and payments",c:""},
+    {l:"First profitable month",v:r.breakeven,m:"monthly EBITDA above zero",c:r.breakeven==="not within 36 months"?"r":"g"},
+    {l:"Peak capital shortfall",v:k(r.peak),m:"after round, grant and founder funds",c:gapCls},
+    {l:"Gross margin, Year 3",v:pct(r.yr[2].gm),m:"support delivery is the swing factor",c:r.yr[2].gm>0.75?"g":"a"}
+  ];
+  el("kpis").innerHTML=kp.map(function(x){
+    return '<div class="kpi '+x.c+'"><div class="lab">'+x.l+'</div><div class="val">'+
+      (typeof x.v==="number"?n0(x.v):x.v)+'</div><div class="meta">'+x.m+'</div></div>';
+  }).join("");
+
+  /* cash */
+  lineChart(el("cashChart"), r.m.map(function(d,i){return {v:d.cash,l:MONTHS[i]};}),
+    {id:"c",color:"#E0A82E",fmt:function(v){return (v/1000).toFixed(0)+"k";},
+     markers:[{i:0,t:"Founder funds",c:"#3FA96A"},{i:A.invMonth-1,t:"Round",c:"#3FA96A"},{i:A.grantMonth-1,t:"FIT grant",c:"#3FA96A"}]});
+
+  /* ARR */
+  barChart(el("arrChart"), [0,1,2].map(function(y){return {l:"Year "+(y+1),v:r.yr[y].arr};}),
+    {color:"#E0A82E",fmt:function(v){return (v/1000).toFixed(0)+"k";},vfmt:function(v){return k(v);},h:230,pl:52});
+
+  /* clubs */
+  barChart(el("clubChart"), [0,1,2].map(function(y){return {l:"Year "+(y+1),v:r.yr[y].close};}),
+    {color:"#DA2627",h:180,pl:38,vfmt:function(v){return Math.round(v);}});
+  el("tGross").textContent=r.gross;
+  el("tLost").textContent=Math.round(r.lost);
+  el("tChurn").textContent=(r.churn*100).toFixed(1)+"% / mo";
+  el("tLife").textContent=Math.min(1/r.churn,48).toFixed(0)+" months";
+
+  /* P&L */
+  var rows=[
+    ["Subscription revenue","sub"],["AI module revenue","addon"],["Payment platform margin","pay"],
+    ["Onboarding fees","setup"],["TOTAL REVENUE","rev",1],["Cost of revenue","cogs"],
+    ["GROSS PROFIT","gp",1],["Operating costs","opex"],["EBITDA","ebitda",1]
+  ];
+  var h='<tr><th style="width:34%">CHF</th><th style="text-align:right">Year 1</th><th style="text-align:right">Year 2</th><th style="text-align:right">Year 3</th><th style="text-align:right">3-yr total</th></tr>';
+  rows.forEach(function(rw){
+    var neg = (rw[1]==="cogs"||rw[1]==="opex");
+    var tot=r.yr[0][rw[1]]+r.yr[1][rw[1]]+r.yr[2][rw[1]];
+    h+='<tr><td>'+(rw[2]?'<strong>'+rw[0]+'</strong>':rw[0])+'</td>'+
+      [0,1,2].map(function(y){return '<td class="n">'+(neg?"("+n0(r.yr[y][rw[1]])+")":n0(r.yr[y][rw[1]]))+'</td>';}).join("")+
+      '<td class="n">'+(neg?"("+n0(tot)+")":n0(tot))+'</td></tr>';
+  });
+  h+='<tr><td><strong>Gross margin</strong></td>'+[0,1,2].map(function(y){return '<td class="n">'+pct(r.yr[y].gm)+'</td>';}).join("")+'<td class="n">—</td></tr>';
+  h+='<tr><td><strong>Clubs at year end</strong></td>'+[0,1,2].map(function(y){return '<td class="n">'+Math.round(r.yr[y].close)+'</td>';}).join("")+'<td class="n">—</td></tr>';
+  h+='<tr><td><strong>Closing cash</strong></td>'+[0,1,2].map(function(y){var v=r.yr[y].cash;return '<td class="n" style="color:'+(v<0?"#F0706F":"#66C98C")+'">'+(v<0?"("+n0(-v)+")":n0(v))+'</td>';}).join("")+'<td class="n">—</td></tr>';
+  el("plTable").innerHTML=h;
+
+  /* unit econ */
+  var arpa=A.arpa[1];
+  var payPc=A.payVol/12*A.payShare*A.payTake;
+  var addonPc=A.addonPrice*A.addonAttach;
+  var revPc=arpa+payPc+addonPc;
+  var cogsPc=A.cHost+A.cAI+A.cComms+A.cSupp;
+  var gpPc=revPc-cogsPc;
+  var life=Math.min(1/r.churn,48);
+  var ltv=gpPc*life;
+  var y2opex=(A.opex[3][1]+A.opex[2][1])*12 + A.opex[0][1]*0;
+  var y2supp=0; for(var i=12;i<24;i++) y2supp+=r.m[i].close*A.cSupp;
+  var y2adds=0; for(var i=12;i<24;i++) y2adds+=r.m[i].adds;
+  var cac=y2adds? ((A.opex[3][1]+A.opex[2][1])*12 + y2supp)/y2adds : 0;
+  var ue=[
+    ["Blended ARPA (Year 2)","CHF "+n0(arpa)],
+    ["Payment margin per club","CHF "+payPc.toFixed(0)],
+    ["AI module revenue, blended","CHF "+addonPc.toFixed(0)],
+    ["<strong>Total revenue per club</strong>","<strong>CHF "+n0(revPc)+"</strong>"],
+    ["Cost of revenue (CHF 55 of it is support)","CHF "+n0(cogsPc)],
+    ["<strong>Gross profit per club</strong>","<strong>CHF "+n0(gpPc)+"</strong>"],
+    ["Gross margin",pct(gpPc/revPc)],
+    ["Modelled lifetime (capped at 48 mo)",life.toFixed(0)+" months"],
+    ["<strong>LTV, gross-profit basis</strong>","<strong>CHF "+n0(ltv)+"</strong>"],
+    ["<strong>Fully loaded CAC</strong>","<strong>CHF "+n0(cac)+"</strong>"],
+    ["<strong>LTV / CAC</strong>","<strong>"+(cac?(ltv/cac).toFixed(1):"—")+"×</strong>"],
+    ["CAC payback",(cac/gpPc).toFixed(1)+" months"]
+  ];
+  el("ueTable").innerHTML=ue.map(function(x){return '<tr><td>'+x[0]+'</td><td class="n">'+x[1]+'</td></tr>';}).join("");
+
+  hbarChart(el("compChart"), COMP.slice().sort(function(a,b){return a.v-b.v;}));
+
+  /* funnel */
+  var mxf=FUNNEL[0].v;
+  el("funnel").innerHTML=FUNNEL.map(function(f,i){
+    return '<div class="fn-r"><div class="fn-w"><div class="fn-b" style="width:'+(22+78*f.v/mxf).toFixed(0)+'%">'+f.v+'</div></div><div class="fn-l">'+f.l+
+      (i? ' <span style="color:var(--txt3)">· '+Math.round(100*f.v/FUNNEL[i-1].v)+'% of the step above</span>':'')+'</div></div>';
+  }).join("") +
+  '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-soft);font-size:11.5px;color:var(--txt3);line-height:1.7">'+
+  '<strong style="color:var(--txt2)">Read this funnel as a workload, not a forecast.</strong> Ten workflow audits at roughly 40 minutes each including the written follow-up, six demos at an hour, five proposals with committee follow-up. That is about 31 founder hours per club that closes — which is why five founding clubs is a genuine bandwidth ceiling and not a marketing device.<br><br>'+
+  'The step that decides everything is audits &rarr; demos. If fewer than half the audits convert to a demo, the problem is the offer, not the pitch.</div>';
+
+  el("watchTable").innerHTML='<tr><th>Number</th><th>Green</th><th>Amber</th><th>Red</th></tr>'+
+    WATCH.map(function(w){return '<tr><td><strong>'+w[0]+'</strong><br><span style="color:var(--txt3);font-size:11px">'+w[1]+'</span></td>'+
+      '<td><span class="pill p-ok">'+w[2]+'</span></td><td><span class="pill p-warn">'+w[3]+'</span></td><td><span class="pill p-bad">'+w[4]+'</span></td></tr>';}).join("");
+
+  el("tl90").innerHTML=TL90.map(function(t){
+    return '<div class="tl-i '+t[3]+'"><div class="tl-w">'+t[0]+' · '+t[1]+'</div><div class="tl-t">'+t[2]+'</div></div>';}).join("");
+  el("tlY1").innerHTML=TLY1.map(function(t){
+    return '<div class="tl-i '+t[3]+'"><div class="tl-w">'+t[0]+' · '+t[1]+'</div><div class="tl-t">'+t[2]+'</div></div>';}).join("");
+
+  el("redTable").innerHTML='<tr><th style="width:22%">Red line</th><th style="width:23%">Threshold</th><th>Decided response if missed</th></tr>'+
+    RED.map(function(x){return '<tr><td><strong>'+x[0]+'</strong></td><td>'+x[1]+'</td><td>'+x[2]+'</td></tr>';}).join("");
+
+  el("capTable").innerHTML='<tr><th>Source</th><th style="text-align:right">CHF</th><th>Timing / note</th></tr>'+
+    caps(r).map(function(x){
+      var bold = x[0].indexOf("Total")===0 || x[0].indexOf("Cash at end")===0 || x[0].indexOf("Peak")===0 || x[0].indexOf("Year 1 cash")===0;
+      var col = x[0].indexOf("Cash at end")===0 ? ' style="color:#E0A82E"' : (x[0].indexOf("Peak")===0?' style="color:#F0706F"':'');
+      return '<tr><td>'+(bold?'<strong>'+x[0]+'</strong>':x[0])+'</td><td class="n"'+col+'>'+x[1]+'</td><td style="font-size:11.5px">'+(x[2]||"")+'</td></tr>';
+    }).join("");
+
+  el("dateTable").innerHTML='<tr><th style="width:30%">Date</th><th>Action</th></tr>'+
+    DATES.map(function(x){return '<tr><td><strong>'+x[0]+'</strong></td><td><strong style="color:var(--txt)">'+x[1]+'</strong><br><span style="font-size:11.5px">'+x[2]+'</span></td></tr>';}).join("");
+}
+
+document.querySelectorAll(".toggle button").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".toggle button").forEach(function(x){x.setAttribute("aria-pressed","false");});
+    b.setAttribute("aria-pressed","true");
+    SCN=b.dataset.s; render();
+  });
+});
+render();
+</script>
+</body>
+</html>

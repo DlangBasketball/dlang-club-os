@@ -1,0 +1,39 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "dlang-os/login",
+	"version": "1.0.0",
+	"title": "DLang OS account button",
+	"category": "dlang-os",
+	"icon": "admin-users",
+	"description": "A button to the club app login and family area.",
+	"keywords": [
+		"dlang",
+		"club",
+		"sport"
+	],
+	"textdomain": "dlang-os-connect",
+	"attributes": {
+		"label": {
+			"type": "string",
+			"default": ""
+		},
+		"lang": {
+			"type": "string",
+			"default": ""
+		},
+		"theme": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		]
+	},
+	"editorScript": "dlos-blocks-editor",
+	"style": "dlos-front"
+}
