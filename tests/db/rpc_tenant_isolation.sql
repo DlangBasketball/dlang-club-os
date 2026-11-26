@@ -107,7 +107,7 @@ begin
          -- RLS helper on invoices (20250420106800): false without a signed-in user (tests/db/booker_invoice_access.sql)
          'is_invoice_payer',
          -- role switcher (20250420107000): inside has_role / RLS; "no mode" without a signed-in user
-         'current_active_mode', 'mode_allows_role',
+         'current_active_mode', 'mode_allows_role', 'mode_allows_scope',
          -- website connection: allowed embed origins of a club with the connection enabled (public anyway: CSP header)
          'website_embed_origins',
          -- club website: PUBLISHED content of an ENABLED site of exactly the given club

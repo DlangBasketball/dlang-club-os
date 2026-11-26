@@ -1,5 +1,5 @@
 -- ============================================================================
--- Role switcher (migration 20250420107000_active_role_mode.sql)
+-- Role switcher (migrations 20250420107000_active_role_mode.sql, 20250420107100_active_role_mode_scopes.sql)
 --
 --   M. Multi-role person (admin + coach + guardian): available modes, first
 --      state initialises the default mode, switching, what each mode allows
@@ -73,6 +73,8 @@ insert into public.teams (id, org_id, name, sport) values
   ('00000000-0000-0000-0000-00000000a942', '00000000-0000-0000-0000-000000000001', 'ARM Other Team', 'basketball');
 insert into public.team_coaches (team_id, coach_id, org_id, role) values
   ('00000000-0000-0000-0000-00000000a941', '00000000-0000-0000-0000-00000000a951', '00000000-0000-0000-0000-000000000001', 'head');
+insert into public.team_memberships (org_id, team_id, athlete_id, status, joined_on) values
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000a941', '00000000-0000-0000-0000-00000000a932', 'active', current_date - 10);
 
 -- ===========================================================================
 -- M / S. Modes
@@ -95,13 +97,17 @@ begin
   r := arm.run_as(f, $q$select public.set_active_mode('coach')::text$q$);
   perform arm.ok(r like 'OK:%"mode": "coach"%"previous": "admin"%', 'switch to coach (' || left(r, 90) || ')');
   r := arm.run_as(f, probe);
-  perform arm.ok(r = 'OK:false/false/true/true', 'coach mode: no admin / finance powers (' || r || ')');
+  perform arm.ok(r = 'OK:false/false/true/false', 'coach mode: no admin / finance powers, family scope off (' || r || ')');
+  r := arm.run_as(f, 'select (public.current_coach_id() is not null)::text');
+  perform arm.ok(r = 'OK:true', 'coach mode: coach record active');
   r := arm.run_as(f, 'select count(*)::text from public.staff_roles');
   perform arm.ok(r = 'OK:2', 'coach mode: direct API read of staff_roles shows only own rows (' || r || ')');
   r := arm.run_as(f, $q$select public.coach_coaches_team('00000000-0000-0000-0000-00000000a941')::text || '/' || public.coach_coaches_team('00000000-0000-0000-0000-00000000a942')::text$q$);
   perform arm.ok(r = 'OK:true/false', 'coach mode: assigned team only (' || r || ')');
   r := arm.run_as(f, $q$select count(*)::text from public.athletes where id in ('00000000-0000-0000-0000-00000000a931','00000000-0000-0000-0000-00000000a932')$q$);
-  perform arm.ok(r = 'OK:1', 'coach mode: no club-wide athlete access, only own child (' || r || ')');
+  perform arm.ok(r = 'OK:1', 'coach mode: the coached team''s player only, not the own child (' || r || ')');
+  r := arm.run_as(f, $q$select count(*)::text from public.athletes where id = '00000000-0000-0000-0000-00000000a931'$q$);
+  perform arm.ok(r = 'OK:0', 'coach mode: own child''s record not readable (' || r || ')');
   r := arm.run_as(f, $q$update public.teams set name = 'hacked' where id = '00000000-0000-0000-0000-00000000a942' returning 1$q$);
   perform arm.ok(r = 'OK:<null>' and (select name = 'ARM Other Team' from public.teams where id = '00000000-0000-0000-0000-00000000a942'),
                  'coach mode: an admin write through the API is refused (' || r || ')');
@@ -109,8 +115,12 @@ begin
   r := arm.run_as(f, $q$select public.set_active_mode('parent')::text$q$);
   r := arm.run_as(f, probe);
   perform arm.ok(r = 'OK:false/false/false/true', 'parent mode: only the family (' || r || ')');
-  r := arm.run_as(f, $q$select count(*)::text from public.athletes where id in ('00000000-0000-0000-0000-00000000a931','00000000-0000-0000-0000-00000000a932')$q$);
-  perform arm.ok(r = 'OK:1', 'parent mode: own child only (' || r || ')');
+  r := arm.run_as(f, 'select (public.current_coach_id() is null)::text');
+  perform arm.ok(r = 'OK:true', 'parent mode: coach scope off');
+  r := arm.run_as(f, $q$select public.coach_coaches_team('00000000-0000-0000-0000-00000000a941')::text$q$);
+  perform arm.ok(r = 'OK:false', 'parent mode: no access to the coached team (' || r || ')');
+  r := arm.run_as(f, $q$select string_agg(last_name, ',') from public.athletes where id in ('00000000-0000-0000-0000-00000000a931','00000000-0000-0000-0000-00000000a932')$q$);
+  perform arm.ok(r = 'OK:Armkid', 'parent mode: own child only, not the coached player (' || r || ')');
 
   r := arm.run_as(f, $q$select public.set_active_mode('admin')::text$q$);
   r := arm.run_as(f, probe);

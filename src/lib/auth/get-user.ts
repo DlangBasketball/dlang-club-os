@@ -76,17 +76,23 @@ async function loadSessionUser(): Promise<SessionUser | null> {
     if (isPlayer === true) roles.add("player");
   }
 
-  // Active mode (role switcher, 20250420107000): stored in the database, which
-  // enforces it in has_role(); a revoked mode is replaced by one still held.
+  // Active mode (role switcher, 20250420107000/107100): stored in the database,
+  // which enforces it in has_role(), current_coach_id() and the guardian
+  // checks; a revoked mode is replaced by one still held. Staff members ask the
+  // database for their modes: in Coach mode the family rows are not readable
+  // through RLS, so "parent" must come from available_modes().
+  let mode: AppMode | null = null;
+  if (orgId && roles.size > 0 && Array.from(roles).some((r) => r === "admin" || r === "finance" || r === "coach")) {
+    const fallback = modesForRoles(Array.from(roles))[0] ?? null;
+    const { data: state } = await (supabase as unknown as { rpc: (fn: string, a: Record<string, unknown>) => Promise<{ data: unknown }> })
+      .rpc("active_mode_state", { p_default: fallback });
+    const st = (state ?? {}) as { mode?: unknown; available?: unknown };
+    if (Array.isArray(st.available) && st.available.includes("parent")) roles.add("parent");
+    const avail = modesForRoles(Array.from(roles));
+    if (avail.length > 1) mode = isAppMode(st.mode) && avail.includes(st.mode) ? st.mode : avail[0];
+  }
   const allRoles = Array.from(roles);
   const modes = modesForRoles(allRoles);
-  let mode: AppMode | null = null;
-  if (modes.length > 1) {
-    const { data: state } = await (supabase as unknown as { rpc: (fn: string, a: Record<string, unknown>) => Promise<{ data: unknown }> })
-      .rpc("active_mode_state", { p_default: modes[0] });
-    const m = (state as { mode?: unknown } | null)?.mode;
-    mode = isAppMode(m) && modes.includes(m) ? m : modes[0];
-  }
 
   return {
     id: user.id,
