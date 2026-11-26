@@ -14710,5 +14710,33 @@
     },
     "addChildTerm": "Ajouter {term}",
     "linkedBadge": "Lié · {relation}"
+  },
+  "roleMode": {
+    "modes": {
+      "admin": "Admin",
+      "finance": "Finances",
+      "coach": "Coach",
+      "parent": "Parent"
+    },
+    "current": "Mode actuel : {mode}. Changer de mode",
+    "menuLabel": "Changer de mode",
+    "switching": "Changement…",
+    "unsaved": {
+      "title": "Modifications non enregistrées",
+      "body": "Si vous passez au mode {mode} maintenant, les modifications de cette page seront perdues.",
+      "stay": "Rester et terminer",
+      "discard": "Abandonner et changer"
+    },
+    "page": {
+      "title": "Cette page est en mode {mode}",
+      "body": "Vous êtes en mode {current}. Passez au mode {target} pour l'ouvrir, ou restez où vous êtes.",
+      "switch": "Passer au mode {mode}",
+      "stay": "Rester en mode {mode}"
+    },
+    "errors": {
+      "signedOut": "Veuillez vous reconnecter.",
+      "notAvailable": "Ce mode n'est plus disponible sur votre compte.",
+      "generic": "Le mode n'a pas pu être changé. Réessayez."
+    }
   }
 }

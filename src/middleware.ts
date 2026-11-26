@@ -91,6 +91,8 @@ export async function middleware(request: NextRequest) {
   //    Must run before updateSession(), which snapshots request headers.
   applyTenantHeaders(request);
   // Site path hint for the root layout (never trusted from the client).
+  // Path of the request for the role-switcher guard (never trusted from the client).
+  request.headers.set("x-request-path", `${request.nextUrl.pathname}${request.nextUrl.search}`);
   request.headers.delete(SITE_PATH_HEADER);
   if (!isReservedPath(request.nextUrl.pathname)) request.headers.set(SITE_PATH_HEADER, request.nextUrl.pathname);
 

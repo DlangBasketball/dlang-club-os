@@ -14710,5 +14710,33 @@
     },
     "addChildTerm": "Add {term}",
     "linkedBadge": "Linked · {relation}"
+  },
+  "roleMode": {
+    "modes": {
+      "admin": "Admin",
+      "finance": "Finance",
+      "coach": "Coach",
+      "parent": "Parent"
+    },
+    "current": "Current mode: {mode}. Switch mode",
+    "menuLabel": "Switch mode",
+    "switching": "Switching…",
+    "unsaved": {
+      "title": "You have unsaved changes",
+      "body": "If you switch to {mode} mode now, the changes on this page are lost.",
+      "stay": "Stay and finish",
+      "discard": "Discard and switch"
+    },
+    "page": {
+      "title": "This page is in {mode} mode",
+      "body": "You are in {current} mode. Switch to {target} mode to open it, or stay where you are.",
+      "switch": "Switch to {mode}",
+      "stay": "Stay in {mode}"
+    },
+    "errors": {
+      "signedOut": "Please sign in again.",
+      "notAvailable": "This mode is no longer available on your account.",
+      "generic": "The mode could not be switched. Try again."
+    }
   }
 }

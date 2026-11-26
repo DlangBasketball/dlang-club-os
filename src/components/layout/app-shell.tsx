@@ -13,6 +13,7 @@ import { NotificationBell } from "./notification-bell";
 import type { NavNotification } from "@/lib/data/notifications";
 import { useT } from "@/lib/i18n/client";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { RoleModeSwitcher } from "./role-mode-switcher";
 import { CommandPalette } from "@/components/search/command-palette";
 import { OrgSwitcher, type SwitcherOrg } from "@/components/family/org-switcher";
 import { AdminSidebarNav, useNavLabel } from "./admin-sidebar-nav";
@@ -297,6 +298,7 @@ function SidebarShell({
             <Menu className="h-5 w-5" aria-hidden />
           </button>
           <BrandMark compact className="lg:hidden" />
+          <RoleModeSwitcher modes={user.modes} mode={user.mode} roles={user.allRoles} />
           <div className="flex-1" />
           <ShellOrgSwitcher />
           <CommandPalette />
@@ -342,7 +344,10 @@ function BottomShell({
   return (
     <div className="grain mx-auto flex min-h-dvh max-w-2xl flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-bg-secondary/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-bg-secondary/75">
-        <BrandMark compact />
+        <div className="flex min-w-0 items-center gap-2">
+          <BrandMark compact />
+          <RoleModeSwitcher modes={user.modes} mode={user.mode} roles={user.allRoles} />
+        </div>
         <div className="flex items-center gap-1.5">
           <ShellOrgSwitcher className="max-sm:[&_svg]:hidden" />
           <CommandPalette />

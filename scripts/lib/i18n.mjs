@@ -165,6 +165,8 @@ export function placeholderDiff(source, target) {
  * words, pure placeholders). Shared by the checker and the coverage report.
  */
 export const SAME_AS_EN_OK = new Set([
+  // Role switcher: "Admin" is the label in every language, "Coach" in French.
+  "roleMode.modes.admin", "fr:roleMode.modes.coach", "fr:roleMode.modes.parent",
   "camps.approval.admin.forChild",
   "meta.direction",
   // Participant profiles: words spelled like English in German / French / Italian.

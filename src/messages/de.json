@@ -14710,5 +14710,33 @@
     },
     "addChildTerm": "{term} hinzufügen",
     "linkedBadge": "Verknüpft · {relation}"
+  },
+  "roleMode": {
+    "modes": {
+      "admin": "Admin",
+      "finance": "Finanzen",
+      "coach": "Trainer",
+      "parent": "Eltern"
+    },
+    "current": "Aktueller Modus: {mode}. Modus wechseln",
+    "menuLabel": "Modus wechseln",
+    "switching": "Wechsle…",
+    "unsaved": {
+      "title": "Nicht gespeicherte Änderungen",
+      "body": "Wenn Sie jetzt in den Modus {mode} wechseln, gehen die Änderungen auf dieser Seite verloren.",
+      "stay": "Bleiben und fertigstellen",
+      "discard": "Verwerfen und wechseln"
+    },
+    "page": {
+      "title": "Diese Seite gehört zum Modus {mode}",
+      "body": "Sie sind im Modus {current}. Wechseln Sie in den Modus {target}, um sie zu öffnen, oder bleiben Sie hier.",
+      "switch": "Zu {mode} wechseln",
+      "stay": "Im Modus {mode} bleiben"
+    },
+    "errors": {
+      "signedOut": "Bitte melden Sie sich erneut an.",
+      "notAvailable": "Dieser Modus ist auf Ihrem Konto nicht mehr verfügbar.",
+      "generic": "Der Modus konnte nicht gewechselt werden. Bitte erneut versuchen."
+    }
   }
 }

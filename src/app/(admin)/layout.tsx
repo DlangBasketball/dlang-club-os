@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth/get-user";
+import { requireArea } from "@/lib/auth/get-user";
 import { AppShell } from "@/components/layout/app-shell";
 import { getMyOrgs } from "@/lib/family/orgs";
 import { buildAdminNav } from "@/components/layout/admin-nav";
@@ -12,7 +12,7 @@ export default async function AdminGroupLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireRole(["admin", "finance"]);
+  const user = await requireArea("admin", ["admin", "finance"]);
   const [notifs, alerts, orgs, nav] = await Promise.all([getNavNotifications(), getBannerAlerts(user), getMyOrgs(), getAdminNavContext(user)]);
   // Built on the server: role filtering, plan gating and the club's selection
   // programmes are settled before the menu renders (no flash of hidden entries).

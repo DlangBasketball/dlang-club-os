@@ -14710,5 +14710,33 @@
     },
     "addChildTerm": "Añadir {term}",
     "linkedBadge": "Vinculado · {relation}"
+  },
+  "roleMode": {
+    "modes": {
+      "admin": "Admin",
+      "finance": "Finanzas",
+      "coach": "Entrenador",
+      "parent": "Padre/Madre"
+    },
+    "current": "Modo actual: {mode}. Cambiar de modo",
+    "menuLabel": "Cambiar de modo",
+    "switching": "Cambiando…",
+    "unsaved": {
+      "title": "Tienes cambios sin guardar",
+      "body": "Si cambias ahora al modo {mode}, se perderán los cambios de esta página.",
+      "stay": "Quedarme y terminar",
+      "discard": "Descartar y cambiar"
+    },
+    "page": {
+      "title": "Esta página está en el modo {mode}",
+      "body": "Estás en el modo {current}. Cambia al modo {target} para abrirla o quédate donde estás.",
+      "switch": "Cambiar a {mode}",
+      "stay": "Quedarme en {mode}"
+    },
+    "errors": {
+      "signedOut": "Vuelve a iniciar sesión.",
+      "notAvailable": "Este modo ya no está disponible en tu cuenta.",
+      "generic": "No se pudo cambiar el modo. Inténtalo de nuevo."
+    }
   }
 }

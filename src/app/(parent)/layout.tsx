@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth/get-user";
+import { requireArea } from "@/lib/auth/get-user";
 import { AppShell } from "@/components/layout/app-shell";
 import { getMyOrgs } from "@/lib/family/orgs";
 import { getNavNotifications } from "@/lib/data/notifications";
@@ -17,11 +17,11 @@ export default async function ParentGroupLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireRole(["parent", "admin"]);
+  const user = await requireArea("parent", ["parent", "admin"]);
   // Invited parents must finish onboarding before entering the portal.
   if (
-    user.roles.includes("parent") &&
-    !user.roles.includes("admin") &&
+    user.allRoles.includes("parent") &&
+    !user.allRoles.includes("admin") &&
     !user.onboardingCompleted
   ) {
     redirect("/onboarding");
