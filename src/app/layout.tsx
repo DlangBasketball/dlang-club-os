@@ -12,6 +12,7 @@ import { getMessages } from "@/lib/i18n/messages";
 import { I18nProvider } from "@/lib/i18n/client";
 import { CookieConsentBanner } from "@/components/compliance/cookie-consent-banner";
 import { PwaRegister } from "@/components/pwa/pwa-register";
+import { DemoBar } from "@/components/demo/demo-bar";
 import { MANIFEST_PATH, iconUrl, iconVersion } from "@/lib/pwa/manifest";
 
 // Design-system fonts (docs/design/DESIGN_SYSTEM.md). Each exposes a CSS
@@ -107,6 +108,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <TenantGate tenant={tenant}>{children}</TenantGate>
             <CookieConsentBanner policyHref={`/legal/${tenant.slug}/cookies`} />
             <PwaRegister />
+            <DemoBar />
           </I18nProvider>
         </TenantProvider>
       </body>

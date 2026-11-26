@@ -29,6 +29,8 @@ let cached: Stripe | null = null;
 export function getBillingStripe(): Stripe | null {
   const key = process.env.STRIPE_BILLING_SECRET_KEY;
   if (!key || key.trim() === "") return null;
+  // Prospect demo sandboxes: no live platform charges on a demo deployment.
+  if (process.env.DEMO_SANDBOX_ENABLED === "true" && /^(sk|rk)_live_/.test(key.trim())) return null;
   if (!cached) cached = new Stripe(key, { appInfo: { name: `${PLATFORM_NAME} billing` } });
   return cached;
 }

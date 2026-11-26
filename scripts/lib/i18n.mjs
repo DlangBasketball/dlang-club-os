@@ -167,6 +167,9 @@ export function placeholderDiff(source, target) {
 export const SAME_AS_EN_OK = new Set([
   "camps.approval.admin.forChild",
   "meta.direction",
+  // Prospect demo: role and plan names spelled like English ("Coach", "Starter", "Club", "Demo", "Parent", "Module").
+  "demo.roles.coach.title", "demo.plans.names.starter", "demo.bar.label",
+  "fr:demo.roles.parent.title", "fr:demo.plans.module", "fr:demo.plans.names.club", "it:demo.plans.names.club",
   // Participant profiles: words spelled like English in German / French / Italian.
   "de:participants.positions.center", "de:participants.fields.position", "de:participants.review.impact.team",
   "fr:participants.someoneElse.participant", "fr:participants.someoneElse.guardianEmail", "fr:participants.review.impact.registration",

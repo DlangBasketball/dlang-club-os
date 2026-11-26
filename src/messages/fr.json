@@ -14710,5 +14710,104 @@
     },
     "addChildTerm": "Ajouter {term}",
     "linkedBadge": "Lié · {relation}"
+  },
+  "demo": {
+    "meta": {
+      "title": "Essayer la démo"
+    },
+    "hero": {
+      "eyebrow": "Démo produit · club fictif",
+      "title": "Découvrez {product} du point de vue de votre équipe.",
+      "lead": "Un club fictif, cinq rôles. Inscrivez Alex en tant que parent, validez Alex en tant qu'administrateur du club, puis ouvrez l'effectif de Coach Taylor : le même athlète y apparaît. Rien de ce que vous faites ici ne touche une vraie personne ni ne déplace de l'argent réel."
+    },
+    "path": {
+      "title": "Le parcours en deux minutes",
+      "one": "Parent : envoyez l'inscription d'Alex aux U14 Falcons.",
+      "two": "Administrateur du club : validez Alex.",
+      "three": "Coach : trouvez Alex dans l'effectif des U14 Falcons et marquez Alex présent."
+    },
+    "session": {
+      "active": "Votre club de démo est prêt. Changez de rôle à tout moment : les modifications suivent.",
+      "expires": "Disponible jusqu'au {time}.",
+      "none": "Choisissez un rôle pour commencer. Votre propre club de démo est créé au premier clic."
+    },
+    "startHere": "Commencer ici",
+    "roles": {
+      "parent": {
+        "title": "Parent",
+        "start": "Passez d'Alex à Sam, puis ouvrez Programmes du club et demandez une place aux U14 Falcons pour Alex.",
+        "tasks": "Consultez le planning et l'état d'inscription de chaque enfant. Réservez ensuite le Skills Camp ou un forfait d'entraînement.",
+        "button": "Commencer en tant que Jamie"
+      },
+      "admin": {
+        "title": "Administrateur du club",
+        "start": "Ouvrez Validations, validez Alex pour les U14 Falcons, puis ouvrez l'effectif de l'équipe.",
+        "tasks": "Alex apparaît dans l'effectif des U14 Falcons avec les informations saisies par Jamie.",
+        "button": "Commencer en tant qu'administrateur"
+      },
+      "coach": {
+        "title": "Coach",
+        "start": "Ouvrez les U14 Falcons, trouvez Alex dans l'effectif et marquez Alex présent à l'entraînement du jour.",
+        "tasks": "Coach Taylor ne voit que les équipes qui lui sont attribuées.",
+        "button": "Commencer en tant que Coach Taylor"
+      },
+      "player": {
+        "title": "Athlète",
+        "start": "Ouvrez le planning et les présences d'Alex.",
+        "tasks": "Une fois la feuille de présence envoyée par le coach, Alex voit l'entraînement marqué présent.",
+        "button": "Commencer en tant qu'Alex"
+      },
+      "finance": {
+        "title": "Finances",
+        "start": "Ouvrez Factures, trouvez la facture de la réservation de Jamie et suivez l'état de son paiement fictif.",
+        "tasks": "La réservation de camp externe de Casey Brooks est un second exemple, déjà payé.",
+        "button": "Commencer en tant que Finances"
+      }
+    },
+    "reset": {
+      "button": "Réinitialiser la démo",
+      "hint": "Remet votre club de démo dans son scénario de départ. Les autres prospects ne sont pas concernés.",
+      "done": "Votre club de démo est revenu à son scénario de départ."
+    },
+    "errors": {
+      "busy": "Trop de clubs de démo ont été lancés dans la dernière heure. Réessayez dans quelques minutes.",
+      "failed": "Le club de démo n'a pas pu être ouvert. Réessayez.",
+      "expired": "Votre session de démo est terminée. Choisissez un rôle pour en commencer une nouvelle.",
+      "role": "Rôle inconnu. Choisissez l'un des cinq rôles."
+    },
+    "safety": {
+      "title": "À explorer sans risque",
+      "people": "Personnes et coordonnées fictives uniquement.",
+      "messages": "Aucun e-mail, SMS ni notification push n'est envoyé.",
+      "payments": "Les paiements sont des enregistrements de test. Aucune carte n'est débitée.",
+      "isolation": "Votre club de démo est séparé des autres prospects et des vrais clubs."
+    },
+    "plans": {
+      "title": "Comparer les offres",
+      "lead": "Modules inclus dans chaque offre. Les tarifs sont confirmés lors de votre présentation.",
+      "module": "Module",
+      "athletes": "Athlètes",
+      "staff": "Accès équipe",
+      "negotiated": "Sur devis",
+      "included": "Inclus",
+      "notIncluded": "Non inclus",
+      "names": {
+        "starter": "Starter",
+        "club": "Club",
+        "academy": "Académie",
+        "federation": "Multi-sites & Fédération"
+      },
+      "unavailable": "La comparaison des offres n'est pas disponible pour le moment."
+    },
+    "cta": {
+      "title": "Vous dirigez un club ou une académie ?",
+      "lead": "Essayez {product} du point de vue de votre équipe, puis réservez une présentation pour votre organisation.",
+      "button": "Réserver une présentation",
+      "missing": "Lien de réservation non configuré. Définissez DEMO_WALKTHROUGH_URL avant la diffusion externe."
+    },
+    "bar": {
+      "label": "Démo",
+      "switch": "Changer de rôle"
+    }
   }
 }

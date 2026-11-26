@@ -11,6 +11,8 @@ const SITE_PATH_HEADER = "x-site-path";
 /** Paths reachable without a session. */
 const PUBLIC_PREFIXES = [
   "/login",
+  // Prospect demo page and its role / reset routes (404 unless DEMO_SANDBOX_ENABLED).
+  "/demo",
   "/auth",
   "/register",
   // Public training booking page per club (guest checkout for non-members).

@@ -14710,5 +14710,104 @@
     },
     "addChildTerm": "Add {term}",
     "linkedBadge": "Linked · {relation}"
+  },
+  "demo": {
+    "meta": {
+      "title": "Try the demo"
+    },
+    "hero": {
+      "eyebrow": "Product demo · fictional club",
+      "title": "See {product} from your team's perspective.",
+      "lead": "One fictional club, five roles. Register Alex as the parent, approve Alex as the club admin, then open Coach Taylor's roster and see the same athlete appear. Nothing you do here reaches a real person or moves real money."
+    },
+    "path": {
+      "title": "The two-minute path",
+      "one": "Parent: submit Alex's U14 Falcons registration.",
+      "two": "Club Admin: approve Alex.",
+      "three": "Coach: find Alex on the U14 Falcons roster and mark Alex present."
+    },
+    "session": {
+      "active": "Your demo club is ready. Switch roles at any time: changes carry through.",
+      "expires": "Available until {time}.",
+      "none": "Choose a role to start. Your own demo club is created on the first click."
+    },
+    "startHere": "Start here",
+    "roles": {
+      "parent": {
+        "title": "Parent",
+        "start": "Switch between Alex and Sam, then open Club programmes and request a place in U14 Falcons for Alex.",
+        "tasks": "Check each child's schedule and registration status. Then book the Skills Camp or a training package.",
+        "button": "Start as Jamie"
+      },
+      "admin": {
+        "title": "Club Admin",
+        "start": "Open Approvals, approve Alex for U14 Falcons, then open the team roster.",
+        "tasks": "Alex appears on the U14 Falcons roster with the details Jamie entered.",
+        "button": "Start as Club Admin"
+      },
+      "coach": {
+        "title": "Coach",
+        "start": "Open U14 Falcons, find Alex on the roster and mark Alex present at today's practice.",
+        "tasks": "Coach Taylor sees only the teams assigned to Coach Taylor.",
+        "button": "Start as Coach Taylor"
+      },
+      "player": {
+        "title": "Athlete",
+        "start": "Open Alex's schedule and attendance.",
+        "tasks": "After the coach submits the register, Alex sees the practice marked present.",
+        "button": "Start as Alex"
+      },
+      "finance": {
+        "title": "Finance",
+        "start": "Open Invoices, find Jamie's booking invoice and follow its sandbox payment status.",
+        "tasks": "Casey Brooks's external camp booking is a second example, already paid.",
+        "button": "Start as Finance"
+      }
+    },
+    "reset": {
+      "button": "Reset demo",
+      "hint": "Restores your demo club to its starting scenario. Other prospects are not affected.",
+      "done": "Your demo club is back to its starting scenario."
+    },
+    "errors": {
+      "busy": "Too many demo clubs were started in the last hour. Please try again in a few minutes.",
+      "failed": "The demo club could not be opened. Please try again.",
+      "expired": "Your demo session has ended. Choose a role to start a new one.",
+      "role": "Unknown role. Please choose one of the five roles."
+    },
+    "safety": {
+      "title": "Safe to explore",
+      "people": "Fictional people and contact details only.",
+      "messages": "No e-mail, SMS or push notification is sent.",
+      "payments": "Payments are sandbox records. No card is charged.",
+      "isolation": "Your demo club is separate from other prospects and from real clubs."
+    },
+    "plans": {
+      "title": "Compare plans",
+      "lead": "Modules included in each plan. Pricing is confirmed on your walkthrough.",
+      "module": "Module",
+      "athletes": "Athletes",
+      "staff": "Staff logins",
+      "negotiated": "Negotiated",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "names": {
+        "starter": "Starter",
+        "club": "Club",
+        "academy": "Academy",
+        "federation": "Multi-site & Federation"
+      },
+      "unavailable": "The plan comparison is not available right now."
+    },
+    "cta": {
+      "title": "Run a club or academy?",
+      "lead": "Try {product} from your team's perspective, then book a walkthrough for your organisation.",
+      "button": "Book a walkthrough",
+      "missing": "Booking link not configured. Set DEMO_WALKTHROUGH_URL before external release."
+    },
+    "bar": {
+      "label": "Demo",
+      "switch": "Switch role"
+    }
   }
 }

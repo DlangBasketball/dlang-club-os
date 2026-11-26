@@ -1,4 +1,5 @@
 import { PLATFORM_NAME } from "@/lib/brand";
+import { isDemoEmail } from "@/lib/demo/config";
 /**
  * Minimal Resend client over fetch — no SDK dependency.
  * If RESEND_API_KEY is unset (e.g. local dev) it logs and no-ops so the
@@ -36,6 +37,8 @@ export function fromHeader(fromName?: string | null): string {
 }
 
 export async function sendEmail({ to: requestedTo, subject, html, replyTo, fromName, tags }: SendArgs): Promise<SendResult> {
+  // Prospect demo sandboxes: demo addresses never reach the provider.
+  if (isDemoEmail(requestedTo)) return { ok: false, error: "email-suppressed-demo" };
   const apiKey = process.env.RESEND_API_KEY;
   const from = fromHeader(fromName);
   const to = testRedirect() ?? requestedTo;
